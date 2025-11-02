@@ -15,6 +15,9 @@ from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, Secu
 from .task_executor import ExecutionTask
 from .issue_models import IssueReport
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
+from .immutable_log import ImmutableLogEntry
+from .mldl import MLEvent
+from .avn_avm import VerificationEvent
 
 class User(Base):
     __tablename__ = "users"
