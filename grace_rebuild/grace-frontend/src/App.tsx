@@ -1,8 +1,9 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { MemoryBrowser } from './components/MemoryBrowser';
+import { TranscendenceIDE } from './components/TranscendenceIDE';
 
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -73,6 +74,10 @@ export default function App() {
         </form>
       </div>
     );
+  }
+
+  if (page === 'ide') {
+    return <TranscendenceIDE />;
   }
 
   if (page === 'memory') {
@@ -189,6 +194,7 @@ export default function App() {
       <div style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
         <h1 style={{ color: s.ac2, margin: 0 }}>Grace</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={() => setPage('ide')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💻 IDE</button>
           <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dashboard</button>
           <button onClick={() => setPage('memory')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📁 Memory</button>
           <button onClick={() => { setToken(''); localStorage.clear(); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
