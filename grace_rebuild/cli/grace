@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""
+Grace CLI entry point script
+"""
+
+import sys
+import asyncio
+from pathlib import Path
+
+# Add CLI directory to path
+cli_dir = Path(__file__).parent
+sys.path.insert(0, str(cli_dir))
+
+from enhanced_grace_cli import main
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nInterrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\nFatal error: {e}")
+        sys.exit(1)
