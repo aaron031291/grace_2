@@ -22,6 +22,8 @@ from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact
 from .trusted_sources import TrustedSource
 from .verification import VerificationEnvelope
+from .ml_models_table import MLModel, TrainingRun
+from .ml_models_table import MLModel, TrainingRun
 
 class User(Base):
     __tablename__ = "users"
