@@ -1,0 +1,119 @@
+.connection-test {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  color: #e0e0e0;
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.test-header h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.test-header p {
+  color: #a0a0a0;
+  font-size: 16px;
+}
+
+.test-card {
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.test-card.success {
+  border-color: rgba(0, 255, 136, 0.5);
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.test-card.error {
+  border-color: rgba(255, 68, 68, 0.5);
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.test-card.pending {
+  border-color: rgba(255, 200, 0, 0.5);
+  background: rgba(255, 200, 0, 0.05);
+}
+
+.test-card h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.health-details {
+  margin-top: 20px;
+}
+
+.health-details h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #00d4ff;
+}
+
+.health-details pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 14px;
+  color: #00ff88;
+}
+
+.error-help {
+  margin-top: 20px;
+}
+
+.error-help h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #ff8866;
+}
+
+.error-help ul {
+  list-style: none;
+  padding: 0;
+}
+
+.error-help li {
+  padding: 8px 0;
+  color: #a0a0a0;
+}
+
+.error-help code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #00d4ff;
+  font-family: monospace;
+}
+
+.test-footer {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.test-footer a {
+  color: #7b2cbf;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.test-footer a:hover {
+  color: #00d4ff;
+}
