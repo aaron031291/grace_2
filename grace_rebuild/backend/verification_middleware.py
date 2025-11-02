@@ -8,6 +8,7 @@ from fastapi import Request, HTTPException
 from .verification import verification_engine
 from .governance import governance_engine
 from .hunter_integration import hunter_integration
+from .constitutional_verifier import constitutional_verifier
 
 class VerificationMiddleware:
     """Middleware to wrap critical routes with verification envelopes"""
@@ -105,6 +106,24 @@ def verify_action(action_type: str, resource_extractor: Callable = None):
                 resource = request_data["command"]
             elif "model_name" in request_data:
                 resource = request_data["model_name"]
+            
+            # Constitutional compliance check
+            constitutional_result = await constitutional_verifier.verify_action(
+                actor=current_user,
+                action_type=action_type,
+                resource=resource,
+                payload=request_data,
+                confidence=request_data.get('confidence', 1.0),
+                context=request_data.get('context', {})
+            )
+            
+            if not constitutional_result['allowed']:
+                violations = constitutional_result.get('violations', [])
+                violation_msg = ', '.join([v.get('reason', 'Unknown') for v in violations[:3]])
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Blocked by constitutional verification: {violation_msg}"
+                )
             
             gov_decision = await governance_engine.check(
                 actor=current_user,
