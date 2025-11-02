@@ -10,8 +10,13 @@ from datetime import datetime
 
 from .GraceLoopOutput import GraceLoopOutput
 from .models import GovernanceVerdict, GovernanceDecision, RemediationAction
-from ..constitutional_engine import constitutional_engine
-from ..immutable_log import ImmutableLog
+
+# Import constitutional_engine from parent
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from constitutional_engine import constitutional_engine
+from immutable_log import ImmutableLog
 
 class GovernancePrimeDirective:
     """
