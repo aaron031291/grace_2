@@ -14,19 +14,13 @@ from .constitutional_models import (
     ConstitutionalPrinciple, ConstitutionalViolation,
     ClarificationRequest, ConstitutionalCompliance, OperationalTenet
 )
-from .governance import GovernanceEngine
-from .hunter import HunterEngine
-from .verification import VerificationEngine
-from .immutable_log import ImmutableLogger
+from .immutable_log import ImmutableLog
 
 class ConstitutionalEngine:
     """Enforce constitutional principles across all Grace operations"""
     
     def __init__(self):
-        self.governance = GovernanceEngine()
-        self.hunter = HunterEngine()
-        self.verification = VerificationEngine()
-        self.audit = ImmutableLogger()
+        self.audit = ImmutableLog()
         
         # Confidence thresholds
         self.clarification_threshold = 0.7  # Below this, ask for clarification
@@ -347,16 +341,17 @@ class ConstitutionalEngine:
             db_id = clarification.id
         
         # Log to audit
-        await self.audit.log_event(
+        await self.audit.append(
             actor="constitutional_engine",
             action="clarification_requested",
             resource=f"user_{user}",
-            result="pending",
-            details={
+            subsystem="constitutional_ai",
+            payload={
                 'request_id': request_id,
                 'uncertainty_type': uncertainty_type,
                 'confidence': confidence
-            }
+            },
+            result="pending"
         )
         
         return {
@@ -408,12 +403,13 @@ class ConstitutionalEngine:
             await session.commit()
         
         # Log response
-        await self.audit.log_event(
+        await self.audit.append(
             actor=clarification.user,
             action="clarification_answered",
             resource=request_id,
-            result="answered",
-            details={'response': user_response}
+            subsystem="constitutional_ai",
+            payload={'response': user_response},
+            result="answered"
         )
         
         return {
@@ -485,17 +481,18 @@ class ConstitutionalEngine:
             violation_id = violation.id
         
         # Log to audit
-        await self.audit.log_event(
+        await self.audit.append(
             actor=detected_by,
             action="constitutional_violation",
             resource=f"violation_{violation_id}",
-            result="logged",
-            details={
+            subsystem="constitutional_ai",
+            payload={
                 'principle': principle_name,
                 'actor': actor,
                 'severity': severity,
                 'blocked': blocked
-            }
+            },
+            result="logged"
         )
         
         # If critical, escalate to Parliament or create task

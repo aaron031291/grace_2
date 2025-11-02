@@ -14,13 +14,13 @@ from .constitutional_models import ConstitutionalPrinciple, ConstitutionalViolat
 from .constitutional_engine import constitutional_engine
 from .governance import governance_engine
 from .hunter import hunter
-from .immutable_log import ImmutableLogger
+from .immutable_log import ImmutableLog
 
 class ConstitutionalVerifier:
     """Verify constitutional compliance before action execution"""
     
     def __init__(self):
-        self.audit = ImmutableLogger()
+        self.audit = ImmutableLog()
         self.strict_mode = True  # Block non-compliant actions
         
     async def verify_action(
@@ -179,12 +179,12 @@ class ConstitutionalVerifier:
                 )
         
         # 6. Log to audit trail
-        await self.audit.log_event(
+        await self.audit.append(
             actor="constitutional_verifier",
             action="verify_action",
             resource=action_id,
-            result="allowed" if result['allowed'] else "blocked",
-            details={
+            subsystem="constitutional_ai",
+            payload={
                 'actor': actor,
                 'action_type': action_type,
                 'resource': resource,
@@ -192,7 +192,8 @@ class ConstitutionalVerifier:
                 'allowed': result['allowed'],
                 'violations_count': len(result['violations']),
                 'warnings_count': len(result['warnings'])
-            }
+            },
+            result="allowed" if result['allowed'] else "blocked"
         )
         
         return result
