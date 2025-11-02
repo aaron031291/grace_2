@@ -18,6 +18,7 @@ from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
 from .immutable_log import ImmutableLogEntry
 from .mldl import MLEvent
 from .avn_avm import VerificationEvent
+from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 
 class User(Base):
     __tablename__ = "users"
