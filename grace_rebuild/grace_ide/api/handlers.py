@@ -1,24 +1,11 @@
 """WebSocket message handlers for IDE"""
 
 async def dispatch_message(client, message: dict):
-    """Route messages to appropriate handlers"""
+    """Route messages to appropriate handlers - now using unified IDE handler"""
+    from backend.ide_websocket_handler import ide_ws_handler
     
-    msg_type = message.get("type")
-    
-    if msg_type == "file.read":
-        return await handle_file_read(client, message)
-    elif msg_type == "file.write":
-        return await handle_file_write(client, message)
-    elif msg_type == "file.list":
-        return await handle_file_list(client, message)
-    elif msg_type == "execute.run":
-        return await handle_execute(client, message)
-    elif msg_type == "security.scan":
-        return await handle_security_scan(client, message)
-    elif msg_type == "memory.search":
-        return await handle_memory_search(client, message)
-    else:
-        return {"type": "error", "message": f"Unknown message type: {msg_type}"}
+    result = await ide_ws_handler.handle_message(client.user, message)
+    return result
 
 async def handle_file_read(client, message):
     """Read file from sandbox"""
