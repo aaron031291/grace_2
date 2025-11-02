@@ -4,14 +4,18 @@ Demonstrates how to use cognition components in a real workflow.
 """
 
 import asyncio
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from datetime import datetime
 
-from GraceLoopOutput import GraceLoopOutput, OutputType, ConfidenceLevel
-from MemoryScoreModel import MemoryScoreModel
-from GraceCognitionLinter import GraceCognitionLinter
-from GovernancePrimeDirective import GovernancePrimeDirective
-from QuorumEngine import QuorumEngine
-from models import DecisionTask, SpecialistProposal, DecisionStrategy, RiskLevel
+from cognition.GraceLoopOutput import GraceLoopOutput, OutputType, ConfidenceLevel
+from cognition.MemoryScoreModel import MemoryScoreModel
+from cognition.GraceCognitionLinter import GraceCognitionLinter
+from cognition.GovernancePrimeDirective import GovernancePrimeDirective
+from cognition.QuorumEngine import QuorumEngine
+from cognition.models import DecisionTask, SpecialistProposal, DecisionStrategy, RiskLevel
 
 
 async def example_1_simple_output_validation():

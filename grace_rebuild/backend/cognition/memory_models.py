@@ -52,7 +52,7 @@ class MemoryArtifact(Base):
     domain = Column(String(64))
     category = Column(String(64))
     policy_tags = Column(Text)
-    metadata = Column(Text)
+    meta_data = Column(Text)
     
     # Lifecycle
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -87,7 +87,7 @@ class TrustEvent(Base):
     usage_delta = Column(Float, default=0.0)
     
     actor = Column(String(64))
-    metadata = Column(Text)
+    meta_data = Column(Text)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -121,6 +121,6 @@ class GarbageCollectionLog(Base):
     threshold_age_hours = Column(Float)
     
     duration_ms = Column(Integer)
-    metadata = Column(Text)
+    meta_data = Column(Text)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
