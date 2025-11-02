@@ -48,23 +48,31 @@ export function MetaLoopDashboard() {
     loadData();
     const interval = setInterval(loadData, 10000);
 
-    const socket = new WebSocket('ws://localhost:8000/ws/meta-updates');
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'new_recommendation') {
-        setPending(prev => [data.recommendation, ...prev]);
-      } else if (data.type === 'recommendation_applied') {
-        setPending(prev => prev.filter(r => r.id !== data.recommendation_id));
-        loadData();
-      }
-    };
-    setWs(socket);
+    try {
+      const socket = new WebSocket(`ws://localhost:8000/ws/meta-updates?token=${token}`);
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'new_recommendation') {
+          setPending(prev => [data.recommendation, ...prev]);
+        } else if (data.type === 'recommendation_applied') {
+          setPending(prev => prev.filter(r => r.id !== data.recommendation_id));
+          loadData();
+        }
+      };
+      socket.onerror = (error) => {
+        console.log('WebSocket error, will rely on polling');
+      };
+      setWs(socket);
 
-    return () => {
-      clearInterval(interval);
-      socket.close();
-    };
-  }, []);
+      return () => {
+        clearInterval(interval);
+        socket.close();
+      };
+    } catch (e) {
+      console.log('WebSocket not available, using polling only');
+      return () => clearInterval(interval);
+    }
+  }, [token]);
 
   async function loadData() {
     try {
