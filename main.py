@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import timedelta
+from pydantic import BaseModel
 
 from database import engine, get_db, Base
 from models import User, Message, Task
@@ -14,14 +15,34 @@ from auth import (
     verify_password, get_password_hash, create_access_token,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from grace_core import GraceAutonomous
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Grace API", version="1.0.0")
 
+class ChatRequest(BaseModel):
+    message: str
+    user_id: int = 1
+
+class ChatResponse(BaseModel):
+    response: str
+    user_message: str
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "message": "Grace API is running"}
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(request: ChatRequest, db: Session = Depends(get_db)):
+    grace = GraceAutonomous(db=db, user_id=request.user_id)
+    response = grace.process_message(request.message)
+    return ChatResponse(response=response, user_message=request.message)
+
+@app.get("/chat/metrics")
+def get_chat_metrics(user_id: int = 1, db: Session = Depends(get_db)):
+    grace = GraceAutonomous(db=db, user_id=user_id)
+    return grace.get_metrics()
 
 @app.post("/auth/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user: UserCreate, db: Session = Depends(get_db)):

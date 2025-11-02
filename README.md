@@ -24,6 +24,10 @@ uvicorn main:app --reload
 ### Health Check
 - `GET /health` - Check if the API is running
 
+### Chat (Grace Autonomous)
+- `POST /chat` - Chat with Grace (autonomous agent)
+- `GET /chat/metrics` - Get Grace's metrics (message count, task stats)
+
 ### Authentication
 - `POST /auth/register` - Register a new user
 - `POST /auth/login` - Login and get access token
@@ -70,4 +74,16 @@ curl -X POST http://localhost:8000/tasks \
 ### Get Tasks
 ```bash
 curl http://localhost:8000/tasks
+```
+
+### Chat with Grace
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d "{\"message\":\"Hello Grace!\"}"
+```
+
+### Get Chat Metrics
+```bash
+curl http://localhost:8000/chat/metrics
 ```
