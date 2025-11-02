@@ -22,13 +22,13 @@ async def show_status():
     print("="*60)
     
     # Show system mode
-    print(f"\n🔧 System Mode: {system_state.mode.upper()}")
+    print(f"\n System Mode: {system_state.mode.upper()}")
     if system_state.reason:
         print(f"   Reason: {system_state.reason}")
     print(f"   Last Changed: {system_state.last_changed.strftime('%Y-%m-%d %H:%M:%S UTC')}")
     
     # Show recent health checks
-    print("\n📊 Component Health (Last 5 minutes):")
+    print("\n Component Health (Last 5 minutes):")
     print("-" * 60)
     
     async with async_session() as session:
@@ -52,7 +52,7 @@ async def show_status():
                     components[check.component] = check
             
             for component, check in components.items():
-                status_icon = "✓" if check.status == "ok" else "✗"
+                status_icon = "" if check.status == "ok" else ""
                 status_color = check.status.upper()
                 latency = f"{check.latency_ms}ms" if check.latency_ms else "N/A"
                 
@@ -61,7 +61,7 @@ async def show_status():
                     print(f"      Error: {check.error}")
     
     # Show recent healing actions
-    print("\n⚕️  Recent Healing Actions (Last 24 hours):")
+    print("\n  Recent Healing Actions (Last 24 hours):")
     print("-" * 60)
     
     async with async_session() as session:
@@ -79,7 +79,7 @@ async def show_status():
             print("   No healing actions in last 24 hours")
         else:
             for action in actions:
-                result_icon = "✓" if action.result == "success" else "✗"
+                result_icon = "" if action.result == "success" else ""
                 timestamp = action.created_at.strftime('%Y-%m-%d %H:%M:%S')
                 
                 print(f"   {result_icon} [{timestamp}] {action.component}")
@@ -89,7 +89,7 @@ async def show_status():
                 print()
     
     # Show consecutive failures
-    print("⚠️  Consecutive Failures:")
+    print("  Consecutive Failures:")
     print("-" * 60)
     
     if not health_monitor.consecutive_failures:
@@ -104,12 +104,12 @@ async def show_status():
 
 async def simulate_failure(component: str):
     """Simulate a component failure"""
-    print(f"\n🧪 Simulating failure for: {component}")
+    print(f"\n Simulating failure for: {component}")
     
     valid_components = ["reflection_service", "database", "task_executor", "trigger_mesh"]
     
     if component not in valid_components:
-        print(f"❌ Invalid component. Valid options: {', '.join(valid_components)}")
+        print(f" Invalid component. Valid options: {', '.join(valid_components)}")
         return
     
     # Log simulated failure
@@ -123,16 +123,16 @@ async def simulate_failure(component: str):
         session.add(check)
         await session.commit()
     
-    print(f"✓ Logged simulated failure for {component}")
+    print(f" Logged simulated failure for {component}")
     
     # Increment consecutive failures
     health_monitor.consecutive_failures[component] = health_monitor.consecutive_failures.get(component, 0) + 1
     
-    print(f"✓ Consecutive failures: {health_monitor.consecutive_failures[component]}")
+    print(f" Consecutive failures: {health_monitor.consecutive_failures[component]}")
     
     # Check if healing threshold reached
     if health_monitor.consecutive_failures[component] >= 2:
-        print(f"\n⚕️  Healing threshold reached! Triggering self-healing...")
+        print(f"\n  Healing threshold reached! Triggering self-healing...")
         
         result = await health_monitor._attempt_healing(component, "Simulated failure")
         
@@ -146,15 +146,15 @@ async def simulate_failure(component: str):
             session.add(action)
             await session.commit()
         
-        print(f"✓ Healing action: {result['action']}")
-        print(f"✓ Result: {result['result']}")
-        print(f"✓ Detail: {result['detail']}")
+        print(f" Healing action: {result['action']}")
+        print(f" Result: {result['result']}")
+        print(f" Detail: {result['detail']}")
         
         if result["result"] == "success":
             health_monitor.consecutive_failures[component] = 0
-            print(f"✓ Consecutive failures reset")
+            print(f" Consecutive failures reset")
     else:
-        print(f"\nℹ️  Not yet at healing threshold (need 2 consecutive failures)")
+        print(f"\n  Not yet at healing threshold (need 2 consecutive failures)")
         print(f"   Run this command again to trigger healing")
     
     print()
@@ -162,12 +162,12 @@ async def simulate_failure(component: str):
 
 async def manual_restart(component: str):
     """Manually restart a component"""
-    print(f"\n🔧 Manually restarting: {component}")
+    print(f"\n Manually restarting: {component}")
     
     valid_components = ["reflection_service", "database", "task_executor", "trigger_mesh"]
     
     if component not in valid_components:
-        print(f"❌ Invalid component. Valid options: {', '.join(valid_components)}")
+        print(f" Invalid component. Valid options: {', '.join(valid_components)}")
         return
     
     # Use health monitor's manual restart (includes governance)
@@ -177,24 +177,24 @@ async def manual_restart(component: str):
     print(f"   Status: {result.get('status', 'unknown')}")
     
     if result.get("status") == "blocked":
-        print(f"   ⛔ Blocked by governance policy: {result.get('policy', 'unknown')}")
+        print(f"    Blocked by governance policy: {result.get('policy', 'unknown')}")
     elif result.get("status") == "pending_approval":
-        print(f"   ⏳ Requires approval before restart")
+        print(f"    Requires approval before restart")
     elif result.get("status") == "success":
-        print(f"   ✓ {result.get('detail', 'Component restarted successfully')}")
+        print(f"    {result.get('detail', 'Component restarted successfully')}")
     elif result.get("status") == "failed":
-        print(f"   ✗ Restart failed: {result.get('detail', 'unknown error')}")
+        print(f"    Restart failed: {result.get('detail', 'unknown error')}")
     
     print()
 
 
 async def run_health_check():
     """Run immediate health check on all components"""
-    print("\n🏥 Running health check on all components...")
+    print("\n Running health check on all components...")
     
     await health_monitor.check_all_components()
     
-    print("✓ Health check complete\n")
+    print(" Health check complete\n")
     
     # Show results
     await show_status()
@@ -243,7 +243,7 @@ async def main():
         
         elif command == "simulate-failure":
             if len(sys.argv) < 3:
-                print("❌ Error: Missing component argument")
+                print(" Error: Missing component argument")
                 print("Usage: python -m backend.self_healing_cli simulate-failure <component>")
                 return
             component = sys.argv[2]
@@ -251,7 +251,7 @@ async def main():
         
         elif command == "manual-restart":
             if len(sys.argv) < 3:
-                print("❌ Error: Missing component argument")
+                print(" Error: Missing component argument")
                 print("Usage: python -m backend.self_healing_cli manual-restart <component>")
                 return
             component = sys.argv[2]
@@ -264,13 +264,13 @@ async def main():
             print_usage()
         
         else:
-            print(f"❌ Unknown command: {command}")
+            print(f" Unknown command: {command}")
             print_usage()
     
     except KeyboardInterrupt:
-        print("\n\n⚠️  Interrupted by user")
+        print("\n\n  Interrupted by user")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n Error: {e}")
         import traceback
         traceback.print_exc()
 
