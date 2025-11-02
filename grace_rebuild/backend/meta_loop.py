@@ -68,7 +68,7 @@ class MetaLoopEngine:
             pass
     
     async def analyze_and_optimize(self):
-        """Level 1: Analyze operational effectiveness"""
+        """Level 1: Analyze operational effectiveness and generate actionable recommendations"""
         
         analyses = []
         
@@ -90,10 +90,59 @@ class MetaLoopEngine:
                     confidence=analysis["confidence"]
                 )
                 session.add(meta)
+                await session.flush()
+                
+                await self._submit_actionable_recommendation(meta, analysis)
             
             if analyses:
                 await session.commit()
-                print(f"🔄 Meta-loop: Generated {len(analyses)} optimizations")
+                print(f"🔄 Meta-loop: Generated {len(analyses)} actionable recommendations")
+    
+    async def _submit_actionable_recommendation(self, meta: MetaAnalysis, analysis: Dict):
+        """Convert analysis to actionable recommendation and queue for approval"""
+        
+        from .meta_loop_approval import approval_queue
+        from .meta_loop_engine import recommendation_applicator
+        
+        if analysis["type"] == "task_effectiveness":
+            validation = await recommendation_applicator.validate_recommendation({
+                "type": "threshold_change",
+                "threshold_name": "task_threshold",
+                "new_value": 5
+            })
+            
+            if validation.get("valid"):
+                await approval_queue.submit_for_approval(
+                    meta_analysis_id=meta.id,
+                    recommendation_type="threshold_change",
+                    target="task_threshold",
+                    current_value=3,
+                    proposed_value=5,
+                    recommendation_text=analysis["recommendation"],
+                    confidence=analysis["confidence"],
+                    risk_level=validation.get("risk_level", "medium"),
+                    payload={"component": "learning"}
+                )
+        
+        elif analysis["type"] == "reflection_utility":
+            validation = await recommendation_applicator.validate_recommendation({
+                "type": "threshold_change",
+                "threshold_name": "task_threshold",
+                "new_value": 2
+            })
+            
+            if validation.get("valid"):
+                await approval_queue.submit_for_approval(
+                    meta_analysis_id=meta.id,
+                    recommendation_type="threshold_change",
+                    target="task_threshold",
+                    current_value=3,
+                    proposed_value=2,
+                    recommendation_text=analysis["recommendation"],
+                    confidence=analysis["confidence"],
+                    risk_level=validation.get("risk_level", "medium"),
+                    payload={"component": "learning"}
+                )
     
     async def _analyze_task_completion_rate(self):
         """Analyze if auto-generated tasks are being completed"""
