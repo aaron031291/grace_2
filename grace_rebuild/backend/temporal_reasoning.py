@@ -23,7 +23,7 @@ class TemporalReasoner:
             await self._build_markov_chains()
             await self._compute_duration_stats()
             self._initialized = True
-            print("✓ Temporal reasoner initialized")
+            print("[+] Temporal reasoner initialized")
     
     async def analyze_sequences(self, lookback_hours: int = 24) -> List[Dict[str, Any]]:
         """Find common event patterns in recent history"""

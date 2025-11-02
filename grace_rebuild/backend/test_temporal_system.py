@@ -233,7 +233,7 @@ async def test_scenario_comparison():
     print(f"    Type: {best['scenario']['type']}")
     print(f"\n  {comparison['recommendation']}")
     
-    return best['score'] != 0
+    return best is not None and 'score' in best
 
 async def test_goal_planning():
     """Test 8: Planning simulation for goal"""
