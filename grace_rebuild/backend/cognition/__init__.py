@@ -5,12 +5,14 @@ Advanced decision-making and quality assurance for Grace AI.
 Components:
 - QuorumEngine: Trust-weighted specialist consensus
 - GraceCognitionLinter: Contradiction and drift detection
+- GovernancePrimeDirective: Constitutional validation
+- FeedbackIntegrator: Learning from outcomes
+- LoopMemoryBank: Memory storage with trust scoring
+- MemoryScoreModel: Trust/decay scoring logic
 - GraceLoopOutput: Standardized output format
 - Models: Data models for cognition system
 """
 
-from .QuorumEngine import QuorumEngine
-from .GraceCognitionLinter import GraceCognitionLinter
 from .GraceLoopOutput import (
     GraceLoopOutput, 
     OutputType, 
@@ -19,6 +21,12 @@ from .GraceLoopOutput import (
     PolicyTag,
     Diagnostic
 )
+from .MemoryScoreModel import MemoryScoreModel
+from .LoopMemoryBank import LoopMemoryBank
+from .GovernancePrimeDirective import GovernancePrimeDirective
+from .FeedbackIntegrator import FeedbackIntegrator
+from .QuorumEngine import QuorumEngine
+from .GraceCognitionLinter import GraceCognitionLinter
 from .models import (
     DecisionTask,
     ConsensusDecision,
@@ -28,11 +36,22 @@ from .models import (
     Patch,
     DecisionStrategy,
     RiskLevel,
-    ViolationSeverity
+    ViolationSeverity,
+    GovernanceVerdict,
+    GovernanceDecision,
+    RemediationAction,
+    MemoryArtifact,
+    TrustEvent,
+    MemoryIndex,
+    GarbageCollectionLog
 )
 
 __all__ = [
-    # Engines
+    # Core components
+    'MemoryScoreModel',
+    'LoopMemoryBank',
+    'GovernancePrimeDirective',
+    'FeedbackIntegrator',
     'QuorumEngine',
     'GraceCognitionLinter',
     
@@ -55,7 +74,18 @@ __all__ = [
     'LintReport',
     'Violation',
     'Patch',
-    'ViolationSeverity'
+    'ViolationSeverity',
+    
+    # Governance models
+    'GovernanceVerdict',
+    'GovernanceDecision',
+    'RemediationAction',
+    
+    # Memory models
+    'MemoryArtifact',
+    'TrustEvent',
+    'MemoryIndex',
+    'GarbageCollectionLog'
 ]
 
 __version__ = '1.0.0'

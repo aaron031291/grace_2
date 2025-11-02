@@ -149,3 +149,31 @@ class LintReport:
             'summary': self.summary,
             'created_at': self.created_at.isoformat()
         }
+
+@dataclass
+class GovernanceVerdict:
+    """Result of constitutional validation"""
+    decision: str  # ALLOW, DENY, ESCALATE
+    tags: List[str] = field(default_factory=list)
+    remediation_actions: List[str] = field(default_factory=list)
+    reason: str = ""
+    compliance_score: float = 1.0
+
+@dataclass
+class GovernanceDecision:
+    """Detailed governance decision with metadata"""
+    verdict: GovernanceVerdict
+    output_id: str
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class RemediationAction:
+    """A remediation action to fix governance issues"""
+    action_type: str
+    description: str
+    priority: str = "medium"
+    auto_executable: bool = False
+
+# Re-export memory models for convenience
+from .memory_models import MemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
