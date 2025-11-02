@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.sql import func
+from datetime import datetime
 from ..auth import get_current_user
 from ..issue_models import IssueReport
 from ..models import async_session

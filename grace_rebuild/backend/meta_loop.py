@@ -2,8 +2,7 @@ import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
 from sqlalchemy.sql import func
-from .models import Base, async_session, Task, Goal
-from .reflection import Reflection
+from .models import Base, async_session
 
 class MetaLoopConfig(Base):
     """Configurations for meta-loop behavior"""
@@ -98,6 +97,8 @@ class MetaLoopEngine:
     
     async def _analyze_task_completion_rate(self):
         """Analyze if auto-generated tasks are being completed"""
+        from .models import Task
+        
         lookback = datetime.utcnow() - timedelta(days=1)
         
         async with async_session() as session:
@@ -128,6 +129,9 @@ class MetaLoopEngine:
     
     async def _analyze_reflection_utility(self):
         """Check if reflections are leading to useful actions"""
+        from .models import Task
+        from .reflection import Reflection
+        
         lookback = datetime.utcnow() - timedelta(hours=24)
         
         async with async_session() as session:

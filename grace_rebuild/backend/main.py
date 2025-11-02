@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api
 from .reflection import reflection_service
 
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -19,6 +19,7 @@ from .self_healing import health_monitor
 from .trigger_mesh import trigger_mesh, setup_subscriptions
 from .meta_loop import meta_loop_engine
 from .websocket_manager import setup_ws_subscriptions
+from .trusted_sources import trust_manager
 
 @app.on_event("startup")
 async def on_startup():
@@ -32,6 +33,7 @@ async def on_startup():
     await trigger_mesh.start()
     await setup_subscriptions()
     await setup_ws_subscriptions()
+    await trust_manager.initialize_defaults()
     await reflection_service.start()
     await task_executor.start_workers()
     await health_monitor.start()
@@ -71,6 +73,8 @@ app.include_router(immutable_api.router)
 app.include_router(meta_api.router)
 app.include_router(websocket_routes.router)
 app.include_router(plugin_routes.router)
+app.include_router(ingest.router)
+app.include_router(trust_api.router)
 
 # Grace IDE WebSocket
 from grace_ide.api.websocket import router as ide_ws_router

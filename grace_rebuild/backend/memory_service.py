@@ -70,6 +70,18 @@ class MemoryService:
             await session.commit()
             
             print(f"✓ Memory created: {path} by {actor}")
+            
+            from .trigger_mesh import trigger_mesh, TriggerEvent
+            from datetime import datetime as dt
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="memory.item.created",
+                source="memory_service",
+                actor=actor,
+                resource=path,
+                payload={"domain": domain, "category": category, "artifact_id": artifact.id},
+                timestamp=dt.utcnow()
+            ))
+            
             return artifact.id
     
     async def update_artifact(
@@ -130,6 +142,18 @@ class MemoryService:
             await session.commit()
             
             print(f"✓ Memory updated: {artifact.path} (v{artifact.version}) by {actor}")
+            
+            from .trigger_mesh import trigger_mesh, TriggerEvent
+            from datetime import datetime as dt
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="memory.item.updated",
+                source="memory_service",
+                actor=actor,
+                resource=artifact.path,
+                payload={"artifact_id": artifact_id, "version": artifact.version},
+                timestamp=dt.utcnow()
+            ))
+            
             return True
     
     async def get_artifact(self, path: str) -> Optional[dict]:

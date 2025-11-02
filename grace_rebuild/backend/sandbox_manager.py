@@ -127,6 +127,17 @@ class SandboxManager:
             
             print(f"✓ Sandbox run: {command[:50]}... (exit={exit_code}, {duration_ms}ms)")
             
+            from .trigger_mesh import trigger_mesh, TriggerEvent
+            from datetime import datetime as dt
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="sandbox.execution_completed" if exit_code == 0 else "sandbox.execution_failed",
+                source="sandbox",
+                actor=user,
+                resource=command,
+                payload={"exit_code": exit_code, "duration_ms": duration_ms},
+                timestamp=dt.utcnow()
+            ))
+            
             return stdout_str, stderr_str, exit_code, duration_ms
             
         except Exception as e:

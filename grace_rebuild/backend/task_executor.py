@@ -55,9 +55,11 @@ class TaskExecutor:
                 }
                 
                 async with async_session() as session:
-                    result = await session.execute(
-                        "UPDATE execution_tasks SET status='running', started_at=? WHERE task_id=?",
-                        (datetime.utcnow(), task_id)
+                    from sqlalchemy import update
+                    await session.execute(
+                        update(ExecutionTask)
+                        .where(ExecutionTask.task_id == task_id)
+                        .values(status='running', started_at=datetime.utcnow())
                     )
                     await session.commit()
                 
@@ -65,9 +67,11 @@ class TaskExecutor:
                     result = await task_func(task_id, self._update_progress)
                     
                     async with async_session() as session:
+                        from sqlalchemy import update
                         await session.execute(
-                            "UPDATE execution_tasks SET status='completed', progress=100.0, result=?, completed_at=? WHERE task_id=?",
-                            (str(result), datetime.utcnow(), task_id)
+                            update(ExecutionTask)
+                            .where(ExecutionTask.task_id == task_id)
+                            .values(status='completed', progress=100.0, result=str(result), completed_at=datetime.utcnow())
                         )
                         await session.commit()
                     
@@ -78,9 +82,11 @@ class TaskExecutor:
                     
                 except Exception as e:
                     async with async_session() as session:
+                        from sqlalchemy import update
                         await session.execute(
-                            "UPDATE execution_tasks SET status='failed', error=?, completed_at=? WHERE task_id=?",
-                            (str(e), datetime.utcnow(), task_id)
+                            update(ExecutionTask)
+                            .where(ExecutionTask.task_id == task_id)
+                            .values(status='failed', error=str(e), completed_at=datetime.utcnow())
                         )
                         await session.commit()
                     
@@ -103,9 +109,11 @@ class TaskExecutor:
             self.running_tasks[task_id]["progress"] = min(100.0, max(0.0, progress))
             
             async with async_session() as session:
+                from sqlalchemy import update
                 await session.execute(
-                    "UPDATE execution_tasks SET progress=? WHERE task_id=?",
-                    (progress, task_id)
+                    update(ExecutionTask)
+                    .where(ExecutionTask.task_id == task_id)
+                    .values(progress=progress)
                 )
                 await session.commit()
     
