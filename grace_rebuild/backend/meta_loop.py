@@ -81,6 +81,21 @@ class MetaLoopEngine:
         if reflection_quality:
             analyses.append(reflection_quality)
         
+        from .causal_analyzer import causal_analyzer
+        try:
+            causal_task_analysis = await causal_analyzer.analyze_task_completion(days=1)
+            if causal_task_analysis["recommendations"]:
+                for rec in causal_task_analysis["recommendations"][:1]:
+                    analyses.append({
+                        "type": "causal_task_analysis",
+                        "subject": "task_completion_patterns",
+                        "findings": f"Causal analysis: {rec}",
+                        "recommendation": rec,
+                        "confidence": 0.75
+                    })
+        except Exception as e:
+            print(f"⚠ Causal analysis failed: {e}")
+        
         async with async_session() as session:
             for analysis in analyses:
                 meta = MetaAnalysis(

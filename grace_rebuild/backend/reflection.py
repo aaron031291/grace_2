@@ -74,6 +74,17 @@ class ReflectionService:
             if top_words:
                 insight = f"Common user words: {', '.join(top_words)}"
 
+            from .causal_graph import CausalGraph
+            try:
+                graph = CausalGraph()
+                start = datetime.utcnow() - timedelta(hours=1)
+                await graph.build_from_events(start, datetime.utcnow())
+                influential = graph.get_most_influential_events(limit=3)
+                if influential:
+                    insight += f" | Influential events: {', '.join(e['event_type'] for e in influential)}"
+            except Exception as e:
+                print(f"⚠ Causal graph analysis failed: {e}")
+
             reflection = Reflection(
                 summary=summary, 
                 insight=insight, 
