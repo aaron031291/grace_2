@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
 
@@ -23,4 +23,37 @@ class ChatMessage(Base):
     user = Column(String(64), nullable=False)
     role = Column(String(16), nullable=False)
     content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Task(Base):
+    __tablename__ = "tasks"
+    id = Column(Integer, primary_key=True)
+    user = Column(String(64), nullable=False)
+    title = Column(String(256), nullable=False)
+    description = Column(Text)
+    status = Column(String(32), default="pending")
+    priority = Column(String(16), default="medium")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    auto_generated = Column(Boolean, default=False)
+
+class Goal(Base):
+    __tablename__ = "goals"
+    id = Column(Integer, primary_key=True)
+    user = Column(String(64), nullable=False)
+    goal_text = Column(Text, nullable=False)
+    target_date = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String(32), default="active")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+class CausalEvent(Base):
+    __tablename__ = "causal_events"
+    id = Column(Integer, primary_key=True)
+    user = Column(String(64), nullable=False)
+    trigger_message_id = Column(Integer, ForeignKey("chat_messages.id"))
+    response_message_id = Column(Integer, ForeignKey("chat_messages.id"))
+    event_type = Column(String(64))
+    outcome = Column(String(64))
+    confidence = Column(Float, default=0.5)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

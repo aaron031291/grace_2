@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from './AuthProvider';
+import { ReflectionsPanel } from './ReflectionsPanel';
 
 interface ChatMessage {
   role: 'user' | 'grace';
@@ -97,10 +98,11 @@ export function OrbInterface() {
       </header>
 
       <main style={{ padding: '1rem', overflowY: 'auto' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          {messages.length === 0 && (
-            <p style={{ textAlign: 'center', color: '#888' }}>Ask Grace anything to get started.</p>
-          )}
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+          <div>
+            {messages.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#888' }}>Ask Grace anything to get started.</p>
+            )}
           {messages.map((msg, idx) => (
             <div
               key={idx}
@@ -126,6 +128,8 @@ export function OrbInterface() {
               </div>
             </div>
           ))}
+          </div>
+          <ReflectionsPanel />
         </div>
       </main>
 

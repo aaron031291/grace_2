@@ -7,17 +7,14 @@ class GraceAutonomous:
     async def respond(self, user: str, message: str) -> str:
         normalized = message.lower().strip()
         
-        if "hello" in normalized or "hi" in normalized:
-            return "Hello! I'm Grace. How can I help you today?"
-        
         if "history" in normalized or "remember" in normalized:
-            msgs = await self.memory.recent_messages(user, limit=10)
-            if not msgs:
-                return "We haven't chatted yet. This is our first conversation!"
+            msgs = await self.memory.recent_messages(user, limit=20)
+            if len(msgs) < 2:
+                return "We just started chatting. Ask me a few more things and then check history again!"
             history = "\n".join(
-                f"{m.role}: {m.content}" for m in msgs[-5:]
+                f"{m.role.upper()}: {m.content}" for m in msgs[-10:]
             )
-            return f"Here are your last interactions:\n{history}"
+            return f"Here are your last {min(len(msgs), 10)} interactions:\n\n{history}"
         
         if "how are you" in normalized:
             return "I'm functioning optimally. All systems operational. How can I assist you?"
