@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { ReflectionsPanel } from './ReflectionsPanel';
+import { HistoryPanel } from './HistoryPanel';
 
 interface ChatMessage {
   role: 'user' | 'grace';
@@ -128,8 +129,11 @@ export function OrbInterface() {
               </div>
             </div>
           ))}
+            <HistoryPanel />
           </div>
-          <ReflectionsPanel />
+          <div>
+            <ReflectionsPanel />
+          </div>
         </div>
       </main>
 
