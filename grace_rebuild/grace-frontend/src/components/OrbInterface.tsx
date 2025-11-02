@@ -137,9 +137,9 @@ export function OrbInterface() {
           </button>
         </div>
 
-        <main style={{ padding: '1rem', overflowY: 'auto' }}>
+        <main style={{ padding: '1rem', overflowY: 'auto', background: '#0f0f1e' }}>
           {activeTab === 'chat' && (
-            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ maxWidth: '600px', margin: '0 auto', background: '#0f0f1e' }}>
               {messages.length === 0 && (
                 <p style={{ textAlign: 'center', color: '#888' }}>Ask Grace anything to get started.</p>
               )}
@@ -172,7 +172,7 @@ export function OrbInterface() {
           )}
 
           {activeTab === 'reflections' && (
-            <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', background: '#0f0f1e' }}>
               <ReflectionsPanel />
               <TasksPanel />
               <SystemMonitor />

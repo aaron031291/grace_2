@@ -2,6 +2,8 @@ import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, Column, Integer, DateTime, Text, Float
 from .models import ChatMessage, async_session, Base
+from .learning import learning_engine
+from .evaluation import confidence_evaluator
 
 class Reflection(Base):
     __tablename__ = "reflections"
@@ -81,12 +83,18 @@ class ReflectionService:
             await session.commit()
             print(f"✓ Generated reflection: {summary}")
             
-            if top_words:
+            if top_words and user_topics:
                 most_common_word = max(user_topics.items(), key=lambda x: x[1])
-                await learning_engine.process_reflection(
+                action_created = await learning_engine.process_reflection(
                     "admin", 
                     most_common_word[0], 
                     most_common_word[1]
                 )
+                if action_created:
+                    print(f"✓ Learning engine created task from pattern: {most_common_word[0]}")
+            
+            eval_count = await confidence_evaluator.periodic_evaluation()
+            if eval_count > 0:
+                print(f"✓ Confidence evaluator processed {eval_count} events")
 
 reflection_service = ReflectionService(interval_seconds=10)
