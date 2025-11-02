@@ -311,13 +311,15 @@ async def test_unsupported_language():
     """Test unsupported language handling"""
     code = 'print("test")'
     
-    with pytest.raises(ValueError, match="Unsupported language"):
-        await execution_engine.execute(
-            code=code,
-            language="brainfuck",
-            user="test_user",
-            preset="dev"
-        )
+    result = await execution_engine.execute(
+        code=code,
+        language="brainfuck",
+        user="test_user",
+        preset="dev"
+    )
+    
+    assert result.success is False
+    assert "Unsupported language" in result.error
 
 
 @pytest.mark.asyncio
@@ -325,13 +327,15 @@ async def test_invalid_preset():
     """Test invalid preset handling"""
     code = 'print("test")'
     
-    with pytest.raises(ValueError, match="Unknown preset"):
-        await execution_engine.execute(
-            code=code,
-            language="python",
-            user="test_user",
-            preset="invalid_preset"
-        )
+    result = await execution_engine.execute(
+        code=code,
+        language="python",
+        user="test_user",
+        preset="invalid_preset"
+    )
+    
+    assert result.success is False
+    assert "Unknown preset" in result.error
 
 
 if __name__ == "__main__":
