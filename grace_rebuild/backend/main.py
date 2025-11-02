@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes
+from .routes import chat, auth_routes, metrics, reflections
+from .reflection import reflection_engine, Reflection
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -21,6 +22,11 @@ async def on_startup():
     print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
+    reflection_engine.start()
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    reflection_engine.stop()
 
 @app.get("/health")
 async def health_check():
@@ -28,3 +34,5 @@ async def health_check():
 
 app.include_router(auth_routes.router)
 app.include_router(chat.router)
+app.include_router(metrics.router)
+app.include_router(reflections.router)
