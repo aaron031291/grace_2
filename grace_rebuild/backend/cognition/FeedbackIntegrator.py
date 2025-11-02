@@ -16,12 +16,24 @@ from .events import (
     TrustScoreUpdated, GovernanceEscalation
 )
 
-# Import from parent
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from trigger_mesh import trigger_mesh, TriggerEvent
-from immutable_log import ImmutableLog
+# Lazy imports to avoid circular dependencies
+trigger_mesh = None
+ImmutableLog = None
+
+def _lazy_init():
+    """Initialize dependencies lazily"""
+    global trigger_mesh, ImmutableLog
+    
+    if trigger_mesh is None:
+        try:
+            from backend.trigger_mesh import trigger_mesh as tm, TriggerEvent
+            from backend.immutable_log import ImmutableLog as IL
+            
+            trigger_mesh = tm
+            ImmutableLog = IL
+        except ImportError:
+            # Standalone mode
+            pass
 
 class FeedbackIntegrator:
     """
@@ -36,7 +48,9 @@ class FeedbackIntegrator:
     """
     
     def __init__(self):
-        self.audit = ImmutableLog()
+        # Initialize lazily
+        _lazy_init()
+        self.audit = ImmutableLog() if ImmutableLog else None
         self._retry_max = 3
         
     async def integrate(

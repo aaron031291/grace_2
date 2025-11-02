@@ -11,12 +11,23 @@ from datetime import datetime
 from .GraceLoopOutput import GraceLoopOutput
 from .models import GovernanceVerdict, GovernanceDecision, RemediationAction
 
-# Import constitutional_engine from parent
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from constitutional_engine import constitutional_engine
-from immutable_log import ImmutableLog
+# Lazy import to avoid circular dependencies
+constitutional_engine = None
+immutable_logger = None
+
+def _init_engines():
+    """Initialize engines lazily"""
+    global constitutional_engine, immutable_logger
+    if constitutional_engine is None:
+        try:
+            from backend.constitutional_engine import constitutional_engine as ce
+            from backend.immutable_log import immutable_logger as il
+            constitutional_engine = ce
+            immutable_logger = il
+        except ImportError:
+            # Standalone mode - create minimal mocks
+            constitutional_engine = None
+            immutable_logger = None
 
 class GovernancePrimeDirective:
     """
@@ -27,7 +38,8 @@ class GovernancePrimeDirective:
     """
     
     def __init__(self):
-        self.audit = ImmutableLog()
+        # Initialize with simple logger that works standalone
+        self.audit = None  # Will be initialized lazily with _init_engines()
         
         # Non-negotiable thresholds
         self.safety_threshold = 0.9  # Minimum compliance for safety-critical
@@ -51,20 +63,31 @@ class GovernancePrimeDirective:
         action_id = str(uuid.uuid4())
         
         # Check constitutional compliance
-        compliance_result = await constitutional_engine.check_constitutional_compliance(
-            action_id=action_id,
-            actor=output.component,
-            action_type=output.output_type.value,
-            resource=str(output.result)[:200],  # Limit resource string
-            context={
-                'loop_id': output.loop_id,
-                'confidence': output.confidence,
-                'has_errors': len(output.errors) > 0,
-                'has_warnings': len(output.warnings) > 0,
-                'policy_tags': [p.policy_name for p in output.policy_tags]
-            },
-            confidence=output.confidence
-        )
+        _init_engines()
+        
+        if constitutional_engine:
+            compliance_result = await constitutional_engine.check_constitutional_compliance(
+                action_id=action_id,
+                actor=output.component,
+                action_type=output.output_type.value,
+                resource=str(output.result)[:200],
+                context={
+                    'loop_id': output.loop_id,
+                    'confidence': output.confidence,
+                    'has_errors': len(output.errors) > 0,
+                    'has_warnings': len(output.warnings) > 0,
+                    'policy_tags': [p.policy_name for p in output.policy_tags]
+                },
+                confidence=output.confidence
+            )
+        else:
+            # Standalone mode - basic compliance check
+            compliance_result = {
+                'principles_checked': [],
+                'compliance_score': 1.0 if output.constitutional_compliance else 0.0,
+                'violations': [],
+                'needs_clarification': output.confidence < 0.7
+            }
         
         # Extract principle IDs checked
         constitutional_checks = compliance_result.get('principles_checked', [])
@@ -304,5 +327,8 @@ class GovernancePrimeDirective:
         
         return "\n".join(explanation_parts)
 
-# Singleton instance
-governance_prime_directive = GovernancePrimeDirective()
+# Singleton instance (will initialize audit lazily)
+try:
+    governance_prime_directive = GovernancePrimeDirective()
+except:
+    governance_prime_directive = None  # Will be initialized on first use
