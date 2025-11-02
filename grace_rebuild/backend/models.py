@@ -14,6 +14,7 @@ from .sandbox_models import SandboxRun, SandboxFile
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
 from .task_executor import ExecutionTask
 from .issue_models import IssueReport
+from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
 
 class User(Base):
     __tablename__ = "users"
