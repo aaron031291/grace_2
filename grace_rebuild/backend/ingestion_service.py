@@ -96,9 +96,15 @@ class IngestionService:
             return artifact.id
     
     async def ingest_url(self, url: str, actor: str) -> int:
-        """Download and ingest from URL"""
+        """Download and ingest from URL with ML trust scoring"""
         try:
             import httpx
+            from .ml_classifiers import trust_classifier_manager
+            
+            trust_score, method = await trust_classifier_manager.predict_with_fallback(url)
+            
+            print(f"🔍 Trust score for {url}: {trust_score} ({method})")
+            
             async with httpx.AsyncClient() as client:
                 response = await client.get(url, timeout=30)
                 content = response.text
@@ -110,7 +116,12 @@ class IngestionService:
                     actor=actor,
                     source=url,
                     domain="external",
-                    metadata={"url": url, "status_code": response.status_code}
+                    metadata={
+                        "url": url,
+                        "status_code": response.status_code,
+                        "trust_score": trust_score,
+                        "trust_method": method
+                    }
                 )
         except Exception as e:
             print(f"✗ URL ingestion failed: {e}")
