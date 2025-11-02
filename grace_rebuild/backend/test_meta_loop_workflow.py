@@ -4,13 +4,19 @@ Demonstrates recommendation generation, approval, application, and effectiveness
 """
 import asyncio
 import sys
+import os
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
 
-from meta_loop import meta_loop_engine, meta_meta_engine
-from meta_loop_approval import approval_queue
-from meta_loop_engine import recommendation_applicator
-from models import init_db
+# Add parent directory to path
+backend_dir = Path(__file__).parent
+sys.path.insert(0, str(backend_dir.parent.parent))
+
+# Now import as package
+os.chdir(backend_dir.parent.parent)
+from grace_rebuild.backend.meta_loop import meta_loop_engine, meta_meta_engine
+from grace_rebuild.backend.meta_loop_approval import approval_queue
+from grace_rebuild.backend.meta_loop_engine import recommendation_applicator
+from grace_rebuild.backend.models import init_db
 
 async def test_full_workflow():
     """Test the complete meta-loop recommendation workflow"""
@@ -175,10 +181,10 @@ async def test_full_workflow():
     print("\n📊 STEP 8: System Statistics")
     print("-" * 80)
     
-    from models import async_session
+    from grace_rebuild.backend.models import async_session
     from sqlalchemy import select, func
-    from meta_loop_approval import RecommendationQueue
-    from meta_loop_engine import AppliedRecommendation
+    from grace_rebuild.backend.meta_loop_approval import RecommendationQueue
+    from grace_rebuild.backend.meta_loop_engine import AppliedRecommendation
     
     async with async_session() as session:
         pending_count = await session.scalar(

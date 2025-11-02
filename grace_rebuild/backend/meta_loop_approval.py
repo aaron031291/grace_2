@@ -250,7 +250,7 @@ class ApprovalQueue:
         
         return {"success": False, "error": "Unknown recommendation type"}
     
-    async def get_pending_recommendations(self) -> List[Dict[str, Any]]:
+    async def get_pending_recommendations(self) -> Dict[str, Any]:
         """Get all pending recommendations"""
         
         async with async_session() as session:
@@ -261,22 +261,24 @@ class ApprovalQueue:
             )
             pending = result.scalars().all()
             
-            return [
-                {
-                    "id": rec.id,
-                    "type": rec.recommendation_type,
-                    "target": rec.target,
-                    "current": rec.current_value,
-                    "proposed": rec.proposed_value,
-                    "text": rec.recommendation_text,
-                    "confidence": rec.confidence,
-                    "risk_level": rec.risk_level,
-                    "submitted_at": rec.submitted_at.isoformat() if rec.submitted_at else None
-                }
-                for rec in pending
-            ]
+            return {
+                "recommendations": [
+                    {
+                        "id": str(rec.id),
+                        "type": rec.recommendation_type,
+                        "component": rec.payload.get("component", "Unknown") if rec.payload else "Unknown",
+                        "current_value": float(rec.current_value) if rec.current_value else 0,
+                        "proposed_value": float(rec.proposed_value) if rec.proposed_value else 0,
+                        "predicted_impact": rec.payload.get("predicted_impact", 0) if rec.payload else 0,
+                        "risk_level": rec.risk_level,
+                        "created_at": rec.submitted_at.isoformat() if rec.submitted_at else datetime.utcnow().isoformat(),
+                        "reasoning": rec.payload.get("reasoning", rec.recommendation_text) if rec.payload else rec.recommendation_text
+                    }
+                    for rec in pending
+                ]
+            }
     
-    async def get_applied_recommendations(self, limit: int = 20) -> List[Dict[str, Any]]:
+    async def get_applied_recommendations(self, limit: int = 20) -> Dict[str, Any]:
         """Get history of applied recommendations with metrics"""
         
         from .meta_loop_engine import AppliedRecommendation
@@ -289,21 +291,23 @@ class ApprovalQueue:
             )
             applied = result.scalars().all()
             
-            return [
-                {
-                    "id": rec.id,
-                    "type": rec.recommendation_type,
-                    "target": rec.target,
-                    "old_value": rec.old_value,
-                    "new_value": rec.new_value,
-                    "applied_by": rec.applied_by,
-                    "applied_at": rec.applied_at.isoformat() if rec.applied_at else None,
-                    "effectiveness": rec.effectiveness_score,
-                    "rolled_back": rec.rolled_back,
-                    "before_metrics": rec.before_metrics,
-                    "after_metrics": rec.after_metrics
-                }
-                for rec in applied
-            ]
+            return {
+                "changes": [
+                    {
+                        "id": str(rec.id),
+                        "recommendation_id": str(rec.recommendation_id) if rec.recommendation_id else "",
+                        "type": rec.recommendation_type,
+                        "component": rec.component or "Unknown",
+                        "old_value": rec.old_value or 0,
+                        "new_value": rec.new_value or 0,
+                        "applied_at": rec.applied_at.isoformat() if rec.applied_at else datetime.utcnow().isoformat(),
+                        "approved_by": rec.applied_by or "system",
+                        "before_metrics": rec.before_metrics or {},
+                        "after_metrics": rec.after_metrics or {},
+                        "improvement_pct": rec.effectiveness_score or 0
+                    }
+                    for rec in applied
+                ]
+            }
 
 approval_queue = ApprovalQueue()
