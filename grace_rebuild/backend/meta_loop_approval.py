@@ -106,6 +106,27 @@ class ApprovalQueue:
             
             print(f"✅ Approved recommendation {rec_id} by {approver}: {rec.recommendation_text}")
             
+            # Check governance before applying
+            from .governance import governance_engine
+            governance_check = await governance_engine.check(
+                actor=approver,
+                action="meta.recommendation_applied",
+                resource=rec.target,
+                payload={
+                    "recommendation_id": rec_id,
+                    "type": rec.recommendation_type,
+                    "risk_level": rec.risk_level,
+                    "confidence": rec.confidence
+                }
+            )
+            
+            if governance_check.get("decision") == "deny":
+                print(f"🚫 Governance blocked meta-change: {governance_check.get('policy')}")
+                return {
+                    "success": False,
+                    "error": f"Governance policy {governance_check.get('policy')} denied this change"
+                }
+            
             result = await self._apply_recommendation(rec)
             
             if result.get("success"):
@@ -119,7 +140,8 @@ class ApprovalQueue:
                         "type": rec.recommendation_type,
                         "old_value": rec.current_value,
                         "new_value": rec.proposed_value,
-                        "applied_id": result.get("applied_id")
+                        "applied_id": result.get("applied_id"),
+                        "governance_audit_id": governance_check.get("audit_id")
                     }
                 )
                 print(f"🔐 Meta-change signed and logged")
