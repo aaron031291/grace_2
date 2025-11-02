@@ -10,6 +10,8 @@ export default function App() {
   const [metrics, setMetrics] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [refs, setRefs] = useState<any[]>([]);
+  const [causal, setCausal] = useState<any>(null);
+  const [execTasks, setExecTasks] = useState<any[]>([]);
 
   async function login(e: FormEvent) {
     e.preventDefault();
@@ -44,9 +46,16 @@ export default function App() {
 
   useEffect(() => {
     if (page === 'dash' && token) {
-      fetch('http://localhost:8000/api/metrics/summary').then(r => r.json()).then(setMetrics);
-      fetch('http://localhost:8000/api/tasks/', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setTasks);
-      fetch('http://localhost:8000/api/reflections/').then(r => r.json()).then(setRefs);
+      const loadDash = () => {
+        fetch('http://localhost:8000/api/metrics/summary').then(r => r.json()).then(setMetrics);
+        fetch('http://localhost:8000/api/tasks/', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setTasks);
+        fetch('http://localhost:8000/api/reflections/').then(r => r.json()).then(setRefs);
+        fetch('http://localhost:8000/api/causal/patterns', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setCausal);
+        fetch('http://localhost:8000/api/executor/tasks', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(d => setExecTasks(d.tasks || []));
+      };
+      loadDash();
+      const int = setInterval(loadDash, 5000);
+      return () => clearInterval(int);
     }
   }, [page, token]);
 
@@ -85,6 +94,64 @@ export default function App() {
             <div style={{ fontSize: '2rem', color: s.ac2, fontWeight: 'bold' }}>{refs.length}</div>
             <div style={{ color: '#888' }}>Reflections</div>
           </div>
+        </div>
+
+        <div style={{ background: s.bg2, padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          <h3 style={{ color: s.ac2, marginBottom: '1rem' }}>System Monitor</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+            <div style={{ background: s.bg, padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Reflection Loop</div>
+              <div style={{ fontSize: '1.25rem', color: refs.length > 0 ? '#00ff88' : '#888' }}>
+                {refs.length > 0 ? '🟢' : '⚪'} {refs.length > 0 ? 'Running' : 'Idle'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: s.ac2, marginTop: '0.25rem' }}>Count: {refs.length}</div>
+            </div>
+            
+            <div style={{ background: s.bg, padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Learning Engine</div>
+              <div style={{ fontSize: '1.25rem', color: tasks.filter((t: any) => t.auto_generated).length > 0 ? '#ffcc00' : '#888' }}>
+                {tasks.filter((t: any) => t.auto_generated).length > 0 ? '🟡' : '⚪'} {tasks.filter((t: any) => t.auto_generated).length > 0 ? 'Working' : 'Idle'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: s.ac2, marginTop: '0.25rem' }}>Auto-tasks: {tasks.filter((t: any) => t.auto_generated).length}</div>
+            </div>
+            
+            <div style={{ background: s.bg, padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Causal Tracker</div>
+              <div style={{ fontSize: '1.25rem', color: causal?.total_interactions > 0 ? '#00ff88' : '#888' }}>
+                {causal?.total_interactions > 0 ? '🟢' : '⚪'} {causal?.total_interactions > 0 ? 'Running' : 'Idle'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: s.ac2, marginTop: '0.25rem' }}>Events: {causal?.total_interactions || 0}</div>
+            </div>
+            
+            <div style={{ background: s.bg, padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Confidence Score</div>
+              <div style={{ fontSize: '1.25rem', color: '#888' }}>
+                ⚪ Ready
+              </div>
+              <div style={{ fontSize: '0.75rem', color: s.ac2, marginTop: '0.25rem' }}>Unhandled: {causal?.unhandled_rate || 0}%</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: s.bg2, padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          <h3 style={{ color: s.ac2, marginBottom: '1rem' }}>Background Tasks ({execTasks.filter(t => t.status === 'running').length} running)</h3>
+          {execTasks.length === 0 && <p style={{ color: '#888' }}>No background tasks yet</p>}
+          {execTasks.slice(0, 5).map((t, i) => (
+            <div key={i} style={{ background: s.bg, padding: '1rem', borderRadius: '6px', marginBottom: '0.75rem', border: '1px solid #333' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>{t.description}</span>
+                <span style={{ fontSize: '0.75rem', color: t.status === 'completed' ? '#00ff88' : t.status === 'running' ? '#ffcc00' : '#888' }}>
+                  {t.status}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
+                <div style={{ background: s.ac2, height: '100%', width: `${t.progress || 0}%`, transition: 'width 0.3s' }}></div>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
+                {Math.round(t.progress || 0)}% complete
+              </div>
+            </div>
+          ))}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
