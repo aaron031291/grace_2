@@ -1,9 +1,13 @@
 """Seed default governance policies for Grace"""
 
 import asyncio
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+
 from sqlalchemy import select
-from models import async_session
-from governance_models import GovernancePolicy
+from backend.models import async_session
+from backend.governance_models import GovernancePolicy
 
 async def seed_governance_policies():
     """Create 20+ default governance policies for production use"""
@@ -11,12 +15,10 @@ async def seed_governance_policies():
     policies = [
         # File System Policies
         {
-            "policy_name": "restrict_system_file_access",
-            "policy_type": "file_access",
-            "resource_pattern": r"^/(etc|sys|proc|boot|dev|root)/.*",
+            "name": "restrict_system_file_access",
+            "severity": "critical",
+            "condition": r"file_access AND path MATCHES ^/(etc|sys|proc|boot|dev|root)/.*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block access to system directories without approval"
         },
         {

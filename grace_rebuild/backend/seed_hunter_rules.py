@@ -1,9 +1,13 @@
 """Seed default Hunter security rules"""
 
 import asyncio
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from sqlalchemy import select
-from models import async_session
-from governance_models import SecurityRule
+from backend.models import async_session
+from backend.governance_models import SecurityRule
 
 async def seed_hunter_rules():
     """Create 15+ default Hunter security rules"""
