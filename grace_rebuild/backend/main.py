@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals
 from .reflection import reflection_service
 
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -38,3 +38,5 @@ app.include_router(metrics.router)
 app.include_router(reflections.router)
 app.include_router(tasks.router)
 app.include_router(history.router)
+app.include_router(causal.router)
+app.include_router(goals.router)
