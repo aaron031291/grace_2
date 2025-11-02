@@ -11,6 +11,9 @@ async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False
 Base = declarative_base()
 
 from .sandbox_models import SandboxRun, SandboxFile
+from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
+from .task_executor import ExecutionTask
+from .issue_models import IssueReport
 
 class User(Base):
     __tablename__ = "users"

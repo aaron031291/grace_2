@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues
 from .reflection import reflection_service
 
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -15,6 +15,7 @@ app.add_middleware(
 )
 
 from .task_executor import task_executor
+from .self_healing import health_monitor
 
 @app.on_event("startup")
 async def on_startup():
@@ -26,11 +27,13 @@ async def on_startup():
     print("  Docs: http://localhost:8000/docs")
     await reflection_service.start()
     await task_executor.start_workers()
+    await health_monitor.start()
 
 @app.on_event("shutdown")
 async def on_shutdown():
     await reflection_service.stop()
     await task_executor.stop_workers()
+    await health_monitor.stop()
 
 @app.get("/health")
 async def health_check():
@@ -49,3 +52,7 @@ app.include_router(evaluation.router)
 app.include_router(summaries.router)
 app.include_router(sandbox.router)
 app.include_router(executor.router)
+app.include_router(governance.router)
+app.include_router(hunter.router)
+app.include_router(health_routes.router)
+app.include_router(issues.router)
