@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { ReflectionsPanel } from './ReflectionsPanel';
+import { TasksPanel } from './TasksPanel';
 import { BackgroundMonitor } from './BackgroundMonitor';
 import { SystemMonitor } from './SystemMonitor';
 
@@ -93,7 +94,6 @@ export function OrbInterface() {
   return (
     <>
       <BackgroundMonitor />
-      <SystemMonitor />
       <div style={{ display: 'grid', gridTemplateRows: 'auto auto 1fr auto', minHeight: '100vh', background: '#0f0f1e', color: '#fff' }}>
         <header style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0 }}>Grace Orb</h1>
@@ -172,8 +172,10 @@ export function OrbInterface() {
           )}
 
           {activeTab === 'reflections' && (
-            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
               <ReflectionsPanel />
+              <TasksPanel />
+              <SystemMonitor />
             </div>
           )}
         </main>
