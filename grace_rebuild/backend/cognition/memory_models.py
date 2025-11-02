@@ -1,8 +1,12 @@
 """Database models for Memory Scoring System"""
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
-from ..models import Base
+from models import Base
 
 class MemoryArtifact(Base):
     """Memory artifact with trust and decay scoring"""
