@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { ReflectionsPanel } from './ReflectionsPanel';
+import { BackgroundMonitor } from './BackgroundMonitor';
 
 interface ChatMessage {
   role: 'user' | 'grace';
@@ -14,6 +15,7 @@ export function OrbInterface() {
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'chat' | 'reflections'>('chat');
 
   async function handleLogin(e: FormEvent) {
     e.preventDefault();
@@ -88,67 +90,109 @@ export function OrbInterface() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr auto', minHeight: '100vh', background: '#0f0f1e', color: '#fff' }}>
-      <header style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
-        <h1 style={{ margin: 0 }}>Grace Orb</h1>
-        <div>
-          {status && <span style={{ marginRight: '1rem', fontSize: '0.875rem', color: '#00d4ff' }}>{status}</span>}
-          <button onClick={logout} style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: '#333', color: '#fff', border: 'none', cursor: 'pointer' }}>Log out</button>
-        </div>
-      </header>
-
-      <main style={{ padding: '1rem', overflowY: 'auto' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
-          <div>
-            {messages.length === 0 && (
-              <p style={{ textAlign: 'center', color: '#888' }}>Ask Grace anything to get started.</p>
-            )}
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: 'flex',
-                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                marginBottom: '0.5rem',
-              }}
-            >
-              <div
-                style={{
-                  background: msg.role === 'user' ? '#7b2cbf' : '#1a1a2e',
-                  color: '#fff',
-                  padding: '0.75rem',
-                  borderRadius: '12px',
-                  maxWidth: '70%',
-                  whiteSpace: 'pre-wrap',
-                  border: msg.role === 'grace' ? '1px solid #333' : 'none',
-                }}
-              >
-                <strong>{msg.role === 'user' ? 'You' : 'Grace'}:</strong>{' '}
-                {msg.content}
-              </div>
-            </div>
-          ))}
+    <>
+      <BackgroundMonitor />
+      <div style={{ display: 'grid', gridTemplateRows: 'auto auto 1fr auto', minHeight: '100vh', background: '#0f0f1e', color: '#fff' }}>
+        <header style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ margin: 0 }}>Grace Orb</h1>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <a href="/dashboard" style={{ color: '#7b2cbf', textDecoration: 'none', fontSize: '0.875rem' }}>📊 Dashboard</a>
+            {status && <span style={{ fontSize: '0.875rem', color: '#00d4ff' }}>{status}</span>}
+            <button onClick={logout} style={{ padding: '0.5rem 1rem', borderRadius: '4px', background: '#333', color: '#fff', border: 'none', cursor: 'pointer' }}>Log out</button>
           </div>
-          <ReflectionsPanel />
-        </div>
-      </main>
+        </header>
 
-      <footer style={{ padding: '1rem', borderTop: '1px solid #333' }}>
-        <form
-          onSubmit={handleSend}
-          style={{ display: 'flex', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' }}
-        >
-          <input
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            placeholder="Type a message..."
-            style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: '1px solid #333', background: '#1a1a2e', color: '#fff' }}
-          />
-          <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', background: '#7b2cbf', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Send
+        <div style={{ display: 'flex', borderBottom: '1px solid #333', background: '#1a1a2e' }}>
+          <button
+            onClick={() => setActiveTab('chat')}
+            style={{
+              padding: '1rem 2rem',
+              background: activeTab === 'chat' ? '#0f0f1e' : 'transparent',
+              color: activeTab === 'chat' ? '#00d4ff' : '#888',
+              border: 'none',
+              borderBottom: activeTab === 'chat' ? '2px solid #00d4ff' : '2px solid transparent',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: 600
+            }}
+          >
+            💬 Chat
           </button>
-        </form>
-      </footer>
-    </div>
+          <button
+            onClick={() => setActiveTab('reflections')}
+            style={{
+              padding: '1rem 2rem',
+              background: activeTab === 'reflections' ? '#0f0f1e' : 'transparent',
+              color: activeTab === 'reflections' ? '#7b2cbf' : '#888',
+              border: 'none',
+              borderBottom: activeTab === 'reflections' ? '2px solid #7b2cbf' : '2px solid transparent',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: 600
+            }}
+          >
+            🔍 Reflections
+          </button>
+        </div>
+
+        <main style={{ padding: '1rem', overflowY: 'auto' }}>
+          {activeTab === 'chat' && (
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+              {messages.length === 0 && (
+                <p style={{ textAlign: 'center', color: '#888' }}>Ask Grace anything to get started.</p>
+              )}
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    marginBottom: '0.5rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: msg.role === 'user' ? '#7b2cbf' : '#1a1a2e',
+                      color: '#fff',
+                      padding: '0.75rem',
+                      borderRadius: '12px',
+                      maxWidth: '70%',
+                      whiteSpace: 'pre-wrap',
+                      border: msg.role === 'grace' ? '1px solid #333' : 'none',
+                    }}
+                  >
+                    <strong>{msg.role === 'user' ? 'You' : 'Grace'}:</strong>{' '}
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'reflections' && (
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <ReflectionsPanel />
+            </div>
+          )}
+        </main>
+
+        <footer style={{ padding: '1rem', borderTop: '1px solid #333' }}>
+          <form
+            onSubmit={handleSend}
+            style={{ display: 'flex', gap: '0.5rem', maxWidth: '600px', margin: '0 auto' }}
+          >
+            <input
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Type a message..."
+              style={{ flex: 1, padding: '0.75rem', borderRadius: '12px', border: '1px solid #333', background: '#1a1a2e', color: '#fff' }}
+            />
+            <button type="submit" style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', background: '#7b2cbf', color: '#fff', border: 'none', cursor: 'pointer' }}>
+              Send
+            </button>
+          </form>
+        </footer>
+      </div>
+    </>
   );
 }

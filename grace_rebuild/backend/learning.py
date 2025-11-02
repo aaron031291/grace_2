@@ -10,7 +10,7 @@ class LearningEngine:
         
         action_created = False
         
-        if topic in ["task", "todo"] and frequency >= 3:
+        if topic in ["task", "todo"] and frequency >= 2:
             async with async_session() as session:
                 existing = await session.execute(
                     select(Task).where(
@@ -32,7 +32,7 @@ class LearningEngine:
                     action_created = True
                     print(f"✓ Auto-generated task for {user}: task management")
         
-        elif topic in ["help", "question"] and frequency >= 3:
+        elif topic in ["help", "question"] and frequency >= 2:
             async with async_session() as session:
                 task = Task(
                     user=user,
@@ -46,7 +46,7 @@ class LearningEngine:
                 action_created = True
                 print(f"✓ Auto-generated task for {user}: improve help")
         
-        elif frequency >= 5:
+        elif frequency >= 3:
             async with async_session() as session:
                 task = Task(
                     user=user,
