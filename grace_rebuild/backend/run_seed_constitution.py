@@ -1,0 +1,18 @@
+"""Standalone runner for constitutional seed script"""
+
+import asyncio
+import sys
+import os
+
+# Add parent to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+async def main():
+    from backend.seed_constitution import seed_constitutional_principles, seed_operational_tenets
+    
+    await seed_constitutional_principles()
+    await seed_operational_tenets()
+    print("\n🏛️  Constitutional AI Framework Ready")
+
+if __name__ == "__main__":
+    asyncio.run(main())
