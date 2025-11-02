@@ -21,6 +21,12 @@ async def setup_test_data():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
+    print("Cleaning up existing test data...")
+    async with async_session() as session:
+        from sqlalchemy import delete
+        await session.execute(delete(ExecutionTask).where(ExecutionTask.task_id.like('test-%')))
+        await session.commit()
+    
     async with async_session() as session:
         now = datetime.utcnow()
         
@@ -61,7 +67,7 @@ async def setup_test_data():
         
         await session.commit()
     
-    print("✓ Created 20 tasks and 30 execution tasks")
+    print("[+] Created 20 tasks and 30 execution tasks")
 
 async def test_pattern_analysis():
     """Test 1: Pattern discovery"""
@@ -71,7 +77,7 @@ async def test_pattern_analysis():
     
     patterns = await temporal_reasoner.analyze_sequences(lookback_hours=48)
     
-    print(f"✓ Discovered {len(patterns)} patterns")
+    print(f"[+] Discovered {len(patterns)} patterns")
     for i, pattern in enumerate(patterns[:3], 1):
         print(f"  {i}. {pattern['sequence']}")
         print(f"     Frequency: {pattern['frequency']}, Confidence: {pattern['confidence']:.2f}")
@@ -82,7 +88,7 @@ async def test_pattern_analysis():
         from sqlalchemy import select
         result = await session.execute(select(EventPattern))
         stored = result.scalars().all()
-        print(f"✓ Stored {len(stored)} patterns in database")
+        print(f"[+] Stored {len(stored)} patterns in database")
     
     return len(patterns) > 0
 
@@ -98,7 +104,7 @@ async def test_next_event_prediction():
     
     predictions = await temporal_reasoner.predict_next_event(current_state)
     
-    print(f"✓ Generated {len(predictions)} predictions")
+    print(f"[+] Generated {len(predictions)} predictions")
     for event, probability in predictions[:5]:
         print(f"  {event}: {probability:.2%}")
     
@@ -123,7 +129,7 @@ async def test_duration_estimation():
         from sqlalchemy import select
         result = await session.execute(select(DurationEstimate))
         estimates = result.scalars().all()
-        print(f"\n✓ Computed {len(estimates)} duration estimates")
+        print(f"\n[+] Computed {len(estimates)} duration estimates")
     
     return True
 
@@ -133,11 +139,11 @@ async def test_anomaly_detection():
     
     anomalies = await temporal_reasoner.detect_anomalous_timing(lookback_hours=48)
     
-    print(f"✓ Detected {len(anomalies)} timing anomalies")
+    print(f"[+] Detected {len(anomalies)} timing anomalies")
     for anomaly in anomalies[:3]:
         faster = "faster" if anomaly['faster_than_expected'] else "slower"
         print(f"  {anomaly['event_type']}: {anomaly['actual']:.1f}s ({faster} than {anomaly['expected']:.1f}s)")
-        print(f"    Deviation: {anomaly['deviation_sigma']:.1f}σ, Severity: {anomaly['severity']}")
+        print(f"    Deviation: {anomaly['deviation_sigma']:.1f} sigma, Severity: {anomaly['severity']}")
     
     return True
 
@@ -256,7 +262,7 @@ async def test_recurring_patterns():
     
     patterns = await temporal_reasoner.find_recurring_patterns("daily")
     
-    print(f"✓ Found {len(patterns)} recurring patterns")
+    print(f"[+] Found {len(patterns)} recurring patterns")
     for pattern in patterns:
         print(f"  {pattern['type']}: {pattern['description']}")
     
@@ -284,7 +290,7 @@ async def test_preventive_actions():
     
     actions = await temporal_reasoner.suggest_preventive_actions()
     
-    print(f"✓ Generated {len(actions)} preventive action suggestions")
+    print(f"[+] Generated {len(actions)} preventive action suggestions")
     for action in actions:
         print(f"  {action['action']} → {action['target']}")
         print(f"    Reason: {action['reason']}")
@@ -313,7 +319,7 @@ async def test_prediction_accuracy_tracking():
         simulation = sim_result.scalar_one_or_none()
         
         if simulation:
-            print(f"✓ Simulation #{simulation.id} saved")
+            print(f"[+] Simulation #{simulation.id} saved")
             
             actual_outcome = {
                 "response_time": {"mean": 5.2},
@@ -337,9 +343,9 @@ async def test_prediction_accuracy_tracking():
 
 async def run_all_tests():
     """Run complete test suite"""
-    print("╔════════════════════════════════════════════════════════╗")
-    print("║   Temporal Reasoning & Simulation Test Suite          ║")
-    print("╚════════════════════════════════════════════════════════╝")
+    print("="*60)
+    print("   Temporal Reasoning & Simulation Test Suite")
+    print("="*60)
     
     await setup_test_data()
     
@@ -367,15 +373,15 @@ async def run_all_tests():
         except Exception as e:
             results.append((test_name, False, str(e)))
     
-    print("\n╔════════════════════════════════════════════════════════╗")
-    print("║                    Test Results                        ║")
-    print("╚════════════════════════════════════════════════════════╝")
+    print("\n" + "="*60)
+    print("                    Test Results")
+    print("="*60)
     
     passed = 0
     failed = 0
     
     for test_name, success, error in results:
-        status = "✓ PASS" if success else "✗ FAIL"
+        status = "[PASS]" if success else "[FAIL]"
         print(f"{status}: {test_name}")
         if error:
             print(f"       Error: {error}")
@@ -390,19 +396,19 @@ async def run_all_tests():
     print("="*60)
     
     if passed == len(results):
-        print("\n🎉 All tests passed! Temporal system fully operational.")
+        print("\nAll tests passed! Temporal system fully operational.")
         print("\nCapabilities demonstrated:")
-        print("  ✓ Pattern discovery from historical events")
-        print("  ✓ Next-event prediction using Markov chains")
-        print("  ✓ Task duration estimation with confidence intervals")
-        print("  ✓ Timing anomaly detection (σ-based)")
-        print("  ✓ Monte Carlo simulation (1000 iterations)")
-        print("  ✓ Multi-scenario comparison & optimization")
-        print("  ✓ Goal-based action planning")
-        print("  ✓ Recurring pattern detection (daily/weekly)")
-        print("  ✓ Peak load forecasting")
-        print("  ✓ Preventive action suggestions")
-        print("  ✓ Prediction accuracy tracking")
+        print("  [+] Pattern discovery from historical events")
+        print("  [+] Next-event prediction using Markov chains")
+        print("  [+] Task duration estimation with confidence intervals")
+        print("  [+] Timing anomaly detection (sigma-based)")
+        print("  [+] Monte Carlo simulation (1000 iterations)")
+        print("  [+] Multi-scenario comparison & optimization")
+        print("  [+] Goal-based action planning")
+        print("  [+] Recurring pattern detection (daily/weekly)")
+        print("  [+] Peak load forecasting")
+        print("  [+] Preventive action suggestions")
+        print("  [+] Prediction accuracy tracking")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())
