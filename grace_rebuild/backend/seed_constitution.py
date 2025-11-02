@@ -562,7 +562,7 @@ async def main():
     """Seed complete constitutional framework"""
     await seed_constitutional_principles()
     await seed_operational_tenets()
-    print("\n🏛️  Constitutional AI Framework Ready")
+    print("\nConstitutional AI Framework Ready")
 
 if __name__ == "__main__":
     asyncio.run(main())

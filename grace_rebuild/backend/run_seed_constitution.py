@@ -4,6 +4,10 @@ import asyncio
 import sys
 import os
 
+# Force UTF-8 encoding for Windows
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Add parent to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -12,7 +16,7 @@ async def main():
     
     await seed_constitutional_principles()
     await seed_operational_tenets()
-    print("\n🏛️  Constitutional AI Framework Ready")
+    print("\nConstitutional AI Framework Ready")
 
 if __name__ == "__main__":
     asyncio.run(main())
