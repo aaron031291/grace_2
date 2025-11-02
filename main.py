@@ -160,4 +160,7 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("Starting Grace API server...")
+    print("Visit: http://localhost:8000/health")
+    print("Docs: http://localhost:8000/docs")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
