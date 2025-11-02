@@ -292,7 +292,7 @@ async def test_preventive_actions():
     
     print(f"[+] Generated {len(actions)} preventive action suggestions")
     for action in actions:
-        print(f"  {action['action']} → {action['target']}")
+        print(f"  {action['action']} -> {action['target']}")
         print(f"    Reason: {action['reason']}")
         print(f"    Confidence: {action['confidence']:.2%}")
     
