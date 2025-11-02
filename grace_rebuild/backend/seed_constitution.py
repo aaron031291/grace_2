@@ -426,7 +426,7 @@ async def seed_constitutional_principles():
         
         await session.commit()
         
-        print(f"\n✅ Constitutional Framework Seeded:")
+        print(f"\nConstitutional Framework Seeded:")
         print(f"   - 5 Foundational Principles (immutable)")
         print(f"   - 10 Operational Tenets")
         print(f"   - 15 Safety Constraints (immutable)")
@@ -556,7 +556,7 @@ async def seed_operational_tenets():
             print(f"  ✓ Tenet: {data['tenet_name']}")
         
         await session.commit()
-        print(f"\n✅ {len(tenets_data)} Operational Tenets seeded")
+        print(f"\n{len(tenets_data)} Operational Tenets seeded")
 
 async def main():
     """Seed complete constitutional framework"""
