@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api
 from .reflection import reflection_service
 
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -16,6 +16,7 @@ app.add_middleware(
 
 from .task_executor import task_executor
 from .self_healing import health_monitor
+from .trigger_mesh import trigger_mesh, setup_subscriptions
 
 @app.on_event("startup")
 async def on_startup():
@@ -25,6 +26,9 @@ async def on_startup():
     print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
+    
+    await trigger_mesh.start()
+    await setup_subscriptions()
     await reflection_service.start()
     await task_executor.start_workers()
     await health_monitor.start()
@@ -34,6 +38,7 @@ async def on_shutdown():
     await reflection_service.stop()
     await task_executor.stop_workers()
     await health_monitor.stop()
+    await trigger_mesh.stop()
 
 @app.get("/health")
 async def health_check():
@@ -57,3 +62,4 @@ app.include_router(hunter.router)
 app.include_router(health_routes.router)
 app.include_router(issues.router)
 app.include_router(memory_api.router)
+app.include_router(immutable_api.router)
