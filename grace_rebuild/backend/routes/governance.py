@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 from ..governance_models import GovernancePolicy, AuditLog, ApprovalRequest
 from ..models import async_session
 from ..auth import get_current_user
+from ..verification_middleware import verify_action
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 
@@ -32,6 +33,7 @@ async def list_policies():
         ]
 
 @router.post("/policies")
+@verify_action("policy_create", lambda data: data.get("name", "unknown"))
 async def create_policy(data: PolicyCreate, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         policy = GovernancePolicy(
@@ -82,6 +84,7 @@ async def list_approvals():
         ]
 
 @router.post("/approvals/{request_id}/decision")
+@verify_action("approval_decision", lambda data: f"request_{data.get('request_id', 'unknown')}")
 async def decide(request_id: int, decision: str, reason: str = "", current_user: str = Depends(get_current_user)):
     if decision not in {"approve", "reject"}:
         raise HTTPException(status_code=400, detail="Invalid decision")

@@ -1,146 +1,226 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { SecurityRulesList } from './SecurityRulesList';
+import './HunterDashboard.css';
+
+interface SecurityAlert {
+    id: number;
+    timestamp: string;
+    severity: 'critical' | 'high' | 'medium' | 'low';
+    rule_name: string;
+    action_taken: string;
+    details: string;
+    user_id?: number;
+}
+
+interface Task {
+    title: string;
+    description: string;
+    priority: 'critical' | 'high' | 'medium' | 'low';
+}
 
 export function HunterDashboard() {
-  const token = localStorage.getItem('token');
-  const [alerts, setAlerts] = useState<any[]>([]);
-  const [rules, setRules] = useState<any[]>([]);
+    const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+    const [filteredAlerts, setFilteredAlerts] = useState<SecurityAlert[]>([]);
+    const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
+    const [selectedAlert, setSelectedAlert] = useState<SecurityAlert | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string>('');
+    const [taskCreated, setTaskCreated] = useState<string>('');
+    const [activeTab, setActiveTab] = useState<'alerts' | 'rules'>('alerts');
 
-  useEffect(() => {
-    if (token) {
-      const load = () => {
-        fetch('http://localhost:8000/api/hunter/alerts')
-          .then(r => r.json())
-          .then(setAlerts);
-        
-        fetch('http://localhost:8000/api/hunter/rules')
-          .then(r => r.json())
-          .then(setRules);
-      };
-      load();
-      const int = setInterval(load, 10000);
-      return () => clearInterval(int);
-    }
-  }, [token]);
+    const fetchAlerts = async () => {
+        try {
+            setIsLoading(true);
+            setError('');
+            const response = await axios.get('http://localhost:8000/api/hunter/alerts?limit=50');
+            setAlerts(response.data);
+            setIsLoading(false);
+        } catch (err) {
+            setError('Failed to fetch alerts');
+            setIsLoading(false);
+            console.error('Error fetching alerts:', err);
+        }
+    };
 
-  const resolve = async (id: number, status: string, note: string) => {
-    await fetch(`http://localhost:8000/api/hunter/alerts/${id}/resolve?status=${status}&note=${note}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    setAlerts(alerts.filter(a => a.id !== id));
-  };
+    useEffect(() => {
+        fetchAlerts();
+        const interval = setInterval(fetchAlerts, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
-  const s = { bg: '#0f0f1e', fg: '#fff', bg2: '#1a1a2e', ac: '#7b2cbf', ac2: '#00d4ff' };
+    useEffect(() => {
+        if (selectedSeverity === 'all') {
+            setFilteredAlerts(alerts);
+        } else {
+            setFilteredAlerts(alerts.filter(alert => alert.severity === selectedSeverity));
+        }
+    }, [alerts, selectedSeverity]);
 
-  return (
-    <div style={{ background: s.bg, minHeight: '100vh', padding: '2rem', color: s.fg }}>
-      <a href="/" style={{ color: s.ac, marginBottom: '1rem', display: 'block' }}>← Back</a>
-      
-      <h1 style={{ color: s.ac2, marginBottom: '2rem' }}>🛡️ Hunter Protocol</h1>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
-        <div>
-          <h2 style={{ color: s.ac2, fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Security Alerts ({alerts.filter(a => a.status === 'open').length} open)
-          </h2>
-          
-          {alerts.length === 0 && (
-            <div style={{ background: s.bg2, padding: '2rem', borderRadius: '8px', textAlign: 'center', color: '#888' }}>
-              ✅ No security alerts - All systems secure
-            </div>
-          )}
-          
-          {alerts.map((alert) => (
-            <div
-              key={alert.id}
-              style={{
-                background: s.bg2,
-                padding: '1.5rem',
-                borderRadius: '8px',
-                marginBottom: '1rem',
-                border: `1px solid ${alert.severity === 'critical' ? '#ff4444' : alert.severity === 'high' ? '#ff8844' : '#ffcc44'}`
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                    {alert.severity === 'critical' && '🔴'} 
-                    {alert.severity === 'high' && '🟠'}
-                    {alert.severity === 'medium' && '🟡'}
-                    {' '}{alert.action}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#888' }}>
-                    {new Date(alert.created_at).toLocaleString()} · {alert.actor}
-                  </div>
+    const createTaskFromAlert = async (alert: SecurityAlert) => {
+        try {
+            const task: Task = {
+                title: `Security Alert: ${alert.rule_name}`,
+                description: `${alert.details}\n\nAction Taken: ${alert.action_taken}\n\nTimestamp: ${alert.timestamp}`,
+                priority: alert.severity
+            };
+
+            await axios.post('http://localhost:8000/api/tasks', task);
+            setTaskCreated(`Task created for alert #${alert.id}`);
+            setTimeout(() => setTaskCreated(''), 3000);
+        } catch (err) {
+            setError('Failed to create task');
+            console.error('Error creating task:', err);
+        }
+    };
+
+    const getSeverityColor = (severity: string) => {
+        switch (severity) {
+            case 'critical': return '#dc2626';
+            case 'high': return '#ea580c';
+            case 'medium': return '#ca8a04';
+            case 'low': return '#65a30d';
+            default: return '#6b7280';
+        }
+    };
+
+    return (
+        <div className="hunter-dashboard">
+            <div className="dashboard-header">
+                <h1>🛡️ Hunter Security Dashboard</h1>
+                <div className="refresh-indicator">
+                    {isLoading && <span className="loading-spinner">⟳</span>}
+                    <span className="last-update">Auto-refresh: 5s</span>
                 </div>
-                <div style={{
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  background: alert.status === 'open' ? 'rgba(255,200,0,0.2)' : 'rgba(0,255,136,0.2)',
-                  color: alert.status === 'open' ? '#ffcc00' : '#00ff88'
-                }}>
-                  {alert.status}
-                </div>
-              </div>
-              
-              <div style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}>
-                Resource: <code style={{ background: s.bg, padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-                  {alert.resource}
-                </code>
-              </div>
-              
-              {alert.status === 'open' && (
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                  <button
-                    onClick={() => resolve(alert.id, 'resolved', 'Reviewed and safe')}
-                    style={{ padding: '0.5rem 1rem', background: '#00ff88', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
-                  >
-                    ✓ Resolve
-                  </button>
-                  <button
-                    onClick={() => resolve(alert.id, 'ignored', 'False positive')}
-                    style={{ padding: '0.5rem 1rem', background: '#666', color: s.fg, border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}
-                  >
-                    Ignore
-                  </button>
-                </div>
-              )}
             </div>
-          ))}
-        </div>
-        
-        <div>
-          <h2 style={{ color: s.ac2, fontSize: '1.25rem', marginBottom: '1rem' }}>
-            Security Rules ({rules.length})
-          </h2>
-          
-          {rules.map((rule) => (
-            <div key={rule.id} style={{ background: s.bg2, padding: '1rem', borderRadius: '8px', marginBottom: '0.75rem' }}>
-              <div style={{ fontWeight: 'bold', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-                {rule.name}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.5rem' }}>
-                {rule.description}
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.7rem' }}>
-                <span style={{
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px',
-                  background: rule.severity === 'critical' ? 'rgba(255,68,68,0.2)' : 'rgba(255,200,0,0.2)',
-                  color: rule.severity === 'critical' ? '#ff4444' : '#ffcc00'
-                }}>
-                  {rule.severity}
-                </span>
-                <span style={{ padding: '0.25rem 0.5rem', borderRadius: '4px', background: 'rgba(123,44,191,0.2)', color: s.ac }}>
-                  {rule.action}
-                </span>
-              </div>
+
+            {error && <div className="error-banner">{error}</div>}
+            {taskCreated && <div className="success-banner">{taskCreated}</div>}
+
+            <div className="tabs">
+                <button
+                    className={`tab-btn ${activeTab === 'alerts' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('alerts')}
+                >
+                    🚨 Security Alerts
+                </button>
+                <button
+                    className={`tab-btn ${activeTab === 'rules' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('rules')}
+                >
+                    🔒 Security Rules
+                </button>
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+
+            {activeTab === 'rules' ? (
+                <SecurityRulesList />
+            ) : (
+                <>
+
+                    <div className="filter-controls">
+                        <label>Severity Filter:</label>
+                        <select value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
+                            <option value="all">All Severities</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <span className="alert-count">{filteredAlerts.length} alerts</span>
+                    </div>
+
+                    <div className="alerts-grid">
+                        {filteredAlerts.length === 0 ? (
+                            <div className="no-alerts">No alerts found</div>
+                        ) : (
+                            filteredAlerts.map((alert) => (
+                                <div
+                                    key={alert.id}
+                                    className="alert-card"
+                                    style={{ borderLeftColor: getSeverityColor(alert.severity) }}
+                                    onClick={() => setSelectedAlert(alert)}
+                                >
+                                    <div className="alert-header">
+                                        <span
+                                            className={`severity-badge severity-${alert.severity}`}
+                                            style={{ backgroundColor: getSeverityColor(alert.severity) }}
+                                        >
+                                            {alert.severity.toUpperCase()}
+                                        </span>
+                                        <span className="alert-timestamp">
+                                            {new Date(alert.timestamp).toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <h3 className="alert-rule">{alert.rule_name}</h3>
+                                    <p className="alert-action">{alert.action_taken}</p>
+                                    <button
+                                        className="create-task-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            createTaskFromAlert(alert);
+                                        }}
+                                    >
+                                        Create Task
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {selectedAlert && (
+                        <div className="modal-overlay" onClick={() => setSelectedAlert(null)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2>Alert Details</h2>
+                                    <button className="close-btn" onClick={() => setSelectedAlert(null)}>×</button>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="detail-row">
+                                        <strong>Alert ID:</strong> {selectedAlert.id}
+                                    </div>
+                                    <div className="detail-row">
+                                        <strong>Severity:</strong>
+                                        <span
+                                            className={`severity-badge severity-${selectedAlert.severity}`}
+                                            style={{ backgroundColor: getSeverityColor(selectedAlert.severity) }}
+                                        >
+                                            {selectedAlert.severity.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <strong>Rule Triggered:</strong> {selectedAlert.rule_name}
+                                    </div>
+                                    <div className="detail-row">
+                                        <strong>Action Taken:</strong> {selectedAlert.action_taken}
+                                    </div>
+                                    <div className="detail-row">
+                                        <strong>Timestamp:</strong> {new Date(selectedAlert.timestamp).toLocaleString()}
+                                    </div>
+                                    <div className="detail-row">
+                                        <strong>Details:</strong>
+                                        <p className="details-text">{selectedAlert.details}</p>
+                                    </div>
+                                    {selectedAlert.user_id && (
+                                        <div className="detail-row">
+                                            <strong>User ID:</strong> {selectedAlert.user_id}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="modal-footer">
+                                    <button
+                                        className="create-task-btn-large"
+                                        onClick={() => {
+                                            createTaskFromAlert(selectedAlert);
+                                            setSelectedAlert(null);
+                                        }}
+                                    >
+                                        Create Task from Alert
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+      )}
+                </div>
+            );
 }

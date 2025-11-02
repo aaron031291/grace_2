@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api
 from .reflection import reflection_service
+from .auth import get_current_user
+from .verification_integration import verification_integration
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -53,6 +55,45 @@ async def on_shutdown():
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "message": "Grace API is running"}
+
+@app.get("/api/verification/audit")
+async def verification_audit(
+    limit: int = 100,
+    actor: str = None,
+    action_type: str = None,
+    hours_back: int = 24,
+    current_user: str = Depends(get_current_user)
+):
+    """Get verification audit log"""
+    audit_log = await verification_integration.get_verification_audit_log(
+        limit=limit,
+        actor=actor,
+        action_type=action_type,
+        hours_back=hours_back
+    )
+    return {"audit_log": audit_log, "count": len(audit_log)}
+
+@app.get("/api/verification/stats")
+async def verification_stats(
+    hours_back: int = 24,
+    current_user: str = Depends(get_current_user)
+):
+    """Get verification statistics"""
+    stats = await verification_integration.get_verification_stats(hours_back=hours_back)
+    return stats
+
+@app.get("/api/verification/failed")
+async def verification_failed(
+    limit: int = 50,
+    hours_back: int = 24,
+    current_user: str = Depends(get_current_user)
+):
+    """Get failed verifications"""
+    failures = await verification_integration.get_failed_verifications(
+        limit=limit,
+        hours_back=hours_back
+    )
+    return {"failed_verifications": failures, "count": len(failures)}
 
 app.include_router(auth_routes.router)
 app.include_router(chat.router)

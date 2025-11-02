@@ -17,12 +17,12 @@ async def list_alerts(status: str = None, limit: int = 50):
         return [
             {
                 "id": ev.id,
-                "actor": ev.actor,
-                "action": ev.action,
-                "resource": ev.resource,
+                "timestamp": ev.created_at.isoformat() if ev.created_at else None,
                 "severity": ev.severity,
-                "status": ev.status,
-                "created_at": ev.created_at,
+                "rule_name": f"{ev.action} on {ev.resource}",
+                "action_taken": f"Alert logged - {ev.status}",
+                "details": ev.details or f"Actor: {ev.actor}, Action: {ev.action}, Resource: {ev.resource}",
+                "user_id": None,
             }
             for ev in result.scalars().all()
         ]
@@ -54,9 +54,25 @@ async def list_rules():
             {
                 "id": r.id,
                 "name": r.name,
-                "description": r.description,
+                "description": r.description or "No description provided",
                 "severity": r.severity,
-                "action": r.action
+                "enabled": True,
+                "pattern": r.condition[:50] + "..." if len(r.condition) > 50 else r.condition,
+                "action": r.action,
+                "created_at": None,
             }
             for r in result.scalars().all()
         ]
+
+@router.patch("/rules/{rule_id}")
+async def update_rule(
+    rule_id: int,
+    enabled: bool = None,
+    current_user: str = Depends(get_current_user)
+):
+    async with async_session() as session:
+        rule = await session.get(SecurityRule, rule_id)
+        if not rule:
+            raise HTTPException(status_code=404, detail="Rule not found")
+        
+        return {"id": rule.id, "enabled": enabled if enabled is not None else True}

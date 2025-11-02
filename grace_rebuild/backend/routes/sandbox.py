@@ -6,6 +6,7 @@ from ..sandbox_manager import sandbox_manager
 from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
+from ..verification_middleware import verify_action
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 
@@ -36,6 +37,7 @@ async def read_file(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/write")
+@verify_action("file_write", lambda data: data.get("file_path", "unknown"))
 async def write_file(
     req: WriteFileRequest,
     current_user: str = Depends(get_current_user)
@@ -47,6 +49,7 @@ async def write_file(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/run")
+@verify_action("code_execution", lambda data: data.get("command", "unknown"))
 async def run_command(
     req: RunCommandRequest,
     current_user: str = Depends(get_current_user)

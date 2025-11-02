@@ -4,10 +4,12 @@ from ..auth import get_current_user
 from ..ml_models_table import MLModel, TrainingRun
 from ..models import async_session
 from ..training_pipeline import training_pipeline
+from ..verification_middleware import verify_action
 
 router = APIRouter(prefix="/api/ml", tags=["machine_learning"])
 
 @router.post("/train")
+@verify_action("ml_train", lambda data: data.get("model_name", "unknown"))
 async def train_model(
     model_name: str,
     model_type: str = "classifier",
@@ -28,6 +30,7 @@ async def train_model(
         return {"status": "blocked", "message": "Training blocked by governance"}
 
 @router.post("/deploy/{model_id}")
+@verify_action("ml_deploy", lambda data: f"model_{data.get('model_id', 'unknown')}")
 async def deploy_model(
     model_id: int,
     current_user: str = Depends(get_current_user)
