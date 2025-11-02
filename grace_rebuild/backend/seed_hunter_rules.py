@@ -1,16 +1,21 @@
 """Seed default Hunter security rules"""
 
 import asyncio
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-
 from sqlalchemy import select
-from models import async_session
-from governance_models import SecurityRule
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from governance_models import SecurityRule, Base
+
+DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
+engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def seed_hunter_rules():
     """Create 15+ default Hunter security rules"""
+    
+    # Create tables if they don't exist
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     
     rules = [
         # Injection Attack Detection
@@ -145,7 +150,7 @@ async def seed_hunter_rules():
         }
     ]
     
-    async with async_session() as session:
+    async with async_session_maker() as session:
         # Check which rules already exist
         existing = await session.execute(select(SecurityRule))
         existing_names = {r.name for r in existing.scalars().all()}
@@ -158,8 +163,8 @@ async def seed_hunter_rules():
                 new_count += 1
         
         await session.commit()
-        print(f"✓ Seeded {new_count} Hunter security rules ({len(existing_names)} already existed)")
-        print(f"✓ Total rules: {len(rules)}")
+        print(f"[OK] Seeded {new_count} Hunter security rules ({len(existing_names)} already existed)")
+        print(f"[OK] Total rules: {len(rules)}")
         
         # Show summary by severity
         severity_counts = {}
@@ -176,4 +181,4 @@ async def seed_hunter_rules():
 if __name__ == "__main__":
     print("Seeding Hunter security rules...")
     asyncio.run(seed_hunter_rules())
-    print("\n✅ Hunter security rules seeded successfully!")
+    print("\n[SUCCESS] Hunter security rules seeded successfully!")

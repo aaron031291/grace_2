@@ -1,16 +1,21 @@
 """Seed default governance policies for Grace"""
 
 import asyncio
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-
 from sqlalchemy import select
-from models import async_session
-from governance_models import GovernancePolicy
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from governance_models import GovernancePolicy, Base
+
+DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
+engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def seed_governance_policies():
     """Create 20+ default governance policies for production use"""
+    
+    # Create tables if they don't exist
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     
     policies = [
         # File System Policies
@@ -191,7 +196,7 @@ async def seed_governance_policies():
         }
     ]
     
-    async with async_session() as session:
+    async with async_session_maker() as session:
         # Check which policies already exist
         existing = await session.execute(select(GovernancePolicy))
         existing_names = {p.name for p in existing.scalars().all()}
@@ -204,8 +209,8 @@ async def seed_governance_policies():
                 new_count += 1
         
         await session.commit()
-        print(f"✓ Seeded {new_count} governance policies ({len(existing_names)} already existed)")
-        print(f"✓ Total policies: {len(policies)}")
+        print(f"[OK] Seeded {new_count} governance policies ({len(existing_names)} already existed)")
+        print(f"[OK] Total policies: {len(policies)}")
         
         # Show summary by severity
         severity_counts = {}
@@ -222,4 +227,4 @@ async def seed_governance_policies():
 if __name__ == "__main__":
     print("Seeding governance policies...")
     asyncio.run(seed_governance_policies())
-    print("\n✅ Governance policies seeded successfully!")
+    print("\n[SUCCESS] Governance policies seeded successfully!")

@@ -10,14 +10,14 @@ async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False
 
 Base = declarative_base()
 
-from sandbox_models import SandboxRun, SandboxFile
-from governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
-from task_executor import ExecutionTask
-from issue_models import IssueReport
-from memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
-from immutable_log import ImmutableLogEntry
-from mldl import MLEvent
-from avn_avm import VerificationEvent
+from .sandbox_models import SandboxRun, SandboxFile
+from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
+from .task_executor import ExecutionTask
+from .issue_models import IssueReport
+from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
+from .immutable_log import ImmutableLogEntry
+from .mldl import MLEvent
+from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact
 from .trusted_sources import TrustedSource
