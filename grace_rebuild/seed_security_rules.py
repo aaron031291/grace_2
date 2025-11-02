@@ -49,7 +49,7 @@ DEFAULT_RULES = [
 ]
 
 async def seed_rules():
-    print("🛡️ Seeding Hunter security rules...\n")
+    print("Seeding Hunter security rules...\n")
     
     async with async_session() as session:
         for rule_data in DEFAULT_RULES:
@@ -61,11 +61,11 @@ async def seed_rules():
                 action=rule_data["action"]
             )
             session.add(rule)
-            print(f"✅ Added rule: {rule_data['name']} ({rule_data['severity']})")
+            print(f"[+] Added rule: {rule_data['name']} ({rule_data['severity']})")
         
         await session.commit()
     
-    print("\n✅ Hunter security rules seeded!")
+    print("\n[SUCCESS] Hunter security rules seeded!")
     print("View at: http://localhost:8000/api/hunter/rules")
 
 if __name__ == "__main__":

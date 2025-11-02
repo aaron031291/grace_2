@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api
 from .reflection import reflection_service
 
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -20,6 +20,7 @@ from .trigger_mesh import trigger_mesh, setup_subscriptions
 from .meta_loop import meta_loop_engine
 from .websocket_manager import setup_ws_subscriptions
 from .trusted_sources import trust_manager
+from .auto_retrain import auto_retrain_engine
 
 @app.on_event("startup")
 async def on_startup():
@@ -38,6 +39,7 @@ async def on_startup():
     await task_executor.start_workers()
     await health_monitor.start()
     await meta_loop_engine.start()
+    await auto_retrain_engine.start()
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -46,6 +48,7 @@ async def on_shutdown():
     await health_monitor.stop()
     await trigger_mesh.stop()
     await meta_loop_engine.stop()
+    await auto_retrain_engine.stop()
 
 @app.get("/health")
 async def health_check():
@@ -75,6 +78,7 @@ app.include_router(websocket_routes.router)
 app.include_router(plugin_routes.router)
 app.include_router(ingest.router)
 app.include_router(trust_api.router)
+app.include_router(ml_api.router)
 
 # Grace IDE WebSocket
 from grace_ide.api.websocket import router as ide_ws_router
