@@ -3,6 +3,8 @@
   max-width: 1200px;
   margin: 0 auto;
   color: #e0e0e0;
+  background: #0f0f1e;
+  min-height: 100vh;
 }
 
 .dashboard h2 {
