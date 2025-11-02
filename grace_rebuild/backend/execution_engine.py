@@ -153,14 +153,16 @@ class ExecutionEngine:
             )
             
             immutable_record_id = await immutable_log.append(
-                event_type="code_execution",
                 actor=user,
+                action="code_execution",
                 resource=f"{language}_code",
-                data={
+                subsystem="execution_engine",
+                payload={
                     "language": language,
-                    "success": result["success"],
-                    "duration_ms": duration_ms
-                }
+                    "preset": preset,
+                    "code_length": len(code)
+                },
+                result="success" if result["success"] else "failed"
             )
             
             return ExecutionResult(

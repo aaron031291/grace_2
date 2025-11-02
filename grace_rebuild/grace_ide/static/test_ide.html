@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcendence IDE WebSocket Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 {
+            color: #4ec9b0;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+        .section {
+            background: #252526;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #3c3c3c;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+        }
+        .output {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            margin-top: 10px;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.connected {
+            background: #1e5631;
+            border: 1px solid #4ec9b0;
+        }
+        .status.disconnected {
+            background: #5a1d1d;
+            border: 1px solid #f48771;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+        .error {
+            color: #f48771;
+        }
+        .warning {
+            color: #dcdcaa;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 Transcendence IDE WebSocket Test</h1>
+
+    <div class="section">
+        <h2>Connection</h2>
+        <input type="text" id="token" placeholder="Enter JWT token">
+        <button onclick="connectWS()">Connect</button>
+        <button onclick="disconnectWS()">Disconnect</button>
+        <div id="status" class="status disconnected">Disconnected</div>
+    </div>
+
+    <div class="section">
+        <h2>File Operations</h2>
+        
+        <label>File Path:</label>
+        <input type="text" id="filePath" placeholder="test.py" value="test.py">
+        
+        <label>File Content:</label>
+        <textarea id="fileContent" rows="10">print("Hello from Transcendence IDE!")
+print("This is a test file")
+
+# Test code
+for i in range(5):
+    print(f"Iteration {i}")</textarea>
+        
+        <button onclick="testFileCreate()">Create File</button>
+        <button onclick="testFileOpen()">Open File</button>
+        <button onclick="testFileSave()">Save File</button>
+        <button onclick="testFileDelete()">Delete File</button>
+        <button onclick="testDirectoryList()">List Directory</button>
+        
+        <div class="output" id="fileOutput"></div>
+    </div>
+
+    <div class="section">
+        <h2>Code Execution</h2>
+        
+        <label>Language:</label>
+        <input type="text" id="language" placeholder="python" value="python">
+        
+        <label>Code:</label>
+        <textarea id="codeToExecute" rows="8">print("Executing in sandbox...")
+import sys
+print(f"Python version: {sys.version}")
+print("Hello from sandboxed execution!")</textarea>
+        
+        <button onclick="testExecute()">Execute Code</button>
+        
+        <div class="output" id="executeOutput"></div>
+    </div>
+
+    <div class="section">
+        <h2>Security Operations</h2>
+        
+        <label>File to Scan:</label>
+        <input type="text" id="scanPath" placeholder="test.py" value="test.py">
+        
+        <button onclick="testSecurityScan()">Security Scan</button>
+        <button onclick="testAutoFix()">Auto Fix</button>
+        <button onclick="testQuarantine()">Quarantine File</button>
+        
+        <div class="output" id="securityOutput"></div>
+    </div>
+
+    <div class="section">
+        <h2>WebSocket Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div class="output" id="wsLog"></div>
+    </div>
+
+    <script src="websocket_client.js"></script>
+    <script>
+        let wsClient = null;
+        let ideManager = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('wsLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            logDiv.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('wsLog').innerHTML = '';
+        }
+
+        async function connectWS() {
+            try {
+                const token = document.getElementById('token').value;
+                if (!token) {
+                    log('Please enter a JWT token', 'error');
+                    return;
+                }
+
+                wsClient = new IDEWebSocketClient(token);
+                ideManager = new IDEManager(wsClient);
+
+                wsClient.on('connected', (data) => {
+                    log(`Connected as ${data.user}`, 'success');
+                });
+
+                wsClient.on('message', (message) => {
+                    log(`Received: ${message.type}`, 'info');
+                });
+
+                await wsClient.connect();
+                
+                document.getElementById('status').textContent = 'Connected';
+                document.getElementById('status').className = 'status connected';
+                log('WebSocket connected successfully', 'success');
+
+            } catch (error) {
+                log(`Connection error: ${error.message}`, 'error');
+                document.getElementById('status').textContent = 'Connection Failed';
+                document.getElementById('status').className = 'status disconnected';
+            }
+        }
+
+        function disconnectWS() {
+            if (wsClient) {
+                wsClient.disconnect();
+                document.getElementById('status').textContent = 'Disconnected';
+                document.getElementById('status').className = 'status disconnected';
+                log('Disconnected', 'warning');
+            }
+        }
+
+        async function testFileCreate() {
+            try {
+                const path = document.getElementById('filePath').value;
+                const content = document.getElementById('fileContent').value;
+                
+                log(`Creating file: ${path}`, 'info');
+                const result = await ideManager.createFile(path, content);
+                
+                document.getElementById('fileOutput').textContent = JSON.stringify(result, null, 2);
+                log(`File created: ${path} (verified: ${result.verified})`, 'success');
+            } catch (error) {
+                document.getElementById('fileOutput').textContent = `Error: ${error.message}`;
+                log(`Create failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFileOpen() {
+            try {
+                const path = document.getElementById('filePath').value;
+                
+                log(`Opening file: ${path}`, 'info');
+                const file = await ideManager.openFile(path);
+                
+                document.getElementById('fileContent').value = file.content;
+                document.getElementById('fileOutput').textContent = JSON.stringify(file, null, 2);
+                log(`File opened: ${path} (${file.size} bytes)`, 'success');
+            } catch (error) {
+                document.getElementById('fileOutput').textContent = `Error: ${error.message}`;
+                log(`Open failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFileSave() {
+            try {
+                const path = document.getElementById('filePath').value;
+                const content = document.getElementById('fileContent').value;
+                
+                log(`Saving file: ${path}`, 'info');
+                const result = await ideManager.saveFile(path, content);
+                
+                document.getElementById('fileOutput').textContent = JSON.stringify(result, null, 2);
+                
+                if (result.status === 'pending') {
+                    log(`File save pending review: ${result.reason}`, 'warning');
+                } else {
+                    log(`File saved: ${path} (verified: ${result.verified})`, 'success');
+                }
+            } catch (error) {
+                document.getElementById('fileOutput').textContent = `Error: ${error.message}`;
+                log(`Save failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFileDelete() {
+            try {
+                const path = document.getElementById('filePath').value;
+                
+                if (!confirm(`Delete ${path}?`)) return;
+                
+                log(`Deleting file: ${path}`, 'info');
+                const result = await ideManager.deleteFile(path);
+                
+                document.getElementById('fileOutput').textContent = JSON.stringify(result, null, 2);
+                
+                if (result.status === 'pending') {
+                    log(`Delete pending approval: ${result.reason}`, 'warning');
+                } else {
+                    log(`File deleted: ${path}`, 'success');
+                }
+            } catch (error) {
+                document.getElementById('fileOutput').textContent = `Error: ${error.message}`;
+                log(`Delete failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectoryList() {
+            try {
+                log('Fetching directory tree...', 'info');
+                const tree = await ideManager.refreshFileTree();
+                
+                document.getElementById('fileOutput').textContent = JSON.stringify(tree, null, 2);
+                log(`Directory tree loaded (${Object.keys(tree).length} entries)`, 'success');
+            } catch (error) {
+                document.getElementById('fileOutput').textContent = `Error: ${error.message}`;
+                log(`List failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testExecute() {
+            try {
+                const language = document.getElementById('language').value;
+                const code = document.getElementById('codeToExecute').value;
+                
+                log(`Executing ${language} code...`, 'info');
+                const result = await ideManager.runCode(language, code);
+                
+                const output = `Exit Code: ${result.exitCode}\n` +
+                              `Duration: ${result.duration}ms\n` +
+                              `Verified: ${result.verified}\n\n` +
+                              `=== STDOUT ===\n${result.stdout}\n\n` +
+                              `=== STDERR ===\n${result.stderr}`;
+                
+                document.getElementById('executeOutput').textContent = output;
+                
+                if (result.success) {
+                    log(`Execution successful (${result.duration}ms)`, 'success');
+                } else {
+                    log(`Execution failed: exit code ${result.exitCode}`, 'error');
+                }
+            } catch (error) {
+                document.getElementById('executeOutput').textContent = `Error: ${error.message}`;
+                log(`Execution failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSecurityScan() {
+            try {
+                const path = document.getElementById('scanPath').value;
+                
+                log(`Scanning file: ${path}`, 'info');
+                const result = await ideManager.scanFile(path);
+                
+                const output = `Risk Score: ${result.riskScore}/10\n` +
+                              `Recommendation: ${result.recommendation}\n` +
+                              `Hunter Alerts: ${result.hunterAlerts}\n\n` +
+                              `Static Analysis:\n${JSON.stringify(result.staticAnalysis, null, 2)}`;
+                
+                document.getElementById('securityOutput').textContent = output;
+                
+                if (result.riskScore >= 5) {
+                    log(`Security scan complete: HIGH RISK (${result.riskScore}/10)`, 'error');
+                } else if (result.riskScore >= 2) {
+                    log(`Security scan complete: MEDIUM RISK (${result.riskScore}/10)`, 'warning');
+                } else {
+                    log(`Security scan complete: LOW RISK (${result.riskScore}/10)`, 'success');
+                }
+            } catch (error) {
+                document.getElementById('securityOutput').textContent = `Error: ${error.message}`;
+                log(`Scan failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAutoFix() {
+            try {
+                const path = document.getElementById('scanPath').value;
+                
+                log(`Auto-fixing: ${path}`, 'info');
+                const result = await ideManager.fixIssue(path, 'hardcoded password');
+                
+                document.getElementById('securityOutput').textContent = JSON.stringify(result, null, 2);
+                log(`Auto-fix applied (verified: ${result.verified})`, 'success');
+            } catch (error) {
+                document.getElementById('securityOutput').textContent = `Error: ${error.message}`;
+                log(`Auto-fix failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testQuarantine() {
+            try {
+                const path = document.getElementById('scanPath').value;
+                
+                if (!confirm(`Quarantine ${path}?`)) return;
+                
+                log(`Quarantining: ${path}`, 'info');
+                const result = await ideManager.quarantineFile(path);
+                
+                const output = `Original: ${result.originalPath}\n` +
+                              `Quarantine: ${result.quarantinePath}\n` +
+                              `Verified: ${result.verified}`;
+                
+                document.getElementById('securityOutput').textContent = output;
+                log(`File quarantined: ${result.quarantinePath}`, 'success');
+            } catch (error) {
+                document.getElementById('securityOutput').textContent = `Error: ${error.message}`;
+                log(`Quarantine failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

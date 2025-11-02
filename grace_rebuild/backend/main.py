@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution
 from .reflection import reflection_service
 from .auth import get_current_user
 from .verification_integration import verification_integration
@@ -120,6 +120,7 @@ app.include_router(plugin_routes.router)
 app.include_router(ingest.router)
 app.include_router(trust_api.router)
 app.include_router(ml_api.router)
+app.include_router(execution.router)
 
 # Grace IDE WebSocket
 from grace_ide.api.websocket import router as ide_ws_router
