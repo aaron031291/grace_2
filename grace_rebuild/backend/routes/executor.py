@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from ..auth import get_current_user
 from ..task_executor import task_executor
+from ..verification_middleware import verify_action
 import asyncio
 
 router = APIRouter(prefix="/api/executor", tags=["executor"])
@@ -12,6 +13,7 @@ class TaskSubmit(BaseModel):
     steps: int = 10
 
 @router.post("/submit")
+@verify_action("task_execution", lambda data: data.get("task_type", "unknown"))
 async def submit_task(
     req: TaskSubmit,
     current_user: str = Depends(get_current_user)

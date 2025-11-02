@@ -3,8 +3,33 @@
 from .hunter import hunter
 from .models import async_session, Task
 from .memory import PersistentMemory
+from .governance_models import SecurityEvent
 
 memory = PersistentMemory()
+
+
+class HunterIntegration:
+    """Integration layer for Hunter security monitoring"""
+    
+    async def flag_verification_failure(self, action_id: str, actor: str, action_type: str, reason: str):
+        """Flag a verification failure as a security event"""
+        async with async_session() as session:
+            event = SecurityEvent(
+                actor=actor,
+                action=action_type,
+                resource=action_id,
+                severity="critical",
+                details=f"Verification failed: {reason}",
+                status="open"
+            )
+            session.add(event)
+            await session.commit()
+            
+            print(f"⚠️ Verification failure flagged: {action_type} by {actor}")
+
+
+hunter_integration = HunterIntegration()
+
 
 async def handle_security_alert(actor: str, rule_name: str, event_id: int, resource: str):
     """React to Hunter security alerts"""

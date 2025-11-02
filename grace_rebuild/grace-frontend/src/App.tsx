@@ -2,9 +2,10 @@ import { useState, FormEvent, useEffect } from 'react';
 import { MemoryBrowser } from './components/MemoryBrowser';
 import { TranscendenceIDE } from './components/TranscendenceIDE';
 import { HunterDashboard } from './components/HunterDashboard';
+import { KnowledgeIngestion } from './components/KnowledgeIngestion';
 
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -87,6 +88,10 @@ export default function App() {
 
   if (page === 'memory') {
     return <MemoryBrowser />;
+  }
+
+  if (page === 'knowledge') {
+    return <KnowledgeIngestion />;
   }
 
   if (page === 'dash') {
@@ -203,6 +208,7 @@ export default function App() {
           <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dashboard</button>
           <button onClick={() => setPage('memory')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📁 Memory</button>
           <button onClick={() => setPage('hunter')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🛡️ Hunter</button>
+          <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
           <button onClick={() => { setToken(''); localStorage.clear(); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </div>
       </div>

@@ -5,6 +5,7 @@ from ..auth import get_current_user
 from ..ingestion_service import ingestion_service
 from ..trusted_sources import trust_manager
 from ..verification import verification_engine
+from ..verification_middleware import verify_action
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
@@ -21,6 +22,7 @@ class IngestURL(BaseModel):
     domain: str = "external"
 
 @router.post("/text")
+@verify_action("data_ingest", lambda data: data.get("title", "unknown"))
 async def ingest_text(
     req: IngestText,
     current_user: str = Depends(get_current_user)
@@ -102,6 +104,7 @@ async def ingest_url(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/file")
+@verify_action("file_ingest", lambda data: data.get("filename", "unknown"))
 async def ingest_file(
     file: UploadFile = File(...),
     domain: str = Form("uploads"),

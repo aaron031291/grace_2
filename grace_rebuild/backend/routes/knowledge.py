@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 from ..auth import get_current_user
 from ..knowledge import knowledge_manager
+from ..verification_middleware import verify_action
 
 router = APIRouter(prefix="/api/knowledge", tags=["knowledge"])
 
@@ -16,6 +17,7 @@ class SearchRequest(BaseModel):
     limit: int = 5
 
 @router.post("/ingest")
+@verify_action("knowledge_ingest", lambda data: data.get("source", "unknown"))
 async def ingest_knowledge(
     req: IngestRequest,
     current_user: str = Depends(get_current_user)
