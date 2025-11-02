@@ -6,8 +6,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from sqlalchemy import select
-from backend.models import async_session
-from backend.governance_models import GovernancePolicy
+from models import async_session
+from governance_models import GovernancePolicy
 
 async def seed_governance_policies():
     """Create 20+ default governance policies for production use"""
@@ -22,231 +22,183 @@ async def seed_governance_policies():
             "description": "Block access to system directories without approval"
         },
         {
-            "policy_name": "restrict_home_directory_write",
-            "policy_type": "file_write",
-            "resource_pattern": r"^/home/[^/]+/\.(ssh|gnupg|config)/.*",
+            "name": "restrict_home_directory_write",
+            "severity": "high",
+            "condition": r"file_write AND path MATCHES ^/home/[^/]+/\.(ssh|gnupg|config)/.*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "high",
             "description": "Block writes to sensitive user config directories"
         },
         {
-            "policy_name": "allow_workspace_access",
-            "policy_type": "file_access",
-            "resource_pattern": r"^/(workspace|tmp|var/tmp)/.*",
+            "name": "allow_workspace_access",
+            "severity": "low",
+            "condition": r"file_access AND path MATCHES ^/(workspace|tmp|var/tmp)/.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Allow unrestricted access to workspace and temp"
         },
         {
-            "policy_name": "require_approval_for_deletion",
-            "policy_type": "file_delete",
-            "resource_pattern": r".*",
+            "name": "require_approval_for_deletion",
+            "severity": "medium",
+            "condition": r"file_delete AND path MATCHES .*",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "medium",
             "description": "Require approval for any file deletion"
         },
         
         # Code Execution Policies
         {
-            "policy_name": "block_shell_commands",
-            "policy_type": "execution",
-            "resource_pattern": r".*(rm -rf|dd if=|mkfs|format|fdisk).*",
+            "name": "block_shell_commands",
+            "severity": "critical",
+            "condition": r"execution AND command MATCHES .*(rm -rf|dd if=|mkfs|format|fdisk).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block destructive shell commands"
         },
         {
-            "policy_name": "sandbox_python_execution",
-            "policy_type": "execution",
-            "resource_pattern": r"python.*",
+            "name": "sandbox_python_execution",
+            "severity": "low",
+            "condition": r"execution AND command MATCHES python.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Allow Python execution in sandbox"
         },
         {
-            "policy_name": "require_approval_for_downloads",
-            "policy_type": "execution",
-            "resource_pattern": r".*(wget|curl|git clone).*",
+            "name": "require_approval_for_downloads",
+            "severity": "medium",
+            "condition": r"execution AND command MATCHES .*(wget|curl|git clone).*",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "medium",
             "description": "Require approval for downloading external content"
         },
         {
-            "policy_name": "block_privilege_escalation",
-            "policy_type": "execution",
-            "resource_pattern": r".*(sudo|su|pkexec).*",
+            "name": "block_privilege_escalation",
+            "severity": "critical",
+            "condition": r"execution AND command MATCHES .*(sudo|su|pkexec).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block privilege escalation attempts"
         },
         
         # Network Policies
         {
-            "policy_name": "restrict_external_api_calls",
-            "policy_type": "network",
-            "resource_pattern": r"https?://(?!localhost|127\.0\.0\.1).*",
+            "name": "restrict_external_api_calls",
+            "severity": "medium",
+            "condition": r"network AND url MATCHES https?://(?!localhost|127\.0\.0\.1).*",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "medium",
             "description": "Require approval for external network calls"
         },
         {
-            "policy_name": "allow_localhost_connections",
-            "policy_type": "network",
-            "resource_pattern": r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0):.*",
+            "name": "allow_localhost_connections",
+            "severity": "low",
+            "condition": r"network AND url MATCHES https?://(localhost|127\.0\.0\.1|0\.0\.0\.0):.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Allow localhost connections"
         },
         {
-            "policy_name": "block_sensitive_ports",
-            "policy_type": "network",
-            "resource_pattern": r".*:(22|23|3389|5900).*",
+            "name": "block_sensitive_ports",
+            "severity": "critical",
+            "condition": r"network AND url MATCHES .*:(22|23|3389|5900).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block SSH, Telnet, RDP, VNC ports"
         },
         
         # Knowledge Ingestion Policies
         {
-            "policy_name": "require_high_trust_sources",
-            "policy_type": "knowledge_ingestion",
-            "resource_pattern": r".*",
+            "name": "require_high_trust_sources",
+            "severity": "low",
+            "condition": r"knowledge_ingestion AND trust_score < 70",
             "action": "warn",
-            "requires_approval": False,
-            "risk_level": "low",
-            "description": "Warn on low-trust knowledge sources",
-            "metadata": {"min_trust_score": 70.0}
+            "description": "Warn on low-trust knowledge sources"
         },
         {
-            "policy_name": "block_untrusted_code_execution",
-            "policy_type": "knowledge_ingestion",
-            "resource_pattern": r".*(eval|exec|__import__).*",
+            "name": "block_untrusted_code_execution",
+            "severity": "critical",
+            "condition": r"knowledge_ingestion AND content MATCHES .*(eval|exec|__import__).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block ingestion of code with dangerous functions"
         },
         {
-            "policy_name": "allow_official_documentation",
-            "policy_type": "knowledge_ingestion",
-            "resource_pattern": r"https://(docs\.python\.org|developer\.mozilla\.org|kubernetes\.io|reactjs\.org)/.*",
+            "name": "allow_official_documentation",
+            "severity": "low",
+            "condition": r"knowledge_ingestion AND url MATCHES https://(docs\.python\.org|developer\.mozilla\.org|kubernetes\.io|reactjs\.org)/.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Auto-approve official documentation sources"
         },
         
         # Database Policies
         {
-            "policy_name": "block_drop_table",
-            "policy_type": "database",
-            "resource_pattern": r".*(DROP TABLE|TRUNCATE|DELETE FROM users).*",
+            "name": "block_drop_table",
+            "severity": "critical",
+            "condition": r"database AND query MATCHES .*(DROP TABLE|TRUNCATE|DELETE FROM users).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block destructive database operations"
         },
         {
-            "policy_name": "allow_read_queries",
-            "policy_type": "database",
-            "resource_pattern": r"^SELECT.*",
+            "name": "allow_read_queries",
+            "severity": "low",
+            "condition": r"database AND query MATCHES ^SELECT.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Allow SELECT queries"
         },
         {
-            "policy_name": "require_approval_for_schema_changes",
-            "policy_type": "database",
-            "resource_pattern": r".*(ALTER TABLE|CREATE TABLE|DROP COLUMN).*",
+            "name": "require_approval_for_schema_changes",
+            "severity": "high",
+            "condition": r"database AND query MATCHES .*(ALTER TABLE|CREATE TABLE|DROP COLUMN).*",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "high",
             "description": "Require approval for schema modifications"
         },
         
         # ML/DL Policies
         {
-            "policy_name": "require_verification_for_model_deployment",
-            "policy_type": "ml_deployment",
-            "resource_pattern": r".*",
+            "name": "require_verification_for_model_deployment",
+            "severity": "high",
+            "condition": r"ml_deployment AND (accuracy < 0.85 OR test_samples < 100)",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "high",
-            "description": "Require verification before deploying ML models",
-            "metadata": {"min_accuracy": 0.85, "min_test_samples": 100}
+            "description": "Require verification before deploying ML models"
         },
         {
-            "policy_name": "block_untrusted_training_data",
-            "policy_type": "ml_training",
-            "resource_pattern": r".*",
+            "name": "block_untrusted_training_data",
+            "severity": "medium",
+            "condition": r"ml_training AND trust_score < 60",
             "action": "warn",
-            "requires_approval": False,
-            "risk_level": "medium",
-            "description": "Warn when training data has low trust scores",
-            "metadata": {"min_trust_score": 60.0}
+            "description": "Warn when training data has low trust scores"
         },
         
         # Self-Modification Policies
         {
-            "policy_name": "block_core_module_modification",
-            "policy_type": "self_modification",
-            "resource_pattern": r".*(models\.py|auth\.py|verification\.py|governance\.py).*",
+            "name": "block_core_module_modification",
+            "severity": "critical",
+            "condition": r"self_modification AND path MATCHES .*(models\.py|auth\.py|verification\.py|governance\.py).*",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "critical",
             "description": "Block modification of core Grace modules without approval"
         },
         {
-            "policy_name": "allow_plugin_modifications",
-            "policy_type": "self_modification",
-            "resource_pattern": r".*plugins/.*",
+            "name": "allow_plugin_modifications",
+            "severity": "low",
+            "condition": r"self_modification AND path MATCHES .*plugins/.*",
             "action": "allow",
-            "requires_approval": False,
-            "risk_level": "low",
             "description": "Allow plugin modifications"
         },
         
         # Meta-Loop Policies
         {
-            "policy_name": "require_approval_for_threshold_changes",
-            "policy_type": "meta_optimization",
-            "resource_pattern": r".*",
+            "name": "require_approval_for_threshold_changes",
+            "severity": "medium",
+            "condition": r"meta_optimization AND change_requested = true",
             "action": "warn",
-            "requires_approval": True,
-            "risk_level": "medium",
             "description": "Require approval before applying meta-loop recommendations"
         },
         {
-            "policy_name": "block_extreme_threshold_adjustments",
-            "policy_type": "meta_optimization",
-            "resource_pattern": r".*",
+            "name": "block_extreme_threshold_adjustments",
+            "severity": "high",
+            "condition": r"meta_optimization AND change_percent > 50",
             "action": "block",
-            "requires_approval": True,
-            "risk_level": "high",
-            "description": "Block threshold changes > 50% from baseline",
-            "metadata": {"max_change_percent": 50.0}
+            "description": "Block threshold changes > 50% from baseline"
         }
     ]
     
     async with async_session() as session:
         # Check which policies already exist
         existing = await session.execute(select(GovernancePolicy))
-        existing_names = {p.policy_name for p in existing.scalars().all()}
+        existing_names = {p.name for p in existing.scalars().all()}
         
         new_count = 0
         for policy_data in policies:
-            if policy_data["policy_name"] not in existing_names:
+            if policy_data["name"] not in existing_names:
                 policy = GovernancePolicy(**policy_data)
                 session.add(policy)
                 new_count += 1
@@ -255,15 +207,17 @@ async def seed_governance_policies():
         print(f"✓ Seeded {new_count} governance policies ({len(existing_names)} already existed)")
         print(f"✓ Total policies: {len(policies)}")
         
-        # Show summary by type
-        policy_types = {}
+        # Show summary by severity
+        severity_counts = {}
         for p in policies:
-            pt = p["policy_type"]
-            policy_types[pt] = policy_types.get(pt, 0) + 1
+            sev = p["severity"]
+            severity_counts[sev] = severity_counts.get(sev, 0) + 1
         
-        print("\nPolicy breakdown:")
-        for ptype, count in sorted(policy_types.items()):
-            print(f"  - {ptype}: {count}")
+        print("\nPolicy breakdown by severity:")
+        for severity in ["critical", "high", "medium", "low"]:
+            count = severity_counts.get(severity, 0)
+            if count > 0:
+                print(f"  - {severity}: {count}")
 
 if __name__ == "__main__":
     print("Seeding governance policies...")

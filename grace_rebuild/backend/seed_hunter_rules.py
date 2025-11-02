@@ -3,11 +3,11 @@
 import asyncio
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from sqlalchemy import select
-from backend.models import async_session
-from backend.governance_models import SecurityRule
+from models import async_session
+from governance_models import SecurityRule
 
 async def seed_hunter_rules():
     """Create 15+ default Hunter security rules"""
@@ -15,182 +15,144 @@ async def seed_hunter_rules():
     rules = [
         # Injection Attack Detection
         {
-            "rule_name": "sql_injection_detection",
-            "rule_type": "pattern_match",
-            "pattern": r".*(UNION SELECT|OR 1=1|DROP TABLE|--\s|;--|\bEXEC\b|\bUNION\b.*\bSELECT\b).*",
+            "name": "sql_injection_detection",
+            "condition": r"pattern_match: .*(UNION SELECT|OR 1=1|DROP TABLE|--\s|;--|\bEXEC\b|\bUNION\b.*\bSELECT\b).*",
             "severity": "critical",
             "action": "alert_and_block",
-            "description": "Detect SQL injection attempts in inputs",
-            "auto_remediate": True
+            "description": "Detect SQL injection attempts in inputs"
         },
         {
-            "rule_name": "xss_detection",
-            "rule_type": "pattern_match",
-            "pattern": r".*(<script|javascript:|onerror=|onload=|<iframe|eval\(|document\.cookie).*",
+            "name": "xss_detection",
+            "condition": r"pattern_match: .*(<script|javascript:|onerror=|onload=|<iframe|eval\(|document\.cookie).*",
             "severity": "high",
             "action": "alert_and_block",
-            "description": "Detect cross-site scripting (XSS) attempts",
-            "auto_remediate": True
+            "description": "Detect cross-site scripting (XSS) attempts"
         },
         {
-            "rule_name": "command_injection_detection",
-            "rule_type": "pattern_match",
-            "pattern": r".*(;|\||&&|\$\(|\`).*(\brm\b|\bcat\b|\bwget\b|\bcurl\b|\bash\b).*",
+            "name": "command_injection_detection",
+            "condition": r"pattern_match: .*(;|\||&&|\$\(|\`).*(\brm\b|\bcat\b|\bwget\b|\bcurl\b|\bash\b).*",
             "severity": "critical",
             "action": "alert_and_block",
-            "description": "Detect OS command injection attempts",
-            "auto_remediate": True
+            "description": "Detect OS command injection attempts"
         },
         {
-            "rule_name": "path_traversal_detection",
-            "rule_type": "pattern_match",
-            "pattern": r".*(\.\.\/|\.\.\\|%2e%2e|\.\.%2f|\.\.%5c).*",
+            "name": "path_traversal_detection",
+            "condition": r"pattern_match: .*(\.\.\/|\.\.\\|%2e%2e|\.\.%2f|\.\.%5c).*",
             "severity": "high",
             "action": "alert_and_block",
-            "description": "Detect path traversal attempts",
-            "auto_remediate": True
+            "description": "Detect path traversal attempts"
         },
         
         # Secret Exposure Detection
         {
-            "rule_name": "api_key_exposure",
-            "rule_type": "pattern_match",
-            "pattern": r".*(api[_-]?key|apikey|access[_-]?token|secret[_-]?key).*[:=]\s*['\"]?[a-zA-Z0-9]{20,}['\"]?.*",
+            "name": "api_key_exposure",
+            "condition": r"pattern_match: .*(api[_-]?key|apikey|access[_-]?token|secret[_-]?key).*[:=]\s*['\"]?[a-zA-Z0-9]{20,}['\"]?.*",
             "severity": "critical",
             "action": "alert_and_redact",
-            "description": "Detect API keys or secrets in code/messages",
-            "auto_remediate": True
+            "description": "Detect API keys or secrets in code/messages"
         },
         {
-            "rule_name": "aws_credentials_exposure",
-            "rule_type": "pattern_match",
-            "pattern": r".*(AKIA[0-9A-Z]{16}|aws_access_key_id|aws_secret_access_key).*",
+            "name": "aws_credentials_exposure",
+            "condition": r"pattern_match: .*(AKIA[0-9A-Z]{16}|aws_access_key_id|aws_secret_access_key).*",
             "severity": "critical",
             "action": "alert_and_redact",
-            "description": "Detect AWS credentials exposure",
-            "auto_remediate": True
+            "description": "Detect AWS credentials exposure"
         },
         {
-            "rule_name": "private_key_exposure",
-            "rule_type": "pattern_match",
-            "pattern": r".*(-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----|BEGIN PRIVATE KEY).*",
+            "name": "private_key_exposure",
+            "condition": r"pattern_match: .*(-----BEGIN (RSA |OPENSSH )?PRIVATE KEY-----|BEGIN PRIVATE KEY).*",
             "severity": "critical",
             "action": "alert_and_redact",
-            "description": "Detect private key exposure",
-            "auto_remediate": True
+            "description": "Detect private key exposure"
         },
         
         # Anomalous Behavior Detection
         {
-            "rule_name": "excessive_api_calls",
-            "rule_type": "rate_limit",
-            "pattern": r".*",
+            "name": "excessive_api_calls",
+            "condition": r"rate_limit: api_calls > 100 per 60 seconds",
             "severity": "medium",
             "action": "alert",
-            "description": "Alert on >100 API calls per minute from single user",
-            "auto_remediate": False,
-            "metadata": {"threshold": 100, "window_seconds": 60}
+            "description": "Alert on >100 API calls per minute from single user"
         },
         {
-            "rule_name": "repeated_authentication_failures",
-            "rule_type": "rate_limit",
-            "pattern": r".*/auth/login.*",
+            "name": "repeated_authentication_failures",
+            "condition": r"rate_limit: auth_failures > 5 per 300 seconds at /auth/login",
             "severity": "high",
             "action": "alert_and_block",
-            "description": "Block after 5 failed login attempts in 5 minutes",
-            "auto_remediate": True,
-            "metadata": {"threshold": 5, "window_seconds": 300}
+            "description": "Block after 5 failed login attempts in 5 minutes"
         },
         {
-            "rule_name": "unusual_file_access_volume",
-            "rule_type": "anomaly",
-            "pattern": r".*",
+            "name": "unusual_file_access_volume",
+            "condition": r"anomaly: file_access > 50 per 60 seconds",
             "severity": "medium",
             "action": "alert",
-            "description": "Alert on >50 file access operations per minute",
-            "auto_remediate": False,
-            "metadata": {"threshold": 50, "window_seconds": 60}
+            "description": "Alert on >50 file access operations per minute"
         },
         
         # Malicious Content Detection
         {
-            "rule_name": "dangerous_python_functions",
-            "rule_type": "pattern_match",
-            "pattern": r".*(eval\(|exec\(|compile\(|__import__\(|open\(.*['\"]w['\"]).*",
+            "name": "dangerous_python_functions",
+            "condition": r"pattern_match: .*(eval\(|exec\(|compile\(|__import__\(|open\(.*['\"]w['\"]).*",
             "severity": "high",
             "action": "alert",
-            "description": "Warn on dangerous Python functions in code",
-            "auto_remediate": False
+            "description": "Warn on dangerous Python functions in code"
         },
         {
-            "rule_name": "crypto_mining_indicators",
-            "rule_type": "pattern_match",
-            "pattern": r".*(xmrig|ethminer|stratum\+tcp|mining\.pool|cryptonight).*",
+            "name": "crypto_mining_indicators",
+            "condition": r"pattern_match: .*(xmrig|ethminer|stratum\+tcp|mining\.pool|cryptonight).*",
             "severity": "critical",
             "action": "alert_and_block",
-            "description": "Detect cryptocurrency mining attempts",
-            "auto_remediate": True
+            "description": "Detect cryptocurrency mining attempts"
         },
         {
-            "rule_name": "reverse_shell_detection",
-            "rule_type": "pattern_match",
-            "pattern": r".*(nc -e|/bin/sh|bash -i|socat.*exec|python.*socket\.connect).*",
+            "name": "reverse_shell_detection",
+            "condition": r"pattern_match: .*(nc -e|/bin/sh|bash -i|socat.*exec|python.*socket\.connect).*",
             "severity": "critical",
             "action": "alert_and_block",
-            "description": "Detect reverse shell attempts",
-            "auto_remediate": True
+            "description": "Detect reverse shell attempts"
         },
         
         # Data Exfiltration Detection
         {
-            "rule_name": "large_data_transfer",
-            "rule_type": "anomaly",
-            "pattern": r".*",
+            "name": "large_data_transfer",
+            "condition": r"anomaly: data_transfer > 104857600 bytes",
             "severity": "high",
             "action": "alert",
-            "description": "Alert on data transfers >100MB in single request",
-            "auto_remediate": False,
-            "metadata": {"threshold_bytes": 104857600}
+            "description": "Alert on data transfers >100MB in single request"
         },
         {
-            "rule_name": "sensitive_data_regex",
-            "rule_type": "pattern_match",
-            "pattern": r".*(ssn|social.security|\b\d{3}-\d{2}-\d{4}\b|credit.card|\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b).*",
+            "name": "sensitive_data_regex",
+            "condition": r"pattern_match: .*(ssn|social.security|\b\d{3}-\d{2}-\d{4}\b|credit.card|\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b).*",
             "severity": "critical",
             "action": "alert_and_redact",
-            "description": "Detect and redact SSN/credit card numbers",
-            "auto_remediate": True
+            "description": "Detect and redact SSN/credit card numbers"
         },
         
         # Privilege Escalation Detection
         {
-            "rule_name": "privilege_escalation_attempts",
-            "rule_type": "pattern_match",
-            "pattern": r".*(sudo|su -|pkexec|chmod 777|chown root).*",
+            "name": "privilege_escalation_attempts",
+            "condition": r"pattern_match: .*(sudo|su -|pkexec|chmod 777|chown root).*",
             "severity": "critical",
             "action": "alert_and_block",
-            "description": "Detect privilege escalation attempts",
-            "auto_remediate": True
+            "description": "Detect privilege escalation attempts"
         },
         {
-            "rule_name": "unauthorized_admin_access",
-            "rule_type": "access_control",
-            "pattern": r".*/admin/.*",
+            "name": "unauthorized_admin_access",
+            "condition": r"access_control: non_admin accessing /admin/.*",
             "severity": "high",
             "action": "alert",
-            "description": "Alert on non-admin users accessing admin endpoints",
-            "auto_remediate": False
+            "description": "Alert on non-admin users accessing admin endpoints"
         }
     ]
     
     async with async_session() as session:
         # Check which rules already exist
         existing = await session.execute(select(SecurityRule))
-        existing_names = {r.rule_name for r in existing.scalars().all()}
+        existing_names = {r.name for r in existing.scalars().all()}
         
         new_count = 0
         for rule_data in rules:
-            if rule_data["rule_name"] not in existing_names:
+            if rule_data["name"] not in existing_names:
                 rule = SecurityRule(**rule_data)
                 session.add(rule)
                 new_count += 1
@@ -210,10 +172,6 @@ async def seed_hunter_rules():
             count = severity_counts.get(severity, 0)
             if count > 0:
                 print(f"  - {severity}: {count}")
-        
-        # Show auto-remediate stats
-        auto_remediate_count = sum(1 for r in rules if r.get("auto_remediate", False))
-        print(f"\nAuto-remediate enabled: {auto_remediate_count}/{len(rules)}")
 
 if __name__ == "__main__":
     print("Seeding Hunter security rules...")
