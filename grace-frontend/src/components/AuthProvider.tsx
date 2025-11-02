@@ -3,8 +3,8 @@ import {
   useContext,
   useState,
   useCallback,
-  ReactNode,
   useEffect,
+  type ReactNode,
 } from 'react';
 
 interface AuthContextType {
