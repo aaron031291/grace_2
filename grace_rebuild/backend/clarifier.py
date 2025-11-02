@@ -12,7 +12,7 @@ from sqlalchemy import select
 from .models import async_session
 from .constitutional_models import ClarificationRequest
 from .constitutional_engine import constitutional_engine
-from .websocket_manager import websocket_manager
+from .websocket_manager import WebSocketManager
 
 class Clarifier:
     """Detect uncertainty and request clarification from users"""
@@ -77,7 +77,8 @@ class Clarifier:
         
         # Notify user via WebSocket
         try:
-            await websocket_manager.send_to_user(
+            ws_manager = WebSocketManager()
+            await ws_manager.send_to_user(
                 user=user,
                 message_type="clarification_request",
                 data={
@@ -90,7 +91,7 @@ class Clarifier:
                 }
             )
         except Exception as e:
-            print(f"⚠️  Failed to send clarification WebSocket: {e}")
+            print(f"Failed to send clarification WebSocket: {e}")
         
         return clarification
     
