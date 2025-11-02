@@ -29,6 +29,10 @@ class Hunter:
             
             if triggered:
                 await session.commit()
+                
+                from .hunter_integration import handle_security_alert
+                for rule_name, event_id in triggered:
+                    await handle_security_alert(actor, rule_name, event_id, resource)
             
             return triggered
 

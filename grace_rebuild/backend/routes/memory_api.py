@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 from ..auth import get_current_user
 from ..memory_service import memory_service
 from ..governance import governance_engine
 from ..hunter import hunter
+from ..memory_models import MemoryArtifact
+from ..models import async_session
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 

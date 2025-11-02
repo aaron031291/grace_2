@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
+from datetime import datetime
 from .models import Base, async_session
 
 class MLEvent(Base):

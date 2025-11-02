@@ -19,6 +19,9 @@ from .immutable_log import ImmutableLogEntry
 from .mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
+from .knowledge_models import KnowledgeArtifact
+from .trusted_sources import TrustedSource
+from .verification import VerificationEnvelope
 
 class User(Base):
     __tablename__ = "users"
