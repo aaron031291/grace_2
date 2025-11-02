@@ -10,6 +10,8 @@ async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False
 
 Base = declarative_base()
 
+from .sandbox_models import SandboxRun, SandboxFile
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
