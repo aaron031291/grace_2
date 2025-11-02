@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from .governance_models import SecurityRule, SecurityEvent
 from .models import async_session
 from sqlalchemy import select
@@ -74,6 +74,19 @@ class Hunter:
                 from .hunter_integration import handle_security_alert
                 for rule_name, event_id in triggered:
                     await handle_security_alert(actor, rule_name, event_id, resource)
+                
+                from .causal_graph import CausalGraph
+                try:
+                    graph = CausalGraph()
+                    end = datetime.utcnow()
+                    start = end - timedelta(hours=24)
+                    await graph.build_from_events(start, end)
+                    for rule_name, event_id in triggered[:1]:
+                        causes = graph.find_causes(event_id, "security_event", max_depth=2)
+                        if causes:
+                            print(f"🔍 Hunter traced security event {event_id} to {len(causes)} causal events")
+                except Exception as e:
+                    print(f"⚠ Causal trace failed: {e}")
             
             return triggered
 
