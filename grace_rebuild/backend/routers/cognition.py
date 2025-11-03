@@ -93,3 +93,58 @@ async def get_benchmark_status(
             for ts, val in list(bench.values)[-10:]
         ]
     }
+
+
+@router.get("/alerts")
+async def get_cognition_alerts(limit: int = 10) -> Dict[str, Any]:
+    """Get recent cognition alerts"""
+    try:
+        from ..cognition_alerts import get_alert_manager
+        
+        alert_manager = get_alert_manager()
+        alerts = alert_manager.get_recent_alerts(limit)
+        
+        return {
+            "alerts": alerts,
+            "count": len(alerts)
+        }
+    except Exception as e:
+        return {"alerts": [], "count": 0}
+
+
+@router.post("/report/generate")
+async def generate_readiness_report() -> Dict[str, Any]:
+    """Generate and save SaaS readiness report"""
+    try:
+        from ..readiness_report import get_report_generator
+        from datetime import datetime
+        
+        generator = get_report_generator()
+        report_path = await generator.generate_and_save()
+        
+        return {
+            "status": "generated",
+            "report_path": str(report_path),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/report/latest")
+async def get_latest_report() -> Dict[str, Any]:
+    """Get the latest readiness report content"""
+    try:
+        from ..readiness_report import get_report_generator
+        from datetime import datetime
+        
+        generator = get_report_generator()
+        report_content = generator.generate_markdown_report()
+        
+        return {
+            "status": "generated",
+            "content": report_content,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

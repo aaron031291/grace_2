@@ -29,6 +29,7 @@ from .meta_loop import meta_loop_engine
 from .websocket_manager import setup_ws_subscriptions
 from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
+from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
 
 @app.on_event("startup")
 async def on_startup():
@@ -48,6 +49,8 @@ async def on_startup():
     await health_monitor.start()
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
+    await start_benchmark_scheduler()
+    print("✓ Benchmark scheduler started (evaluates every hour)")
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -57,6 +60,7 @@ async def on_shutdown():
     await trigger_mesh.stop()
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
+    await stop_benchmark_scheduler()
 
 @app.get("/health")
 async def health_check():
