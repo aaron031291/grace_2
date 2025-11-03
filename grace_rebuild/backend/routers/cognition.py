@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, Any
 from backend.database import get_db
 from backend.cognition_metrics import get_metrics_engine
+from backend.metrics_service import get_metrics_collector, publish_metric
 
 router = APIRouter(prefix="/api/cognition", tags=["cognition"])
 
@@ -18,7 +19,14 @@ async def get_cognition_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
     Get real-time cognition status across all 10 domains
     Used by CLI for live dashboard display
     """
+    collector = get_metrics_collector()
     engine = get_metrics_engine(db)
+    
+    # Sync latest metrics from collector to engine
+    for domain, kpis in collector.aggregates.items():
+        if domain in engine.domains:
+            engine.update_domain(domain, kpis)
+    
     return engine.get_status()
 
 
