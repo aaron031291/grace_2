@@ -237,6 +237,48 @@ async def show_cognition_status(backend_url: str = "http://localhost:8000"):
     await monitor.live_display()
 
 
+async def show_readiness_report(backend_url: str = "http://localhost:8000"):
+    """Display SaaS readiness report"""
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{backend_url}/api/cognition/readiness", timeout=5.0)
+            if response.status_code == 200:
+                data = response.json()
+                
+                console.print("\n[bold magenta]Grace SaaS Readiness Report[/bold magenta]\n")
+                
+                table = Table(show_header=True, header_style="bold cyan")
+                table.add_column("Metric", style="cyan")
+                table.add_column("Current", justify="right")
+                table.add_column("Target", justify="right")
+                table.add_column("Status", justify="center")
+                
+                for name, bench in data.get("benchmarks", {}).items():
+                    current = f"{bench['average']:.1%}"
+                    target = f"{bench['threshold']:.0%}"
+                    status = "✅" if bench['sustained'] else "🔧"
+                    table.add_row(name, current, target, status)
+                
+                console.print(table)
+                
+                if data.get("ready"):
+                    console.print("\n[bold green]🚀 Grace is ready for SaaS commercialization![/bold green]")
+                else:
+                    console.print("\n[yellow]🔧 Still building toward readiness...[/yellow]")
+                
+                next_steps = data.get("next_steps", [])
+                if next_steps:
+                    console.print("\n[bold]Next Steps:[/bold]")
+                    for i, step in enumerate(next_steps[:5], 1):
+                        console.print(f"  {i}. {step}")
+                
+                console.print()
+            else:
+                console.print(f"[red]Error: {response.status_code}[/red]")
+        except Exception as e:
+            console.print(f"[red]Could not fetch readiness report: {e}[/red]")
+
+
 def main():
     """CLI entry point"""
     import sys
