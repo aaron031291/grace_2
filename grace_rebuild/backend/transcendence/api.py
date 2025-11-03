@@ -271,3 +271,11 @@ async def get_pending_proposals():
             ],
             "count": len(proposals)
         }
+# Multi-Modal Memory Endpoints  
+  
+@router.post("/upload")  
+async def upload_file(file: UploadFile = File(...)):  
+    from .multi_modal_memory import multi_modal_memory  
+    file_data = await file.read()  
+    result = await multi_modal_memory.upload_large_file(file_data, file.filename, "general")  
+    return result 
