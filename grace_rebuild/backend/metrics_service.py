@@ -76,11 +76,17 @@ class MetricsCollector:
             with self._lock:
                 self.metrics[metric_key].append(event)
             
-            await self._persist_metric(event)
+            # Don't let persistence failures break the app
+            try:
+                await self._persist_metric(event)
+            except Exception as persist_error:
+                logger.warning(f"Metric persistence failed (continuing): {persist_error}")
+            
             await self._update_aggregates(domain, kpi)
             await self._notify_subscribers(event)
         except Exception as e:
-            logger.error(f"Error publishing metric {domain}.{kpi}: {e}")
+            logger.error(f"Error publishing metric {domain}.{kpi}: {e}", exc_info=True)
+            # Don't re-raise - metric failures shouldn't break the application
     
     async def _persist_metric(self, event: MetricEvent):
         """Persist metric to database if enabled"""
@@ -100,8 +106,10 @@ class MetricsCollector:
             
             self.db_session.add(db_event)
             await self.db_session.commit()
+        except ImportError as e:
+            logger.warning(f"Could not import metrics models (circular import?): {e}")
         except Exception as e:
-            logger.warning(f"Failed to persist metric: {e}")
+            logger.error(f"Failed to persist metric: {e}", exc_info=True)
     
     async def _update_aggregates(self, domain: str, kpi: str):
         """Update aggregated metrics"""

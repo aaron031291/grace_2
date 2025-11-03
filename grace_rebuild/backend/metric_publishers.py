@@ -7,7 +7,10 @@ import logging
 from typing import Dict, Any
 from datetime import datetime
 
-from .metrics_service import publish_metric, publish_batch
+try:
+    from .metrics_service import publish_metric, publish_batch
+except ImportError:
+    from metrics_service import publish_metric, publish_batch
 
 logger = logging.getLogger(__name__)
 
