@@ -7,6 +7,7 @@ from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
 from .auth import get_current_user
 from .verification_integration import verification_integration
+from .routers.cognition import router as cognition_router
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -131,6 +132,7 @@ app.include_router(coding_agent_api.router)
 app.include_router(constitutional_api.router)
 app.include_router(dashboard_router)
 app.include_router(business_api_router)
+app.include_router(cognition_router)
 
 # Grace IDE WebSocket
 from grace_ide.api.websocket import router as ide_ws_router
