@@ -2,9 +2,11 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
+from .cognition_api import router as cognition_router
 from .reflection import reflection_service
 from .auth import get_current_user
 from .verification_integration import verification_integration
+from .metrics_scheduler import metrics_scheduler
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -42,6 +44,7 @@ async def on_startup():
     await health_monitor.start()
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
+    await metrics_scheduler.start()
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -51,6 +54,7 @@ async def on_shutdown():
     await trigger_mesh.stop()
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
+    await metrics_scheduler.stop()
 
 @app.get("/health")
 async def health_check():
@@ -127,6 +131,7 @@ app.include_router(speech_api.router)
 app.include_router(parliament_api.router)
 app.include_router(coding_agent_api.router)
 app.include_router(constitutional_api.router)
+app.include_router(cognition_router)
 
 # Grace IDE WebSocket
 from grace_ide.api.websocket import router as ide_ws_router
