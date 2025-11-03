@@ -127,6 +127,7 @@ class ImmutableLog:
         self,
         actor: str = None,
         subsystem: str = None,
+        resource: str = None,
         limit: int = 100
     ) -> List[dict]:
         """Query log entries"""
@@ -137,6 +138,8 @@ class ImmutableLog:
                 query = query.where(ImmutableLogEntry.actor == actor)
             if subsystem:
                 query = query.where(ImmutableLogEntry.subsystem == subsystem)
+            if resource:
+                query = query.where(ImmutableLogEntry.resource == resource)
             
             query = query.limit(limit)
             result = await session.execute(query)
@@ -150,6 +153,7 @@ class ImmutableLog:
                     "resource": e.resource,
                     "subsystem": e.subsystem,
                     "result": e.result,
+                    "payload": e.payload,
                     "timestamp": e.timestamp,
                     "entry_hash": e.entry_hash
                 }
