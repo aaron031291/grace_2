@@ -47,17 +47,17 @@ async def startup():
         await conn.run_sync(MetricsBase.metadata.create_all)
     
     print("=" * 80)
-    print("✓ Grace Metrics API Starting")
+    print("[OK] Grace Metrics API Starting")
     print("=" * 80)
-    print("✓ Database initialized (metrics.db)")
-    print("✓ Cognition router registered")
-    print(f"✓ API ready at http://localhost:8001")
-    print(f"✓ Docs at http://localhost:8001/docs")
+    print("[OK] Database initialized (metrics.db)")
+    print("[OK] Cognition router registered")
+    print(f"[OK] API ready at http://localhost:8001")
+    print(f"[OK] Docs at http://localhost:8001/docs")
     print("=" * 80)
     
     # Start benchmark scheduler
     await start_benchmark_scheduler()
-    print("✓ Benchmark scheduler started (evaluates every hour)")
+    print("[OK] Benchmark scheduler started (evaluates every hour)")
     print("=" * 80)
 
 @app.on_event("shutdown")
