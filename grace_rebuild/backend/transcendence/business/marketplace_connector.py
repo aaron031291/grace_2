@@ -19,7 +19,7 @@ from .models import (
     MarketplaceDeliverable
 )
 from ...secrets_vault import secrets_vault
-from ...immutable_log import ImmutableLogger
+from ...immutable_log import ImmutableLog
 from ...governance import GovernanceEngine
 
 
@@ -27,7 +27,7 @@ class MarketplaceConnector:
     """Connector for Upwork and Fiverr marketplaces"""
     
     def __init__(self):
-        self.logger = ImmutableLogger()
+        self.logger = ImmutableLog()
         self.governance = GovernanceEngine()
         self._upwork_client = None
         self._fiverr_client = None
