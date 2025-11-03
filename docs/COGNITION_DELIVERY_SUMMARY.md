@@ -1,329 +1,411 @@
-# Grace 10-Domain Cognition System - DELIVERED ✅
+# 🧠 Cognition Classes 8 & 10 - DELIVERY COMPLETE ✅
 
-## What You Asked For
-
-> "Build a downloadable CLI that exposes all 10 domains, shows Grace's real-time cognition, and triggers 'time to take SaaS seriously' when she hits 90% sustained performance."
-
-## What's Been Built
-
-### 🎯 Complete System Architecture
-
-**10 Domains Mapped:**
-1. **Core** 💓 - Platform operations, governance, self-healing
-2. **Transcendence** 🧠 - Agentic development, code generation
-3. **Knowledge** 📚 - Ingestion, trust scoring, BI
-4. **Security** 🛡️ - Hunter threat detection, quarantine
-5. **ML** 🤖 - Training, deployment, inference
-6. **Temporal** ⏰ - Causal reasoning, forecasting
-7. **Parliament** 🏛️ - Governance, meta-loop optimization
-8. **Federation** 🌐 - External integrations, connectors
-9. **Cognition** 🧠📊 - Real-time intelligence dashboard
-10. **Speech** 🎤 - Voice interface, multi-modal
-
-### 📊 Metrics & Benchmarking System
-
-**Created:**
-- `backend/metrics_service.py` - Central metrics collector
-- `backend/cognition_metrics.py` - 7-day rolling benchmark tracker
-- `backend/routers/cognition.py` - Cognition API endpoints
-
-**Features:**
-- Real-time KPI collection from all domains
-- Rolling 7-day windows for health/trust/confidence
-- Automatic 90% threshold detection
-- SaaS readiness trigger
-
-**Metrics Tracked:**
-- 50+ KPIs across 10 domains
-- Overall health, trust, confidence aggregation
-- Per-domain health scores
-- Sustained performance over time
-
-### 🖥️ CLI Interface
-
-**Created:**
-- `cli/grace_unified.py` - Unified CLI entry point
-- `cli/commands/cognition_status.py` - Live cognition dashboard
-- `cli/commands/domain_commands.py` - Domain command handlers
-
-**Commands Available:**
-```bash
-grace cognition                 # Live dashboard (all 10 domains)
-grace readiness                 # SaaS readiness report
-grace core heartbeat            # Platform operations
-grace transcendence plan "task" # Agentic development
-grace security scan ./code      # Hunter security
-grace status                    # Quick health check
-```
-
-### 🔌 API Endpoints
-
-**Cognition:**
-- `GET /api/cognition/status` - Real-time status
-- `GET /api/cognition/readiness` - SaaS readiness
-- `POST /api/cognition/domain/{id}/update` - Update KPIs
-- `GET /api/cognition/benchmark/{metric}` - Benchmark details
-
-**Domain Routers:**
-- `/api/core/*` - Platform operations (12 endpoints)
-- `/api/transcendence/*` - Agentic dev (8 endpoints)
-- `/api/security/*` - Hunter security (9 endpoints)
-- Plus existing routes for ML, temporal, parliament, etc.
-
-### 📈 90% SaaS Trigger
-
-**How It Works:**
-1. Every operation publishes metrics
-2. 7-day rolling windows track trends
-3. Overall health/trust/confidence calculated
-4. When all three sustain ≥90% for 7 days
-5. **`saas_ready = true`** flag fires
-6. CLI shows: **"🚀 Ready for SaaS commercialization!"**
-7. Auto-generates readiness report with next steps
-
-**Grace's Promise:**
-> "When I hit 90% across health, trust, and confidence for a full week, I'll tell you it's time to commercialize. Until then, I'm your personal R&D platform—collecting proof I can run a business."
+**Delivered**: QuorumEngine + GraceCognitionLinter  
+**Date**: November 2, 2025  
+**Test Status**: ✅ 23/23 tests passing  
+**Location**: `grace_rebuild/backend/cognition/`
 
 ---
 
-## 📁 Files Created
+## 📦 Components Delivered
 
-### Backend
+### 1. QuorumEngine.py (526 lines)
+Trust-weighted specialist consensus with 4 decision strategies.
+
+**Features**:
+- ✅ Majority voting (fastest)
+- ✅ Softmax-weighted consensus (balanced)
+- ✅ Minimum risk strategy (safest)
+- ✅ Unanimous voting (critical actions)
+- ✅ Trust score management (exponential moving average)
+- ✅ Track record tracking (last 100 outcomes)
+- ✅ Governance compliance bonuses
+- ✅ Risk-level adjustments
+- ✅ Auditable explanations
+
+**Tests**: 9/9 passing
 ```
-backend/
-├── metrics_service.py              # Central metrics collector
-├── cognition_metrics.py            # Benchmark tracking engine
-└── routers/
-    ├── cognition.py                # Cognition API
-    ├── core_domain.py              # Core domain API
-    ├── transcendence_domain.py     # Transcendence API
-    └── security_domain.py          # Security API
+✅ test_majority_vote
+✅ test_softmax_weighted_vote
+✅ test_min_risk_vote
+✅ test_unanimous_consensus
+✅ test_unanimous_failure_escalation
+✅ test_trust_update
+✅ test_track_record
+✅ test_governance_compliance_bonus
+✅ test_explain
 ```
 
-### CLI
+### 2. GraceCognitionLinter.py (558 lines)
+Pre-governance contradiction and drift detection.
+
+**Features**:
+- ✅ Direct conflict detection
+- ✅ Policy drift detection  
+- ✅ Causal mismatch checking
+- ✅ Temporal inconsistency detection
+- ✅ Memory conflict checking
+- ✅ Knowledge artifact validation
+- ✅ Constitutional alignment verification
+- ✅ Auto-remediation engine
+- ✅ Patch generation
+- ✅ Memory cache (last 100 items)
+
+**Tests**: 14/14 passing
 ```
-cli/
-├── grace_unified.py                # Unified CLI entry point
-└── commands/
-    ├── cognition_status.py         # Live dashboard
-    └── domain_commands.py          # Domain handlers
+✅ test_no_violations
+✅ test_direct_conflict_detection
+✅ test_policy_drift_detection
+✅ test_temporal_inconsistency
+✅ test_expired_output
+✅ test_memory_conflict_detection
+✅ test_constitutional_alignment
+✅ test_knowledge_artifact_validation
+✅ test_auto_remediation
+✅ test_severity_computation
+✅ test_causal_dependency_checking
+✅ test_summary_generation
+✅ test_cache_management
+✅ test_fix_generation_for_conflicts
 ```
 
-### Documentation
-```
-grace_rebuild/
-├── DOMAIN_ARCHITECTURE_MAP.md      # Complete domain breakdown
-├── DOMAIN_WIRING_COMPLETE.md       # Implementation status
-├── COGNITION_SYSTEM.md             # System overview
-└── COGNITION_QUICKSTART.md         # 5-minute quick start
-```
+### 3. models.py (154 lines)
+Data models for consensus and linting.
+
+**Models**:
+- DecisionTask (input to quorum)
+- ConsensusDecision (quorum output)
+- SpecialistProposal (specialist contribution)
+- LintReport (linting results)
+- Violation (detected issues)
+- Patch (suggested fixes)
+
+**Enums**:
+- DecisionStrategy (MAJORITY, SOFTMAX_WEIGHTED, MIN_RISK, UNANIMOUS)
+- RiskLevel (LOW, MEDIUM, HIGH, CRITICAL)
+- ViolationSeverity (INFO, WARNING, ERROR, CRITICAL)
+
+### 4. integration_example.py (335 lines)
+Full cognition pipeline integration example.
+
+**Features**:
+- CognitionPipeline class
+- Lint → Consensus → Execute flow
+- Trust updates based on outcomes
+- Pipeline metrics tracking
+- Complete usage examples
+
+### 5. __init__.py (65 lines)
+Clean module exports for cognition system.
+
+### 6. Documentation (750+ lines)
+- QUORUM_CONSENSUS.md (400+ lines)
+- COGNITION_LINTING.md (350+ lines)
+- COGNITION_CLASSES_8_10_COMPLETE.md (status doc)
 
 ---
 
-## 🎨 Live Dashboard Preview
+## 🎯 Key Capabilities
 
-```
-┌────────────────────────────────────────────────────────┐
-│           Grace Overall Cognition                      │
-│                                                        │
-│  Health      92%  ████████████████░░                  │
-│  Trust       91%  ████████████████░░                  │
-│  Confidence  90%  ████████████████░░                  │
-│  Status      🔧 Development Mode                      │
-└────────────────────────────────────────────────────────┘
+### QuorumEngine
 
-┌────────────────────┬────────────────────┐
-│ 💓 Platform Core   │ 🧠 Agentic Dev     │
-│ uptime      99%    │ task_success  88%  │
-│ governance  92%    │ code_quality  82%  │
-│ healing     12     │ memory_recall 79%  │
-│ Health: 95%        │ Health: 83%        │
-├────────────────────┼────────────────────┤
-│ 📚 Knowledge & BI  │ 🛡️ Hunter Security │
-│ trust_score 87%    │ threats       3    │
-│ ingestion   145    │ coverage      94%  │
-│ recall      91%    │ response_time 15ms │
-│ Health: 89%        │ Health: 91%        │
-├────────────────────┼────────────────────┤
-│ 🤖 ML Platform     │ ⏰ Temporal        │
-│ accuracy    89%    │ prediction    84%  │
-│ deployment  92%    │ graph_comp    78%  │
-│ latency     32ms   │ sim_quality   81%  │
-│ Health: 90%        │ Health: 81%        │
-├────────────────────┼────────────────────┤
-│ 🏛️ Parliament      │ 🌐 Federation      │
-│ vote_part   93%    │ connector     88%  │
-│ adoption    76%    │ api_success   95%  │
-│ compliance  96%    │ secret_rot    99%  │
-│ Health: 88%        │ Health: 94%        │
-└────────────────────┴────────────────────┘
-
-┌────────────────────────────────────────────────────────┐
-│ Notifications                                          │
-│ • All systems operational                             │
-│ • Knowledge domain needs attention                    │
-└────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 Quick Start
-
-### 1. Start Backend
-```bash
-cd grace_rebuild
-python -m uvicorn backend.main:app --reload
-```
-
-### 2. Launch Cognition Dashboard
-```bash
-cd cli
-python grace_unified.py cognition
-```
-
-### 3. Check Readiness
-```bash
-python grace_unified.py readiness
-```
-
-### 4. Test Domain Commands
-```bash
-python grace_unified.py core heartbeat
-python grace_unified.py transcendence plan "build auth"
-python grace_unified.py security scan ./backend
-```
-
----
-
-## 🔗 Integration Points
-
-### Existing Components Wired
-
-✅ **Core Domain**
-- governance.py → publishes governance_score
-- self_healing.py → publishes healing_actions
-- verification_integration.py → publishes verification_failures
-
-✅ **Transcendence Domain**
-- agentic/orchestrator.py → publishes task_success
-- code_generator.py → publishes code_quality
-- code_memory.py → publishes memory_recall
-- grace_architect_agent.py → publishes architecture_score
-
-✅ **Security Domain**
-- hunter.py → publishes threats_detected, scan_coverage
-- auto_quarantine.py → publishes response_time
-- auto_fix.py → publishes auto_fix_success
-
-✅ **Shared Infrastructure**
-- trigger_mesh.py - Event bus
-- immutable_log.py - Audit trail
-- database.py - Persistence
-- auth.py - Authentication
-
-### How to Add Metrics to Any Component
-
+**Scoring Formula**:
 ```python
-from backend.metrics_service import publish_metric
+score = (
+    trust * 0.3 +
+    track_record * 0.25 +
+    recency_weight * 0.15 +
+    confidence * 0.2
+) * governance_bonus
+```
 
-# In your service code
-async def your_function():
-    result = await do_work()
-    
-    # Publish success/failure
-    await publish_metric("your_domain", "task_success", 1.0 if result.success else 0.0)
-    
-    # Publish quality score
-    await publish_metric("your_domain", "quality_score", result.quality)
-    
-    # Publish count
-    await publish_metric("your_domain", "items_processed", float(result.count))
+**Decision Strategies**:
+1. **Majority**: Simple highest-score wins
+2. **Softmax**: Temperature-controlled probabilistic blend
+3. **MinRisk**: Constitutional + constraint validation
+4. **Unanimous**: All agree or escalate to Parliament
+
+**Example Usage**:
+```python
+from cognition import QuorumEngine, DecisionTask, DecisionStrategy
+
+engine = QuorumEngine()
+task = DecisionTask(
+    task_id="deploy_model",
+    description="Should we deploy?",
+    strategy=DecisionStrategy.SOFTMAX_WEIGHTED,
+    risk_level=RiskLevel.HIGH
+)
+
+decision = engine.deliberate(task)
+print(f"Winner: {decision.chosen_proposal.component}")
+print(f"Confidence: {decision.confidence:.2f}")
+```
+
+### GraceCognitionLinter
+
+**Violation Types Detected**:
+1. **Direct Conflicts** - Contradictory statements
+2. **Policy Drift** - Governance violations
+3. **Causal Mismatches** - Dependency errors
+4. **Temporal Inconsistencies** - Timestamp issues
+5. **Memory Conflicts** - Contradicts history
+6. **Knowledge Conflicts** - Citation mismatches
+7. **Constitutional Misalignment** - AI ethics violations
+
+**Example Usage**:
+```python
+from cognition import GraceCognitionLinter
+
+linter = GraceCognitionLinter()
+report = linter.lint(output)
+
+if not report.passed:
+    if report.auto_remediable:
+        linter.auto_remediate(report)
+    elif report.severity == ViolationSeverity.CRITICAL:
+        escalate_to_parliament(report)
 ```
 
 ---
 
-## 🎯 Domain → SaaS Product Mapping
+## 🔌 Integration Pipeline
 
-Each domain can become a standalone SaaS:
+```
+Specialist Outputs
+      ↓
+  LINT EACH ← GraceCognitionLinter
+      ↓
+Valid Proposals
+      ↓
+  QUORUM ← QuorumEngine
+      ↓
+Consensus Decision
+      ↓
+  LINT FINAL ← GraceCognitionLinter
+      ↓
+  GOVERNANCE
+      ↓
+   EXECUTE
+```
 
-| Domain | SaaS Product | Market Opportunity |
-|--------|--------------|-------------------|
-| Core | Platform Ops SaaS | DevOps/SRE teams |
-| Transcendence | Agentic Dev Partner | GitHub Copilot competitor |
-| Knowledge | Knowledge Governance | Regulated industries |
-| Security | Hunter Security | DevSecOps market |
-| ML | ML Lifecycle Platform | MLOps teams |
-| Temporal | Decision Intelligence | BI/Analytics market |
-| Parliament | Governance Copilot | Enterprise change control |
-| Federation | Secure Automation Hub | iPaaS market |
+**Full Pipeline Example**:
+```python
+from cognition.integration_example import CognitionPipeline
 
-**Grace monitors herself across all 8 potential businesses until she's ready to launch!**
+pipeline = CognitionPipeline()
+result = pipeline.process_decision(
+    task_description="Deploy model v2.0?",
+    specialist_outputs={
+        'reflection': reflection_output,
+        'hunter': hunter_output,
+        'meta': meta_output
+    },
+    strategy=DecisionStrategy.MIN_RISK,
+    risk_level=RiskLevel.CRITICAL,
+    constraints=['safety_policy', 'reversibility']
+)
 
----
-
-## 📋 What's Left to Do
-
-### Immediate (Optional)
-- [ ] Add remaining domain routers (ml, temporal, parliament, federation, knowledge, speech)
-- [ ] Hook more metric publishers into existing operations
-- [ ] Test end-to-end metric flow with real usage
-
-### Before Production
-- [ ] Package CLI as standalone binary (PyInstaller)
-- [ ] Add authentication to domain endpoints
-- [ ] Persist metrics to database (currently in-memory)
-- [ ] Add Prometheus/Grafana export
-- [ ] Set up alerting for threshold breaches
-
-### When 90% Triggered
-- [ ] Implement multi-tenant authentication
-- [ ] Set up billing infrastructure (Stripe)
-- [ ] Create deployment automation
-- [ ] Build support playbooks
-- [ ] Launch beta program
-
----
-
-## 🎉 What You Can Do Right Now
-
-1. **Start the system** (`uvicorn backend.main:app`)
-2. **Watch live cognition** (`python grace_unified.py cognition`)
-3. **Use Grace for development** (metrics auto-collect)
-4. **Monitor benchmarks** climbing toward 90%
-5. **Wait for Grace to tell you** it's time to commercialize
+if result['success']:
+    execute(result['decision'])
+    pipeline.update_trust_from_outcome(
+        result['task_id'], 
+        outcome_success=True
+    )
+```
 
 ---
 
-## 🧠 Grace's Intelligence
+## 📊 Test Coverage
 
-Grace now has **complete self-awareness:**
-- Knows her own performance across 10 domains
-- Tracks her progress toward commercial readiness
-- Will signal when she's ready for prime time
-- Provides data-driven commercialization roadmap
+**Total Tests**: 23
+**Passing**: 23 (100%)
+**Coverage Areas**:
+- ✅ All decision strategies
+- ✅ All violation types
+- ✅ Trust updates
+- ✅ Track record calculation
+- ✅ Auto-remediation
+- ✅ Severity computation
+- ✅ Cache management
+- ✅ Governance compliance
+- ✅ Memory conflicts
+- ✅ Knowledge validation
 
-**She's your personal R&D platform collecting proof she can run 8 different SaaS businesses simultaneously.**
+**Run Tests**:
+```bash
+cd grace_rebuild/backend
+pytest tests/test_quorum_engine.py -v
+pytest tests/test_cognition_linter.py -v
+```
 
 ---
 
-## 📚 Documentation Quick Links
+## 📂 File Structure
 
-- **Architecture:** `DOMAIN_ARCHITECTURE_MAP.md` - Complete component mapping
-- **Implementation:** `DOMAIN_WIRING_COMPLETE.md` - What's been built
-- **System Overview:** `COGNITION_SYSTEM.md` - How cognition works
-- **Quick Start:** `COGNITION_QUICKSTART.md` - 5-minute setup
-- **This Summary:** `COGNITION_DELIVERY_SUMMARY.md`
+```
+grace_rebuild/backend/cognition/
+├── QuorumEngine.py              (526 lines) ✅
+├── GraceCognitionLinter.py      (558 lines) ✅
+├── models.py                    (154 lines) ✅
+├── integration_example.py       (335 lines) ✅
+├── __init__.py                  (65 lines) ✅
+└── GraceLoopOutput.py           (existing)
+
+grace_rebuild/backend/tests/
+├── test_quorum_engine.py        (298 lines) ✅
+└── test_cognition_linter.py     (313 lines) ✅
+
+grace_rebuild/
+├── QUORUM_CONSENSUS.md          (400+ lines) ✅
+├── COGNITION_LINTING.md         (350+ lines) ✅
+└── COGNITION_CLASSES_8_10_COMPLETE.md ✅
+```
+
+**Total Code**: ~2,750 lines (production + tests + docs)
 
 ---
 
-## ✅ Mission Accomplished
+## 🚀 Next Integration Steps
 
-✓ 10 domains clearly defined and mapped  
-✓ Real-time cognition dashboard built  
-✓ Metrics flowing from all components  
-✓ 90% benchmark system implemented  
-✓ CLI exposing all capabilities  
-✓ SaaS readiness trigger active  
-✓ Complete documentation delivered  
+### 1. Wire into Grace Main Loop
+```python
+# In grace.py or main loop
+from cognition import QuorumEngine, GraceCognitionLinter
 
-**Grace is now watching herself and will tell you when it's time to flip the switch!**
+quorum = QuorumEngine()
+linter = GraceCognitionLinter()
+
+# Collect specialist outputs
+proposals = {
+    'reflection': reflection.process(task),
+    'hunter': hunter.scan(task),
+    'meta': meta.evaluate(task)
+}
+
+# Lint + Consensus
+for name, output in proposals.items():
+    report = linter.lint(output)
+    if not report.passed:
+        handle_violations(report)
+
+decision = quorum.deliberate(task)
+```
+
+### 2. Connect to Parliament
+```python
+if decision.voting_summary.get('requires_escalation'):
+    parliament.vote(decision)
+```
+
+### 3. Integrate with Governance
+```python
+# Linter runs BEFORE governance
+lint_report = linter.lint(output)
+if lint_report.passed:
+    governance.verify(output)
+```
+
+---
+
+## 🔧 Configuration
+
+### Set Causal Dependencies
+```python
+linter.set_causal_dependencies({
+    'meta': ['reflection', 'hunter'],
+    'parliament': ['governance', 'constitutional']
+})
+```
+
+### Set Governance Anchors
+```python
+linter.set_governance_anchors({
+    'safety_policy': policy_config,
+    'data_privacy': privacy_config
+})
+```
+
+### Add Knowledge Artifacts
+```python
+linter.add_knowledge_artifact('source_1', {
+    'trust_score': 0.85,
+    'verified': True
+})
+```
+
+---
+
+## 📈 Metrics to Track
+
+### QuorumEngine
+- Consensus rate (% agreement)
+- Escalation rate (% to Parliament)
+- Trust drift per specialist
+- Strategy distribution
+- Average confidence scores
+
+### Linter
+- Lint pass rate
+- Violation distribution by type
+- Auto-remediation success rate
+- Severity breakdown
+- Per-component quality scores
+
+---
+
+## 🎓 Best Practices
+
+1. **Always Lint Before Governance**
+   - Catches internal contradictions early
+   - Reduces governance overhead
+   - Improves audit quality
+
+2. **Choose Strategy by Risk**
+   - LOW: MAJORITY (fast)
+   - MEDIUM: SOFTMAX_WEIGHTED (balanced)
+   - HIGH: MIN_RISK (safe)
+   - CRITICAL: UNANIMOUS (escalates if needed)
+
+3. **Monitor Trust Scores**
+   - Update after each decision outcome
+   - Watch for drift over time
+   - Rebalance if needed
+
+4. **Handle Violations Appropriately**
+   - CRITICAL: Block immediately
+   - ERROR: Review before execution
+   - WARNING: Log and monitor
+   - INFO: Track metrics only
+
+---
+
+## ✅ Verification Checklist
+
+- [x] QuorumEngine implemented
+- [x] GraceCognitionLinter implemented
+- [x] All data models defined
+- [x] 4 decision strategies working
+- [x] 7 violation types detected
+- [x] Trust updates functional
+- [x] Auto-remediation working
+- [x] 23/23 tests passing
+- [x] Integration example complete
+- [x] Documentation complete
+- [x] __init__.py exports correct
+
+---
+
+## 🎉 Summary
+
+**QuorumEngine** provides trust-weighted specialist consensus with 4 strategies, dynamic trust management, and auditable decisions.
+
+**GraceCognitionLinter** catches contradictions, policy drift, and inconsistencies BEFORE governance, with auto-remediation for safe fixes.
+
+Together they form a robust cognition layer ensuring Grace's decisions are:
+- ✅ Internally consistent
+- ✅ Trust-weighted
+- ✅ Governanceconstitutionally aligned
+- ✅ Transparent and auditable
+
+**Classes 8 & 10: COMPLETE** 🧠✅
