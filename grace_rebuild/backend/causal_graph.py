@@ -1,10 +1,17 @@
-from typing import Dict, List, Optional, Set, Tuple, Any
+from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
 from sqlalchemy import select, and_
-from .models import CausalEvent, ChatMessage, Task, async_session
 import math
+
+if TYPE_CHECKING:
+    from .models import CausalEvent, ChatMessage, Task
+
+def _get_models():
+    """Lazy import to avoid circular dependency"""
+    from .models import CausalEvent, ChatMessage, Task, async_session
+    return CausalEvent, ChatMessage, Task, async_session
 
 @dataclass
 class CausalNode:
@@ -46,6 +53,8 @@ class CausalGraph:
     
     async def build_from_events(self, start_date: datetime, end_date: datetime, user: Optional[str] = None) -> int:
         """Construct graph from event log in date range"""
+        CausalEvent, ChatMessage, Task, async_session = _get_models()
+        
         nodes_added = 0
         edges_added = 0
         

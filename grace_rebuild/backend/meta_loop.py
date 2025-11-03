@@ -260,4 +260,7 @@ class MetaMetaEngine:
                 ))
 
 meta_loop_engine = MetaLoopEngine(interval_seconds=300)
+
+# Export for main.py
+__all__ = ['MetaLoopEngine', 'meta_loop_engine']
 meta_meta_engine = MetaMetaEngine()
