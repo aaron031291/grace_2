@@ -3,24 +3,28 @@ Cognition API Router
 Exposes Grace's cognitive metrics for CLI and monitoring
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
-from backend.database import get_db
-from backend.cognition_metrics import get_metrics_engine
-from backend.metrics_service import get_metrics_collector, publish_metric
+
+try:
+    from ..cognition_metrics import get_metrics_engine
+    from ..metrics_service import get_metrics_collector, publish_metric
+except ImportError:
+    # Fallback for different import contexts
+    from backend.cognition_metrics import get_metrics_engine
+    from backend.metrics_service import get_metrics_collector, publish_metric
 
 router = APIRouter(prefix="/api/cognition", tags=["cognition"])
 
 
 @router.get("/status")
-async def get_cognition_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_cognition_status() -> Dict[str, Any]:
     """
     Get real-time cognition status across all 10 domains
     Used by CLI for live dashboard display
     """
     collector = get_metrics_collector()
-    engine = get_metrics_engine(db)
+    engine = get_metrics_engine()
     
     # Sync latest metrics from collector to engine
     for domain, kpis in collector.aggregates.items():
@@ -31,26 +35,25 @@ async def get_cognition_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get("/readiness")
-async def get_saas_readiness(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_saas_readiness() -> Dict[str, Any]:
     """
     Get detailed SaaS readiness report
     Shows benchmark status, gaps, and next steps
     """
-    engine = get_metrics_engine(db)
+    engine = get_metrics_engine()
     return engine.get_readiness_report()
 
 
 @router.post("/domain/{domain_id}/update")
 async def update_domain_metrics(
     domain_id: str,
-    kpis: Dict[str, Any],
-    db: Session = Depends(get_db)
+    kpis: Dict[str, Any]
 ) -> Dict[str, str]:
     """
     Update KPIs for a specific domain
     Called by domain systems to report metrics
     """
-    engine = get_metrics_engine(db)
+    engine = get_metrics_engine()
     
     if domain_id not in engine.domains:
         raise HTTPException(status_code=404, detail=f"Domain {domain_id} not found")
@@ -66,13 +69,12 @@ async def update_domain_metrics(
 
 @router.get("/benchmark/{metric_name}")
 async def get_benchmark_status(
-    metric_name: str,
-    db: Session = Depends(get_db)
+    metric_name: str
 ) -> Dict[str, Any]:
     """
     Get detailed status for a specific benchmark metric
     """
-    engine = get_metrics_engine(db)
+    engine = get_metrics_engine()
     
     if metric_name not in engine.benchmarks:
         raise HTTPException(status_code=404, detail=f"Benchmark {metric_name} not found")

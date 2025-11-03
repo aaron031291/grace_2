@@ -7,7 +7,11 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 import asyncio
+import logging
+import threading
 from collections import defaultdict, deque
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class MetricEvent:
@@ -30,6 +34,7 @@ class MetricsCollector:
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         self.aggregates: Dict[str, Dict[str, float]] = {}
         self.subscribers: List[callable] = []
+        self._lock = threading.Lock()
         
         # Domain KPI definitions
         self.domain_kpis = {
@@ -55,21 +60,24 @@ class MetricsCollector:
             value: Metric value (0.0 to 1.0 for percentages, any float for counts)
             metadata: Optional metadata (task_id, model_id, etc.)
         """
-        metric_key = f"{domain}.{kpi}"
-        
-        event = MetricEvent(
-            domain=domain,
-            kpi=kpi,
-            value=value,
-            timestamp=datetime.now(),
-            metadata=metadata or {}
-        )
-        
-        self.metrics[metric_key].append(event)
-        
-        await self._update_aggregates(domain, kpi)
-        
-        await self._notify_subscribers(event)
+        try:
+            metric_key = f"{domain}.{kpi}"
+            
+            event = MetricEvent(
+                domain=domain,
+                kpi=kpi,
+                value=value,
+                timestamp=datetime.now(),
+                metadata=metadata or {}
+            )
+            
+            with self._lock:
+                self.metrics[metric_key].append(event)
+            
+            await self._update_aggregates(domain, kpi)
+            await self._notify_subscribers(event)
+        except Exception as e:
+            logger.error(f"Error publishing metric {domain}.{kpi}: {e}")
     
     async def _update_aggregates(self, domain: str, kpi: str):
         """Update aggregated metrics"""
