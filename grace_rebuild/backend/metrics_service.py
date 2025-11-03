@@ -30,11 +30,13 @@ class MetricsCollector:
     Domains publish metrics here, cognition system aggregates them
     """
     
-    def __init__(self):
+    def __init__(self, db_session=None):
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         self.aggregates: Dict[str, Dict[str, float]] = {}
         self.subscribers: List[callable] = []
         self._lock = threading.Lock()
+        self.db_session = db_session
+        self.persist_enabled = db_session is not None
         
         # Domain KPI definitions
         self.domain_kpis = {
@@ -74,10 +76,32 @@ class MetricsCollector:
             with self._lock:
                 self.metrics[metric_key].append(event)
             
+            await self._persist_metric(event)
             await self._update_aggregates(domain, kpi)
             await self._notify_subscribers(event)
         except Exception as e:
             logger.error(f"Error publishing metric {domain}.{kpi}: {e}")
+    
+    async def _persist_metric(self, event: MetricEvent):
+        """Persist metric to database if enabled"""
+        if not self.persist_enabled or not self.db_session:
+            return
+        
+        try:
+            from .metrics_models import MetricEvent as MetricEventDB
+            
+            db_event = MetricEventDB(
+                domain=event.domain,
+                kpi=event.kpi,
+                value=event.value,
+                timestamp=event.timestamp,
+                metadata=event.metadata
+            )
+            
+            self.db_session.add(db_event)
+            await self.db_session.commit()
+        except Exception as e:
+            logger.warning(f"Failed to persist metric: {e}")
     
     async def _update_aggregates(self, domain: str, kpi: str):
         """Update aggregated metrics"""
