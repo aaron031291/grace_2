@@ -8,8 +8,6 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 from collections import deque
 import asyncio
-from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 @dataclass
 class DomainMetrics:
@@ -60,8 +58,7 @@ class BenchmarkWindow:
 class CognitionMetricsEngine:
     """Central engine for tracking Grace's cognition across all domains"""
     
-    def __init__(self, db: Session):
-        self.db = db
+    def __init__(self):
         self.domains: Dict[str, DomainMetrics] = {}
         
         self.benchmarks = {
@@ -248,11 +245,11 @@ class CognitionMetricsEngine:
 _global_metrics_engine: Optional[CognitionMetricsEngine] = None
 
 
-def get_metrics_engine(db: Session) -> CognitionMetricsEngine:
+def get_metrics_engine() -> CognitionMetricsEngine:
     """Get or create the global metrics engine"""
     global _global_metrics_engine
     
     if _global_metrics_engine is None:
-        _global_metrics_engine = CognitionMetricsEngine(db)
+        _global_metrics_engine = CognitionMetricsEngine()
     
     return _global_metrics_engine

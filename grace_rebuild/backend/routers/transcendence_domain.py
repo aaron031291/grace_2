@@ -3,12 +3,18 @@ Transcendence Domain API Router
 Agentic development, code generation, memory
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, List
 from pydantic import BaseModel
-from backend.database import get_db
-from backend.metrics_service import publish_metric
+from datetime import datetime
+import logging
+
+try:
+    from ..metrics_service import publish_metric
+except ImportError:
+    from backend.metrics_service import publish_metric
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/transcendence", tags=["transcendence"])
 
@@ -30,7 +36,7 @@ class MemorySearchRequest(BaseModel):
 
 
 @router.post("/plan")
-async def create_task_plan(request: TaskPlanRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def create_task_plan(request: TaskPlanRequest) -> Dict[str, Any]:
     """Create a task execution plan"""
     from backend.agentic.orchestrator import orchestrator
     
@@ -50,7 +56,7 @@ async def create_task_plan(request: TaskPlanRequest, db: Session = Depends(get_d
 
 
 @router.post("/generate")
-async def generate_code(request: CodeGenerationRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def generate_code(request: CodeGenerationRequest) -> Dict[str, Any]:
     """Generate code from specification"""
     from backend.code_generator import generate_code as gen_code
     
@@ -77,7 +83,7 @@ async def generate_code(request: CodeGenerationRequest, db: Session = Depends(ge
 
 
 @router.post("/understand")
-async def analyze_code(code: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def analyze_code(code: str) -> Dict[str, Any]:
     """Analyze code and extract intent"""
     from backend.code_understanding import analyze_intent
     
@@ -93,7 +99,7 @@ async def analyze_code(code: str, db: Session = Depends(get_db)) -> Dict[str, An
 
 
 @router.post("/memory/search")
-async def search_code_memory(request: MemorySearchRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def search_code_memory(request: MemorySearchRequest) -> Dict[str, Any]:
     """Search code patterns in memory"""
     from backend.code_memory import search_patterns
     
@@ -118,8 +124,7 @@ async def search_code_memory(request: MemorySearchRequest, db: Session = Depends
 async def seed_pattern(
     pattern: str,
     language: str,
-    tags: List[str] = [],
-    db: Session = Depends(get_db)
+    tags: List[str] = []
 ) -> Dict[str, Any]:
     """Seed a new code pattern into memory"""
     from backend.code_memory import add_pattern
@@ -136,7 +141,7 @@ async def seed_pattern(
 
 
 @router.get("/architect/review")
-async def architecture_review(path: str, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def architecture_review(path: str) -> Dict[str, Any]:
     """Review architecture and provide recommendations"""
     from backend.grace_architect_agent import architect_agent
     
@@ -195,7 +200,7 @@ class LearningCycleRequest(BaseModel):
 
 
 @router.post("/propose")
-async def grace_proposes(request: ProposalRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def grace_proposes(request: ProposalRequest) -> Dict[str, Any]:
     """Grace proposes an action/idea to you"""
     try:
         # Store proposal
@@ -217,7 +222,7 @@ async def grace_proposes(request: ProposalRequest, db: Session = Depends(get_db)
 
 
 @router.post("/approve")
-async def approve_proposal(request: ApprovalRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def approve_proposal(request: ApprovalRequest) -> Dict[str, Any]:
     """Approve or reject Grace's proposal"""
     try:
         await publish_metric("transcendence", "approval_rate", 1.0 if request.approved else 0.0)
@@ -232,7 +237,7 @@ async def approve_proposal(request: ApprovalRequest, db: Session = Depends(get_d
 
 
 @router.post("/learning-cycle")
-async def start_learning_cycle(request: LearningCycleRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def start_learning_cycle(request: LearningCycleRequest) -> Dict[str, Any]:
     """Start agentic learning cycle"""
     try:
         # Initiate learning
@@ -252,7 +257,7 @@ async def start_learning_cycle(request: LearningCycleRequest, db: Session = Depe
 
 
 @router.get("/intelligence")
-async def get_unified_intelligence(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_unified_intelligence() -> Dict[str, Any]:
     """Get unified intelligence across all Grace systems"""
     from backend.transcendence.unified_intelligence import get_intelligence_summary
     
@@ -274,7 +279,7 @@ async def get_unified_intelligence(db: Session = Depends(get_db)) -> Dict[str, A
 
 
 @router.get("/self-awareness")
-async def get_self_awareness_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_self_awareness_status() -> Dict[str, Any]:
     """Get Grace's self-awareness status"""
     from backend.transcendence.self_awareness import get_awareness_metrics
     
@@ -313,7 +318,7 @@ class ClientRequest(BaseModel):
 
 
 @router.post("/business/revenue/track")
-async def track_revenue(request: RevenueTrackRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def track_revenue(request: RevenueTrackRequest) -> Dict[str, Any]:
     """Track revenue transaction"""
     from backend.transcendence.business.revenue_tracker import revenue_tracker
     
@@ -337,7 +342,7 @@ async def track_revenue(request: RevenueTrackRequest, db: Session = Depends(get_
 
 
 @router.get("/business/clients")
-async def list_clients(db: Session = Depends(get_db)) -> Dict[str, List[Any]]:
+async def list_clients() -> Dict[str, List[Any]]:
     """List clients"""
     from backend.transcendence.business.client_pipeline import client_pipeline
     
@@ -353,7 +358,7 @@ async def list_clients(db: Session = Depends(get_db)) -> Dict[str, List[Any]]:
 
 
 @router.get("/business/pipeline")
-async def get_sales_pipeline(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_sales_pipeline() -> Dict[str, Any]:
     """Get sales pipeline status"""
     from backend.transcendence.business.client_pipeline import client_pipeline
     
@@ -379,8 +384,7 @@ async def get_sales_pipeline(db: Session = Depends(get_db)) -> Dict[str, Any]:
 @router.get("/business/consulting/quote")
 async def generate_consulting_quote(
     project_type: str,
-    hours_estimated: float,
-    db: Session = Depends(get_db)
+    hours_estimated: float
 ) -> Dict[str, Any]:
     """Generate consulting quote"""
     from backend.transcendence.business.ai_consulting_engine import consulting_engine
@@ -404,7 +408,7 @@ async def generate_consulting_quote(
 # ========================================
 
 @router.get("/observatory/status")
-async def get_observatory_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def get_observatory_status() -> Dict[str, Any]:
     """Get cognitive observatory status"""
     from backend.transcendence.cognitive_observatory import observatory
     
@@ -424,7 +428,7 @@ async def get_observatory_status(db: Session = Depends(get_db)) -> Dict[str, Any
 
 
 @router.get("/observatory/patterns")
-async def get_detected_patterns(db: Session = Depends(get_db)) -> Dict[str, List[Any]]:
+async def get_detected_patterns() -> Dict[str, List[Any]]:
     """Get detected intelligence patterns"""
     from backend.transcendence.cognitive_observatory import observatory
     
@@ -441,6 +445,3 @@ async def get_detected_patterns(db: Session = Depends(get_db)) -> Dict[str, List
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-from datetime import datetime
