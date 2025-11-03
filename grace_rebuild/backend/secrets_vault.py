@@ -11,14 +11,14 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON
 from sqlalchemy.sql import func
 from .models import Base, async_session
 from .verification import VerificationEngine
-from .immutable_log import ImmutableLogger
+from .immutable_log import ImmutableLog
 from .governance import GovernanceEngine
 
 class SecretEntry(Base):
@@ -106,11 +106,11 @@ class SecretsVault:
             else:
                 # Generate new key (should be saved securely in production)
                 self.encryption_key = Fernet.generate_key()
-                print("⚠ Warning: Generated new vault key. Set GRACE_VAULT_KEY environment variable.")
+                print("WARNING: Generated new vault key. Set GRACE_VAULT_KEY environment variable.")
         
         self.cipher = Fernet(self.encryption_key)
         self.verification = VerificationEngine()
-        self.audit = ImmutableLogger()
+        self.audit = ImmutableLog()
         self.governance = GovernanceEngine()
     
     def _derive_key(self, password: str, salt: Optional[bytes] = None) -> bytes:
@@ -119,7 +119,7 @@ class SecretsVault:
         if salt is None:
             salt = b'grace_vault_salt_2025'  # Fixed salt (use random in production with storage)
         
-        kdf = PBKDF2(
+        kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
             salt=salt,

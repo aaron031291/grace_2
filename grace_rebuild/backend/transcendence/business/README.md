@@ -1,436 +1,384 @@
-# AI Consulting Automation System
+# Business Empire System
 
-Complete business automation for AI consulting with client pipeline, ML-driven lead scoring, automated proposal generation, and Grace Architect delivery.
+Real payment processing and marketplace integration for automated revenue generation.
 
-## Architecture
+## 🎯 Overview
+
+The Business Empire system enables GRACE to autonomously:
+- **Accept payments** via Stripe (invoices, subscriptions, refunds)
+- **Find freelance work** on Upwork
+- **Create service gigs** on Fiverr
+- **Communicate with clients** (with oversight)
+- **Track revenue** and deliverables
+
+All operations are governance-approved, verified, and immutably logged.
+
+## 📦 Components
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   CLIENT ACQUISITION                         │
-├─────────────────────────────────────────────────────────────┤
-│  Upwork │ Website │ Referrals │ LinkedIn │ Cold Outreach   │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│               LEAD QUALIFICATION (ML)                        │
-│  • Feature extraction                                        │
-│  • ML scoring (0-100)                                        │
-│  • Auto-qualify >70                                          │
-│  • Recommendation engine                                     │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  SALES PIPELINE                              │
-│  LEAD → QUALIFIED → PROPOSAL → NEGOTIATION → CONTRACT       │
-│  → ACTIVE → DELIVERED → PAID → REPEAT                       │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│            PROPOSAL GENERATION (Grace)                       │
-│  • Auto-generate proposals                                   │
-│  • Parse deliverables                                        │
-│  • Estimate timeline                                         │
-│  • Calculate pricing                                         │
-│  • Parliament approval >$5K                                  │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│          PROJECT DELIVERY (Grace Architect)                  │
-│  • Automated code generation                                 │
-│  • Build systems                                             │
-│  • Deploy solutions                                          │
-│  • Track progress                                            │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│              PAYMENT & SATISFACTION                          │
-│  • Invoice generation                                        │
-│  • Stripe integration                                        │
-│  • NPS tracking                                              │
-│  • Client satisfaction scoring                               │
-└─────────────────────────────────────────────────────────────┘
+business/
+├── __init__.py              # Module exports
+├── models.py                # Database models
+├── payment_processor.py     # Stripe integration
+├── marketplace_connector.py # Upwork/Fiverr integration
+├── api.py                   # REST API endpoints
+└── README.md               # This file
 ```
 
-## Components
+## 🚀 Quick Start
 
-### 1. AI Consulting Engine (`ai_consulting_engine.py`)
+### 1. Install Dependencies
 
-**Core Methods:**
-- `qualify_lead(client_data)` - ML classifier scores leads 0-100
-- `generate_proposal(requirements)` - Auto-generate consulting proposals
-- `create_project_plan(proposal)` - Break down into deliverables
-- `deliver_project(spec)` - Use Grace Architect to build
-- `collect_payment(project_id)` - Stripe integration point
-- `track_client_satisfaction(project_id)` - NPS scoring
+```bash
+pip install stripe python-upwork
+```
 
-**Features:**
-- Governance-verified operations
-- Hunter scanning on all client data
-- Parliament approval for projects >$5K
-- Immutable audit logging
+### 2. Configure API Keys
 
-### 2. Client Pipeline (`client_pipeline.py`)
+```bash
+cd grace_rebuild
+python setup_business.py
+```
 
-**Pipeline Stages:**
-1. **LEAD** - Captured from source
-2. **QUALIFIED** - ML score >70
-3. **PROPOSAL** - Auto-generated proposal sent
-4. **NEGOTIATION** - Grace handles via chat, you approve
-5. **CONTRACT** - Auto-generated, requires signature
-6. **ACTIVE** - Project in progress
-7. **DELIVERED** - Completed, awaiting payment
-8. **PAID** - Revenue received
-9. **REPEAT** - Upsell opportunities
-
-**Core Methods:**
-- `capture_lead(source, data)` - Store new lead
-- `qualify_lead(lead_id)` - ML scoring
-- `move_to_stage(lead_id, new_stage)` - Pipeline progression
-- `get_pipeline_metrics()` - Conversion rates per stage
-- `predict_close_rate(lead_id)` - ML prediction
-- `suggest_next_action(lead_id)` - Grace recommends action
-
-**Features:**
-- WebSocket real-time updates
-- ML-based close predictions
-- Automated action suggestions
-- Full funnel analytics
-
-### 3. Database Models (`models.py`)
-
-**Client** - Company/person entity
-- Contact info, industry, budget
-- Lifetime value tracking
-- Satisfaction scores
-
-**Lead** - Sales opportunity
-- ML score, stage, probability
-- Value estimation
-- Next action tracking
-
-**Project** - Active engagement
-- Scope, deliverables, timeline
-- Budget vs actual cost
-- Grace Architect integration
-- NPS feedback
-
-**Interaction** - Client communication
-- Type, channel, content
-- Sentiment analysis
-- Automated vs human-generated
-
-**Invoice** - Payment tracking
-- Status, amounts, dates
-- Stripe integration fields
-- Transaction tracking
-
-### 4. API Endpoints (`api.py`)
+Or manually:
 
 ```python
-POST   /api/business/leads                    # Capture lead
-POST   /api/business/leads/{id}/qualify       # Qualify lead
-POST   /api/business/leads/{id}/stage         # Move stage
-GET    /api/business/leads/{id}/predict       # Predict close
-GET    /api/business/leads/{id}/next-action   # Get recommendation
-POST   /api/business/proposals/generate       # Generate proposal
-POST   /api/business/projects/deliver         # Deliver project
-POST   /api/business/projects/{id}/payment    # Collect payment
-GET    /api/business/projects/{id}/satisfaction # Track NPS
-GET    /api/business/pipeline                 # Pipeline metrics
-GET    /api/business/revenue                  # Revenue stats
-```
+from backend.secrets_vault import secrets_vault
 
-## Usage Examples
-
-### 1. Capture Lead from Upwork
-
-```python
-from backend.transcendence.business import ClientPipeline
-
-pipeline = ClientPipeline()
-
-lead = await pipeline.capture_lead(
-    source="upwork",
-    data={
-        "name": "John Doe",
-        "email": "john@example.com",
-        "company": "Acme Corp",
-        "industry": "technology",
-        "budget": 15000,
-        "requirements": "Need ML consulting for customer churn prediction",
-        "timeline": "2 months"
-    }
-)
-# Returns: {"client_id": 1, "lead_id": 1, "stage": "LEAD"}
-```
-
-### 2. Qualify Lead with ML
-
-```python
-qual = await pipeline.qualify_lead(lead_id=1)
-# Returns: {
-#   "score": 85,
-#   "qualified": True,
-#   "stage": "QUALIFIED",
-#   "recommendation": "HIGH_PRIORITY - Auto-approve and fast-track"
-# }
-```
-
-### 3. Generate Proposal
-
-```python
-from backend.transcendence.business import AIConsultingEngine
-
-engine = AIConsultingEngine()
-await engine.initialize()
-
-proposal = await engine.generate_proposal(
-    requirements="Build ML-based fraud detection system",
-    client_id=1,
-    budget=20000
+# Store Stripe key
+await secrets_vault.store_stripe_key(
+    api_key="sk_test_...",
+    owner="aaron",
+    environment="test"
 )
 
-# Auto-generates:
-# - Executive summary
-# - Scope of work
-# - Deliverables breakdown
-# - Timeline estimation
-# - Pricing calculation
+# Store Upwork token
+await secrets_vault.store_upwork_credentials(
+    oauth_token="oauth_...",
+    owner="aaron"
+)
 ```
 
-### 4. Deliver Project with Grace Architect
+### 3. Test the System
+
+```bash
+pytest tests/test_payment_marketplace.py -v
+```
+
+### 4. Start Using
+
+See [BUSINESS_EXECUTION.md](../../../BUSINESS_EXECUTION.md) for complete guide.
+
+## 💰 Payment Processing
+
+### Create Invoice
 
 ```python
-result = await engine.deliver_project(
+from backend.transcendence.business.payment_processor import payment_processor
+
+result = await payment_processor.create_invoice(
     project_id=1,
-    spec={
-        "description": "ML fraud detection system",
-        "requirements": ["data ingestion", "model training", "API deployment"],
-        "tech_stack": ["python", "fastapi", "scikit-learn"]
-    }
+    amount=1500.0,
+    description="Website development",
+    client_id="client_123"
 )
-# Grace Architect builds the entire system
-# Parliament approves if budget >$5K
-```
 
-### 5. Track Pipeline Metrics
-
-```python
-metrics = await pipeline.get_pipeline_metrics()
 # Returns:
 # {
-#   "total_leads": 150,
-#   "converted": 45,
-#   "conversion_rate": 30.0,
-#   "pipeline_value": 250000,
-#   "revenue": 180000,
-#   "stage_counts": {...},
-#   "funnel_conversion": {...}
+#   "success": True,
+#   "invoice_id": "in_...",
+#   "hosted_invoice_url": "https://...",
+#   "invoice_pdf": "https://..."
 # }
 ```
 
-### 6. Get Grace's Action Recommendation
+### Process Payment
 
 ```python
-action = await pipeline.suggest_next_action(lead_id=1)
-# Returns:
-# {
-#   "current_stage": "QUALIFIED",
-#   "suggestion": {
-#     "action": "Generate and send proposal",
-#     "priority": "high",
-#     "automated": True,
-#     "approval_needed": False
-#   },
-#   "can_automate": True
-# }
-```
-
-## ML Features for Lead Scoring
-
-The system extracts these features for ML scoring:
-
-- **has_company** - Business entity vs individual
-- **has_budget** - Budget specified
-- **budget_range** - Dollar amount category
-- **industry** - Technology, finance, healthcare (bonus points)
-- **source** - Referral/repeat (high value) vs cold (low value)
-- **requirements_length** - Detail level
-- **timeline_urgency** - Immediate vs long-term
-- **has_previous_projects** - Repeat client bonus
-
-**Scoring Logic:**
-- Base: 50 points
-- Budget >$10K: +20
-- Budget >$5K: +10
-- Has company: +10
-- Premium industry: +15
-- Referral/repeat: +20
-- Detailed requirements: +10
-- **>70 = Auto-qualified**
-
-## Integration Points
-
-### Governance
-All client operations checked against governance policies:
-```python
-await governance_engine.check_policy(
-    action="qualify_lead",
-    context={"client": client_data.get("email")}
+result = await payment_processor.process_payment(
+    invoice_id="in_..."
 )
 ```
 
-### Hunter
-All client data scanned for security:
+### Setup Subscription
+
 ```python
-await hunter.scan_data(
-    data_type="client_qualification",
-    data={"score": score, "features": features}
+result = await payment_processor.setup_subscription(
+    client_id="client_123",
+    plan="Monthly Maintenance",
+    amount=500.0,
+    interval="month"
 )
 ```
 
-### Parliament
-Projects >$5K require voting approval:
+### Refund Payment
+
 ```python
-vote_result = await parliament.create_session(
-    title=f"Approve Project Delivery - #{project_id}",
-    description=f"Budget: ${project.budget}",
-    quorum_percentage=0.6,
-    required_committees=["governance", "finance"]
+result = await payment_processor.refund_payment(
+    invoice_id="in_...",
+    reason="Customer request",
+    approver="aaron"
+)
+# Large refunds (>$10K) require Parliament approval
+```
+
+## 🔍 Marketplace Integration
+
+### Search Jobs
+
+```python
+from backend.transcendence.business.marketplace_connector import marketplace_connector
+
+jobs = await marketplace_connector.search_jobs(
+    keywords="python developer",
+    budget_min=500,
+    limit=50
 )
 ```
 
-### Grace Architect
-Automated project delivery:
+### Submit Proposal
+
 ```python
-result = await architect.execute_task(
-    task_type="build_project",
-    task_data=build_spec
+result = await marketplace_connector.submit_proposal(
+    job_id="upwork_job_123",
+    proposal_text="I can help with this project...",
+    bid_amount=1200.0,
+    governance_approved=True  # Requires approval
 )
 ```
 
-### WebSocket
-Real-time pipeline updates:
+### Accept Contract
+
 ```python
-await ws_manager.broadcast({
-    "type": "lead_qualified",
-    "lead_id": lead_id,
-    "score": score,
-    "qualified": qualified
-})
+result = await marketplace_connector.accept_contract(
+    job_id="upwork_job_123"
+)
 ```
 
-## Testing
+### Submit Work
 
-```bash
-# Run all business automation tests
-pytest tests/test_business_engines.py -v
-
-# Test specific functionality
-pytest tests/test_business_engines.py::test_lead_qualification -v
-pytest tests/test_business_engines.py::test_proposal_generation -v
-pytest tests/test_business_engines.py::test_end_to_end_lead_to_paid -v
-```
-
-## API Usage
-
-### Capture Lead via API
-
-```bash
-curl -X POST http://localhost:8000/api/business/leads \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Jane Smith",
-    "email": "jane@startup.com",
-    "company": "Startup Inc",
-    "industry": "finance",
-    "budget": 12000,
-    "requirements": "ML pipeline for risk scoring",
-    "source": "website"
-  }'
-```
-
-### Generate Proposal
-
-```bash
-curl -X POST http://localhost:8000/api/business/proposals/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "client_id": 1,
-    "requirements": "Build real-time ML fraud detection",
-    "budget": 25000
-  }'
-```
-
-### Get Pipeline Metrics
-
-```bash
-curl http://localhost:8000/api/business/pipeline
-```
-
-## Revenue Tracking
-
-The system tracks:
-- **Pipeline value** - Sum of all active lead estimates
-- **Total revenue** - Completed and paid projects
-- **Conversion rate** - % of leads that become paid
-- **Average deal size** - Revenue / converted leads
-- **Forecasted monthly** - Pipeline value × conversion rate
-
-## Deployment
-
-1. **Initialize Database:**
 ```python
-from backend.models import engine, Base
-from backend.transcendence.business.models import Client, Lead, Project, Invoice
-
-async with engine.begin() as conn:
-    await conn.run_sync(Base.metadata.create_all)
+result = await marketplace_connector.submit_work(
+    job_id="upwork_job_123",
+    deliverables=["file1.py", "file2.md"],
+    description="Completed work"
+)
 ```
 
-2. **Wire into FastAPI:**
+### Request Payment
+
 ```python
-from backend.transcendence.business.api import router
-app.include_router(router)
+result = await marketplace_connector.request_payment(
+    job_id="upwork_job_123"
+)
 ```
 
-3. **Start Accepting Leads:**
-- Add lead capture forms to website
-- Connect Upwork webhooks
-- Set up referral tracking
-- Configure email integration
+## 🌐 API Endpoints
 
-## Roadmap
+All endpoints under `/api/business`:
 
-### Phase 1: ✅ Core Automation
-- Lead capture and qualification
-- Pipeline management
-- Proposal generation
-- Payment tracking
+### Payment Endpoints
 
-### Phase 2: 🚧 Advanced ML
-- Deep learning lead scoring
-- Churn prediction
-- Lifetime value estimation
-- Optimal pricing models
+- `POST /payments/invoice` - Create invoice
+- `POST /payments/process` - Process payment
+- `POST /payments/subscription` - Setup subscription
+- `POST /payments/refund` - Refund payment
+- `GET /payments/status/{invoice_id}` - Get status
+- `POST /payments/webhook` - Stripe webhook
 
-### Phase 3: 📋 Full Automation
-- Chatbot client communication
-- Automated contract generation
-- Self-service client portal
-- Auto-upsell engine
+### Marketplace Endpoints
 
-### Phase 4: 💰 Business Empire
-- Multi-tenant SaaS
-- White-label consulting platform
-- AI consulting marketplace
-- Franchise model
+- `POST /marketplace/search` - Search jobs
+- `POST /marketplace/apply` - Submit proposal
+- `GET /marketplace/jobs` - List active jobs
+- `GET /marketplace/messages/{client_id}` - Get messages
+- `POST /marketplace/respond` - Send message
+- `POST /marketplace/accept/{job_id}` - Accept contract
+- `POST /marketplace/submit-work` - Submit deliverables
+- `POST /marketplace/request-payment/{job_id}` - Request payment
 
-## License
+### Fiverr Endpoints
 
-Part of Grace AI System - Autonomous AI Consulting Platform
+- `POST /fiverr/gig` - Create gig
+- `GET /fiverr/orders` - Get orders
+
+## 🔐 Security
+
+### Secrets Management
+
+All API keys are:
+- **Encrypted** using Fernet
+- **Access-logged** for audit trail
+- **Governance-controlled** for sensitive operations
+- **Auto-rotated** based on schedule
+
+### Verification
+
+All transactions have:
+- **Verification signatures** (SHA-256 hash)
+- **Immutable log entries**
+- **Governance approval** (when required)
+- **Parliament oversight** (for large amounts)
+
+### Audit Trail
+
+Every action is logged:
+
+```python
+# Check audit logs
+from backend.immutable_log import ImmutableLogger
+
+logger = ImmutableLogger()
+# All logs in: immutable_log_entries table
+```
+
+## 📊 Database Schema
+
+### Payment Tables
+
+```sql
+-- Stripe transactions
+stripe_transactions (
+    id, stripe_invoice_id, project_id, client_id,
+    amount, status, refunded, verification_signature
+)
+
+-- Webhooks
+stripe_webhooks (
+    id, stripe_event_id, event_type, payload,
+    processed, signature_valid
+)
+
+-- Payment methods
+payment_methods (
+    id, client_id, stripe_customer_id,
+    payment_type, active
+)
+```
+
+### Marketplace Tables
+
+```sql
+-- Jobs
+marketplace_jobs (
+    id, platform, job_id, title, budget,
+    status, hunter_score
+)
+
+-- Proposals
+marketplace_proposals (
+    id, job_id, proposal_text, bid_amount,
+    governance_approved, status
+)
+
+-- Messages
+marketplace_messages (
+    id, job_id, client_id, direction,
+    message_text, auto_generated
+)
+
+-- Deliverables
+marketplace_deliverables (
+    id, job_id, file_paths, status
+)
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest tests/test_payment_marketplace.py -v
+
+# Run specific tests
+pytest tests/test_payment_marketplace.py::test_create_invoice_mocked -v
+pytest tests/test_payment_marketplace.py::test_end_to_end_workflow -v
+
+# With coverage
+pytest tests/test_payment_marketplace.py --cov=backend.transcendence.business
+```
+
+## 📖 Full Documentation
+
+See [BUSINESS_EXECUTION.md](../../../BUSINESS_EXECUTION.md) for:
+- Complete setup guide
+- Workflow examples
+- API reference
+- Troubleshooting
+- Revenue tracking
+
+## 🎯 Example Workflows
+
+### First Client
+
+```python
+# 1. Find jobs
+jobs = await marketplace_connector.search_jobs(
+    keywords="python automation",
+    budget_min=800
+)
+
+# 2. Apply
+await marketplace_connector.submit_proposal(
+    job_id=jobs[0]['id'],
+    proposal_text="...",
+    bid_amount=jobs[0]['budget'] * 0.95,
+    governance_approved=True
+)
+
+# 3. Accept when offered
+await marketplace_connector.accept_contract(job_id=jobs[0]['id'])
+
+# 4. Complete work
+await marketplace_connector.submit_work(
+    job_id=jobs[0]['id'],
+    deliverables=["solution.py"],
+    description="Completed!"
+)
+
+# 5. Get paid
+await marketplace_connector.request_payment(job_id=jobs[0]['id'])
+```
+
+### Recurring Revenue
+
+```python
+# Setup monthly subscription
+await payment_processor.setup_subscription(
+    client_id="client_123",
+    plan="Website Maintenance",
+    amount=500.0,
+    interval="month"
+)
+
+# Payments process automatically each month
+```
+
+## 🚨 Important Notes
+
+1. **Test Mode**: Start with Stripe test keys (`sk_test_...`)
+2. **Governance**: All proposals require approval by default
+3. **Large Refunds**: >$10K refunds need Parliament approval
+4. **Rate Limits**: Respect Upwork/Fiverr API rate limits
+5. **Client Communication**: Review auto-responses before enabling
+
+## 💡 Tips
+
+- Use **Hunter** to score jobs for best matches
+- Enable **auto-responses** for common client questions
+- Set up **Parliament approval** for high-value contracts
+- Monitor **revenue** in database regularly
+- Keep **API keys** rotated (90-day schedule)
+
+## 🤝 Support
+
+For issues:
+1. Check logs in `immutable_log_entries` table
+2. Run tests to verify system health
+3. Review `BUSINESS_EXECUTION.md` guide
+4. Check secret configuration with `secrets_vault.list_secrets()`
+
+---
+
+**Status**: ✅ Production Ready
+
+All components tested and operational. Ready for revenue generation.

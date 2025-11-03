@@ -1,11 +1,9 @@
-"""Business Automation Module - AI Consulting Engine"""
+"""Business Empire Module - Real-world integrations for revenue generation"""
 
-from .models import Client, Lead, Project, Interaction, Invoice
-from .ai_consulting_engine import AIConsultingEngine
-from .client_pipeline import ClientPipeline
-from .revenue_tracker import revenue_tracker
+from .payment_processor import PaymentProcessor
+from .marketplace_connector import MarketplaceConnector
 
 __all__ = [
-    'Client', 'Lead', 'Project', 'Interaction', 'Invoice',
-    'AIConsultingEngine', 'ClientPipeline', 'revenue_tracker'
+    'PaymentProcessor',
+    'MarketplaceConnector',
 ]

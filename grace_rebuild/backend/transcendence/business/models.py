@@ -41,7 +41,7 @@ class StripeTransaction(Base):
     verification_signature = Column(String(256), nullable=True)
     
     # Metadata
-    metadata = Column(JSON, nullable=True)
+    transaction_metadata = Column(JSON, nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -124,7 +124,7 @@ class MarketplaceJob(Base):
     
     # Metadata
     skills_required = Column(JSON, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    job_metadata = Column(JSON, nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
