@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, select, or_
 from sqlalchemy.sql import func
 from .models import Base, async_session
 
@@ -81,6 +81,26 @@ class CodeContext(Base):
     project_type = Column(String(64), nullable=True)  # backend, frontend, fullstack
     framework = Column(String(64), nullable=True)  # fastapi, react, etc.
     
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class CodeSymbol(Base):
+    """Symbol graph entry for deep contextual search."""
+
+    __tablename__ = "code_symbols"
+
+    id = Column(Integer, primary_key=True)
+    symbol = Column(String(256), nullable=False, index=True)
+    symbol_type = Column(String(64), nullable=False)
+    language = Column(String(32), nullable=False)
+    file_path = Column(String(512), nullable=False)
+    project = Column(String(128))
+    signature = Column(Text)
+    docstring = Column(Text)
+    tags = Column(JSON, default=list)
+    references = Column(JSON, default=list)
+    metadata = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -217,6 +237,25 @@ class CodeMemoryEngine:
                     node, file_path, project, content, imports
                 )
                 classes.append(class_pattern)
+
+        function_names = [getattr(p, "name", None) for p in functions if getattr(p, "name", None)]
+        class_names = [getattr(p, "name", None) for p in classes if getattr(p, "name", None)]
+
+        await self._record_symbol(
+            symbol=file_path.stem,
+            symbol_type="module",
+            language="python",
+            file_path=str(file_path),
+            project=project,
+            signature=f"module {file_path.stem}",
+            docstring="",
+            tags=list(set(function_names + class_names + imports)),
+            references=imports,
+            metadata={
+                "functions": function_names,
+                "classes": class_names,
+            },
+        )
         
         return {
             'functions': functions,
@@ -295,7 +334,23 @@ class CodeMemoryEngine:
             await session.commit()
             await session.refresh(pattern)
             
-            return pattern
+        await self._record_symbol(
+            symbol=node.name,
+            symbol_type="function",
+            language="python",
+            file_path=str(file_path),
+            project=project,
+            signature=signature,
+            docstring=description,
+            tags=tags,
+            references=imports,
+            metadata={
+                "parameters": parameters,
+                "return_type": return_type,
+            },
+        )
+
+        return pattern
     
     async def _extract_python_class(
         self,
@@ -345,7 +400,22 @@ class CodeMemoryEngine:
             await session.commit()
             await session.refresh(pattern)
             
-            return pattern
+        await self._record_symbol(
+            symbol=node.name,
+            symbol_type="class",
+            language="python",
+            file_path=str(file_path),
+            project=project,
+            signature=signature,
+            docstring=description,
+            tags=tags,
+            references=imports,
+            metadata={
+                "bases": bases,
+            },
+        )
+
+        return pattern
     
     async def _parse_js_file(self, file_path: Path, project: str) -> Dict[str, List]:
         """Parse JavaScript/TypeScript file (basic regex-based)"""
@@ -399,6 +469,59 @@ class CodeMemoryEngine:
         
         return list(set(tags))  # Remove duplicates
     
+    async def _record_symbol(
+        self,
+        *,
+        symbol: str,
+        symbol_type: str,
+        language: str,
+        file_path: str,
+        project: Optional[str],
+        signature: Optional[str],
+        docstring: Optional[str],
+        tags: Optional[List[str]],
+        references: Optional[List[str]],
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Upsert symbol entry for deep search."""
+
+        tags = list({t for t in (tags or []) if t})
+        references = list({r for r in (references or []) if r})
+
+        async with async_session() as session:
+            result = await session.execute(
+                select(CodeSymbol).where(
+                    CodeSymbol.symbol == symbol,
+                    CodeSymbol.file_path == file_path,
+                    CodeSymbol.language == language,
+                )
+            )
+            existing = result.scalar_one_or_none()
+
+            if existing:
+                existing.signature = signature or existing.signature
+                existing.docstring = docstring or existing.docstring
+                existing.tags = list({*(existing.tags or []), *tags})
+                existing.references = references or existing.references
+                existing.metadata = metadata or existing.metadata or {}
+                existing.project = project or existing.project
+            else:
+                entry = CodeSymbol(
+                    symbol=symbol,
+                    symbol_type=symbol_type,
+                    language=language,
+                    file_path=file_path,
+                    project=project,
+                    signature=signature,
+                    docstring=docstring,
+                    tags=tags,
+                    references=references,
+                    metadata=metadata or {},
+                )
+                session.add(entry)
+
+            await session.commit()
+
     async def recall_patterns(
         self,
         intent: str,
@@ -418,8 +541,6 @@ class CodeMemoryEngine:
         Returns:
             List of relevant patterns with confidence scores
         """
-        
-        from sqlalchemy import select, or_
         
         # Generate search tags from intent
         search_tags = self._generate_tags(intent, intent)
@@ -458,5 +579,76 @@ class CodeMemoryEngine:
                 }
                 for p in patterns
             ]
+
+    async def deep_search(
+        self,
+        *,
+        query: str,
+        language: str = "python",
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """Return combined matches from patterns and symbols."""
+
+        search_tags = self._generate_tags(query, query)
+
+        pattern_conditions = [
+            CodePattern.name.ilike(f"%{query}%"),
+            CodePattern.description.ilike(f"%{query}%"),
+        ]
+        for tag in search_tags:
+            pattern_conditions.append(CodePattern.tags.contains([tag]))
+
+        symbol_conditions = [
+            CodeSymbol.symbol.ilike(f"%{query}%"),
+            CodeSymbol.docstring.ilike(f"%{query}%"),
+        ]
+        for tag in search_tags:
+            symbol_conditions.append(CodeSymbol.tags.contains([tag]))
+
+        async with async_session() as session:
+            pattern_query = select(CodePattern).where(CodePattern.language == language)
+            if pattern_conditions:
+                pattern_query = pattern_query.where(or_(*pattern_conditions))
+            pattern_query = pattern_query.limit(limit)
+            pattern_rows = (await session.execute(pattern_query)).scalars().all()
+
+            symbol_query = select(CodeSymbol).where(CodeSymbol.language == language)
+            if symbol_conditions:
+                symbol_query = symbol_query.where(or_(*symbol_conditions))
+            symbol_query = symbol_query.limit(limit)
+            symbol_rows = (await session.execute(symbol_query)).scalars().all()
+
+        matches: List[Dict[str, Any]] = []
+        for row in pattern_rows:
+            matches.append(
+                {
+                    "type": "pattern",
+                    "name": row.name,
+                    "symbol_type": row.pattern_type,
+                    "file_path": row.file_path,
+                    "signature": row.signature,
+                    "description": row.description,
+                    "tags": row.tags,
+                    "score": float(row.success_rate * row.confidence_score),
+                }
+            )
+
+        for row in symbol_rows:
+            matches.append(
+                {
+                    "type": "symbol",
+                    "name": row.symbol,
+                    "symbol_type": row.symbol_type,
+                    "file_path": row.file_path,
+                    "signature": row.signature,
+                    "description": row.docstring,
+                    "tags": row.tags,
+                    "score": 0.75,
+                    "metadata": row.metadata,
+                }
+            )
+
+        matches.sort(key=lambda item: item.get("score", 0), reverse=True)
+        return matches[:limit]
 
 code_memory = CodeMemoryEngine()
