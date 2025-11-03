@@ -1,279 +1,291 @@
-# Grace Cognition System - Quick Start
+# Cognition Dashboard - Quick Start Guide
 
-Get Grace's 10-domain cognition system running in 5 minutes.
+**Get up and running with Grace's Cognition Dashboard in 5 minutes**
 
 ---
 
-## 1. Start the Backend
+## 1. Start Grace Backend
 
 ```bash
 cd grace_rebuild
-python -m uvicorn backend.main:app --reload
+python -m backend.main
 ```
 
-Backend will be available at: http://localhost:8000
-
----
-
-## 2. View Live Cognition Dashboard
-
-```bash
-cd cli
-python grace_unified.py cognition
+Wait for:
 ```
-
-You'll see:
-- Overall health, trust, confidence (0-100%)
-- 10-domain grid with real-time KPIs
-- 🚀 SaaS Ready indicator (when benchmarks hit 90%)
-
----
-
-## 3. Check SaaS Readiness
-
-```bash
-python grace_unified.py readiness
-```
-
-Shows:
-- Current vs. target benchmarks
-- Sustained status over 7-day window
-- Next steps to commercialization
-- Grace's self-assessment
-
----
-
-## 4. Test Domain Commands
-
-### Core - Platform Operations
-```bash
-python grace_unified.py core heartbeat
-python grace_unified.py core governance
-python grace_unified.py core self-heal
-```
-
-### Transcendence - Agentic Development
-```bash
-python grace_unified.py transcendence plan "build authentication system"
-python grace_unified.py transcendence memory "jwt patterns"
-```
-
-### Security - Hunter Protection
-```bash
-python grace_unified.py security scan ./backend
-python grace_unified.py security alerts
-python grace_unified.py security rules
+✓ Database initialized
+✓ Grace API server starting...
+✓ Benchmark scheduler started (evaluates every hour)
 ```
 
 ---
 
-## 5. Test API Directly
+## 2. Check Status via CLI
 
-### Get Cognition Status
 ```bash
-curl http://localhost:8000/api/cognition/status
-```
+# View current status
+grace cognition status
 
-### Get Readiness Report
-```bash
-curl http://localhost:8000/api/cognition/readiness
-```
+# View SaaS readiness
+grace cognition readiness
 
-### Core Heartbeat
-```bash
-curl http://localhost:8000/api/core/heartbeat
-```
-
-### Transcendence Plan
-```bash
-curl -X POST http://localhost:8000/api/transcendence/plan \
-  -H "Content-Type: application/json" \
-  -d '{"task_description": "build auth system", "context": {}}'
-```
-
-### Security Scan
-```bash
-curl -X POST http://localhost:8000/api/security/scan \
-  -H "Content-Type: application/json" \
-  -d '{"path": "./backend", "deep": false}'
+# Live dashboard (updates every 5s)
+grace cognition watch
 ```
 
 ---
 
-## 6. Publish Metrics from Your Code
+## 3. View in Browser
 
-Add to any backend service:
+Open: http://localhost:8000/docs
+
+Try these endpoints:
+- `GET /api/cognition/status` - Current status
+- `GET /api/cognition/readiness` - SaaS readiness report
+
+---
+
+## 4. Publish Test Metrics
+
+Create `test_metrics.py`:
+
+```python
+import asyncio
+from backend.metric_publishers import *
+
+async def publish_test_metrics():
+    # Transcendence domain
+    await OrchestratorMetrics.publish_task_completed(True, 0.92)
+    await OrchestratorMetrics.publish_plan_created(0.88)
+    
+    # Security domain
+    await HunterMetrics.publish_scan_completed(2, 0.96, 0.015)
+    
+    # ML domain
+    await MLMetrics.publish_training_completed(0.94, 1800)
+    
+    # Knowledge domain
+    await KnowledgeMetrics.publish_ingestion_completed(0.91, 25)
+    
+    print("✓ Test metrics published!")
+
+asyncio.run(publish_test_metrics())
+```
+
+Run it:
+```bash
+python test_metrics.py
+```
+
+---
+
+## 5. View Updated Status
+
+```bash
+# Check status again
+grace cognition status
+
+# Generate readiness report
+grace cognition readiness-report
+```
+
+---
+
+## Integration into Your Code
+
+### Option 1: Use Publisher Classes
+
+```python
+from backend.metric_publishers import OrchestratorMetrics
+
+async def my_task_function():
+    result = await execute_task()
+    
+    # Publish metrics
+    await OrchestratorMetrics.publish_task_completed(
+        success=result.success,
+        quality=result.quality_score
+    )
+```
+
+### Option 2: Direct Publishing
 
 ```python
 from backend.metrics_service import publish_metric
 
-# After completing a task
-await publish_metric("transcendence", "task_success", 1.0, {
-    "task_id": "123",
-    "duration": 5.2
-})
-
-# After generating code
-await publish_metric("transcendence", "code_quality", 0.92, {
-    "lines": 150,
-    "language": "python"
-})
-
-# After security scan
-await publish_metric("security", "threats_detected", 3.0)
-await publish_metric("security", "scan_coverage", 0.94)
+async def my_function():
+    await publish_metric("transcendence", "task_success", 1.0)
 ```
 
-Batch publishing:
+### Option 3: Batch Publishing
+
 ```python
 from backend.metrics_service import publish_batch
 
-await publish_batch("ml", {
-    "model_accuracy": 0.94,
-    "deployment_success": 1.0,
-    "inference_latency": 0.032
-})
+async def my_function():
+    await publish_batch("ml", {
+        "model_accuracy": 0.94,
+        "deployment_success": 1.0,
+        "inference_latency": 0.028
+    })
 ```
 
 ---
 
-## 7. Watch Benchmarks Climb to 90%
+## Understanding the Output
 
-As you use Grace, metrics accumulate:
-1. Each operation publishes KPIs
-2. Rolling 7-day windows track trends
-3. Health/trust/confidence aggregate across domains
-4. When all three sustain ≥90% for 7 days → **SaaS Ready!**
+### CLI Status Output
 
-### Monitor Progress
+```
+Grace Cognition Status
+Timestamp: 2025-11-03T10:30:00
+
+┏━━━━━━━━━━━━━┳━━━━━━━━┓
+┃ Metric      ┃ Value  ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━┩
+│ Health      │ 88.0%  │  ← Overall system health
+│ Trust       │ 84.0%  │  ← Trustworthiness score
+│ Confidence  │ 82.0%  │  ← Confidence level
+│ SaaS Ready  │ 🔧 No  │  ← Ready for commercialization?
+└─────────────┴────────┘
+```
+
+### Domain Performance
+
+Each domain shows:
+- **Health** - Weighted average of KPIs
+- **Trust** - Derived from health × 0.95
+- **Confidence** - Derived from health × 0.92
+
+---
+
+## What Happens When Grace Hits 90%?
+
+When **all three benchmarks** (Health, Trust, Confidence) sustain **≥ 90%** for **7 consecutive days**:
+
+1. 🚀 **Event Emitted:** `product.elevation_ready` via trigger mesh
+2. 📄 **Report Generated:** Comprehensive SaaS readiness report
+3. 📧 **Alerts Sent:** Notifications logged (future: email/Slack)
+4. ✅ **Status Updated:** `saas_ready: true` in API responses
+
+---
+
+## Monitoring Tips
+
+### Watch Live
 ```bash
-# Live dashboard (updates every 2 seconds)
-python grace_unified.py cognition
+grace cognition watch
+# Updates every 5 seconds
+# Press Ctrl+C to stop
+```
 
-# Detailed benchmark status
-curl http://localhost:8000/api/cognition/benchmark/overall_health
-curl http://localhost:8000/api/cognition/benchmark/overall_trust
-curl http://localhost:8000/api/cognition/benchmark/overall_confidence
+### Check Specific Domain
+```bash
+grace transcendence metrics
+grace security metrics
+grace ml metrics
+```
+
+### Generate Reports
+```bash
+# Generate and save
+grace cognition readiness-report
+
+# View without saving
+grace cognition view-report
 ```
 
 ---
 
-## 8. When Grace Hits 90%
+## Domain KPI Summary
 
-The CLI will show:
-```
-Grace Overall Cognition ● READY FOR COMMERCIALIZATION
-┌────────────┬───────┬────────────────────┐
-│ Metric     │ Value │ Bar                │
-├────────────┼───────┼────────────────────┤
-│ Health     │ 92%   │ ████████████████░░ │
-│ Trust      │ 91%   │ ████████████████░░ │
-│ Confidence │ 90%   │ ████████████████░░ │
-│ Status     │ 🚀 SaaS Ready            │
-└────────────┴───────┴────────────────────┘
-```
-
-Grace will tell you it's time to commercialize with:
-- Auto-generated readiness report
-- Next steps checklist
-- Usage stats and proof points
-- Go-to-market recommendations
-
----
-
-## Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    CLI (Downloadable)                    │
-│  grace cognition | grace core | grace transcendence     │
-└─────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────┐
-│                  FastAPI Backend                         │
-│  /api/cognition/* | /api/core/* | /api/transcendence/* │
-└─────────────────────────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        ▼                   ▼                   ▼
-┌──────────────┐  ┌──────────────────┐  ┌──────────────┐
-│   Metrics    │  │    Cognition     │  │   10 Domains │
-│  Collector   │  │     Engine       │  │              │
-│              │  │                  │  │ Core         │
-│ - Publishes  │  │ - Aggregates     │  │ Transcend    │
-│ - Windows    │  │ - Benchmarks     │  │ Knowledge    │
-│ - Subscribers│  │ - 90% Trigger    │  │ Security     │
-│              │  │                  │  │ ML           │
-└──────────────┘  └──────────────────┘  │ Temporal     │
-                                        │ Parliament   │
-                                        │ Federation   │
-                                        │ Cognition    │
-                                        │ Speech       │
-                                        └──────────────┘
-```
-
----
-
-## 10 Domains at a Glance
-
-| Domain | Icon | Purpose | CLI Command |
-|--------|------|---------|-------------|
-| Core | 💓 | Platform operations | `grace core heartbeat` |
-| Transcendence | 🧠 | Agentic dev partner | `grace transcendence plan` |
-| Knowledge | 📚 | Ingestion & BI | `grace knowledge search` |
-| Security | 🛡️ | Hunter protection | `grace security scan` |
-| ML | 🤖 | Learning & deployment | `grace ml deploy` |
-| Temporal | ⏰ | Causal & forecasting | `grace temporal simulate` |
-| Parliament | 🏛️ | Governance & meta | `grace parliament vote` |
-| Federation | 🌐 | External integration | `grace federation connectors` |
-| Cognition | 🧠📊 | Real-time intelligence | `grace cognition` |
-| Speech | 🎤 | Voice interface | `grace speech listen` |
+| Domain | Key Metrics |
+|--------|------------|
+| **Core** | uptime, governance_score, healing_actions |
+| **Transcendence** | task_success, code_quality, planning_accuracy |
+| **Knowledge** | trust_score, recall_accuracy, ingestion_rate |
+| **Security** | threats_detected, scan_coverage, auto_fix_success |
+| **ML** | model_accuracy, deployment_success, inference_latency |
+| **Temporal** | prediction_accuracy, graph_completeness, sim_quality |
+| **Parliament** | vote_participation, compliance_score, reflection_quality |
+| **Federation** | connector_health, api_success, plugin_uptime |
+| **Cognition** | overall_health, overall_trust, saas_readiness |
+| **Speech** | recognition_accuracy, synthesis_quality, command_success |
 
 ---
 
 ## Troubleshooting
 
-### Backend won't start
+### "Connection refused" error
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Check database
-python reset_db.py
+# Make sure backend is running
+curl http://localhost:8000/health
+# Should return: {"status":"ok","message":"Grace API is running"}
 ```
 
-### CLI not found
+### No metrics showing
 ```bash
-# Run directly
-python grace_unified.py cognition
+# Publish some test metrics first
+python test_metrics.py
 
-# Or install
-pip install -e .
-grace cognition
+# Then check status
+grace cognition status
 ```
 
-### Metrics not appearing
+### CLI command not found
 ```bash
-# Check backend logs
-# Ensure operations are publishing metrics
-# Verify /api/cognition/status returns data
-```
+# Run from grace_rebuild directory
+cd grace_rebuild
 
-### Can't connect to backend
-```bash
-# Specify backend URL
-python grace_unified.py cognition --backend http://localhost:8000
+# Or set PYTHONPATH
+export PYTHONPATH=/path/to/grace_rebuild:$PYTHONPATH
 ```
 
 ---
 
-## What's Next?
+## Next Steps
 
-1. Use Grace for your daily development
-2. Watch metrics accumulate
-3. Wait for 90% sustained benchmarks
-4. Grace will signal when ready for SaaS
-5. Follow the commercialization checklist
+1. **Integrate Publishers** - Add metric publishing to your domain code
+2. **Monitor Progress** - Use `grace cognition watch` to track improvements
+3. **Iterate** - Focus on domains below 90% health
+4. **Wait for 90%** - Let the system accumulate 7 days of data
+5. **Launch** - When `product.elevation_ready` fires, follow the roadmap!
 
-**Grace is your personal R&D platform until she tells you it's time to scale!**
+---
+
+## Full Documentation
+
+See `docs/COGNITION_DASHBOARD.md` for:
+- Complete API reference
+- All KPI definitions
+- Database schema
+- Integration patterns
+- Advanced features
+
+---
+
+## Quick Reference
+
+```bash
+# Status
+grace cognition status
+
+# Readiness
+grace cognition readiness
+
+# Live watch
+grace cognition watch
+
+# Domain metrics
+grace <domain> metrics
+
+# Generate report
+grace cognition readiness-report
+
+# View report
+grace cognition view-report
+```
+
+---
+
+**Ready to monitor Grace's cognitive health! 🧠✨**
