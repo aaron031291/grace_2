@@ -31,7 +31,7 @@ class CodePattern(Base):
     project = Column(String(128), nullable=True)
     module = Column(String(256), nullable=True)
     
-    # Metadata
+    # Meta information
     description = Column(Text, nullable=True)
     tags = Column(JSON, default=list)  # ["authentication", "database", "api"]
     dependencies = Column(JSON, default=list)  # Import statements
@@ -100,7 +100,7 @@ class CodeSymbol(Base):
     docstring = Column(Text)
     tags = Column(JSON, default=list)
     references = Column(JSON, default=list)
-    metadata = Column(JSON, default=dict)
+    meta_data = Column(JSON, default=dict)  # Renamed from metadata (SQLAlchemy reserved)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

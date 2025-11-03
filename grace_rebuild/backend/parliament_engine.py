@@ -16,7 +16,7 @@ from .parliament_models import (
     CommitteeDefinition, ParliamentConfig
 )
 from .verification import VerificationEngine
-from .immutable_log import ImmutableLogger
+from .immutable_log import ImmutableLog as ImmutableLogger
 
 class ParliamentEngine:
     """Multi-agent voting and consensus system"""
