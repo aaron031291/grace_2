@@ -139,6 +139,18 @@ Examples:
             from grace_cli import main as old_cli_main
             old_cli_main()
         
+        elif args.domain == 'core':
+            from cli.commands.domain_commands import execute_core_command
+            asyncio.run(execute_core_command(args.action, args.backend if hasattr(args, 'backend') else 'http://localhost:8000'))
+        
+        elif args.domain == 'transcendence':
+            from cli.commands.domain_commands import execute_transcendence_command
+            asyncio.run(execute_transcendence_command(args.action, args, args.backend if hasattr(args, 'backend') else 'http://localhost:8000'))
+        
+        elif args.domain == 'security':
+            from cli.commands.domain_commands import execute_security_command
+            asyncio.run(execute_security_command(args.action, args, args.backend if hasattr(args, 'backend') else 'http://localhost:8000'))
+        
         else:
             print(f"🚧 Domain '{args.domain}' implementation in progress")
             print(f"   Action: {getattr(args, 'action', 'N/A')}")
