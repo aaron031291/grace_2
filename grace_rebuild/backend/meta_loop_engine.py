@@ -29,6 +29,14 @@ class AppliedRecommendation(Base):
 class RecommendationApplicator:
     """Applies meta-loop recommendations with safety and measurement"""
     
+    async def start(self):
+        """Start the applicator (compatibility method)"""
+        pass
+    
+    async def stop(self):
+        """Stop the applicator (compatibility method)"""
+        pass
+    
     def __init__(self):
         self.pending_rollbacks = {}
         self.safety_limits = {

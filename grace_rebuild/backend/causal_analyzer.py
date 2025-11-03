@@ -1,9 +1,12 @@
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_
-from .models import Task, ChatMessage, CausalEvent, async_session
-from .causal_graph import CausalGraph, CausalNode
 from collections import defaultdict
+
+if TYPE_CHECKING:
+    from .models import Task, ChatMessage, CausalEvent
+
+from .causal_graph import CausalGraph, CausalNode
 
 class CausalAnalyzer:
     """High-level causal analysis for system optimization"""

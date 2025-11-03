@@ -112,3 +112,7 @@ class Hunter:
         return False
 
 hunter = Hunter()
+  
+# Global instance  
+hunter_service = Hunter()  
+hunter_engine = hunter_service 

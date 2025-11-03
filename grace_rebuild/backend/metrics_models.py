@@ -19,7 +19,7 @@ class MetricEvent(Base):
     kpi = Column(String(100), nullable=False, index=True)
     value = Column(Float, nullable=False)
     timestamp = Column(DateTime, default=datetime.now, nullable=False, index=True)
-    metadata = Column(JSON, default={})
+    metric_metadata = Column(JSON, default={})
     
     __table_args__ = (
         Index('idx_domain_kpi_timestamp', 'domain', 'kpi', 'timestamp'),
@@ -62,7 +62,7 @@ class BenchmarkHistory(Base):
     window_days = Column(Integer, default=7)
     sample_count = Column(Integer, default=0)
     timestamp = Column(DateTime, default=datetime.now, index=True)
-    metadata = Column(JSON, default={})
+    benchmark_metadata = Column(JSON, default={})
 
 
 class SaaSReadinessEvent(Base):
@@ -77,7 +77,7 @@ class SaaSReadinessEvent(Base):
     saas_ready = Column(Boolean, default=False)
     message = Column(String(500))
     triggered_at = Column(DateTime, default=datetime.now, index=True)
-    metadata = Column(JSON, default={})
+    event_metadata = Column(JSON, default={})
     notified = Column(Boolean, default=False)
 
 

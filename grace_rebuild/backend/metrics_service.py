@@ -101,7 +101,7 @@ class MetricsCollector:
                 kpi=event.kpi,
                 value=event.value,
                 timestamp=event.timestamp,
-                metadata=event.metadata
+                metric_metadata=event.metadata
             )
             
             self.db_session.add(db_event)

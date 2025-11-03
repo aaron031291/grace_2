@@ -113,7 +113,7 @@ class BenchmarkScheduler:
                     sustained=ready,
                     window_days=7,
                     timestamp=datetime.now(),
-                    metadata={"saas_ready": ready}
+                    benchmark_metadata={"saas_ready": ready}
                 )
                 
                 self.db_session.add(history)
@@ -173,7 +173,7 @@ class BenchmarkScheduler:
                 saas_ready=ready,
                 message=message,
                 triggered_at=datetime.now(),
-                metadata={
+                event_metadata={
                     "health": health,
                     "trust": trust,
                     "confidence": confidence

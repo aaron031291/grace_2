@@ -9,7 +9,11 @@ from sqlalchemy import select, and_
 from .models import async_session
 from .code_memory import CodePattern, CodeContext, code_memory
 from .causal_analyzer import causal_analyzer
-from .meta_loop_engine import meta_loop
+
+# Lazy import to avoid circular dependency  
+def _get_meta_loop():
+    from .meta_loop_engine import RecommendationApplicator
+    return RecommendationApplicator()
 
 class CodeUnderstandingEngine:
     """Understand code context, intent, and suggest next steps"""
