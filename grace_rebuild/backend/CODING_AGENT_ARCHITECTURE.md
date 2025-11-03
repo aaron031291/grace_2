@@ -157,11 +157,13 @@
 - `parse_codebase()` - Parse entire projects
 - `parse_file()` - Extract patterns from single file
 - `recall_patterns()` - Intelligent pattern search
+- `deep_search()` - Hybrid symbol + pattern retrieval for semantic queries
 
 **Storage:**
 - Functions with signatures
 - Classes with methods
 - Tags and dependencies
+- Symbol graph (`code_symbols`) capturing modules, functions, classes, and references
 - Success metrics
 
 **Learning:**
@@ -169,6 +171,7 @@
 - Measures success (success_rate)
 - Adjusts confidence (confidence_score)
 - Improves ranking over time
+- Enriches symbol metadata for orchestrator subagents
 
 ---
 
@@ -214,6 +217,31 @@
 - Uses Code Generator for creation
 - Uses Hunter for security
 - Uses Causal for impact prediction
+
+---
+
+### 5. Agentic Orchestrator
+
+**Purpose:** Coordinate multi-agent execution with Sourcegraph Amp-style subagents.
+
+**Key Components:**
+- `CodingOrchestrator` — plans requests, spawns subagents, merges outputs.
+- `AnalysisAgent` — performs deep retrieval through the hybrid `deep_search` symbol graph.
+- `ImplementationAgent` — drafts patches using code patterns and the generator.
+- `ReviewAgent` — assembles diff reviews, static findings, and governance payloads.
+- `Toolbelt` — shared tool layer for file I/O, diff previews, semantic search, and validation jobs.
+
+**Workflow:**
+1. Plan via `POST /api/code/orchestrate/plan`.
+2. Execute structured plans through `POST /api/code/orchestrate/execute`.
+3. Run end-to-end automation with `POST /api/code/orchestrate/run`.
+4. Subagents publish lifecycle events on Trigger Mesh (`coding.plan.*`, `coding.subagent.*`).
+5. Governance and Hunter checks gate every proposed diff before surfacing to the user.
+
+**Integrations:**
+- Persists symbol-aware context for future recalls.
+- Submits verification suites to `task_executor` for asynchronous validation.
+- Feeds execution telemetry back into `meta_loop` for continuous self-improvement.
 
 ---
 
