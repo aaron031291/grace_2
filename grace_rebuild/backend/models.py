@@ -25,6 +25,7 @@ from .verification import VerificationEnvelope
 from .ml_models_table import MLModel, TrainingRun
 from .temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly, PredictionRecord
 from .cognition.models import MemoryArtifact as CognitionMemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
+from .transcendence.business.models import StripeTransaction, StripeWebhook, PaymentMethod, MarketplaceJob, MarketplaceProposal, MarketplaceMessage, MarketplaceDeliverable
 
 class User(Base):
     __tablename__ = "users"
