@@ -3,12 +3,17 @@ Security Domain API Router
 Hunter threat detection, scanning, quarantine
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, List
 from pydantic import BaseModel
-from backend.database import get_db
-from backend.metrics_service import publish_metric
+import logging
+
+try:
+    from ..metrics_service import publish_metric
+except ImportError:
+    from backend.metrics_service import publish_metric
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/security", tags=["security"])
 
@@ -19,7 +24,7 @@ class ScanRequest(BaseModel):
 
 
 @router.post("/scan")
-async def run_security_scan(request: ScanRequest, db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def run_security_scan(request: ScanRequest) -> Dict[str, Any]:
     """Run Hunter security scan"""
     from backend.hunter import hunter_engine
     
@@ -47,7 +52,7 @@ async def run_security_scan(request: ScanRequest, db: Session = Depends(get_db))
 
 
 @router.get("/rules")
-async def list_security_rules(db: Session = Depends(get_db)) -> Dict[str, List[Any]]:
+async def list_security_rules() -> Dict[str, List[Any]]:
     """List active security rules"""
     from backend.hunter import hunter_engine
     
@@ -62,8 +67,7 @@ async def list_security_rules(db: Session = Depends(get_db)) -> Dict[str, List[A
 @router.get("/alerts")
 async def get_security_alerts(
     hours: int = 24,
-    severity: str = None,
-    db: Session = Depends(get_db)
+    severity: str = None
 ) -> Dict[str, List[Any]]:
     """Get active security alerts"""
     from backend.hunter import hunter_engine
@@ -79,8 +83,7 @@ async def get_security_alerts(
 @router.post("/quarantine")
 async def quarantine_threat(
     threat_id: str,
-    reason: str,
-    db: Session = Depends(get_db)
+    reason: str
 ) -> Dict[str, Any]:
     """Quarantine a detected threat"""
     from backend.auto_quarantine import quarantine_manager
@@ -100,7 +103,7 @@ async def quarantine_threat(
 
 
 @router.get("/quarantined")
-async def list_quarantined(db: Session = Depends(get_db)) -> Dict[str, List[Any]]:
+async def list_quarantined() -> Dict[str, List[Any]]:
     """List quarantined items"""
     from backend.auto_quarantine import quarantine_manager
     
@@ -114,8 +117,7 @@ async def list_quarantined(db: Session = Depends(get_db)) -> Dict[str, List[Any]
 
 @router.post("/auto-fix")
 async def trigger_auto_fix(
-    issue_id: str,
-    db: Session = Depends(get_db)
+    issue_id: str
 ) -> Dict[str, Any]:
     """Trigger automatic fix for security issue"""
     from backend.auto_fix import auto_fix_engine
@@ -140,7 +142,7 @@ async def trigger_auto_fix(
 
 
 @router.get("/constitutional")
-async def constitutional_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
+async def constitutional_status() -> Dict[str, Any]:
     """Get constitutional AI compliance status"""
     from backend.constitutional_engine import constitutional_engine
     
