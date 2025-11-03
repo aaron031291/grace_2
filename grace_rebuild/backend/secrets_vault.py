@@ -449,5 +449,189 @@ class SecretsVault:
         )
         
         return {"secret_key": secret_key, "status": "revoked", "reason": reason}
+    
+    async def store_stripe_key(
+        self,
+        api_key: str,
+        owner: str = "system",
+        environment: str = "production"
+    ) -> Dict[str, Any]:
+        """
+        Store Stripe API key securely
+        
+        Args:
+            api_key: Stripe secret key
+            owner: Key owner
+            environment: production or test
+            
+        Returns:
+            Storage result
+        """
+        return await self.store_secret(
+            secret_key="stripe_api_key",
+            secret_value=api_key,
+            secret_type="api_key",
+            owner=owner,
+            service="stripe",
+            description=f"Stripe API key ({environment})",
+            metadata={"environment": environment}
+        )
+    
+    async def store_upwork_credentials(
+        self,
+        oauth_token: str,
+        owner: str = "system"
+    ) -> Dict[str, Any]:
+        """
+        Store Upwork OAuth token
+        
+        Args:
+            oauth_token: Upwork OAuth token
+            owner: Token owner
+            
+        Returns:
+            Storage result
+        """
+        return await self.store_secret(
+            secret_key="upwork_oauth_token",
+            secret_value=oauth_token,
+            secret_type="token",
+            owner=owner,
+            service="upwork",
+            description="Upwork OAuth access token"
+        )
+    
+    async def retrieve_with_audit(
+        self,
+        key_name: str,
+        accessor: str,
+        purpose: str,
+        governance_approval_required: bool = False
+    ) -> Optional[str]:
+        """
+        Retrieve secret with enhanced auditing
+        
+        Args:
+            key_name: Secret key name
+            accessor: Who is accessing
+            purpose: Purpose of access
+            governance_approval_required: Whether governance approval needed
+            
+        Returns:
+            Secret value or None
+        """
+        
+        # Log retrieval attempt
+        await self.audit.log_event(
+            actor=accessor,
+            action="secret_retrieval_attempted",
+            resource=key_name,
+            result="pending",
+            details={"purpose": purpose}
+        )
+        
+        # Check governance if required
+        if governance_approval_required:
+            # TODO: Integrate with governance approval system
+            await self.audit.log_event(
+                actor=accessor,
+                action="secret_retrieval_requires_governance",
+                resource=key_name,
+                result="approval_required",
+                details={"purpose": purpose}
+            )
+            return None
+        
+        # Retrieve secret
+        value = await self.retrieve_secret(
+            key=key_name,
+            accessor=accessor,
+            purpose=purpose
+        )
+        
+        return value
+    
+    async def rotate_keys(
+        self,
+        service: Optional[str] = None,
+        force: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Rotate keys that are expired or due for rotation
+        
+        Args:
+            service: Optional service filter
+            force: Force rotation even if not due
+            
+        Returns:
+            Rotation summary
+        """
+        
+        async with async_session() as session:
+            from sqlalchemy import select, and_
+            from datetime import datetime, timedelta
+            
+            # Find secrets due for rotation
+            query = select(SecretEntry).where(
+                and_(
+                    SecretEntry.active == True,
+                    SecretEntry.revoked == False
+                )
+            )
+            
+            if service:
+                query = query.where(SecretEntry.service == service)
+            
+            result = await session.execute(query)
+            secrets = result.scalars().all()
+            
+            rotated = []
+            skipped = []
+            
+            for secret in secrets:
+                should_rotate = force
+                
+                # Check expiration
+                if secret.expires_at and secret.expires_at < datetime.utcnow():
+                    should_rotate = True
+                
+                # Check rotation schedule
+                if secret.rotation_days and secret.last_rotated_at:
+                    days_since_rotation = (datetime.utcnow() - secret.last_rotated_at).days
+                    if days_since_rotation >= secret.rotation_days:
+                        should_rotate = True
+                
+                if should_rotate:
+                    # Log rotation needed
+                    await self.audit.log_event(
+                        actor="system",
+                        action="secret_rotation_needed",
+                        resource=secret.secret_key,
+                        result="pending",
+                        details={
+                            "service": secret.service,
+                            "expired": bool(secret.expires_at and secret.expires_at < datetime.utcnow()),
+                            "rotation_overdue": bool(
+                                secret.rotation_days and 
+                                secret.last_rotated_at and
+                                (datetime.utcnow() - secret.last_rotated_at).days >= secret.rotation_days
+                            )
+                        }
+                    )
+                    
+                    rotated.append({
+                        "key": secret.secret_key,
+                        "service": secret.service,
+                        "reason": "expired" if secret.expires_at else "scheduled"
+                    })
+                else:
+                    skipped.append(secret.secret_key)
+            
+            return {
+                "rotated_count": len(rotated),
+                "skipped_count": len(skipped),
+                "rotated": rotated,
+                "timestamp": datetime.utcnow().isoformat()
+            }
 
 secrets_vault = SecretsVault()
