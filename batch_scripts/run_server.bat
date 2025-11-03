@@ -1,3 +1,0 @@
-@echo off
-echo Starting Grace API Server...
-python main.py

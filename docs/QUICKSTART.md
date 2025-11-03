@@ -1,188 +1,172 @@
-# Grace - Quick Start Guide
+# Grace Rebuild - Quick Start
 
-Complete setup for Grace autonomous assistant with FastAPI backend and React frontend.
+Clean architecture rebuild with async SQLAlchemy, proper auth, and persistent memory.
 
 ## Project Structure
 
 ```
-grace_2/
-├── Backend (FastAPI + SQLite)
-│   ├── main.py              # FastAPI app with routes
-│   ├── grace_core.py        # GraceAutonomous class
-│   ├── models.py            # SQLAlchemy models
-│   ├── schemas.py           # Pydantic schemas
-│   ├── database.py          # Database setup
-│   ├── auth.py              # JWT authentication
-│   ├── requirements.txt     # Python dependencies
-│   └── grace.db            # SQLite database (auto-created)
+grace_rebuild/
+├── backend/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI app + CORS + startup
+│   ├── models.py            # User, ChatMessage models
+│   ├── memory.py            # PersistentMemory class
+│   ├── grace.py             # GraceAutonomous core
+│   ├── auth.py              # JWT utilities
+│   └── routes/
+│       ├── auth_routes.py   # Register/Login
+│       └── chat.py          # Chat endpoint
 │
-└── grace-frontend/         # React + TypeScript frontend
-    ├── src/
-    │   ├── App.tsx
-    │   └── components/
-    │       ├── AuthProvider.tsx
-    │       ├── OrbInterface.tsx
-    │       └── ConnectionTest.tsx
-    └── package.json
+└── grace-frontend/
+    └── src/
+        ├── App.tsx
+        └── components/
+            ├── AuthProvider.tsx
+            ├── OrbInterface.tsx
+            └── ConnectionTest.tsx
 ```
 
-## Backend Setup
+## Setup
 
-### 1. Install Python dependencies
+### 1. Install Backend Dependencies
 
 ```bash
-pip install -r requirements.txt
+cd grace_rebuild
+py -m pip install -r requirements.txt
 ```
 
-### 2. Start the backend server
+### 2. Start Backend
 
+**Option A: Use batch file**
 ```bash
-python main.py
+start_backend.bat
 ```
 
-Server runs at: http://localhost:8000
-
-### 3. Test backend endpoints
-
+**Option B: Manual**
 ```bash
-# Health check
-curl http://localhost:8000/health
-
-# Register a user
-curl -X POST http://localhost:8000/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin\",\"email\":\"admin@grace.ai\",\"password\":\"admin123\"}"
-
-# Login
-curl -X POST http://localhost:8000/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
-
-# Chat with Grace
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d "{\"message\":\"Hello Grace!\"}"
+uvicorn backend.main:app --reload
 ```
 
-## Frontend Setup
+Backend runs at: **http://localhost:8000**
 
-### 1. Install Node dependencies
+### 3. Start Frontend
+
+Open a NEW terminal:
 
 ```bash
 cd grace-frontend
-npm install
-```
-
-### 2. Start the dev server
-
-```bash
 npm run dev
 ```
 
-Frontend runs at: http://localhost:5173
+Frontend runs at: **http://localhost:5173**
 
-## Usage Flow
+## First Time Usage
 
-### Step 1: Test Backend Connection
+### Register a User
 
-1. Open http://localhost:5173/test
-2. Verify the backend health check passes
+Visit http://localhost:5173 and the login form will appear with default credentials.
 
-### Step 2: Register & Login
+Or use curl:
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
+```
 
-1. Go to http://localhost:5173
-2. Register a new account (or use existing credentials)
-3. Login with username/password
+### Login
 
-### Step 3: Chat with Grace
+Use the web interface at http://localhost:5173 or:
 
-1. After login, you'll see the chat interface
-2. Type a message and press Enter or click Send
-3. Grace will respond using rule-based logic
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"admin\",\"password\":\"admin123\"}"
+```
 
-**Try these messages:**
+### Chat
+
+After logging in through the web interface, chat with Grace!
+
+Try these messages:
 - "Hello Grace!"
-- "Show me my tasks"
+- "Show me my history"
 - "How are you?"
-- "Create a new task"
-
-## Grace Features
-
-### Rule-Based Responses
-
-Grace uses pattern matching to respond to:
-- Greetings (hello, hi, hey)
-- Task management (show tasks, create task)
-- Status checks (how are you)
-- Thanks and goodbyes
-
-### Memory & Persistence
-
-- All conversations stored in SQLite
-- Task management with full CRUD
-- User authentication with JWT tokens
-
-### Metrics
-
-Access metrics at: http://localhost:8000/chat/metrics
-
-Returns:
-- Total messages
-- Total tasks
-- Completed tasks
-- Completion rate
+- "Thank you"
 
 ## API Endpoints
 
+### Health
+- `GET /health` - Check server status
+
 ### Authentication
-- `POST /auth/register` - Create new user
-- `POST /auth/login` - Get JWT token
+- `POST /api/auth/register` - Create new user
+- `POST /api/auth/login` - Get JWT token
 
 ### Chat
-- `POST /chat` - Send message to Grace
-- `GET /chat/metrics` - Get usage statistics
+- `POST /api/chat/` - Send message (requires Bearer token)
 
-### Tasks
-- `POST /tasks` - Create task
-- `GET /tasks` - List all tasks
-- `GET /tasks/{id}` - Get specific task
-- `PATCH /tasks/{id}` - Update task
-- `DELETE /tasks/{id}` - Delete task
+## Features
 
-### Memory
-- `POST /memory/messages` - Store message
-- `GET /memory/messages` - Retrieve message history
+✅ **Async SQLAlchemy** - Proper async/await with SQLite  
+✅ **JWT Authentication** - Secure token-based auth  
+✅ **Persistent Memory** - All conversations stored in database  
+✅ **GraceAutonomous** - Deterministic rule-based responses  
+✅ **Clean Architecture** - Separated routes, models, services  
+✅ **CORS Enabled** - Frontend can communicate with backend  
+
+## Database
+
+SQLite database `grace.db` is created automatically on first run.
+
+**Tables:**
+- `users` - User accounts with hashed passwords
+- `chat_messages` - All chat history with timestamps
+
+## Development
+
+### Backend Hot Reload
+
+The `--reload` flag enables auto-restart on code changes.
+
+### Frontend Hot Module Replacement
+
+Vite provides instant HMR for React components.
+
+### API Documentation
+
+Visit http://localhost:8000/docs for automatic Swagger UI
 
 ## Troubleshooting
 
-### Backend not starting?
+### Backend won't start?
 
-Check if Python and dependencies are installed:
+Check Python version:
 ```bash
-python --version
-pip list
+py --version  # Should be 3.9+
 ```
 
-### Frontend not connecting?
+Install dependencies:
+```bash
+py -m pip install -r requirements.txt
+```
+
+### Frontend won't connect?
 
 1. Verify backend is running on port 8000
-2. Check browser console for CORS errors
-3. Visit http://localhost:5173/test for diagnostics
+2. Check browser console (F12) for errors
+3. Visit http://localhost:5173/test to test connection
 
-### Database issues?
+### Login fails?
 
-Delete and recreate:
-```bash
-rm grace.db
-python main.py  # Creates new database
-```
+Make sure you registered a user first. The backend starts with an empty database.
 
 ## Next Steps
 
 1. ✅ Basic chat working
-2. Add more sophisticated NLP
-3. Integrate with external APIs
-4. Add voice interface
-5. Deploy to production
+2. Add more sophisticated response patterns to `grace.py`
+3. Implement task management
+4. Add metrics dashboard
+5. Integrate external APIs
+6. Deploy to production
 
-Enjoy chatting with Grace! 🚀
+Enjoy the clean architecture! 🚀
