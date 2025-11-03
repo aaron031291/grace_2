@@ -2,6 +2,7 @@
 
 import ast
 import re
+from copy import deepcopy
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 from datetime import datetime
@@ -10,28 +11,13 @@ from .models import async_session
 from .code_memory import CodePattern, CodeContext, code_memory
 from .causal_analyzer import causal_analyzer
 from .meta_loop_engine import meta_loop
+from .transcendence import LANGUAGE_CONTEXTS
 
 class CodeUnderstandingEngine:
     """Understand code context, intent, and suggest next steps"""
     
     def __init__(self):
-        self.language_contexts = {
-            'python': {
-                'file_patterns': ['.py'],
-                'keywords': ['def', 'class', 'import', 'async', 'await'],
-                'frameworks': ['fastapi', 'django', 'flask', 'sqlalchemy']
-            },
-            'javascript': {
-                'file_patterns': ['.js', '.jsx'],
-                'keywords': ['function', 'const', 'let', 'import', 'export'],
-                'frameworks': ['react', 'vue', 'express', 'node']
-            },
-            'typescript': {
-                'file_patterns': ['.ts', '.tsx'],
-                'keywords': ['interface', 'type', 'function', 'const', 'import'],
-                'frameworks': ['react', 'angular', 'nestjs']
-            }
-        }
+        self.language_contexts = deepcopy(LANGUAGE_CONTEXTS)
     
     async def analyze_current_context(
         self,

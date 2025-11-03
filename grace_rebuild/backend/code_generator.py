@@ -2,32 +2,33 @@
 
 import ast
 import re
+from copy import deepcopy
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy import select
 from .models import async_session
-from .code_memory import code_memory, CodePattern
+from .code_memory import code_memory
 from .governance import governance_engine
 from .hunter import hunter_engine
 from .code_understanding import code_understanding
+from .transcendence import (
+    CODE_GENERATION_DEFAULTS,
+    CODE_GENERATION_TEMPLATES,
+    DEFAULT_CODE_LANGUAGE,
+)
 
 class CodeGenerator:
     """Generate code from specifications using learned patterns"""
     
     def __init__(self):
-        self.templates = {
-            'python': {
-                'function': self._python_function_template,
-                'class': self._python_class_template,
-                'api_endpoint': self._python_api_endpoint_template,
-                'test': self._python_test_template
-            }
-        }
+        self.default_language = DEFAULT_CODE_LANGUAGE
+        self.templates = self._build_template_registry()
+        self.defaults = deepcopy(CODE_GENERATION_DEFAULTS)
     
     async def generate_function(
         self,
         spec: Dict[str, Any],
-        language: str = 'python',
+        language: Optional[str] = None,
         use_patterns: bool = True
     ) -> Dict[str, Any]:
         """
@@ -48,6 +49,8 @@ class CodeGenerator:
             Generated code with metadata
         """
         
+        language_key = self._normalise_language(language)
+
         # Check governance approval
         approval = await self._check_governance_approval('generate_function', spec)
         if not approval['approved']:
@@ -58,18 +61,19 @@ class CodeGenerator:
         if use_patterns:
             similar_patterns = await code_memory.recall_patterns(
                 intent=spec.get('description', spec['name']),
-                language=language,
+                language=language_key,
                 limit=5
             )
         
         # Generate code using template
-        if language in self.templates and 'function' in self.templates[language]:
-            code = self.templates[language]['function'](spec, similar_patterns)
-        else:
-            return {'error': f'Language {language} not supported'}
+        template = self._get_template(language_key, 'function')
+        if not template:
+            return {'error': f'Language {language_key} not supported'}
+
+        code = template(spec, similar_patterns)
         
         # Scan for security issues
-        security_scan = await hunter_engine.scan_code_snippet(code, language)
+        security_scan = await hunter_engine.scan_code_snippet(code, language_key)
         if security_scan['threats']:
             return {
                 'error': 'Security issues detected',
@@ -80,7 +84,7 @@ class CodeGenerator:
         # Format and return
         return {
             'code': code,
-            'language': language,
+            'language': language_key,
             'spec': spec,
             'patterns_used': [p['name'] for p in similar_patterns],
             'security_scan': security_scan,
@@ -93,7 +97,7 @@ class CodeGenerator:
     async def generate_class(
         self,
         spec: Dict[str, Any],
-        language: str = 'python',
+        language: Optional[str] = None,
         use_patterns: bool = True
     ) -> Dict[str, Any]:
         """
@@ -114,6 +118,8 @@ class CodeGenerator:
             Generated code with metadata
         """
         
+        language_key = self._normalise_language(language)
+
         # Governance check
         approval = await self._check_governance_approval('generate_class', spec)
         if not approval['approved']:
@@ -124,22 +130,23 @@ class CodeGenerator:
         if use_patterns:
             similar_patterns = await code_memory.recall_patterns(
                 intent=spec.get('description', spec['name']),
-                language=language,
+                language=language_key,
                 limit=3
             )
         
         # Generate class
-        if language in self.templates and 'class' in self.templates[language]:
-            code = self.templates[language]['class'](spec, similar_patterns)
-        else:
-            return {'error': f'Language {language} not supported'}
+        template = self._get_template(language_key, 'class')
+        if not template:
+            return {'error': f'Language {language_key} not supported'}
+
+        code = template(spec, similar_patterns)
         
         # Security scan
-        security_scan = await hunter_engine.scan_code_snippet(code, language)
+        security_scan = await hunter_engine.scan_code_snippet(code, language_key)
         
         return {
             'code': code,
-            'language': language,
+            'language': language_key,
             'spec': spec,
             'patterns_used': [p['name'] for p in similar_patterns],
             'security_scan': security_scan
@@ -148,8 +155,8 @@ class CodeGenerator:
     async def generate_tests(
         self,
         code: str,
-        framework: str = 'pytest',
-        language: str = 'python'
+        framework: Optional[str] = None,
+        language: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Auto-generate tests for code
@@ -163,16 +170,21 @@ class CodeGenerator:
             Generated test code
         """
         
-        if language == 'python':
+        language_key = self._normalise_language(language)
+
+        if framework is None:
+            framework = self.defaults.get(language_key, {}).get('test_framework', 'pytest')
+
+        if language_key == 'python':
             return await self._generate_python_tests(code, framework)
         else:
-            return {'error': f'Test generation for {language} not implemented'}
+            return {'error': f'Test generation for {language_key} not implemented'}
     
     async def fix_errors(
         self,
         code: str,
         errors: List[Dict[str, Any]],
-        language: str = 'python'
+        language: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Auto-fix common errors in code
@@ -186,6 +198,8 @@ class CodeGenerator:
             Fixed code with changes explained
         """
         
+        language_key = self._normalise_language(language)
+
         fixed_code = code
         fixes_applied = []
         
@@ -193,7 +207,7 @@ class CodeGenerator:
             fix_result = await self._apply_error_fix(
                 fixed_code,
                 error,
-                language
+                language_key
             )
             
             if fix_result['fixed']:
@@ -204,7 +218,7 @@ class CodeGenerator:
                 })
         
         # Verify fixes don't introduce new issues
-        security_scan = await hunter_engine.scan_code_snippet(fixed_code, language)
+        security_scan = await hunter_engine.scan_code_snippet(fixed_code, language_key)
         
         return {
             'original_code': code,
@@ -217,8 +231,8 @@ class CodeGenerator:
     async def refactor_code(
         self,
         code: str,
-        style: str,
-        language: str = 'python'
+        style: Optional[str],
+        language: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Refactor code to match style guidelines
@@ -232,10 +246,33 @@ class CodeGenerator:
             Refactored code with changes explained
         """
         
-        if language == 'python':
-            return await self._refactor_python_code(code, style)
+        language_key = self._normalise_language(language)
+        resolved_style = style or self.defaults.get(language_key, {}).get('style', 'pep8')
+
+        if language_key == 'python':
+            return await self._refactor_python_code(code, resolved_style)
         else:
-            return {'error': f'Refactoring for {language} not implemented'}
+            return {'error': f'Refactoring for {language_key} not implemented'}
+
+    def _build_template_registry(self) -> Dict[str, Dict[str, Any]]:
+        registry: Dict[str, Dict[str, Any]] = {}
+        for language, template_map in CODE_GENERATION_TEMPLATES.items():
+            handlers: Dict[str, Any] = {}
+            for artifact, handler_name in template_map.items():
+                handler = getattr(self, handler_name, None)
+                if handler is not None:
+                    handlers[artifact] = handler
+            if handlers:
+                registry[language] = handlers
+        return registry
+
+    def _get_template(self, language: str, artifact: str):
+        return self.templates.get(language, {}).get(artifact)
+
+    def _normalise_language(self, language: Optional[str]) -> str:
+        if language:
+            return language.lower()
+        return self.default_language
     
     async def _check_governance_approval(
         self,
