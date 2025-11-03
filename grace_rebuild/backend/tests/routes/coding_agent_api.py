@@ -10,6 +10,8 @@ from ..code_understanding import code_understanding
 from ..code_generator import code_generator
 from ..dev_workflow import dev_workflow
 from ..auth import get_current_user
+from ..agentic import coding_orchestrator
+from ..agentic.orchestrator import OrchestrationPlan
 
 router = APIRouter(prefix="/api/code", tags=["coding_agent"])
 
@@ -67,6 +69,34 @@ class SearchPatternsRequest(BaseModel):
 class SubmitTaskRequest(BaseModel):
     description: str
     context: Optional[Dict[str, Any]] = None
+
+
+class OrchestratePlanRequest(BaseModel):
+    description: str
+    context: Optional[Dict[str, Any]] = None
+
+
+class ExecuteOrchestrationRequest(BaseModel):
+    description: str
+    plan: Dict[str, Any]
+
+
+def _resolve_user(current_user: Any) -> str:
+    if isinstance(current_user, str):
+        return current_user
+    if isinstance(current_user, dict):
+        return current_user.get("username") or current_user.get("user") or "system"
+    return "system"
+
+
+def _plan_to_dict(plan: OrchestrationPlan) -> Dict[str, Any]:
+    return {
+        "steps": plan.steps,
+        "intent": plan.intent,
+        "code_context": plan.code_context,
+        "rationale": plan.rationale,
+        "created_at": plan.created_at.isoformat(),
+    }
 
 @router.post("/parse")
 async def parse_codebase(
@@ -408,6 +438,78 @@ async def find_related_code(
         return {
             "status": "success",
             "related": related,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/orchestrate/plan")
+async def orchestrate_plan(
+    request: OrchestratePlanRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    try:
+        user = _resolve_user(current_user)
+        plan = await coding_orchestrator.plan(
+            description=request.description,
+            user=user,
+            context=request.context,
+        )
+        return {
+            "status": "success",
+            "plan": _plan_to_dict(plan),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/orchestrate/execute")
+async def execute_orchestration(
+    request: ExecuteOrchestrationRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    try:
+        user = _resolve_user(current_user)
+        payload = request.plan or {}
+        created_at = payload.get("created_at")
+        plan = OrchestrationPlan(
+            steps=payload.get("steps", []),
+            intent=payload.get("intent", {}),
+            code_context=payload.get("code_context", {}),
+            rationale=payload.get("rationale", ""),
+            created_at=datetime.fromisoformat(created_at) if created_at else datetime.utcnow(),
+        )
+        result = await coding_orchestrator.execute(
+            plan,
+            description=request.description,
+            user=user,
+        )
+        return {
+            "status": "success",
+            "result": result,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/orchestrate/run")
+async def quick_orchestration(
+    request: OrchestratePlanRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    try:
+        user = _resolve_user(current_user)
+        result = await coding_orchestrator.quick_execute(
+            description=request.description,
+            user=user,
+            context=request.context,
+        )
+        return {
+            "status": "success",
+            "result": result,
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
