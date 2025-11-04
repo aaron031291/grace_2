@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
+from .metrics_models import Base as MetricsBase
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -11,6 +13,7 @@ from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
+from .metrics_service import init_metrics_collector
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -33,9 +36,24 @@ from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_sched
 
 @app.on_event("startup")
 async def on_startup():
+    # Core app DB
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("✓ Database initialized")
+
+    # Metrics DB (separate to avoid coupling)
+    from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+    from .metrics_models import Base as MetricsBase
+    app.state.metrics_engine = create_async_engine("sqlite+aiosqlite:///./databases/metrics.db", echo=False, future=True)
+    app.state.metrics_sessionmaker = async_sessionmaker(app.state.metrics_engine, expire_on_commit=False)
+    async with app.state.metrics_engine.begin() as mconn:
+        await mconn.run_sync(MetricsBase.metadata.create_all)
+    # Create a long-lived session for the collector
+    app.state.metrics_session = await app.state.metrics_sessionmaker().__aenter__()
+
+    # Initialize global metrics collector with persistence enabled
+    init_metrics_collector(db_session=app.state.metrics_session)
+
     print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
@@ -61,6 +79,20 @@ async def on_shutdown():
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
+
+    # Clean up metrics DB resources
+    metrics_sess = getattr(app.state, "metrics_session", None)
+    if metrics_sess:
+        try:
+            await metrics_sess.close()
+        except Exception:
+            pass
+    metrics_engine = getattr(app.state, "metrics_engine", None)
+    if metrics_engine:
+        try:
+            await metrics_engine.dispose()
+        except Exception:
+            pass
 
 @app.get("/health")
 async def health_check():
