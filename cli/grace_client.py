@@ -10,6 +10,7 @@ import httpx
 import websockets
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
 
 
 @dataclass
@@ -24,9 +25,18 @@ class GraceResponse:
 class GraceAPIClient:
     """Full-featured Grace API client with authentication and verification"""
     
-    def __init__(self, base_url: str = "http://localhost:8000", timeout: int = 30):
-        self.base_url = base_url.rstrip('/')
-        self.ws_url = base_url.replace('http://', 'ws://').replace('https://', 'wss://')
+    def __init__(self, base_url: Optional[str] = None, timeout: int = 30):
+        # Resolve base_url with precedence: param > env > config > default
+        from config import get_config  # absolute import to support direct execution
+        import os
+        resolved = (
+            base_url
+            or os.getenv("GRACE_BACKEND_URL")
+            or get_config().load().backend_url
+            or "http://localhost:8000"
+        )
+        self.base_url = self._normalize_http_url(resolved)
+        self.ws_url = self._http_to_ws(self.base_url)
         self.timeout = timeout
         self.token: Optional[str] = None
         self.username: Optional[str] = None
@@ -39,6 +49,24 @@ class GraceAPIClient:
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.disconnect()
+    
+    @staticmethod
+    def _normalize_http_url(url: str) -> str:
+        """Normalize HTTP(S) URL: ensure scheme, strip trailing slash, validate scheme"""
+        if "://" not in url:
+            url = "http://" + url
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"Unsupported scheme: {parsed.scheme}")
+        path = (parsed.path or "").rstrip("/")
+        return urlunparse((parsed.scheme, parsed.netloc, path, "", "", ""))
+    
+    @staticmethod
+    def _http_to_ws(url: str) -> str:
+        """Convert HTTP(S) URL to WS(S) base for websockets"""
+        parsed = urlparse(url)
+        scheme = "wss" if parsed.scheme == "https" else "ws"
+        return urlunparse((scheme, parsed.netloc, parsed.path, "", "", ""))
     
     async def connect(self):
         """Initialize HTTP client"""
