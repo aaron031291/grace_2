@@ -8,7 +8,6 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 import asyncio
 import logging
-import threading
 from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
@@ -34,7 +33,7 @@ class MetricsCollector:
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         self.aggregates: Dict[str, Dict[str, float]] = {}
         self.subscribers: List[callable] = []
-        self._lock = threading.Lock()
+        self._lock = asyncio.Lock()  # Use asyncio.Lock for better async performance
         self.db_session = db_session
         self.persist_enabled = db_session is not None
         
@@ -73,7 +72,7 @@ class MetricsCollector:
                 metadata=metadata or {}
             )
             
-            with self._lock:
+            async with self._lock:  # Use async context manager
                 self.metrics[metric_key].append(event)
             
             # Don't let persistence failures break the app
