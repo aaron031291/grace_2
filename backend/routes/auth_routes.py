@@ -3,7 +3,13 @@ from pydantic import BaseModel
 from datetime import timedelta
 from sqlalchemy import select
 from ..models import User, async_session
-from ..auth import hash_password, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..auth import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    needs_rehash,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -51,13 +57,16 @@ async def login(user: UserLogin):
             select(User).where(User.username == user.username)
         )
         db_user = result.scalar_one_or_none()
-        
+
         if not db_user or not verify_password(user.password, db_user.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        if needs_rehash(db_user.password_hash):
+            db_user.password_hash = hash_password(user.password)
+            await session.commit()
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

@@ -17,7 +17,7 @@ if [ ! -f .env ]; then
     echo "Creating .env from template..."
     cp .env.example .env
     echo "⚠️  IMPORTANT: Edit .env with production values!"
-    echo "   - Set SECRET_KEY"
+    echo "   - Set GRACE_JWT_SECRET"
     echo "   - Set DATABASE_URL"
     echo "   - Set ALLOWED_ORIGINS"
     exit 1

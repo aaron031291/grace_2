@@ -1,8 +1,10 @@
 import asyncio
-from typing import Dict, Set, Callable, Any
+import logging
+from typing import Dict, Set, Callable, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
-import json
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class TriggerEvent:
@@ -28,7 +30,7 @@ class TriggerMesh:
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)
-        print(f"✓ Subscribed to {event_pattern}")
+        logger.info("trigger-mesh.subscription", extra={"extra_fields": {"pattern": event_pattern}})
     
     async def publish(self, event: TriggerEvent):
         """Publish event to mesh"""
@@ -49,14 +51,14 @@ class TriggerMesh:
         if not self._running:
             self._running = True
             self.router_task = asyncio.create_task(self._route_events())
-            print("✓ Trigger Mesh started")
+            logger.info("trigger-mesh.started")
     
     async def stop(self):
         """Stop event router"""
         self._running = False
         if self.router_task:
             self.router_task.cancel()
-        print("✓ Trigger Mesh stopped")
+        logger.info("trigger-mesh.stopped")
     
     async def _route_events(self):
         """Background router distributing events"""
@@ -69,8 +71,8 @@ class TriggerMesh:
                         for handler in handlers:
                             try:
                                 await handler(event)
-                            except Exception as e:
-                                print(f"✗ Event handler error: {e}")
+                              except Exception:
+                                  logger.exception("trigger-mesh.handler-error", extra={"extra_fields": {"pattern": pattern, "event": event.event_type}})
                 
                 self.event_queue.task_done()
         except asyncio.CancelledError:
@@ -109,10 +111,19 @@ async def setup_subscriptions():
     async def on_governance_event(event: TriggerEvent):
         if event.payload.get("decision") in ["block", "review"]:
             from .learning import learning_engine
-            print(f"📋 Governance blocked action - could create task here")
+
+            logger.info(
+                "trigger-mesh.governance-block",
+                extra={
+                    "extra_fields": {
+                        "resource": event.resource,
+                        "actor": event.actor,
+                    }
+                },
+            )
     
     trigger_mesh.subscribe("memory.*", on_memory_event)
     trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
     trigger_mesh.subscribe("governance.*", on_governance_event)
-    
-    print("✓ Trigger Mesh subscriptions configured")
+
+    logger.info("trigger-mesh.subscriptions-configured")

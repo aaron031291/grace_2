@@ -14,9 +14,9 @@ async def websocket_endpoint(
     
     try:
         from jose import jwt
-        from ..auth import SECRET_KEY, ALGORITHM
+        from ..auth import get_secret_key, ALGORITHM
         
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
         username = payload.get("sub")
         
         if not username:
@@ -44,9 +44,9 @@ async def meta_updates_websocket(
     """WebSocket for meta-loop recommendation updates"""
     try:
         from jose import jwt
-        from ..auth import SECRET_KEY, ALGORITHM
+        from ..auth import get_secret_key, ALGORITHM
         
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
         username = payload.get("sub")
         
         if not username:

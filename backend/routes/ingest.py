@@ -2,12 +2,17 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from ..auth import get_current_user
+from ..security import require_roles
 from ..ingestion_service import ingestion_service
 from ..trusted_sources import trust_manager
 from ..verification import verification_engine
 from ..verification_middleware import verify_action
 
-router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
+router = APIRouter(
+    prefix="/api/ingest",
+    tags=["ingestion"],
+    dependencies=[Depends(require_roles("admin", "analyst"))],
+)
 
 class IngestText(BaseModel):
     content: str

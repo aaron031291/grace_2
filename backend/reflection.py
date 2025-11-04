@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, Column, Integer, DateTime, Text, Float
 from .models import ChatMessage, async_session, Base
 from .learning import learning_engine
 from .evaluation import confidence_evaluator
+
+logger = logging.getLogger(__name__)
 
 class Reflection(Base):
     __tablename__ = "reflections"
@@ -23,7 +26,10 @@ class ReflectionService:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._run())
-            print(f"✓ Reflection service started (interval: {self.interval}s)")
+            logger.info(
+                "reflection.start",
+                extra={"extra_fields": {"interval_seconds": self.interval}},
+            )
 
     async def stop(self):
         if self._running:
@@ -31,7 +37,7 @@ class ReflectionService:
             if self._task:
                 self._task.cancel()
             self._task = None
-            print("✓ Reflection service stopped")
+            logger.info("reflection.stop")
 
     async def _run(self):
         try:
@@ -82,8 +88,8 @@ class ReflectionService:
                 influential = graph.get_most_influential_events(limit=3)
                 if influential:
                     insight += f" | Influential events: {', '.join(e['event_type'] for e in influential)}"
-            except Exception as e:
-                print(f"⚠ Causal graph analysis failed: {e}")
+            except Exception:
+                logger.exception("reflection.causal-graph-error")
 
             reflection = Reflection(
                 summary=summary, 
@@ -92,20 +98,34 @@ class ReflectionService:
             )
             session.add(reflection)
             await session.commit()
-            print(f"✓ Generated reflection: {summary}")
+            logger.info(
+                "reflection.generated",
+                extra={"extra_fields": {"summary": summary}},
+            )
             
             if top_words and user_topics:
                 most_common_word = max(user_topics.items(), key=lambda x: x[1])
                 action_created = await learning_engine.process_reflection(
-                    "admin", 
-                    most_common_word[0], 
+                    "admin",
+                    most_common_word[0],
                     most_common_word[1]
                 )
                 if action_created:
-                    print(f"✓ Learning engine created task from pattern: {most_common_word[0]}")
+                    logger.info(
+                        "reflection.learning-task",
+                        extra={
+                            "extra_fields": {
+                                "token": most_common_word[0],
+                                "count": most_common_word[1],
+                            }
+                        },
+                    )
             
             eval_count = await confidence_evaluator.periodic_evaluation()
             if eval_count > 0:
-                print(f"✓ Confidence evaluator processed {eval_count} events")
+                logger.info(
+                    "reflection.confidence-evaluation",
+                    extra={"extra_fields": {"events_processed": eval_count}},
+                )
 
 reflection_service = ReflectionService(interval_seconds=10)

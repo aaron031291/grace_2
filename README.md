@@ -6,6 +6,13 @@
 
 ## Quick Start (3 Terminals)
 
+Before running any services, copy the example environment file and set all required secrets:
+
+```
+cp .env.example .env
+# Edit .env and provide a strong value for GRACE_JWT_SECRET
+```
+
 ### Terminal 1: Start Backend
 ```bash
 py minimal_backend.py
@@ -399,6 +406,56 @@ py minimal_backend.py
 
 ---
 
+## Security Guardrails
+
+- Secrets load from the `GRACE_JWT_SECRET` environment variable; the backend refuses to start without it.
+- Query parameters and JSON payloads are scanned for common script / SQL injection signatures and rejected with HTTP 400 when detected.
+- Clients are rate limited (default 120 requests/minute per IP) and receive HTTP 429 responses when thresholds are exceeded.
+- Supply-chain controls: install `txt/dev-requirements.txt` tooling and run `./scripts/run_dependency_audit.sh` to generate pip/npm security reports (see `docs/SUPPLY_CHAIN_SECURITY.md`).
+- Data governance: RBAC helpers and retention scripts documented in `docs/DATA_GOVERNANCE.md` (ingest APIs now require `admin`/`analyst` roles).
+
+---
+
+## Observability
+
+- JSON logs with per-request metadata are enabled via `backend/observability.py`; set `LOG_LEVEL` in `.env`.
+- Each response carries `X-Request-ID`; start/end events are emitted under the `request` logger.
+- Details and next steps live in `docs/OBSERVABILITY.md`.
+
+---
+
+## Operations
+
+- Runbooks for common incidents live in `docs/RUNBOOKS/`.
+- Change approvals follow the checklist in `docs/CHANGE_MANAGEMENT.md`.
+- Automated checks: `.github/workflows/ci.yml` runs tests + dependency audits on PRs.
+- Run `./scripts/pre_release_check.sh` before tagging a release (see `docs/RELEASE_PROCESS.md`).
+- Backups: `py scripts/backup_database.py` with retention guidance in `docs/BACKUP_PLAN.md`.
+- Continuous validation: schedule `./scripts/continuous_validation.sh` (see `docs/CONTINUOUS_VALIDATION.md`).
+
+---
+
+## Performance & Cost
+
+- Baseline performance targets and tooling: `docs/PERFORMANCE_PLAN.md`.
+- Starter infrastructure cost model: `docs/COST_BASELINE.md`.
+
+---
+
+## Compliance
+
+- Use `scripts/export_audit_log.py` to produce immutable log reports.
+- Control mapping captured in `docs/COMPLIANCE_CHECKLIST.md`.
+
+---
+
+## Onboarding
+
+- Developer steps: `docs/CONTRIBUTOR_GUIDE.md`.
+- First-week checklist: `docs/ONBOARDING_CHECKLIST.md`.
+
+---
+
 ## Repository Status
 
 **Consolidated:** ✅ Single source of truth  
@@ -427,6 +484,39 @@ py scripts\demo_working_metrics.py
 
 # Run tests
 py scripts\test_grace_simple.py
+
+# Refresh dependency locks
+./scripts/freeze_dependencies.sh
+
+# Run dependency audits
+./scripts/run_dependency_audit.sh
+
+# Apply database migrations
+alembic upgrade head
+
+# Seed baseline policies and rules
+py scripts/seed_baseline.py
+
+# Promote a user to admin/analyst
+py scripts/promote_user.py <username> admin
+
+# Purge data older than retention window
+py scripts/purge_old_data.py --days 90
+
+# Probe API latency baseline
+py scripts/perf_baseline.py --iterations 20
+
+# Export immutable audit logs (last 24h)
+py scripts/export_audit_log.py --output reports/audit_log.json --hours 24
+
+# Run pre-release bundle
+./scripts/pre_release_check.sh
+
+# Snapshot sqlite database
+py scripts/backup_database.py --dest backups/manual
+
+# Run daily validation loop
+./scripts/continuous_validation.sh
 
 # View API docs
 # http://localhost:8000/docs

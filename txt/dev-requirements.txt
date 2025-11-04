@@ -1,0 +1,4 @@
+# Development and security tooling
+pip-audit>=2.6.1
+safety>=2.3.5
+bandit>=1.7.5

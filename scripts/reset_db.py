@@ -18,7 +18,11 @@ async def reset():
     from backend.auth import hash_password
     
     async with async_session() as session:
-        admin = User(username="admin", password_hash=hash_password("admin123"))
+        admin = User(
+            username="admin",
+            password_hash=hash_password("admin123"),
+            role="admin",
+        )
         session.add(admin)
         await session.commit()
     

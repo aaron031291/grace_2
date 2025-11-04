@@ -40,7 +40,7 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://grace:${DB_PASSWORD}@db:5432/grace
-      - SECRET_KEY=${SECRET_KEY}
+      - GRACE_JWT_SECRET=${GRACE_JWT_SECRET}
     depends_on:
       - db
 
@@ -119,7 +119,7 @@ docker-compose up -d
 ### 1. Environment Variables
 ```bash
 # .env file
-SECRET_KEY=<generate-strong-key-here>
+GRACE_JWT_SECRET=<generate-strong-key-here>
 DATABASE_URL=postgresql://grace:password@db:5432/grace
 ALLOWED_ORIGINS=https://yourdomain.com
 ADMIN_EMAIL=admin@yourdomain.com
@@ -161,7 +161,7 @@ ufw enable
 # backend/config.py
 class Settings:
     database_url: str = os.getenv("DATABASE_URL")
-    secret_key: str = os.getenv("SECRET_KEY")
+    secret_key: str = os.getenv("GRACE_JWT_SECRET")
     reflection_interval: int = 10
     meta_loop_interval: int = 300
     max_parallel_tasks: int = 3
@@ -279,7 +279,7 @@ docker-compose.yml:
 ## ✅ Production Checklist
 
 - [ ] Change default passwords
-- [ ] Set strong SECRET_KEY
+- [ ] Set strong GRACE_JWT_SECRET
 - [ ] Enable HTTPS/SSL
 - [ ] Configure firewall
 - [ ] Set up automated backups

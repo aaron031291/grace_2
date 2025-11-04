@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import time
 from datetime import datetime, timedelta
 from sqlalchemy import select
 from .governance_models import HealthCheck, HealingAction
 from .models import async_session
 from .reflection import reflection_service, Reflection
+
+logger = logging.getLogger(__name__)
 
 class SystemState:
     """Track system operational mode"""
@@ -26,13 +29,16 @@ class HealthMonitor:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._loop())
-            print(f"✓ Health monitor started (interval: {self.interval}s)")
+            logger.info(
+                "self-healing.start",
+                extra={"extra_fields": {"interval_seconds": self.interval}},
+            )
 
     async def stop(self):
         self._running = False
         if self._task:
             self._task.cancel()
-        print("✓ Health monitor stopped")
+        logger.info("self-healing.stop")
 
     async def _loop(self):
         try:
@@ -64,10 +70,10 @@ class HealthMonitor:
 
                 if not status["ok"]:
                     self.consecutive_failures[component] = self.consecutive_failures.get(component, 0) + 1
-                    
+
                     if self.consecutive_failures[component] >= 2:
                         healing_result = await self._attempt_healing(component, status["error"])
-                        
+
                         action = HealingAction(
                             component=component,
                             action=healing_result["action"],
@@ -75,8 +81,17 @@ class HealthMonitor:
                             detail=healing_result["detail"],
                         )
                         session.add(action)
-                        print(f"⚕️ Self-healing: {component} - {healing_result['action']} ({healing_result['result']})")
-                        
+                        logger.info(
+                            "self-healing.action",
+                            extra={
+                                "extra_fields": {
+                                    "component": component,
+                                    "action": healing_result["action"],
+                                    "result": healing_result["result"],
+                                }
+                            },
+                        )
+
                         if healing_result["result"] == "success":
                             self.consecutive_failures[component] = 0
                 else:

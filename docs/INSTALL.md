@@ -135,8 +135,8 @@ Visit http://localhost:5173 and login with your credentials
 ### Configure (Optional)
 Create `.env` file:
 ```
+GRACE_JWT_SECRET=replace-with-strong-random-value
 DATABASE_URL=sqlite+aiosqlite:///./grace.db
-SECRET_KEY=your-secret-key-here
 REFLECTION_INTERVAL=10
 META_LOOP_INTERVAL=300
 ```

@@ -8,10 +8,18 @@ from fastapi.middleware.cors import CORSMiddleware
 import sys
 from pathlib import Path
 
+from backend.auth import get_secret_key
+from backend.observability import setup_observability
+from backend.security import setup_security_middleware
+
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 app = FastAPI(title="Grace Minimal API", version="1.0")
+
+get_secret_key()
+setup_observability(app)
+setup_security_middleware(app, rate_limit=240, window_seconds=60)
 
 app.add_middleware(
     CORSMiddleware,

@@ -5,7 +5,9 @@ from .routes import chat, auth_routes, metrics, reflections, tasks, history, cau
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
-from .auth import get_current_user
+from .auth import get_current_user, get_secret_key
+from .observability import setup_observability
+from .security import setup_security_middleware
 from .verification_integration import verification_integration
 from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
@@ -13,6 +15,12 @@ from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 
 app = FastAPI(title="Grace API", version="2.0.0")
+
+# Fail fast if the JWT secret is not configured.
+get_secret_key()
+
+setup_observability(app)
+setup_security_middleware(app)
 
 app.add_middleware(
     CORSMiddleware,

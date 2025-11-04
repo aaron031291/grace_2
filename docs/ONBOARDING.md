@@ -133,10 +133,10 @@ POST /api/hunter/alerts/{id}/resolve
    {"username": "yourusername", "password": "strong_password"}
    ```
 
-2. **Set Strong SECRET_KEY**
+2. **Set Strong GRACE_JWT_SECRET**
    ```bash
    # In .env file
-   SECRET_KEY=generate-a-long-random-string-here
+   GRACE_JWT_SECRET=generate-a-long-random-string-here
    ```
 
 3. **Review Policies Regularly**
