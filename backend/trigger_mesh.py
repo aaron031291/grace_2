@@ -71,8 +71,16 @@ class TriggerMesh:
                         for handler in handlers:
                             try:
                                 await handler(event)
-                              except Exception:
-                                  logger.exception("trigger-mesh.handler-error", extra={"extra_fields": {"pattern": pattern, "event": event.event_type}})
+                            except Exception:
+                                logger.exception(
+                                    "trigger-mesh.handler-error",
+                                    extra={
+                                        "extra_fields": {
+                                            "pattern": pattern,
+                                            "event": event.event_type,
+                                        }
+                                    },
+                                )
                 
                 self.event_queue.task_done()
         except asyncio.CancelledError:
