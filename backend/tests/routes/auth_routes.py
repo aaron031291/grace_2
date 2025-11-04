@@ -33,7 +33,8 @@ async def register(user: UserCreate):
         
         new_user = User(
             username=user.username,
-            password_hash=hash_password(user.password)
+            password_hash=hash_password(user.password),
+            password_hash_is_legacy=False,
         )
         session.add(new_user)
         await session.commit()

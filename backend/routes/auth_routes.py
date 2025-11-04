@@ -1,9 +1,12 @@
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, constr, SecretStr
+from pydantic import BaseModel, constr, field_validator
 from datetime import timedelta
 from sqlalchemy import select
 from ..models import User, async_session
 from ..auth import hash_password, verify_and_upgrade_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from ..security.sanitization import sanitize_text_value
+from ..security.rate_limiter import limiter
+from ..settings import settings
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -14,15 +17,26 @@ class UserCreate(BaseModel):
     username: UsernameStr
     password: PasswordStr
 
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        return sanitize_text_value(value, field="username")
+
 class UserLogin(BaseModel):
     username: UsernameStr
     password: PasswordStr
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        return sanitize_text_value(value, field="username")
 
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
+@limiter.limit(settings.RATE_LIMIT_REGISTER)
 async def register(user: UserCreate):
     async with async_session() as session:
         result = await session.execute(
@@ -35,7 +49,8 @@ async def register(user: UserCreate):
             )
         new_user = User(
             username=user.username,
-            password_hash=hash_password(user.password)
+            password_hash=hash_password(user.password),
+            password_hash_is_legacy=False,
         )
         session.add(new_user)
         await session.commit()
@@ -47,6 +62,7 @@ async def register(user: UserCreate):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=Token)
+@limiter.limit(settings.RATE_LIMIT_LOGIN)
 async def login(user: UserLogin):
     async with async_session() as session:
         result = await session.execute(

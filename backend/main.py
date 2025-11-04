@@ -1,8 +1,11 @@
+import asyncio
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from .models import Base, engine
-from .metrics_models import Base as MetricsBase
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -14,6 +17,9 @@ from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
+from .security.rate_limiter import init_rate_limiter
+from .security.sanitization import SanitizationMiddleware
+from .settings import settings
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -25,6 +31,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+init_rate_limiter(app, [settings.RATE_LIMIT_DEFAULT])
+app.add_middleware(
+    SanitizationMiddleware,
+    block_html=settings.SANITIZER_BLOCK_HTML,
+    block_sql=settings.SANITIZER_BLOCK_SQL,
+)
+
 from .task_executor import task_executor
 from .self_healing import health_monitor
 from .trigger_mesh import trigger_mesh, setup_subscriptions
@@ -34,12 +47,21 @@ from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
 
+async def run_database_migrations() -> None:
+    """Ensure the relational database schema is up to date via Alembic."""
+
+    def _upgrade() -> None:
+        cfg = Config(str(Path(__file__).resolve().parent.parent / "alembic.ini"))
+        cfg.set_main_option("sqlalchemy.url", settings.DATABASE_URL or "sqlite+aiosqlite:///./grace.db")
+        command.upgrade(cfg, "head")
+
+    await asyncio.to_thread(_upgrade)
+
 @app.on_event("startup")
 async def on_startup():
-    # Core app DB
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("✓ Database initialized")
+    # Core app DB migrations
+    await run_database_migrations()
+    print("✓ Database migrations applied")
 
     # Metrics DB (separate to avoid coupling)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker

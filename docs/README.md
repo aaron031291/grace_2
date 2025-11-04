@@ -137,6 +137,7 @@ Talk with Grace, view history, see reflections
 - [SELF_HEALING.md](SELF_HEALING.md) - Auto-repair
 - [GRACE_IDE.md](GRACE_IDE.md) - IDE architecture
 - [PRODUCTION.md](PRODUCTION.md) - Deployment guide
+- [SECURITY_SECRETS_INVENTORY.md](SECURITY_SECRETS_INVENTORY.md) - Secrets & credentials catalog
 - [HARDENING_COMPLETE.md](HARDENING_COMPLETE.md) - System status
 
 ## 🧪 Testing

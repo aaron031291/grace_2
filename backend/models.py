@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey, text
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
@@ -34,6 +34,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(64), unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
+    password_hash_is_legacy = Column(Boolean, nullable=False, default=True, server_default=text("1"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class ChatMessage(Base):

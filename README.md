@@ -124,7 +124,7 @@ GET  /api/cognition/benchmark/{metric} - Benchmark details
 - See http://localhost:8000/docs for full API
 
 ### Database
-- **SQLite** - Auto-creates tables on startup
+- **SQLite** - Alembic migrations applied automatically on startup
 - **Async** - All database operations async via SQLAlchemy
 - **Metrics DB** - Separate metrics.db for telemetry
 
@@ -302,12 +302,9 @@ py scripts\demo_working_metrics.py
 
 ### Backend Dependencies
 ```bash
-pip install fastapi uvicorn sqlalchemy aiosqlite httpx rich
-```
-
-Or use requirements file:
-```bash
-pip install -r txt/requirements.txt
+python3 -m pip install -r txt/requirements.txt
+# or, for exact resolver parity:
+python3 -m pip install -r txt/requirements.lock
 ```
 
 ### Frontend Dependencies

@@ -37,17 +37,24 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
         except ValueError:
             return False
-    else:
-        # Legacy sha256 check
-        return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
+    # Legacy sha256 check
+    return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
 
 def verify_and_upgrade_password(plain_password: str, user: User) -> bool:
     """Verify user's password; if legacy hash matches, upgrade to bcrypt in DB."""
+    if is_bcrypt_hash(user.password_hash):
+        if verify_password(plain_password, user.password_hash):
+            if getattr(user, "password_hash_is_legacy", False):
+                user.password_hash_is_legacy = False
+            return True
+        return False
+
+    # Legacy path (sha256)
     if verify_password(plain_password, user.password_hash):
-        # If legacy, upgrade
-        if not is_bcrypt_hash(user.password_hash):
-            new_hash = hash_password(plain_password)
-            user.password_hash = new_hash
+        new_hash = hash_password(plain_password)
+        user.password_hash = new_hash
+        if hasattr(user, "password_hash_is_legacy"):
+            user.password_hash_is_legacy = False
         return True
     return False
 
