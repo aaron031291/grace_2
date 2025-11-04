@@ -2,8 +2,10 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, 
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from .settings import settings
 
-DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
+# Prefer env-provided DATABASE_URL; fallback to local sqlite for dev
+DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./grace.db"
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
