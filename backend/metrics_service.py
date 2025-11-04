@@ -190,6 +190,18 @@ class MetricsCollector:
 _global_metrics_collector: Optional[MetricsCollector] = None
 
 
+def init_metrics_collector(db_session=None, db_session_factory=None) -> MetricsCollector:
+    """Initialize the global metrics collector with optional persistence.
+    - db_session: an AsyncSession to be reused (kept open until shutdown)
+    - db_session_factory: a callable returning AsyncSession instances (preferred)
+    """
+    global _global_metrics_collector
+    collector = MetricsCollector(db_session=db_session)
+    # For future: if we add factory support, extend MetricsCollector accordingly.
+    _global_metrics_collector = collector
+    return collector
+
+
 def get_metrics_collector() -> MetricsCollector:
     """Get the global metrics collector instance"""
     global _global_metrics_collector
