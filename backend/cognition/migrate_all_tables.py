@@ -102,13 +102,16 @@ class GarbageCollectionLog(Base):
     meta_data = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+import logging
+logger = logging.getLogger(__name__)
+
 def migrate():
     """Create all cognition tables"""
-    print("Cognition System Migration")
-    print("=" * 60)
+    logger.info("Cognition System Migration")
+    logger.info("%s", "=" * 60)
     
     # Create all tables
-    print("\nCreating database tables...")
+    logger.info("Creating database tables...")
     Base.metadata.create_all(bind=engine)
     
     # Verify tables
@@ -117,9 +120,9 @@ def migrate():
     
     cognition_tables = [t for t in all_tables if 'cognition_' in t]
     
-    print(f"\n[OK] Created {len(cognition_tables)} cognition tables:")
+    logger.info("Created %d cognition tables:", len(cognition_tables))
     for table in sorted(cognition_tables):
-        print(f"   - {table}")
+        logger.info(" - %s", table)
     
     # Verify each expected table
     expected = [
@@ -131,11 +134,11 @@ def migrate():
     
     missing = [t for t in expected if t not in all_tables]
     if missing:
-        print(f"\n[WARN] Missing tables: {missing}")
+        logger.warning("Missing tables: %s", missing)
         return False
     
-    print(f"\n[OK] All {len(expected)} expected tables verified")
-    print(f"[OK] Total tables in database: {len(all_tables)}")
+    logger.info("All %d expected tables verified", len(expected))
+    logger.info("Total tables in database: %d", len(all_tables))
     
     return True
 
