@@ -214,9 +214,9 @@ class CodeMemoryEngine:
         
         functions = []
         classes = []
-        
-        # Extract imports (dependencies)
         imports = []
+        
+        # Single AST traversal to extract imports, functions, and classes (performance optimization)
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
@@ -224,10 +224,7 @@ class CodeMemoryEngine:
             elif isinstance(node, ast.ImportFrom):
                 if node.module:
                     imports.append(node.module)
-        
-        # Extract functions
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
+            elif isinstance(node, ast.FunctionDef):
                 func_pattern = await self._extract_python_function(
                     node, file_path, project, content, imports
                 )
