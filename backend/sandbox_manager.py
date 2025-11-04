@@ -25,7 +25,7 @@ class SandboxManager:
     async def list_files(self, user: str) -> list:
         """List all files in sandbox"""
         files = []
-        # Use iterdir() for better performance when listing files (avoids deep recursion)
+        # Recursively list all files in sandbox
         for item in SANDBOX_DIR.rglob('*'):
             if item.is_file() and item.name != 'README.md':
                 rel_path = item.relative_to(SANDBOX_DIR)
