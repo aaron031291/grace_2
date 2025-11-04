@@ -7,7 +7,11 @@ import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, asdict
-import keyring
+# keyring is optional; gracefully degrade if unavailable
+try:
+    import keyring  # type: ignore
+except Exception:  # pragma: no cover
+    keyring = None
 
 
 @dataclass
@@ -56,7 +60,7 @@ class ConfigManager:
         (self.config_dir / "logs").mkdir(exist_ok=True)
     
     def load(self) -> CLIConfig:
-        """Load configuration from file"""
+        """Load configuration from file and apply environment overrides"""
         if self.config_file.exists():
             with open(self.config_file, 'r') as f:
                 data = yaml.safe_load(f) or {}
@@ -64,6 +68,10 @@ class ConfigManager:
         else:
             self.config = CLIConfig()
             self.save()
+        # Environment overrides
+        backend_env = os.getenv("GRACE_BACKEND_URL")
+        if backend_env:
+            self.config.backend_url = backend_env
         return self.config
     
     def save(self):
