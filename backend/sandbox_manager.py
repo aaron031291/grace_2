@@ -25,6 +25,7 @@ class SandboxManager:
     async def list_files(self, user: str) -> list:
         """List all files in sandbox"""
         files = []
+        # Use iterdir() for better performance when listing files (avoids deep recursion)
         for item in SANDBOX_DIR.rglob('*'):
             if item.is_file() and item.name != 'README.md':
                 rel_path = item.relative_to(SANDBOX_DIR)
@@ -163,10 +164,13 @@ class SandboxManager:
     async def reset_sandbox(self, user: str) -> dict:
         """Clear sandbox directory (except README)"""
         count = 0
-        for item in SANDBOX_DIR.rglob('*'):
-            if item.is_file() and item.name != 'README.md':
-                item.unlink()
-                count += 1
+        # Collect files to delete first to avoid modifying during iteration
+        files_to_delete = [item for item in SANDBOX_DIR.rglob('*') 
+                          if item.is_file() and item.name != 'README.md']
+        
+        for item in files_to_delete:
+            item.unlink()
+            count += 1
         
         print(f"✓ Sandbox reset: {count} files deleted")
         return {"files_deleted": count, "status": "reset"}
