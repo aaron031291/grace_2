@@ -44,31 +44,41 @@ async def run_probe() -> int:
         import httpx
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            # Endpoint tuples: (method, path, json_payload_or_None)
             endpoints = [
-                ("GET", "/health"),
-                ("GET", "/api/core/heartbeat"),
-                ("GET", "/api/core/governance"),
-                ("GET", "/api/core/verify?limit=10&hours_back=1"),
-                ("GET", "/api/core/metrics"),
-                ("GET", "/api/cognition/status"),
-                ("GET", "/api/cognition/readiness"),
-                ("GET", "/api/cognition/alerts"),
+                ("GET", "/health", None),
+                ("GET", "/api/core/heartbeat", None),
+                ("GET", "/api/core/governance", None),
+                ("GET", "/api/core/verify?limit=10&hours_back=1", None),
+                ("GET", "/api/core/metrics", None),
+                ("GET", "/api/cognition/status", None),
+                ("GET", "/api/cognition/readiness", None),
+                ("GET", "/api/cognition/alerts", None),
                 # Security domain (GET-only endpoints for probe)
-                ("GET", "/api/security/rules"),
-                ("GET", "/api/security/alerts"),
-                ("GET", "/api/security/quarantined"),
-                ("GET", "/api/security/constitutional"),
-                ("GET", "/api/security/metrics"),
+                ("GET", "/api/security/rules", None),
+                ("GET", "/api/security/alerts", None),
+                ("GET", "/api/security/quarantined", None),
+                ("GET", "/api/security/constitutional", None),
+                ("GET", "/api/security/metrics", None),
                 # ML domain (public list)
-                ("GET", "/api/ml/models"),
+                ("GET", "/api/ml/models", None),
                 # Trust API (public)
-                ("GET", "/api/trust/sources"),
+                ("GET", "/api/trust/sources", None),
+                # Transcendence domain (basic POSTs with minimal bodies)
+                ("POST", "/api/transcendence/plan", {"task_description": "probe task", "context": {}}),
+                ("POST", "/api/transcendence/generate", {"specification": "print('hello')", "language": "python"}),
+                ("POST", "/api/transcendence/memory/search", {"query": "probe", "limit": 1}),
+                # Temporal domain
+                ("GET", "/api/temporal/patterns", None),
             ]
             failures = 0
-            for method, path in endpoints:
+            for method, path, payload in endpoints:
                 try:
-                    resp = await client.request(method, path, timeout=15)
-                    if resp.status_code >= 200 and resp.status_code < 300:
+                    kwargs = {"timeout": 20}
+                    if payload is not None:
+                        kwargs["json"] = payload
+                    resp = await client.request(method, path, **kwargs)
+                    if 200 <= resp.status_code < 300:
                         print(f"    200 OK: {path}")
                     else:
                         print(f"    FAIL {resp.status_code}: {path} -> {resp.text[:200]}")
