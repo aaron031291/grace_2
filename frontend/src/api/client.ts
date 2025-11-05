@@ -7,7 +7,9 @@ export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 const DEFAULT_BASE = 'http://localhost:8000';
 const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || DEFAULT_BASE;
 
-let _token: string | null = null;
+let _token: string | null = (typeof window !== 'undefined' && typeof localStorage !== 'undefined')
+  ? (localStorage.getItem('token') || null)
+  : null;
 
 export function setAuthToken(token: string | null) {
   _token = token;
