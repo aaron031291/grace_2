@@ -5,11 +5,21 @@ import json
 from typing import Optional, Dict
 from pathlib import Path
 import asyncio
-from .knowledge_models import KnowledgeArtifact
+from .knowledge_models import KnowledgeArtifact, KnowledgeRevision
 from .models import async_session
 
 class IngestionService:
     """Handles ingestion of various content types"""
+
+    def __init__(self) -> None:
+        # best-effort metrics publisher
+        try:
+            from .metrics_service import publish_metric as _pub
+            self._publish_metric = _pub  # type: ignore
+        except Exception:
+            async def _noop(domain: str, kpi: str, value: float):  # type: ignore
+                return None
+            self._publish_metric = _noop  # type: ignore
     
     @staticmethod
     def _compute_hash(content: str) -> str:
@@ -79,9 +89,20 @@ class IngestionService:
             session.add(artifact)
             await session.commit()
             await session.refresh(artifact)
-            
+
+            # Create initial revision entry
+            revision = KnowledgeRevision(
+                artifact_id=artifact.id,
+                revision_number=1,
+                edited_by=actor,
+                change_summary="initial_ingest",
+                diff=None
+            )
+            session.add(revision)
+            await session.commit()
+
             print(f"✓ Ingested: {title} ({artifact_type}, {len(content)} bytes)")
-            
+
             from .trigger_mesh import trigger_mesh, TriggerEvent
             from datetime import datetime
             await trigger_mesh.publish(TriggerEvent(
@@ -92,8 +113,50 @@ class IngestionService:
                 payload={"artifact_id": artifact.id, "type": artifact_type, "domain": domain},
                 timestamp=datetime.utcnow()
             ))
-            
+
+            # Publish ingestion metric (best-effort)
+            try:
+                await self._publish_metric("knowledge", "artifact_ingested", 1.0)  # type: ignore
+            except Exception:
+                pass
+
+            # Schedule optional enrichment step (best-effort, non-blocking)
+            try:
+                asyncio.create_task(self._try_enrich_artifact(artifact.id))
+            except Exception:
+                pass
+
             return artifact.id
+
+    async def _try_enrich_artifact(self, artifact_id: int) -> None:
+        """Attempt to run ML/DL enrichment on a newly ingested artifact.
+        This is best-effort and fully optional; failures are swallowed.
+        """
+        try:
+            # Try a dedicated enrichment function if present
+            try:
+                from .training_pipeline import training_pipeline  # type: ignore
+                enrich = getattr(training_pipeline, "enrich_artifact", None)
+                if enrich is not None and callable(enrich):
+                    await enrich(artifact_id)
+                    await self._publish_metric("ml", "artifact_enriched", 1.0)  # type: ignore
+                    return
+            except Exception:
+                pass
+
+            # Fallback to ml_runtime
+            try:
+                from .ml_runtime import ml_runtime  # type: ignore
+                enrich = getattr(ml_runtime, "enrich_artifact", None)
+                if enrich is not None and callable(enrich):
+                    await enrich(artifact_id)
+                    await self._publish_metric("ml", "artifact_enriched", 1.0)  # type: ignore
+                    return
+            except Exception:
+                pass
+        except Exception:
+            # Swallow any enrichment errors to avoid impacting ingestion path
+            return
     
     async def ingest_url(self, url: str, actor: str) -> int:
         """Download and ingest from URL with ML trust scoring"""

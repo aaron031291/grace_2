@@ -18,11 +18,15 @@ import json
 
 from ...models import async_session
 from ...auth import get_current_user
-from ..cognitive_observatory import CognitiveStep, CognitiveState, observatory
+from ..cognitive_observatory import CognitiveStep
 from ...cognition.GraceLoopOutput import GraceLoopOutput, OutputType
 from ...meta_loop import MetaAnalysis, meta_loop_engine
 from ...memory_models import MemoryArtifact
-from ...parliament_models import Proposal
+# Prefer a dedicated Proposal model; fallback to GovernanceSession if not present
+try:
+    from ...parliament_models import Proposal  # type: ignore
+except Exception:  # pragma: no cover - compatibility
+    from ...parliament_models import GovernanceSession as Proposal
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 

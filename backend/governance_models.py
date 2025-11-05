@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from .models import Base
 
 class GovernancePolicy(Base):
     __tablename__ = "governance_policies"

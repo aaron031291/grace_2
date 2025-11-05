@@ -161,3 +161,8 @@ class ImmutableLog:
             ]
 
 immutable_log = ImmutableLog()
+
+
+# Backwards compatibility alias for legacy imports
+# Some modules expect `ImmutableLogger`; alias it to the existing `ImmutableLog` implementation.
+ImmutableLogger = ImmutableLog

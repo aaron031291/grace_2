@@ -5,9 +5,10 @@ from sqlalchemy import select
 from ..models import User, async_session
 from ..auth import hash_password, verify_and_upgrade_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"]) 
 
-UsernameStr = constr(strip_whitespace=True, min_length=3, max_length=64, regex=r"^[A-Za-z0-9_.-]+$")
+# Pydantic v2: use 'pattern' instead of deprecated 'regex' in constr()
+UsernameStr = constr(strip_whitespace=True, min_length=3, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
 PasswordStr = constr(min_length=8, max_length=128)
 
 class UserCreate(BaseModel):
