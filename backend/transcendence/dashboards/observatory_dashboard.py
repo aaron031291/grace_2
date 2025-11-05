@@ -40,10 +40,10 @@ class ObservatoryDashboard:
     async def get_cognitive_state(self) -> Dict[str, Any]:
         """Get current cognitive state"""
         async with async_session() as session:
-            # Get most recent cognitive step
+            # Get most recent cognitive step (ordered by started_at)
             result = await session.execute(
                 select(CognitiveStep)
-                .order_by(desc(CognitiveStep.created_at))
+                .order_by(desc(CognitiveStep.started_at))
                 .limit(1)
             )
             latest_step = result.scalar_one_or_none()
@@ -62,6 +62,9 @@ class ObservatoryDashboard:
                 .order_by(CognitiveStep.sequence)
             )
             cycle_steps = cycle_result.scalars().all()
+
+            # Derive completed count (completed_at present or success True)
+            completed_steps = len([s for s in cycle_steps if (getattr(s, 'completed_at', None) is not None) or (getattr(s, 'success', None) is True)])
             
             return {
                 "status": "active",
@@ -74,11 +77,11 @@ class ObservatoryDashboard:
                 "alternatives": latest_step.alternatives_considered,
                 "decision": latest_step.decision_made,
                 "progress": {
-                    "completed_steps": len([s for s in cycle_steps if s.completed]),
+                    "completed_steps": completed_steps,
                     "total_steps": len(cycle_steps),
                     "stages": list(set([s.stage for s in cycle_steps]))
                 },
-                "timestamp": latest_step.created_at.isoformat() if latest_step.created_at else None
+                "timestamp": (latest_step.started_at.isoformat() if getattr(latest_step, 'started_at', None) else None)
             }
     
     async def get_learning_progress(self, cycle_id: Optional[str] = None) -> Dict[str, Any]:

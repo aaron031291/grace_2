@@ -53,6 +53,16 @@ async def run_probe() -> int:
                 ("GET", "/api/cognition/status"),
                 ("GET", "/api/cognition/readiness"),
                 ("GET", "/api/cognition/alerts"),
+                # Security domain (GET-only endpoints for probe)
+                ("GET", "/api/security/rules"),
+                ("GET", "/api/security/alerts"),
+                ("GET", "/api/security/quarantined"),
+                ("GET", "/api/security/constitutional"),
+                ("GET", "/api/security/metrics"),
+                # ML domain (public list)
+                ("GET", "/api/ml/models"),
+                # Trust API (public)
+                ("GET", "/api/trust/sources"),
             ]
             failures = 0
             for method, path in endpoints:
