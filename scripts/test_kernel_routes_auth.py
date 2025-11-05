@@ -73,6 +73,11 @@ async def run_probe() -> int:
                 ("GET", "/api/verification/stats?hours_back=1"),
                 ("GET", "/api/dashboard/cognitive/current"),
                 ("GET", "/api/ingest/artifacts?limit=1"),
+                # Added kernel coverage under auth
+                ("GET", "/api/parliament/members"),
+                ("GET", "/api/temporal/patterns"),
+                # Federation (safe read-only)
+                ("GET", "/api/external/secrets"),
             ]
             failures = 0
             for method, path in endpoints:
