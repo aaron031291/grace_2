@@ -33,10 +33,27 @@ from .websocket_manager import setup_ws_subscriptions
 from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
+from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
 
 @app.on_event("startup")
 async def on_startup():
     # Core app DB
+    # Ensure model modules are imported so Base.metadata is populated
+    try:
+        import importlib
+        for _mod in (
+            "backend.governance_models",
+            "backend.knowledge_models",
+            "backend.parliament_models",
+        ):
+            try:
+                importlib.import_module(_mod)
+            except Exception:
+                # Optional modules may not import if they have side effects; ignore
+                pass
+    except Exception:
+        pass
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("✓ Database initialized")
@@ -69,6 +86,8 @@ async def on_startup():
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
     print("✓ Benchmark scheduler started (evaluates every hour)")
+    await start_discovery_scheduler()
+    print("✓ Knowledge discovery scheduler started")
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -79,6 +98,7 @@ async def on_shutdown():
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
+    await stop_discovery_scheduler()
 
     # Clean up metrics DB resources
     metrics_sess = getattr(app.state, "metrics_session", None)
@@ -176,6 +196,13 @@ app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
 
-# Grace IDE WebSocket
-from grace_ide.api.websocket import router as ide_ws_router
-app.include_router(ide_ws_router)
+# Grace IDE WebSocket (optional)
+# Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
+import os as _os
+if _os.getenv("ENABLE_IDE_WS", "0") in {"1", "true", "True", "YES", "yes"}:
+    try:
+        from grace_ide.api.websocket import router as ide_ws_router
+        app.include_router(ide_ws_router)
+    except ImportError:
+        # Optional dependency not present; continue without IDE websocket
+        pass

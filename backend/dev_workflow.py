@@ -9,7 +9,7 @@ from .models import Base, async_session
 from .code_understanding import code_understanding
 from .code_generator import code_generator
 from .causal_analyzer import causal_analyzer
-from .meta_loop_engine import meta_loop
+from .meta_loop import meta_loop_engine
 from .hunter import hunter_engine
 
 class DevelopmentTask(Base):
