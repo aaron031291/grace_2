@@ -82,3 +82,8 @@ async def setup_ws_subscriptions():
     from .trigger_mesh import trigger_mesh
     trigger_mesh.subscribe("*", broadcast_event_handler)
     print("✓ WebSocket subscribed to Trigger Mesh")
+
+
+# Backwards compatibility alias for legacy imports
+# Some modules expect a `websocket_manager` symbol; alias it to the existing instance `ws_manager`.
+websocket_manager = ws_manager

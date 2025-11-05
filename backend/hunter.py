@@ -116,3 +116,11 @@ hunter = Hunter()
 # Global instance  
 hunter_service = Hunter()  
 hunter_engine = hunter_service 
+
+
+# Backwards compatibility alias for legacy imports
+class HunterEngine(Hunter):
+    """Alias class to maintain compatibility with legacy imports.
+    Inherit from Hunter to expose the same interface.
+    """
+    pass
