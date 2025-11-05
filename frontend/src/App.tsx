@@ -4,6 +4,8 @@ import { TranscendenceIDE } from './components/TranscendenceIDE';
 import { HunterDashboard } from './components/HunterDashboard';
 import { KnowledgeIngestion } from './components/KnowledgeIngestion';
 import { MetaLoopDashboard } from './components/MetaLoopDashboard';
+import { KnowledgeManager } from './components/Knowledge/KnowledgeManager';
+import { setAuthToken } from './api/client';
 
 export default function App() {
   const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop'>('chat');
@@ -29,6 +31,7 @@ export default function App() {
     if (d.access_token) {
       setToken(d.access_token);
       localStorage.setItem('token', d.access_token);
+      setAuthToken(d.access_token);
     }
   }
 
@@ -92,7 +95,7 @@ export default function App() {
   }
 
   if (page === 'knowledge') {
-    return <KnowledgeIngestion />;
+    return <KnowledgeManager />;
   }
 
   if (page === 'metaloop') {
@@ -215,7 +218,7 @@ export default function App() {
           <button onClick={() => setPage('hunter')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🛡️ Hunter</button>
           <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
           <button onClick={() => setPage('metaloop')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🧠 Meta-Loop</button>
-          <button onClick={() => { setToken(''); localStorage.clear(); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
+          <button onClick={() => { setToken(''); localStorage.clear(); setAuthToken(null); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </div>
       </div>
       
