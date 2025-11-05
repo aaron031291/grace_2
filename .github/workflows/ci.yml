@@ -42,3 +42,7 @@ jobs:
       - name: Run knowledge flows probe
         run: |
           python scripts/test_knowledge_flows.py
+
+      - name: Run kernel routes probe
+        run: |
+          python scripts/test_kernel_routes.py
