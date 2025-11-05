@@ -114,6 +114,13 @@ async def on_shutdown():
         except Exception:
             pass
 
+    # Dispose core application DB engine to avoid aiosqlite warnings on shutdown
+    try:
+        from .models import engine as core_engine  # local import to avoid early side effects
+        await core_engine.dispose()
+    except Exception:
+        pass
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "message": "Grace API is running"}
