@@ -13,9 +13,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Provide the database URL from environment if present
-if os.getenv("DATABASE_URL"):
-    config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+# Provide the database URL from environment or fallback to local SQLite (sync driver)
+_db_url = os.getenv("DATABASE_URL") or "sqlite:///./databases/grace.db"
+# Ensure we pass a sync driver to Alembic (no +aiosqlite/+asyncpg here)
+if "+aiosqlite" in _db_url:
+    _db_url = _db_url.replace("+aiosqlite", "")
+if "+asyncpg" in _db_url:
+    _db_url = _db_url.replace("+asyncpg", "+psycopg2")
+config.set_main_option("sqlalchemy.url", _db_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
