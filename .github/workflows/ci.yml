@@ -46,3 +46,7 @@ jobs:
       - name: Run kernel routes probe
         run: |
           python scripts/test_kernel_routes.py
+
+      - name: Run kernel routes auth probe
+        run: |
+          python scripts/test_kernel_routes_auth.py
