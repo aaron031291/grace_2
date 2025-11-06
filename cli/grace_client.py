@@ -252,24 +252,34 @@ class GraceAPIClient:
     # Governance
     
     async def get_approval_requests(self, status: Optional[str] = None) -> GraceResponse:
-        """Get governance approval requests"""
+        """Get governance approval requests (wrapped for CLI compatibility)
+        Backend endpoint: GET /api/governance/approvals
+        """
         params = {"status": status} if status else {}
-        return await self._request("GET", "/api/governance/requests", params=params)
+        resp = await self._request("GET", "/api/governance/approvals", params=params)
+        if resp.success and isinstance(resp.data, list):
+            # Wrap into {"requests": [...]} expected by GovernanceCommand
+            resp.data = {"requests": resp.data}
+        return resp
     
     async def approve_request(self, request_id: int, comment: str = "") -> GraceResponse:
-        """Approve governance request"""
+        """Approve governance request
+        Backend endpoint: POST /api/governance/approvals/{id}/decision {"decision":"approve","reason":comment}
+        """
         return await self._request(
             "POST",
-            f"/api/governance/requests/{request_id}/approve",
-            data={"comment": comment}
+            f"/api/governance/approvals/{request_id}/decision",
+            data={"decision": "approve", "reason": comment or ""}
         )
     
     async def reject_request(self, request_id: int, reason: str = "") -> GraceResponse:
-        """Reject governance request"""
+        """Reject governance request
+        Backend endpoint: POST /api/governance/approvals/{id}/decision {"decision":"reject","reason":reason}
+        """
         return await self._request(
             "POST",
-            f"/api/governance/requests/{request_id}/reject",
-            data={"reason": reason}
+            f"/api/governance/approvals/{request_id}/decision",
+            data={"decision": "reject", "reason": reason or ""}
         )
     
     # Verification
