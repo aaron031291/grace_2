@@ -160,6 +160,8 @@ def verify_action(action_type: str, resource_extractor: Callable = None):
 
         # Preserve the original signature for FastAPI dependency resolution
         try:
+            # Help FastAPI introspection follow the original callable
+            wrapper.__wrapped__ = func  # type: ignore[attr-defined]
             wrapper.__signature__ = inspect.signature(func)  # type: ignore[attr-defined]
             wrapper.__annotations__ = getattr(func, "__annotations__", {})  # type: ignore[attr-defined]
             wrapper.__module__ = getattr(func, "__module__", wrapper.__module__)
