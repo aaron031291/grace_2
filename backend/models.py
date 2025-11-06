@@ -5,7 +5,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from .settings import settings
 
 # Prefer env-provided DATABASE_URL; fallback to local sqlite for dev
-DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./grace.db"
+DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
