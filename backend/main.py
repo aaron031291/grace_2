@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .base_models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -258,6 +258,15 @@ app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
 app.include_router(agentic_insights_router, prefix="/api")
+
+# Self-heal observability and learning endpoints (feature-gated)
+try:
+    if settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE or settings.LEARNING_AGGREGATION_ENABLED:
+        app.include_router(learning.router)
+        app.include_router(scheduler_observability.router)
+        app.include_router(meta_focus.router)
+except Exception:
+    pass
 
 # Grace IDE WebSocket (optional)
 import os as _os
