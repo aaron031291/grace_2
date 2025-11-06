@@ -197,6 +197,15 @@ app.include_router(executor.router)
 app.include_router(governance.router)
 app.include_router(hunter.router)
 app.include_router(health_routes.router)
+# Conditionally include unified health/triage endpoints (observe-only by default)
+try:
+    from .settings import settings as _settings
+    from .routes import health_unified as _health_unified
+    if getattr(_settings, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings, "SELF_HEAL_EXECUTE", False):
+        app.include_router(_health_unified.router, prefix="/api")
+except Exception:
+    # Keep startup resilient if optional modules/imports fail
+    pass
 app.include_router(issues.router)
 app.include_router(memory_api.router)
 app.include_router(immutable_api.router)
