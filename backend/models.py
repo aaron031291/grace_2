@@ -2,8 +2,10 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, 
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from .settings import settings
 
-DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
+# Prefer env-provided DATABASE_URL; fallback to local sqlite for dev
+DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -26,6 +28,7 @@ from .ml_models_table import MLModel, TrainingRun
 from .temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly, PredictionRecord
 from .cognition.models import MemoryArtifact as CognitionMemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
 from .transcendence.business.models import StripeTransaction, StripeWebhook, PaymentMethod, MarketplaceJob, MarketplaceProposal, MarketplaceMessage, MarketplaceDeliverable
+from .goal_models import GoalDependency, GoalEvaluation
 
 class User(Base):
     __tablename__ = "users"
@@ -61,6 +64,12 @@ class Goal(Base):
     goal_text = Column(Text, nullable=False)
     target_date = Column(DateTime(timezone=True), nullable=True)
     status = Column(String(32), default="active")
+    priority = Column(String(16), default="medium")
+    value_score = Column(Float, nullable=True)
+    risk_score = Column(Float, nullable=True)
+    success_criteria = Column(Text, nullable=True)  # JSON blob describing success metrics
+    owner = Column(String(64), nullable=True)
+    category = Column(String(64), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)
 

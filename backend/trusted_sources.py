@@ -79,18 +79,24 @@ class TrustScoreManager:
         return 50.0
     
     async def should_auto_approve(self, url: str) -> tuple[bool, float]:
-        """Check if source meets auto-approval threshold"""
+        """Auto-approve only if domain exists in TrustedSource and meets threshold.
+        Unknown domains are never auto-approved (require explicit approval).
+        """
         score = await self.get_trust_score(url)
-        
+
         async with async_session() as session:
             domain = urlparse(url).netloc
             result = await session.execute(
                 select(TrustedSource).where(TrustedSource.domain == domain)
             )
             source = result.scalar_one_or_none()
-            
-            threshold = source.auto_approve_threshold if source else 70.0
-        
+
+            if not source:
+                # Explicit whitelist required for auto-approval
+                return (False, score)
+
+            threshold = source.auto_approve_threshold
+
         return (score >= threshold, score)
 
 trust_manager = TrustScoreManager()
