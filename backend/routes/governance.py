@@ -7,6 +7,8 @@ from ..governance_models import GovernancePolicy, AuditLog, ApprovalRequest
 from ..models import async_session
 from ..auth import get_current_user
 from ..verification_middleware import verify_action
+from ..logging_utils import log_event
+from ..rate_limit import rate_limited
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
 
@@ -89,6 +91,15 @@ async def create_approval(data: ApprovalCreate, current_user: str = Depends(get_
         session.add(req)
         await session.commit()
         await session.refresh(req)
+        # Structured log (verification_id is added to response by verify_action wrapper)
+        log_event(
+            action="approval_create",
+            actor=current_user,
+            resource=f"event_{data.event_id}",
+            outcome="created",
+            payload={"reason": data.reason},
+            extras={"approval_id": req.id, "status": req.status}
+        )
         return {
             "id": req.id,
             "event_id": req.event_id,
@@ -149,6 +160,7 @@ async def list_approvals(status: Optional[str] = None, requested_by: Optional[st
         ]
 
 @router.post("/approvals/{request_id}/decision")
+@rate_limited("approval_decision")
 @verify_action("approval_decision", lambda data: f"request_{data.get('request_id', 'unknown')}")
 async def decide(request_id: int, body: ApprovalDecision, current_user: str = Depends(get_current_user)):
     if body.decision not in {"approve", "reject"}:
@@ -167,6 +179,15 @@ async def decide(request_id: int, body: ApprovalDecision, current_user: str = De
         req.decided_at = func.now()
         await session.commit()
         await session.refresh(req)
+        # Structured log
+        log_event(
+            action="approval_decision",
+            actor=current_user,
+            resource=f"request_{request_id}",
+            outcome=req.status,
+            payload={"reason": body.reason},
+            extras={"approval_id": req.id}
+        )
         return {
             "id": req.id,
             "status": req.status,
