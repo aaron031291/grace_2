@@ -12,8 +12,8 @@ import io
 # Fix Windows console encoding
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-# Add backend to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add backend to path (parent.parent because we're in scripts/ folder)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 print("=" * 80)
 print("GRACE SIMPLIFIED E2E TEST")
