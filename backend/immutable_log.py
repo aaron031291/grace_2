@@ -16,9 +16,24 @@ class ImmutableLog:
         resource: str,
         subsystem: str,
         payload: dict,
-        result: str
+        result: str,
+        signature: Optional[str] = None
     ) -> int:
-        """Append entry to immutable log"""
+        """
+        Append entry to immutable log with optional signature.
+        
+        Args:
+            actor: Who performed the action
+            action: What action was performed
+            resource: What resource was affected
+            subsystem: Which subsystem logged this
+            payload: Additional data (dict)
+            result: Outcome of the action
+            signature: Optional cryptographic signature for audit trail
+        
+        Returns:
+            Entry ID
+        """
         
         async with async_session() as session:
             last_result = await session.execute(
@@ -30,6 +45,10 @@ class ImmutableLog:
             
             sequence = (last_entry.sequence + 1) if last_entry else 1
             previous_hash = last_entry.entry_hash if last_entry else "0" * 64
+            
+            # Add signature to payload if provided
+            if signature:
+                payload["_signature"] = signature
             
             payload_str = json.dumps(payload, sort_keys=True)
             
