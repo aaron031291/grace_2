@@ -14,6 +14,7 @@ from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
+from .request_id_middleware import RequestIDMiddleware
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -24,6 +25,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Inject/propagate X-Request-ID for log correlation
+app.add_middleware(RequestIDMiddleware)
 
 from .task_executor import task_executor
 from .self_healing import health_monitor

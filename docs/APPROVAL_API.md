@@ -153,3 +153,30 @@ py -m pytest -q backend/tests/routes/test_approvals.py
 - Simple per‑user rate limiting on decision endpoint (e.g., 10/min).
 - CLI subcommands for creating approvals and viewing stats.
 - Frontend governance panel to manage approvals.
+
+### Environment Flags and Request Correlation
+
+The Approvals endpoints support several environment variables for local development, testing, and basic safeguards.
+
+- APPROVAL_DECIDERS
+  - Description: Comma-separated allowlist of usernames permitted to make approval decisions.
+  - Behavior: If set (e.g., `APPROVAL_DECIDERS=alice,bob`), only those users can call `POST /api/governance/approvals/{id}/decision`. Others receive `403 Not authorized to decide approvals`.
+  - If unset or empty: No RBAC enforcement for this endpoint (development-friendly default).
+
+- APPROVAL_DECISION_RATE_PER_MIN
+  - Description: Per-user token bucket capacity for the decision endpoint (calls/minute). Default: `10`.
+  - Example: `APPROVAL_DECISION_RATE_PER_MIN=3` limits each user to 3 decisions/minute.
+
+- RATE_LIMIT_BYPASS
+  - Description: When truthy (`1`, `true`, `yes`, `on`), bypasses the in-memory rate limiter (useful for tests/dev).
+  - Example: `RATE_LIMIT_BYPASS=true`.
+
+- X-Request-ID (Request correlation)
+  - Requests can include an `X-Request-ID` header.
+  - The backend injects a request ID if missing and echoes it back in responses.
+  - Structured logs produced by the create/decision endpoints include `request_id` and the verification `_verification_id` when present, allowing easy correlation across systems.
+
+#### Rate Limiting Responses
+- When the decision endpoint exceeds the per-user rate, the API responds with `429 Too Many Requests` and a `Retry-After` header indicating the number of seconds to wait before retrying.
+
+---
