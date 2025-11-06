@@ -101,7 +101,15 @@ def rate_limited(
             allowed = await bucket.allow()
             if not allowed:
                 # Suggest retry after remaining window (approximate)
-                raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
+                # Compute seconds until next token likely available
+                now = time.monotonic()
+                # Oldest event after cleanup is the earliest in window
+                retry_after = 1
+                if bucket.events:
+                    oldest = bucket.events[0]
+                    retry_after = max(1, int(bucket.window - (now - oldest)))
+                headers = {"Retry-After": str(retry_after)}
+                raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.", headers=headers)
             return await func(*args, **kwargs)
         return wrapper
     return decorator
