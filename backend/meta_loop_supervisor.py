@@ -155,13 +155,33 @@ class SnapshotBuilder:
     
     async def _get_active_domains(self) -> List[str]:
         """Get list of active domains"""
-        return ["infrastructure", "application", "security", "data"]
+        from .agent_core import agent_core
+        
+        # Return actual registered domains
+        return list(agent_core.domains.keys()) if agent_core.domains else ["core"]
     
     async def _build_domain_snapshot(self, domain_id: str) -> DomainSnapshot:
         """Build snapshot for a single domain"""
         
+        from .agent_core import agent_core
+        
+        # Get metrics from domain adapter if registered
+        if domain_id in agent_core.domains:
+            domain_metrics = await agent_core.domains[domain_id].collect_metrics()
+            kpis = {
+                "health_score": domain_metrics.health_score,
+                "active_tasks": float(domain_metrics.active_tasks),
+                "success_rate": (
+                    domain_metrics.completed_tasks_24h / 
+                    (domain_metrics.completed_tasks_24h + domain_metrics.failed_tasks_24h)
+                ) if (domain_metrics.completed_tasks_24h + domain_metrics.failed_tasks_24h) > 0 else 1.0,
+                "error_rate": domain_metrics.error_rate,
+                **domain_metrics.custom_metrics
+            }
+        else:
+            kpis = await self._get_domain_kpis(domain_id)
+        
         health_state = await self._get_health_state(domain_id)
-        kpis = await self._get_domain_kpis(domain_id)
         playbooks = await self._get_active_playbooks(domain_id)
         success_rates = await self._get_success_rates(domain_id)
         drift = await self._calculate_drift_trends(domain_id, kpis)
