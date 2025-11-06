@@ -2,6 +2,7 @@
 
 import functools
 import uuid
+import inspect
 from datetime import datetime
 from typing import Callable, Any, Dict
 from fastapi import Request, HTTPException
@@ -79,34 +80,38 @@ def verify_action(action_type: str, resource_extractor: Callable = None):
             request = None
             current_user = "system"
             request_data = {}
-            
+
             for arg in args:
                 if isinstance(arg, Request):
                     request = arg
-            
+
             if "current_user" in kwargs:
                 current_user = kwargs["current_user"]
             elif "req" in kwargs:
                 if hasattr(kwargs["req"], "dict"):
                     request_data = kwargs["req"].dict()
-            
+
             if request:
                 try:
                     body = await request.json()
-                    request_data.update(body)
-                except:
+                    if isinstance(body, dict):
+                        request_data.update(body)
+                except Exception:
                     pass
-            
+
             resource = "unknown"
             if resource_extractor and request_data:
-                resource = resource_extractor(request_data)
+                try:
+                    resource = resource_extractor(request_data) or "unknown"
+                except Exception:
+                    resource = "unknown"
             elif "file_path" in request_data:
                 resource = request_data["file_path"]
             elif "command" in request_data:
                 resource = request_data["command"]
             elif "model_name" in request_data:
                 resource = request_data["model_name"]
-            
+
             # Constitutional compliance check
             constitutional_result = await constitutional_verifier.verify_action(
                 actor=current_user,
@@ -116,28 +121,28 @@ def verify_action(action_type: str, resource_extractor: Callable = None):
                 confidence=request_data.get('confidence', 1.0),
                 context=request_data.get('context', {})
             )
-            
-            if not constitutional_result['allowed']:
+
+            if not constitutional_result.get('allowed', True):
                 violations = constitutional_result.get('violations', [])
                 violation_msg = ', '.join([v.get('reason', 'Unknown') for v in violations[:3]])
                 raise HTTPException(
                     status_code=403,
                     detail=f"Blocked by constitutional verification: {violation_msg}"
                 )
-            
+
             gov_decision = await governance_engine.check(
                 actor=current_user,
                 action=action_type,
                 resource=resource,
                 payload=request_data
             )
-            
-            if gov_decision["decision"] == "block":
+
+            if gov_decision.get("decision") == "block":
                 raise HTTPException(
-                    status_code=403, 
+                    status_code=403,
                     detail=f"Blocked by governance: {gov_decision.get('policy', 'unknown')}"
                 )
-            
+
             result, action_id = await verification_middleware.verify_and_record(
                 actor=current_user,
                 action_type=action_type,
@@ -147,11 +152,19 @@ def verify_action(action_type: str, resource_extractor: Callable = None):
                 *args,
                 **kwargs
             )
-            
+
             if isinstance(result, dict):
                 result["_verification_id"] = action_id
-            
+
             return result
-        
+
+        # Preserve the original signature for FastAPI dependency resolution
+        try:
+            wrapper.__signature__ = inspect.signature(func)  # type: ignore[attr-defined]
+            wrapper.__annotations__ = getattr(func, "__annotations__", {})  # type: ignore[attr-defined]
+            wrapper.__module__ = getattr(func, "__module__", wrapper.__module__)
+            wrapper.__doc__ = getattr(func, "__doc__", wrapper.__doc__)
+        except Exception:
+            pass
         return wrapper
     return decorator

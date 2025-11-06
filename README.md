@@ -554,3 +554,30 @@ Environment flags and correlation:
 - `X-Request-ID`: clients may send this header; the backend injects one if missing and echoes it back. Structured logs include `request_id` and `_verification_id` for correlation.
 
 Status note: This repository is not production-ready. Treat the Approvals flow as development-grade; structured logging and rate limits exist, but long-duration soak tests, broader RBAC, and hardened auth are pending.
+
+
+---
+
+## Database Migrations (Alembic)
+
+Most local development uses SQLite auto-create on backend startup. For reproducible setups (CI/clean envs) or non-SQLite targets, apply Alembic migrations.
+
+Windows quickstart:
+```
+# From repo root
+py -m pip install alembic
+
+# Optional: choose DB (defaults to sqlite+aiosqlite:///./grace.db)
+set DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
+
+# Upgrade to latest schema
+alembic upgrade head
+
+# Roll back last migration (if needed)
+alembic downgrade -1
+```
+
+Notes:
+- Approvals schema is codified in `alembic/versions/20251106_approval_requests.py`.
+- If the database file is locked on Windows, stop any running server/tests that might be holding the file and retry.
+- See `docs/APPROVAL_API.md` for details.
