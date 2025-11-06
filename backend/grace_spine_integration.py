@@ -94,11 +94,19 @@ class GraceAgenticSystem:
         print("\n[FINAL] Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
         
-        print("\n[INTELLIGENCE] Starting intelligent trigger system...")
+        print("\n[INTELLIGENCE] Starting intelligent systems...")
         from .self_heal.intelligent_triggers import intelligent_trigger_manager
         from .immutable_log_integration import log_analyzer
-        await intelligent_trigger_manager.start()
+        from .self_heal.meta_coordinated_healing import meta_coordinated_healing
+        
+        # Start log analyzer first (provides pattern detection)
         await log_analyzer.start()
+        
+        # Start intelligent trigger manager (aggregates from all sources)
+        await intelligent_trigger_manager.start()
+        
+        # Start meta-coordinated healing (orchestrator)
+        await meta_coordinated_healing.start()
         
         print("\n[DOMAINS] Registering domain adapters...")
         await self._register_domains()
@@ -131,11 +139,15 @@ class GraceAgenticSystem:
         print("  - Manage her own resources")
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
-        print("\n  🤖 Intelligent Self-Healing Triggers:")
-        print("    • Meta Loop → Systemic issue detection")
-        print("    • ML/DL → Anomaly forecasts & capacity predictions")
-        print("    • Agentic Spine → Cross-domain health alerts")
-        print("    • Immutable Log → Pattern & sequence detection")
+        print("\n  🤖 Meta-Coordinated Self-Healing:")
+        print("    • Meta Loop → Orchestrates focus & guardrails")
+        print("    • ML/DL Advisors → Embedded scoring & ranking")
+        print("    • Agentic Planner → Executes with verification")
+        print("    • Immutable Log → Single source of truth (signed)")
+        print("\n  📡 Intelligent Triggers:")
+        print("    • Proactive ML → Forecasts & predictions")
+        print("    • Cross-Domain → Health graph monitoring")
+        print("    • Pattern Detection → Recurring issue analysis")
         print("\n" + "=" * 60)
     
     async def _register_domains(self):
@@ -169,10 +181,13 @@ class GraceAgenticSystem:
         
         print("\nGracefully shutting down GRACE agentic spine...")
         
-        # Stop intelligent triggers
+        # Stop intelligent systems (reverse order)
         try:
+            from .self_heal.meta_coordinated_healing import meta_coordinated_healing
             from .self_heal.intelligent_triggers import intelligent_trigger_manager
             from .immutable_log_integration import log_analyzer
+            
+            await meta_coordinated_healing.stop()
             await intelligent_trigger_manager.stop()
             await log_analyzer.stop()
         except Exception:

@@ -1,7 +1,7 @@
 import hashlib
 import json
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import select
 from .base_models import ImmutableLogEntry, async_session
 
@@ -120,6 +120,87 @@ class ImmutableLog:
                 "entries_verified": len(entries),
                 "sequence_range": f"{entries[0].sequence}-{entries[-1].sequence}" if entries else "empty"
             }
+    
+    async def replay_cycle(self, cycle_id: str) -> List[dict]:
+        """
+        Replay all events from a specific healing cycle.
+        
+        Used for:
+        - Audit and compliance
+        - Learning from outcomes
+        - Debugging failed cycles
+        - Training ML models
+        
+        Returns chronological list of all signed entries for the cycle.
+        """
+        async with async_session() as session:
+            result = await session.execute(
+                select(ImmutableLogEntry)
+                .where(ImmutableLogEntry.payload.contains(f'"cycle_id": "{cycle_id}"'))
+                .order_by(ImmutableLogEntry.sequence.asc())
+            )
+            entries = result.scalars().all()
+            
+            replay = []
+            for entry in entries:
+                payload = json.loads(entry.payload) if entry.payload else {}
+                signature = payload.pop("_signature", None)
+                
+                replay.append({
+                    "sequence": entry.sequence,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "actor": entry.actor,
+                    "action": entry.action,
+                    "resource": entry.resource,
+                    "subsystem": entry.subsystem,
+                    "payload": payload,
+                    "result": entry.result,
+                    "signature": signature,
+                    "entry_hash": entry.entry_hash
+                })
+            
+            return replay
+    
+    async def get_signed_outcomes(
+        self,
+        subsystem: str = "meta_coordinated_healing",
+        hours_back: int = 24,
+        limit: int = 100
+    ) -> List[dict]:
+        """Get signed execution outcomes for learning"""
+        async with async_session() as session:
+            cutoff = datetime.utcnow() - timedelta(hours=hours_back)
+            
+            result = await session.execute(
+                select(ImmutableLogEntry)
+                .where(
+                    ImmutableLogEntry.subsystem == subsystem,
+                    ImmutableLogEntry.action == "execution_outcome",
+                    ImmutableLogEntry.timestamp >= cutoff
+                )
+                .order_by(ImmutableLogEntry.timestamp.desc())
+                .limit(limit)
+            )
+            entries = result.scalars().all()
+            
+            outcomes = []
+            for entry in entries:
+                payload = json.loads(entry.payload) if entry.payload else {}
+                signature = payload.pop("_signature", None)
+                
+                outcomes.append({
+                    "timestamp": entry.timestamp.isoformat(),
+                    "outcome_id": payload.get("outcome_id"),
+                    "cycle_id": payload.get("cycle_id"),
+                    "playbook": payload.get("playbook"),
+                    "result": entry.result,
+                    "verification_passed": payload.get("verification_passed"),
+                    "duration_seconds": payload.get("duration_seconds"),
+                    "signature": signature,
+                    "learned_insights": payload.get("learned_insights", [])
+                })
+            
+            return outcomes
     
     async def get_entries(
         self,
