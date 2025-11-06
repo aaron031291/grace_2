@@ -1,42 +1,22 @@
-from fastapi import FastAPIfrom fastapi import FastAPI, Depends
-
-from fastapi.middleware.cors import CORSMiddlewarefrom fastapi.middleware.cors import CORSMiddleware
-
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
-app = FastAPI(title="Grace API (Minimal)", version="2.0.0")from .models import Base, engine
-
+from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-
-app.add_middleware(from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
-
-    CORSMiddleware,from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
-
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],from .transcendence.business.api import router as business_api_router
-
-    allow_credentials=True,from .reflection import reflection_service
-
-    allow_methods=["*"],from .auth import get_current_user
-
-    allow_headers=["*"],from .verification_integration import verification_integration
-
-)from .routers.cognition import router as cognition_router
-
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
+from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
+from .transcendence.business.api import router as business_api_router
+from .reflection import reflection_service
+from .auth import get_current_user
+from .verification_integration import verification_integration
+from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
-
-@app.get("/health")from .routers.transcendence_domain import router as transcendence_domain_router
-
-async def health_check():from .routers.security_domain import router as security_domain_router
-
-    return {"status": "ok", "message": "Grace API is running"}from .metrics_service import init_metrics_collector
-
+from .routers.transcendence_domain import router as transcendence_domain_router
+from .routers.security_domain import router as security_domain_router
+from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 
-print("✓ Grace API server starting (minimal mode)...")
-
-print("  Visit: http://localhost:8000/health")app = FastAPI(title="Grace API", version="2.0.0")
-
-print("  Docs: http://localhost:8000/docs")
+app = FastAPI(title="Grace API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -57,8 +37,6 @@ from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
 from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
-from .self_heal.scheduler import scheduler as self_heal_scheduler
-from .self_heal.runner import runner as self_heal_runner
 
 @app.on_event("startup")
 async def on_startup():
@@ -112,25 +90,6 @@ async def on_startup():
     await start_benchmark_scheduler()
     print("✓ Benchmark scheduler started (evaluates every hour)")
 
-    # Self-heal observe-only scheduler (feature-gated)
-    try:
-        from .settings import settings as _settings2
-        if getattr(_settings2, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings2, "SELF_HEAL_EXECUTE", False):
-            await self_heal_scheduler.start()
-            print("✓ Self-heal observe-only scheduler started")
-    except Exception:
-        # keep startup resilient
-        pass
-
-    # Start execution runner only when execute mode is enabled
-    try:
-        from .settings import settings as _settings3
-        if getattr(_settings3, "SELF_HEAL_EXECUTE", False):
-            await self_heal_runner.start()
-            print("✓ Self-heal execution runner started (execute mode)")
-    except Exception:
-        pass
-
     # Knowledge discovery scheduler (configurable via env)
     try:
         interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
@@ -157,12 +116,6 @@ async def on_shutdown():
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
     await stop_discovery_scheduler()
-
-    # Stop self-heal observe-only scheduler if running
-    try:
-        await self_heal_scheduler.stop()
-    except Exception:
-        pass
 
     # Clean up metrics DB resources
     metrics_sess = getattr(app.state, "metrics_session", None)
@@ -248,14 +201,8 @@ app.include_router(health_routes.router)
 try:
     from .settings import settings as _settings
     from .routes import health_unified as _health_unified
-    from .routes import playbooks as _playbooks
-    from .routes import incidents as _incidents
-    from .routes import learning as _learning
     if getattr(_settings, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings, "SELF_HEAL_EXECUTE", False):
         app.include_router(_health_unified.router, prefix="/api")
-        app.include_router(_playbooks.router)
-        app.include_router(_incidents.router)
-        app.include_router(_learning.router)
 except Exception:
     # Keep startup resilient if optional modules/imports fail
     pass
