@@ -36,26 +36,46 @@ async def get_learning(service: Optional[str] = Query(None), limit: int = Query(
             for r in rows
         ]
 
-        # Simple aggregate: success rate by diagnosis->action if outcome contains "succeeded"
-        stats: Dict[str, Dict[str, int]] = {}
-        for r in rows:
-            diag = (r.diagnosis or "unknown").strip()
-            act = (r.action or "unknown").strip()
-            key = f"{diag}::{act}"
-            d = stats.setdefault(key, {"total": 0, "success": 0})
-            d["total"] += 1
-            if r.outcome and ("succeeded" in r.outcome or '"status": "succeeded"' in r.outcome):
-                d["success"] += 1
+        # Aggregates: success rates per diagnosis->action overall and time buckets (24h, 7d)
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        buckets = {
+            "all": None,
+            "24h": now - timedelta(hours=24),
+            "7d": now - timedelta(days=7),
+        }
 
-        # Convert stats to list with rates
-        agg = [
-            {
-                "path": k,
-                "total": v["total"],
-                "success": v["success"],
-                "success_rate": (v["success"] / v["total"]) if v["total"] else 0.0,
-            }
-            for k, v in stats.items()
-        ]
+        def _is_success(action_s: str, outcome_s: str) -> bool:
+            a = action_s or ""
+            o = outcome_s or ""
+            return ('"status": "succeeded"' in a) or ('"status": "succeeded"' in o) or ('"result": "ok"' in o)
+
+        aggregates: Dict[str, Dict[str, Dict[str, int]]] = {b: {} for b in buckets.keys()}
+        for r in rows:
+            # Determine creation time
+            ts = getattr(r, "created_at", None)
+            for b_name, cutoff in buckets.items():
+                if cutoff is not None and ts and ts < cutoff:
+                    continue
+                diag = (r.diagnosis or "unknown").strip()
+                act = (r.action or "unknown").strip()
+                key = f"{diag}::{act}"
+                bucket = aggregates[b_name].setdefault(key, {"total": 0, "success": 0})
+                bucket["total"] += 1
+                if _is_success(r.action or "", r.outcome or ""):
+                    bucket["success"] += 1
+
+        def _to_list(stats_map: Dict[str, Dict[str, int]]):
+            return [
+                {
+                    "path": k,
+                    "total": v["total"],
+                    "success": v["success"],
+                    "success_rate": (v["success"] / v["total"]) if v["total"] else 0.0,
+                }
+                for k, v in stats_map.items()
+            ]
+
+        agg = {name: _to_list(data) for name, data in aggregates.items()}
 
         return {"entries": entries, "count": len(entries), "aggregates": agg}

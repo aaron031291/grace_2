@@ -27,6 +27,12 @@ class ObserveOnlyScheduler:
         self._backoff: Dict[tuple[str, str], Dict[str, Any]] = {}
         # per-service timestamps of recent proposals for simple rate limiting
         self._rate: Dict[str, List[datetime]] = {}
+        # lightweight in-memory counters for observability (reset on restart)
+        # shape: { "global": {counts...}, "per_service": {svc: {counts...}} }
+        self._counters: Dict[str, Any] = {
+            "global": {"proposed": 0, "skipped_rate": 0, "skipped_backoff": 0, "skipped_dup": 0, "last_updated": None},
+            "per_service": {}
+        }
 
     async def start(self) -> None:
         if self._task and not self._task.done():
@@ -53,6 +59,29 @@ class ObserveOnlyScheduler:
         lst = self._rate.get(service, [])
         cutoff = now - timedelta(hours=1)
         self._rate[service] = [t for t in lst if t >= cutoff]
+
+    def _bump_counter(self, service: str, key: str) -> None:
+        """Increment counters for observability."""
+        try:
+            g = self._counters.get("global", {})
+            g[key] = int(g.get(key, 0)) + 1
+            g["last_updated"] = datetime.now(timezone.utc).isoformat()
+            self._counters["global"] = g
+            per = self._counters.setdefault("per_service", {})
+            svc = per.setdefault(service, {"proposed": 0, "skipped_rate": 0, "skipped_backoff": 0, "skipped_dup": 0, "last_updated": None})
+            svc[key] = int(svc.get(key, 0)) + 1
+            svc["last_updated"] = g["last_updated"]
+            per[service] = svc
+        except Exception:
+            pass
+
+    def snapshot_counters(self) -> Dict[str, Any]:
+        """Return a shallow copy of counters for safe readout."""
+        try:
+            import copy
+            return copy.deepcopy(self._counters)
+        except Exception:
+            return {"global": {}, "per_service": {}}
 
     def _should_propose(self, service: str, diagnosis: str, now: datetime) -> tuple[bool, str, int]:
         """Decide if we should create a proposal.
@@ -170,11 +199,22 @@ class ObserveOnlyScheduler:
                             pass
 
                     if skip:
+                        try:
+                            self._bump_counter(svc.name, "skipped_dup")
+                        except Exception:
+                            pass
                         continue
 
                     # New: rate limit and backoff checks
                     ok, reason, backoff_ms = self._should_propose(svc.name, diag_code, now)
                     if not ok:
+                        try:
+                            if reason == "backoff":
+                                self._bump_counter(svc.name, "skipped_backoff")
+                            elif reason == "rate_limited":
+                                self._bump_counter(svc.name, "skipped_rate")
+                        except Exception:
+                            pass
                         try:
                             print(f"[self-heal:scheduler] skip {svc.name}/{diag_code}: {reason} backoff_ms={backoff_ms}")
                         except Exception:
