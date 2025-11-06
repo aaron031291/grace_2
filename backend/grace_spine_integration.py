@@ -18,6 +18,7 @@ from .meta_loop_supervisor import meta_loop_supervisor
 from .proactive_intelligence import proactive_intelligence
 from .agentic_observability import agentic_observability
 from .multi_agent_shards import shard_coordinator
+from .agent_core import agent_core
 from .trigger_mesh import trigger_mesh
 from .immutable_log import immutable_log
 
@@ -93,6 +94,9 @@ class GraceAgenticSystem:
         print("\n[FINAL] Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
         
+        print("\n[DOMAINS] Registering domain adapters...")
+        await self._register_domains()
+        
         self.running = True
         self.started_at = datetime.utcnow()
         
@@ -122,6 +126,23 @@ class GraceAgenticSystem:
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
         print("\n" + "=" * 60)
+    
+    async def _register_domains(self):
+        """Register domain adapters with agent core"""
+        
+        # Register Core domain (pilot)
+        try:
+            from .domains.core_domain_adapter import core_domain_adapter
+            await agent_core.register_domain(core_domain_adapter)
+        except Exception as e:
+            print(f"  Warning: Could not register Core domain: {e}")
+        
+        # TODO: Register other domains as they're implemented
+        # from .domains.knowledge_adapter import knowledge_adapter
+        # await agent_core.register_domain(knowledge_adapter)
+        
+        domain_count = len(agent_core.domains)
+        print(f"  ✓ Registered {domain_count} domain(s) with agent core")
     
     async def stop(self):
         """Gracefully stop all agentic systems"""

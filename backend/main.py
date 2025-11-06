@@ -36,6 +36,8 @@ from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_sched
 from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
 from .grace_spine_integration import activate_grace_autonomy, deactivate_grace_autonomy
 from .routes.agentic_insights import router as agentic_insights_router
+from .self_heal.scheduler import scheduler as self_heal_scheduler
+from .self_heal.runner import runner as self_heal_runner
 
 @app.on_event("startup")
 async def on_startup():
@@ -80,9 +82,28 @@ async def on_startup():
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
-    print("✓ Benchmark scheduler started")
-    
-    # Knowledge discovery
+    print("✓ Benchmark scheduler started (evaluates every hour)")
+
+    # Self-heal observe-only scheduler (feature-gated)
+    try:
+        from .settings import settings as _settings2
+        if getattr(_settings2, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings2, "SELF_HEAL_EXECUTE", False):
+            await self_heal_scheduler.start()
+            print("✓ Self-heal observe-only scheduler started")
+    except Exception:
+        # keep startup resilient
+        pass
+
+    # Start execution runner only when execute mode is enabled
+    try:
+        from .settings import settings as _settings3
+        if getattr(_settings3, "SELF_HEAL_EXECUTE", False):
+            await self_heal_runner.start()
+            print("✓ Self-heal execution runner started (execute mode)")
+    except Exception:
+        pass
+
+    # Knowledge discovery scheduler (configurable via env)
     import os as _os
     try:
         interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
@@ -113,9 +134,16 @@ async def on_shutdown():
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
     await stop_discovery_scheduler()
-    
-    # Clean up metrics DB
-    if hasattr(app.state, "metrics_session"):
+
+    # Stop self-heal observe-only scheduler if running
+    try:
+        await self_heal_scheduler.stop()
+    except Exception:
+        pass
+
+    # Clean up metrics DB resources
+    metrics_sess = getattr(app.state, "metrics_session", None)
+    if metrics_sess:
         try:
             await app.state.metrics_session.close()
         except Exception:
@@ -192,6 +220,21 @@ app.include_router(executor.router)
 app.include_router(governance.router)
 app.include_router(hunter.router)
 app.include_router(health_routes.router)
+# Conditionally include unified health/triage endpoints (observe-only by default)
+try:
+    from .settings import settings as _settings
+    from .routes import health_unified as _health_unified
+    from .routes import playbooks as _playbooks
+    from .routes import incidents as _incidents
+    from .routes import learning as _learning
+    if getattr(_settings, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings, "SELF_HEAL_EXECUTE", False):
+        app.include_router(_health_unified.router, prefix="/api")
+        app.include_router(_playbooks.router)
+        app.include_router(_incidents.router)
+        app.include_router(_learning.router)
+except Exception:
+    # Keep startup resilient if optional modules/imports fail
+    pass
 app.include_router(issues.router)
 app.include_router(memory_api.router)
 app.include_router(immutable_api.router)
