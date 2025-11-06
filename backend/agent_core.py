@@ -200,6 +200,85 @@ class DomainAdapter(ABC):
             payload=payload,
             result=result
         )
+    
+    async def request_memory(
+        self,
+        memory_type: str,
+        query: str,
+        context: Optional[Dict[str, Any]] = None,
+        limit: int = 10,
+        include_cross_domain: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Request memory through agentic memory broker.
+        
+        Domains NEVER access raw storage - always through the broker
+        which applies governance, context, and policy-aware filtering.
+        
+        Args:
+            memory_type: "episodic", "semantic", "procedural", "working"
+            query: Natural language query or search terms
+            context: Additional context for ranking
+            limit: Max results to return
+            include_cross_domain: Request cross-domain memories (requires approval)
+        
+        Returns:
+            Response with filtered/ranked memories and explanation
+        """
+        from .agentic_memory import agentic_memory, MemoryRequest, MemoryType
+        
+        request = MemoryRequest(
+            request_id=f"{self.domain_id}_{int(datetime.utcnow().timestamp())}",
+            requesting_domain=self.domain_id,
+            requesting_actor=self.domain_id,
+            memory_type=MemoryType(memory_type),
+            query=query,
+            context=context or {},
+            limit=limit,
+            include_cross_domain=include_cross_domain
+        )
+        
+        response = await agentic_memory.request_memory(request)
+        
+        return {
+            "memories": [
+                {
+                    "id": m.entry_id,
+                    "content": m.content,
+                    "tags": m.tags,
+                    "timestamp": m.timestamp.isoformat(),
+                    "relevance": m.relevance_score,
+                    "domain": m.domain
+                }
+                for m in response.memories
+            ],
+            "total_found": response.total_count,
+            "filtered": response.filtered_count,
+            "access_level": response.access_level.value,
+            "explanation": response.explanation,
+            "policies_applied": response.applied_policies
+        }
+    
+    async def store_memory(
+        self,
+        memory_type: str,
+        content: Dict[str, Any],
+        tags: List[str]
+    ) -> str:
+        """
+        Store memory through agentic memory broker.
+        
+        All storage goes through the broker for governance and logging.
+        """
+        from .agentic_memory import agentic_memory, MemoryType
+        
+        return await agentic_memory.store_memory(
+            domain=self.domain_id,
+            memory_type=MemoryType(memory_type),
+            content=content,
+            tags=tags,
+            actor=self.domain_id
+        )
 
 
 class AgentCore:

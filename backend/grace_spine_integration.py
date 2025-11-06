@@ -94,6 +94,10 @@ class GraceAgenticSystem:
         print("\n[FINAL] Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
         
+        print("\n[MEMORY] Starting agentic memory broker...")
+        from .agentic_memory import agentic_memory
+        await agentic_memory.start()
+        
         print("\n[INTELLIGENCE] Starting intelligent systems...")
         from .self_heal.intelligent_triggers import intelligent_trigger_manager
         from .immutable_log_integration import log_analyzer
@@ -139,6 +143,11 @@ class GraceAgenticSystem:
         print("  - Manage her own resources")
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
+        print("\n  🧠 Agentic Memory:")
+        print("    • Intelligent Broker → All domains request through broker")
+        print("    • Policy-Aware → Trust/governance on every access")
+        print("    • Context Ranking → Semantic search & relevance")
+        print("    • Domain Isolation → Cross-domain with approval only")
         print("\n  🤖 Meta-Coordinated Self-Healing:")
         print("    • Meta Loop → Orchestrates focus & guardrails")
         print("    • ML/DL Advisors → Embedded scoring & ranking")
@@ -186,10 +195,12 @@ class GraceAgenticSystem:
             from .self_heal.meta_coordinated_healing import meta_coordinated_healing
             from .self_heal.intelligent_triggers import intelligent_trigger_manager
             from .immutable_log_integration import log_analyzer
+            from .agentic_memory import agentic_memory
             
             await meta_coordinated_healing.stop()
             await intelligent_trigger_manager.stop()
             await log_analyzer.stop()
+            await agentic_memory.stop()
         except Exception:
             pass
         
