@@ -5,6 +5,8 @@ Enhanced Grace CLI - Full-featured terminal interface with backend integration
 
 import asyncio
 import sys
+import argparse
+import os
 from pathlib import Path
 from typing import Optional
 from datetime import datetime
@@ -49,6 +51,10 @@ class EnhancedGraceCLI:
         
         # State
         self.running = True
+        self.non_interactive: bool = False
+        self.pending_command: Optional[str] = None
+        self.pending_message: Optional[str] = None
+        self.fail_fast: bool = False
     
     def _init_commands(self):
         """Initialize command handlers"""
@@ -76,11 +82,25 @@ class EnhancedGraceCLI:
         if not health.success:
             console.print(f"[red]⚠ Backend not available: {self.config.backend_url}[/red]")
             console.print("[yellow]Make sure Grace backend is running[/yellow]")
-            
+            if self.fail_fast:
+                await self.client.disconnect()
+                return
             if not Confirm.ask("Continue anyway?"):
+                await self.client.disconnect()
                 return
         else:
             console.print(f"[green]✓ Connected to Grace backend[/green]")
+        
+        # If non-interactive mode with a specific command, run and exit early
+        if self.non_interactive and self.pending_command:
+            cmd = self.commands.get(self.pending_command)
+            if cmd:
+                if self.pending_command == "chat" and self.pending_message:
+                    await cmd.execute(self.pending_message)
+                else:
+                    await cmd.execute()
+            await self.client.disconnect()
+            return
         
         # Auto-login if configured
         if self.config.auto_login:
@@ -386,17 +406,49 @@ class EnhancedGraceCLI:
         await asyncio.to_thread(console.input, "\nPress Enter to continue...")
 
 
-async def main():
-    """Main entry point"""
+async def main_async(args):
+    """Async entry point after parsing CLI args"""
     cli = EnhancedGraceCLI()
+
+    # Apply runtime overrides
+    if args.backend:
+        cli.config_manager.update(backend_url=args.backend)
+        cli.config = cli.config_manager.load()
+
+    if args.no_plugins:
+        cli.config_manager.update(plugins_enabled=False)
+        cli.config = cli.config_manager.load()
+
+    cli.non_interactive = args.non_interactive
+    cli.pending_command = args.command
+    cli.pending_message = args.message
+    cli.fail_fast = args.fail_fast
+
+    # Recreate client with possibly overridden backend URL and timeout
+    cli.client = GraceAPIClient(base_url=cli.config_manager.load().backend_url, timeout=args.timeout)
+
     await cli.start()
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(description="Grace CLI")
+    parser.add_argument("--backend", help="Backend API base URL (e.g., http://127.0.0.1:8001)")
+    parser.add_argument("--timeout", type=int, default=30, help="HTTP timeout (seconds)")
+    parser.add_argument("--no-plugins", action="store_true", help="Disable plugins")
+    parser.add_argument("--non-interactive", action="store_true", help="Run a single command and exit")
+    parser.add_argument("--command", choices=["chat","tasks","ide","voice","knowledge","hunter","governance","verification"], help="Command to run in non-interactive mode")
+    parser.add_argument("--message", help="Message for chat command in non-interactive mode")
+    parser.add_argument("--fail-fast", action="store_true", help="Exit if backend health check fails")
+    args = parser.parse_args()
+
     try:
-        asyncio.run(main())
+        asyncio.run(main_async(args))
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrupted by user[/yellow]")
     except Exception as e:
         console.print(f"\n[red]Fatal error: {e}[/red]")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

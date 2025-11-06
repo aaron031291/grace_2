@@ -102,7 +102,9 @@ class CognitionMetricsEngine:
         for domain_id, config in domain_configs.items():
             kpis = config.get("kpis", {})
             
-            health = sum(v for v in kpis.values() if isinstance(v, float) and v <= 1.0) / max(1, len([v for v in kpis.values() if isinstance(v, float) and v <= 1.0]))
+            # Cache filtered values to avoid iterating twice (performance optimization)
+            percentage_kpis = [v for v in kpis.values() if isinstance(v, float) and v <= 1.0]
+            health = sum(percentage_kpis) / max(1, len(percentage_kpis))
             
             self.domains[domain_id] = DomainMetrics(
                 domain_id=domain_id,

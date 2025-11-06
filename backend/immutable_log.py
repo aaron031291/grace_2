@@ -161,3 +161,29 @@ class ImmutableLog:
             ]
 
 immutable_log = ImmutableLog()
+
+
+# Backwards compatibility alias for legacy imports
+# Some modules expect `ImmutableLogger`; alias it to the existing `ImmutableLog` implementation.
+ImmutableLogger = ImmutableLog
+
+
+# Compatibility shim for legacy imports expecting `append_to_log`
+# Some components import: from backend.immutable_log import append_to_log
+# This async function forwards to the global immutable_log instance.
+async def append_to_log(
+    actor: str,
+    action: str,
+    resource: str,
+    subsystem: str,
+    payload: dict,
+    result: str,
+) -> int:
+    return await immutable_log.append(
+        actor=actor,
+        action=action,
+        resource=resource,
+        subsystem=subsystem,
+        payload=payload,
+        result=result,
+    )

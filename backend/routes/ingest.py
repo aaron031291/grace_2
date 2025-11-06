@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
+from sqlalchemy import select, exists
+
 from ..auth import get_current_user
 from ..ingestion_service import ingestion_service
 from ..trusted_sources import trust_manager
 from ..verification import verification_engine
 from ..verification_middleware import verify_action
+from ..knowledge_models import KnowledgeTombstone
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
@@ -136,9 +139,12 @@ async def list_artifacts(
     domain: str = None,
     artifact_type: str = None,
     limit: int = 50,
+    include_deleted: bool = False,
     current_user: str = Depends(get_current_user)
 ):
-    """List ingested knowledge artifacts"""
+    """List ingested knowledge artifacts.
+    By default excludes tombstoned (soft-deleted) artifacts. Set include_deleted=true to include them.
+    """
     from sqlalchemy import select
     from ..knowledge_models import KnowledgeArtifact
     from ..models import async_session
@@ -150,6 +156,11 @@ async def list_artifacts(
             query = query.where(KnowledgeArtifact.domain == domain)
         if artifact_type:
             query = query.where(KnowledgeArtifact.artifact_type == artifact_type)
+        
+        if not include_deleted:
+            # Exclude tombstoned artifacts
+            ts_exists = exists().where(KnowledgeTombstone.artifact_id == KnowledgeArtifact.id)
+            query = query.where(~ts_exists)
         
         query = query.limit(limit)
         result = await session.execute(query)
