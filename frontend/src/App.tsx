@@ -6,13 +6,19 @@ import { KnowledgeIngestion } from './components/KnowledgeIngestion';
 import { MetaLoopDashboard } from './components/MetaLoopDashboard';
 import { KnowledgeManager } from './components/Knowledge/KnowledgeManager';
 import { setAuthToken } from './api/client';
+import { ApprovalsAdmin } from './components/Governance/ApprovalsAdmin';
 
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
   const [msgs, setMsgs] = useState<any[]>([]);
+  
+  useEffect(() => {
+    // Ensure centralized API client includes token from storage/login
+    setAuthToken(token || null);
+  }, [token]);
   const [inp, setInp] = useState('');
   const [metrics, setMetrics] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -100,6 +106,10 @@ export default function App() {
 
   if (page === 'metaloop') {
     return <MetaLoopDashboard />;
+  }
+
+  if (page === 'approvals') {
+    return <ApprovalsAdmin />;
   }
 
   if (page === 'dash') {
@@ -218,6 +228,7 @@ export default function App() {
           <button onClick={() => setPage('hunter')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🛡️ Hunter</button>
           <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
           <button onClick={() => setPage('metaloop')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🧠 Meta-Loop</button>
+          <button onClick={() => setPage('approvals')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>✅ Approvals</button>
           <button onClick={() => { setToken(''); localStorage.clear(); setAuthToken(null); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </div>
       </div>

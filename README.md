@@ -530,3 +530,20 @@ py scripts\test_grace_simple.py
 ---
 
 **Ready to run. Start the 3 terminals above and Grace comes alive.**
+
+
+---
+
+## Governance & Approvals (NEW)
+
+A simple Approvals admin panel is available in the frontend and a corresponding API/CLI is provided.
+
+- Frontend panel: Start the frontend and click "✅ Approvals" in the top navigation. Login first to obtain a token.
+- Backend API: See docs/APPROVAL_API.md for endpoint specs and examples.
+- CLI: `py -m cli.enhanced_grace_cli governance list|approve|reject`
+
+Docs and notes:
+- Approval API: docs/APPROVAL_API.md
+- Release Notes: docs/RELEASE_NOTES_2025-11-06.md
+
+Status note: This repository is not production-ready. Treat the Approvals flow as development-grade; structured logging and rate limits exist, but long-duration soak tests, RBAC, and hardened auth are pending.
