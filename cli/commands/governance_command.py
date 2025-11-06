@@ -60,9 +60,9 @@ class GovernanceCommand:
         )
         table.add_column("ID", style="cyan", width=6)
         table.add_column("Status", style="yellow", width=12)
-        table.add_column("Type", style="white", width=20)
-        table.add_column("Requester", style="blue", width=15)
-        table.add_column("Description", style="white", width=40)
+        table.add_column("Event ID", style="white", width=10)
+        table.add_column("Requested By", style="blue", width=18)
+        table.add_column("Reason", style="white", width=40)
         table.add_column("Created", style="dim", width=16)
         
         for req in requests:
@@ -83,10 +83,10 @@ class GovernanceCommand:
             table.add_row(
                 str(req.get("id")),
                 f"{status_emoji} [{status_style}]{req.get('status', 'pending')}[/{status_style}]",
-                req.get("request_type", "Unknown"),
-                req.get("requester", "Unknown"),
-                req.get("description", "No description")[:40],
-                req.get("created_at", "")[:16] if req.get("created_at") else ""
+                str(req.get("event_id", "-")),
+                req.get("requested_by", "Unknown"),
+                (req.get("reason", "") or "No reason")[:40],
+                (req.get("created_at", "")[:16] if req.get("created_at") else "")
             )
         
         self.console.print(table)

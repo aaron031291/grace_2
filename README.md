@@ -530,3 +530,54 @@ py scripts\test_grace_simple.py
 ---
 
 **Ready to run. Start the 3 terminals above and Grace comes alive.**
+
+
+---
+
+## Governance & Approvals (NEW)
+
+A simple Approvals admin panel is available in the frontend and a corresponding API/CLI is provided.
+
+- Frontend panel: Start the frontend and click "✅ Approvals" in the top navigation. Login first to obtain a token.
+- Backend API: See docs/APPROVAL_API.md for endpoint specs and examples.
+- CLI: `py -m cli.enhanced_grace_cli governance list|approve|reject`
+
+Docs and notes:
+- Approval API: docs/APPROVAL_API.md
+- Release Notes: docs/RELEASE_NOTES_2025-11-06.md
+- Handoff Guide: docs/HANDOFF_APPROVALS.md
+
+Environment flags and correlation:
+- `APPROVAL_DECIDERS`: comma-separated usernames allowed to decide approvals. If set, others receive 403 on decision. If unset, no RBAC enforcement for this endpoint (dev-friendly).
+- `APPROVAL_DECISION_RATE_PER_MIN`: per-user rate (calls/min) for the decision endpoint. Default 10.
+- `RATE_LIMIT_BYPASS`: when truthy (`1/true/yes/on`), disables the in-memory rate limiter (use in tests/dev).
+- `X-Request-ID`: clients may send this header; the backend injects one if missing and echoes it back. Structured logs include `request_id` and `_verification_id` for correlation.
+
+Status note: This repository is not production-ready. Treat the Approvals flow as development-grade; structured logging and rate limits exist, but long-duration soak tests, broader RBAC, and hardened auth are pending.
+
+
+---
+
+## Database Migrations (Alembic)
+
+Most local development uses SQLite auto-create on backend startup. For reproducible setups (CI/clean envs) or non-SQLite targets, apply Alembic migrations.
+
+Windows quickstart:
+```
+# From repo root
+py -m pip install alembic
+
+# Optional: choose DB (defaults to sqlite+aiosqlite:///./grace.db)
+set DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
+
+# Upgrade to latest schema
+alembic upgrade head
+
+# Roll back last migration (if needed)
+alembic downgrade -1
+```
+
+Notes:
+- Approvals schema is codified in `alembic/versions/20251106_approval_requests.py`.
+- If the database file is locked on Windows, stop any running server/tests that might be holding the file and retry.
+- See `docs/APPROVAL_API.md` for details.

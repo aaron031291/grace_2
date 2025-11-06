@@ -347,7 +347,7 @@ class CodeUnderstandingEngine:
             'total_lines': len(content.split('\n'))
         }
         
-        # Extract imports
+        # Single AST traversal to extract imports, functions, and classes (performance optimization)
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
@@ -355,10 +355,7 @@ class CodeUnderstandingEngine:
             elif isinstance(node, ast.ImportFrom):
                 if node.module:
                     structure['imports'].append(node.module)
-        
-        # Extract functions and classes
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
+            elif isinstance(node, ast.FunctionDef):
                 structure['functions'].append({
                     'name': node.name,
                     'line': node.lineno,
