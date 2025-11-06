@@ -180,3 +180,30 @@ The Approvals endpoints support several environment variables for local developm
 - When the decision endpoint exceeds the per-user rate, the API responds with `429 Too Many Requests` and a `Retry-After` header indicating the number of seconds to wait before retrying.
 
 ---
+
+
+---
+
+### Applying DB Migrations (Alembic)
+
+Most local development uses SQLite auto-create on app startup. For clean environments, CI, or non-SQLite targets, apply migrations with Alembic.
+
+Windows quickstart:
+```
+# From repo root
+py -m pip install alembic
+
+# Optional: point to a specific DB (defaults to sqlite+aiosqlite:///./grace.db)
+set DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
+
+# Upgrade to the latest schema
+alembic upgrade head
+
+# Roll back the last migration (if needed)
+alembic downgrade -1
+```
+
+Notes:
+- The Approvals schema is codified in `alembic/versions/20251106_approval_requests.py`.
+- If the database file is locked on Windows, close running servers/tests that hold the file and retry.
+- The full backend still auto-creates tables on startup for dev. Migrations are recommended for reproducible setups and CI.
