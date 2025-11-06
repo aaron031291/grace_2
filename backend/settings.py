@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     SELF_HEAL_OBSERVE_ONLY: bool = Field(True, description="Enable health state endpoints without executing changes")
     SELF_HEAL_EXECUTE: bool = Field(False, description="Allow automated playbook execution when confident and permitted")
     SELF_HEAL_EXPERIMENTS: bool = Field(False, description="Allow autonomous experiments to close telemetry gaps")
+    ENABLE_CLI_VERIFY: bool = Field(False, description="Enable optional CLI smoke verification hook in runner")
+    SELF_HEAL_BASE_URL: str = Field("http://localhost:8000", description="Base URL used by self-heal verifications")
+    SELF_HEAL_RUN_TIMEOUT_MIN: int = Field(10, ge=1, le=120, description="Global timeout (minutes) for a playbook run")
 
     # Pydantic v2 configuration (set only when pydantic-settings is available)
     if _PDANTIC_V2:

@@ -259,8 +259,34 @@ class ExecutionRunner:
                 if not ok:
                     return False
             elif ctype == "cli_smoke":
-                # disabled by default for safety
-                return False
+                # Optional CLI smoke verification (disabled by default for safety)
+                try:
+                    from ..settings import settings as _s
+                    if not getattr(_s, "ENABLE_CLI_VERIFY", False):
+                        return False
+                except Exception:
+                    return False
+                # Run a short, safe CLI smoke test
+                try:
+                    proc = await asyncio.create_subprocess_exec(
+                        "py", "scripts\\cli_test.py", "smoke",
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    try:
+                        outs, errs = await asyncio.wait_for(proc.communicate(), timeout=float(cfg.get("timeout_s", 20)))
+                    except Exception:
+                        try:
+                            proc.kill()
+                        except Exception:
+                            pass
+                        return False
+                    out_text = (outs or b"").decode("utf-8", errors="ignore")
+                    err_text = (errs or b"").decode("utf-8", errors="ignore")
+                    # consider success if stdout contains OK and process exited 0
+                    return (proc.returncode == 0) and ("OK" in out_text or "ok" in out_text.lower())
+                except Exception:
+                    return False
             else:
                 # Unknown check type -> fail closed
                 return False
@@ -382,10 +408,33 @@ class ExecutionRunner:
                     rollback_args = None
                 steps = [_Sim()]
 
-            base_url = "http://localhost:8000"
+            from ..settings import settings as _settings
+            base_url = getattr(_settings, "SELF_HEAL_BASE_URL", "http://localhost:8000")
             order = 1
+            # Global per-run timeout watchdog
+            try:
+                from ..settings import settings as _settings_timeout
+                run_deadline = now + timedelta(minutes=int(getattr(_settings_timeout, "SELF_HEAL_RUN_TIMEOUT_MIN", 10)))
+            except Exception:
+                run_deadline = now + timedelta(minutes=10)
+
             try:
                 for step in steps:
+                    # Check global timeout before each step
+                    if datetime.now(timezone.utc) > run_deadline:
+                        run.status = "aborted"
+                        run.ended_at = datetime.now(timezone.utc)
+                        try:
+                            session.add(AuditLog(actor="runner", action="playbook_run_end", resource=str(run.id), policy_checked="self_heal", result="aborted", details="global timeout exceeded"))
+                        except Exception:
+                            pass
+                        try:
+                            from ..self_heal_models import LearningLog
+                            session.add(LearningLog(service=run.service, signal_ref=None, diagnosis=run.diagnosis, action=json.dumps({"run_id": run.id, "status": "aborted"}), outcome=json.dumps({"result": "timeout"})))
+                        except Exception:
+                            pass
+                        await session.commit()
+                        return
                     # Prepare params
                     try:
                         params = json.loads(step.args) if getattr(step, "args", None) else {}
@@ -502,6 +551,7 @@ class ExecutionRunner:
                             "status": "succeeded",
                         }),
                         outcome=json.dumps({
+                            "status": "succeeded",
                             "result": "ok",
                             "ended_at": datetime.now(timezone.utc).isoformat(),
                         }),
