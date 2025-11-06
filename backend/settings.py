@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # Database (not yet wired everywhere; future work)
     DATABASE_URL: Optional[str] = Field(None, description="SQLAlchemy database URL")
 
+    # Self-healing feature flags (defaults: observe-only)
+    SELF_HEAL_OBSERVE_ONLY: bool = Field(True, description="Enable health state endpoints without executing changes")
+    SELF_HEAL_EXECUTE: bool = Field(False, description="Allow automated playbook execution when confident and permitted")
+    SELF_HEAL_EXPERIMENTS: bool = Field(False, description="Allow autonomous experiments to close telemetry gaps")
+
     # Pydantic v2 configuration (set only when pydantic-settings is available)
     if _PDANTIC_V2:
         model_config = SettingsConfigDict(
