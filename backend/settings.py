@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     SELF_HEAL_OBSERVE_ONLY: bool = Field(True, description="Enable health state endpoints without executing changes")
     SELF_HEAL_EXECUTE: bool = Field(False, description="Allow automated playbook execution when confident and permitted")
     SELF_HEAL_EXPERIMENTS: bool = Field(False, description="Allow autonomous experiments to close telemetry gaps")
+    
+    # Self-healing runtime configuration
+    SELF_HEAL_RUN_TIMEOUT_MIN: int = Field(10, ge=1, le=60, description="Maximum minutes for a single playbook run (global watchdog)")
+    SELF_HEAL_BASE_URL: str = Field("http://localhost:8000", description="Base URL for HTTP health verification checks")
+    ENABLE_CLI_VERIFY: bool = Field(False, description="Enable CLI smoke test verification hook (gated, strict timeout)")
+    
+    # Meta-loop and learning configuration
+    META_LOOP_CYCLE_SECONDS: int = Field(120, ge=30, le=600, description="Meta loop coordination cycle interval")
+    LEARNING_AGGREGATION_ENABLED: bool = Field(True, description="Enable learning aggregates (24h/7d) endpoint")
 
     # Pydantic v2 configuration (set only when pydantic-settings is available)
     if _PDANTIC_V2:
