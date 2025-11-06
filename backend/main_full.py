@@ -1,42 +1,22 @@
-from fastapi import FastAPIfrom fastapi import FastAPI, Depends
-
-from fastapi.middleware.cors import CORSMiddlewarefrom fastapi.middleware.cors import CORSMiddleware
-
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
-app = FastAPI(title="Grace API (Minimal)", version="2.0.0")from .models import Base, engine
-
+from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-
-app.add_middleware(from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
-
-    CORSMiddleware,from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
-
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],from .transcendence.business.api import router as business_api_router
-
-    allow_credentials=True,from .reflection import reflection_service
-
-    allow_methods=["*"],from .auth import get_current_user
-
-    allow_headers=["*"],from .verification_integration import verification_integration
-
-)from .routers.cognition import router as cognition_router
-
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
+from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
+from .transcendence.business.api import router as business_api_router
+from .reflection import reflection_service
+from .auth import get_current_user
+from .verification_integration import verification_integration
+from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
-
-@app.get("/health")from .routers.transcendence_domain import router as transcendence_domain_router
-
-async def health_check():from .routers.security_domain import router as security_domain_router
-
-    return {"status": "ok", "message": "Grace API is running"}from .metrics_service import init_metrics_collector
-
+from .routers.transcendence_domain import router as transcendence_domain_router
+from .routers.security_domain import router as security_domain_router
+from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 
-print("✓ Grace API server starting (minimal mode)...")
-
-print("  Visit: http://localhost:8000/health")app = FastAPI(title="Grace API", version="2.0.0")
-
-print("  Docs: http://localhost:8000/docs")
+app = FastAPI(title="Grace API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
