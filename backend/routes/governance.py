@@ -4,6 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 from typing import Optional
 import os
+import time
+from collections import deque
 from ..governance_models import GovernancePolicy, AuditLog, ApprovalRequest
 from ..models import async_session
 from ..auth import get_current_user
@@ -29,6 +31,53 @@ class ApprovalCreate(BaseModel):
 class ApprovalDecision(BaseModel):
     decision: str  # "approve" | "reject"
     reason: str = ""
+
+
+# Internal helpers used with verification envelopes to keep endpoint signatures FastAPI-friendly
+async def _create_approval_db(*, data: ApprovalCreate, current_user: str) -> dict:
+    async with async_session() as session:
+        req = ApprovalRequest(
+            event_id=data.event_id,
+            status="pending",
+            requested_by=current_user,
+            reason=data.reason,
+        )
+        session.add(req)
+        await session.commit()
+        await session.refresh(req)
+        return {
+            "id": req.id,
+            "event_id": req.event_id,
+            "status": req.status,
+            "requested_by": req.requested_by,
+            "reason": req.reason,
+            "created_at": req.created_at,
+        }
+
+
+async def _decide_approval_db(*, request_id: int, decision: str, reason: str, current_user: str) -> dict:
+    async with async_session() as session:
+        req = await session.get(ApprovalRequest, request_id)
+        if not req:
+            raise HTTPException(status_code=404, detail="Approval not found")
+        if req.status != "pending":
+            raise HTTPException(status_code=400, detail="Already decided")
+        req.status = "approved" if decision == "approve" else "rejected"
+        req.decision_by = current_user
+        req.decision_reason = reason
+        req.decided_at = func.now()
+        await session.commit()
+        await session.refresh(req)
+        return {
+            "id": req.id,
+            "status": req.status,
+            "decision_by": req.decision_by,
+            "decision_reason": req.decision_reason,
+            "decided_at": req.decided_at,
+        }
+
+# Simple in-module per-user limiter for decision endpoint to ensure predictable test behavior
+_DECISION_EVENTS: dict[str, deque] = {}
 
 
 def _deciders_allowlist() -> Optional[set]:
@@ -92,37 +141,60 @@ async def list_audit(limit: int = 100):
         ]
 
 @router.post("/approvals")
-@verify_action("approval_create", lambda data: f"event_{data.get('event_id', 'unknown')}")
 async def create_approval(data: ApprovalCreate, request: Request, current_user: str = Depends(get_current_user)):
-    async with async_session() as session:
-        req = ApprovalRequest(
-            event_id=data.event_id,
-            status="pending",
-            requested_by=current_user,
-            reason=data.reason,
-        )
-        session.add(req)
-        await session.commit()
-        await session.refresh(req)
-        # Structured log (verification_id is added to response by verify_action wrapper)
-        req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
-        log_event(
-            action="approval_create",
-            actor=current_user,
-            resource=f"event_{data.event_id}",
-            outcome="created",
-            payload={"reason": data.reason},
-            extras={"approval_id": req.id, "status": req.status},
-            request_id=req_id or None,
-        )
-        return {
-            "id": req.id,
-            "event_id": req.event_id,
-            "status": req.status,
-            "requested_by": req.requested_by,
-            "reason": req.reason,
-            "created_at": req.created_at,
-        }
+    # Build payload for verification/governance checks
+    payload = data.dict()
+    resource = f"event_{payload.get('event_id', 'unknown')}"
+
+    # Constitutional + governance checks
+    const_result = await constitutional_verifier.verify_action(
+        actor=current_user,
+        action_type="approval_create",
+        resource=resource,
+        payload=payload,
+        confidence=payload.get("confidence", 1.0),
+        context=payload.get("context", {}),
+    )
+    if not const_result.get("allowed", True):
+        violations = const_result.get("violations", [])
+        violation_msg = ", ".join([v.get("reason", "Unknown") for v in violations[:3]])
+        raise HTTPException(status_code=403, detail=f"Blocked by constitutional verification: {violation_msg}")
+
+    gov_decision = await governance_engine.check(
+        actor=current_user,
+        action="approval_create",
+        resource=resource,
+        payload=payload,
+    )
+    if gov_decision.get("decision") == "block":
+        raise HTTPException(status_code=403, detail=f"Blocked by governance: {gov_decision.get('policy', 'unknown')}")
+
+    # Verification envelope (sign inputs/outputs around the DB action)
+    result_dict, action_id = await verification_middleware.verify_and_record(
+        actor=current_user,
+        action_type="approval_create",
+        resource=resource,
+        input_data=payload,
+        action_func=_create_approval_db,
+        data=data,
+        current_user=current_user,
+    )
+
+    # Structured log
+    req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
+    log_event(
+        action="approval_create",
+        actor=current_user,
+        resource=resource,
+        outcome="created",
+        payload={"reason": data.reason},
+        extras={"approval_id": result_dict["id"], "status": result_dict["status"]},
+        request_id=req_id or None,
+        verification_id=action_id,
+    )
+
+    result_dict["_verification_id"] = action_id
+    return result_dict
 
 @router.get("/approvals/stats")
 async def approvals_stats(current_user: str = Depends(get_current_user)):
@@ -175,8 +247,6 @@ async def list_approvals(status: Optional[str] = None, requested_by: Optional[st
         ]
 
 @router.post("/approvals/{request_id}/decision")
-@rate_limited("approval_decision")
-@verify_action("approval_decision", lambda data: f"request_{data.get('request_id', 'unknown')}")
 async def decide(request_id: int, body: ApprovalDecision, request: Request, current_user: str = Depends(get_current_user)):
     # RBAC allowlist: enforce only if APPROVAL_DECIDERS is set
     deciders = _deciders_allowlist()
@@ -186,37 +256,81 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
     if body.decision not in {"approve", "reject"}:
         raise HTTPException(status_code=400, detail="Invalid decision")
 
-    async with async_session() as session:
-        req = await session.get(ApprovalRequest, request_id)
-        if not req:
-            raise HTTPException(status_code=404, detail="Approval not found")
-        if req.status != "pending":
-            raise HTTPException(status_code=400, detail="Already decided")
+    # Rate limiting (per-user) — local predictable limiter for tests/dev
+    try:
+        capacity = int(os.getenv("APPROVAL_DECISION_RATE_PER_MIN", "10"))
+    except Exception:
+        capacity = 10
+    if os.getenv("RATE_LIMIT_BYPASS", "").lower() not in {"1", "true", "yes", "on"}:
+        window = 60
+        q = _DECISION_EVENTS.setdefault(current_user, deque())
+        now = time.monotonic()
+        cutoff = now - window
+        # purge old
+        while q and q[0] < cutoff:
+            q.popleft()
+        if len(q) >= capacity:
+            # compute retry-after
+            oldest = q[0]
+            retry_after = max(1, int(window - (now - oldest)))
+            headers = {"Retry-After": str(retry_after)}
+            raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.", headers=headers)
+        q.append(now)
 
-        req.status = "approved" if body.decision == "approve" else "rejected"
-        req.decision_by = current_user
-        req.decision_reason = body.reason
-        req.decided_at = func.now()
-        await session.commit()
-        await session.refresh(req)
-        # Structured log
-        req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
-        log_event(
-            action="approval_decision",
-            actor=current_user,
-            resource=f"request_{request_id}",
-            outcome=req.status,
-            payload={"reason": body.reason},
-            extras={"approval_id": req.id},
-            request_id=req_id or None,
-        )
-        return {
-            "id": req.id,
-            "status": req.status,
-            "decision_by": req.decision_by,
-            "decision_reason": req.decision_reason,
-            "decided_at": req.decided_at,
-        }
+    # Prepare payload and checks
+    payload = {"request_id": request_id, "decision": body.decision, "reason": body.reason}
+    resource = f"request_{request_id}"
+
+    const_result = await constitutional_verifier.verify_action(
+        actor=current_user,
+        action_type="approval_decision",
+        resource=resource,
+        payload=payload,
+        confidence=1.0,
+        context={},
+    )
+    if not const_result.get("allowed", True):
+        violations = const_result.get("violations", [])
+        violation_msg = ", ".join([v.get("reason", "Unknown") for v in violations[:3]])
+        raise HTTPException(status_code=403, detail=f"Blocked by constitutional verification: {violation_msg}")
+
+    gov_decision = await governance_engine.check(
+        actor=current_user,
+        action="approval_decision",
+        resource=resource,
+        payload=payload,
+    )
+    if gov_decision.get("decision") == "block":
+        raise HTTPException(status_code=403, detail=f"Blocked by governance: {gov_decision.get('policy', 'unknown')}")
+
+    # Verification envelope around the DB update
+    result_dict, action_id = await verification_middleware.verify_and_record(
+        actor=current_user,
+        action_type="approval_decision",
+        resource=resource,
+        input_data=payload,
+        action_func=_decide_approval_db,
+        request_id=request_id,
+        decision=body.decision,
+        reason=body.reason,
+        current_user=current_user,
+    )
+
+    # Structured log
+    req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
+    log_event(
+        action="approval_decision",
+        actor=current_user,
+        resource=resource,
+        outcome=result_dict.get("status", "unknown"),
+        payload={"reason": body.reason},
+        extras={"approval_id": result_dict.get("id")},
+        request_id=req_id or None,
+        verification_id=action_id,
+    )
+
+    result_dict["_verification_id"] = action_id
+    return result_dict
 
 @router.get("/approvals/stats")
 async def approvals_stats(current_user: str = Depends(get_current_user)):
