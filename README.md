@@ -28,26 +28,43 @@ py scripts\cli_test.py status
 
 **All 3 components connect automatically. Backend + Frontend + CLI ready in 30 seconds.**
 
+## 📚 Documentation
+
+**Complete documentation is organized in [docs/](docs/):**
+
+- **[Quick Start Guide](docs/guides/QUICK_START.md)** - Get GRACE running now
+- **[Sprint Plan](docs/planning/SPRINT_PLAN.md)** - Detailed 8-week development plan
+- **[Sprint Status](docs/planning/SPRINT_STATUS.md)** - Real-time progress (Sprint 1: ✅ Complete!)
+- **[Architecture Docs](docs/)** - Agentic memory, meta coordination, intelligent triggers
+- **[Testing Guides](docs/testing/)** - Endpoint testing, verification checklists
+
+**Sprint 1 Complete:** Production-ready self-healing with observability & governance 🎉
+
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 grace_2/
-├── backend/          → 112 Python modules (FastAPI, SQLAlchemy, async)
-│   ├── routes/       → 34 API route handlers
+├── backend/          → Python backend (FastAPI, SQLAlchemy, async)
+│   ├── routes/       → API route handlers (including self-heal observability)
 │   ├── routers/      → Domain routers (cognition, core, security, transcendence)
-│   ├── cognition/    → Governance & cognitive classes
+│   ├── domains/      → Domain adapters (core, self-healing)
+│   ├── self_heal/    → Self-healing system (scheduler, runner, adapters)
 │   ├── transcendence/ → Agentic development system
-│   ├── agentic/      → Orchestration engine
-│   ├── metrics_*.py  → Metrics collection system (NEW)
-│   └── ...           → 100+ domain modules
+│   └── ...           → Core modules (agentic_memory, meta_loop, etc.)
 ├── frontend/         → React + TypeScript UI
 │   ├── src/
-│   │   ├── components/ → 23 React components
-│   │   ├── api/        → API client (NEW)
+│   │   ├── components/ → React components
+│   │   ├── api/        → API client
 │   │   └── styles/     → CSS styles
 │   └── package.json
+├── docs/             → **📚 All Documentation (ORGANIZED)**
+│   ├── guides/       → Getting started guides
+│   ├── planning/     → Sprints, roadmaps, status tracking
+│   ├── testing/      → Test guides and verification
+│   ├── *.md          → Architecture docs
+│   └── README.md     → Documentation index
 ├── cli/              → Command-line interface tools
 ├── scripts/          → 40+ utility scripts
 │   ├── test_*.py     → Test suites
