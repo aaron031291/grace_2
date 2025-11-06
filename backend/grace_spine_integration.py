@@ -94,6 +94,12 @@ class GraceAgenticSystem:
         print("\n[FINAL] Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
         
+        print("\n[INTELLIGENCE] Starting intelligent trigger system...")
+        from .self_heal.intelligent_triggers import intelligent_trigger_manager
+        from .immutable_log_integration import log_analyzer
+        await intelligent_trigger_manager.start()
+        await log_analyzer.start()
+        
         print("\n[DOMAINS] Registering domain adapters...")
         await self._register_domains()
         
@@ -125,6 +131,11 @@ class GraceAgenticSystem:
         print("  - Manage her own resources")
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
+        print("\n  🤖 Intelligent Self-Healing Triggers:")
+        print("    • Meta Loop → Systemic issue detection")
+        print("    • ML/DL → Anomaly forecasts & capacity predictions")
+        print("    • Agentic Spine → Cross-domain health alerts")
+        print("    • Immutable Log → Pattern & sequence detection")
         print("\n" + "=" * 60)
     
     async def _register_domains(self):
@@ -157,6 +168,15 @@ class GraceAgenticSystem:
         """Gracefully stop all agentic systems"""
         
         print("\nGracefully shutting down GRACE agentic spine...")
+        
+        # Stop intelligent triggers
+        try:
+            from .self_heal.intelligent_triggers import intelligent_trigger_manager
+            from .immutable_log_integration import log_analyzer
+            await intelligent_trigger_manager.stop()
+            await log_analyzer.stop()
+        except Exception:
+            pass
         
         # Stop self-healing predictor
         try:
