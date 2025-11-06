@@ -698,7 +698,7 @@ class AgenticSpine:
     
     async def start(self):
         """Start the agentic spine"""
-        await trigger_mesh.subscribe("*", self._handle_event)
+        trigger_mesh.subscribe("*", self._handle_event)
         self.running = True
         print("✓ Agentic Spine activated - GRACE is now autonomous")
     

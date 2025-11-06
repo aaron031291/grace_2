@@ -303,10 +303,10 @@ class AgentShard:
         
         # Subscribe to events matching scope
         if self.scope.domain:
-            await trigger_mesh.subscribe(f"{self.scope.domain}.*", self._handle_event)
+            trigger_mesh.subscribe(f"{self.scope.domain}.*", self._handle_event)
         
         # Subscribe to P2P messages
-        await trigger_mesh.subscribe("shard.p2p.*", self._handle_p2p_message)
+        trigger_mesh.subscribe("shard.p2p.*", self._handle_p2p_message)
     
     async def _handle_event(self, event: TriggerEvent):
         """Handle event from trigger mesh"""

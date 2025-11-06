@@ -2,30 +2,9 @@ import hashlib
 import json
 from typing import List, Optional
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Text, select
-from sqlalchemy.sql import func
-from .models import Base, async_session
+from sqlalchemy import select
+from .base_models import ImmutableLogEntry, async_session
 
-class ImmutableLogEntry(Base):
-    """Tamper-proof append-only audit log"""
-    __tablename__ = "immutable_log"
-    id = Column(Integer, primary_key=True)
-    sequence = Column(Integer, unique=True, nullable=False)
-    actor = Column(String(64), nullable=False)
-    action = Column(String(128), nullable=False)
-    resource = Column(String(256))
-    subsystem = Column(String(64))
-    payload = Column(Text)
-    result = Column(String(64))
-    entry_hash = Column(String(64), nullable=False, unique=True)
-    previous_hash = Column(String(64), nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    
-    @staticmethod
-    def compute_hash(sequence: int, actor: str, action: str, resource: str, payload: str, result: str, previous_hash: str) -> str:
-        """Cryptographic hash for tamper detection"""
-        data = f"{sequence}:{actor}:{action}:{resource}:{payload}:{result}:{previous_hash}"
-        return hashlib.sha256(data.encode()).hexdigest()
 
 class ImmutableLog:
     """Append-only log with cryptographic chain"""

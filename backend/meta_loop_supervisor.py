@@ -651,7 +651,7 @@ class MetaLoopSupervisor:
         
         await self._register_default_policies()
         
-        await trigger_mesh.subscribe("meta.*", self._handle_meta_event)
+        trigger_mesh.subscribe("meta.*", self._handle_meta_event)
         
         self.running = True
         asyncio.create_task(self._supervisor_loop())

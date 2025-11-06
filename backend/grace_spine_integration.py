@@ -63,34 +63,34 @@ class GraceAgenticSystem:
         print("GRACE AGENTIC SPINE - AUTONOMOUS ACTIVATION")
         print("=" * 60)
         
-        print("\n🔧 Starting foundational systems...")
+        print("\n[1/9] Starting foundational systems...")
         await trigger_mesh.start()
         
-        print("\n🌐 Starting multi-agent shard coordinator...")
+        print("\n[2/9] Starting multi-agent shard coordinator...")
         await shard_coordinator.start()
         
-        print("\n👁️  Starting agentic observability...")
+        print("\n[3/9] Starting agentic observability...")
         await agentic_observability.start()
         
-        print("\n🔮 Starting proactive intelligence...")
+        print("\n[4/9] Starting proactive intelligence...")
         await proactive_intelligence.start()
         
-        print("\n🧠 Activating autonomous decision core...")
+        print("\n[5/9] Activating autonomous decision core...")
         await agentic_spine.start()
         
-        print("\n📊 Starting learning integration...")
+        print("\n[6/9] Starting learning integration...")
         await learning_integration.start()
         
-        print("\n👥 Enabling human collaboration...")
+        print("\n[7/9] Enabling human collaboration...")
         await human_collaboration.start()
         
-        print("\n♻️  Activating resource stewardship...")
+        print("\n[8/9] Activating resource stewardship...")
         await resource_stewardship.start()
         
-        print("\n⚖️  Starting ethics & compliance sentinel...")
+        print("\n[9/9] Starting ethics & compliance sentinel...")
         await ethics_sentinel.start()
         
-        print("\n🔄 Starting meta loop supervisor...")
+        print("\n[FINAL] Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
         
         self.running = True
@@ -109,24 +109,24 @@ class GraceAgenticSystem:
         )
         
         print("\n" + "=" * 60)
-        print("✅ GRACE AGENTIC SPINE FULLY OPERATIONAL")
+        print("GRACE AGENTIC SPINE FULLY OPERATIONAL")
         print("=" * 60)
         print("\nGRACE is now autonomous and can:")
-        print("  • Predict incidents before they occur (proactive)")
-        print("  • Enrich events with intent and context")
-        print("  • Make decisions with trust core partnership")
-        print("  • Plan and execute recovery actions")
-        print("  • Learn from outcomes and self-improve")
-        print("  • Collaborate with humans proactively")
-        print("  • Manage her own resources")
-        print("  • Monitor ethics and compliance")
-        print("  • Supervise her own behavior cross-domain")
+        print("  - Predict incidents before they occur (proactive)")
+        print("  - Enrich events with intent and context")
+        print("  - Make decisions with trust core partnership")
+        print("  - Plan and execute recovery actions")
+        print("  - Learn from outcomes and self-improve")
+        print("  - Collaborate with humans proactively")
+        print("  - Manage her own resources")
+        print("  - Monitor ethics and compliance")
+        print("  - Supervise her own behavior cross-domain")
         print("\n" + "=" * 60)
     
     async def stop(self):
         """Gracefully stop all agentic systems"""
         
-        print("\n🛑 Gracefully shutting down GRACE agentic spine...")
+        print("\nGracefully shutting down GRACE agentic spine...")
         
         await shard_coordinator.stop()
         print("  ✓ Shard coordinator stopped")
@@ -171,7 +171,7 @@ class GraceAgenticSystem:
             result="deactivated"
         )
         
-        print("\n✅ GRACE agentic spine shutdown complete")
+        print("\nGRACE agentic spine shutdown complete")
     
     async def health_check(self) -> Dict[str, Any]:
         """Check health of all agentic systems"""
