@@ -545,6 +545,7 @@ A simple Approvals admin panel is available in the frontend and a corresponding 
 Docs and notes:
 - Approval API: docs/APPROVAL_API.md
 - Release Notes: docs/RELEASE_NOTES_2025-11-06.md
+- Handoff Guide: docs/HANDOFF_APPROVALS.md
 
 Environment flags and correlation:
 - `APPROVAL_DECIDERS`: comma-separated usernames allowed to decide approvals. If set, others receive 403 on decision. If unset, no RBAC enforcement for this endpoint (dev-friendly).
