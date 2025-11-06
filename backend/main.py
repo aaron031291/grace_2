@@ -86,8 +86,22 @@ async def on_startup():
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
     print("✓ Benchmark scheduler started (evaluates every hour)")
-    await start_discovery_scheduler()
-    print("✓ Knowledge discovery scheduler started")
+
+    # Knowledge discovery scheduler (configurable via env)
+    try:
+        interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
+        seeds_env = _os.getenv("DISCOVERY_SEEDS_PER_CYCLE")
+        interval_val = int(interval_env) if interval_env else None
+        seeds_val = int(seeds_env) if seeds_env else None
+    except Exception:
+        interval_val = None
+        seeds_val = None
+
+    await start_discovery_scheduler(interval_val, seeds_val)
+    if interval_val or seeds_val:
+        print(f"✓ Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
+    else:
+        print("✓ Knowledge discovery scheduler started")
 
 @app.on_event("shutdown")
 async def on_shutdown():
