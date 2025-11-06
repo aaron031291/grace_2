@@ -37,6 +37,8 @@ from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
 from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
+from .self_heal.scheduler import scheduler as self_heal_scheduler
+from .self_heal.runner import runner as self_heal_runner
 
 @app.on_event("startup")
 async def on_startup():
@@ -90,6 +92,25 @@ async def on_startup():
     await start_benchmark_scheduler()
     print("✓ Benchmark scheduler started (evaluates every hour)")
 
+    # Self-heal observe-only scheduler (feature-gated)
+    try:
+        from .settings import settings as _settings2
+        if getattr(_settings2, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings2, "SELF_HEAL_EXECUTE", False):
+            await self_heal_scheduler.start()
+            print("✓ Self-heal observe-only scheduler started")
+    except Exception:
+        # keep startup resilient
+        pass
+
+    # Start execution runner only when execute mode is enabled
+    try:
+        from .settings import settings as _settings3
+        if getattr(_settings3, "SELF_HEAL_EXECUTE", False):
+            await self_heal_runner.start()
+            print("✓ Self-heal execution runner started (execute mode)")
+    except Exception:
+        pass
+
     # Knowledge discovery scheduler (configurable via env)
     try:
         interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
@@ -116,6 +137,12 @@ async def on_shutdown():
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
     await stop_discovery_scheduler()
+
+    # Stop self-heal observe-only scheduler if running
+    try:
+        await self_heal_scheduler.stop()
+    except Exception:
+        pass
 
     # Clean up metrics DB resources
     metrics_sess = getattr(app.state, "metrics_session", None)
@@ -201,8 +228,14 @@ app.include_router(health_routes.router)
 try:
     from .settings import settings as _settings
     from .routes import health_unified as _health_unified
+    from .routes import playbooks as _playbooks
+    from .routes import incidents as _incidents
+    from .routes import learning as _learning
     if getattr(_settings, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings, "SELF_HEAL_EXECUTE", False):
         app.include_router(_health_unified.router, prefix="/api")
+        app.include_router(_playbooks.router)
+        app.include_router(_incidents.router)
+        app.include_router(_learning.router)
 except Exception:
     # Keep startup resilient if optional modules/imports fail
     pass
