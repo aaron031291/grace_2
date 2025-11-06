@@ -1,0 +1,232 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+__________________________ test_approvals_happy_path __________________________
+test_client = <httpx.AsyncClient object at 0x000001E11FB06510>
+    @pytest.mark.asyncio
+    async def test_approvals_happy_path(test_client: httpx.AsyncClient):
+        headers = auth_headers()
+
+        # 1) Create approval
+        create_resp = await test_client.post(
+            "/api/governance/approvals",
+            json={"event_id": 123, "reason": "Sensitive operation"},
+            headers=headers,
+        )
+        assert create_resp.status_code == 200, create_resp.text
+        created = create_resp.json()
+        assert "id" in created and created["id"] > 0
+        assert created["status"] == "pending"
+        # verify_action adds an envelope id to dict responses
+        assert "_verification_id" in created
+
+        approval_id = created["id"]
+
+        # 2) List approvals (filter pending)
+        list_resp = await test_client.get(
+            "/api/governance/approvals?status=pending&limit=50", headers=headers
+        )
+        assert list_resp.status_code == 200, list_resp.text
+        items = list_resp.json()
+        assert any(item["id"] == approval_id for item in items)
+
+        # 3) Get one
+        get_resp = await test_client.get(f"/api/governance/approvals/{approval_id}", headers=headers)
+        assert get_resp.status_code == 200, get_resp.text
+        got = get_resp.json()
+        assert got["id"] == approval_id
+        assert got["status"] == "pending"
+
+        # 4) Decide approve
+        decide_resp = await test_client.post(
+            f"/api/governance/approvals/{approval_id}/decision",
+            json={"decision": "approve", "reason": "Looks safe"},
+            headers=headers,
+        )
+>       assert decide_resp.status_code == 200, decide_resp.text
+E       AssertionError: {"detail":[{"type":"missing","loc":["query","args"],"msg":"Field required","input":null},{"type":"missing","loc":["query","kwargs"],"msg":"Field required","input":null}]}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+backend\tests\routes\test_approvals.py:84: AssertionError
+---------------------------- Captured stdout setup ----------------------------
+Transcendence initialized for aaron
+WARNING: Generated new vault key. Set GRACE_VAULT_KEY environment variable.
+✓ Database initialized
+✓ Grace API server starting...
+  Visit: http://localhost:8000/health
+  Docs: http://localhost:8000/docs
+✓ Trigger Mesh started
+✓ Subscribed to memory.*
+✓ Subscribed to sandbox.*
+✓ Subscribed to governance.*
+✓ Trigger Mesh subscriptions configured
+✓ Subscribed to *
+✓ WebSocket subscribed to Trigger Mesh
+✓ Trusted sources initialized
+✓ Reflection service started (interval: 10s)
+✓ Task executor started (3 parallel workers)
+✓ Health monitor started (interval: 30s)
+✓ Meta-loop started (Level 1 optimization, interval: 300s)
+✓ Auto-retrain engine started (interval: 3600s)
+✓ Benchmark scheduler started (evaluates every hour)
+✓ Knowledge discovery scheduler started (interval: 1800s)
+✓ Knowledge discovery scheduler started
+---------------------------- Captured stdout call -----------------------------
+{"ts": "2025-11-06T18:16:26.724254+00:00", "action": "approval_create", "actor": "tester", "resource": "event_123", "outcome": "created", "payload": {"reason": "Sensitive operation"}, "extras": {"approval_id": "12", "status": "pending"}}
+✓ Verified action: approval_create by tester
+_________________ test_approvals_invalid_and_double_decision __________________
+test_client = <httpx.AsyncClient object at 0x000001E11FB06510>
+    @pytest.mark.asyncio
+    async def test_approvals_invalid_and_double_decision(test_client: httpx.AsyncClient):
+        headers = auth_headers()
+
+        # Create a fresh approval
+        create_resp = await test_client.post(
+            "/api/governance/approvals",
+            json={"event_id": 999, "reason": "Check invalid/duplicate"},
+            headers=headers,
+        )
+        assert create_resp.status_code == 200, create_resp.text
+        approval_id = create_resp.json()["id"]
+
+        # Invalid decision value
+        bad_resp = await test_client.post(
+            f"/api/governance/approvals/{approval_id}/decision",
+            json={"decision": "maybe", "reason": "?"},
+            headers=headers,
+        )
+>       assert bad_resp.status_code == 400
+E       assert 422 == 400
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+backend\tests\routes\test_approvals.py:118: AssertionError
+---------------------------- Captured stdout call -----------------------------
+{"ts": "2025-11-06T18:16:27.000408+00:00", "action": "approval_create", "actor": "tester", "resource": "event_999", "outcome": "created", "payload": {"reason": "Check invalid/duplicate"}, "extras": {"approval_id": "13", "status": "pending"}}
+✓ Verified action: approval_create by tester
+__________________________ test_approvals_not_found ___________________________
+test_client = <httpx.AsyncClient object at 0x000001E11FB06510>
+    @pytest.mark.asyncio
+    async def test_approvals_not_found(test_client: httpx.AsyncClient):
+        headers = auth_headers()
+
+        # Non-existent approval id
+        nf_resp = await test_client.get("/api/governance/approvals/999999", headers=headers)
+        assert nf_resp.status_code == 404
+
+        nf_decide = await test_client.post(
+            "/api/governance/approvals/999999/decision",
+            json={"decision": "approve"},
+            headers=headers,
+        )
+>       assert nf_decide.status_code == 404
+E       assert 422 == 404
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+backend\tests\routes\test_approvals.py:153: AssertionError
+_________________ test_approval_decision_rate_limit_overflow __________________
+test_client = <httpx.AsyncClient object at 0x000001E11FB06510>
+    @pytest.mark.asyncio
+    async def test_approval_decision_rate_limit_overflow(test_client: httpx.AsyncClient):
+        # Configure strict rate limit for the test and ensure no bypass
+        os.environ.pop("RATE_LIMIT_BYPASS", None)
+        os.environ["APPROVAL_DECISION_RATE_PER_MIN"] = "3"
+
+        headers = auth_headers()
+
+        # Use a non-existent request id to avoid changing state; limiter counts before handler runs
+        target_id = 424242
+
+        statuses = []
+        for _ in range(5):
+            resp = await test_client.post(
+                f"/api/governance/approvals/{target_id}/decision",
+                json={"decision": "approve", "reason": "limit test"},
+                headers=headers,
+            )
+            statuses.append(resp.status_code)
+            # First few within capacity should be non-429 (likely 404 for not found)
+            # After capacity exceeded, expect 429 with Retry-After header
+
+>       assert statuses.count(429) >= 1, f"Expected at least one 429, got {statuses}"
+E       AssertionError: Expected at least one 429, got [422, 422, 422, 422, 422]
+E       assert 0 >= 1
+E        +  where 0 = <built-in method count of list object at 0x000001E120382400>(429)
+E        +    where <built-in method count of list object at 0x000001E120382400> = [422, 422, 422, 422, 422].count
+backend\tests\routes\test_approvals.py:179: AssertionError
+-------------------------- Captured stdout teardown ---------------------------
+✓ Reflection service stopped
+✓ Task executor stopped
+✓ Health monitor stopped
+✓ Trigger Mesh stopped
+✓ Meta-loop stopped
+✓ Auto-retrain engine stopped
+✓ Knowledge discovery scheduler stopped
+============================== warnings summary ===============================
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\settings.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Settings(BaseSettings):
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\metrics_models.py:10: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\routes\tasks.py:22: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class TaskResponse(BaseModel):
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\routes\history.py:11: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class MessageResponse(BaseModel):
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\routes\goals.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class GoalResponse(BaseModel):
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\self_healing.py:13: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.last_changed = datetime.utcnow()
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\auto_retrain.py:20: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self._last_weekly_check = datetime.utcnow()
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\main.py:41: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("startup")
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\applications.py:4575: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    return self.router.on_event(event_type)
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\main.py:109: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("shutdown")
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\reflection.py:45: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    lookback = datetime.utcnow() - timedelta(hours=1)
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+  C:\Users\aaron\PycharmProjects\grace_2\backend\meta_loop.py:167: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    lookback = datetime.utcnow() - timedelta(days=1)
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+backend/tests/routes/test_approvals.py::test_approvals_invalid_and_double_decision
+backend/tests/routes/test_approvals.py::test_approvals_not_found
+backend/tests/routes/test_approvals.py::test_approval_decision_rate_limit_overflow
+  C:\Users\aaron\PycharmProjects\grace_2\backend\auth.py:59: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+backend/tests/routes/test_approvals.py::test_approvals_happy_path
+backend/tests/routes/test_approvals.py::test_approvals_invalid_and_double_decision
+backend/tests/routes/test_approvals.py::test_approvals_not_found
+backend/tests/routes/test_approvals.py::test_approval_decision_rate_limit_overflow
+  C:\Users\aaron\PycharmProjects\grace_2\backend\auth.py:64: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "iat": datetime.utcnow(),
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend/tests/routes/test_approvals.py::test_approvals_happy_path - AssertionError: {"detail":[{"type":"missing","loc":["query","args"],"msg":"...
+FAILED backend/tests/routes/test_approvals.py::test_approvals_invalid_and_double_decision - assert 422 == 400
+FAILED backend/tests/routes/test_approvals.py::test_approvals_not_found - assert 422 == 404
+FAILED backend/tests/routes/test_approvals.py::test_approval_decision_rate_limit_overflow - AssertionError: Expected at least one 429, got [422, 422, 422, 422, 422]
+4 failed, 21 warnings in 2.07s
