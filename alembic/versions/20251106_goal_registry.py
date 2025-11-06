@@ -12,7 +12,7 @@ import sqlalchemy as sa
 revision = '20251106_goal_registry'
 # Set this to the latest existing revision if you maintain a chain; leaving None if initial.
 # If your project already has revisions, update 'down_revision' accordingly.
-down_revision = None
+down_revision = '20251106_health_minimal'
 branch_labels = None
 depends_on = None
 
