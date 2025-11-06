@@ -130,6 +130,15 @@ class GraceAgenticSystem:
     async def _register_domains(self):
         """Register domain adapters with agent core"""
         
+        # Register Self-Healing domain (agentic self-healing)
+        try:
+            from .self_heal.adapter import self_healing_adapter
+            await agent_core.register_domain(self_healing_adapter)
+            # Start proactive predictor
+            await self_healing_adapter.start_predictor()
+        except Exception as e:
+            print(f"  Warning: Could not register Self-Healing domain: {e}")
+        
         # Register Core domain (pilot)
         try:
             from .domains.core_domain_adapter import core_domain_adapter
@@ -148,6 +157,13 @@ class GraceAgenticSystem:
         """Gracefully stop all agentic systems"""
         
         print("\nGracefully shutting down GRACE agentic spine...")
+        
+        # Stop self-healing predictor
+        try:
+            from .self_heal.adapter import self_healing_adapter
+            await self_healing_adapter.stop_predictor()
+        except Exception:
+            pass
         
         await shard_coordinator.stop()
         print("  ✓ Shard coordinator stopped")
