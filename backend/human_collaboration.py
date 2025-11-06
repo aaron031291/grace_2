@@ -521,6 +521,10 @@ class HumanCollaboration:
         asyncio.create_task(self._monitor_deadlines())
         print("✓ Human Collaboration Interface started")
     
+    async def stop(self):
+        """Stop human collaboration system"""
+        pass
+    
     async def notify_incident(
         self,
         incident_id: str,

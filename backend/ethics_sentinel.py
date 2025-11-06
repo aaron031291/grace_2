@@ -7,7 +7,7 @@ policy boundaries. Keeps agentic behavior aligned with trust commitments.
 """
 
 import asyncio
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any, Set, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -583,7 +583,7 @@ class EthicsSentinel:
         
         await self._register_default_rules()
         
-        await trigger_mesh.subscribe("*", self._monitor_action)
+        trigger_mesh.subscribe("*", self._monitor_action)
         
         asyncio.create_task(self._ethics_loop())
         

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Set, Callable, Any
+from typing import Dict, Set, Callable, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import json

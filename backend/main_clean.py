@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .base_models import Base, engine
+from .models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -11,8 +11,6 @@ from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
-from .request_id_middleware import RequestIDMiddleware
-from .metrics_service import init_metrics_collector
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -23,7 +21,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(RequestIDMiddleware)
 
 from .task_executor import task_executor
 from .self_healing import health_monitor
@@ -33,43 +30,16 @@ from .websocket_manager import setup_ws_subscriptions
 from .trusted_sources import trust_manager
 from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
-from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
-from .grace_spine_integration import activate_grace_autonomy, deactivate_grace_autonomy
-from .routes.agentic_insights import router as agentic_insights_router
 
 @app.on_event("startup")
 async def on_startup():
-    # Ensure model modules imported so Base.metadata is populated
-    try:
-        import importlib
-        for _mod in ("backend.governance_models", "backend.knowledge_models", "backend.parliament_models"):
-            try:
-                importlib.import_module(_mod)
-            except Exception as e:
-                print(f"  Warning: Could not import {_mod}: {e}")
-    except Exception as e:
-        print(f"  Warning: Model import error: {e}")
-    
-    # Initialize database
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("✓ Database initialized")
-    
-    # Metrics DB (separate)
-    from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-    from .metrics_models import Base as MetricsBase
-    app.state.metrics_engine = create_async_engine("sqlite+aiosqlite:///./databases/metrics.db", echo=False, future=True)
-    app.state.metrics_sessionmaker = async_sessionmaker(app.state.metrics_engine, expire_on_commit=False)
-    async with app.state.metrics_engine.begin() as mconn:
-        await mconn.run_sync(MetricsBase.metadata.create_all)
-    app.state.metrics_session = await app.state.metrics_sessionmaker().__aenter__()
-    init_metrics_collector(db_session=app.state.metrics_session)
-    
     print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
     
-    # Start core systems
     await trigger_mesh.start()
     await setup_subscriptions()
     await setup_ws_subscriptions()
@@ -80,31 +50,10 @@ async def on_startup():
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
-    print("✓ Benchmark scheduler started")
-    
-    # Knowledge discovery
-    import os as _os
-    try:
-        interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
-        seeds_env = _os.getenv("DISCOVERY_SEEDS_PER_CYCLE")
-        interval_val = int(interval_env) if interval_env else None
-        seeds_val = int(seeds_env) if seeds_env else None
-    except Exception:
-        interval_val = None
-        seeds_val = None
-    
-    await start_discovery_scheduler(interval_val, seeds_val)
-    print(f"✓ Knowledge discovery scheduler started")
-    
-    # Start GRACE Agentic Spine
-    await activate_grace_autonomy()
-    print("✓ GRACE Agentic Spine activated")
+    print("✓ Benchmark scheduler started (evaluates every hour)")
 
 @app.on_event("shutdown")
 async def on_shutdown():
-    # Stop agentic spine first
-    await deactivate_grace_autonomy()
-    
     await reflection_service.stop()
     await task_executor.stop_workers()
     await health_monitor.stop()
@@ -112,25 +61,6 @@ async def on_shutdown():
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
     await stop_benchmark_scheduler()
-    await stop_discovery_scheduler()
-    
-    # Clean up metrics DB
-    if hasattr(app.state, "metrics_session"):
-        try:
-            await app.state.metrics_session.close()
-        except Exception:
-            pass
-    if hasattr(app.state, "metrics_engine"):
-        try:
-            await app.state.metrics_engine.dispose()
-        except Exception:
-            pass
-    
-    # Dispose core engine
-    try:
-        await engine.dispose()
-    except Exception:
-        pass
 
 @app.get("/health")
 async def health_check():
@@ -175,7 +105,6 @@ async def verification_failed(
     )
     return {"failed_verifications": failures, "count": len(failures)}
 
-# Register all routers
 app.include_router(auth_routes.router)
 app.include_router(chat.router)
 app.include_router(metrics.router)
@@ -214,13 +143,7 @@ app.include_router(cognition_router)
 app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
-app.include_router(agentic_insights_router, prefix="/api")
 
-# Grace IDE WebSocket (optional)
-import os as _os
-if _os.getenv("ENABLE_IDE_WS", "0") in {"1", "true", "True", "YES", "yes"}:
-    try:
-        from grace_ide.api.websocket import router as ide_ws_router
-        app.include_router(ide_ws_router)
-    except ImportError:
-        pass
+# Grace IDE WebSocket
+from grace_ide.api.websocket import router as ide_ws_router
+app.include_router(ide_ws_router)

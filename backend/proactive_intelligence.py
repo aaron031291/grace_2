@@ -793,8 +793,8 @@ class ProactiveIntelligence:
     async def start(self):
         """Start proactive intelligence"""
         
-        await trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
-        await trigger_mesh.subscribe("health.*", self._handle_health_event)
+        trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
+        trigger_mesh.subscribe("health.*", self._handle_health_event)
         
         asyncio.create_task(self._prediction_loop())
         

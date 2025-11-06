@@ -1,23 +1,15 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-from .settings import settings
+from sqlalchemy.orm import relationship
 
-# Prefer env-provided DATABASE_URL; fallback to local sqlite for dev
-DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
-
-engine = create_async_engine(DATABASE_URL, echo=False, future=True)
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-Base = declarative_base()
+# Import Base, engine, async_session from base_models (foundation layer)
+from .base_models import Base, engine, async_session
 
 from .sandbox_models import SandboxRun, SandboxFile
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
 from .task_executor import ExecutionTask
 from .issue_models import IssueReport
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
-from .immutable_log import ImmutableLogEntry
 from .mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation

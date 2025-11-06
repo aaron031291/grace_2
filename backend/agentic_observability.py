@@ -11,10 +11,9 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
-from sqlalchemy.sql import func
+from sqlalchemy import select
 
-from .models import Base, async_session
+from .base_models import AgenticInsight, async_session
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
 
@@ -54,54 +53,6 @@ class AgenticDecisionPoint:
     risk_score: float
     human_approval_required: bool
     metadata: Dict[str, Any] = field(default_factory=dict)
-
-
-class AgenticInsight(Base):
-    """Compact agentic decision ledger"""
-    __tablename__ = "agentic_insights"
-    
-    id = Column(Integer, primary_key=True)
-    run_id = Column(String(64), nullable=False, index=True)
-    phase = Column(String(32), nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
-    
-    # What the agent perceived
-    signal_type = Column(String(64))
-    signal_summary = Column(String(256))
-    
-    # What the agent diagnosed
-    diagnosis = Column(String(256))
-    root_cause = Column(String(256))
-    
-    # What the agent planned
-    plan_type = Column(String(64))
-    plan_summary = Column(String(512))
-    
-    # Guardrails and trust
-    guardrails_checked = Column(Text)
-    guardrails_passed = Column(Boolean)
-    risk_score = Column(Float)
-    confidence = Column(Float)
-    
-    # Decision rationale
-    rationale = Column(Text)
-    options_considered = Column(Text)
-    chosen_option = Column(String(256))
-    
-    # Approval and execution
-    approval_required = Column(Boolean, default=False)
-    approved_by = Column(String(64))
-    approved_at = Column(DateTime(timezone=True))
-    executed_at = Column(DateTime(timezone=True))
-    
-    # Outcome
-    outcome = Column(String(64))
-    outcome_detail = Column(Text)
-    verified = Column(Boolean)
-    
-    # Privacy and metadata
-    sensitive_data_redacted = Column(Boolean, default=False)
-    metadata = Column(Text)
 
 
 class AgenticInsightCapture:
@@ -588,7 +539,7 @@ class AgenticObservability:
     async def start(self):
         """Start agentic observability"""
         
-        await trigger_mesh.subscribe("agentic.run.*", self._handle_run_event)
+        trigger_mesh.subscribe("agentic.run.*", self._handle_run_event)
         
         self.running = True
         print("✓ Agentic Observability started - Transparent decision tracking")
