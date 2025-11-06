@@ -7,6 +7,8 @@ from __future__ import annotations
 import os
 import time
 import asyncio
+import functools
+import inspect
 from typing import Callable, Dict, Deque, Optional
 from collections import deque
 from fastapi import HTTPException
@@ -74,6 +76,7 @@ def rate_limited(
     Reads capacity from env var; when bypass env is truthy, limiter is disabled.
     """
     def decorator(func):
+        @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             # Bypass in tests/dev when requested
             if os.getenv(bypass_env, "").lower() in {"1", "true", "yes", "on"}:
@@ -111,5 +114,11 @@ def rate_limited(
                 headers = {"Retry-After": str(retry_after)}
                 raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.", headers=headers)
             return await func(*args, **kwargs)
+        # Preserve original signature for FastAPI
+        try:
+            wrapper.__signature__ = inspect.signature(func)  # type: ignore[attr-defined]
+            wrapper.__annotations__ = getattr(func, "__annotations__", {})  # type: ignore[attr-defined]
+        except Exception:
+            pass
         return wrapper
     return decorator
