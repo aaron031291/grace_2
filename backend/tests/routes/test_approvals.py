@@ -151,3 +151,42 @@ async def test_approvals_not_found(test_client: httpx.AsyncClient):
         headers=headers,
     )
     assert nf_decide.status_code == 404
+
+
+
+@pytest.mark.asyncio
+async def test_approval_decision_rate_limit_overflow(test_client: httpx.AsyncClient):
+    # Configure strict rate limit for the test and ensure no bypass
+    os.environ.pop("RATE_LIMIT_BYPASS", None)
+    os.environ["APPROVAL_DECISION_RATE_PER_MIN"] = "3"
+
+    headers = auth_headers()
+
+    # Use a non-existent request id to avoid changing state; limiter counts before handler runs
+    target_id = 424242
+
+    statuses = []
+    for _ in range(5):
+        resp = await test_client.post(
+            f"/api/governance/approvals/{target_id}/decision",
+            json={"decision": "approve", "reason": "limit test"},
+            headers=headers,
+        )
+        statuses.append(resp.status_code)
+        # First few within capacity should be non-429 (likely 404 for not found)
+        # After capacity exceeded, expect 429 with Retry-After header
+
+    assert statuses.count(429) >= 1, f"Expected at least one 429, got {statuses}"
+
+    # Verify Retry-After header is present on at least one 429 response
+    has_retry_after = False
+    for _ in range(3):
+        resp = await test_client.post(
+            f"/api/governance/approvals/{target_id}/decision",
+            json={"decision": "approve", "reason": "limit test"},
+            headers=headers,
+        )
+        if resp.status_code == 429 and resp.headers.get("Retry-After"):
+            has_retry_after = True
+            break
+    assert has_retry_after, "Missing Retry-After header on 429 response"

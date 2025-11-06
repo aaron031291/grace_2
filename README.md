@@ -546,4 +546,10 @@ Docs and notes:
 - Approval API: docs/APPROVAL_API.md
 - Release Notes: docs/RELEASE_NOTES_2025-11-06.md
 
-Status note: This repository is not production-ready. Treat the Approvals flow as development-grade; structured logging and rate limits exist, but long-duration soak tests, RBAC, and hardened auth are pending.
+Environment flags and correlation:
+- `APPROVAL_DECIDERS`: comma-separated usernames allowed to decide approvals. If set, others receive 403 on decision. If unset, no RBAC enforcement for this endpoint (dev-friendly).
+- `APPROVAL_DECISION_RATE_PER_MIN`: per-user rate (calls/min) for the decision endpoint. Default 10.
+- `RATE_LIMIT_BYPASS`: when truthy (`1/true/yes/on`), disables the in-memory rate limiter (use in tests/dev).
+- `X-Request-ID`: clients may send this header; the backend injects one if missing and echoes it back. Structured logs include `request_id` and `_verification_id` for correlation.
+
+Status note: This repository is not production-ready. Treat the Approvals flow as development-grade; structured logging and rate limits exist, but long-duration soak tests, broader RBAC, and hardened auth are pending.

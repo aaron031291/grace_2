@@ -28,6 +28,16 @@ class ApprovalDecision(BaseModel):
     decision: str  # "approve" | "reject"
     reason: str = ""
 
+
+def _deciders_allowlist() -> Optional[set]:
+    """Parse APPROVAL_DECIDERS env var into a set of usernames.
+    If unset or empty, returns None meaning "no enforcement" (allow all).
+    """
+    raw = os.getenv("APPROVAL_DECIDERS", "").strip()
+    if not raw:
+        return None
+    return {u.strip() for u in raw.split(",") if u.strip()}
+
 @router.get("/policies")
 async def list_policies():
     async with async_session() as session:
@@ -81,7 +91,7 @@ async def list_audit(limit: int = 100):
 
 @router.post("/approvals")
 @verify_action("approval_create", lambda data: f"event_{data.get('event_id', 'unknown')}")
-async def create_approval(data: ApprovalCreate, current_user: str = Depends(get_current_user)):
+async def create_approval(data: ApprovalCreate, request: Request, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         req = ApprovalRequest(
             event_id=data.event_id,
@@ -93,13 +103,15 @@ async def create_approval(data: ApprovalCreate, current_user: str = Depends(get_
         await session.commit()
         await session.refresh(req)
         # Structured log (verification_id is added to response by verify_action wrapper)
+        req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
         log_event(
             action="approval_create",
             actor=current_user,
             resource=f"event_{data.event_id}",
             outcome="created",
             payload={"reason": data.reason},
-            extras={"approval_id": req.id, "status": req.status}
+            extras={"approval_id": req.id, "status": req.status},
+            request_id=req_id or None,
         )
         return {
             "id": req.id,
@@ -163,7 +175,12 @@ async def list_approvals(status: Optional[str] = None, requested_by: Optional[st
 @router.post("/approvals/{request_id}/decision")
 @rate_limited("approval_decision")
 @verify_action("approval_decision", lambda data: f"request_{data.get('request_id', 'unknown')}")
-async def decide(request_id: int, body: ApprovalDecision, current_user: str = Depends(get_current_user)):
+async def decide(request_id: int, body: ApprovalDecision, request: Request, current_user: str = Depends(get_current_user)):
+    # RBAC allowlist: enforce only if APPROVAL_DECIDERS is set
+    deciders = _deciders_allowlist()
+    if deciders is not None and current_user not in deciders:
+        raise HTTPException(status_code=403, detail="Not authorized to decide approvals")
+
     if body.decision not in {"approve", "reject"}:
         raise HTTPException(status_code=400, detail="Invalid decision")
 
@@ -181,13 +198,15 @@ async def decide(request_id: int, body: ApprovalDecision, current_user: str = De
         await session.commit()
         await session.refresh(req)
         # Structured log
+        req_id = request.headers.get("X-Request-ID") or os.getenv("REQUEST_ID_FALLBACK", "")
         log_event(
             action="approval_decision",
             actor=current_user,
             resource=f"request_{request_id}",
             outcome=req.status,
             payload={"reason": body.reason},
-            extras={"approval_id": req.id}
+            extras={"approval_id": req.id},
+            request_id=req_id or None,
         )
         return {
             "id": req.id,
