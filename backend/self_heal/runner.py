@@ -266,28 +266,87 @@ class ExecutionRunner:
                 return False
         return True
 
+    # HARDENED: Parameter bounds validation whitelist
+    PARAMETER_BOUNDS = {
+        "scale_instances": {
+            "min_delta": {"type": int, "min": -3, "max": 3, "required": True}
+        },
+        "set_logging_level": {
+            "level": {"type": str, "allowed": ["DEBUG", "INFO", "WARN", "ERROR"], "default": "DEBUG"},
+            "ttl_min": {"type": int, "min": 1, "max": 120, "default": 15}
+        },
+        "toggle_flag": {
+            "flag": {"type": str, "required": True, "min_length": 1, "max_length": 50},
+            "state": {"type": bool, "required": True}
+        },
+        "restart_service": {
+            "graceful": {"type": bool, "default": True}
+        }
+    }
+    
+    def _validate_parameters(self, action: str, params: Dict[str, Any]) -> tuple[bool, str, Dict[str, Any]]:
+        """
+        Validate and sanitize parameters against whitelist.
+        
+        Returns: (valid, error_message, sanitized_params)
+        """
+        bounds = self.PARAMETER_BOUNDS.get(action, {})
+        sanitized = {}
+        
+        for key, rules in bounds.items():
+            value = params.get(key)
+            
+            # Check required
+            if rules.get("required") and value is None:
+                return False, f"Missing required parameter: {key}", {}
+            
+            # Use default if not provided
+            if value is None and "default" in rules:
+                value = rules["default"]
+            
+            if value is None:
+                continue
+            
+            # Type validation
+            expected_type = rules.get("type")
+            if expected_type and not isinstance(value, expected_type):
+                return False, f"Invalid type for {key}: expected {expected_type.__name__}", {}
+            
+            # Numeric bounds
+            if isinstance(value, int):
+                if "min" in rules and value < rules["min"]:
+                    return False, f"{key}={value} below minimum {rules['min']}", {}
+                if "max" in rules and value > rules["max"]:
+                    return False, f"{key}={value} exceeds maximum {rules['max']}", {}
+            
+            # String constraints
+            if isinstance(value, str):
+                if "min_length" in rules and len(value) < rules["min_length"]:
+                    return False, f"{key} too short (min: {rules['min_length']})", {}
+                if "max_length" in rules and len(value) > rules["max_length"]:
+                    return False, f"{key} too long (max: {rules['max_length']})", {}
+                if "allowed" in rules and value not in rules["allowed"]:
+                    return False, f"{key}={value} not in allowed values {rules['allowed']}", {}
+            
+            sanitized[key] = value
+        
+        # Check for unexpected parameters (prevent injection)
+        unexpected = set(params.keys()) - set(bounds.keys())
+        if unexpected:
+            return False, f"Unexpected parameters: {unexpected}", {}
+        
+        return True, "validated", sanitized
+    
     async def _execute_action(self, action: str, params: Dict[str, Any]) -> str:
-        # Central parameter validation (bounds/whitelist)
-        try:
-            if action == "scale_instances":
-                min_delta = int(params.get("min_delta", 0))
-                if min_delta < -3 or min_delta > 3:
-                    raise ValueError("min_delta out of bounds [-3,3]")
-            elif action == "set_logging_level":
-                lvl = str(params.get("level", "")).upper() or "DEBUG"
-                if lvl not in {"DEBUG", "INFO", "WARN", "ERROR"}:
-                    raise ValueError("invalid logging level")
-                ttl = int(params.get("ttl_min", 15))
-                if ttl < 0:
-                    raise ValueError("ttl_min must be >= 0")
-            elif action == "toggle_flag":
-                flag = params.get("flag")
-                if not flag or not isinstance(flag, str):
-                    raise ValueError("flag must be a non-empty string")
-        except Exception as v_ex:
-            raise v_ex
+        # HARDENED: Validate parameters against whitelist
+        valid, error_msg, sanitized_params = self._validate_parameters(action, params)
+        
+        if not valid:
+            raise ValueError(f"Parameter validation failed: {error_msg}")
+        
+        # Use sanitized parameters
         fn = self._action_dispatch(action)
-        return await fn(**params) if params else await fn()
+        return await fn(**sanitized_params) if sanitized_params else await fn()
 
     async def _tick(self) -> None:
         from sqlalchemy import select
@@ -316,7 +375,7 @@ class ExecutionRunner:
             except Exception:
                 pass
 
-            # Enforce change window: outside window requires approval for impact not low
+            # HARDENED: Change window enforcement - BLOCK execution outside window for medium/high/critical
             try:
                 impact = ""
                 if run.diagnosis:
@@ -325,6 +384,7 @@ class ExecutionRunner:
                         impact = str(d.get("impact") or "").lower()
                     except Exception:
                         impact = ""
+                
                 # Determine if outside window (weekdays 09:00–18:00 local)
                 try:
                     local_now = now.astimezone()
@@ -333,20 +393,55 @@ class ExecutionRunner:
                 wk = local_now.weekday()
                 hr = local_now.hour
                 outside_window = not ((wk <= 4) and (9 <= hr < 18))
+                
                 if outside_window and impact in {"medium", "high", "critical"}:
-                    # If there is no explicit approved request, defer execution
-                    try:
-                        if not getattr(run, "approval_request_id", None):
-                            return
-                        else:
-                            from ..governance_models import ApprovalRequest
-                            appr2 = await session.get(ApprovalRequest, run.approval_request_id)
-                            if not appr2 or getattr(appr2, "status", "").lower() != "approved":
-                                return
-                    except Exception:
+                    # HARD BLOCK: Require explicit approved request
+                    if not getattr(run, "approval_request_id", None):
+                        # No approval request - abort run
+                        run.status = "aborted"
+                        run.ended_at = now
+                        session.add(AuditLog(
+                            actor="runner",
+                            action="playbook_run_blocked",
+                            resource=str(run.id),
+                            policy_checked="change_window",
+                            result="blocked",
+                            details=f"outside_window={outside_window} impact={impact} no_approval"
+                        ))
+                        # Learning entry for blocked run
+                        try:
+                            from ..self_heal_models import LearningLog
+                            session.add(LearningLog(
+                                service=run.service,
+                                diagnosis=run.diagnosis,
+                                action=json.dumps({"status": "blocked", "reason": "change_window"}),
+                                outcome=json.dumps({"result": "blocked", "outside_window": True, "impact": impact})
+                            ))
+                        except Exception:
+                            pass
+                        await session.commit()
                         return
-            except Exception:
-                pass
+                    
+                    # Has approval request - verify it's approved
+                    from ..governance_models import ApprovalRequest
+                    appr2 = await session.get(ApprovalRequest, run.approval_request_id)
+                    if not appr2 or getattr(appr2, "status", "").lower() != "approved":
+                        # Not approved - defer (don't abort yet, may get approved later)
+                        return
+            except Exception as e:
+                # If change window check fails, err on side of caution - block
+                run.status = "aborted"
+                run.ended_at = now
+                session.add(AuditLog(
+                    actor="runner",
+                    action="playbook_run_error",
+                    resource=str(run.id),
+                    policy_checked="change_window",
+                    result="error",
+                    details=f"change_window_check_failed: {str(e)}"
+                ))
+                await session.commit()
+                return
 
             # LearningLog entry on approved start
             try:
@@ -363,6 +458,10 @@ class ExecutionRunner:
             except Exception:
                 pass
             await session.commit()
+            
+            # HARDENED: Global run timeout watchdog
+            from ..settings import settings
+            global_timeout_seconds = settings.SELF_HEAL_RUN_TIMEOUT_MIN * 60
 
             # Determine steps: load from DB if playbook_id is set; otherwise simulate one step
             steps: List[Any] = []
@@ -382,9 +481,55 @@ class ExecutionRunner:
                     rollback_args = None
                 steps = [_Sim()]
 
-            base_url = "http://localhost:8000"
+            # Use configurable base URL
+            from ..settings import settings
+            base_url = settings.SELF_HEAL_BASE_URL
             order = 1
+            
+            # Wrap entire execution in global timeout watchdog
             try:
+                await asyncio.wait_for(
+                    self._execute_playbook_steps(session, run, steps, base_url),
+                    timeout=global_timeout_seconds
+                )
+            except asyncio.TimeoutError:
+                # Global timeout exceeded - abort run
+                run.status = "aborted"
+                run.ended_at = datetime.now(timezone.utc)
+                
+                session.add(AuditLog(
+                    actor="runner",
+                    action="playbook_run_timeout",
+                    resource=str(run.id),
+                    policy_checked="timeout_watchdog",
+                    result="aborted",
+                    details=f"timeout_minutes={settings.SELF_HEAL_RUN_TIMEOUT_MIN}"
+                ))
+                
+                # Learning entry for timeout
+                try:
+                    from ..self_heal_models import LearningLog
+                    session.add(LearningLog(
+                        service=run.service,
+                        diagnosis=run.diagnosis,
+                        action=json.dumps({"status": "aborted", "reason": "global_timeout"}),
+                        outcome=json.dumps({
+                            "result": "timeout",
+                            "timeout_min": settings.SELF_HEAL_RUN_TIMEOUT_MIN,
+                            "ended_at": datetime.now(timezone.utc).isoformat()
+                        })
+                    ))
+                except Exception:
+                    pass
+                
+                await session.commit()
+                print(f"[self-heal:runner] run {run.id} aborted: global timeout ({settings.SELF_HEAL_RUN_TIMEOUT_MIN}min)")
+                return
+    
+    async def _execute_playbook_steps(self, session, run, steps, base_url: str):
+        """Execute playbook steps with validation and verification"""
+        order = 1
+        try:
                 for step in steps:
                     # Prepare params
                     try:
