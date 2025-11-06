@@ -294,10 +294,51 @@ class ObserveOnlyScheduler:
                 await session.commit()
 
     async def _create_approval_request(self, session, run_obj, reason: str) -> None:
+        """
+        Create approval request with duplicate prevention.
+        
+        Prevents duplicate requests within backoff window for same (service, diagnosis).
+        """
         try:
             from ..governance_models import ApprovalRequest
+            from ..self_heal_models import PlaybookRun
         except Exception:
             return
+        
+        # HARDENED: Duplicate prevention - check for recent approval request
+        try:
+            run_id = getattr(run_obj, "id", 0)
+            if run_id and run_obj.diagnosis:
+                # Extract diagnosis code
+                try:
+                    diag = json.loads(run_obj.diagnosis)
+                    diag_code = diag.get("code", "")
+                except:
+                    diag_code = ""
+                
+                if diag_code:
+                    # Check for recent approval request (last 10 minutes)
+                    cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
+                    
+                    existing = await session.execute(
+                        select(ApprovalRequest)
+                        .join(PlaybookRun, ApprovalRequest.event_id == PlaybookRun.id)
+                        .where(
+                            PlaybookRun.service == run_obj.service,
+                            PlaybookRun.diagnosis.contains(diag_code),
+                            ApprovalRequest.created_at >= cutoff
+                        )
+                        .limit(1)
+                    )
+                    
+                    if existing.scalar_one_or_none():
+                        # Duplicate detected - skip creation
+                        print(f"[self-heal:scheduler] skipping duplicate approval request for {run_obj.service}/{diag_code}")
+                        return
+        except Exception:
+            # If duplicate check fails, proceed with creation (fail open)
+            pass
+        
         req = ApprovalRequest(
             event_id=getattr(run_obj, "id", 0) or 0,
             status="pending" if "auto-approved" not in reason else "approved",
