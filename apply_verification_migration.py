@@ -55,11 +55,12 @@ async def verify_tables():
     
     print("\nVerifying verification tables...")
     
-    from backend.models import engine
-    from sqlalchemy import inspect
+    from backend.models import async_session
+    from sqlalchemy import text
     
-    inspector = inspect(engine)
-    tables = inspector.get_table_names()
+    async with async_session() as session:
+        result = await session.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))
+        tables = [row[0] for row in result.fetchall()]
     
     required_tables = [
         "action_contracts",
