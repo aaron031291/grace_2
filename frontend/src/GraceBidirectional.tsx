@@ -231,6 +231,10 @@ export default function GraceBidirectional() {
     
     setIsLoading(true);
 
+    // Hardening: AbortController for network timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 30000); // 30s timeout
+
     try {
       const token = localStorage.getItem('grace_token');
       const response = await fetch('http://localhost:8000/api/chat', {
@@ -239,8 +243,15 @@ export default function GraceBidirectional() {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ message: userMsg })
+        body: JSON.stringify({ message: userMsg }),
+        signal: abortController.signal
       });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       
       const data = await response.json();
       addMessage({
@@ -252,10 +263,21 @@ export default function GraceBidirectional() {
         timestamp: new Date()
       });
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      let errorMessage = '❌ Backend error';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = '⏱️ Request timed out. Please try again.';
+        } else {
+          errorMessage = `❌ Error: ${error.message}`;
+        }
+      }
+      
       addMessage({
         id: `error_${Date.now()}`,
         type: 'notification',
-        content: '❌ Backend error',
+        content: errorMessage,
         domain: 'core',
         timestamp: new Date()
       });

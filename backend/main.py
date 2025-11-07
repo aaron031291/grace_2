@@ -1,6 +1,9 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
+import logging
 from .base_models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
@@ -25,6 +28,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(RequestIDMiddleware)
+
+# Global exception handlers
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Handle all unhandled exceptions"""
+    request_id = getattr(request.state, "request_id", "unknown")
+    logging.error(f"Unhandled exception [request_id={request_id}]: {exc}", exc_info=True)
+    
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "error": "internal_error",
+            "message": "An internal error occurred. Please try again.",
+            "request_id": request_id
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors"""
+    request_id = getattr(request.state, "request_id", "unknown")
+    
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "error": "validation_error",
+            "message": "Request validation failed",
+            "details": exc.errors(),
+            "request_id": request_id
+        }
+    )
 
 from .task_executor import task_executor
 from .self_healing import health_monitor
@@ -69,7 +103,8 @@ async def on_startup():
         # Enable WAL mode for better concurrency
         await conn.execute(text("PRAGMA journal_mode=WAL"))
         await conn.execute(text("PRAGMA busy_timeout=30000"))
-    print("✓ Database initialized (WAL mode enabled)")
+        await conn.execute(text("PRAGMA foreign_keys=ON"))
+    print("✓ Database initialized (WAL mode enabled, foreign keys enforced)")
     
     # Metrics DB (separate)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -86,8 +121,10 @@ async def on_startup():
         await mconn.run_sync(MetricsBase.metadata.create_all)
         await mconn.execute(text("PRAGMA journal_mode=WAL"))
         await mconn.execute(text("PRAGMA busy_timeout=30000"))
-    app.state.metrics_session = await app.state.metrics_sessionmaker().__aenter__()
-    init_metrics_collector(db_session=app.state.metrics_session)
+        await mconn.execute(text("PRAGMA foreign_keys=ON"))
+    
+    # Pass session factory instead of shared session
+    init_metrics_collector(session_factory=app.state.metrics_sessionmaker)
     
     print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
@@ -202,12 +239,6 @@ async def on_shutdown():
         pass
 
     # Clean up metrics DB resources
-    metrics_sess = getattr(app.state, "metrics_session", None)
-    if metrics_sess:
-        try:
-            await app.state.metrics_session.close()
-        except Exception:
-            pass
     if hasattr(app.state, "metrics_engine"):
         try:
             await app.state.metrics_engine.dispose()
@@ -324,7 +355,8 @@ app.include_router(concurrent_api.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
-    if settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE or settings.LEARNING_AGGREGATION_ENABLED:
+    from .settings import settings as _settings_check
+    if getattr(_settings_check, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings_check, "SELF_HEAL_EXECUTE", False) or getattr(_settings_check, "LEARNING_AGGREGATION_ENABLED", False):
         app.include_router(learning.router)
         app.include_router(scheduler_observability.router)
         app.include_router(meta_focus.router)

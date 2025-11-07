@@ -76,6 +76,8 @@ class ConcurrentExecutor:
         self.completed_tasks: Dict[str, ConcurrentTask] = {}
         self.workers: List[asyncio.Task] = []
         self.running = False
+        self._seq = 0  # Monotonic counter to break priority ties
+        self._max_completed = 1000  # Bound memory
     
     async def start(self):
         """Start worker pool"""
@@ -137,8 +139,9 @@ class ConcurrentExecutor:
             priority=priority
         )
         
-        # Add to queue (negative priority for max-heap behavior)
-        await self.task_queue.put((-priority, task))
+        # Add to queue (negative priority for max-heap, sequence for tie-breaking)
+        self._seq += 1
+        await self.task_queue.put((-priority, self._seq, task))
         
         # Publish event
         await trigger_mesh.publish(TriggerEvent(
@@ -249,7 +252,7 @@ class ConcurrentExecutor:
             try:
                 # Get next task (with timeout to check running flag)
                 try:
-                    priority, task = await asyncio.wait_for(
+                    priority, seq, task = await asyncio.wait_for(
                         self.task_queue.get(),
                         timeout=1.0
                     )
@@ -304,9 +307,17 @@ class ConcurrentExecutor:
                         result=f"failed: {str(e)}"
                     )
                 
-                # Move to completed
+                # Move to completed (bound memory)
                 self.completed_tasks[task.task_id] = task
                 self.active_tasks.pop(task.task_id, None)
+                
+                # Evict oldest if over limit
+                if len(self.completed_tasks) > self._max_completed:
+                    oldest_id = min(
+                        self.completed_tasks.keys(),
+                        key=lambda k: self.completed_tasks[k].created_at
+                    )
+                    self.completed_tasks.pop(oldest_id, None)
                 
                 # Publish completion event
                 await trigger_mesh.publish(TriggerEvent(
