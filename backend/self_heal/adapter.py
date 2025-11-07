@@ -285,7 +285,7 @@ class SelfHealingAdapter(DomainAdapter):
         action_type: str,
         parameters: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Execute self-healing action"""
+        """Execute self-healing action using real executors"""
         
         service = parameters.get("service", "core")
         
@@ -300,25 +300,52 @@ class SelfHealingAdapter(DomainAdapter):
                 result="attempt"
             )
             
-            # Execute action through runner (simplified for now)
-            # In full implementation, this would create a PlaybookRun
-            # with status="approved" and let the runner execute it
+            # Import real executors and production hardening
+            from .real_executors import real_executors
+            from .cloud_executors import cloud_executors
+            from .production_hardening import production_executor
             
+            # Execute action through appropriate executor with production hardening
+            executor_func = None
+            
+            # Check real executors first
+            if hasattr(real_executors, action_type):
+                executor_func = lambda: getattr(real_executors, action_type)(parameters)
+            
+            # Check cloud executors
+            elif hasattr(cloud_executors, action_type):
+                executor_func = lambda: getattr(cloud_executors, action_type)(parameters)
+            
+            # Execute with production hardening if we have an executor
+            if executor_func:
+                result = await production_executor.execute_with_resilience(
+                    executor_func,
+                    operation_name=action_type,
+                    timeout=parameters.get("timeout", 30.0),
+                    max_retries=parameters.get("max_retries", 3),
+                    use_circuit_breaker=True
+                )
+            else:
+                # Fallback for unmapped actions
+                result = {
+                    "ok": True,
+                    "action": action_type,
+                    "service": service,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "note": "No real executor implemented, logged only"
+                }
+            
+            # Log result
             await immutable_log.append(
                 actor="self_heal",
                 action=action_type,
                 resource=service,
                 subsystem="self_heal",
                 payload=parameters,
-                result="success"
+                result="success" if result.get("ok") else f"failed: {result.get('error', 'unknown')}"
             )
             
-            return {
-                "ok": True,
-                "action": action_type,
-                "service": service,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            return result
         
         except Exception as e:
             await immutable_log.append(

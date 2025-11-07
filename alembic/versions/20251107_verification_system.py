@@ -170,7 +170,7 @@ def upgrade() -> None:
             sa.Column('rollback_available_count', sa.Integer(), nullable=False, server_default='0'),
             
             # Metadata
-            sa.Column('metadata', sa.JSON(), nullable=True),
+            sa.Column('mission_metadata', sa.JSON(), nullable=True),
         )
         op.create_index('ix_mission_timelines_status', 'mission_timelines', ['status'])
         op.create_index('ix_mission_timelines_started_at', 'mission_timelines', ['started_at'])

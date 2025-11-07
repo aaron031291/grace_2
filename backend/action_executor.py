@@ -22,6 +22,7 @@ from .self_heal.safe_hold import snapshot_manager
 from .benchmarks import benchmark_suite
 from .progression_tracker import progression_tracker
 from .immutable_log import immutable_log
+from .learning_loop import learning_loop
 
 
 class ActionExecutor:
@@ -173,6 +174,19 @@ class ActionExecutor:
             print(f"    🔙 Rollback recommended (confidence={confidence:.2f})")
             rollback_result = await self._perform_rollback(snapshot.id, contract.id, mission_id)
             
+            # Record failed outcome for learning
+            await learning_loop.record_outcome(
+                action_type=action_type,
+                success=False,
+                playbook_id=playbook_id,
+                contract_id=contract.id,
+                confidence_score=confidence,
+                problem_resolved=False,
+                rolled_back=True,
+                tier=tier,
+                triggered_by=triggered_by
+            )
+            
             return {
                 "success": False,
                 "contract_id": contract.id,
@@ -199,6 +213,19 @@ class ActionExecutor:
                 snapshot_id=snapshot.id,
                 benchmark_results=benchmark_result
             )
+        
+        # Record outcome for learning
+        await learning_loop.record_outcome(
+            action_type=action_type,
+            success=verified_success,
+            playbook_id=playbook_id,
+            contract_id=contract.id,
+            confidence_score=confidence,
+            problem_resolved=verified_success,
+            rolled_back=False,
+            tier=tier,
+            triggered_by=triggered_by
+        )
         
         print(f"    ✅ Action completed successfully")
         

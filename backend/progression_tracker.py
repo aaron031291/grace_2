@@ -60,7 +60,7 @@ class MissionTimeline(Base):
     rollback_available_count = Column(Integer, default=0)
     
     # Metadata
-    metadata = Column(JSON, nullable=True)
+    mission_metadata = Column(JSON, nullable=True)
 
 
 @dataclass
