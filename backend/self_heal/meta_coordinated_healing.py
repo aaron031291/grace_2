@@ -279,7 +279,7 @@ class MetaCoordinatedHealing:
         try:
             from ..models import async_session
             from sqlalchemy import select, func
-            from ..immutable_models import ImmutableEntry
+            from ..base_models import ImmutableLogEntry as ImmutableEntry
             
             # Analyze recent system behavior (last 5 minutes)
             cutoff = datetime.now(timezone.utc) - timedelta(minutes=5)

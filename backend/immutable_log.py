@@ -1,8 +1,10 @@
 import hashlib
 import json
+import asyncio
 from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from .base_models import ImmutableLogEntry, async_session
 
 
@@ -17,10 +19,12 @@ class ImmutableLog:
         subsystem: str,
         payload: dict,
         result: str,
-        signature: Optional[str] = None
+        signature: Optional[str] = None,
+        max_retries: int = 5
     ) -> int:
         """
         Append entry to immutable log with optional signature.
+        Retries on sequence conflicts (handles concurrent writes).
         
         Args:
             actor: Who performed the action
@@ -30,49 +34,58 @@ class ImmutableLog:
             payload: Additional data (dict)
             result: Outcome of the action
             signature: Optional cryptographic signature for audit trail
+            max_retries: Maximum retry attempts on conflict
         
         Returns:
             Entry ID
         """
         
-        async with async_session() as session:
-            last_result = await session.execute(
-                select(ImmutableLogEntry)
-                .order_by(ImmutableLogEntry.sequence.desc())
-                .limit(1)
-            )
-            last_entry = last_result.scalar_one_or_none()
-            
-            sequence = (last_entry.sequence + 1) if last_entry else 1
-            previous_hash = last_entry.entry_hash if last_entry else "0" * 64
-            
-            # Add signature to payload if provided
-            if signature:
-                payload["_signature"] = signature
-            
-            payload_str = json.dumps(payload, sort_keys=True)
-            
-            entry_hash = ImmutableLogEntry.compute_hash(
-                sequence, actor, action, resource, payload_str, result, previous_hash
-            )
-            
-            entry = ImmutableLogEntry(
-                sequence=sequence,
-                actor=actor,
-                action=action,
-                resource=resource,
-                subsystem=subsystem,
-                payload=payload_str,
-                result=result,
-                entry_hash=entry_hash,
-                previous_hash=previous_hash
-            )
-            
-            session.add(entry)
-            await session.commit()
-            await session.refresh(entry)
-            
-            return entry.id
+        for attempt in range(max_retries):
+            try:
+                async with async_session() as session:
+                    last_result = await session.execute(
+                        select(ImmutableLogEntry)
+                        .order_by(ImmutableLogEntry.sequence.desc())
+                        .limit(1)
+                    )
+                    last_entry = last_result.scalar_one_or_none()
+                    
+                    sequence = (last_entry.sequence + 1) if last_entry else 1
+                    previous_hash = last_entry.entry_hash if last_entry else "0" * 64
+                    
+                    # Add signature to payload if provided
+                    if signature:
+                        payload["_signature"] = signature
+                    
+                    payload_str = json.dumps(payload, sort_keys=True)
+                    
+                    entry_hash = ImmutableLogEntry.compute_hash(
+                        sequence, actor, action, resource, payload_str, result, previous_hash
+                    )
+                    
+                    entry = ImmutableLogEntry(
+                        sequence=sequence,
+                        actor=actor,
+                        action=action,
+                        resource=resource,
+                        subsystem=subsystem,
+                        payload=payload_str,
+                        result=result,
+                        entry_hash=entry_hash,
+                        previous_hash=previous_hash
+                    )
+                    
+                    session.add(entry)
+                    await session.commit()
+                    await session.refresh(entry)
+                    
+                    return entry.id
+            except IntegrityError as e:
+                if "UNIQUE constraint failed: immutable_log.sequence" in str(e) and attempt < max_retries - 1:
+                    # Retry with exponential backoff
+                    await asyncio.sleep(0.05 * (2 ** attempt))
+                    continue
+                raise
     
     async def verify_integrity(self, start_seq: int = 1, end_seq: int = None) -> dict:
         """Verify hash chain integrity"""
