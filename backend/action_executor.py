@@ -57,7 +57,7 @@ class ActionExecutor:
             Result dict with success, contract, snapshot, and verification info
         """
         
-        print(f"  🔐 Executing verified action: {action_type} (tier: {tier})")
+        print(f"  [EXEC] Executing verified action: {action_type} (tier: {tier})")
         
         # Step 1: Create action contract
         contract = await contract_verifier.create_contract(
@@ -70,7 +70,7 @@ class ActionExecutor:
             tier=tier
         )
         
-        print(f"    📝 Contract created: {contract.id}")
+        print(f"    [CONTRACT] Created: {contract.id}")
         
         # Step 2: Take snapshot for tier 2+ actions
         snapshot = None
@@ -82,7 +82,7 @@ class ActionExecutor:
                 playbook_run_id=run_id,
                 notes=f"Pre-action snapshot for {action_type}"
             )
-            print(f"    📸 Safe-hold snapshot: {snapshot.id}")
+            print(f"    [SNAPSHOT] Created: {snapshot.id}")
         
         # Step 3: Execute action through self-heal adapter with transaction safety
         try:
@@ -109,10 +109,10 @@ class ActionExecutor:
                 timeout=execution_timeout
             )
             
-            print(f"    ⚙️  Action executed: {execution_result.get('ok', False)}")
+            print(f"    [ACTION] Executed: {execution_result.get('ok', False)}")
             
         except asyncio.TimeoutError:
-            print(f"    ⏱️ Action execution timed out")
+            print(f"    [TIMEOUT] Action execution timed out")
             
             # Hardening: Mark contract as failed with transaction safety
             async with async_session() as session:
@@ -135,7 +135,7 @@ class ActionExecutor:
             }
             
         except Exception as e:
-            print(f"    ❌ Execution failed: {str(e)}")
+            print(f"    [ERROR] Execution failed: {str(e)}")
             
             # Hardening: Mark contract as failed with transaction safety
             async with async_session() as session:
@@ -171,12 +171,21 @@ class ActionExecutor:
                 triggered_by=f"post_action:{contract.id}"
             )
         
-        print(f"    🧪 Benchmark: {'✅ PASS' if benchmark_result['passed'] else '❌ FAIL'}")
+        print(f"    [BENCHMARK] {'PASS' if benchmark_result['passed'] else 'FAIL'}")
         
         # Step 5: Capture actual state and verify contract
+        # Enriched: Copy key fields from execution and benchmark results
         actual_state = {
-            "execution_result": execution_result,
+            # Core execution fields (matches expected_effect.target_state)
+            "status": execution_result.get("status", "completed" if execution_result.get("ok") else "failed"),
+            "error_resolved": execution_result.get("error_resolved", execution_result.get("ok", False)),
+            
+            # Benchmark metrics (for drift detection)
             "benchmark_passed": benchmark_result["passed"],
+            "error_rate": benchmark_result.get("metrics", {}).get("error_rate", 0.0),
+            
+            # Full results for debugging
+            "execution_result": execution_result,
             "benchmark_metrics": benchmark_result.get("metrics", {})
         }
         
@@ -189,7 +198,7 @@ class ActionExecutor:
         confidence = verification_result.get("confidence", 0.0)
         verified_success = verification_result.get("success", False)
         
-        print(f"    ✅ Verification: confidence={confidence:.2f}, success={verified_success}")
+        print(f"    [VERIFY] confidence={confidence:.2f}, success={verified_success}")
         
         # Step 6: Decide on rollback
         should_rollback = (
@@ -199,7 +208,7 @@ class ActionExecutor:
         )
         
         if should_rollback and snapshot:
-            print(f"    🔙 Rollback recommended (confidence={confidence:.2f})")
+            print(f"    [ROLLBACK] Recommended (confidence={confidence:.2f})")
             rollback_result = await self._perform_rollback(snapshot.id, contract.id, mission_id)
             
             # Record failed outcome for learning
@@ -255,7 +264,7 @@ class ActionExecutor:
             triggered_by=triggered_by
         )
         
-        print(f"    ✅ Action completed successfully")
+        print(f"    [SUCCESS] Action completed successfully")
         
         return {
             "success": True,
@@ -275,7 +284,7 @@ class ActionExecutor:
     ) -> Dict[str, Any]:
         """Perform rollback to snapshot"""
         
-        print(f"    🔄 Initiating rollback to snapshot {snapshot_id}")
+        print(f"    [ROLLBACK] Initiating rollback to snapshot {snapshot_id}")
         
         # Restore snapshot
         restore_result = await snapshot_manager.restore_snapshot(
@@ -313,7 +322,7 @@ class ActionExecutor:
             result="rolled_back"
         )
         
-        print(f"    ✅ Rollback completed")
+        print(f"    [ROLLBACK] Completed")
         
         return restore_result
 

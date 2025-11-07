@@ -321,7 +321,7 @@ class BenchmarkSuite:
         start = time.time()
         
         try:
-            from ..reflection_models import Reflection
+            from ..reflection import Reflection
             
             async with async_session() as session:
                 from sqlalchemy import select
