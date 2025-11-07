@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { setAuthToken } from '../api/client';
+import { ApprovalModal } from './ApprovalModal';
 import './GraceGPT.css';
 
 const DOMAINS = [
@@ -75,6 +76,8 @@ export default function GraceGPT() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [reviewMode, setReviewMode] = useState(false);
   const [pendingAction, setPendingAction] = useState<any>(null);
+  const [showApprovals, setShowApprovals] = useState(false);
+  const [approvalCount, setApprovalCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -88,6 +91,7 @@ export default function GraceGPT() {
       setIsLoggedIn(true);
       setAuthToken(token);
       initializeConnections(token);
+      pollApprovals(token);
     }
 
     // Request notification permission
@@ -95,6 +99,24 @@ export default function GraceGPT() {
       Notification.requestPermission();
     }
   }, []);
+
+  const pollApprovals = (token: string) => {
+    const checkApprovals = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/api/autonomy/approvals', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const count = Array.isArray(data) ? data.length : 0;
+        setApprovalCount(count);
+      } catch (err) {
+        console.error('Failed to fetch approvals:', err);
+      }
+    };
+
+    checkApprovals();
+    setInterval(checkApprovals, 5000);
+  };
 
   const initializeConnections = (token: string) => {
     const proactive = new WebSocket(`ws://localhost:8000/api/proactive/ws?token=${token}`);
@@ -454,6 +476,11 @@ export default function GraceGPT() {
           )}
           <h2>Grace AI Chat</h2>
           <div className="header-actions">
+            {approvalCount > 0 && (
+              <button className="approval-badge" onClick={() => setShowApprovals(true)}>
+                ✋ {approvalCount} Approval{approvalCount > 1 ? 's' : ''}
+              </button>
+            )}
             <span className="status-indicator">🟢 Connected</span>
           </div>
         </div>
@@ -593,18 +620,11 @@ export default function GraceGPT() {
       )}
 
       {/* Approval Modal */}
-      {pendingAction && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h2>Action Approval Required</h2>
-            <p>{pendingAction.description}</p>
-            <div className="modal-actions">
-              <button className="btn-approve" onClick={handleApprove}>Approve</button>
-              <button className="btn-decline" onClick={handleDecline}>Decline</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ApprovalModal
+        isOpen={showApprovals}
+        onClose={() => setShowApprovals(false)}
+        token={localStorage.getItem('grace_token') || ''}
+      />
     </div>
   );
 }

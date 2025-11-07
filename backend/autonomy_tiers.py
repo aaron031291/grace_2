@@ -165,10 +165,11 @@ class AutonomyManager:
             **self.TIER_3_ACTIONS
         }
         self.pending_approvals: Dict[str, Dict] = {}
+        self.policy_engine = None  # Will be set by policy_engine.policy_engine
     
     async def can_execute(self, action_name: str, context: Dict) -> tuple[bool, Optional[str]]:
         """
-        Check if action can be executed.
+        Check if action can be executed using policy engine.
         
         Returns:
             (can_execute: bool, approval_id: Optional[str])
@@ -177,8 +178,33 @@ class AutonomyManager:
         if not policy:
             return False, None
         
-        # Tier 1: Always allowed
-        if policy.tier == AutonomyTier.OPERATIONAL:
+        # Use policy engine if available
+        if self.policy_engine:
+            from .policy_engine import PolicyDecision
+            
+            eval_context = {
+                **context,
+                "tier": policy.tier.name.lower(),
+                "impact": policy.max_impact
+            }
+            
+            result = await self.policy_engine.evaluate(
+                action=action_name,
+                context=eval_context,
+                user=context.get("user", "system")
+            )
+            
+            if result.decision == PolicyDecision.ALLOW:
+                await self._log_action(action_name, "policy_approved", context)
+                return True, None
+            elif result.decision == PolicyDecision.DENY:
+                await self._log_action(action_name, "policy_denied", context)
+                return False, None
+            # else REQUIRE_APPROVAL, continue below
+        
+        # Fallback to tier-based check
+        # Tier 1: Always allowed (unless policy denied above)
+        if policy.tier == AutonomyTier.OPERATIONAL and not self.policy_engine:
             await self._log_action(action_name, "auto_approved", context)
             return True, None
         
