@@ -21,9 +21,18 @@ from datetime import datetime, timezone
 from ..models import async_session
 from ..action_contract import ActionContract
 from ..self_heal.safe_hold import SafeHoldSnapshot
-from ..benchmarks import Benchmark
 from ..progression_tracker import Mission
 from ..auth import get_current_user
+
+# Handle Benchmark import (may be in different location)
+try:
+    from ..benchmarks.models import Benchmark
+except (ImportError, AttributeError):
+    try:
+        from ..benchmarks import Benchmark
+    except (ImportError, AttributeError):
+        # Create a placeholder if not available
+        Benchmark = None
 
 router = APIRouter(
     prefix="/api/verification",

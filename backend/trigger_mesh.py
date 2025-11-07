@@ -1,8 +1,9 @@
 import asyncio
 from typing import Dict, Set, Callable, Any, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import json
+import uuid
 
 @dataclass
 class TriggerEvent:
@@ -13,6 +14,7 @@ class TriggerEvent:
     resource: str
     payload: dict
     timestamp: datetime
+    event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
 class TriggerMesh:
     """Event bus connecting all Grace subsystems"""
