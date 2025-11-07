@@ -14,8 +14,14 @@ from ..logging_utils import log_event
 from ..rate_limit import rate_limited
 from ..constitutional_verifier import constitutional_verifier
 from ..governance import governance_engine
+from ..action_executor import ActionExecutor
+from ..trigger_mesh import trigger_mesh, TriggerEvent
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
+
+# Executor instance for approval-to-execution
+action_executor = ActionExecutor()
 
 class PolicyCreate(BaseModel):
     name: str
@@ -328,6 +334,30 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
         request_id=req_id or None,
         verification_id=action_id,
     )
+    
+    # If approved, auto-execute via execute_verified_action
+    if body.decision == "approve":
+        async with async_session() as session:
+            approval_req = await session.get(ApprovalRequest, request_id)
+            if approval_req:
+                # Publish approval.granted event
+                await trigger_mesh.publish(TriggerEvent(
+                    event_type="approval.granted",
+                    source="governance",
+                    actor=current_user,
+                    resource=f"approval_{request_id}",
+                    payload={
+                        "approval_id": request_id,
+                        "event_id": approval_req.event_id,
+                        "reason": body.reason,
+                        "tier": "tier_2"  # Default tier, can be enhanced
+                    },
+                    timestamp=datetime.now(timezone.utc)
+                ))
+                
+                # Execute the approved action (in background to avoid blocking response)
+                # Note: In production, this should be handled by a background task
+                # For now, we just publish the event for InputSentinel to pick up
 
     result_dict["_verification_id"] = action_id
     return result_dict
