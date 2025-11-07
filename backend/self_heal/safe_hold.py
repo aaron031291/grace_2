@@ -18,7 +18,7 @@ import json
 import hashlib
 import shutil
 
-from sqlalchemy import Column, String, JSON, DateTime, Boolean, Integer
+from sqlalchemy import Column, String, JSON, DateTime, Boolean, Integer, text
 from sqlalchemy.orm import declarative_base
 
 from ..models import Base, async_session
@@ -176,7 +176,7 @@ class SnapshotManager:
             result="success"
         )
         
-        print(f"  📸 Snapshot created: {snapshot_id} (hash: {manifest_hash[:8]})")
+        print(f"  [SNAPSHOT] Created: {snapshot_id} (hash: {manifest_hash[:8]})")
         
         return snapshot
     
@@ -242,9 +242,15 @@ class SnapshotManager:
                         "error": str(e)
                     })
             
-            # Update snapshot record
-            snapshot.status = "restored"
-            snapshot.restored_at = datetime.now(timezone.utc)
+            # Update snapshot record (use text SQL to avoid ORM session issues)
+            await session.execute(text("""
+                UPDATE safe_hold_snapshots
+                SET status = 'restored', restored_at = :restored_at
+                WHERE id = :snapshot_id
+            """), {
+                "restored_at": datetime.now(timezone.utc),
+                "snapshot_id": snapshot_id
+            })
             await session.commit()
             
             # Log restoration
@@ -260,7 +266,7 @@ class SnapshotManager:
                 result="success"
             )
             
-            print(f"  🔄 Restored snapshot: {snapshot_id}")
+            print(f"  [RESTORE] Restored snapshot: {snapshot_id}")
             
             return {
                 "success": True,
