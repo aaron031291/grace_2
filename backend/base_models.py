@@ -13,7 +13,18 @@ from .settings import settings
 
 # Database setup
 DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
-engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    future=True,
+    connect_args={
+        "timeout": 30,
+        "check_same_thread": False
+    },
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20
+)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 # Base class for all models

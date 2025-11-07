@@ -1,0 +1,178 @@
+/* Additional styles for bidirectional interface */
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+.response-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quick-response-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.quick-response-btn.approve {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.quick-response-btn.approve:hover {
+  background: rgba(0, 255, 136, 0.3);
+}
+
+.quick-response-btn.deny {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.quick-response-btn.deny:hover {
+  background: rgba(255, 107, 107, 0.3);
+}
+
+.quick-response-btn.discuss {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.quick-response-btn.discuss:hover {
+  background: rgba(102, 126, 234, 0.3);
+}
+
+.consensus-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.option-btn {
+  padding: 8px 16px;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 6px;
+  color: #667eea;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.option-btn:hover {
+  background: rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+.subagent-card {
+  background: #1a1a2e;
+  border: 1px solid #2a2a3e;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.subagent-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.subagent-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.subagent-status {
+  font-size: 14px;
+}
+
+.status-running {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.subagent-task {
+  font-size: 13px;
+  color: #e0e0e0;
+  margin-bottom: 6px;
+}
+
+.subagent-domain {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 4px;
+  background: #0f0f1e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #00ff88 100%);
+  transition: width 0.3s;
+}
+
+.connection-status {
+  background: #1a1a2e;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.message-card.notification {
+  border-left: 3px solid #ffa500;
+  background: rgba(255, 165, 0, 0.05);
+  animation: slideIn 0.3s, glow 2s;
+}
+
+.message-card.question {
+  border-left: 3px solid #667eea;
+  background: rgba(102, 126, 234, 0.08);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+}
+
+.message-card.idea {
+  border-left: 3px solid #f093fb;
+  background: rgba(240, 147, 251, 0.05);
+}
+
+.message-card.consensus_request {
+  border-left: 3px solid #ffd700;
+  background: rgba(255, 215, 0, 0.05);
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.6); }
+}
