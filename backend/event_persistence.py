@@ -122,7 +122,7 @@ class EventPersistence:
                 action_event = ActionEvent(
                     event_type=event.event_type,
                     event_id=event.event_id,
-                    triggered_at=event.triggered_at,
+                    triggered_at=event.timestamp,  # Use timestamp instead of triggered_at
                     action_id=action_id,
                     error_id=error_id,
                     contract_id=contract_id,
