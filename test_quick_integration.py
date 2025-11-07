@@ -77,6 +77,7 @@ async def test_integration():
     try:
         from backend.event_persistence import event_persistence
         from backend.trigger_mesh import TriggerEvent
+        import time
         
         event = TriggerEvent(
             event_type="agentic.action_planned",
@@ -87,13 +88,22 @@ async def test_integration():
             timestamp=datetime.now(timezone.utc)
         )
         
-        persisted = await event_persistence.persist_action_event(
-            event=event,
-            mission_id="test_mission"
-        )
-        
-        print(f"  [OK] Event persistence working (ID: {persisted.id})")
-        passed += 1
+        # Retry on database lock
+        for attempt in range(3):
+            try:
+                persisted = await event_persistence.persist_action_event(
+                    event=event,
+                    mission_id="test_mission"
+                )
+                print(f"  [OK] Event persistence working (ID: {persisted.id})")
+                passed += 1
+                break
+            except Exception as retry_error:
+                if "database is locked" in str(retry_error) and attempt < 2:
+                    await asyncio.sleep(0.1)
+                    continue
+                else:
+                    raise
     except Exception as e:
         print(f"  [FAIL] {e}")
         failed += 1

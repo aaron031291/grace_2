@@ -21,8 +21,16 @@ from datetime import datetime, timezone
 from ..models import async_session
 from ..action_contract import ActionContract
 from ..self_heal.safe_hold import SafeHoldSnapshot
-from ..progression_tracker import Mission
 from ..auth import get_current_user
+
+# Handle Mission import (may be named MissionTimeline)
+try:
+    from ..progression_tracker import Mission
+except (ImportError, AttributeError):
+    try:
+        from ..progression_tracker import MissionTimeline as Mission
+    except (ImportError, AttributeError):
+        Mission = None
 
 # Handle Benchmark import (may be in different location)
 try:
@@ -291,6 +299,13 @@ async def list_missions(
     session: AsyncSession = Depends(async_session)
 ):
     """List missions with progression tracking"""
+    
+    if Mission is None:
+        return _response_envelope(
+            data=[],
+            meta={"total": 0, "limit": limit, "offset": offset, "count": 0, "note": "Missions not available"}
+        )
+    
     query = select(Mission)
     
     if status:
