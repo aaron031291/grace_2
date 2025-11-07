@@ -271,9 +271,9 @@ class ConfigValidator:
         for item in self.CONFIG_SCHEMA:
             value = self.config.get(item.key, "NOT SET")
             level_symbol = {
-                ConfigLevel.REQUIRED: "🔴",
-                ConfigLevel.RECOMMENDED: "🟡",
-                ConfigLevel.OPTIONAL: "🟢"
+                ConfigLevel.REQUIRED: "[REQ]",
+                ConfigLevel.RECOMMENDED: "[REC]",
+                ConfigLevel.OPTIONAL: "[OPT]"
             }[item.level]
             
             print(f"{level_symbol} {item.key:<40} = {value}")
