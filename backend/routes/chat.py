@@ -9,6 +9,7 @@ from ..causal import causal_tracker
 from ..hunter import hunter
 from ..models import ChatMessage, async_session
 from ..agentic_error_handler import agentic_error_handler
+from ..memory_learning_pipeline import memory_learning_pipeline, MemoryClassification
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -85,8 +86,21 @@ async def chat_endpoint(
         # Track causal relationship
         await causal_tracker.log_interaction(current_user, trigger_id, response_id)
         
+        # Capture conversation in learning pipeline
+        user_mem_id, grace_mem_id = await memory_learning_pipeline.capture_conversation_turn(
+            user=current_user,
+            user_message=req.message,
+            grace_response=result,
+            metadata={"domain": req.domain, "operation_id": operation_id}
+        )
+        
         return ChatResponse(
             response=result,
             domain=req.domain,
-            metadata={"operation_id": operation_id, "duration_ms": (datetime.utcnow() - start_time).total_seconds() * 1000}
+            metadata={
+                "operation_id": operation_id,
+                "duration_ms": (datetime.utcnow() - start_time).total_seconds() * 1000,
+                "user_memory_id": user_mem_id,
+                "grace_memory_id": grace_mem_id
+            }
         )
