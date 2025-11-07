@@ -140,20 +140,24 @@ class EventPersistence:
                 
                 session.add(action_event)
                 await session.flush()
-                
-                # Also log to immutable log for durability
-                log_entry = await immutable_log.append(
-                    actor=triggered_by or "input_sentinel",
-                    action=event.event_type,
-                    resource=f"action:{action_id}" if action_id else "action",
-                    subsystem="agentic_events",
-                    payload=payload,
-                    result="persisted"
-                )
-                
-                action_event.immutable_log_id = log_entry.id
-                
-                return action_event
+        
+        # Log to immutable log AFTER committing the action_event (avoids nested session deadlock)
+        log_entry_id = await immutable_log.append(
+            actor=triggered_by or "input_sentinel",
+            action=event.event_type,
+            resource=f"action:{action_id}" if action_id else "action",
+            subsystem="agentic_events",
+            payload=payload,
+            result="persisted"
+        )
+        
+        # Update with immutable log ID
+        async with async_session() as session:
+            async with session.begin():
+                action_event.immutable_log_id = log_entry_id
+                session.add(action_event)
+        
+        return action_event
     
     async def get_action_timeline(
         self,
