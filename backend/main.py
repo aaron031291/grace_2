@@ -132,6 +132,24 @@ async def on_startup():
     await start_discovery_scheduler(interval_val, seeds_val)
     print(f"✓ Knowledge discovery scheduler started")
     
+    print("\n🤖 ==================== ADVANCED AI SYSTEMS ====================")
+    
+    # Start shard orchestrator for parallel multi-agent execution
+    await shard_orchestrator.start()
+    
+    # Start Input Sentinel for agentic error handling
+    await input_sentinel.start()
+    
+    # Preload AI expertise into Grace
+    try:
+        print("📚 Loading expert AI knowledge into Grace...")
+        preloader = KnowledgePreloader()
+        await preloader.preload_ai_expertise()
+    except Exception as e:
+        print(f"  ⚠️ Knowledge preload partial: {e}")
+    
+    print("============================================================\n")
+    
     # Start GRACE Agentic Spine
     await activate_grace_autonomy()
     print("✓ GRACE Agentic Spine activated")
@@ -282,6 +300,7 @@ try:
         app.include_router(meta_focus.router)
         app.include_router(proactive_chat.router)
         app.include_router(subagent_bridge.router)
+        app.include_router(autonomy_routes.router)
 except Exception:
     pass
 
