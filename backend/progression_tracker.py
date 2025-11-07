@@ -140,7 +140,7 @@ class ProgressionTracker:
             result="started"
         )
         
-        print(f"  🎯 Mission started: {mission_name} ({planned_actions} actions planned)")
+        print(f"  [MISSION] Mission started: {mission_name} ({planned_actions} actions planned)")
         
         return timeline
     
@@ -370,7 +370,7 @@ class ProgressionTracker:
             result=timeline.status
         )
         
-        print(f"  ✅ Mission {timeline.status}: {timeline.mission_name}")
+        print(f"  [OK] Mission {timeline.status}: {timeline.mission_name}")
     
     async def get_mission_history(
         self,
