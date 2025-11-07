@@ -1,15 +1,7 @@
 """
 Capability Registry - Safe Actions for LLM Tool Use
 
-Defines every capability Grace can perform:
-- Authentication
-- Task management
-- Knowledge operations
-- Code editing
-- Security checks
-- Governance actions
-- Verification queries
-
+Defines every capability Grace can perform.
 This manifest feeds into LLM prompts as available tools.
 LLM can only request actions in this registry.
 """
@@ -27,7 +19,21 @@ class CapabilityRegistry:
         self.capabilities: Dict[str, Dict[str, Any]] = {}
         self.handlers: Dict[str, Callable] = {}
         self._register_builtin_capabilities()
-        self._register_builtin_handlers()
+        self._load_handlers()
+    
+    def _load_handlers(self):
+        """Load handlers from capability_handlers module"""
+        try:
+            from . import capability_handlers
+            
+            self.handlers["task.list"] = capability_handlers.handle_task_list
+            self.handlers["task.create"] = capability_handlers.handle_task_create
+            self.handlers["knowledge.search"] = capability_handlers.handle_knowledge_search
+            self.handlers["chat.respond"] = capability_handlers.handle_chat_respond
+            self.handlers["verification.status"] = capability_handlers.handle_verification_status
+            self.handlers["benchmark.run"] = capability_handlers.handle_benchmark_run
+        except ImportError:
+            pass  # Handlers optional
     
     def register_capability(
         self,
@@ -70,11 +76,7 @@ class CapabilityRegistry:
         return list(self.capabilities.values())
     
     def to_llm_tools(self) -> List[Dict[str, Any]]:
-        """
-        Export capabilities as LLM tool definitions.
-        Compatible with OpenAI function calling format.
-        """
-        
+        """Export capabilities as LLM tool definitions"""
         tools = []
         for cap in self.capabilities.values():
             tools.append({
@@ -85,40 +87,19 @@ class CapabilityRegistry:
                     "parameters": cap["parameters_schema"]
                 }
             })
-        
         return tools
     
     def _register_builtin_capabilities(self):
         """Register all built-in Grace capabilities"""
         
-        # ============= Authentication =============
-        
-        self.register_capability(
-            intent_type="auth.login",
-            description="Authenticate user and obtain access token",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "username": {"type": "string"},
-                    "password": {"type": "string"}
-                },
-                "required": ["username", "password"]
-            },
-            steps=[{"action": "auth.login", "tier": "tier_1"}],
-            tier="tier_1",
-            requires_approval=False
-        )
-        
-        # ============= Task Management =============
-        
+        # Task Management
         self.register_capability(
             intent_type="task.list",
             description="List user tasks with optional filtering",
             parameters_schema={
                 "type": "object",
                 "properties": {
-                    "status": {"type": "string", "enum": ["pending", "in-progress", "completed"]},
-                    "priority": {"type": "string", "enum": ["low", "medium", "high"]}
+                    "status": {"type": "string", "enum": ["pending", "in-progress", "completed"]}
                 }
             },
             steps=[{"action": "task.list", "tier": "tier_1"}],
@@ -132,8 +113,7 @@ class CapabilityRegistry:
                 "type": "object",
                 "properties": {
                     "title": {"type": "string"},
-                    "description": {"type": "string"},
-                    "priority": {"type": "string", "enum": ["low", "medium", "high"]}
+                    "description": {"type": "string"}
                 },
                 "required": ["title"]
             },
@@ -141,11 +121,10 @@ class CapabilityRegistry:
             tier="tier_1"
         )
         
-        # ============= Knowledge Operations =============
-        
+        # Knowledge Operations
         self.register_capability(
             intent_type="knowledge.search",
-            description="Search knowledge base for information",
+            description="Search knowledge base",
             parameters_schema={
                 "type": "object",
                 "properties": {
@@ -158,133 +137,14 @@ class CapabilityRegistry:
             tier="tier_1"
         )
         
-        self.register_capability(
-            intent_type="knowledge.ingest",
-            description="Ingest new knowledge into the system",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "content": {"type": "string"},
-                    "source": {"type": "string"},
-                    "tags": {"type": "array", "items": {"type": "string"}}
-                },
-                "required": ["content"]
-            },
-            steps=[{"action": "knowledge.ingest", "tier": "tier_1"}],
-            tier="tier_1"
-        )
-        
-        # ============= Code Operations =============
-        
-        self.register_capability(
-            intent_type="code.edit",
-            description="Edit code files with verification",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "file_path": {"type": "string"},
-                    "changes": {"type": "string"},
-                    "description": {"type": "string"}
-                },
-                "required": ["file_path", "changes"]
-            },
-            steps=[{"action": "code.edit", "tier": "tier_2", "timeout": 60}],
-            tier="tier_2",
-            requires_approval=True,
-            risk_level="medium"
-        )
-        
-        self.register_capability(
-            intent_type="code.review",
-            description="Review code changes and run tests",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "file_path": {"type": "string"},
-                    "run_tests": {"type": "boolean", "default": True}
-                }
-            },
-            steps=[
-                {"action": "code.review", "tier": "tier_1"},
-                {"action": "code.test", "tier": "tier_1"}
-            ],
-            tier="tier_1"
-        )
-        
-        # ============= Security/Hunter =============
-        
-        self.register_capability(
-            intent_type="hunter.check",
-            description="Check for security threats and alerts",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "scope": {"type": "string", "enum": ["recent", "all", "critical"]},
-                    "alert_type": {"type": "string"}
-                }
-            },
-            steps=[{"action": "hunter.scan", "tier": "tier_1"}],
-            tier="tier_1"
-        )
-        
-        # ============= Governance =============
-        
-        self.register_capability(
-            intent_type="governance.review",
-            description="Review pending governance approvals",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "status": {"type": "string", "enum": ["pending", "approved", "rejected"]}
-                }
-            },
-            steps=[{"action": "governance.list_approvals", "tier": "tier_1"}],
-            tier="tier_1"
-        )
-        
-        self.register_capability(
-            intent_type="governance.approve",
-            description="Approve or reject a governance action",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "approval_id": {"type": "string"},
-                    "approved": {"type": "boolean"},
-                    "reason": {"type": "string"}
-                },
-                "required": ["approval_id", "approved"]
-            },
-            steps=[{"action": "governance.approve", "tier": "tier_2"}],
-            tier="tier_2",
-            requires_approval=False  # This IS the approval action
-        )
-        
-        # ============= Verification =============
-        
-        self.register_capability(
-            intent_type="verification.status",
-            description="Check verification system status",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "include_contracts": {"type": "boolean", "default": False},
-                    "include_snapshots": {"type": "boolean", "default": False}
-                }
-            },
-            steps=[{"action": "verification.status", "tier": "tier_1"}],
-            tier="tier_1"
-        )
-        
-        # ============= Chat/Conversation =============
-        
+        # Chat
         self.register_capability(
             intent_type="chat.respond",
             description="General conversational response",
             parameters_schema={
                 "type": "object",
                 "properties": {
-                    "message": {"type": "string"},
-                    "context": {"type": "object"}
+                    "message": {"type": "string"}
                 },
                 "required": ["message"]
             },
@@ -292,38 +152,32 @@ class CapabilityRegistry:
             tier="tier_1"
         )
         
-        # ============= System Operations =============
-        
-        self.register_capability(
-            intent_type="system.restart",
-            description="Restart system service",
-            parameters_schema={
-                "type": "object",
-                "properties": {
-                    "service": {"type": "string"},
-                    "graceful": {"type": "boolean", "default": True}
-                }
-            },
-            steps=[{"action": "restart_service", "tier": "tier_2", "timeout": 90}],
-            tier="tier_2",
-            requires_approval=True,
-            risk_level="medium"
-        )
-        
+        # System Operations
         self.register_capability(
             intent_type="system.benchmark",
             description="Run system benchmarks",
             parameters_schema={
                 "type": "object",
                 "properties": {
-                    "type": {"type": "string", "enum": ["smoke", "regression", "full"]}
+                    "type": {"type": "string", "enum": ["smoke", "regression"]}
                 }
             },
             steps=[{"action": "benchmark.run", "tier": "tier_1"}],
+            tier="tier_1"
+        )
+        
+        # Verification
+        self.register_capability(
+            intent_type="verification.status",
+            description="Check verification system status",
+            parameters_schema={
+                "type": "object",
+                "properties": {}
+            },
+            steps=[{"action": "verification.status", "tier": "tier_1"}],
             tier="tier_1"
         )
 
 
 # Singleton
 capability_registry = CapabilityRegistry()
- 

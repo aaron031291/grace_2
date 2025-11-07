@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from .base_models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -43,6 +43,8 @@ from .shard_orchestrator import shard_orchestrator
 from .input_sentinel import input_sentinel
 from .policy_engine import policy_engine
 from .autonomy_tiers import autonomy_manager
+from .concurrent_executor import concurrent_executor
+from .domains.all_domain_adapters import domain_registry
 try:
     from .knowledge_preload import KnowledgePreloader
 except ImportError:
@@ -145,6 +147,14 @@ async def on_startup():
     # Wire policy engine to autonomy manager
     autonomy_manager.policy_engine = policy_engine
     
+    # Start concurrent executor for multi-threaded background tasks
+    await concurrent_executor.start()
+    
+    # Register all domain adapters
+    from .self_heal.adapter import self_healing_adapter
+    domain_registry.register_adapter("core", self_healing_adapter)
+    print(f"  ✓ Registered {len(domain_registry.get_all_adapters())} domain adapters")
+    
     # Start shard orchestrator for parallel multi-agent execution
     await shard_orchestrator.start()
     
@@ -172,6 +182,9 @@ async def on_startup():
 async def on_shutdown():
     # Stop agentic spine first
     await deactivate_grace_autonomy()
+    
+    # Stop concurrent executor
+    await concurrent_executor.stop()
     
     await reflection_service.stop()
     await task_executor.stop_workers()
@@ -307,6 +320,7 @@ app.include_router(security_domain_router)
 app.include_router(agentic_insights_router, prefix="/api")
 app.include_router(verification_routes.router)
 app.include_router(cognition_api.router)
+app.include_router(concurrent_api.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
