@@ -15,6 +15,7 @@ from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
+from .routers.verification_router import router as verification_router
 from .request_id_middleware import RequestIDMiddleware
 from .metrics_service import init_metrics_collector
 
@@ -351,6 +352,7 @@ app.include_router(security_domain_router)
 app.include_router(agentic_insights_router, prefix="/api")
 app.include_router(verification_routes.router)
 app.include_router(verification_api.router)
+app.include_router(verification_router)
 app.include_router(cognition_api.router)
 app.include_router(concurrent_api.router)
 

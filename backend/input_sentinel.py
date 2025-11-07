@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
 from .autonomy_tiers import autonomy_manager, AutonomyTier
+from .event_persistence import event_persistence
 
 
 class InputSentinel:
@@ -98,6 +99,8 @@ class InputSentinel:
         2. Identify root cause candidates
         3. Select playbook(s)
         4. Publish agentic.problem_identified
+        
+        Accepts optional mission_id in event payload for timeline tracking.
         """
         
         error_data = event.payload
@@ -105,6 +108,7 @@ class InputSentinel:
         error_type = error_data.get("error_type")
         error_msg = error_data.get("error_message", "")
         severity = error_data.get("severity", "medium")
+        mission_id = error_data.get("mission_id")  # Extract mission_id if present
         
         # Classify error pattern
         pattern = self._classify_pattern(error_type, error_msg)
@@ -127,7 +131,8 @@ class InputSentinel:
             "confidence": playbook["confidence"],
             "requires_approval": playbook["tier"] != AutonomyTier.OPERATIONAL,
             "guardrails": self._get_guardrails(pattern),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "mission_id": mission_id  # Propagate mission_id
         }
         
         # Publish problem identification
@@ -152,9 +157,9 @@ class InputSentinel:
         
         # If operational tier, automatically plan action
         if playbook["tier"] == AutonomyTier.OPERATIONAL and playbook["confidence"] > 0.75:
-            await self._plan_autonomous_action(error_id, problem_payload)
+            await self._plan_autonomous_action(error_id, problem_payload, mission_id=mission_id)
     
-    async def _plan_autonomous_action(self, error_id: str, problem: Dict):
+    async def _plan_autonomous_action(self, error_id: str, problem: Dict, mission_id: Optional[str] = None):
         """Plan and execute autonomous remediation"""
         
         action_id = f"action_{error_id}"
@@ -173,38 +178,50 @@ class InputSentinel:
             "can_auto_execute": can_execute,
             "approval_id": approval_id,
             "confidence": problem["confidence"],
-            "guardrails": problem["guardrails"]
+            "guardrails": problem["guardrails"],
+            "mission_id": mission_id  # Propagate mission_id
         }
         
         # Publish action plan
-        await trigger_mesh.publish(TriggerEvent(
+        event = TriggerEvent(
             event_type="agentic.action_planned",
             source="input_sentinel",
             actor="sentinel",
             resource=action_id,
             payload=action_payload,
             timestamp=datetime.now(timezone.utc)
-        ))
+        )
+        await trigger_mesh.publish(event)
+        
+        # Persist to DB for audit trail
+        await event_persistence.persist_action_event(
+            event=event,
+            mission_id=mission_id
+        )
         
         if can_execute:
             # Execute immediately
-            await self._execute_action(action_id, actions, error_id)
+            await self._execute_action(action_id, actions, error_id, mission_id=mission_id)
         else:
             # Request approval
             await self._request_approval(action_id, approval_id, actions, problem)
     
-    async def _execute_action(self, action_id: str, actions: List[str], error_id: str):
+    async def _execute_action(self, action_id: str, actions: List[str], error_id: str, mission_id: Optional[str] = None):
         """Execute remediation actions"""
         
         # Publish execution start
-        await trigger_mesh.publish(TriggerEvent(
+        exec_event = TriggerEvent(
             event_type="agentic.action_executing",
             source="input_sentinel",
             actor="sentinel",
             resource=action_id,
             payload={"action_id": action_id, "actions": actions},
             timestamp=datetime.now(timezone.utc)
-        ))
+        )
+        await trigger_mesh.publish(exec_event)
+        
+        # Persist execution start
+        await event_persistence.persist_action_event(event=exec_event)
         
         results = []
         for action in actions:
@@ -221,7 +238,7 @@ class InputSentinel:
         
         # Publish completion
         event_type = "agentic.problem_resolved" if success else "agentic.action_failed"
-        await trigger_mesh.publish(TriggerEvent(
+        completion_event = TriggerEvent(
             event_type=event_type,
             source="input_sentinel",
             actor="sentinel",
@@ -233,7 +250,11 @@ class InputSentinel:
                 "success": success
             },
             timestamp=datetime.now(timezone.utc)
-        ))
+        )
+        await trigger_mesh.publish(completion_event)
+        
+        # Persist completion event
+        await event_persistence.persist_action_event(event=completion_event)
         
         # Log outcome
         await self.immutable_log.append(
