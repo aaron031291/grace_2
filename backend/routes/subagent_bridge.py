@@ -63,19 +63,44 @@ async def subagent_stream(websocket: WebSocket):
     except:
         subagent_connections.remove(websocket)
 
-async def spawn_subagent(agent_type: str, task: str, domain: str) -> str:
+async def spawn_subagent(agent_type: str, task: str, domain: str, background: bool = True) -> str:
     """
-    Spawn a new subagent for parallel processing
-    Returns task_id
+    Spawn a new subagent for parallel processing.
+    Routes to concurrent executor for real multi-threading.
+    
+    Args:
+        agent_type: Type of agent (e.g., "knowledge", "security", "ml")
+        task: Task description
+        domain: Domain to execute in
+        background: Run in background (True) or wait for completion (False)
+    
+    Returns:
+        task_id for tracking
     """
+    
+    from ..concurrent_executor import concurrent_executor
+    
     task_id = f"{agent_type}_{datetime.now().timestamp()}"
     agent = SubagentTask(task_id, agent_type, task, domain)
     active_subagents[task_id] = agent
+    
+    # Submit to concurrent executor for real parallel execution
+    executor_task_id = await concurrent_executor.submit_task(
+        domain=domain,
+        action=task,
+        parameters={"task_description": task, "agent_type": agent_type},
+        priority=5,
+        background=background
+    )
+    
+    # Update agent status
+    agent.status = "running"
     
     # Notify all UI connections
     await broadcast_subagent_update({
         "type": "subagent_spawned",
         "agent": agent.to_dict(),
+        "executor_task_id": executor_task_id,
         "timestamp": datetime.now().isoformat()
     })
     
