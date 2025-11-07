@@ -41,6 +41,8 @@ from .self_heal.scheduler import scheduler as self_heal_scheduler
 from .self_heal.runner import runner as self_heal_runner
 from .shard_orchestrator import shard_orchestrator
 from .input_sentinel import input_sentinel
+from .policy_engine import policy_engine
+from .autonomy_tiers import autonomy_manager
 try:
     from .knowledge_preload import KnowledgePreloader
 except ImportError:
@@ -136,6 +138,12 @@ async def on_startup():
     print(f"✓ Knowledge discovery scheduler started")
     
     print("\n🤖 ==================== ADVANCED AI SYSTEMS ====================")
+    
+    # Load policy-as-code engine
+    await policy_engine.load_policies()
+    
+    # Wire policy engine to autonomy manager
+    autonomy_manager.policy_engine = policy_engine
     
     # Start shard orchestrator for parallel multi-agent execution
     await shard_orchestrator.start()

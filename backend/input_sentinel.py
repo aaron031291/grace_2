@@ -247,22 +247,145 @@ class InputSentinel:
     
     async def _run_playbook_action(self, action: str, error_id: str) -> Dict:
         """
-        Execute a specific playbook action.
+        Execute a specific playbook action via self-heal adapter.
         
-        TODO: Integrate with actual self-heal playbooks
+        Integrates with real self-heal playbooks for actual remediation.
         """
         
-        # Simulate action execution
+        # Import self-heal components
+        try:
+            from .self_heal.adapter import self_healing_adapter
+            from .self_heal.playbooks import select_for_diagnosis, plan
+            from .self_heal_models import PlaybookRun
+            from .models import async_session
+            from datetime import datetime, timezone
+            
+            # Map input sentinel actions to playbook templates and diagnosis codes
+            action_to_playbook = {
+                # Database/lock issues
+                "clear_lock_files": ("warm_cache", "general_degradation", {"cache_type": "db_locks"}),
+                "enable_wal_mode": ("restart_service", "service_down", {"graceful": True}),
+                
+                # Service restart/recovery
+                "restart_service": ("restart_service", "service_down", {"graceful": True}),
+                
+                # Performance/scaling
+                "scale_up": ("scale_up_instances", "latency_spike", {"min_delta": 1}),
+                "retry_with_backoff": ("restart_service", "elevated_errors", {"graceful": True}),
+                "optimize_query": ("warm_cache", "latency_spike", {}),
+                "increase_timeout": ("warm_cache", "latency_spike", {}),
+                
+                # Cache management
+                "clear_cache": ("warm_cache", "latency_spike", {"cache_type": "application"}),
+                
+                # Error handling
+                "retry_with_defaults": ("flush_circuit_breakers", "elevated_errors", {}),
+                "fallback_mode": ("rollback_flag", "elevated_errors", {"flag": "experimental_features", "state": False}),
+                
+                # Diagnostics
+                "alert_admin": ("increase_logging", "general_degradation", {"level": "DEBUG", "ttl_min": 15}),
+                
+                # Input validation (map to safe actions)
+                "fix_input_format": ("increase_logging", "general_degradation", {"level": "DEBUG", "ttl_min": 10}),
+                "provide_example": ("increase_logging", "general_degradation", {"level": "INFO"}),
+                "suggest_alternative": ("increase_logging", "general_degradation", {"level": "INFO"}),
+                
+                # Policy actions (map to logging for now)
+                "request_override": ("increase_logging", "general_degradation", {"level": "INFO"}),
+                "check_policy": ("increase_logging", "general_degradation", {"level": "INFO"}),
+                "split_request": ("increase_logging", "general_degradation", {"level": "INFO"}),
+            }
+            
+            if action not in action_to_playbook:
+                return {"executed": action, "status": "no_mapping", "simulated": True}
+            
+            playbook_code, diagnosis_code, params = action_to_playbook[action]
+            params["triggered_by_error"] = error_id
+            
+            # Get playbook template through the playbooks module
+            templates = select_for_diagnosis(
+                service="grace_backend",
+                diagnosis_code=diagnosis_code,
+                severity="medium"
+            )
+            
+            if not templates:
+                return {"error": "No playbook template found", "action": action, "success": False}
+            
+            # Find matching template
+            template = next((t for t in templates if t.code == playbook_code), templates[0])
+            
+            # Create PlaybookRun record
+            async with async_session() as session:
+                run = PlaybookRun(
+                    playbook_id=template.code,
+                    playbook_name=template.title,
+                    service_name="grace_backend",
+                    triggered_by=f"input_sentinel:{error_id}",
+                    severity="medium",
+                    status="approved",  # Auto-approve from input sentinel
+                    tier="tier_1",
+                    context={
+                        "error_id": error_id,
+                        "diagnosis": diagnosis_code,
+                        "input_action": action
+                    },
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc)
+                )
+                session.add(run)
+                await session.commit()
+                run_id = run.id
+            
+            # Execute the first step through the adapter
+            if template.steps:
+                step = template.steps[0]
+                merged_params = {**step.parameters, **params}
+                
+                result = await self_healing_adapter.execute_action(
+                    action_type=step.action,
+                    parameters=merged_params
+                )
+                
+                # Update run status based on result
+                async with async_session() as session:
+                    run = await session.get(PlaybookRun, run_id)
+                    if run:
+                        run.status = "succeeded" if result.get("ok") else "failed"
+                        run.result = result
+                        run.updated_at = datetime.now(timezone.utc)
+                        await session.commit()
+                
+                return {
+                    "ok": result.get("ok", False),
+                    "action": action,
+                    "playbook": template.code,
+                    "run_id": run_id,
+                    "result": result,
+                    "simulated": False
+                }
+            else:
+                return {"error": "Template has no steps", "action": action, "success": False}
+                
+        except ImportError as e:
+            # Fallback if self-heal components not available
+            return await self._simulate_playbook_action(action, error_id)
+        except Exception as e:
+            return {"error": str(e), "action": action, "success": False}
+    
+    async def _simulate_playbook_action(self, action: str, error_id: str) -> Dict:
+        """Fallback simulation when real playbooks unavailable"""
+        
         await asyncio.sleep(0.1)
         
-        if action == "clear_lock_files":
-            return {"cleared": ["grace.db-wal", "grace.db-shm"]}
-        elif action == "restart_service":
-            return {"restarted": "grace_backend", "status": "running"}
-        elif action == "retry_with_backoff":
-            return {"retried": True, "attempts": 3, "success": True}
+        simulation_results = {
+            "clear_lock_files": {"cleared": ["grace.db-wal", "grace.db-shm"], "simulated": True},
+            "restart_service": {"restarted": "grace_backend", "status": "running", "simulated": True},
+            "retry_with_backoff": {"retried": True, "attempts": 3, "success": True, "simulated": True},
+            "enable_wal_mode": {"wal_enabled": True, "simulated": True}
+        }
         
-        return {"executed": action, "status": "simulated"}
+        return simulation_results.get(action, {"executed": action, "status": "simulated"})
     
     async def _request_approval(self, action_id: str, approval_id: str, actions: List[str], problem: Dict):
         """Request human approval for high-tier actions"""
@@ -328,15 +451,15 @@ class InputSentinel:
             ))
     
     async def _handle_action_completed(self, event: TriggerEvent):
-        """Learn from completed actions"""
+        """Learn from completed actions and feed to learning pipeline"""
         
         result = event.payload
         action_id = result.get("action_id")
+        error_id = result.get("error_id")
         success = result.get("success", False)
+        results = result.get("results", [])
         
         # Update playbook success metrics
-        # TODO: Feed into learning engine
-        
         if action_id not in self.playbook_outcomes:
             self.playbook_outcomes[action_id] = {"success": 0, "failed": 0}
         
@@ -344,6 +467,37 @@ class InputSentinel:
             self.playbook_outcomes[action_id]["success"] += 1
         else:
             self.playbook_outcomes[action_id]["failed"] += 1
+        
+        # Feed outcome to learning pipeline
+        try:
+            from .memory_learning_pipeline import memory_learning_pipeline
+            
+            await memory_learning_pipeline.capture_outcome(
+                user="sentinel",
+                action=action_id,
+                outcome=f"Playbook execution {'succeeded' if success else 'failed'}",
+                success=success,
+                metadata={
+                    "error_id": error_id,
+                    "results": results,
+                    "playbook_stats": self.playbook_outcomes.get(action_id, {})
+                }
+            )
+        except ImportError:
+            # Learning pipeline not available
+            pass
+        
+        # Update playbook confidence scores
+        stats = self.playbook_outcomes.get(action_id, {})
+        total = stats.get("success", 0) + stats.get("failed", 0)
+        if total > 0:
+            success_rate = stats.get("success", 0) / total
+            
+            # Update playbook registry confidence
+            for pattern, playbook in self.playbook_registry.items():
+                if action_id in str(playbook.get("actions", [])):
+                    # Adjust confidence based on success rate
+                    playbook["confidence"] = 0.5 + (success_rate * 0.5)
     
     def _classify_pattern(self, error_type: str, error_msg: str) -> str:
         """Classify error into known patterns"""
