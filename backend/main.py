@@ -80,6 +80,7 @@ from .policy_engine import policy_engine
 from .autonomy_tiers import autonomy_manager
 from .concurrent_executor import concurrent_executor
 from .domains.all_domain_adapters import domain_registry
+from .startup_integration import start_verification_systems, stop_verification_systems
 try:
     from .knowledge_preload import KnowledgePreloader
 except ImportError:
@@ -212,6 +213,9 @@ async def on_startup():
     
     print("============================================================\n")
     
+    # Start verification and resilience systems
+    await start_verification_systems()
+    
     # Start GRACE Agentic Spine
     await activate_grace_autonomy()
     print("✓ GRACE Agentic Spine activated")
@@ -220,6 +224,9 @@ async def on_startup():
 async def on_shutdown():
     # Stop agentic spine first
     await deactivate_grace_autonomy()
+    
+    # Stop verification systems
+    await stop_verification_systems()
     
     # Stop concurrent executor
     await concurrent_executor.stop()
