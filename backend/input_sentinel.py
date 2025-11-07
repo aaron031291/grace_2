@@ -247,17 +247,20 @@ class InputSentinel:
     
     async def _run_playbook_action(self, action: str, error_id: str) -> Dict:
         """
-        Execute a specific playbook action via self-heal adapter.
+        Execute a specific playbook action with full verification.
         
-        Integrates with real self-heal playbooks for actual remediation.
+        Uses ActionExecutor for:
+        - Contract creation (expected vs actual)
+        - Safe-hold snapshot before execution
+        - Benchmark verification after execution
+        - Automatic rollback on failure
         """
         
-        # Import self-heal components
+        # Import verification components
         try:
-            from .self_heal.adapter import self_healing_adapter
-            from .self_heal.playbooks import select_for_diagnosis, plan
-            from .self_heal_models import PlaybookRun
-            from .models import async_session
+            from .action_executor import action_executor
+            from .action_contract import ExpectedEffect
+            from .self_heal.playbooks import select_for_diagnosis
             from datetime import datetime, timezone
             
             # Map input sentinel actions to playbook templates and diagnosis codes
@@ -300,9 +303,8 @@ class InputSentinel:
                 return {"executed": action, "status": "no_mapping", "simulated": True}
             
             playbook_code, diagnosis_code, params = action_to_playbook[action]
-            params["triggered_by_error"] = error_id
             
-            # Get playbook template through the playbooks module
+            # Get playbook template
             templates = select_for_diagnosis(
                 service="grace_backend",
                 diagnosis_code=diagnosis_code,
@@ -315,57 +317,54 @@ class InputSentinel:
             # Find matching template
             template = next((t for t in templates if t.code == playbook_code), templates[0])
             
-            # Create PlaybookRun record
-            async with async_session() as session:
-                run = PlaybookRun(
-                    playbook_id=template.code,
-                    playbook_name=template.title,
-                    service_name="grace_backend",
-                    triggered_by=f"input_sentinel:{error_id}",
-                    severity="medium",
-                    status="approved",  # Auto-approve from input sentinel
-                    tier="tier_1",
-                    context={
-                        "error_id": error_id,
-                        "diagnosis": diagnosis_code,
-                        "input_action": action
-                    },
-                    created_at=datetime.now(timezone.utc),
-                    updated_at=datetime.now(timezone.utc)
-                )
-                session.add(run)
-                await session.commit()
-                run_id = run.id
-            
-            # Execute the first step through the adapter
-            if template.steps:
-                step = template.steps[0]
-                merged_params = {**step.parameters, **params}
-                
-                result = await self_healing_adapter.execute_action(
-                    action_type=step.action,
-                    parameters=merged_params
-                )
-                
-                # Update run status based on result
-                async with async_session() as session:
-                    run = await session.get(PlaybookRun, run_id)
-                    if run:
-                        run.status = "succeeded" if result.get("ok") else "failed"
-                        run.result = result
-                        run.updated_at = datetime.now(timezone.utc)
-                        await session.commit()
-                
-                return {
-                    "ok": result.get("ok", False),
+            # Define expected effect for verification
+            expected_effect = ExpectedEffect(
+                target_resource="grace_backend",
+                target_state={
                     "action": action,
-                    "playbook": template.code,
-                    "run_id": run_id,
-                    "result": result,
-                    "simulated": False
-                }
-            else:
-                return {"error": "Template has no steps", "action": action, "success": False}
+                    "status": "completed",
+                    "error_resolved": True
+                },
+                success_criteria=[
+                    {"type": "metric_threshold", "metric": "error_rate", "operator": "lt", "value": 0.05},
+                    {"type": "state_match", "key": "status", "value": "completed"}
+                ],
+                rollback_threshold=0.3
+            )
+            
+            # Determine tier for snapshot decisions
+            tier = "tier_1"  # Most error recovery is operational
+            if action in ["request_override", "check_policy", "suggest_alternative"]:
+                tier = "tier_2"  # Governance actions need more safety
+            
+            # Execute with full verification via ActionExecutor
+            result = await action_executor.execute_verified_action(
+                action_type=action,
+                playbook_id=template.code,
+                run_id=None,  # Will be created by executor
+                expected_effect=expected_effect,
+                baseline_state={
+                    "parameters": params,
+                    "error_id": error_id,
+                    "diagnosis": diagnosis_code
+                },
+                tier=tier,
+                triggered_by=f"input_sentinel:{error_id}",
+                mission_id=None  # Could link to mission if tracking
+            )
+            
+            return {
+                "ok": result.get("success", False),
+                "action": action,
+                "playbook": template.code,
+                "contract_id": result.get("contract_id"),
+                "snapshot_id": result.get("snapshot_id"),
+                "confidence": result.get("confidence", 0.0),
+                "verification": result.get("verification", {}),
+                "benchmark": result.get("benchmark", {}),
+                "rolled_back": result.get("rolled_back", False),
+                "simulated": False
+            }
                 
         except ImportError as e:
             # Fallback if self-heal components not available
