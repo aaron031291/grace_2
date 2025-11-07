@@ -84,38 +84,66 @@ class ActionExecutor:
             )
             print(f"    📸 Safe-hold snapshot: {snapshot.id}")
         
-        # Step 3: Execute action through self-heal adapter
+        # Step 3: Execute action through self-heal adapter with transaction safety
         try:
             from .self_heal.adapter import self_healing_adapter
             
-            # Mark contract as executing
+            # Hardening: Mark contract as executing with transaction safety
             from .models import async_session
             async with async_session() as session:
-                db_contract = await session.get(contract.__class__, contract.id)
-                if db_contract:
-                    db_contract.status = "executing"
-                    db_contract.executed_at = datetime.now(timezone.utc)
-                    if snapshot:
-                        db_contract.safe_hold_snapshot_id = snapshot.id
-                    await session.commit()
+                async with session.begin():
+                    db_contract = await session.get(contract.__class__, contract.id)
+                    if db_contract:
+                        db_contract.status = "executing"
+                        db_contract.executed_at = datetime.now(timezone.utc)
+                        if snapshot:
+                            db_contract.safe_hold_snapshot_id = snapshot.id
             
-            # Execute the action
-            execution_result = await self_healing_adapter.execute_action(
-                action_type=action_type,
-                parameters=baseline_state.get("parameters", {})
+            # Hardening: Execute the action with timeout
+            execution_timeout = 60.0  # Default 60s for action execution
+            execution_result = await asyncio.wait_for(
+                self_healing_adapter.execute_action(
+                    action_type=action_type,
+                    parameters=baseline_state.get("parameters", {})
+                ),
+                timeout=execution_timeout
             )
             
             print(f"    ⚙️  Action executed: {execution_result.get('ok', False)}")
             
+        except asyncio.TimeoutError:
+            print(f"    ⏱️ Action execution timed out")
+            
+            # Hardening: Mark contract as failed with transaction safety
+            async with async_session() as session:
+                async with session.begin():
+                    db_contract = await session.get(contract.__class__, contract.id)
+                    if db_contract:
+                        db_contract.status = "failed"
+                        db_contract.error = "Execution timeout"
+            
+            # Rollback if snapshot exists
+            if snapshot:
+                await self._perform_rollback(snapshot.id, contract.id, mission_id)
+            
+            return {
+                "success": False,
+                "error": "Action execution timed out",
+                "contract_id": contract.id,
+                "snapshot_id": snapshot.id if snapshot else None,
+                "rolled_back": (snapshot is not None)
+            }
+            
         except Exception as e:
             print(f"    ❌ Execution failed: {str(e)}")
             
-            # Mark contract as failed
+            # Hardening: Mark contract as failed with transaction safety
             async with async_session() as session:
-                db_contract = await session.get(contract.__class__, contract.id)
-                if db_contract:
-                    db_contract.status = "failed"
-                    await session.commit()
+                async with session.begin():
+                    db_contract = await session.get(contract.__class__, contract.id)
+                    if db_contract:
+                        db_contract.status = "failed"
+                        db_contract.error = str(e)[:500]
             
             # Rollback if snapshot exists
             if snapshot:
@@ -255,14 +283,14 @@ class ActionExecutor:
             dry_run=False
         )
         
-        # Update contract status
+        # Hardening: Update contract status with transaction safety
         from .models import async_session
         async with async_session() as session:
-            from .action_contract import ActionContract
-            contract = await session.get(ActionContract, contract_id)
-            if contract:
-                contract.status = "rolled_back"
-                await session.commit()
+            async with session.begin():
+                from .action_contract import ActionContract
+                contract = await session.get(ActionContract, contract_id)
+                if contract:
+                    contract.status = "rolled_back"
         
         # Update mission progression
         if mission_id:

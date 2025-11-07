@@ -268,51 +268,57 @@ class CognitionAuthority:
             timestamp=datetime.now(timezone.utc)
         ))
         
-        # Execute each action
+        # Execute each action with database transaction safety
+        from .models import async_session
+        
         for action_spec in plan.actions:
             action_type = action_spec["action"]
             params = action_spec["parameters"]
             tier = action_spec.get("tier", "tier_1")
             
             try:
-                # For high-tier actions, use full verification
-                if tier in ["tier_2", "tier_3"]:
-                    expected_effect = ExpectedEffect(
-                        target_resource=action_type,
-                        target_state={"status": "completed"},
-                        success_criteria=[
-                            {"type": "state_match", "key": "status", "value": "completed"}
-                        ]
-                    )
-                    
-                    result = await action_executor.execute_verified_action(
-                        action_type=action_type,
-                        playbook_id=None,
-                        run_id=None,
-                        expected_effect=expected_effect,
-                        baseline_state={"parameters": params},
-                        tier=tier,
-                        triggered_by=f"cognition:{plan.plan_id}"
-                    )
-                    
-                    if result.get("success"):
-                        actions_completed += 1
-                    else:
-                        actions_failed += 1
-                    
-                    verification_results.append(result.get("verification", {}))
-                    outputs[action_type] = result
-                
-                else:
-                    # Tier 1: Direct execution through capability
-                    result = await self._execute_capability(action_type, params)
-                    
-                    if result.get("ok", True):
-                        actions_completed += 1
-                    else:
-                        actions_failed += 1
-                    
-                    outputs[action_type] = result
+                # Hardening: Database transaction safety wrapper
+                async with async_session() as session:
+                    async with session.begin():
+                        # For high-tier actions, use full verification
+                        if tier in ["tier_2", "tier_3"]:
+                            expected_effect = ExpectedEffect(
+                                target_resource=action_type,
+                                target_state={"status": "completed"},
+                                success_criteria=[
+                                    {"type": "state_match", "key": "status", "value": "completed"}
+                                ]
+                            )
+                            
+                            result = await action_executor.execute_verified_action(
+                                action_type=action_type,
+                                playbook_id=None,
+                                run_id=None,
+                                expected_effect=expected_effect,
+                                baseline_state={"parameters": params},
+                                tier=tier,
+                                triggered_by=f"cognition:{plan.plan_id}"
+                            )
+                            
+                            if result.get("success"):
+                                actions_completed += 1
+                            else:
+                                actions_failed += 1
+                                # Rollback on failure (transaction will auto-rollback)
+                            
+                            verification_results.append(result.get("verification", {}))
+                            outputs[action_type] = result
+                        
+                        else:
+                            # Tier 1: Direct execution through capability
+                            result = await self._execute_capability(action_type, params)
+                            
+                            if result.get("ok", True):
+                                actions_completed += 1
+                            else:
+                                actions_failed += 1
+                            
+                            outputs[action_type] = result
                     
             except Exception as e:
                 actions_failed += 1

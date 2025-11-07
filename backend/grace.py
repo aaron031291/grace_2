@@ -29,29 +29,36 @@ class GraceAutonomous:
     
     async def _respond_via_cognition(self, user: str, message: str) -> str:
         """
-        New cognition-driven response.
+        New cognition-driven response with fallback handling.
         LLM only narrates, doesn't decide.
         """
         
-        # Step 1: Cognition processes the request (parsing, planning, execution)
-        cognition_result = await cognition_authority.process_user_request(
-            utterance=message,
-            user_id=user,
-            session_id=f"{user}-{datetime.now().timestamp()}"
-        )
-        
-        # Step 2: Check if waiting for approval
-        if cognition_result.get("status") == "pending_approval":
-            return (
-                f"I've planned an action that requires approval.\n\n"
-                f"Intent: {cognition_result['intent_type']}\n"
-                f"Plan ID: {cognition_result['plan_id']}\n"
-                f"Approval ID: {cognition_result['approval_id']}\n\n"
-                f"Please review in the approval panel."
+        try:
+            # Step 1: Cognition processes the request (parsing, planning, execution)
+            cognition_result = await cognition_authority.process_user_request(
+                utterance=message,
+                user_id=user,
+                session_id=f"{user}-{datetime.now().timestamp()}"
             )
+            
+            # Step 2: Check if waiting for approval
+            if cognition_result.get("status") == "pending_approval":
+                return (
+                    f"I've planned an action that requires approval.\n\n"
+                    f"Intent: {cognition_result['intent_type']}\n"
+                    f"Plan ID: {cognition_result['plan_id']}\n"
+                    f"Approval ID: {cognition_result['approval_id']}\n\n"
+                    f"Please review in the approval panel."
+                )
+            
+            # Step 3: LLM verbalizes the structured result (narrator only)
+            return await self._verbalize_result(message, cognition_result)
         
-        # Step 3: LLM verbalizes the structured result (narrator only)
-        return await self._verbalize_result(message, cognition_result)
+        except Exception as e:
+            # Fallback to legacy on any cognition failure
+            import logging
+            logging.error(f"Cognition pipeline failed, using fallback: {e}")
+            return await self._respond_legacy(user, message)
     
     async def _verbalize_result(self, original_message: str, cognition_result: Dict) -> str:
         """
