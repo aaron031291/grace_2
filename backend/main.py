@@ -40,8 +40,11 @@ from .routes.agentic_insights import router as agentic_insights_router
 from .self_heal.scheduler import scheduler as self_heal_scheduler
 from .self_heal.runner import runner as self_heal_runner
 from .shard_orchestrator import shard_orchestrator
-from .knowledge_preload import KnowledgePreloader
 from .input_sentinel import input_sentinel
+try:
+    from .knowledge_preload import KnowledgePreloader
+except ImportError:
+    KnowledgePreloader = None
 
 @app.on_event("startup")
 async def on_startup():
@@ -141,12 +144,15 @@ async def on_startup():
     await input_sentinel.start()
     
     # Preload AI expertise into Grace
-    try:
-        print("📚 Loading expert AI knowledge into Grace...")
-        preloader = KnowledgePreloader()
-        await preloader.preload_ai_expertise()
-    except Exception as e:
-        print(f"  ⚠️ Knowledge preload partial: {e}")
+    if KnowledgePreloader:
+        try:
+            print("📚 Loading expert AI knowledge into Grace...")
+            preloader = KnowledgePreloader()
+            await preloader.preload_ai_expertise()
+        except Exception as e:
+            print(f"  ⚠️ Knowledge preload partial: {e}")
+    else:
+        print("  ⚠️ Knowledge preloader not available (missing dependencies)")
     
     print("============================================================\n")
     
