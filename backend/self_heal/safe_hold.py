@@ -311,9 +311,10 @@ class SnapshotManager:
     async def _snapshot_database(self, snapshot_path: Path) -> Dict[str, Any]:
         """Snapshot database state (simplified - would use WAL checkpoint in production)"""
         
-        from ..config import DB_PATH
+        from ..settings import get_settings
         
-        db_source = Path(DB_PATH)
+        settings = get_settings()
+        db_source = Path(settings.DB_PATH)
         if not db_source.exists():
             return {
                 "type": "database",
@@ -429,17 +430,20 @@ class SnapshotManager:
     async def _restore_database(self, snapshot_path: Path, component: Dict) -> Dict[str, Any]:
         """Restore database from snapshot"""
         
-        from ..config import DB_PATH
+        from ..settings import get_settings
+        
+        settings = get_settings()
+        db_path = settings.DB_PATH
         
         db_backup = snapshot_path / "grace.db"
         if not db_backup.exists():
             return {"type": "database", "success": False, "error": "Backup file not found"}
         
-        db_target = Path(DB_PATH)
+        db_target = Path(db_path)
         
         # Backup current database first
         if db_target.exists():
-            backup_current = Path(f"{DB_PATH}.pre_restore")
+            backup_current = Path(f"{db_path}.pre_restore")
             shutil.copy2(db_target, backup_current)
         
         # Restore from snapshot

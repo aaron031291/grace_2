@@ -24,6 +24,26 @@ class Settings(BaseSettings):
 
     # Database (not yet wired everywhere; future work)
     DATABASE_URL: Optional[str] = Field(None, description="SQLAlchemy database URL")
+    
+    @property
+    def DB_PATH(self) -> str:
+        """
+        Extract filesystem path from DATABASE_URL for snapshot operations.
+        Returns absolute path to database file.
+        """
+        if not self.DATABASE_URL:
+            # Default to Grace's standard database location
+            return "./databases/grace.db"
+        
+        # Strip SQLAlchemy dialect prefix
+        db_url = self.DATABASE_URL
+        if db_url.startswith("sqlite+aiosqlite:///"):
+            return db_url.replace("sqlite+aiosqlite:///", "")
+        elif db_url.startswith("sqlite:///"):
+            return db_url.replace("sqlite:///", "")
+        else:
+            # Fallback for other dialects or malformed URLs
+            return "./databases/grace.db"
 
     # Self-healing feature flags (defaults: observe-only)
     SELF_HEAL_OBSERVE_ONLY: bool = Field(True, description="Enable health state endpoints without executing changes")

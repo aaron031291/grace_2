@@ -32,29 +32,31 @@ async def test_verification_flow():
         from backend.models import async_session, Base, engine
         
         # Ensure tables exist
-        print("📋 Step 1: Verify database schema...")
-        from sqlalchemy import inspect
-        inspector = inspect(engine)
-        tables = inspector.get_table_names()
+        print("Step 1: Verify database schema...")
+        from sqlalchemy import text
+        
+        async with async_session() as session:
+            result = await session.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))
+            tables = [row[0] for row in result.fetchall()]
         
         required = ["action_contracts", "safe_hold_snapshots", "benchmark_runs", "mission_timelines"]
         missing = [t for t in required if t not in tables]
         
         if missing:
-            print(f"  ❌ Missing tables: {missing}")
-            print("  ℹ️  Run: python apply_verification_migration.py")
+            print(f"  [MISSING] Missing tables: {missing}")
+            print("  INFO: Run: python apply_verification_migration.py")
             return False
         
-        print("  ✅ All verification tables present")
+        print("  [OK] All verification tables present")
         
         # Step 2: Start required services
-        print("\n⚙️  Step 2: Initialize services...")
+        print("\nStep 2: Initialize services...")
         await trigger_mesh.start()
         await input_sentinel.start()
-        print("  ✅ Services started")
+        print("  [OK] Services started")
         
         # Step 3: Trigger a test error
-        print("\n🔥 Step 3: Trigger test error...")
+        print("\n[TEST] Step 3: Trigger test error...")
         test_error_id = f"test-error-{datetime.now(timezone.utc).timestamp()}"
         
         error_event = TriggerEvent(
@@ -73,14 +75,14 @@ async def test_verification_flow():
         )
         
         await trigger_mesh.publish(error_event)
-        print(f"  ✅ Published error: {test_error_id}")
+        print(f"  [OK] Published error: {test_error_id}")
         
         # Step 4: Wait for InputSentinel to process
-        print("\n⏳ Step 4: Wait for InputSentinel processing...")
+        print("\n[WAIT] Step 4: Wait for InputSentinel processing...")
         await asyncio.sleep(3)  # Give sentinel time to react
         
         # Step 5: Manually trigger verification flow
-        print("\n🔐 Step 5: Execute verified action...")
+        print("\n[EXEC] Step 5: Execute verified action...")
         
         expected_effect = ExpectedEffect(
             target_resource="test_system",
@@ -101,7 +103,7 @@ async def test_verification_flow():
             triggered_by=f"test:{test_error_id}"
         )
         
-        print(f"\n📊 Execution Result:")
+        print(f"\n[RESULT] Execution Result:")
         print(f"  Success: {result.get('success', False)}")
         print(f"  Contract ID: {result.get('contract_id', 'N/A')}")
         print(f"  Snapshot ID: {result.get('snapshot_id', 'N/A')}")
@@ -109,7 +111,7 @@ async def test_verification_flow():
         print(f"  Rolled Back: {result.get('rolled_back', False)}")
         
         # Step 6: Verify contract was created
-        print("\n✅ Step 6: Verify contract in database...")
+        print("\n[OK] Step 6: Verify contract in database...")
         
         async with async_session() as session:
             from backend.action_contract import ActionContract
@@ -120,17 +122,17 @@ async def test_verification_flow():
             contract = db_result.scalar_one_or_none()
             
             if contract:
-                print(f"  ✅ Contract found: {contract.id}")
+                print(f"  [OK] Contract found: {contract.id}")
                 print(f"     Status: {contract.status}")
                 print(f"     Action: {contract.action_type}")
                 print(f"     Confidence: {contract.confidence_score}")
             else:
-                print("  ❌ Contract not found in database!")
+                print("  [FAIL] Contract not found in database!")
                 return False
         
         # Step 7: Verify snapshot if created
         if result.get('snapshot_id'):
-            print("\n📸 Step 7: Verify snapshot...")
+            print("\n[SNAPSHOT] Step 7: Verify snapshot...")
             
             async with async_session() as session:
                 from backend.self_heal.safe_hold import SafeHoldSnapshot
@@ -141,35 +143,35 @@ async def test_verification_flow():
                 snapshot = db_result.scalar_one_or_none()
                 
                 if snapshot:
-                    print(f"  ✅ Snapshot found: {snapshot.id}")
+                    print(f"  [OK] Snapshot found: {snapshot.id}")
                     print(f"     Type: {snapshot.snapshot_type}")
                     print(f"     Status: {snapshot.status}")
                     print(f"     Is Golden: {snapshot.is_golden}")
                 else:
-                    print("  ❌ Snapshot not found in database!")
+                    print("  [FAIL] Snapshot not found in database!")
                     return False
         
         # Step 8: Shutdown
-        print("\n🛑 Step 8: Cleanup...")
+        print("\n[STOP] Step 8: Cleanup...")
         await input_sentinel.stop()
         await trigger_mesh.stop()
         
         print("\n" + "=" * 70)
-        print("✅ END-TO-END TEST PASSED")
+        print("[OK] END-TO-END TEST PASSED")
         print("=" * 70)
         print()
         print("Verification system is working correctly:")
-        print("  ✅ Error triggering")
-        print("  ✅ Contract creation")
-        print("  ✅ Snapshot management")
-        print("  ✅ Action execution")
-        print("  ✅ Database persistence")
+        print("  [OK] Error triggering")
+        print("  [OK] Contract creation")
+        print("  [OK] Snapshot management")
+        print("  [OK] Action execution")
+        print("  [OK] Database persistence")
         print()
         
         return True
         
     except Exception as e:
-        print(f"\n❌ TEST FAILED: {e}")
+        print(f"\n[FAIL] TEST FAILED: {e}")
         import traceback
         traceback.print_exc()
         return False

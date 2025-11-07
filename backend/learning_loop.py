@@ -170,12 +170,19 @@ class LearningLoop:
             if not stats:
                 stats = PlaybookStatistics(
                     playbook_id=playbook_id,
+                    total_executions=0,
+                    successful_executions=0,
+                    failed_executions=0,
+                    rollbacks=0,
+                    avg_confidence_score=0.0,
+                    avg_execution_time=0.0,
+                    success_rate=0.0,
                     updated_at=datetime.now(timezone.utc)
                 )
                 session.add(stats)
             
             # Update counts
-            stats.total_executions += 1
+            stats.total_executions = (stats.total_executions or 0) + 1
             if success:
                 stats.successful_executions += 1
                 stats.last_success_at = datetime.now(timezone.utc)
