@@ -39,6 +39,9 @@ from .grace_spine_integration import activate_grace_autonomy, deactivate_grace_a
 from .routes.agentic_insights import router as agentic_insights_router
 from .self_heal.scheduler import scheduler as self_heal_scheduler
 from .self_heal.runner import runner as self_heal_runner
+from .shard_orchestrator import shard_orchestrator
+from .knowledge_preload import KnowledgePreloader
+from .input_sentinel import input_sentinel
 
 @app.on_event("startup")
 async def on_startup():
