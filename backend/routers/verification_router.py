@@ -234,6 +234,13 @@ async def list_benchmarks(
     session: AsyncSession = Depends(async_session)
 ):
     """List benchmark results"""
+    
+    if Benchmark is None:
+        return _response_envelope(
+            data=[],
+            meta={"total": 0, "limit": limit, "offset": offset, "count": 0, "note": "Benchmarks not available"}
+        )
+    
     query = select(Benchmark)
     
     if benchmark_type:
