@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { TrustApi, TrustedSource } from '../../api/trust';
+import { TrustApi } from '../../api/trust';
+import type { TrustedSource } from '../../api/trust';
 
 export function TrustSourcesAdmin() {
   const [items, setItems] = useState<TrustedSource[]>([]);

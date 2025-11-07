@@ -30,6 +30,9 @@ export interface RevisionEntry {
   created_at: string;
 }
 
+// Ensure all exports are available
+export type { IngestTextBody, ArtifactSummary, RevisionEntry };
+
 export const KnowledgeApi = {
   ingestText: async (body: IngestTextBody) => {
     return await http.post<{ status: string; artifact_id: number }>(

@@ -530,132 +530,132 @@ class ExecutionRunner:
         """Execute playbook steps with validation and verification"""
         order = 1
         try:
-                for step in steps:
-                    # Prepare params
-                    try:
-                        params = json.loads(step.args) if getattr(step, "args", None) else {}
-                    except Exception:
-                        params = {}
+            for step in steps:
+                # Prepare params
+                try:
+                    params = json.loads(step.args) if getattr(step, "args", None) else {}
+                except Exception:
+                    params = {}
 
-                    # Execute step
-                    srun = PlaybookStepRun(
-                        run_id=run.id,
-                        step_id=getattr(step, "id", None),
-                        step_order=order,
-                        status="running",
-                        log=f"Executing {getattr(step, 'action', 'noop')} params={params}",
-                    )
-                    session.add(srun)
-                    await session.flush()
+                # Execute step
+                srun = PlaybookStepRun(
+                    run_id=run.id,
+                    step_id=getattr(step, "id", None),
+                    step_order=order,
+                    status="running",
+                    log=f"Executing {getattr(step, 'action', 'noop')} params={params}",
+                )
+                session.add(srun)
+                await session.flush()
 
-                    # Time-limited execution
-                    try:
-                        await asyncio.wait_for(self._execute_action(getattr(step, "action", "noop"), params), timeout=float(getattr(step, "timeout_s", 60) or 60))
-                    except Exception as exec_ex:
-                        srun.status = "failed"
-                        srun.ended_at = datetime.now(timezone.utc)
-                        srun.log = (srun.log or "") + f"\nExecution error: {exec_ex}"
-                        await session.commit()
-                        # Attempt rollback if available
-                        try:
-                            rb_action = getattr(step, "rollback_action", None)
-                            if rb_action:
-                                try:
-                                    rb_params = json.loads(getattr(step, "rollback_args", "") or "{}")
-                                except Exception:
-                                    rb_params = {}
-                                rb_log = await self._execute_action(rb_action, rb_params)
-                                srun.log += f"\nRollback executed: {rb_log}"
-                        except Exception:
-                            pass
-                        raise
-
-                    # Verifications
-                    ok = await self._run_verifications_for_step(session, run, step, base_url)
-                    if not ok:
-                        srun.status = "failed"
-                        srun.ended_at = datetime.now(timezone.utc)
-                        srun.log = (srun.log or "") + "\nVerification failed"
-                        await session.commit()
-                        # rollback if defined
-                        try:
-                            rb_action = getattr(step, "rollback_action", None)
-                            if rb_action:
-                                try:
-                                    rb_params = json.loads(getattr(step, "rollback_args", "") or "{}")
-                                except Exception:
-                                    rb_params = {}
-                                rb_log = await self._execute_action(rb_action, rb_params)
-                                srun.log += f"\nRollback executed: {rb_log}"
-                        except Exception:
-                            pass
-                        raise RuntimeError("verification_failed")
-
-                    # Mark succeeded
-                    srun.status = "succeeded"
+                # Time-limited execution
+                try:
+                    await asyncio.wait_for(self._execute_action(getattr(step, "action", "noop"), params), timeout=float(getattr(step, "timeout_s", 60) or 60))
+                except Exception as exec_ex:
+                    srun.status = "failed"
                     srun.ended_at = datetime.now(timezone.utc)
-                    srun.log = (srun.log or "") + "\nStep verification passed"
+                    srun.log = (srun.log or "") + f"\nExecution error: {exec_ex}"
                     await session.commit()
-                    order += 1
-
-                # Post-plan verifications (if any)
-                try:
-                    ver_res = await session.execute(
-                        select(VerificationCheck).where(VerificationCheck.playbook_id == run.playbook_id, VerificationCheck.scope == "post_plan")
-                    )
-                    post_checks = ver_res.scalars().all()
-                except Exception:
-                    post_checks = []
-                all_ok = True
-                for chk in post_checks:
+                    # Attempt rollback if available
                     try:
-                        cfg = json.loads(chk.config) if chk.config else {}
+                        rb_action = getattr(step, "rollback_action", None)
+                        if rb_action:
+                            try:
+                                rb_params = json.loads(getattr(step, "rollback_args", "") or "{}")
+                            except Exception:
+                                rb_params = {}
+                            rb_log = await self._execute_action(rb_action, rb_params)
+                            srun.log += f"\nRollback executed: {rb_log}"
                     except Exception:
-                        cfg = {}
-                    ctype = (chk.check_type or "").lower()
-                    if ctype in {"health_endpoint", "http_health"}:
-                        ok = await self._verify_http_health(base_url, cfg.get("path", "/health"), cfg.get("expect", "ok"), int(cfg.get("timeout_s", 20)), int(cfg.get("retries", 2)), int(cfg.get("backoff_ms", 250)))
-                        all_ok = all_ok and ok
-                    elif ctype == "metric" or ctype == "metrics_threshold":
-                        ok = await self._verify_metrics_threshold(session, run.service, cfg.get("metric"), cfg.get("gte"), cfg.get("lte"), int(cfg.get("window_min", 5)))
-                        all_ok = all_ok and ok
-                    elif ctype == "metrics_trend":
-                        ok = await self._verify_metrics_trend(session, run.service, cfg.get("metric"), cfg.get("direction", "down"), int(cfg.get("window_min", 5)))
-                        all_ok = all_ok and ok
-                    else:
-                        all_ok = False
-                if not all_ok:
-                    raise RuntimeError("post_plan_verification_failed")
+                        pass
+                    raise
 
-                run.status = "succeeded"
-                run.ended_at = datetime.now(timezone.utc)
-                try:
-                    session.add(AuditLog(actor="runner", action="playbook_run_end", resource=str(run.id), policy_checked="self_heal", result="succeeded", details=f"service={run.service}"))
-                except Exception:
-                    pass
+                # Verifications
+                ok = await self._run_verifications_for_step(session, run, step, base_url)
+                if not ok:
+                    srun.status = "failed"
+                    srun.ended_at = datetime.now(timezone.utc)
+                    srun.log = (srun.log or "") + "\nVerification failed"
+                    await session.commit()
+                    # rollback if defined
+                    try:
+                        rb_action = getattr(step, "rollback_action", None)
+                        if rb_action:
+                            try:
+                                rb_params = json.loads(getattr(step, "rollback_args", "") or "{}")
+                            except Exception:
+                                rb_params = {}
+                            rb_log = await self._execute_action(rb_action, rb_params)
+                            srun.log += f"\nRollback executed: {rb_log}"
+                    except Exception:
+                        pass
+                    raise RuntimeError("verification_failed")
 
-                # Write learning log entry for successful execution
-                try:
-                    from ..self_heal_models import LearningLog
-                    entry = LearningLog(
-                        service=run.service,
-                        signal_ref=None,
-                        diagnosis=run.diagnosis,
-                        action=json.dumps({
-                            "playbook_id": run.playbook_id,
-                            "run_id": run.id,
-                            "status": "succeeded",
-                        }),
-                        outcome=json.dumps({
-                            "result": "ok",
-                            "ended_at": datetime.now(timezone.utc).isoformat(),
-                        }),
-                    )
-                    session.add(entry)
-                except Exception:
-                    pass
+                # Mark succeeded
+                srun.status = "succeeded"
+                srun.ended_at = datetime.now(timezone.utc)
+                srun.log = (srun.log or "") + "\nStep verification passed"
                 await session.commit()
-            except Exception as ex:
+                order += 1
+
+            # Post-plan verifications (if any)
+            try:
+                ver_res = await session.execute(
+                    select(VerificationCheck).where(VerificationCheck.playbook_id == run.playbook_id, VerificationCheck.scope == "post_plan")
+                )
+                post_checks = ver_res.scalars().all()
+            except Exception:
+                post_checks = []
+            all_ok = True
+            for chk in post_checks:
+                try:
+                    cfg = json.loads(chk.config) if chk.config else {}
+                except Exception:
+                    cfg = {}
+                ctype = (chk.check_type or "").lower()
+                if ctype in {"health_endpoint", "http_health"}:
+                    ok = await self._verify_http_health(base_url, cfg.get("path", "/health"), cfg.get("expect", "ok"), int(cfg.get("timeout_s", 20)), int(cfg.get("retries", 2)), int(cfg.get("backoff_ms", 250)))
+                    all_ok = all_ok and ok
+                elif ctype == "metric" or ctype == "metrics_threshold":
+                    ok = await self._verify_metrics_threshold(session, run.service, cfg.get("metric"), cfg.get("gte"), cfg.get("lte"), int(cfg.get("window_min", 5)))
+                    all_ok = all_ok and ok
+                elif ctype == "metrics_trend":
+                    ok = await self._verify_metrics_trend(session, run.service, cfg.get("metric"), cfg.get("direction", "down"), int(cfg.get("window_min", 5)))
+                    all_ok = all_ok and ok
+                else:
+                    all_ok = False
+            if not all_ok:
+                raise RuntimeError("post_plan_verification_failed")
+
+            run.status = "succeeded"
+            run.ended_at = datetime.now(timezone.utc)
+            try:
+                session.add(AuditLog(actor="runner", action="playbook_run_end", resource=str(run.id), policy_checked="self_heal", result="succeeded", details=f"service={run.service}"))
+            except Exception:
+                pass
+
+            # Write learning log entry for successful execution
+            try:
+                from ..self_heal_models import LearningLog
+                entry = LearningLog(
+                    service=run.service,
+                    signal_ref=None,
+                    diagnosis=run.diagnosis,
+                    action=json.dumps({
+                        "playbook_id": run.playbook_id,
+                        "run_id": run.id,
+                        "status": "succeeded",
+                    }),
+                    outcome=json.dumps({
+                        "result": "ok",
+                        "ended_at": datetime.now(timezone.utc).isoformat(),
+                    }),
+                )
+                session.add(entry)
+            except Exception:
+                pass
+            await session.commit()
+        except Exception as ex:
                 # Mark failed/rolled_back and create incident
                 run.status = "failed"
                 run.ended_at = datetime.now(timezone.utc)

@@ -24,6 +24,9 @@ export interface UpdateTrustedSourceReq {
   auto_approve_threshold?: number;
 }
 
+// Ensure all exports are available
+export type { TrustedSource, AddTrustedSourceReq, UpdateTrustedSourceReq };
+
 export const TrustApi = {
   listSources: async () => {
     return await http.get<TrustedSource[]>(`/api/trust/sources`);
