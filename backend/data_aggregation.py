@@ -18,8 +18,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import async_session
 from .action_contract import ActionContract
-from .benchmarks import Benchmark
-from .progression_tracker import Mission
+from .benchmarks.benchmark_suite import BenchmarkRun
+from .progression_tracker import MissionTimeline as Mission
 from .self_heal.safe_hold import SafeHoldSnapshot
 from .event_persistence import ActionEvent
 from .immutable_log import immutable_log
@@ -205,11 +205,11 @@ class DataAggregationService:
         
         # Get benchmark pass rates by type
         type_results_query = select(
-            Benchmark.benchmark_type,
-            Benchmark.passed,
-            func.count(Benchmark.id).label("count"),
-            func.avg(Benchmark.score).label("avg_score")
-        ).group_by(Benchmark.benchmark_type, Benchmark.passed)
+            BenchmarkRun.benchmark_type,
+            BenchmarkRun.passed,
+            func.count(BenchmarkRun.id).label("count"),
+            func.avg(BenchmarkRun.score).label("avg_score")
+        ).group_by(BenchmarkRun.benchmark_type, BenchmarkRun.passed)
         
         result = await session.execute(type_results_query)
         
@@ -352,8 +352,8 @@ class DataAggregationService:
         
         # Benchmarks run today
         benchmarks_today = await session.scalar(
-            select(func.count(Benchmark.id)).where(
-                func.date(Benchmark.executed_at) == today
+            select(func.count(BenchmarkRun.id)).where(
+                func.date(BenchmarkRun.executed_at) == today
             )
         ) or 0
         
