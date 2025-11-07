@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from .base_models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -55,15 +56,26 @@ async def on_startup():
     # Initialize database
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✓ Database initialized")
+        # Enable WAL mode for better concurrency
+        await conn.execute(text("PRAGMA journal_mode=WAL"))
+        await conn.execute(text("PRAGMA busy_timeout=30000"))
+    print("✓ Database initialized (WAL mode enabled)")
     
     # Metrics DB (separate)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
     from .metrics_models import Base as MetricsBase
-    app.state.metrics_engine = create_async_engine("sqlite+aiosqlite:///./databases/metrics.db", echo=False, future=True)
+    app.state.metrics_engine = create_async_engine(
+        "sqlite+aiosqlite:///./databases/metrics.db",
+        echo=False,
+        future=True,
+        connect_args={"timeout": 30, "check_same_thread": False},
+        pool_pre_ping=True
+    )
     app.state.metrics_sessionmaker = async_sessionmaker(app.state.metrics_engine, expire_on_commit=False)
     async with app.state.metrics_engine.begin() as mconn:
         await mconn.run_sync(MetricsBase.metadata.create_all)
+        await mconn.execute(text("PRAGMA journal_mode=WAL"))
+        await mconn.execute(text("PRAGMA busy_timeout=30000"))
     app.state.metrics_session = await app.state.metrics_sessionmaker().__aenter__()
     init_metrics_collector(db_session=app.state.metrics_session)
     
@@ -265,6 +277,8 @@ try:
         app.include_router(learning.router)
         app.include_router(scheduler_observability.router)
         app.include_router(meta_focus.router)
+        app.include_router(proactive_chat.router)
+        app.include_router(subagent_bridge.router)
 except Exception:
     pass
 

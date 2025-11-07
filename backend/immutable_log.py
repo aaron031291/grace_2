@@ -80,10 +80,12 @@ class ImmutableLog:
                     await session.refresh(entry)
                     
                     return entry.id
-            except IntegrityError as e:
-                if "UNIQUE constraint failed: immutable_log.sequence" in str(e) and attempt < max_retries - 1:
+            except (IntegrityError, Exception) as e:
+                error_msg = str(e)
+                if ("UNIQUE constraint failed: immutable_log.sequence" in error_msg or 
+                    "database is locked" in error_msg) and attempt < max_retries - 1:
                     # Retry with exponential backoff
-                    await asyncio.sleep(0.05 * (2 ** attempt))
+                    await asyncio.sleep(0.1 * (2 ** attempt))
                     continue
                 raise
     
