@@ -120,29 +120,29 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }
     )
 
-from .task_executor import task_executor
-from .self_healing import health_monitor
-from .trigger_mesh import trigger_mesh, setup_subscriptions
-from .meta_loop import meta_loop_engine
-from .websocket_manager import setup_ws_subscriptions
-from .trusted_sources import trust_manager
-from .auto_retrain import auto_retrain_engine
-from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
-from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
-from .grace_spine_integration import activate_grace_autonomy, deactivate_grace_autonomy
-from .autonomous_improver import autonomous_improver
-from .routes.agentic_insights import router as agentic_insights_router
-from .self_heal.scheduler import scheduler as self_heal_scheduler
-from .self_heal.runner import runner as self_heal_runner
-from .shard_orchestrator import shard_orchestrator
-from .input_sentinel import input_sentinel
-from .policy_engine import policy_engine
-from .autonomy_tiers import autonomy_manager
-from .concurrent_executor import concurrent_executor
-from .domains.all_domain_adapters import domain_registry
-from .startup_integration import start_verification_systems, stop_verification_systems
+from backend.task_executor import task_executor
+from backend.self_healing import health_monitor
+from backend.trigger_mesh import trigger_mesh, setup_subscriptions
+from backend.meta_loop import meta_loop_engine
+from backend.websocket_manager import setup_ws_subscriptions
+from backend.trusted_sources import trust_manager
+from backend.auto_retrain import auto_retrain_engine
+from backend.benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
+from backend.knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
+from backend.grace_spine_integration import activate_grace_autonomy, deactivate_grace_autonomy
+from backend.autonomous_improver import autonomous_improver
+from backend.routes.agentic_insights import router as agentic_insights_router
+from backend.self_heal.scheduler import scheduler as self_heal_scheduler
+from backend.self_heal.runner import runner as self_heal_runner
+from backend.shard_orchestrator import shard_orchestrator
+from backend.input_sentinel import input_sentinel
+from backend.policy_engine import policy_engine
+from backend.autonomy_tiers import autonomy_manager
+from backend.concurrent_executor import concurrent_executor
+from backend.domains.all_domain_adapters import domain_registry
+from backend.startup_integration import start_verification_systems, stop_verification_systems
 try:
-    from .knowledge_preload import KnowledgePreloader
+    from backend.knowledge_preload import KnowledgePreloader
 except ImportError:
     KnowledgePreloader = None
 
@@ -172,7 +172,7 @@ async def on_startup():
     
     # Metrics DB (separate)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-    from .metrics_models import Base as MetricsBase
+    from backend.metrics_models import Base as MetricsBase
     app.state.metrics_engine = create_async_engine(
         "sqlite+aiosqlite:///./databases/metrics.db",
         echo=False,
@@ -209,7 +209,7 @@ async def on_startup():
 
     # Self-heal observe-only scheduler (feature-gated)
     try:
-        from .settings import settings as _settings2
+        from backend.settings import settings as _settings2
         if getattr(_settings2, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings2, "SELF_HEAL_EXECUTE", False):
             await self_heal_scheduler.start()
             print("[OK] Self-heal observe-only scheduler started")
@@ -219,7 +219,7 @@ async def on_startup():
 
     # Start execution runner only when execute mode is enabled
     try:
-        from .settings import settings as _settings3
+        from backend.settings import settings as _settings3
         if getattr(_settings3, "SELF_HEAL_EXECUTE", False):
             await self_heal_runner.start()
             print("[OK] Self-heal execution runner started (execute mode)")
@@ -252,7 +252,7 @@ async def on_startup():
     await concurrent_executor.start()
     
     # Register all domain adapters
-    from .self_heal.adapter import self_healing_adapter
+    from backend.self_heal.adapter import self_healing_adapter
     domain_registry.register_adapter("core", self_healing_adapter)
     print(f"  [OK] Registered {len(domain_registry.get_all_adapters())} domain adapters")
     
@@ -502,11 +502,11 @@ app.include_router(hunter.router)
 app.include_router(health_routes.router)
 # Conditionally include unified health/triage endpoints (observe-only by default)
 try:
-    from .settings import settings as _settings
-    from .routes import health_unified as _health_unified
-    from .routes import playbooks as _playbooks
-    from .routes import incidents as _incidents
-    from .routes import learning as _learning
+    from backend.settings import settings as _settings
+    from backend.routes import health_unified as _health_unified
+    from backend.routes import playbooks as _playbooks
+    from backend.routes import incidents as _incidents
+    from backend.routes import learning as _learning
     if getattr(_settings, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings, "SELF_HEAL_EXECUTE", False):
         app.include_router(_health_unified.router, prefix="/api")
         app.include_router(_playbooks.router)
@@ -547,7 +547,7 @@ app.include_router(autonomous_improver_routes.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
-    from .settings import settings as _settings_check
+    from backend.settings import settings as _settings_check
     if getattr(_settings_check, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings_check, "SELF_HEAL_EXECUTE", False) or getattr(_settings_check, "LEARNING_AGGREGATION_ENABLED", False):
         app.include_router(learning.router)
         app.include_router(scheduler_observability.router)
