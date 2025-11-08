@@ -4,6 +4,17 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from ..causal_graph import CausalGraph
 from ..causal_analyzer import causal_analyzer
+from ..schemas_extended import (
+    CausalGraphBuildResponse,
+    CausalCausesResponse,
+    CausalEffectsResponse,
+    CausalPathResponse,
+    CausalInfluenceResponse,
+    CausalCyclesResponse,
+    CausalVisualizeResponse,
+    CausalAnalysisResponse
+)
+
 
 router = APIRouter(prefix="/api/causal", tags=["causal_graph"])
 
@@ -19,7 +30,7 @@ class PathRequest(BaseModel):
     event_b_id: int
     event_b_type: str
 
-@router.post("/build-graph")
+@router.post("/build-graph", response_model=CausalGraphBuildResponse)
 async def build_graph(request: BuildGraphRequest):
     """Build causal graph from date range"""
     try:
@@ -50,7 +61,7 @@ async def build_graph(request: BuildGraphRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to build graph: {str(e)}")
 
-@router.get("/causes/{event_id}")
+@router.get("/causes/{event_id}", response_model=CausalCausesResponse)
 async def get_causes(
     event_id: int,
     event_type: str = Query(..., description="Event type (e.g., 'message_user', 'task_created')"),
@@ -78,7 +89,7 @@ async def get_causes(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to find causes: {str(e)}")
 
-@router.get("/effects/{event_id}")
+@router.get("/effects/{event_id}", response_model=CausalEffectsResponse)
 async def get_effects(
     event_id: int,
     event_type: str = Query(..., description="Event type (e.g., 'message_user', 'task_created')"),
@@ -106,7 +117,7 @@ async def get_effects(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to find effects: {str(e)}")
 
-@router.post("/path")
+@router.post("/path", response_model=CausalPathResponse)
 async def find_causal_path(
     request: PathRequest,
     days_back: int = Query(7, ge=1, le=30),
@@ -144,7 +155,7 @@ async def find_causal_path(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to find path: {str(e)}")
 
-@router.get("/influence")
+@router.get("/influence", response_model=CausalInfluenceResponse)
 async def get_influential_events(
     limit: int = Query(10, ge=1, le=50),
     days_back: int = Query(7, ge=1, le=30),
@@ -169,7 +180,7 @@ async def get_influential_events(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to calculate influence: {str(e)}")
 
-@router.get("/cycles")
+@router.get("/cycles", response_model=CausalCyclesResponse)
 async def detect_feedback_loops(
     days_back: int = Query(7, ge=1, le=30),
     user: Optional[str] = None
@@ -193,7 +204,7 @@ async def detect_feedback_loops(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to detect cycles: {str(e)}")
 
-@router.get("/visualize")
+@router.get("/visualize", response_model=CausalVisualizeResponse)
 async def get_visualization_data(
     days_back: int = Query(7, ge=1, le=30),
     user: Optional[str] = None,
@@ -217,7 +228,7 @@ async def get_visualization_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate visualization: {str(e)}")
 
-@router.get("/analyze/task-completion")
+@router.get("/analyze/task-completion", response_model=CausalAnalysisResponse)
 async def analyze_task_completion(
     user: Optional[str] = None,
     days: int = Query(7, ge=1, le=30)
@@ -229,7 +240,7 @@ async def analyze_task_completion(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
-@router.get("/analyze/error-chains")
+@router.get("/analyze/error-chains", response_model=CausalAnalysisResponse)
 async def analyze_error_chains(
     user: Optional[str] = None,
     days: int = Query(7, ge=1, le=30)
@@ -241,7 +252,7 @@ async def analyze_error_chains(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
-@router.get("/analyze/optimization")
+@router.get("/analyze/optimization", response_model=CausalAnalysisResponse)
 async def analyze_optimization_paths(
     metric: str = Query("task_completion", description="Metric to optimize"),
     user: Optional[str] = None,
@@ -254,7 +265,7 @@ async def analyze_optimization_paths(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
-@router.get("/analyze/feedback-loops")
+@router.get("/analyze/feedback-loops", response_model=CausalAnalysisResponse)
 async def analyze_feedback_loops(
     user: Optional[str] = None,
     days: int = Query(7, ge=1, le=30)

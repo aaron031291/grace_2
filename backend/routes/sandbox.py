@@ -7,6 +7,14 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
 from ..verification_middleware import verify_action
+from ..schemas_extended import (
+    SandboxFilesListResponse,
+    SandboxFileReadResponse,
+    SandboxFileWriteResponse,
+    SandboxRunResponse,
+    SandboxResetResponse
+)
+
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 
@@ -18,12 +26,12 @@ class RunCommandRequest(BaseModel):
     command: str
     file_name: Optional[str] = None
 
-@router.get("/files")
+@router.get("/files", response_model=SandboxFilesListResponse)
 async def list_files(current_user: str = Depends(get_current_user)):
     files = await sandbox_manager.list_files(current_user)
     return {"files": files, "count": len(files)}
 
-@router.get("/file")
+@router.get("/file", response_model=SandboxFileReadResponse)
 async def read_file(
     file_path: str,
     current_user: str = Depends(get_current_user)
@@ -36,7 +44,7 @@ async def read_file(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/write")
+@router.post("/write", response_model=SandboxFileWriteResponse)
 @verify_action("file_write", lambda data: data.get("file_path", "unknown"))
 async def write_file(
     req: WriteFileRequest,
@@ -48,7 +56,7 @@ async def write_file(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/run")
+@router.post("/run", response_model=SandboxRunResponse)
 @verify_action("code_execution", lambda data: data.get("command", "unknown"))
 async def run_command(
     req: RunCommandRequest,
@@ -96,7 +104,7 @@ async def run_command(
         "issue_id": issue_id
     }
 
-@router.post("/reset")
+@router.post("/reset", response_model=SandboxResetResponse)
 async def reset_sandbox(current_user: str = Depends(get_current_user)):
     result = await sandbox_manager.reset_sandbox(current_user)
     return result

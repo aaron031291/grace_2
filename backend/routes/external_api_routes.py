@@ -12,6 +12,14 @@ from ..external_apis.slack_connector import SlackClient, SlackWebhookReceiver
 from ..external_apis.aws_connector import AWSClient
 from ..secrets_vault import secrets_vault
 from ..auth import get_current_user
+from ..schemas_extended import (
+    GitHubIssueResponse, GitHubReposResponse, GitHubRepoIssuesResponse,
+    GitHubPRResponse, GitHubCommitsResponse, SlackMessageResponse,
+    SlackChannelsResponse, SlackHistoryResponse, AWS_S3UploadResponse,
+    AWS_S3DownloadResponse, AWS_S3ListResponse, AWS_LambdaInvokeResponse,
+    AWS_LambdaListResponse, AWS_EC2InstancesResponse, AWS_EC2InstanceStatusResponse,
+    AWS_CostsResponse, SecretsListResponse, SecretResponse, SuccessResponse
+)
 
 router = APIRouter(prefix="/api/external", tags=["External APIs"])
 
@@ -83,7 +91,7 @@ class SecretCreate(BaseModel):
 
 # ==================== GitHub Routes ====================
 
-@router.post("/github/issues")
+@router.post("/github/issues", response_model=GitHubIssueResponse)
 async def create_github_issue(
     data: GitHubIssueCreate,
     user: dict = Depends(get_current_user)
@@ -105,7 +113,7 @@ async def create_github_issue(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/github/repos")
+@router.get("/github/repos", response_model=GitHubReposResponse)
 async def list_github_repos(
     org: Optional[str] = None,
     user: dict = Depends(get_current_user)
@@ -122,7 +130,7 @@ async def list_github_repos(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/github/repos/{owner}/{repo}/issues")
+@router.get("/github/repos/{owner}/{repo}/issues", response_model=GitHubRepoIssuesResponse)
 async def get_github_issues(
     owner: str,
     repo: str,
@@ -143,7 +151,7 @@ async def get_github_issues(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/github/pr")
+@router.post("/github/pr", response_model=GitHubPRResponse)
 async def create_github_pr(
     data: GitHubPRCreate,
     user: dict = Depends(get_current_user)
@@ -166,7 +174,7 @@ async def create_github_pr(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/github/repos/{owner}/{repo}/commits")
+@router.get("/github/repos/{owner}/{repo}/commits", response_model=GitHubCommitsResponse)
 async def list_github_commits(
     owner: str,
     repo: str,
@@ -187,7 +195,7 @@ async def list_github_commits(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/github/comment")
+@router.post("/github/comment", response_model=SuccessResponse)
 async def create_github_comment(
     data: GitHubCommentCreate,
     user: dict = Depends(get_current_user)
@@ -210,7 +218,7 @@ async def create_github_comment(
 
 # ==================== Slack Routes ====================
 
-@router.post("/slack/message")
+@router.post("/slack/message", response_model=SlackMessageResponse)
 async def send_slack_message(
     data: SlackMessage,
     user: dict = Depends(get_current_user)
@@ -231,7 +239,7 @@ async def send_slack_message(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/slack/channels")
+@router.get("/slack/channels", response_model=SlackChannelsResponse)
 async def list_slack_channels(
     limit: int = 100,
     user: dict = Depends(get_current_user)
@@ -248,7 +256,7 @@ async def list_slack_channels(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/slack/channels/{channel_id}/history")
+@router.get("/slack/channels/{channel_id}/history", response_model=SlackHistoryResponse)
 async def get_slack_channel_history(
     channel_id: str,
     limit: int = 100,
@@ -266,7 +274,7 @@ async def get_slack_channel_history(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/slack/upload")
+@router.post("/slack/upload", response_model=SuccessResponse)
 async def upload_slack_file(
     data: SlackFileUpload,
     user: dict = Depends(get_current_user)
@@ -288,7 +296,7 @@ async def upload_slack_file(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/slack/webhook")
+@router.post("/slack/webhook", response_model=SuccessResponse)
 async def slack_webhook_handler(event_data: Dict[str, Any] = Body(...)):
     """Handle incoming Slack webhook events"""
     try:
@@ -301,7 +309,7 @@ async def slack_webhook_handler(event_data: Dict[str, Any] = Body(...)):
 
 # ==================== AWS Routes ====================
 
-@router.post("/aws/s3/upload")
+@router.post("/aws/s3/upload", response_model=AWS_S3UploadResponse)
 async def aws_s3_upload(
     data: S3Upload,
     user: dict = Depends(get_current_user)
@@ -323,7 +331,7 @@ async def aws_s3_upload(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/aws/s3/download")
+@router.post("/aws/s3/download", response_model=AWS_S3DownloadResponse)
 async def aws_s3_download(
     data: S3Download,
     user: dict = Depends(get_current_user)
@@ -344,7 +352,7 @@ async def aws_s3_download(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/aws/s3/list")
+@router.get("/aws/s3/list", response_model=AWS_S3ListResponse)
 async def aws_s3_list(
     bucket: str,
     prefix: str = "",
@@ -363,7 +371,7 @@ async def aws_s3_list(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.delete("/aws/s3/delete")
+@router.delete("/aws/s3/delete", response_model=SuccessResponse)
 async def aws_s3_delete(
     bucket: str,
     key: str,
@@ -381,7 +389,7 @@ async def aws_s3_delete(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/aws/lambda/invoke")
+@router.post("/aws/lambda/invoke", response_model=AWS_LambdaInvokeResponse)
 async def aws_lambda_invoke(
     data: LambdaInvoke,
     user: dict = Depends(get_current_user)
@@ -402,7 +410,7 @@ async def aws_lambda_invoke(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/aws/lambda/functions")
+@router.get("/aws/lambda/functions", response_model=AWS_LambdaListResponse)
 async def aws_lambda_list(
     max_items: int = 50,
     user: dict = Depends(get_current_user)
@@ -419,7 +427,7 @@ async def aws_lambda_list(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/aws/ec2/instances")
+@router.get("/aws/ec2/instances", response_model=AWS_EC2InstancesResponse)
 async def aws_ec2_list(user: dict = Depends(get_current_user)):
     """List EC2 instances"""
     try:
@@ -433,7 +441,7 @@ async def aws_ec2_list(user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/aws/ec2/instances/{instance_id}/status")
+@router.get("/aws/ec2/instances/{instance_id}/status", response_model=AWS_EC2InstanceStatusResponse)
 async def aws_ec2_status(
     instance_id: str,
     user: dict = Depends(get_current_user)
@@ -450,7 +458,7 @@ async def aws_ec2_status(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/aws/costs")
+@router.get("/aws/costs", response_model=AWS_CostsResponse)
 async def aws_cost_summary(user: dict = Depends(get_current_user)):
     """Get AWS cost tracking summary"""
     try:
@@ -466,7 +474,7 @@ async def aws_cost_summary(user: dict = Depends(get_current_user)):
 
 # ==================== Secrets Vault Routes ====================
 
-@router.get("/secrets")
+@router.get("/secrets", response_model=SecretsListResponse)
 async def list_secrets(
     service: Optional[str] = None,
     include_inactive: bool = False,
@@ -485,7 +493,7 @@ async def list_secrets(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/secrets")
+@router.post("/secrets", response_model=SecretResponse)
 async def create_secret(
     data: SecretCreate,
     user: dict = Depends(get_current_user)
@@ -508,7 +516,7 @@ async def create_secret(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/secrets/{secret_key}")
+@router.get("/secrets/{secret_key}", response_model=SecretResponse)
 async def get_secret(
     secret_key: str,
     user: dict = Depends(get_current_user)
@@ -525,7 +533,7 @@ async def get_secret(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.delete("/secrets/{secret_key}")
+@router.delete("/secrets/{secret_key}", response_model=SuccessResponse)
 async def revoke_secret(
     secret_key: str,
     reason: str = "User requested revocation",

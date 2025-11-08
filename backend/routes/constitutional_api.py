@@ -19,6 +19,21 @@ from ..constitutional_models import (
 from ..constitutional_engine import constitutional_engine
 from ..constitutional_verifier import constitutional_verifier
 from ..clarifier import clarifier
+from ..schemas_extended import (
+    ConstitutionalPrinciplesResponse,
+    ConstitutionalPrincipleResponse,
+    ConstitutionalViolationsResponse,
+    ConstitutionalViolationStatsResponse,
+    ConstitutionalComplianceResponse,
+    ConstitutionalCheckResponse,
+    ConstitutionalReportResponse,
+    ConstitutionalClarificationsResponse,
+    ConstitutionalClarificationResponse,
+    ConstitutionalStatsResponse,
+    ConstitutionalTenetsResponse,
+    SuccessResponse
+)
+
 
 router = APIRouter(prefix="/api/constitution", tags=["constitutional"])
 
@@ -38,7 +53,7 @@ class ComplianceCheckRequest(BaseModel):
 
 # ========== Principles Endpoints ==========
 
-@router.get("/principles")
+@router.get("/principles", response_model=ConstitutionalPrinciplesResponse)
 async def list_principles(
     level: Optional[str] = None,
     category: Optional[str] = None,
@@ -80,7 +95,7 @@ async def list_principles(
             "total": len(principles)
         }
 
-@router.get("/principles/{principle_id}")
+@router.get("/principles/{principle_id}", response_model=ConstitutionalPrincipleResponse)
 async def get_principle(
     principle_id: int,
     current_user: str = Depends(get_current_user)
@@ -114,7 +129,7 @@ async def get_principle(
 
 # ========== Violations Endpoints ==========
 
-@router.get("/violations")
+@router.get("/violations", response_model=ConstitutionalViolationsResponse)
 async def list_violations(
     severity: Optional[str] = None,
     actor: Optional[str] = None,
@@ -162,7 +177,7 @@ async def list_violations(
             "total": len(violations)
         }
 
-@router.get("/violations/stats")
+@router.get("/violations/stats", response_model=ConstitutionalViolationStatsResponse)
 async def violation_stats(
     days: int = 7,
     current_user: str = Depends(get_current_user)
@@ -211,7 +226,7 @@ async def violation_stats(
 
 # ========== Compliance Endpoints ==========
 
-@router.get("/compliance/{action_id}")
+@router.get("/compliance/{action_id}", response_model=ConstitutionalComplianceResponse)
 async def get_compliance(
     action_id: str,
     current_user: str = Depends(get_current_user)
@@ -244,7 +259,7 @@ async def get_compliance(
             "created_at": compliance.created_at.isoformat()
         }
 
-@router.post("/compliance/check")
+@router.post("/compliance/check", response_model=ConstitutionalCheckResponse)
 async def check_compliance(
     req: ComplianceCheckRequest,
     current_user: str = Depends(get_current_user)
@@ -262,7 +277,7 @@ async def check_compliance(
     
     return result
 
-@router.get("/compliance/report")
+@router.get("/compliance/report", response_model=ConstitutionalReportResponse)
 async def compliance_report(
     days: int = 30,
     current_user: str = Depends(get_current_user)
@@ -281,7 +296,7 @@ async def compliance_report(
 
 # ========== Clarification Endpoints ==========
 
-@router.get("/clarifications/pending")
+@router.get("/clarifications/pending", response_model=ConstitutionalClarificationsResponse)
 async def get_pending_clarifications(
     current_user: str = Depends(get_current_user)
 ):
@@ -294,7 +309,7 @@ async def get_pending_clarifications(
         "count": len(requests)
     }
 
-@router.post("/clarifications/answer")
+@router.post("/clarifications/answer", response_model=SuccessResponse)
 async def answer_clarification(
     answer: ClarificationAnswer,
     current_user: str = Depends(get_current_user)
@@ -317,7 +332,7 @@ async def answer_clarification(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/clarifications/{request_id}")
+@router.get("/clarifications/{request_id}", response_model=ConstitutionalClarificationResponse)
 async def get_clarification(
     request_id: str,
     current_user: str = Depends(get_current_user)
@@ -354,7 +369,7 @@ async def get_clarification(
 
 # ========== Stats & Metrics ==========
 
-@router.get("/stats")
+@router.get("/stats", response_model=ConstitutionalStatsResponse)
 async def constitutional_stats(
     current_user: str = Depends(get_current_user)
 ):
@@ -426,7 +441,7 @@ async def constitutional_stats(
             }
         }
 
-@router.get("/tenets")
+@router.get("/tenets", response_model=ConstitutionalTenetsResponse)
 async def list_tenets(
     category: Optional[str] = None,
     integration_point: Optional[str] = None,

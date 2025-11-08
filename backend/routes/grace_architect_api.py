@@ -25,7 +25,7 @@ class DeployRequest(BaseModel):
     extension_id: str
     require_parliament: bool = True
 
-@router.post("/learn")
+@router.post("/learn", response_model=GraceArchitectLearnResponse)
 async def learn_grace_architecture(request: LearnRequest):
     """
     Learn Grace's architecture by parsing codebase
@@ -49,7 +49,7 @@ async def learn_grace_architecture(request: LearnRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/extend")
+@router.post("/extend", response_model=GraceArchitectExtendResponse)
 async def extend_grace(request: ExtensionRequest):
     """
     Generate a new Grace component
@@ -78,7 +78,7 @@ async def extend_grace(request: ExtensionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/patterns")
+@router.get("/patterns", response_model=GraceArchitectPatternsResponse)
 async def get_grace_patterns(
     category: Optional[str] = None,
     phase: Optional[int] = None,
@@ -121,7 +121,7 @@ async def get_grace_patterns(
             "count": len(patterns)
         }
 
-@router.get("/extensions")
+@router.get("/extensions", response_model=GraceArchitectExtensionsListResponse)
 async def list_extensions(
     status: Optional[str] = None,
     limit: int = 50
@@ -159,7 +159,7 @@ async def list_extensions(
             ]
         }
 
-@router.get("/extensions/{request_id}")
+@router.get("/extensions/{request_id}", response_model=GraceArchitectExtensionResponse)
 async def get_extension(request_id: str):
     """Get extension details"""
     
@@ -190,7 +190,7 @@ async def get_extension(request_id: str):
             "deployed": extension.deployed
         }
 
-@router.post("/deploy")
+@router.post("/deploy", response_model=GraceArchitectDeployResponse)
 async def deploy_extension(request: DeployRequest):
     """Deploy a Grace extension (requires Parliament if critical)"""
     
@@ -248,7 +248,7 @@ async def deploy_extension(request: DeployRequest):
                 "message": "Extension deployed successfully"
             }
 
-@router.get("/knowledge")
+@router.get("/knowledge", response_model=GraceArchitectKnowledgeResponse)
 async def get_architecture_knowledge(
     component: Optional[str] = None,
     phase: Optional[int] = None

@@ -4,6 +4,14 @@ from sqlalchemy import select
 from ..auth import get_current_user
 from ..trusted_sources import TrustedSource, trust_manager
 from ..models import async_session
+from ..schemas_extended import (
+    TrustedSourcesListResponse,
+    TrustedSourceResponse,
+    TrustSourceUpdateResponse,
+    TrustSourceDeleteResponse,
+    TrustScoreResponse
+)
+
 
 router = APIRouter(prefix="/api/trust", tags=["trust"])
 
@@ -20,7 +28,7 @@ class UpdateTrustedSource(BaseModel):
     description: str | None = None
     auto_approve_threshold: float | None = None
 
-@router.get("/sources")
+@router.get("/sources", response_model=TrustedSourcesListResponse)
 async def list_trusted_sources():
     """List all trusted sources"""
     async with async_session() as session:
@@ -37,7 +45,7 @@ async def list_trusted_sources():
             for s in result.scalars().all()
         ]
 
-@router.post("/sources")
+@router.post("/sources", response_model=TrustedSourceResponse)
 async def add_trusted_source(
     req: AddTrustedSource,
     current_user: str = Depends(get_current_user)
@@ -58,7 +66,7 @@ async def add_trusted_source(
     
     return {"id": source.id, "domain": source.domain}
 
-@router.patch("/sources/{source_id}")
+@router.patch("/sources/{source_id}", response_model=TrustSourceUpdateResponse)
 async def update_trusted_source(
     source_id: int,
     req: UpdateTrustedSource,
@@ -81,7 +89,7 @@ async def update_trusted_source(
         await session.refresh(source)
     return {"status": "updated", "id": source.id}
 
-@router.delete("/sources/{source_id}")
+@router.delete("/sources/{source_id}", response_model=TrustSourceDeleteResponse)
 async def delete_trusted_source(
     source_id: int,
     current_user: str = Depends(get_current_user)
@@ -95,7 +103,7 @@ async def delete_trusted_source(
         await session.commit()
     return {"status": "deleted", "id": source_id}
 
-@router.get("/score")
+@router.get("/score", response_model=TrustScoreResponse)
 async def get_trust_score(url: str):
     """Get trust score for a URL"""
     score = await trust_manager.get_trust_score(url)

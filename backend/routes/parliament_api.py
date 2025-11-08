@@ -10,6 +10,19 @@ from datetime import datetime
 
 from ..parliament_engine import parliament_engine
 from ..auth import get_current_user
+from ..schemas_extended import (
+    ParliamentMemberResponse,
+    ParliamentMembersListResponse,
+    ParliamentSessionResponse,
+    ParliamentSessionsListResponse,
+    ParliamentVoteResponse,
+    ParliamentSessionStatusResponse,
+    ParliamentCommitteeResponse,
+    ParliamentCommitteesListResponse,
+    ParliamentStatsResponse,
+    ParliamentMemberStatsResponse
+)
+
 
 router = APIRouter(prefix="/api/parliament", tags=["parliament"])
 
@@ -57,7 +70,7 @@ class CommitteeCreate(BaseModel):
 
 # ==================== Member Endpoints ====================
 
-@router.post("/members")
+@router.post("/members", response_model=ParliamentMemberResponse)
 async def create_member(
     member: MemberCreate,
     current_user: dict = Depends(get_current_user)
@@ -76,7 +89,7 @@ async def create_member(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/members")
+@router.get("/members", response_model=ParliamentMembersListResponse)
 async def list_members(current_user: dict = Depends(get_current_user)):
     """List all parliament members"""
     try:
@@ -85,7 +98,7 @@ async def list_members(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/members/{member_id}")
+@router.get("/members/{member_id}", response_model=ParliamentMemberResponse)
 async def get_member(
     member_id: str,
     current_user: dict = Depends(get_current_user)
@@ -103,7 +116,7 @@ async def get_member(
 
 # ==================== Session Endpoints ====================
 
-@router.post("/sessions")
+@router.post("/sessions", response_model=ParliamentSessionResponse)
 async def create_session(
     session: SessionCreate,
     current_user: dict = Depends(get_current_user)
@@ -128,7 +141,7 @@ async def create_session(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/sessions")
+@router.get("/sessions", response_model=ParliamentSessionsListResponse)
 async def list_sessions(
     status: Optional[str] = None,
     committee: Optional[str] = None,
@@ -146,7 +159,7 @@ async def list_sessions(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/sessions/{session_id}")
+@router.get("/sessions/{session_id}", response_model=ParliamentSessionResponse)
 async def get_session(
     session_id: str,
     current_user: dict = Depends(get_current_user)
@@ -162,7 +175,7 @@ async def get_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/sessions/{session_id}/vote")
+@router.post("/sessions/{session_id}/vote", response_model=ParliamentVoteResponse)
 async def cast_vote(
     session_id: str,
     vote_data: VoteCast,
@@ -184,7 +197,7 @@ async def cast_vote(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/sessions/{session_id}/status")
+@router.get("/sessions/{session_id}/status", response_model=ParliamentSessionStatusResponse)
 async def get_session_status(
     session_id: str,
     current_user: dict = Depends(get_current_user)
@@ -217,7 +230,7 @@ async def get_session_status(
 
 # ==================== Committee Endpoints ====================
 
-@router.post("/committees")
+@router.post("/committees", response_model=ParliamentCommitteeResponse)
 async def create_committee(
     committee: CommitteeCreate,
     current_user: dict = Depends(get_current_user)
@@ -240,7 +253,7 @@ async def create_committee(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/committees")
+@router.get("/committees", response_model=ParliamentCommitteesListResponse)
 async def list_committees(current_user: dict = Depends(get_current_user)):
     """List all committees"""
     try:
@@ -249,7 +262,7 @@ async def list_committees(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/committees/{committee_name}")
+@router.get("/committees/{committee_name}", response_model=ParliamentCommitteeResponse)
 async def get_committee(
     committee_name: str,
     current_user: dict = Depends(get_current_user)
@@ -267,7 +280,7 @@ async def get_committee(
 
 # ==================== Statistics Endpoints ====================
 
-@router.get("/stats")
+@router.get("/stats", response_model=ParliamentStatsResponse)
 async def get_parliament_stats(current_user: dict = Depends(get_current_user)):
     """Get parliament-wide statistics"""
     try:
@@ -276,7 +289,7 @@ async def get_parliament_stats(current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/stats/member/{member_id}")
+@router.get("/stats/member/{member_id}", response_model=ParliamentMemberStatsResponse)
 async def get_member_stats(
     member_id: str,
     current_user: dict = Depends(get_current_user)

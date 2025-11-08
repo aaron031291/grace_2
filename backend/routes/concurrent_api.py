@@ -14,6 +14,16 @@ from typing import Dict, Any, Optional, List
 
 from ..concurrent_executor import concurrent_executor
 from ..auth import get_current_user
+from ..schemas_extended import (
+    ConcurrentTaskSubmitResponse,
+    ConcurrentBatchResponse,
+    ConcurrentTaskStatusResponse,
+    ConcurrentQueueStatusResponse,
+    ConcurrentDomainsResponse,
+    ConcurrentDomainMetricsResponse,
+    ConcurrentAllMetricsResponse
+)
+
 
 router = APIRouter(prefix="/api/concurrent", tags=["concurrent"])
 
@@ -35,7 +45,7 @@ class BatchTaskRequest(BaseModel):
 
 # ============= Task Submission =============
 
-@router.post("/tasks/submit")
+@router.post("/tasks/submit", response_model=ConcurrentTaskSubmitResponse)
 async def submit_task(
     req: TaskSubmitRequest,
     user=Depends(get_current_user)
@@ -63,7 +73,7 @@ async def submit_task(
     }
 
 
-@router.post("/tasks/batch")
+@router.post("/tasks/batch", response_model=ConcurrentBatchResponse)
 async def submit_batch(
     req: BatchTaskRequest,
     user=Depends(get_current_user)
@@ -89,7 +99,7 @@ async def submit_batch(
 
 # ============= Task Status =============
 
-@router.get("/tasks/{task_id}")
+@router.get("/tasks/{task_id}", response_model=ConcurrentTaskStatusResponse)
 async def get_task_status(
     task_id: str,
     user=Depends(get_current_user)
@@ -104,7 +114,7 @@ async def get_task_status(
     return status
 
 
-@router.get("/queue/status")
+@router.get("/queue/status", response_model=ConcurrentQueueStatusResponse)
 async def get_queue_status(user=Depends(get_current_user)):
     """Get concurrent executor queue statistics"""
     
@@ -113,7 +123,7 @@ async def get_queue_status(user=Depends(get_current_user)):
 
 # ============= Domain Operations =============
 
-@router.get("/domains")
+@router.get("/domains", response_model=ConcurrentDomainsResponse)
 async def list_domains():
     """List all registered domain adapters"""
     
@@ -131,7 +141,7 @@ async def list_domains():
     }
 
 
-@router.get("/domains/{domain}/metrics")
+@router.get("/domains/{domain}/metrics", response_model=ConcurrentDomainMetricsResponse)
 async def get_domain_metrics(domain: str):
     """Get metrics from specific domain"""
     
@@ -146,7 +156,7 @@ async def get_domain_metrics(domain: str):
     return asdict(metrics)
 
 
-@router.get("/domains/metrics/all")
+@router.get("/domains/metrics/all", response_model=ConcurrentAllMetricsResponse)
 async def get_all_domain_metrics():
     """Get metrics from all domains"""
     

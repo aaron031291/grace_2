@@ -13,6 +13,15 @@ from ..auth import get_current_user
 from ..governance import governance_engine
 from ..hunter import hunter_engine
 from ..websocket_manager import websocket_manager
+from ..schemas_extended import (
+    SpeechUploadResponse,
+    SpeechMessageResponse,
+    SpeechListResponse,
+    SpeechReviewResponse,
+    SpeechDeleteResponse,
+    TTSGenerateResponse
+)
+
 
 router = APIRouter(prefix="/api/audio", tags=["speech"])
 
@@ -28,7 +37,7 @@ class TTSRequest(BaseModel):
     reply_to_speech_id: Optional[int] = None
     reply_to_chat_id: Optional[int] = None
 
-@router.post("/upload")
+@router.post("/upload", response_model=SpeechUploadResponse)
 async def upload_audio(
     file: UploadFile = File(...),
     session_id: Optional[str] = None,
@@ -79,7 +88,7 @@ async def upload_audio(
     
     return result
 
-@router.get("/{speech_id}")
+@router.get("/{speech_id}", response_model=SpeechMessageResponse)
 async def get_speech_message(speech_id: int, current_user: str = None):
     """
     Get speech message details including transcript
@@ -139,7 +148,7 @@ async def get_audio_file(speech_id: int, current_user: str = None):
         filename=f"speech_{speech_id}.{speech_msg['audio_format']}"
     )
 
-@router.get("/list")
+@router.get("/list", response_model=SpeechListResponse)
 async def list_speech_messages(
     session_id: Optional[str] = None,
     limit: int = 50,
@@ -160,7 +169,7 @@ async def list_speech_messages(
     
     return {"messages": messages}
 
-@router.post("/{speech_id}/review")
+@router.post("/{speech_id}/review", response_model=SpeechReviewResponse)
 async def review_transcript(
     speech_id: int,
     review: ReviewRequest,
@@ -186,7 +195,7 @@ async def review_transcript(
     
     return result
 
-@router.delete("/{speech_id}")
+@router.delete("/{speech_id}", response_model=SpeechDeleteResponse)
 async def delete_speech_message(speech_id: int, current_user: str = None):
     """
     Delete speech message with governance approval
@@ -221,7 +230,7 @@ async def delete_speech_message(speech_id: int, current_user: str = None):
         "approval_id": approval_result.get("approval_id")
     }
 
-@router.post("/tts/generate")
+@router.post("/tts/generate", response_model=TTSGenerateResponse)
 async def generate_tts(request: TTSRequest, current_user: str = None):
     """
     Generate text-to-speech audio from text
