@@ -162,13 +162,13 @@ async def chat_endpoint(req: ChatRequest, user=Depends(get_current_user)):
 from backend.trigger_mesh import trigger_mesh
 
 # Listen for error detection
-await trigger_mesh.subscribe("error.detected", handle_error)
+trigger_mesh.subscribe("error.detected", handle_error)
 
 # Listen for problem identification
-await trigger_mesh.subscribe("agentic.problem_identified", handle_diagnosis)
+trigger_mesh.subscribe("agentic.problem_identified", handle_diagnosis)
 
 # Listen for resolution
-await trigger_mesh.subscribe("agentic.problem_resolved", handle_success)
+trigger_mesh.subscribe("agentic.problem_resolved", handle_success)
 ```
 
 ### Submit Tasks to Shards

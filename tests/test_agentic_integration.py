@@ -44,7 +44,7 @@ async def test_trigger_mesh_pub_sub():
         received_events.append(event)
     
     await trigger_mesh.start()
-    await trigger_mesh.subscribe("test.*", test_handler)
+    trigger_mesh.subscribe("test.*", test_handler)
     
     # Publish test event
     test_event = TriggerEvent(

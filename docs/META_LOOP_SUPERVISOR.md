@@ -263,9 +263,9 @@ If verification fails:
 ### Event Subscription
 ```python
 # Meta loop subscribes to spine events
-await trigger_mesh.subscribe("*", meta_loop.capture_event)
-await trigger_mesh.subscribe("decision.*", meta_loop.capture_decision)
-await trigger_mesh.subscribe("recovery.*", meta_loop.capture_recovery)
+trigger_mesh.subscribe("*", meta_loop.capture_event)
+trigger_mesh.subscribe("decision.*", meta_loop.capture_decision)
+trigger_mesh.subscribe("recovery.*", meta_loop.capture_recovery)
 ```
 
 ### Directive Issuance

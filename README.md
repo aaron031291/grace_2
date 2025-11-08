@@ -8,7 +8,7 @@
 
 ### Terminal 1: Start Backend
 ```bash
-py minimal_backend.py
+python -m uvicorn backend.main:app --reload
 ```
 → Backend API running on **http://localhost:8000**  
 → API Documentation: **http://localhost:8000/docs**
@@ -85,7 +85,7 @@ grace_2/
 ├── txt/              → Text files
 ├── ml_artifacts/     → ML models and data
 ├── reports/          → Generated reports
-├── minimal_backend.py → **Quick-start backend (NEW)**
+├── backend/main.py    → FastAPI application entrypoint
 └── README.md         → This file
 ```
 
@@ -216,7 +216,7 @@ py scripts\test_grace_e2e_complete.py
 ### 1. Start Development Environment
 ```bash
 # Terminal 1 - Backend
-py minimal_backend.py
+python -m uvicorn backend.main:app --reload
 
 # Terminal 2 - Frontend
 cd frontend
@@ -411,7 +411,7 @@ npm run dev
 ```bash
 # Run from root directory
 cd c:\Users\aaron\grace_2
-py minimal_backend.py
+python -m uvicorn backend.main:app --reload
 ```
 
 ---
@@ -431,7 +431,7 @@ py minimal_backend.py
 
 ```bash
 # Start backend
-py minimal_backend.py
+python -m uvicorn backend.main:app --reload
 
 # Start frontend
 cd frontend && npm run dev

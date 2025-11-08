@@ -56,7 +56,7 @@ class TestFoundationLayer:
         async def handler(event: TriggerEvent):
             received_events.append(event)
         
-        await trigger_mesh.subscribe("test.event", handler)
+        trigger_mesh.subscribe("test.event", handler)
         
         test_event = TriggerEvent(
             event_type="test.event",
