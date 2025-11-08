@@ -52,16 +52,71 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Handle validation errors"""
+    """Handle validation errors with execution trace"""
     request_id = getattr(request.state, "request_id", "unknown")
+    
+    # Extract first error for user-friendly message
+    errors = exc.errors()
+    first_error = errors[0] if errors else {}
+    field = " -> ".join(str(loc) for loc in first_error.get("loc", []))
+    error_msg = first_error.get("msg", "Validation failed")
+    
+    # Build execution trace showing where validation failed
+    execution_trace = {
+        "request_id": request_id,
+        "total_duration_ms": 0,  # Validation happens before processing
+        "steps": [
+            {
+                "step_number": 1,
+                "component": "fastapi_validator",
+                "action": "validate_request_schema",
+                "duration_ms": 0,
+                "data_source": "request_body",
+                "error": f"Validation failed at field '{field}': {error_msg}"
+            }
+        ],
+        "data_sources_used": ["request_body", "openapi_schema"],
+        "agents_involved": [],
+        "governance_checks": 0,
+        "cache_hits": 0,
+        "database_queries": 0
+    }
+    
+    # Build data provenance showing request was unverified
+    data_provenance = [
+        {
+            "source_type": "request",
+            "source_id": "request_body",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "confidence": 0.0,
+            "verified": False
+        }
+    ]
+    
+    # Generate helpful suggestions based on error type
+    suggestions = []
+    error_type = first_error.get("type", "")
+    if "missing" in error_type:
+        suggestions.append(f"Provide the required field: {field}")
+    elif "type_error" in error_type:
+        suggestions.append(f"Check the data type for field: {field}")
+        suggestions.append("See API documentation for correct format")
+    else:
+        suggestions.append("Check your request body matches the API schema")
+        suggestions.append("Review the validation errors in 'details' field")
     
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": "validation_error",
-            "message": "Request validation failed",
-            "details": exc.errors(),
-            "request_id": request_id
+            "message": f"Request validation failed: {error_msg}",
+            "details": {"validation_errors": errors, "field": field},
+            "request_id": request_id,
+            "suggestions": suggestions,
+            "documentation_url": f"{request.url.scheme}://{request.url.netloc}/docs",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "execution_trace": execution_trace,
+            "data_provenance": data_provenance
         }
     )
 
