@@ -23,7 +23,10 @@ from ..schemas import (
     ContractListResponse, ContractDetailResponse, SnapshotListResponse, SnapshotDetailResponse,
     SnapshotRestoreResponse, GoldenSnapshotResponse, BenchmarkRunListResponse, BenchmarkRunDetailResponse,
     BenchmarkGoldenResponse, MissionStartResponse, MissionCompleteResponse, MissionHistoryResponse,
-    VerificationStatusResponse, VerificationSmokeTestResponse, VerificationRegressionResponse
+    VerificationSmokeTestResponse, VerificationRegressionResponse
+)
+from ..schemas_extended import (
+    VerificationCurrentMissionResponse, VerificationStatusResponseExtended
 )
 
 router = APIRouter(prefix="/api/verification", tags=["verification"])
@@ -333,7 +336,7 @@ async def start_mission(
     }
 
 
-@router.get("/missions/current")
+@router.get("/missions/current", response_model=VerificationCurrentMissionResponse)
 async def get_current_mission():
     """Get current mission status"""
     
@@ -346,7 +349,7 @@ async def get_current_mission():
     return asdict(status)
 
 
-@router.get("/missions/{mission_id}")
+@router.get("/missions/{mission_id}", response_model=VerificationCurrentMissionResponse)
 async def get_mission_status(mission_id: str):
     """Get specific mission status"""
     
@@ -378,7 +381,7 @@ async def get_mission_history(limit: int = 10):
 
 # ============= Combined Status =============
 
-@router.get("/status")
+@router.get("/status", response_model=VerificationStatusResponseExtended)
 async def get_verification_status():
     """
     Get overall verification and progression status.

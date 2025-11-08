@@ -425,11 +425,67 @@ class SuccessResponse(BaseModel):
     data: Optional[Dict[str, Any]] = Field(None, description="Optional result data")
     operation_id: Optional[str] = Field(None, description="Operation tracking ID")
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat(), description="ISO timestamp")
-    execution_trace: Optional[ExecutionTrace] = Field(None, description="Execution path trace for debugging")
-    data_provenance: List[DataProvenance] = Field(default_factory=list, description="Where data came from")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None, 
+        description="Shows pipeline steps: request → validation → processing → response"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list, 
+        description="Sources of data used: database, cache, external API, agent decisions"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "examples": [{
+                "success": True,
+                "message": "Operation completed successfully",
+                "data": {"items_processed": 5},
+                "operation_id": "op_123",
+                "timestamp": "2025-11-08T12:00:00Z",
+                "execution_trace": {
+                    "request_id": "req_xyz",
+                    "total_duration_ms": 145.3,
+                    "steps": [
+                        {
+                            "step_number": 1,
+                            "component": "api_handler",
+                            "action": "validate_request",
+                            "duration_ms": 12.5,
+                            "data_source": "request"
+                        },
+                        {
+                            "step_number": 2,
+                            "component": "database",
+                            "action": "execute_operation",
+                            "duration_ms": 98.2,
+                            "data_source": "database"
+                        },
+                        {
+                            "step_number": 3,
+                            "component": "response_builder",
+                            "action": "format_response",
+                            "duration_ms": 34.6,
+                            "data_source": "memory"
+                        }
+                    ],
+                    "data_sources_used": ["request", "database", "memory"],
+                    "agents_involved": [],
+                    "database_queries": 1
+                },
+                "data_provenance": [
+                    {
+                        "source_type": "database",
+                        "source_id": "operations.op_123",
+                        "timestamp": "2025-11-08T12:00:00Z",
+                        "confidence": 1.0,
+                        "verified": True
+                    }
+                ]
+            }]
+        }
 
 class ErrorResponse(BaseModel):
-    """Detailed error response with debugging information"""
+    """Detailed error response with debugging information and pipeline trace"""
     error: str = Field(description="Error type/code", examples=["validation_error"])
     message: str = Field(description="Human-readable error message", examples=["Invalid input provided"])
     details: Optional[Dict[str, Any]] = Field(None, description="Additional error context")
@@ -440,6 +496,68 @@ class ErrorResponse(BaseModel):
         examples=[["Check your input format", "Ensure all required fields are provided"]]
     )
     documentation_url: Optional[str] = Field(None, description="Link to relevant documentation")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(), 
+        description="Error timestamp"
+    )
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None, 
+        description="Shows pipeline steps up to failure point - reveals WHERE it failed"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list, 
+        description="Data sources accessed before failure - helps debug bad data"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "examples": [{
+                "error": "validation_error",
+                "message": "Invalid input: field 'email' is required",
+                "details": {"field": "email", "constraint": "required"},
+                "request_id": "req_abc",
+                "suggestions": [
+                    "Provide a valid email address",
+                    "Check API documentation for required fields"
+                ],
+                "documentation_url": "https://docs.example.com/api/users",
+                "timestamp": "2025-11-08T12:00:00Z",
+                "execution_trace": {
+                    "request_id": "req_abc",
+                    "total_duration_ms": 23.4,
+                    "steps": [
+                        {
+                            "step_number": 1,
+                            "component": "api_handler",
+                            "action": "parse_request",
+                            "duration_ms": 8.2,
+                            "data_source": "request",
+                            "error": None
+                        },
+                        {
+                            "step_number": 2,
+                            "component": "validator",
+                            "action": "validate_schema",
+                            "duration_ms": 15.2,
+                            "data_source": "schema",
+                            "error": "Field 'email' missing from request body"
+                        }
+                    ],
+                    "data_sources_used": ["request", "schema"],
+                    "agents_involved": [],
+                    "database_queries": 0
+                },
+                "data_provenance": [
+                    {
+                        "source_type": "request",
+                        "source_id": "request_body",
+                        "timestamp": "2025-11-08T12:00:00Z",
+                        "confidence": 1.0,
+                        "verified": False
+                    }
+                ]
+            }]
+        }
 
 class StatusResponse(BaseModel):
     """Generic status response with metrics"""

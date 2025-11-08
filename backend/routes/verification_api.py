@@ -12,6 +12,10 @@ from datetime import datetime, timedelta
 from sqlalchemy import select, func, text
 from backend.models import async_session
 from backend.auth import get_current_user
+from backend.schemas_extended import (
+    VerificationMissionDetailResponse, VerificationSmokeCheckResponseExtended, 
+    VerificationHealthResponse
+)
 
 router = APIRouter(prefix="/api/verification", tags=["verification"])
 
@@ -297,7 +301,7 @@ async def list_missions(
         ]
 
 
-@router.get("/missions/{mission_id}")
+@router.get("/missions/{mission_id}", response_model=VerificationMissionDetailResponse)
 async def get_mission_detail(
     mission_id: str,
     current_user: str = Depends(get_current_user)
@@ -352,7 +356,7 @@ async def get_mission_detail(
         }
 
 
-@router.post("/smoke-check")
+@router.post("/smoke-check", response_model=VerificationSmokeCheckResponseExtended)
 async def run_smoke_check(
     current_user: str = Depends(get_current_user)
 ):
@@ -444,7 +448,7 @@ async def run_smoke_check(
     }
 
 
-@router.get("/health")
+@router.get("/health", response_model=VerificationHealthResponse)
 async def verification_health():
     """
     Quick health check for verification system (no auth required for monitoring).

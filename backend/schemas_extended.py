@@ -570,6 +570,97 @@ class SandboxResetResponse(SuccessResponse):
     """Sandbox reset response"""
     pass
 
+# ============ Verification API Responses (Extended) ============
+
+class VerificationMissionDetailResponse(BaseModel):
+    """Detailed mission status with all contracts and pipeline trace"""
+    mission_id: str
+    mission_name: str
+    mission_goal: Optional[str] = None
+    status: str
+    progress_ratio: float
+    confidence_score: float
+    completed_actions: int
+    total_planned_actions: int
+    started_at: str
+    completed_at: Optional[str] = None
+    contracts: List[Dict[str, Any]] = Field(description="Associated action contracts")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Trace showing mission planning and execution pipeline"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Sources of mission data and decisions"
+    )
+
+class VerificationSmokeCheckResponseExtended(BaseModel):
+    """Smoke check results with pipeline verification"""
+    passed: bool = Field(description="Whether all checks passed")
+    checks: Dict[str, bool] = Field(description="Individual check results")
+    errors: List[str] = Field(description="List of errors if any")
+    timestamp: str = Field(description="Check execution timestamp")
+    message: str = Field(description="Summary message")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Trace showing which system components were verified"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Database tables and integrity sources checked"
+    )
+
+class VerificationHealthResponse(BaseModel):
+    """Verification system health status"""
+    status: str = Field(description="healthy or unhealthy")
+    contracts_count: Optional[int] = Field(None, description="Number of contracts")
+    snapshots_count: Optional[int] = Field(None, description="Number of snapshots")
+    missions_count: Optional[int] = Field(None, description="Number of missions")
+    error: Optional[str] = Field(None, description="Error if unhealthy")
+    timestamp: str = Field(description="Health check timestamp")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Trace showing health check execution"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Database and system sources checked"
+    )
+
+class VerificationCurrentMissionResponse(BaseModel):
+    """Current active mission status"""
+    mission_id: str
+    mission_name: str
+    status: str
+    progress_ratio: float
+    confidence_score: float
+    completed_actions: int
+    total_planned_actions: int
+    started_at: Optional[str] = None
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Real-time mission execution trace"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Mission state data sources"
+    )
+
+class VerificationStatusResponseExtended(BaseModel):
+    """Overall verification and progression status"""
+    mission: Optional[Dict[str, Any]] = Field(None, description="Current mission status")
+    golden_snapshot: Optional[Dict[str, Any]] = Field(None, description="Latest golden snapshot")
+    contracts: Dict[str, Any] = Field(description="Contract statistics by status")
+    timestamp: str = Field(description="Status timestamp")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Shows data flow: mission tracker → snapshot manager → contract verifier"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="All verification data sources (DB, snapshots, benchmarks)"
+    )
+
 # ============ Grace Architect API Responses ============
 
 class GraceArchitectLearnResponse(BaseModel):
@@ -630,3 +721,4 @@ class GraceArchitectKnowledgeResponse(BaseModel):
     total: int
     execution_trace: Optional[ExecutionTrace] = None
     data_provenance: List[DataProvenance] = Field(default_factory=list)
+"" 
