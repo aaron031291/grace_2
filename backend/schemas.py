@@ -3,7 +3,7 @@ Pydantic schemas for all Grace API endpoints
 Ensures proper API documentation and type safety
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
@@ -377,8 +377,8 @@ class PolicyResponse(BaseModel):
     condition: str
     action: str
 
-class PolicyListResponse(BaseModel):
-    __root__: List[PolicyResponse]
+class PolicyListResponse(RootModel[List[PolicyResponse]]):
+    root: List[PolicyResponse]
 
 class PolicyCreateResponse(BaseModel):
     id: int
@@ -393,8 +393,8 @@ class AuditLogResponse(BaseModel):
     result: str
     timestamp: datetime
 
-class AuditLogListResponse(BaseModel):
-    __root__: List[AuditLogResponse]
+class AuditLogListResponse(RootModel[List[AuditLogResponse]]):
+    root: List[AuditLogResponse]
 
 class ConfigItemResponse(BaseModel):
     key: str
@@ -403,8 +403,8 @@ class ConfigItemResponse(BaseModel):
     approved: bool
     last_updated_by: Optional[str] = None
 
-class ConfigListResponse(BaseModel):
-    __root__: List[ConfigItemResponse]
+class ConfigListResponse(RootModel[List[ConfigItemResponse]]):
+    root: List[ConfigItemResponse]
 
 # ============ Memory (Extended) ============
 
@@ -545,8 +545,8 @@ class AutonomyCheckResponse(BaseModel):
     requires_approval: Optional[bool] = None
     tier: Optional[str] = None
 
-class AutonomyApprovalListResponse(BaseModel):
-    __root__: List[Dict[str, Any]]
+class AutonomyApprovalListResponse(RootModel[List[Dict[str, Any]]]):
+    root: List[Dict[str, Any]]
 
 class AutonomyApprovalResponse(BaseModel):
     status: str
@@ -696,8 +696,8 @@ class VerificationStatusResponse(BaseModel):
 
 # ============ Tasks (Extended) ============
 
-class TaskListResponse(BaseModel):
-    __root__: List[TaskResponse]
+class TaskListResponse(RootModel[List[TaskResponse]]):
+    root: List[TaskResponse]
 
 class TaskUpdateErrorResponse(BaseModel):
     error: str
@@ -917,8 +917,8 @@ class HunterAlertResponse(BaseModel):
     details: str
     user_id: Optional[str] = None
 
-class HunterAlertsResponse(BaseModel):
-    __root__: List[HunterAlertResponse]
+class HunterAlertsResponse(RootModel[List[HunterAlertResponse]]):
+    root: List[HunterAlertResponse]
 
 class HunterResolveResponse(BaseModel):
     status: str
@@ -933,8 +933,8 @@ class HunterRuleResponse(BaseModel):
     action: str
     created_at: Optional[str] = None
 
-class HunterRulesResponse(BaseModel):
-    __root__: List[HunterRuleResponse]
+class HunterRulesResponse(RootModel[List[HunterRuleResponse]]):
+    root: List[HunterRuleResponse]
 
 class HunterRuleUpdateResponse(BaseModel):
     id: int
