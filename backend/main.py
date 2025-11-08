@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timezone
 import time
 import psutil
-from .schemas import HealthResponse, ServiceHealth, SystemMetrics
+from .schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from .base_models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
@@ -378,22 +378,25 @@ async def health_check():
         timestamp=now.isoformat()
     )
 
-@app.get("/api/verification/audit")
+@app.get("/api/verification/audit", response_model=VerificationAuditResponse)
 async def verification_audit(
     limit: int = 100,
     actor: str = None,
     action_type: str = None,
-    hours_back: int = 24,
-    current_user: str = Depends(get_current_user)
+    hours_back: int = 24
 ):
-    """Get verification audit log"""
+    """Get verification audit log with pipeline traceability (no auth required for monitoring)"""
     audit_log = await verification_integration.get_verification_audit_log(
         limit=limit,
         actor=actor,
         action_type=action_type,
         hours_back=hours_back
     )
-    return {"audit_log": audit_log, "count": len(audit_log)}
+    return {
+        "audit_logs": audit_log,
+        "total": len(audit_log),
+        "time_range_hours": hours_back
+    }
 
 @app.get("/api/verification/stats")
 async def verification_stats(

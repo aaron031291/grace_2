@@ -310,9 +310,18 @@ class VerificationResultResponse(BaseModel):
     timestamp: datetime
 
 class VerificationAuditResponse(BaseModel):
-    audit_logs: List[Dict[str, Any]]
-    total: int
-    time_range_hours: int
+    """Verification audit logs with pipeline traceability"""
+    audit_logs: List[Dict[str, Any]] = Field(description="List of audit log entries")
+    total: int = Field(description="Total number of audit logs")
+    time_range_hours: int = Field(description="Time range in hours")
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Shows audit log query execution: database → filter → aggregate"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Sources: verification contracts, action logs, governance decisions"
+    )
 
 # ============ Meta Loop ============
 
