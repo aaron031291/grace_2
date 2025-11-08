@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
 from datetime import datetime
@@ -13,6 +13,8 @@ from ..hunter import hunter
 from ..models import ChatMessage, async_session
 from ..agentic_error_handler import agentic_error_handler
 from ..memory_learning_pipeline import memory_learning_pipeline, MemoryClassification
+from ..grace_llm import get_grace_llm
+from ..cognition_intent import CognitionAuthority
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -59,6 +61,8 @@ class ChatResponse(BaseModel):
 
 memory = PersistentMemory()
 grace = GraceAutonomous(memory=memory)
+grace_llm = get_grace_llm(memory)
+cognition = CognitionAuthority()
 
 @router.post("/", response_model=ChatResponse)
 async def chat_endpoint(
@@ -164,12 +168,25 @@ async def _process_chat_message(
             except Exception as e:
                 logger.error(f"Failed to store user message: {e}", exc_info=True)
             
-            # Hardening: GraceAutonomous with timeout and fallback
+            # Full Cognition -> Agentic -> LLM Pipeline
             try:
-                result = await asyncio.wait_for(
-                    grace.respond(current_user, req.message),
+                # Step 1: Parse intent through Cognition Authority
+                intent = await cognition.parse_intent(
+                    utterance=req.message,
+                    user_id=current_user,
+                    context={"domain": req.domain}
+                )
+                
+                # Step 2: Generate response using Grace LLM (uses agentic spine)
+                llm_response = await asyncio.wait_for(
+                    grace_llm.generate_response(
+                        user_message=req.message,
+                        domain=req.domain,
+                        context={"user": current_user, "intent": intent}
+                    ),
                     timeout=25.0
                 )
+                result = llm_response["text"]
             except asyncio.TimeoutError:
                 logger.error("Grace response timed out, using fallback")
                 result = "I'm taking longer than usual to process this. Please try again or simplify your request."
