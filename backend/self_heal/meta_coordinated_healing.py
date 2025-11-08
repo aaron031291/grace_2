@@ -1,4 +1,4 @@
-﻿"""
+"""
 Meta-Coordinated Self-Healing Architecture
 
 PROPER HIERARCHY:
@@ -200,15 +200,15 @@ class MetaCoordinatedHealing:
                 cycle_id = f"cycle_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{cycle_count}"
                 
                 try:
-                    print(f"\n🔄 Meta Loop Cycle {cycle_count} - {datetime.now(timezone.utc).strftime('%H:%M:%S')}")
+                    print(f"\n[META] Meta Loop Cycle {cycle_count} - {datetime.now(timezone.utc).strftime('%H:%M:%S')}")
                     
                     # STEP 1: Meta loop observes and decides
                     focus = await self._meta_decide_focus(cycle_id)
                     self.current_cycle = focus
                     self.cycle_history.append(focus)
                     
-                    print(f"  📋 Focus: {focus.focus_area.value}")
-                    print(f"  🛡️ Guardrails: {focus.guardrail_adjustment.value}")
+                    print(f"  [FOCUS] Focus: {focus.focus_area.value}")
+                    print(f"  [GUARD] Guardrails: {focus.guardrail_adjustment.value}")
                     
                     # Sign decision to immutable log
                     await immutable_log.append(

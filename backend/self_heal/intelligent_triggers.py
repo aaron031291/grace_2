@@ -1,4 +1,4 @@
-﻿"""
+"""
 Intelligent Self-Healing Triggers
 
 Integrates multiple intelligent subsystems to trigger self-healing actions:
@@ -367,7 +367,7 @@ class IntelligentTriggerManager:
             
             await self._emit_healing_trigger(trigger)
             
-            print(f"  📜 Log Pattern: {pattern.get('pattern_type')} detected")
+            print(f"  [LOG] Log Pattern: {pattern.get('pattern_type')} detected")
         
         except Exception as e:
             print(f"  Warning: Pattern detection handler error: {e}")

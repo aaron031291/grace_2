@@ -1,4 +1,4 @@
-﻿"""Automatic retraining based on new trusted knowledge"""
+"""Automatic retraining based on new trusted knowledge"""
 
 import asyncio
 from datetime import datetime, timedelta
@@ -78,7 +78,7 @@ class AutoRetrainEngine:
                 reason = f"weekly schedule ({days_since_training} days since last training)"
             
             if should_retrain:
-                print(f"🔄 Auto-retrain triggered: {reason}")
+                print(f"[RETRAIN] Auto-retrain triggered: {reason}")
                 print(f"   High-trust artifacts: {high_trust_count}/{new_knowledge_count}")
                 
                 from .training_pipeline import training_pipeline

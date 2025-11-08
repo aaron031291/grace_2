@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
@@ -112,7 +112,7 @@ class MetaLoopEngine:
             
             if analyses:
                 await session.commit()
-                print(f"🔄 Meta-loop: Generated {len(analyses)} actionable recommendations")
+                print(f"[META] Meta-loop: Generated {len(analyses)} actionable recommendations")
     
     async def _submit_actionable_recommendation(self, meta: MetaAnalysis, analysis: Dict):
         """Convert analysis to actionable recommendation and queue for approval"""
@@ -246,7 +246,7 @@ class MetaMetaEngine:
             session.add(eval)
             await session.commit()
             
-            print(f"🔄🔄 Meta-meta: {metric_name} changed {improvement:+.1f}% - {conclusion}")
+            print(f"[META-META] Meta-meta: {metric_name} changed {improvement:+.1f}% - {conclusion}")
             
             if improvement < -20:
                 from .trigger_mesh import trigger_mesh, TriggerEvent

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Data Pipeline Aggregation Jobs
 
 Periodic jobs that summarize contract/benchmark outcomes and push to OLAP staging.
@@ -80,7 +80,7 @@ class DataAggregationService:
     async def run_all_aggregations(self):
         """Run all aggregation jobs"""
         
-        print("🔄 Running data aggregations...")
+        print("[CYCLE] Running data aggregations...")
         start_time = datetime.now(timezone.utc)
         
         async with async_session() as session:
