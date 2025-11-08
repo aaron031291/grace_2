@@ -7,21 +7,21 @@ import logging
 from datetime import datetime, timezone
 import time
 import psutil
-from .schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
-from .base_models import Base, engine
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api
-from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
-from .transcendence.business.api import router as business_api_router
-from .reflection import reflection_service
-from .auth import get_current_user
-from .verification_integration import verification_integration
-from .routers.cognition import router as cognition_router
-from .routers.core_domain import router as core_domain_router
-from .routers.transcendence_domain import router as transcendence_domain_router
-from .routers.security_domain import router as security_domain_router
-from .routers.verification_router import router as verification_router
-from .request_id_middleware import RequestIDMiddleware
-from .metrics_service import init_metrics_collector
+from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
+from backend.base_models import Base, engine
+from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api
+from backend.transcendence.dashboards.observatory_dashboard import router as dashboard_router
+from backend.transcendence.business.api import router as business_api_router
+from backend.reflection import reflection_service
+from backend.auth import get_current_user
+from backend.verification_integration import verification_integration
+from backend.routers.cognition import router as cognition_router
+from backend.routers.core_domain import router as core_domain_router
+from backend.routers.transcendence_domain import router as transcendence_domain_router
+from backend.routers.security_domain import router as security_domain_router
+from backend.routers.verification_router import router as verification_router
+from backend.request_id_middleware import RequestIDMiddleware
+from backend.metrics_service import init_metrics_collector
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
