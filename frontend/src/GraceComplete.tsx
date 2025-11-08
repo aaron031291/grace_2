@@ -13,6 +13,7 @@ import {
   createTask as apiCreateTask, updateTaskStatus,
   type MemoryArtifact, type TaskItem
 } from './api/grace';
+import { AgenticDashboard } from './components/AgenticDashboard';
 
 // UI Components
 const Button = ({ className = "", variant = "default", size = "default", ...props }: any) => (
@@ -620,6 +621,18 @@ export default function GraceComplete() {
                 <Terminal className="h-3 w-3" />
                 Terminal
               </button>
+              
+              <button
+                onClick={() => setActiveTab('agents')}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activeTab === 'agents' 
+                    ? 'bg-white dark:bg-zinc-950 shadow-sm' 
+                    : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                }`}
+              >
+                <Bot className="h-3 w-3" />
+                Agents Dashboard
+              </button>
 
               <div className="ml-auto flex items-center gap-2">
                 {activeTab === 'chat' && (
@@ -804,6 +817,17 @@ export default function GraceComplete() {
                       }}
                     />
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'agents' && (
+                <div className="h-full overflow-y-auto p-4">
+                  <AgenticDashboard 
+                    agents={agents}
+                    onInterrupt={(id) => console.log('Interrupt agent:', id)}
+                    onPause={(id) => console.log('Pause agent:', id)}
+                    onResume={(id) => console.log('Resume agent:', id)}
+                  />
                 </div>
               )}
             </div>
