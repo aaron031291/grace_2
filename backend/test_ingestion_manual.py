@@ -1,4 +1,4 @@
-"""Manual test script for knowledge ingestion pipeline"""
+﻿"""Manual test script for knowledge ingestion pipeline"""
 
 import asyncio
 from ingestion_service import ingestion_service
@@ -55,16 +55,16 @@ async def test_ingestion_pipeline():
         
         # Check auto-approval
         auto_approve, _ = await trust_manager.should_auto_approve(url)
-        approval_status = "✓ AUTO-APPROVED" if auto_approve else "⚠ REQUIRES APPROVAL"
+        approval_status = "[OK] AUTO-APPROVED" if auto_approve else "⚠ REQUIRES APPROVAL"
         print(f"   Status: {approval_status}")
         
         # Verify expectation
         if auto_approve and test["expected"] == "auto-approved":
-            print(f"   Result: ✓ As expected")
+            print(f"   Result: [OK] As expected")
         elif not auto_approve and test["expected"] == "requires approval":
-            print(f"   Result: ✓ As expected")
+            print(f"   Result: [OK] As expected")
         else:
-            print(f"   Result: ✗ Unexpected behavior")
+            print(f"   Result: [FAIL] Unexpected behavior")
         
         results.append({
             "url": url,
@@ -118,15 +118,15 @@ async def test_ingestion_pipeline():
             )
             
             if artifact_id:
-                print(f"   ✓ Ingested successfully (ID: {artifact_id})")
+                print(f"   [OK] Ingested successfully (ID: {artifact_id})")
                 ingested_ids.append(artifact_id)
             else:
                 print(f"   ℹ️ Skipped (duplicate content)")
                 
         except PermissionError as e:
-            print(f"   ✗ Blocked by policy: {e}")
+            print(f"   [FAIL] Blocked by policy: {e}")
         except Exception as e:
-            print(f"   ✗ Error: {e}")
+            print(f"   [FAIL] Error: {e}")
     
     print()
     print("=" * 70)
@@ -159,9 +159,9 @@ async def test_ingestion_pipeline():
     print("📊 SUMMARY:")
     print("-" * 70)
     
-    print(f"\n✓ Trust scores calculated: {len(results)}")
-    print(f"✓ Content ingested: {len(ingested_ids)}")
-    print(f"✓ Database entries verified: {len(artifacts)}")
+    print(f"\n[OK] Trust scores calculated: {len(results)}")
+    print(f"[OK] Content ingested: {len(ingested_ids)}")
+    print(f"[OK] Database entries verified: {len(artifacts)}")
     
     print("\nTrust Score Breakdown:")
     for r in results:

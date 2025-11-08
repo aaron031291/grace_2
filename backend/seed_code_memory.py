@@ -1,4 +1,4 @@
-"""Seed Grace's Code Memory by Parsing grace_2 Codebase
+﻿"""Seed Grace's Code Memory by Parsing grace_2 Codebase
 
 This script parses the entire grace_2 codebase and extracts:
 - Functions with signatures and documentation
@@ -25,7 +25,7 @@ async def seed_grace_codebase():
     print("📊 Creating code memory tables...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✓ Tables ready\n")
+    print("[OK] Tables ready\n")
     
     # Define paths to parse
     grace_root = Path(__file__).parent.parent.parent
@@ -68,7 +68,7 @@ async def seed_grace_codebase():
                 language_filter=['python']  # Focus on Python first
             )
             
-            print(f"✓ Extracted patterns from {project}:")
+            print(f"[OK] Extracted patterns from {project}:")
             for pattern_type, count in result['patterns_extracted'].items():
                 if count > 0:
                     print(f"   - {pattern_type}: {count}")
@@ -77,10 +77,10 @@ async def seed_grace_codebase():
             print()
             
         except Exception as e:
-            print(f"✗ Error parsing {project}: {e}\n")
+            print(f"[FAIL] Error parsing {project}: {e}\n")
     
     print("=" * 60)
-    print(f"✓ COMPLETE - Total patterns stored: {total_patterns}")
+    print(f"[OK] COMPLETE - Total patterns stored: {total_patterns}")
     print("=" * 60)
     print()
     print("Grace's code memory is now populated!")
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         print("\n⚠ Interrupted by user")
         sys.exit(1)
     except Exception as e:
-        print(f"\n✗ Fatal error: {e}")
+        print(f"\n[FAIL] Fatal error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

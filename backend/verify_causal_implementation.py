@@ -1,4 +1,4 @@
-"""
+﻿"""
 Quick verification that causal graph system is properly implemented
 """
 import os
@@ -81,10 +81,10 @@ def check_implementation():
         print("[OK] causal_graph_api.py - all endpoints present")
         
     except AssertionError as e:
-        print(f"✗ Missing required code: {e}")
+        print(f"[FAIL] Missing required code: {e}")
         files_ok = False
     except Exception as e:
-        print(f"✗ Error checking files: {e}")
+        print(f"[FAIL] Error checking files: {e}")
         files_ok = False
     
     print("\n6. Integration checks...")
@@ -94,7 +94,7 @@ def check_implementation():
         with open(os.path.join(base_path, "reflection.py"), 'r') as f:
             content = f.read()
             if "causal_graph" in content or "CausalGraph" in content:
-                print("✓ reflection.py integrated with causal graph")
+                print("[OK] reflection.py integrated with causal graph")
             else:
                 print("⚠ reflection.py not integrated (optional)")
     except Exception as e:
@@ -105,7 +105,7 @@ def check_implementation():
         with open(os.path.join(base_path, "meta_loop.py"), 'r') as f:
             content = f.read()
             if "causal_analyzer" in content:
-                print("✓ meta_loop.py integrated with causal analyzer")
+                print("[OK] meta_loop.py integrated with causal analyzer")
             else:
                 print("⚠ meta_loop.py not integrated (optional)")
     except Exception as e:
@@ -116,7 +116,7 @@ def check_implementation():
         with open(os.path.join(base_path, "hunter.py"), 'r') as f:
             content = f.read()
             if "causal_graph" in content or "CausalGraph" in content:
-                print("✓ hunter.py integrated with causal graph")
+                print("[OK] hunter.py integrated with causal graph")
             else:
                 print("⚠ hunter.py not integrated (optional)")
     except Exception as e:
@@ -127,51 +127,51 @@ def check_implementation():
         with open(os.path.join(base_path, "main.py"), 'r') as f:
             content = f.read()
             if "causal_graph_api" in content:
-                print("✓ main.py includes causal_graph_api router")
+                print("[OK] main.py includes causal_graph_api router")
             else:
-                print("✗ main.py missing causal_graph_api router")
+                print("[FAIL] main.py missing causal_graph_api router")
                 files_ok = False
     except Exception as e:
-        print(f"✗ Could not check main.py: {e}")
+        print(f"[FAIL] Could not check main.py: {e}")
         files_ok = False
     
     print("\n" + "="*60)
     if files_ok:
-        print("✓ VERIFICATION PASSED")
+        print("[OK] VERIFICATION PASSED")
         print("="*60)
         print("\nCausal graph system is properly implemented!")
         print("\nImplemented features:")
-        print("  • CausalGraph - graph construction and traversal")
-        print("  • CausalNode - event representation")
-        print("  • CausalEdge - causal relationships with confidence")
-        print("  • Temporal causality inference")
-        print("  • Pattern-based causality inference")
-        print("  • Cause/effect finding")
-        print("  • Causal path discovery")
-        print("  • Influence calculation")
-        print("  • Feedback loop detection")
-        print("  • Graph pruning")
-        print("  • CausalAnalyzer - high-level analysis")
-        print("  • Task completion analysis")
-        print("  • Error chain tracing")
-        print("  • Optimization path finding")
-        print("  • Feedback loop analysis")
+        print("  * CausalGraph - graph construction and traversal")
+        print("  * CausalNode - event representation")
+        print("  * CausalEdge - causal relationships with confidence")
+        print("  * Temporal causality inference")
+        print("  * Pattern-based causality inference")
+        print("  * Cause/effect finding")
+        print("  * Causal path discovery")
+        print("  * Influence calculation")
+        print("  * Feedback loop detection")
+        print("  * Graph pruning")
+        print("  * CausalAnalyzer - high-level analysis")
+        print("  * Task completion analysis")
+        print("  * Error chain tracing")
+        print("  * Optimization path finding")
+        print("  * Feedback loop analysis")
         print("\nAPI Endpoints:")
-        print("  • POST /api/causal/build-graph")
-        print("  • GET  /api/causal/causes/{event_id}")
-        print("  • GET  /api/causal/effects/{event_id}")
-        print("  • POST /api/causal/path")
-        print("  • GET  /api/causal/influence")
-        print("  • GET  /api/causal/cycles")
-        print("  • GET  /api/causal/visualize")
-        print("  • GET  /api/causal/analyze/task-completion")
-        print("  • GET  /api/causal/analyze/error-chains")
-        print("  • GET  /api/causal/analyze/optimization")
-        print("  • GET  /api/causal/analyze/feedback-loops")
+        print("  * POST /api/causal/build-graph")
+        print("  * GET  /api/causal/causes/{event_id}")
+        print("  * GET  /api/causal/effects/{event_id}")
+        print("  * POST /api/causal/path")
+        print("  * GET  /api/causal/influence")
+        print("  * GET  /api/causal/cycles")
+        print("  * GET  /api/causal/visualize")
+        print("  * GET  /api/causal/analyze/task-completion")
+        print("  * GET  /api/causal/analyze/error-chains")
+        print("  * GET  /api/causal/analyze/optimization")
+        print("  * GET  /api/causal/analyze/feedback-loops")
         print("\nIntegrations:")
-        print("  • reflection.py - uses causal insights")
-        print("  • meta_loop.py - optimizes with causal analysis")
-        print("  • hunter.py - traces security events")
+        print("  * reflection.py - uses causal insights")
+        print("  * meta_loop.py - optimizes with causal analysis")
+        print("  * hunter.py - traces security events")
         print("\nNext steps:")
         print("  1. Start backend: python -m grace_rebuild.backend.main")
         print("  2. Test API: http://localhost:8000/docs")
@@ -179,7 +179,7 @@ def check_implementation():
         print("  4. Read docs: CAUSAL_GRAPH_SYSTEM.md")
         return 0
     else:
-        print("✗ VERIFICATION FAILED")
+        print("[FAIL] VERIFICATION FAILED")
         print("="*60)
         print("\nSome components are missing or incomplete.")
         return 1

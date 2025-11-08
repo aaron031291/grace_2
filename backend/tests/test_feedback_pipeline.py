@@ -1,4 +1,4 @@
-"""Tests for Feedback Pipeline - Governance and Integration"""
+﻿"""Tests for Feedback Pipeline - Governance and Integration"""
 
 import sys
 import os
@@ -279,7 +279,7 @@ class TestEndToEndPipeline:
     
     @pytest.mark.asyncio
     async def test_complete_pipeline(self):
-        """Test full governance → trust → memory → events flow"""
+        """Test full governance -> trust -> memory -> events flow"""
         
         # Create output
         output = GraceLoopOutput(

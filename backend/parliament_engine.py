@@ -1,4 +1,4 @@
-"""Parliament Engine - Distributed Governance System
+﻿"""Parliament Engine - Distributed Governance System
 
 Manages multi-agent voting, quorum consensus, and distributed decision-making.
 """

@@ -1,4 +1,4 @@
-"""Cryptographic verification system for all Grace actions"""
+﻿"""Cryptographic verification system for all Grace actions"""
 
 import hashlib
 import json
@@ -106,6 +106,6 @@ class VerificationEngine:
             session.add(envelope)
             await session.commit()
         
-        print(f"✓ Verified action: {action_type} by {actor}")
+        print(f"[OK] Verified action: {action_type} by {actor}")
 
 verification_engine = VerificationEngine()

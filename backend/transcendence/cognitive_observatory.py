@@ -1,4 +1,4 @@
-"""Cognitive Observatory - See Grace's Complete Thought Process
+﻿"""Cognitive Observatory - See Grace's Complete Thought Process
 
 Real-time visibility into Grace's entire cognitive lifecycle:
 - Input processing
@@ -207,7 +207,7 @@ class CognitiveLifecycleObservatory:
         print()
         
         if evidence:
-            print(f"📚 EVIDENCE:")
+            print(f"[INFO] EVIDENCE:")
             for e in evidence:
                 print(f"   - {e}")
             print()
@@ -338,13 +338,13 @@ class CognitiveLifecycleObservatory:
         if evidence:
             print("SUPPORTING EVIDENCE:")
             for e in evidence:
-                print(f"  ✓ {e}")
+                print(f"  [OK] {e}")
             print()
         
         if counterarguments:
             print("COUNTERARGUMENTS CONSIDERED:")
             for c in counterarguments:
-                print(f"  ✗ {c}")
+                print(f"  [FAIL] {c}")
             print()
         
         print(f"CONCLUSION: {conclusion}")
@@ -504,7 +504,7 @@ class CognitiveLifecycleObservatory:
             if step.patterns_recognized:
                 patterns.extend(step.patterns_recognized)
         
-        print(f"\n📚 WHAT GRACE LEARNED")
+        print(f"\n[INFO] WHAT GRACE LEARNED")
         print("="*70)
         print()
         
@@ -535,16 +535,16 @@ class CognitiveLifecycleObservatory:
         Get complete view of cognitive lifecycle
         
         Shows EVERYTHING:
-        1. Input → What Grace received
-        2. Perception → How Grace interpreted it
-        3. Reasoning → How Grace thought about it
-        4. Memory Access → What Grace remembered
-        5. Decision → What Grace decided
-        6. Action Plan → What Grace will do
-        7. Execution → What Grace did
-        8. Feedback → What happened
-        9. Learning → What Grace learned
-        10. Adaptation → How Grace improved
+        1. Input -> What Grace received
+        2. Perception -> How Grace interpreted it
+        3. Reasoning -> How Grace thought about it
+        4. Memory Access -> What Grace remembered
+        5. Decision -> What Grace decided
+        6. Action Plan -> What Grace will do
+        7. Execution -> What Grace did
+        8. Feedback -> What happened
+        9. Learning -> What Grace learned
+        10. Adaptation -> How Grace improved
         
         Complete cognitive transparency.
         """

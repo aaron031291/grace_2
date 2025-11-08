@@ -1,4 +1,4 @@
-"""Seed Parliament System
+﻿"""Seed Parliament System
 
 Create default committees and Grace agent members.
 """
@@ -90,15 +90,15 @@ async def seed_parliament():
     for committee in committees:
         try:
             await parliament_engine.create_committee(**committee)
-            print(f"  ✓ Created committee: {committee['display_name']}")
+            print(f"  [OK] Created committee: {committee['display_name']}")
         except Exception as e:
             if "UNIQUE constraint failed" in str(e):
-                print(f"  → Committee already exists: {committee['display_name']}")
+                print(f"  -> Committee already exists: {committee['display_name']}")
             else:
-                print(f"  ✗ Error creating {committee['display_name']}: {e}")
+                print(f"  [FAIL] Error creating {committee['display_name']}: {e}")
     
     # 2. Create Grace Agent Members
-    print("\n🤖 Creating Grace Agent Members...")
+    print("\n[AI] Creating Grace Agent Members...")
     
     grace_members = [
         {
@@ -146,12 +146,12 @@ async def seed_parliament():
     for member in grace_members:
         try:
             await parliament_engine.create_member(**member)
-            print(f"  ✓ Created member: {member['display_name']}")
+            print(f"  [OK] Created member: {member['display_name']}")
         except Exception as e:
             if "UNIQUE constraint failed" in str(e):
-                print(f"  → Member already exists: {member['display_name']}")
+                print(f"  -> Member already exists: {member['display_name']}")
             else:
-                print(f"  ✗ Error creating {member['display_name']}: {e}")
+                print(f"  [FAIL] Error creating {member['display_name']}: {e}")
     
     # 3. Create Admin User Member
     print("\n👤 Creating Human Members...")
@@ -170,12 +170,12 @@ async def seed_parliament():
     for member in human_members:
         try:
             await parliament_engine.create_member(**member)
-            print(f"  ✓ Created member: {member['display_name']}")
+            print(f"  [OK] Created member: {member['display_name']}")
         except Exception as e:
             if "UNIQUE constraint failed" in str(e):
-                print(f"  → Member already exists: {member['display_name']}")
+                print(f"  -> Member already exists: {member['display_name']}")
             else:
-                print(f"  ✗ Error creating {member['display_name']}: {e}")
+                print(f"  [FAIL] Error creating {member['display_name']}: {e}")
     
     # 4. Summary
     print("\n📊 Parliament Summary:")

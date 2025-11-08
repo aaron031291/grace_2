@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
 from datetime import datetime
@@ -133,7 +133,7 @@ async def _process_chat_message(
                     timeout=5.0
                 )
                 if alerts:
-                    print(f"⚠️ Hunter: {len(alerts)} alerts on chat message")
+                    print(f"[WARN] Hunter: {len(alerts)} alerts on chat message")
                     await agentic_error_handler.capture_warning(
                         source="hunter",
                         message=f"{len(alerts)} security alerts detected",

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Data Cube ETL Scheduler
 
 Runs incremental ETL jobs on a schedule to keep cube fresh.
@@ -41,10 +41,10 @@ def start_cube_scheduler():
     )
     
     scheduler.start()
-    print("✓ Cube ETL scheduler started (5-minute intervals)")
+    print("[OK] Cube ETL scheduler started (5-minute intervals)")
 
 
 def stop_cube_scheduler():
     """Stop scheduler on shutdown"""
     scheduler.shutdown()
-    print("✓ Cube ETL scheduler stopped")
+    print("[OK] Cube ETL scheduler stopped")

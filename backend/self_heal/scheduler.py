@@ -1,4 +1,4 @@
-"""
+﻿"""
 Observe-only self-heal scheduler
 - Polls recent HealthSignals
 - Runs deterministic triage
@@ -23,7 +23,7 @@ class ObserveOnlyScheduler:
         self._stopping = asyncio.Event()
         self._interval = poll_interval_s
         # In-memory suppression state (reset on process restart)
-        # key: (service, diagnosis) → {"factor": int, "next_at": datetime}
+        # key: (service, diagnosis) -> {"factor": int, "next_at": datetime}
         self._backoff: Dict[tuple[str, str], Dict[str, Any]] = {}
         # per-service timestamps of recent proposals for simple rate limiting
         self._rate: Dict[str, List[datetime]] = {}
@@ -94,7 +94,7 @@ class ObserveOnlyScheduler:
         self._backoff[key] = {"factor": factor, "next_at": now + delay}
 
     def _is_outside_change_window(self, now: datetime) -> bool:
-        """Default change window: weekdays 09:00–18:00 local time. Outside → True."""
+        """Default change window: weekdays 09:00–18:00 local time. Outside -> True."""
         try:
             local = now.astimezone()
         except Exception:

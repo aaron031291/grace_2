@@ -1,4 +1,4 @@
-"""
+﻿"""
 Real Playbook Executors - Actual operations instead of simulations
 
 Replaces asyncio.sleep() stubs with real system operations:
@@ -252,14 +252,14 @@ class RealExecutors:
                 if lock_file.exists():
                     try:
                         lock_file.unlink()
-                        print(f"  ✓ Removed {lock_file.name}")
+                        print(f"  [OK] Removed {lock_file.name}")
                     except Exception as e:
-                        print(f"  ⚠️  Could not remove {lock_file.name}: {e}")
+                        print(f"  [WARN]  Could not remove {lock_file.name}: {e}")
             
             return True
             
         except Exception as e:
-            print(f"  ✗ Error clearing DB locks: {e}")
+            print(f"  [FAIL] Error clearing DB locks: {e}")
             return False
     
     async def _checkpoint_wal(self) -> bool:
@@ -274,11 +274,11 @@ class RealExecutors:
             
             conn.close()
             
-            print(f"  ✓ WAL checkpoint: {result}")
+            print(f"  [OK] WAL checkpoint: {result}")
             return True
             
         except Exception as e:
-            print(f"  ✗ WAL checkpoint failed: {e}")
+            print(f"  [FAIL] WAL checkpoint failed: {e}")
             return False
     
     async def _clear_pycache(self) -> int:
@@ -295,11 +295,11 @@ class RealExecutors:
                     except Exception:
                         pass
             
-            print(f"  ✓ Cleared {count} __pycache__ directories")
+            print(f"  [OK] Cleared {count} __pycache__ directories")
             return count
             
         except Exception as e:
-            print(f"  ✗ Error clearing pycache: {e}")
+            print(f"  [FAIL] Error clearing pycache: {e}")
             return 0
     
     async def _clear_db_connections(self) -> bool:
@@ -333,7 +333,7 @@ class RealExecutors:
         
         import logging
         logging.root.setLevel(logging.INFO)
-        print(f"  ✓ Logging reset to INFO after {minutes} minutes")
+        print(f"  [OK] Logging reset to INFO after {minutes} minutes")
 
 
 # Singleton instance

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+﻿from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
@@ -59,7 +59,7 @@ async def on_startup():
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✓ Database initialized")
+    print("[OK] Database initialized")
 
     # Metrics DB (separate to avoid coupling)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -74,7 +74,7 @@ async def on_startup():
     # Initialize global metrics collector with persistence enabled
     init_metrics_collector(db_session=app.state.metrics_session)
 
-    print("✓ Grace API server starting...")
+    print("[OK] Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
     
@@ -88,7 +88,7 @@ async def on_startup():
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
-    print("✓ Benchmark scheduler started (evaluates every hour)")
+    print("[OK] Benchmark scheduler started (evaluates every hour)")
 
     # Knowledge discovery scheduler (configurable via env)
     try:
@@ -102,9 +102,9 @@ async def on_startup():
 
     await start_discovery_scheduler(interval_val, seeds_val)
     if interval_val or seeds_val:
-        print(f"✓ Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
+        print(f"[OK] Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
     else:
-        print("✓ Knowledge discovery scheduler started")
+        print("[OK] Knowledge discovery scheduler started")
 
 @app.on_event("shutdown")
 async def on_shutdown():

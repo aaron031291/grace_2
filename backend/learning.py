@@ -1,4 +1,4 @@
-from sqlalchemy import select
+﻿from sqlalchemy import select
 from .models import Task, ChatMessage, async_session
 from datetime import datetime
 
@@ -30,7 +30,7 @@ class LearningEngine:
                     session.add(task)
                     await session.commit()
                     action_created = True
-                    print(f"✓ Auto-generated task for {user}: task management")
+                    print(f"[OK] Auto-generated task for {user}: task management")
         
         elif topic in ["help", "question"] and frequency >= 2:
             async with async_session() as session:
@@ -44,7 +44,7 @@ class LearningEngine:
                 session.add(task)
                 await session.commit()
                 action_created = True
-                print(f"✓ Auto-generated task for {user}: improve help")
+                print(f"[OK] Auto-generated task for {user}: improve help")
         
         elif frequency >= 3:
             async with async_session() as session:
@@ -58,7 +58,7 @@ class LearningEngine:
                 session.add(task)
                 await session.commit()
                 action_created = True
-                print(f"✓ Auto-generated research task for {user}: {topic}")
+                print(f"[OK] Auto-generated research task for {user}: {topic}")
         
         return action_created
 

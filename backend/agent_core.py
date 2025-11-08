@@ -1,4 +1,4 @@
-"""
+﻿"""
 Agent Core - Unified agentic layer powering all 10 domains
 
 Provides shared sensing, trust, planning, execution, and learning
@@ -349,7 +349,7 @@ class AgentCore:
             result="registered"
         )
         
-        print(f"  ✓ Domain {domain_id} integrated with agent core")
+        print(f"  [OK] Domain {domain_id} integrated with agent core")
     
     async def _register_health_node(self, node: DomainHealthNode, domain_id: str):
         """Register health node in unified graph"""

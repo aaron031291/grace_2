@@ -1,4 +1,4 @@
-"""
+﻿"""
 Approval Notification System
 
 Server-Sent Events (SSE) and webhooks for real-time approval updates.
@@ -42,7 +42,7 @@ class ApprovalNotificationManager:
         await trigger_mesh.subscribe("approval.rejected", self._handle_approval_rejected)
         
         self._running = True
-        print("✓ Approval notification manager started")
+        print("[OK] Approval notification manager started")
     
     async def stop(self):
         """Stop the notification manager"""

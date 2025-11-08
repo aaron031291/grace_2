@@ -1,4 +1,4 @@
-"""
+﻿"""
 Intelligent Self-Healing Triggers
 
 Integrates multiple intelligent subsystems to trigger self-healing actions:
@@ -91,7 +91,7 @@ class IntelligentTriggerManager:
             result="started"
         )
         
-        print("  ✓ Intelligent trigger manager started (8 event types)")
+        print("  [OK] Intelligent trigger manager started (8 event types)")
     
     async def stop(self):
         """Stop listening to triggers"""
@@ -104,7 +104,7 @@ class IntelligentTriggerManager:
             payload={"triggers_processed": len(self.trigger_history)},
             result="stopped"
         )
-        print("  ✓ Intelligent trigger manager stopped")
+        print("  [OK] Intelligent trigger manager stopped")
     
     # ========== META LOOP TRIGGERS ==========
     
@@ -192,7 +192,7 @@ class IntelligentTriggerManager:
             
             await self._emit_healing_trigger(trigger)
             
-            print(f"  🤖 ML Forecast: {forecast.get('node_id')} - {forecast.get('anomaly_type')} (conf: {forecast.get('confidence')})")
+            print(f"  [AI] ML Forecast: {forecast.get('node_id')} - {forecast.get('anomaly_type')} (conf: {forecast.get('confidence')})")
         
         except Exception as e:
             print(f"  Warning: Anomaly forecast handler error: {e}")
@@ -225,7 +225,7 @@ class IntelligentTriggerManager:
                 
                 await self._emit_healing_trigger(trigger)
                 
-                print(f"  🤖 ML Capacity: {prediction.get('resource_type')} - {shortfall:.1%} shortfall predicted")
+                print(f"  [AI] ML Capacity: {prediction.get('resource_type')} - {shortfall:.1%} shortfall predicted")
         
         except Exception as e:
             print(f"  Warning: Capacity prediction handler error: {e}")
@@ -253,7 +253,7 @@ class IntelligentTriggerManager:
                 
                 await self._emit_healing_trigger(trigger)
                 
-                print(f"  🤖 ML Risk: {assessment.get('node_id')} - {risk_level} risk detected")
+                print(f"  [AI] ML Risk: {assessment.get('node_id')} - {risk_level} risk detected")
         
         except Exception as e:
             print(f"  Warning: Risk assessment handler error: {e}")
@@ -283,7 +283,7 @@ class IntelligentTriggerManager:
             
             await self._emit_healing_trigger(trigger)
             
-            print(f"  🤖 ML Drift: {event.resource} - {drift.get('drift_type')} detected")
+            print(f"  [AI] ML Drift: {event.resource} - {drift.get('drift_type')} detected")
         
         except Exception as e:
             print(f"  Warning: Drift detection handler error: {e}")

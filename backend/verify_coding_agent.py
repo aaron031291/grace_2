@@ -1,4 +1,4 @@
-"""Verification Script for AI Coding Agent System"""
+﻿"""Verification Script for AI Coding Agent System"""
 
 import asyncio
 from datetime import datetime
@@ -146,7 +146,7 @@ async def verify_coding_agent():
         print("  ✅ GRACE integration OK")
     except Exception as e:
         results['warnings'].append(f"GRACE integration warning: {e}")
-        print(f"  ⚠️  GRACE integration warning: {e}")
+        print(f"  [WARN]  GRACE integration warning: {e}")
     
     # Test 9: Check seed script exists
     print("\nTest 9: Checking seed script...")
@@ -188,24 +188,24 @@ async def verify_coding_agent():
     
     print(f"\n✅ Passed: {len(results['passed'])}")
     for item in results['passed']:
-        print(f"   • {item}")
+        print(f"   * {item}")
     
     if results['warnings']:
-        print(f"\n⚠️  Warnings: {len(results['warnings'])}")
+        print(f"\n[WARN]  Warnings: {len(results['warnings'])}")
         for item in results['warnings']:
-            print(f"   • {item}")
+            print(f"   * {item}")
     
     if results['failed']:
         print(f"\n❌ Failed: {len(results['failed'])}")
         for item in results['failed']:
-            print(f"   • {item}")
+            print(f"   * {item}")
     
     print("\n" + "=" * 70)
     
     if len(results['failed']) == 0:
         print("✅ ALL TESTS PASSED - SYSTEM READY")
     elif len(results['failed']) < 3:
-        print("⚠️  MOSTLY WORKING - MINOR ISSUES")
+        print("[WARN]  MOSTLY WORKING - MINOR ISSUES")
     else:
         print("❌ SYSTEM HAS ISSUES - REVIEW REQUIRED")
     

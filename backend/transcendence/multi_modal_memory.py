@@ -1,4 +1,4 @@
-"""Transcendence Multi-Modal Memory System
+﻿"""Transcendence Multi-Modal Memory System
 
 Handles ANY file type with persistent storage, all in sandbox, all verified:
 - Large files (XXL PDFs, books, codebases, videos, audio)
@@ -240,7 +240,7 @@ class MultiModalMemory:
         if gov_result['decision'] == 'deny':
             raise PermissionError(f"Governance denied: {gov_result['reason']}")
         
-        print(f"  ✓ Approved by governance")
+        print(f"  [OK] Approved by governance")
         print()
         
         # Step 2: Check file size
@@ -258,7 +258,7 @@ class MultiModalMemory:
         if is_chunked:
             print("STEP 2: Chunking large file...")
             chunks = await self._chunk_file(file_data, artifact_id)
-            print(f"  ✓ Created {len(chunks)} chunks")
+            print(f"  [OK] Created {len(chunks)} chunks")
             print()
         else:
             chunks = []
@@ -271,7 +271,7 @@ class MultiModalMemory:
         with open(sandbox_path, 'wb') as f:
             f.write(file_data)
         
-        print(f"  ✓ Stored: {sandbox_path}")
+        print(f"  [OK] Stored: {sandbox_path}")
         print()
         
         # Step 6: Hunter scan
@@ -287,7 +287,7 @@ class MultiModalMemory:
             # Critical alerts require your approval
             if any(a['severity'] == 'critical' for a in hunter_result['alerts']):
                 print("  🚨 Critical security issues detected")
-                print("  → Escalating to Parliament for your approval...")
+                print("  -> Escalating to Parliament for your approval...")
                 
                 session = await parliament_engine.create_session(
                     policy_name="file_upload_security",
@@ -306,19 +306,19 @@ class MultiModalMemory:
                     'message': 'Critical security issues - your approval required'
                 }
         else:
-            print(f"  ✓ No security issues detected")
+            print(f"  [OK] No security issues detected")
             print()
         
         # Step 7: Extract content
         print("STEP 5: Extracting content...")
         extracted = await self._extract_content(sandbox_path, file_type)
-        print(f"  ✓ Extracted {len(extracted.get('text', ''))} chars of text")
+        print(f"  [OK] Extracted {len(extracted.get('text', ''))} chars of text")
         print()
         
         # Step 8: Trust score
         print("STEP 6: Trust scoring...")
         trust_score = await self._calculate_trust(source, hunter_result, user)
-        print(f"  ✓ Trust score: {trust_score:.2f}/1.0")
+        print(f"  [OK] Trust score: {trust_score:.2f}/1.0")
         print()
         
         # Step 9: Verification signature
@@ -330,7 +330,7 @@ class MultiModalMemory:
             resource=file_name,
             input_data={'hash': content_hash, 'size': file_size}
         )
-        print(f"  ✓ Verification: {verification_id}")
+        print(f"  [OK] Verification: {verification_id}")
         print()
         
         # Step 10: Store metadata
@@ -366,11 +366,11 @@ class MultiModalMemory:
             await session.commit()
             await session.refresh(artifact)
         
-        print(f"  ✓ Stored in persistent memory")
+        print(f"  [OK] Stored in persistent memory")
         print()
         
         print("="*70)
-        print("✓ UPLOAD COMPLETE")
+        print("[OK] UPLOAD COMPLETE")
         print("="*70)
         print(f"\nArtifact ID: {artifact_id}")
         print(f"Trust Score: {trust_score:.2f}")
@@ -548,7 +548,7 @@ class MultiModalMemory:
         if gov_result['decision'] == 'deny':
             raise PermissionError(f"Governance denied: {gov_result['reason']}")
         
-        print("  ✓ Approved")
+        print("  [OK] Approved")
         print()
         
         # Step 2: Scrape (in sandbox)
@@ -562,7 +562,7 @@ class MultiModalMemory:
             'structured': {'title': url, 'content': 'mock'}
         }
         
-        print("  ✓ Scraped successfully")
+        print("  [OK] Scraped successfully")
         print()
         
         # Step 3: Hunter scan
@@ -572,7 +572,7 @@ class MultiModalMemory:
             content_type="web_scrape"
         )
         
-        print(f"  ✓ Scanned (alerts: {len(hunter_result.get('alerts', []))})")
+        print(f"  [OK] Scanned (alerts: {len(hunter_result.get('alerts', []))})")
         print()
         
         # Step 4: Trust score
@@ -600,7 +600,7 @@ class MultiModalMemory:
             session.add(scrape)
             await session.commit()
         
-        print("  ✓ Stored in memory")
+        print("  [OK] Stored in memory")
         print()
         
         return {

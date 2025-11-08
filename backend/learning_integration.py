@@ -1,7 +1,7 @@
-"""
+﻿"""
 Learning Integration - Continuous improvement through decision outcomes
 
-Logs every decision → outcome, feeds analytics/ML to refine detection,
+Logs every decision -> outcome, feeds analytics/ML to refine detection,
 playbook selection, and threshold tuning. Self-upgrades heuristics when
 confidence crosses thresholds (with full audit trail).
 """
@@ -61,7 +61,7 @@ class HeuristicUpdate:
 
 
 class OutcomeTracker:
-    """Tracks decision → outcome pairs for learning"""
+    """Tracks decision -> outcome pairs for learning"""
     
     def __init__(self):
         self.outcomes: List[OutcomeRecord] = []
@@ -548,7 +548,7 @@ class SelfUpgradeEngine:
                     result="applied"
                 )
                 
-                print(f"✓ Auto-upgraded: {upgrade.subsystem}.{upgrade.parameter} = {upgrade.new_value} (was {upgrade.old_value})")
+                print(f"[OK] Auto-upgraded: {upgrade.subsystem}.{upgrade.parameter} = {upgrade.new_value} (was {upgrade.old_value})")
 
 
 class LearningIntegration:
@@ -564,7 +564,7 @@ class LearningIntegration:
     async def start(self):
         """Start learning integration"""
         asyncio.create_task(self._learning_loop())
-        print("✓ Learning Integration started")
+        print("[OK] Learning Integration started")
     
     async def _learning_loop(self):
         """Background loop for continuous learning"""

@@ -1,4 +1,4 @@
-import json
+﻿import json
 import re
 from typing import Optional, Dict
 from .issue_models import IssueReport
@@ -113,7 +113,7 @@ class RemedyInference:
             await session.commit()
             await session.refresh(issue)
             
-            print(f"✓ Issue logged: {summary[:50]}... (ID: {issue.id})")
+            print(f"[OK] Issue logged: {summary[:50]}... (ID: {issue.id})")
             return issue.id
     
     async def apply_fix(self, issue_id: int) -> dict:
@@ -151,7 +151,7 @@ class RemedyInference:
                 issue.resolved_at = datetime.utcnow()
                 await session.commit()
                 
-                print(f"✓ Applied fix for issue {issue_id}: {result}")
+                print(f"[OK] Applied fix for issue {issue_id}: {result}")
                 
                 return {
                     "status": "success" if success else "failed",

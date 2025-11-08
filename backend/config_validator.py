@@ -1,4 +1,4 @@
-"""
+﻿"""
 Configuration Validator
 
 Startup checks for required settings and environment parity.
@@ -205,12 +205,12 @@ class ConfigValidator:
                 print(f"   - {error}")
         
         if self.warnings:
-            print(f"\n⚠️  Configuration Warnings ({len(self.warnings)}):")
+            print(f"\n[WARN]  Configuration Warnings ({len(self.warnings)}):")
             for warning in self.warnings:
                 print(f"   - {warning}")
         
         if not self.errors and not self.warnings:
-            print("✓ All configuration valid")
+            print("[OK] All configuration valid")
         
         return len(self.errors) == 0
     
@@ -298,7 +298,7 @@ def validate_startup_config() -> bool:
     is_valid = config_validator.validate()
     
     if not is_valid:
-        print("\n⚠️  Configuration issues detected. Review errors above.")
+        print("\n[WARN]  Configuration issues detected. Review errors above.")
         print("   See .env.example for reference configuration.")
     
     return is_valid

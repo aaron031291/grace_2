@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
@@ -52,13 +52,13 @@ class MetaLoopEngine:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._loop())
-            print(f"✓ Meta-loop started (Level 1 optimization, interval: {self.interval}s)")
+            print(f"[OK] Meta-loop started (Level 1 optimization, interval: {self.interval}s)")
     
     async def stop(self):
         self._running = False
         if self._task:
             self._task.cancel()
-        print("✓ Meta-loop stopped")
+        print("[OK] Meta-loop stopped")
     
     async def _loop(self):
         try:

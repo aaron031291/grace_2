@@ -1,4 +1,4 @@
-"""
+﻿"""
 Knowledge Preload System - Transfer Expert AI Knowledge to Grace
 
 Bootstraps Grace with curated AI/ML/LLM expertise before live learning.
@@ -39,7 +39,7 @@ class KnowledgePreloader:
         # Self-Healing AI
         await self._load_knowledge_pack("self_healing_ai", SELF_HEALING_AI)
         
-        print("✓ AI expertise preloaded successfully")
+        print("[OK] AI expertise preloaded successfully")
         
         await self.immutable_log.append(
             actor="knowledge_preloader",
@@ -86,7 +86,7 @@ class KnowledgePreloader:
                 session.add(source)
             
             await session.commit()
-            print(f"  ✓ Loaded {len(entities)} entities from {pack_name}")
+            print(f"  [OK] Loaded {len(entities)} entities from {pack_name}")
 
 
 # ==================== KNOWLEDGE PACKS ====================
@@ -123,7 +123,7 @@ AI_FUNDAMENTALS = [
         "content": """Training lifecycle:
         1. Data Preparation: Clean, tokenize, split train/val/test
         2. Initialization: Random weights, set hyperparameters
-        3. Forward Pass: Input → predictions through network
+        3. Forward Pass: Input -> predictions through network
         4. Loss Calculation: Compare predictions to ground truth
         5. Backward Pass: Compute gradients via backpropagation
         6. Weight Update: Optimizer adjusts parameters

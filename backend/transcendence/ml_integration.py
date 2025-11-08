@@ -1,6 +1,6 @@
-"""Transcendence ML/DL Integration
+﻿"""Transcendence ML/DL Integration
 
-Connects multi-modal memory → ML training → model deployment
+Connects multi-modal memory -> ML training -> model deployment
 Grace learns from ANY data you approve, builds domain-specific models.
 """
 
@@ -24,7 +24,7 @@ class TranscendenceMLEngine:
     2. Trains domain-specific models
     3. Deploys models for business use
     4. Retrains when new data arrives
-    5. Tracks model performance → business revenue
+    5. Tracks model performance -> business revenue
     
     All with your consensus via Parliament
     """
@@ -102,7 +102,7 @@ class TranscendenceMLEngine:
                         'source': 'multi_modal'
                     })
         
-        print(f"✓ Collected {len(training_samples)} training samples")
+        print(f"[OK] Collected {len(training_samples)} training samples")
         print(f"  - Average trust: {sum(s['trust_score'] for s in training_samples) / len(training_samples) if training_samples else 0:.2f}")
         print(f"  - Domain: {cycle.domain}")
         print(f"  - Topic: {cycle.topic}")
@@ -186,7 +186,7 @@ class TranscendenceMLEngine:
             actor="transcendence_ml"
         )
         
-        print(f"  ✓ Model trained: {model_id}")
+        print(f"  [OK] Model trained: {model_id}")
         print()
         
         # Evaluate model
@@ -199,12 +199,12 @@ class TranscendenceMLEngine:
             'f1': 0.89
         }
         
-        print(f"  ✓ Accuracy: {metrics['accuracy']:.2%}")
+        print(f"  [OK] Accuracy: {metrics['accuracy']:.2%}")
         print()
         
         # Store model metadata
         print("💾 Storing model metadata...")
-        print(f"  ✓ Model ready for deployment")
+        print(f"  [OK] Model ready for deployment")
         print()
         
         return {
@@ -269,7 +269,7 @@ class TranscendenceMLEngine:
             actor="transcendence_ml"
         )
         
-        print(f"  ✓ Deployed successfully")
+        print(f"  [OK] Deployed successfully")
         print()
         
         return {
@@ -292,7 +292,7 @@ class TranscendenceMLEngine:
         - Web scrapes
         - Whitelisted sources
         
-        When threshold reached → Proposes training to you → You approve → Trains
+        When threshold reached -> Proposes training to you -> You approve -> Trains
         
         Args:
             domain: Domain to train on
@@ -320,7 +320,7 @@ class TranscendenceMLEngine:
         print(f"  Training-approved artifacts: {approved_count}/{min_samples}")
         
         if approved_count >= min_samples:
-            print(f"  ✓ Threshold reached!")
+            print(f"  [OK] Threshold reached!")
             print()
             print(f"  Grace proposes: Train {domain} model")
             print()

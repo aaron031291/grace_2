@@ -1,4 +1,4 @@
-"""Transcendence Voice Integration
+﻿"""Transcendence Voice Integration
 
 Persistent voice for ALL Transcendence operations:
 - Voice proposals from Grace

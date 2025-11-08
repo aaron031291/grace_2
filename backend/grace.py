@@ -1,4 +1,4 @@
-from datetime import datetime
+﻿from datetime import datetime
 from typing import Dict
 from .memory import PersistentMemory
 from .knowledge import knowledge_manager
@@ -180,4 +180,4 @@ class GraceAutonomous:
             )
             session.add(goal)
             await session.commit()
-            print(f"✓ Grace proposed research goal: {query[:50]}...")
+            print(f"[OK] Grace proposed research goal: {query[:50]}...")

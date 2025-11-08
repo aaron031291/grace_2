@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import time
 from datetime import datetime, timedelta
 from sqlalchemy import select
@@ -26,13 +26,13 @@ class HealthMonitor:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._loop())
-            print(f"✓ Health monitor started (interval: {self.interval}s)")
+            print(f"[OK] Health monitor started (interval: {self.interval}s)")
 
     async def stop(self):
         self._running = False
         if self._task:
             self._task.cancel()
-        print("✓ Health monitor stopped")
+        print("[OK] Health monitor stopped")
 
     async def _loop(self):
         try:

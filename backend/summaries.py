@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, select, func
+﻿from sqlalchemy import Column, Integer, String, DateTime, Text, select, func
 from sqlalchemy.sql import func as sql_func
 from datetime import datetime, timedelta
 from .models import Base, ChatMessage, Task, async_session
@@ -78,7 +78,7 @@ class SummaryGenerator:
             session.add(summary)
             await session.commit()
             
-            print(f"✓ Generated daily summary: {len(messages)} messages, {len(tasks)} tasks")
+            print(f"[OK] Generated daily summary: {len(messages)} messages, {len(tasks)} tasks")
             return summary_text
 
 summary_generator = SummaryGenerator()

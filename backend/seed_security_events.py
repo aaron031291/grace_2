@@ -1,4 +1,4 @@
-"""Generate synthetic security events for ML training"""
+﻿"""Generate synthetic security events for ML training"""
 
 import asyncio
 import json
@@ -164,7 +164,7 @@ async def generate_security_events(count: int = 200):
         severity = event['severity']
         severity_counts[severity] = severity_counts.get(severity, 0) + 1
     
-    print(f"✓ Generated {len(events_to_create)} synthetic security events:")
+    print(f"[OK] Generated {len(events_to_create)} synthetic security events:")
     for severity, count in sorted(severity_counts.items()):
         print(f"  - {severity}: {count}")
 

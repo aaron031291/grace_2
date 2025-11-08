@@ -1,10 +1,10 @@
-"""
+﻿"""
 Agentic Error Handler - Instant Detection & Trigger Mesh Integration
 
 Catches errors immediately on user input and publishes to Trigger Mesh for
 autonomous triage, action, and resolution.
 
-Pipeline: Error Detected → Problem Identified → Action Planned → Resolved/Failed
+Pipeline: Error Detected -> Problem Identified -> Action Planned -> Resolved/Failed
 """
 
 import asyncio

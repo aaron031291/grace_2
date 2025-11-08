@@ -1,4 +1,4 @@
-"""Test Code Memory System
+﻿"""Test Code Memory System
 
 Quick test to verify code memory parsing and recall works
 """
@@ -26,7 +26,7 @@ async def test_parse_single_file():
         project='test_project'
     )
     
-    print(f"✓ Parsed {test_file.name}")
+    print(f"[OK] Parsed {test_file.name}")
     print(f"  Functions: {len(result.get('functions', []))}")
     print(f"  Classes: {len(result.get('classes', []))}")
     print()
@@ -45,7 +45,7 @@ async def test_pattern_recall():
         limit=5
     )
     
-    print(f"✓ Found {len(patterns)} patterns for 'test function'")
+    print(f"[OK] Found {len(patterns)} patterns for 'test function'")
     for i, pattern in enumerate(patterns, 1):
         print(f"\n{i}. {pattern['name']} ({pattern['type']})")
         print(f"   Confidence: {pattern['confidence']:.2f}")
@@ -67,13 +67,13 @@ async def main():
     try:
         await test_parse_single_file()
     except Exception as e:
-        print(f"✗ Parse test failed: {e}\n")
+        print(f"[FAIL] Parse test failed: {e}\n")
     
     # Test 2: Recall patterns
     try:
         await test_pattern_recall()
     except Exception as e:
-        print(f"✗ Recall test failed: {e}\n")
+        print(f"[FAIL] Recall test failed: {e}\n")
     
     print()
     print("=" * 60)

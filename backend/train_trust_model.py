@@ -1,4 +1,4 @@
-"""Train and deploy trust score classifier"""
+﻿"""Train and deploy trust score classifier"""
 
 import asyncio
 import sys
@@ -59,10 +59,10 @@ async def train_and_evaluate():
     )
     
     if not model_id:
-        print("✗ Training failed")
+        print("[FAIL] Training failed")
         return False
     
-    print(f"\n✓ Training completed (Model ID: {model_id})")
+    print(f"\n[OK] Training completed (Model ID: {model_id})")
     
     async with async_session() as session:
         model = await session.get(MLModel, model_id)
@@ -78,10 +78,10 @@ async def train_and_evaluate():
         deployment_threshold = 0.85
         meets_threshold = model.accuracy >= deployment_threshold
         
-        print(f"\n{'✓' if meets_threshold else '✗'} Accuracy threshold: {deployment_threshold}")
+        print(f"\n{'[OK]' if meets_threshold else '[FAIL]'} Accuracy threshold: {deployment_threshold}")
         
         if model.deployment_status == "deployed":
-            print("\n✓ Model already auto-deployed")
+            print("\n[OK] Model already auto-deployed")
         elif meets_threshold:
             print("\nStep 2: Deploying Model")
             print("-" * 80)
@@ -89,12 +89,12 @@ async def train_and_evaluate():
             deployed = await training_pipeline.deploy_model(model_id, "admin")
             
             if deployed:
-                print("✓ Model deployed successfully")
+                print("[OK] Model deployed successfully")
             else:
-                print("✗ Deployment failed")
+                print("[FAIL] Deployment failed")
                 return False
         else:
-            print(f"\n⚠️ Model accuracy ({model.accuracy:.3f}) below threshold ({deployment_threshold})")
+            print(f"\n[WARN] Model accuracy ({model.accuracy:.3f}) below threshold ({deployment_threshold})")
             print("   Model not deployed")
             return False
     
@@ -149,10 +149,10 @@ async def main():
     success = await train_and_evaluate()
     
     if success:
-        print("\n✓ All steps completed successfully")
+        print("\n[OK] All steps completed successfully")
         sys.exit(0)
     else:
-        print("\n✗ Training or deployment failed")
+        print("\n[FAIL] Training or deployment failed")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Self-Healing Domain Adapter
 
 Integrates self-healing capabilities as a first-class agentic domain:
@@ -379,7 +379,7 @@ class SelfHealingAdapter(DomainAdapter):
         
         self._predictor_running = True
         self._predictor_task = asyncio.create_task(self._predictor_loop())
-        print("  ✓ Self-healing predictor started")
+        print("  [OK] Self-healing predictor started")
     
     async def stop_predictor(self):
         """Stop proactive health predictor"""
@@ -390,7 +390,7 @@ class SelfHealingAdapter(DomainAdapter):
                 await self._predictor_task
             except asyncio.CancelledError:
                 pass
-        print("  ✓ Self-healing predictor stopped")
+        print("  [OK] Self-healing predictor stopped")
     
     async def _predictor_loop(self):
         """
@@ -483,7 +483,7 @@ class SelfHealingAdapter(DomainAdapter):
                     "likelihood": min(0.9, (recent_avg / older_avg - 1)),
                     "impact": "medium" if recent_avg < 500 else "high",
                     "suggested_playbooks": ["scale_up_instances", "warm_cache"],
-                    "reasons": [f"Latency rising: {older_avg:.0f}ms → {recent_avg:.0f}ms"]
+                    "reasons": [f"Latency rising: {older_avg:.0f}ms -> {recent_avg:.0f}ms"]
                 }
         
         # Detect rising errors
@@ -498,7 +498,7 @@ class SelfHealingAdapter(DomainAdapter):
                     "likelihood": min(0.85, recent_avg * 100),
                     "impact": "high" if recent_avg > 0.05 else "medium",
                     "suggested_playbooks": ["flush_circuit_breakers", "rollback_flag"],
-                    "reasons": [f"Error rate rising: {older_avg*100:.2f}% → {recent_avg*100:.2f}%"]
+                    "reasons": [f"Error rate rising: {older_avg*100:.2f}% -> {recent_avg*100:.2f}%"]
                 }
         
         return None

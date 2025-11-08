@@ -1,4 +1,4 @@
-"""Validate the ML alert system is properly configured"""
+﻿"""Validate the ML alert system is properly configured"""
 
 import os
 import sys
@@ -24,16 +24,16 @@ def validate_files():
     missing = []
     for file in required_files:
         if os.path.exists(file):
-            print(f"✓ {file}")
+            print(f"[OK] {file}")
         else:
-            print(f"✗ {file} - MISSING")
+            print(f"[FAIL] {file} - MISSING")
             missing.append(file)
     
     if missing:
         print(f"\n❌ {len(missing)} files missing!")
         return False
     else:
-        print(f"\n✓ All {len(required_files)} required files present")
+        print(f"\n[OK] All {len(required_files)} required files present")
         return True
 
 
@@ -59,12 +59,12 @@ def validate_imports():
         try:
             if attr:
                 exec(f"from {module} import {attr}")
-                print(f"✓ from {module} import {attr}")
+                print(f"[OK] from {module} import {attr}")
             else:
                 exec(f"import {module}")
-                print(f"✓ import {module}")
+                print(f"[OK] import {module}")
         except ImportError as e:
-            print(f"✗ from {module} import {attr} - FAILED: {e}")
+            print(f"[FAIL] from {module} import {attr} - FAILED: {e}")
             failed.append((module, attr))
     
     if failed:
@@ -72,7 +72,7 @@ def validate_imports():
         print("\nTo fix, run: py -m pip install -r requirements.txt")
         return False
     else:
-        print(f"\n✓ All {len(imports)} imports successful")
+        print(f"\n[OK] All {len(imports)} imports successful")
         return True
 
 
@@ -98,24 +98,24 @@ def validate_code_structure():
         
         for method in methods:
             if hasattr(predictor, method):
-                print(f"✓ AlertSeverityPredictor.{method}()")
+                print(f"[OK] AlertSeverityPredictor.{method}()")
             else:
-                print(f"✗ AlertSeverityPredictor.{method}() - MISSING")
+                print(f"[FAIL] AlertSeverityPredictor.{method}() - MISSING")
                 return False
         
         if len(predictor.feature_names) == 8:
-            print(f"✓ Feature count: {len(predictor.feature_names)}")
+            print(f"[OK] Feature count: {len(predictor.feature_names)}")
             for i, feature in enumerate(predictor.feature_names, 1):
                 print(f"   {i}. {feature}")
         else:
-            print(f"✗ Expected 8 features, found {len(predictor.feature_names)}")
+            print(f"[FAIL] Expected 8 features, found {len(predictor.feature_names)}")
             return False
         
-        print("\n✓ AlertSeverityPredictor class structure valid")
+        print("\n[OK] AlertSeverityPredictor class structure valid")
         return True
         
     except Exception as e:
-        print(f"✗ Failed to validate class structure: {e}")
+        print(f"[FAIL] Failed to validate class structure: {e}")
         return False
 
 
@@ -138,18 +138,18 @@ def validate_hunter_integration():
             if hasattr(hunter, attr):
                 actual = getattr(hunter, attr)
                 if actual == expected:
-                    print(f"✓ hunter.{attr} = {actual}")
+                    print(f"[OK] hunter.{attr} = {actual}")
                 else:
                     print(f"⚠ hunter.{attr} = {actual} (expected {expected})")
             else:
-                print(f"✗ hunter.{attr} - MISSING")
+                print(f"[FAIL] hunter.{attr} - MISSING")
                 return False
         
-        print("\n✓ Hunter integration configured")
+        print("\n[OK] Hunter integration configured")
         return True
         
     except Exception as e:
-        print(f"✗ Failed to validate Hunter integration: {e}")
+        print(f"[FAIL] Failed to validate Hunter integration: {e}")
         return False
 
 
@@ -163,16 +163,16 @@ def validate_training_pipeline():
         from backend.training_pipeline import training_pipeline
         
         if hasattr(training_pipeline, 'train_alert_predictor'):
-            print("✓ training_pipeline.train_alert_predictor() method exists")
+            print("[OK] training_pipeline.train_alert_predictor() method exists")
         else:
-            print("✗ training_pipeline.train_alert_predictor() - MISSING")
+            print("[FAIL] training_pipeline.train_alert_predictor() - MISSING")
             return False
         
-        print("✓ Training pipeline integration complete")
+        print("[OK] Training pipeline integration complete")
         return True
         
     except Exception as e:
-        print(f"✗ Failed to validate training pipeline: {e}")
+        print(f"[FAIL] Failed to validate training pipeline: {e}")
         return False
 
 
@@ -185,7 +185,7 @@ def print_summary(results):
     all_passed = all(results.values())
     
     for check, passed in results.items():
-        status = "✓ PASS" if passed else "✗ FAIL"
+        status = "[OK] PASS" if passed else "[FAIL] FAIL"
         print(f"{status}: {check}")
     
     print("=" * 70)

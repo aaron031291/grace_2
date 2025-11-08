@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
+﻿from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
@@ -167,7 +167,7 @@ class CausalGraph:
             pattern_edges = self._infer_pattern_causality()
             edges_added += len(pattern_edges)
         
-        print(f"✓ Built causal graph: {nodes_added} nodes, {edges_added} edges")
+        print(f"[OK] Built causal graph: {nodes_added} nodes, {edges_added} edges")
         return nodes_added
     
     def _add_node(self, node: CausalNode):
@@ -233,7 +233,7 @@ class CausalGraph:
             
             for pattern_type, occurrence_rate in patterns.items():
                 if occurrence_rate > 0.6:
-                    event_a_type, event_b_type = pattern_type.split("→")
+                    event_a_type, event_b_type = pattern_type.split("->")
                     
                     for i, node_a in enumerate(sequence):
                         if node_a.event_type == event_a_type:
@@ -254,7 +254,7 @@ class CausalGraph:
         return new_edges
     
     def _find_sequential_patterns(self, sequence: List[CausalNode]) -> Dict[str, float]:
-        """Find A→B patterns and their occurrence rates"""
+        """Find A->B patterns and their occurrence rates"""
         patterns = defaultdict(lambda: {"count": 0, "opportunities": 0})
         
         for i in range(len(sequence) - 1):
@@ -263,12 +263,12 @@ class CausalGraph:
             
             for j in range(i + 1, min(i + 5, len(sequence))):
                 event_b = sequence[j].event_type
-                pattern_key = f"{event_a}→{event_b}"
+                pattern_key = f"{event_a}->{event_b}"
                 patterns[pattern_key]["count"] += 1
         
         occurrence_rates = {}
         for pattern, stats in patterns.items():
-            if "→" in pattern and stats["opportunities"] > 0:
+            if "->" in pattern and stats["opportunities"] > 0:
                 rate = stats["count"] / stats["opportunities"]
                 if rate > 0.3:
                     occurrence_rates[pattern] = rate
@@ -451,7 +451,7 @@ class CausalGraph:
             self.reverse_adjacency[edge.target].remove(edge)
             del self.edges[key]
         
-        print(f"✓ Pruned {len(edges_to_remove)} weak edges (threshold: {threshold})")
+        print(f"[OK] Pruned {len(edges_to_remove)} weak edges (threshold: {threshold})")
         return len(edges_to_remove)
     
     def export_for_visualization(self) -> Dict[str, Any]:

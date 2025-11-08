@@ -1,4 +1,4 @@
-"""
+﻿"""
 Resource Stewardship Loop - Self-management of operating envelope
 
 Gives GRACE authority to manage her own capacity, credentials, keys,
@@ -148,7 +148,7 @@ class CapacityManager:
                 result="scaled_up"
             )
             
-            print(f"✓ Scaled up {envelope.resource_type.value}: {old_capacity} → {new_capacity}")
+            print(f"[OK] Scaled up {envelope.resource_type.value}: {old_capacity} -> {new_capacity}")
     
     async def _scale_down(self, envelope: ResourceEnvelope):
         """Decrease allocated capacity to save resources"""
@@ -175,7 +175,7 @@ class CapacityManager:
                 result="scaled_down"
             )
             
-            print(f"✓ Scaled down {envelope.resource_type.value}: {old_capacity} → {new_capacity}")
+            print(f"[OK] Scaled down {envelope.resource_type.value}: {old_capacity} -> {new_capacity}")
     
     async def update_usage(self, resource_type: ResourceType, usage: float):
         """Update current resource usage"""
@@ -241,7 +241,7 @@ class CredentialRotator:
             timestamp=datetime.utcnow()
         ))
         
-        print(f"✓ Rotated credential: {cred.service}/{cred.credential_type}")
+        print(f"[OK] Rotated credential: {cred.service}/{cred.credential_type}")
     
     async def _generate_new_credential(self, cred: CredentialSpec) -> str:
         """Generate new credential value"""
@@ -304,7 +304,7 @@ class KeyManager:
             result="rotated"
         )
         
-        print(f"✓ Rotated signing key for: {new_key.purpose}")
+        print(f"[OK] Rotated signing key for: {new_key.purpose}")
     
     async def _generate_key_pair(self, key: SigningKey):
         """Generate cryptographic key pair"""
@@ -366,7 +366,7 @@ class PlaybookPruner:
             timestamp=datetime.utcnow()
         ))
         
-        print(f"✓ Pruned stale playbook: {playbook_id}")
+        print(f"[OK] Pruned stale playbook: {playbook_id}")
 
 
 class ResourceOptimizer:
@@ -426,7 +426,7 @@ class ResourceStewardship:
         """Start resource stewardship loop"""
         self.running = True
         asyncio.create_task(self._stewardship_loop())
-        print("✓ Resource Stewardship Loop started - GRACE is self-managing")
+        print("[OK] Resource Stewardship Loop started - GRACE is self-managing")
     
     async def stop(self):
         """Stop resource stewardship loop"""

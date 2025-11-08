@@ -1,4 +1,4 @@
-"""
+﻿"""
 Meta-Loop Recommendation Application Engine
 Applies meta-loop recommendations with safety checks and metrics
 """
@@ -101,7 +101,7 @@ class RecommendationApplicator:
             session.add(applied)
             await session.commit()
             
-            print(f"✓ Applied threshold change: {config_key} = {new_value} (was {old_value})")
+            print(f"[OK] Applied threshold change: {config_key} = {new_value} (was {old_value})")
             
             return {
                 "success": True,
@@ -170,13 +170,13 @@ class RecommendationApplicator:
                 await reflection_service.stop()
                 reflection_service.interval = new_interval
                 await reflection_service.start()
-                print(f"✓ Reflection loop interval changed to {new_interval}s")
+                print(f"[OK] Reflection loop interval changed to {new_interval}s")
             elif loop_name == "meta_loop":
                 from .meta_loop import meta_loop_engine
                 await meta_loop_engine.stop()
                 meta_loop_engine.interval = new_interval
                 await meta_loop_engine.start()
-                print(f"✓ Meta-loop interval changed to {new_interval}s")
+                print(f"[OK] Meta-loop interval changed to {new_interval}s")
             
             return {
                 "success": True,
@@ -240,7 +240,7 @@ class RecommendationApplicator:
             session.add(applied)
             await session.commit()
             
-            print(f"✓ Task priority changed: {task_type} = {new_priority}")
+            print(f"[OK] Task priority changed: {task_type} = {new_priority}")
             
             return {
                 "success": True,

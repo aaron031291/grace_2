@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+﻿from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import select
 from ..auth import get_current_user
@@ -26,7 +26,7 @@ async def chat_endpoint(
 ):
     alerts = await hunter.inspect(current_user, "chat_message", req.message, {"content": req.message})
     if alerts:
-        print(f"⚠️ Hunter: {len(alerts)} alerts on chat message")
+        print(f"[WARN] Hunter: {len(alerts)} alerts on chat message")
     
     await memory.store(current_user, "user", req.message)
     

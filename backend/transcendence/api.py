@@ -1,4 +1,4 @@
-"""Transcendence API - Unified Intelligence Interface
+﻿"""Transcendence API - Unified Intelligence Interface
 
 Single interface for ALL Grace capabilities:
 - Collaborative proposals (Grace proposes, you approve)
@@ -97,7 +97,7 @@ async def start_learning_cycle(request: LearningCycleRequest):
     Start complete agentic learning cycle
     
     Full pipeline:
-    Ingest → Understand → Interpret → Intent → Apply → Create → Manage → Adapt
+    Ingest -> Understand -> Interpret -> Intent -> Apply -> Create -> Manage -> Adapt
     
     Each stage verified and stored in memory
     

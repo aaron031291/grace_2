@@ -1,4 +1,4 @@
-"""
+﻿"""
 Cognition Intent System - Central Authority for Decision-Making
 
 The cognition domain is the AUTHORITY that:
@@ -10,7 +10,7 @@ The cognition domain is the AUTHORITY that:
 The LLM is just a NARRATOR that verbalizes cognition's structured outputs.
 
 Intent Flow:
-User Input → Cognition Parses Intent → Cognition Plans → Agentic Execution → Structured Result → LLM Narrates
+User Input -> Cognition Parses Intent -> Cognition Plans -> Agentic Execution -> Structured Result -> LLM Narrates
 """
 
 from __future__ import annotations
@@ -389,7 +389,7 @@ class CognitionAuthority:
         session_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Complete flow: Parse → Plan → Execute → Return structured result.
+        Complete flow: Parse -> Plan -> Execute -> Return structured result.
         This is what grace.py and CLI should call instead of direct LLM.
         """
         

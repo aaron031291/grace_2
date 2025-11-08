@@ -1,4 +1,4 @@
-"""
+﻿"""
 GRACE Agentic Spine Integration
 
 Coordinates all agentic subsystems and provides unified startup/shutdown.
@@ -144,19 +144,19 @@ class GraceAgenticSystem:
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
         print("\n  🧠 Agentic Memory:")
-        print("    • Intelligent Broker → All domains request through broker")
-        print("    • Policy-Aware → Trust/governance on every access")
-        print("    • Context Ranking → Semantic search & relevance")
-        print("    • Domain Isolation → Cross-domain with approval only")
-        print("\n  🤖 Meta-Coordinated Self-Healing:")
-        print("    • Meta Loop → Orchestrates focus & guardrails")
-        print("    • ML/DL Advisors → Embedded scoring & ranking")
-        print("    • Agentic Planner → Executes with verification")
-        print("    • Immutable Log → Single source of truth (signed)")
+        print("    * Intelligent Broker -> All domains request through broker")
+        print("    * Policy-Aware -> Trust/governance on every access")
+        print("    * Context Ranking -> Semantic search & relevance")
+        print("    * Domain Isolation -> Cross-domain with approval only")
+        print("\n  [AI] Meta-Coordinated Self-Healing:")
+        print("    * Meta Loop -> Orchestrates focus & guardrails")
+        print("    * ML/DL Advisors -> Embedded scoring & ranking")
+        print("    * Agentic Planner -> Executes with verification")
+        print("    * Immutable Log -> Single source of truth (signed)")
         print("\n  📡 Intelligent Triggers:")
-        print("    • Proactive ML → Forecasts & predictions")
-        print("    • Cross-Domain → Health graph monitoring")
-        print("    • Pattern Detection → Recurring issue analysis")
+        print("    * Proactive ML -> Forecasts & predictions")
+        print("    * Cross-Domain -> Health graph monitoring")
+        print("    * Pattern Detection -> Recurring issue analysis")
         print("\n" + "=" * 60)
     
     async def _register_domains(self):
@@ -183,7 +183,7 @@ class GraceAgenticSystem:
         # await agent_core.register_domain(knowledge_adapter)
         
         domain_count = len(agent_core.domains)
-        print(f"  ✓ Registered {domain_count} domain(s) with agent core")
+        print(f"  [OK] Registered {domain_count} domain(s) with agent core")
     
     async def stop(self):
         """Gracefully stop all agentic systems"""
@@ -212,31 +212,31 @@ class GraceAgenticSystem:
             pass
         
         await shard_coordinator.stop()
-        print("  ✓ Shard coordinator stopped")
+        print("  [OK] Shard coordinator stopped")
         
         await agentic_observability.stop()
-        print("  ✓ Agentic observability stopped")
+        print("  [OK] Agentic observability stopped")
         
         await proactive_intelligence.stop()
-        print("  ✓ Proactive intelligence stopped")
+        print("  [OK] Proactive intelligence stopped")
         
         await meta_loop_supervisor.stop()
-        print("  ✓ Meta loop supervisor stopped")
+        print("  [OK] Meta loop supervisor stopped")
         
         await ethics_sentinel.stop()
-        print("  ✓ Ethics sentinel stopped")
+        print("  [OK] Ethics sentinel stopped")
         
         await resource_stewardship.stop()
-        print("  ✓ Resource stewardship stopped")
+        print("  [OK] Resource stewardship stopped")
         
         await human_collaboration.stop()
-        print("  ✓ Human collaboration stopped")
+        print("  [OK] Human collaboration stopped")
         
         await agentic_spine.stop()
-        print("  ✓ Agentic spine stopped")
+        print("  [OK] Agentic spine stopped")
         
         await trigger_mesh.stop()
-        print("  ✓ Trigger mesh stopped")
+        print("  [OK] Trigger mesh stopped")
         
         self.running = False
         

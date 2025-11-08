@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float
+﻿from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
 from datetime import datetime
 from .models import Base, async_session
@@ -53,7 +53,7 @@ class MLDLManager:
     async def check_deployment_approval(self, model_name: str, accuracy: float) -> bool:
         """Check if model deployment needs governance approval"""
         if accuracy < 0.7:
-            print(f"⚠️ MLDL: {model_name} accuracy {accuracy} requires approval")
+            print(f"[WARN] MLDL: {model_name} accuracy {accuracy} requires approval")
             return False
         return True
 

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+﻿from sqlalchemy import select
 from .models import CausalEvent, ChatMessage, async_session
 from datetime import datetime, timedelta
 
@@ -6,7 +6,7 @@ class CausalTracker:
     """Track cause-effect relationships in conversations"""
     
     async def log_interaction(self, user: str, trigger_msg_id: int, response_msg_id: int):
-        """Log a user message → Grace response pair"""
+        """Log a user message -> Grace response pair"""
         async with async_session() as session:
             trigger_msg = await session.get(ChatMessage, trigger_msg_id)
             response_msg = await session.get(ChatMessage, response_msg_id)

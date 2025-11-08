@@ -1,4 +1,4 @@
-"""Autonomous Extension Loop
+﻿"""Autonomous Extension Loop
 
 Grace Architect continuously monitors business goals,
 detects missing capabilities, auto-generates extensions,
@@ -43,7 +43,7 @@ class AutoExtensionLoop:
         """Start the autonomous loop"""
         
         self.running = True
-        print("🤖 Auto-Extension Loop started")
+        print("[AI] Auto-Extension Loop started")
         print(f"   Checking every {self.check_interval}s for missing capabilities")
         
         while self.running:
@@ -264,7 +264,7 @@ async def demo_auto_extension_loop():
     print("AUTO-EXTENSION LOOP DEMO".center(80))
     print("="*80 + "\n")
     
-    print("🤖 This demonstrates Grace autonomously extending herself")
+    print("[AI] This demonstrates Grace autonomously extending herself")
     print("   based on detected capability gaps and business needs.")
     print()
     
@@ -274,7 +274,7 @@ async def demo_auto_extension_loop():
         await conn.run_sync(Base.metadata.create_all)
     
     # Learn architecture first
-    print("📚 Learning Grace architecture...")
+    print("[INFO] Learning Grace architecture...")
     await grace_architect.learn_grace_architecture()
     print("   ✅ Ready\n")
     

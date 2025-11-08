@@ -1,4 +1,4 @@
-"""
+﻿"""
 Immutable Log Integration - Universal Subsystem Logging
 
 Ensures every subsystem in GRACE properly logs to the immutable ledger.
@@ -173,7 +173,7 @@ class ImmutableLogAnalyzer:
         
         self.running = True
         self._task = asyncio.create_task(self._analysis_loop())
-        print("  ✓ Immutable log analyzer started")
+        print("  [OK] Immutable log analyzer started")
     
     async def stop(self):
         """Stop pattern analysis"""
@@ -184,7 +184,7 @@ class ImmutableLogAnalyzer:
                 await self._task
             except asyncio.CancelledError:
                 pass
-        print("  ✓ Immutable log analyzer stopped")
+        print("  [OK] Immutable log analyzer stopped")
     
     async def _analysis_loop(self):
         """Continuous pattern analysis"""
@@ -282,7 +282,7 @@ class ImmutableLogAnalyzer:
     async def _detect_anomalous_sequences(self, events):
         """Detect anomalous event sequences"""
         
-        # Look for unusual sequences: error → retry → error → retry pattern
+        # Look for unusual sequences: error -> retry -> error -> retry pattern
         sequence_buffer = []
         
         for event in sorted(events, key=lambda e: e.timestamp):
@@ -369,7 +369,7 @@ class ImmutableLogAnalyzer:
                         timestamp=datetime.now(timezone.utc)
                     ))
                     
-                    print(f"  📜 Performance: {action} degrading ({older_avg:.0f}ms → {recent_avg:.0f}ms)")
+                    print(f"  📜 Performance: {action} degrading ({older_avg:.0f}ms -> {recent_avg:.0f}ms)")
 
 
 class SubsystemLogRegistry:

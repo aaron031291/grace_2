@@ -1,4 +1,4 @@
-"""
+﻿"""
 Agentic Memory - Intelligent Memory Broker
 
 Memory is NOT passive storage - it's an active, intelligent agent that:
@@ -12,9 +12,9 @@ Memory is NOT passive storage - it's an active, intelligent agent that:
 - Provides explanations for retrievals
 
 ARCHITECTURE:
-  Domain Adapter → Memory Request → Agentic Memory
-  → Trust Check → Context Filter → Rank → Return
-  → Log Access → Learn Pattern
+  Domain Adapter -> Memory Request -> Agentic Memory
+  -> Trust Check -> Context Filter -> Rank -> Return
+  -> Log Access -> Learn Pattern
 
 Domains NEVER access raw storage directly - they request through
 the agentic layer, which applies policy, context, and governance.
@@ -164,7 +164,7 @@ class AgenticMemory:
             signature=self._sign("memory_start")
         )
         
-        print("  ✓ Agentic memory broker started")
+        print("  [OK] Agentic memory broker started")
     
     async def stop(self):
         """Stop agentic memory service"""
@@ -183,7 +183,7 @@ class AgenticMemory:
             signature=self._sign("memory_stop")
         )
         
-        print("  ✓ Agentic memory broker stopped")
+        print("  [OK] Agentic memory broker stopped")
     
     async def request_memory(self, request: MemoryRequest) -> MemoryResponse:
         """

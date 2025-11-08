@@ -1,4 +1,4 @@
-"""
+﻿"""
 Cognition API Routes - Central Authority for Intent & Planning
 
 Exposes cognition domain as the decision-making authority:
@@ -118,7 +118,7 @@ async def process_request(
     user=Depends(get_current_user)
 ):
     """
-    Complete flow: Parse → Plan → Execute → Return structured result.
+    Complete flow: Parse -> Plan -> Execute -> Return structured result.
     
     This is the main endpoint for cognition-driven requests.
     """

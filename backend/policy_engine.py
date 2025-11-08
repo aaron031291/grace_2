@@ -1,4 +1,4 @@
-"""
+﻿"""
 Policy-as-Code Engine - OPA/Cedar Style Policy Evaluation
 
 Declarative policy engine for Grace's autonomy decisions.
@@ -78,9 +78,9 @@ class PolicyEngine:
                     policy_doc = yaml.safe_load(f)
                     await self._register_policy(policy_file.stem, policy_doc)
             except Exception as e:
-                print(f"⚠️  Failed to load policy {policy_file}: {e}")
+                print(f"[WARN]  Failed to load policy {policy_file}: {e}")
         
-        print(f"✓ Loaded {len(self.policies)} policy domain(s)")
+        print(f"[OK] Loaded {len(self.policies)} policy domain(s)")
         
         await self.immutable_log.append(
             actor="policy_engine",
@@ -108,7 +108,7 @@ class PolicyEngine:
             rules.append(rule)
         
         self.policies[domain] = rules
-        print(f"  → Registered {len(rules)} rules for {domain}")
+        print(f"  -> Registered {len(rules)} rules for {domain}")
     
     async def evaluate(
         self,
@@ -334,7 +334,7 @@ class PolicyEngine:
         with open(self.policy_dir / "security.yaml", 'w') as f:
             yaml.dump(security_policy, f, default_flow_style=False)
         
-        print(f"✓ Created default policies in {self.policy_dir}")
+        print(f"[OK] Created default policies in {self.policy_dir}")
 
 
 # Global policy engine instance

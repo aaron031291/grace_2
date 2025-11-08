@@ -1,4 +1,4 @@
-"""Unified Memory API with Trust Semantics
+﻿"""Unified Memory API with Trust Semantics
 
 Manages memory storage, retrieval, and garbage collection with trust-based ranking.
 """
@@ -182,7 +182,7 @@ class LoopMemoryBank:
             
             await session.commit()
             
-            print(f"✓ Memory stored: {memory_ref} with trust={trust_init.total_score:.3f}")
+            print(f"[OK] Memory stored: {memory_ref} with trust={trust_init.total_score:.3f}")
             
             return MemoryRef(
                 memory_ref=memory_ref,
@@ -447,7 +447,7 @@ class LoopMemoryBank:
             
             await session.commit()
             
-            print(f"✓ Trust updated: {memory_ref} {old_trust:.3f} → {artifact.trust_score:.3f} (Δ={delta:+.3f})")
+            print(f"[OK] Trust updated: {memory_ref} {old_trust:.3f} -> {artifact.trust_score:.3f} (Δ={delta:+.3f})")
     
     async def garbage_collect(self, policy: GCPolicy) -> Dict[str, int]:
         """
@@ -543,7 +543,7 @@ class LoopMemoryBank:
             if not policy.dry_run:
                 await session.commit()
             
-            print(f"✓ GC [{policy.name}]: scanned={stats['scanned']}, archived={stats['archived']}, deleted={stats['deleted']} ({duration_ms}ms)")
+            print(f"[OK] GC [{policy.name}]: scanned={stats['scanned']}, archived={stats['archived']}, deleted={stats['deleted']} ({duration_ms}ms)")
         
         return stats
     

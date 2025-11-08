@@ -1,4 +1,4 @@
-"""
+﻿"""
 Seed Governance Policies for Meta-Loop Recommendations
 Ensures risky meta-loop changes require approval
 """
@@ -76,13 +76,13 @@ async def seed_meta_governance():
                     enabled=True
                 )
                 session.add(policy)
-                print(f"✓ Created policy: {policy_data['name']}")
+                print(f"[OK] Created policy: {policy_data['name']}")
             else:
                 print(f"⊙ Policy already exists: {policy_data['name']}")
         
         await session.commit()
     
-    print(f"\n✓ Meta-loop governance policies seeded")
+    print(f"\n[OK] Meta-loop governance policies seeded")
 
 if __name__ == "__main__":
     asyncio.run(seed_meta_governance())
