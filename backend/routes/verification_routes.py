@@ -23,7 +23,7 @@ from ..schemas import (
     ContractListResponse, ContractDetailResponse, SnapshotListResponse, SnapshotDetailResponse,
     SnapshotRestoreResponse, GoldenSnapshotResponse, BenchmarkRunListResponse, BenchmarkRunDetailResponse,
     BenchmarkGoldenResponse, MissionStartResponse, MissionCompleteResponse, MissionHistoryResponse,
-    VerificationStatusResponse
+    VerificationStatusResponse, VerificationSmokeTestResponse, VerificationRegressionResponse
 )
 
 router = APIRouter(prefix="/api/verification", tags=["verification"])
@@ -102,7 +102,7 @@ async def get_contract(contract_id: str):
 
 # ============= Safe-Hold Snapshots =============
 
-@router.get("/snapshots")
+@router.get("/snapshots", response_model=SnapshotListResponse)
 async def list_snapshots(
     limit: int = 20,
     snapshot_type: Optional[str] = None,
@@ -142,7 +142,7 @@ async def list_snapshots(
         }
 
 
-@router.get("/snapshots/{snapshot_id}")
+@router.get("/snapshots/{snapshot_id}", response_model=SnapshotDetailResponse)
 async def get_snapshot(snapshot_id: str):
     """Get detailed snapshot information"""
     
@@ -173,7 +173,7 @@ async def get_snapshot(snapshot_id: str):
         }
 
 
-@router.post("/snapshots/{snapshot_id}/restore")
+@router.post("/snapshots/{snapshot_id}/restore", response_model=SnapshotRestoreResponse)
 async def restore_snapshot(snapshot_id: str, dry_run: bool = False):
     """Restore system to a snapshot (or dry-run to validate)"""
     
@@ -188,7 +188,7 @@ async def restore_snapshot(snapshot_id: str, dry_run: bool = False):
     return result
 
 
-@router.get("/snapshots/golden/latest")
+@router.get("/snapshots/golden/latest", response_model=GoldenSnapshotResponse)
 async def get_latest_golden():
     """Get the most recent golden baseline snapshot"""
     
@@ -209,7 +209,7 @@ async def get_latest_golden():
 
 # ============= Benchmarks =============
 
-@router.post("/benchmarks/smoke")
+@router.post("/benchmarks/smoke", response_model=VerificationSmokeTestResponse)
 async def run_smoke_tests(triggered_by: Optional[str] = None):
     """Run smoke tests"""
     
@@ -217,7 +217,7 @@ async def run_smoke_tests(triggered_by: Optional[str] = None):
     return result
 
 
-@router.post("/benchmarks/regression")
+@router.post("/benchmarks/regression", response_model=VerificationRegressionResponse)
 async def run_regression_suite(
     triggered_by: Optional[str] = None,
     compare_to_baseline: bool = True
@@ -231,7 +231,7 @@ async def run_regression_suite(
     return result
 
 
-@router.get("/benchmarks")
+@router.get("/benchmarks", response_model=BenchmarkRunListResponse)
 async def list_benchmark_runs(limit: int = 20):
     """List recent benchmark runs"""
     
@@ -263,7 +263,7 @@ async def list_benchmark_runs(limit: int = 20):
         }
 
 
-@router.get("/benchmarks/{run_id}")
+@router.get("/benchmarks/{run_id}", response_model=BenchmarkRunDetailResponse)
 async def get_benchmark_run(run_id: str):
     """Get detailed benchmark run results"""
     
@@ -295,7 +295,7 @@ async def get_benchmark_run(run_id: str):
         }
 
 
-@router.post("/benchmarks/{run_id}/set_golden")
+@router.post("/benchmarks/{run_id}/set_golden", response_model=BenchmarkGoldenResponse)
 async def set_golden_baseline(run_id: str):
     """Mark a benchmark run as the golden baseline"""
     
@@ -309,7 +309,7 @@ async def set_golden_baseline(run_id: str):
 
 # ============= Mission Progression =============
 
-@router.post("/missions")
+@router.post("/missions", response_model=MissionStartResponse)
 async def start_mission(
     mission_name: str,
     mission_goal: Optional[str] = None,
@@ -359,7 +359,7 @@ async def get_mission_status(mission_id: str):
     return asdict(status)
 
 
-@router.post("/missions/{mission_id}/complete")
+@router.post("/missions/{mission_id}/complete", response_model=MissionCompleteResponse)
 async def complete_mission(mission_id: str, success: bool = True):
     """Mark a mission as completed"""
     
@@ -368,7 +368,7 @@ async def complete_mission(mission_id: str, success: bool = True):
     return {"mission_id": mission_id, "status": "completed" if success else "failed"}
 
 
-@router.get("/missions/history")
+@router.get("/missions/history", response_model=MissionHistoryResponse)
 async def get_mission_history(limit: int = 10):
     """Get recent mission history"""
     
