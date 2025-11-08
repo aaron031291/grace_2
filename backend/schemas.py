@@ -9,37 +9,78 @@ from datetime import datetime
 
 # ============ Health & Status ============
 
+class ServiceHealth(BaseModel):
+    """Detailed health info for a single service"""
+    status: str = Field(description="Service status", examples=["active"])
+    last_check: str = Field(description="Last health check timestamp", examples=["2025-11-08T12:00:00Z"])
+    uptime_seconds: Optional[float] = Field(default=None, description="Service-specific uptime", examples=[3600.5])
+    metrics: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Service-specific metrics",
+        examples=[{"requests_processed": 1250, "avg_latency_ms": 45.2}]
+    )
+
+class SystemMetrics(BaseModel):
+    """Overall system performance metrics"""
+    total_requests: int = Field(description="Total API requests processed", examples=[15420])
+    active_sessions: int = Field(description="Currently active user sessions", examples=[3])
+    memory_usage_mb: float = Field(description="Memory usage in megabytes", examples=[256.8])
+    cpu_usage_percent: float = Field(description="CPU usage percentage", examples=[23.5])
+    database_connections: int = Field(description="Active database connections", examples=[5])
+    event_queue_size: int = Field(description="Pending events in trigger mesh", examples=[12])
+
 class HealthResponse(BaseModel):
-    """Comprehensive health check response with all system services"""
+    """Comprehensive health check with detailed metrics and service status"""
     status: str = Field(
-        description="Overall system health status (healthy, degraded, down)",
+        description="Overall system health: healthy, degraded, or down",
         examples=["healthy"]
     )
     message: str = Field(
-        description="Human-readable status message",
-        examples=["Grace AI is fully operational"]
+        description="Human-readable status summary",
+        examples=["Grace AI is fully operational - all systems nominal"]
     )
     version: str = Field(
-        description="API version number",
+        description="Grace API semantic version",
         examples=["3.0.0"]
     )
     uptime_seconds: float = Field(
-        description="System uptime in seconds",
+        description="Total system uptime since last restart",
         examples=[3600.5]
     )
-    services: Dict[str, str] = Field(
-        description="Status of each individual service component",
+    services: Dict[str, ServiceHealth] = Field(
+        description="Detailed health status of each service component",
         examples=[{
-            "database": "connected",
-            "trigger_mesh": "active", 
-            "memory_system": "ready",
-            "agentic_spine": "autonomous",
-            "governance": "enforcing",
-            "self_heal": "monitoring"
+            "database": {
+                "status": "connected",
+                "last_check": "2025-11-08T12:00:00Z",
+                "uptime_seconds": 3600.5,
+                "metrics": {"active_connections": 5, "query_avg_ms": 12.3}
+            },
+            "trigger_mesh": {
+                "status": "active",
+                "last_check": "2025-11-08T12:00:00Z",
+                "metrics": {"events_processed": 1420, "queue_size": 3}
+            },
+            "agentic_spine": {
+                "status": "autonomous",
+                "last_check": "2025-11-08T12:00:00Z",
+                "metrics": {"active_agents": 6, "decisions_made": 89}
+            }
+        }]
+    )
+    metrics: SystemMetrics = Field(
+        description="System-wide performance metrics",
+        examples=[{
+            "total_requests": 15420,
+            "active_sessions": 3,
+            "memory_usage_mb": 256.8,
+            "cpu_usage_percent": 23.5,
+            "database_connections": 5,
+            "event_queue_size": 12
         }]
     )
     timestamp: str = Field(
-        description="ISO 8601 timestamp of health check",
+        description="ISO 8601 timestamp when health check was performed",
         examples=["2025-11-08T12:00:00Z"]
     )
     

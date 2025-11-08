@@ -37,4 +37,4 @@ requests
 alembic
 psycopg2-binary
 psutil>=5.9.0,<6.0.0
-aiosqlite>=0.17.0
+aiosqlite>=0.17.0psutil  
