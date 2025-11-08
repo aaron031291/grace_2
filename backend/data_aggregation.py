@@ -1,4 +1,4 @@
-"""
+﻿"""
 Data Pipeline Aggregation Jobs
 
 Periodic jobs that summarize contract/benchmark outcomes and push to OLAP staging.
@@ -50,7 +50,7 @@ class DataAggregationService:
             self._aggregation_loop(interval_hours)
         )
         
-        print(f"✓ Data aggregation service started (runs every {interval_hours}h)")
+        print(f"[OK] Data aggregation service started (runs every {interval_hours}h)")
     
     async def stop(self):
         """Stop the aggregation service"""
@@ -122,7 +122,7 @@ class DataAggregationService:
             timestamp=datetime.now(timezone.utc)
         ))
         
-        print(f"✓ Aggregations completed in {duration:.2f}s")
+        print(f"[OK] Aggregations completed in {duration:.2f}s")
     
     # ========================================================================
     # Individual Aggregation Functions

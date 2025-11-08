@@ -1,4 +1,4 @@
-"""
+﻿"""
 Production Hardening - Resilience patterns for real-world use
 
 Implements:
@@ -74,7 +74,7 @@ class CircuitBreaker:
         
         if self.failure_count >= self.failure_threshold:
             self.state = CircuitState.OPEN
-            print(f"  ⚠️  Circuit breaker OPENED after {self.failure_count} failures")
+            print(f"  [WARN]  Circuit breaker OPENED after {self.failure_count} failures")
     
     def _should_attempt_reset(self) -> bool:
         """Check if enough time has passed to try again"""
@@ -89,7 +89,7 @@ class CircuitBreaker:
         self.failure_count = 0
         self.last_failure_time = None
         self.state = CircuitState.CLOSED
-        print("  ✓ Circuit breaker CLOSED - service recovered")
+        print("  [OK] Circuit breaker CLOSED - service recovered")
 
 
 class RetryPolicy:
@@ -126,7 +126,7 @@ class RetryPolicy:
                 
             except exceptions as e:
                 if attempt == max_attempts:
-                    print(f"  ✗ Failed after {max_attempts} attempts: {e}")
+                    print(f"  [FAIL] Failed after {max_attempts} attempts: {e}")
                     raise
                 
                 # Calculate delay with exponential backoff
@@ -137,7 +137,7 @@ class RetryPolicy:
                     import random
                     delay *= (0.5 + random.random() * 0.5)
                 
-                print(f"  ⚠️  Attempt {attempt}/{max_attempts} failed: {e}")
+                print(f"  [WARN]  Attempt {attempt}/{max_attempts} failed: {e}")
                 print(f"  ⏳ Retrying in {delay:.1f}s...")
                 
                 await asyncio.sleep(delay)
@@ -241,7 +241,7 @@ class GracefulDegradation:
         try:
             return await primary_func()
         except exceptions as e:
-            print(f"  ⚠️  Primary operation failed: {e}")
+            print(f"  [WARN]  Primary operation failed: {e}")
             print(f"  🔄 Falling back to secondary operation...")
             return await fallback_func()
     
@@ -263,7 +263,7 @@ class GracefulDegradation:
         try:
             return await func()
         except exceptions as e:
-            print(f"  ⚠️  Operation failed: {e}")
+            print(f"  [WARN]  Operation failed: {e}")
             print(f"  ↩️  Returning default value")
             return default_value
 
@@ -300,7 +300,7 @@ class ErrorHandler:
             error_info["context"] = context
         
         # Log error (in production, would use proper logging)
-        print(f"  ✗ ERROR in {operation}: {error}")
+        print(f"  [FAIL] ERROR in {operation}: {error}")
         if context:
             print(f"    Context: {context}")
         

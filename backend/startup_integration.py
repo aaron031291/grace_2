@@ -1,4 +1,4 @@
-"""
+﻿"""
 Startup Integration Module
 
 Centralizes all new service startup to ensure nothing is forgotten.
@@ -22,15 +22,15 @@ async def start_verification_systems():
     Call this from main.py startup to ensure all systems are initialized.
     """
     
-    print("\n🔧 ==================== VERIFICATION SYSTEMS ====================")
+    print("\nðŸ”§ ==================== VERIFICATION SYSTEMS ====================")
     
     # 1. Validate configuration first
-    print("📋 Validating configuration...")
+    print("ðŸ“‹ Validating configuration...")
     if not validate_startup_config():
-        print("⚠️  Configuration warnings detected, but continuing...")
+        print("âš ï¸  Configuration warnings detected, but continuing...")
     
     # 2. Ensure event persistence model is registered
-    print("💾 Registering event persistence models...")
+    print("ðŸ’¾ Registering event persistence models...")
     try:
         # Import to ensure models are registered
         import backend.event_persistence
@@ -38,37 +38,37 @@ async def start_verification_systems():
         import backend.benchmarks
         import backend.progression_tracker
         import backend.self_heal.safe_hold
-        print("   ✓ All verification models registered")
+        print("   âœ“ All verification models registered")
     except Exception as e:
-        print(f"   ⚠️  Model registration warning: {e}")
+        print(f"   âš ï¸  Model registration warning: {e}")
     
     # 3. Start approval notification system
-    print("🔔 Starting approval notifications (SSE/webhooks)...")
+    print("ðŸ”” Starting approval notifications (SSE/webhooks)...")
     try:
         await approval_notifications.start()
-        print("   ✓ Approval notifications active")
+        print("   âœ“ Approval notifications active")
     except Exception as e:
-        print(f"   ⚠️  Approval notifications failed: {e}")
+        print(f"   âš ï¸  Approval notifications failed: {e}")
     
     # 4. Start data aggregation (optional, based on config)
-    print("📊 Starting data aggregation service...")
+    print("ðŸ“Š Starting data aggregation service...")
     try:
         import os
         interval = int(os.getenv("AGGREGATION_INTERVAL_HOURS", "1"))
         await data_aggregation.start(interval_hours=interval)
-        print(f"   ✓ Data aggregation started (every {interval}h)")
+        print(f"   âœ“ Data aggregation started (every {interval}h)")
     except Exception as e:
-        print(f"   ⚠️  Data aggregation failed: {e}")
+        print(f"   âš ï¸  Data aggregation failed: {e}")
     
     # 5. Start immutable log analytics
-    print("🔍 Starting immutable log analytics...")
+    print("ðŸ” Starting immutable log analytics...")
     try:
         await immutable_log_analytics.start(interval_minutes=15)
-        print("   ✓ Log analytics started (verifies every 15min)")
+        print("   âœ“ Log analytics started (verifies every 15min)")
     except Exception as e:
-        print(f"   ⚠️  Log analytics failed: {e}")
+        print(f"   âš ï¸  Log analytics failed: {e}")
     
-    print("✓ Verification systems initialized")
+    print("âœ“ Verification systems initialized")
     print("=" * 64)
 
 
@@ -79,24 +79,25 @@ async def stop_verification_systems():
     Call this from main.py shutdown to ensure clean shutdown.
     """
     
-    print("\n🛑 Shutting down verification systems...")
+    print("\nðŸ›‘ Shutting down verification systems...")
     
     try:
         await approval_notifications.stop()
-        print("   ✓ Approval notifications stopped")
+        print("   âœ“ Approval notifications stopped")
     except Exception:
         pass
     
     try:
         await data_aggregation.stop()
-        print("   ✓ Data aggregation stopped")
+        print("   âœ“ Data aggregation stopped")
     except Exception:
         pass
     
     try:
         await immutable_log_analytics.stop()
-        print("   ✓ Log analytics stopped")
+        print("   âœ“ Log analytics stopped")
     except Exception:
         pass
     
-    print("✓ Verification systems shut down cleanly")
+    print("âœ“ Verification systems shut down cleanly")
+

@@ -1,4 +1,4 @@
-"""Slack Integration with Governance and Security
+﻿"""Slack Integration with Governance and Security
 
 Integrates with Slack using slack_sdk with governance approval,
 Hunter scanning, and webhook receiver.
@@ -80,7 +80,7 @@ class SlackClient:
                 details={"team": team_name, "user": user_name}
             )
             
-            print(f"✓ Slack authenticated as {user_name} in {team_name}")
+            print(f"[OK] Slack authenticated as {user_name} in {team_name}")
             return True
             
         except Exception as e:

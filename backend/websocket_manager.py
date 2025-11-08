@@ -1,4 +1,4 @@
-from fastapi import WebSocket
+﻿from fastapi import WebSocket
 from typing import Dict, Set
 import json
 import asyncio
@@ -22,7 +22,7 @@ class WebSocketManager:
             self.user_connections[user] = set()
         self.user_connections[user].add(websocket)
         
-        print(f"✓ WebSocket connected: {user} on {channel}")
+        print(f"[OK] WebSocket connected: {user} on {channel}")
     
     def disconnect(self, websocket: WebSocket, user: str, channel: str = "default"):
         """Remove WebSocket connection"""
@@ -32,7 +32,7 @@ class WebSocketManager:
         if user in self.user_connections:
             self.user_connections[user].discard(websocket)
         
-        print(f"✓ WebSocket disconnected: {user}")
+        print(f"[OK] WebSocket disconnected: {user}")
     
     async def broadcast(self, message: dict, channel: str = "default"):
         """Broadcast message to all connections on channel"""
@@ -81,7 +81,7 @@ async def setup_ws_subscriptions():
     """Subscribe WebSocket manager to Trigger Mesh"""
     from .trigger_mesh import trigger_mesh
     trigger_mesh.subscribe("*", broadcast_event_handler)
-    print("✓ WebSocket subscribed to Trigger Mesh")
+    print("[OK] WebSocket subscribed to Trigger Mesh")
 
 
 # Backwards compatibility alias for legacy imports

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Shard Orchestrator - Parallel Multi-Agent Execution
 
 Coordinates specialized agents (shards) for concurrent task execution.
@@ -77,7 +77,7 @@ class ShardOrchestrator:
         self.running = True
         asyncio.create_task(self._orchestration_loop())
         
-        print(f"✓ Orchestrator started with {len(self.shards)} shards")
+        print(f"[OK] Orchestrator started with {len(self.shards)} shards")
         
         await self.immutable_log.append(
             actor="shard_orchestrator",
@@ -126,7 +126,7 @@ class ShardOrchestrator:
         for config in shard_configs:
             shard = Shard(**config)
             self.shards[shard.id] = shard
-            print(f"  ✓ Initialized {shard.id} for {shard.domain}")
+            print(f"  [OK] Initialized {shard.id} for {shard.domain}")
     
     async def submit_task(self, domain: str, action: str, payload: Dict, priority: int = 5, dependencies: List[str] = None) -> str:
         """

@@ -1,4 +1,4 @@
-"""End-to-end test for ML trust score classifier"""
+﻿"""End-to-end test for ML trust score classifier"""
 
 import asyncio
 import sys
@@ -32,7 +32,7 @@ async def test_feature_extraction():
         print(f"Feature names: {classifier.feature_names}")
         print()
     
-    print("✓ Feature extraction test passed\n")
+    print("[OK] Feature extraction test passed\n")
 
 async def test_classifier_training():
     """Test classifier training with synthetic data"""
@@ -68,16 +68,16 @@ async def test_classifier_training():
     
     metrics = classifier.train(X, y)
     
-    print(f"\n✓ Training completed:")
+    print(f"\n[OK] Training completed:")
     print(f"  Accuracy: {metrics['accuracy']:.3f}")
     print(f"  Precision: {metrics['precision']:.3f}")
     print(f"  Recall: {metrics['recall']:.3f}")
     print(f"  F1 Score: {metrics['f1_score']:.3f}")
     
     if metrics['accuracy'] < 0.7:
-        print("\n✗ Warning: Low accuracy")
+        print("\n[FAIL] Warning: Low accuracy")
     else:
-        print("\n✓ Accuracy acceptable")
+        print("\n[OK] Accuracy acceptable")
     
     print("\nTesting predictions:")
     test_predictions = [
@@ -92,7 +92,7 @@ async def test_classifier_training():
         print(f"  {url}: {score} (expected: {expected})")
         print(f"    Top feature: {explanation['feature_contributions'][0]['feature']}")
     
-    print("\n✓ Classifier training test passed\n")
+    print("\n[OK] Classifier training test passed\n")
     return classifier
 
 async def test_pipeline_integration():
@@ -124,7 +124,7 @@ async def test_pipeline_integration():
         except:
             pass
     
-    print(f"✓ Seeded {len(test_urls)} test artifacts")
+    print(f"[OK] Seeded {len(test_urls)} test artifacts")
     
     print("\nTraining classifier from knowledge base...")
     
@@ -135,11 +135,11 @@ async def test_pipeline_integration():
     )
     
     if model_id:
-        print(f"✓ Model trained (ID: {model_id})")
+        print(f"[OK] Model trained (ID: {model_id})")
     else:
-        print("⚠️ Model training used synthetic data (insufficient real data)")
+        print("[WARN] Model training used synthetic data (insufficient real data)")
     
-    print("\n✓ Pipeline integration test passed\n")
+    print("\n[OK] Pipeline integration test passed\n")
 
 async def test_ingestion_with_ml():
     """Test URL ingestion with ML trust scoring"""
@@ -157,7 +157,7 @@ async def test_ingestion_with_ml():
     )
     
     if model_id:
-        print(f"✓ Model deployed (ID: {model_id})")
+        print(f"[OK] Model deployed (ID: {model_id})")
     
     test_urls = [
         "https://python.org/",
@@ -190,7 +190,7 @@ async def test_ingestion_with_ml():
         except Exception as e:
             print(f"  Failed to ingest {url}: {e}")
     
-    print("\n✓ Ingestion with ML test passed\n")
+    print("\n[OK] Ingestion with ML test passed\n")
 
 async def test_explanation():
     """Test model explanation capabilities"""
@@ -222,7 +222,7 @@ async def test_explanation():
     for feat in explanation['feature_contributions'][:5]:
         print(f"  {feat['feature']:20s}: value={feat['value']:.2f}, importance={feat['importance']:.3f}")
     
-    print("\n✓ Explanation test passed\n")
+    print("\n[OK] Explanation test passed\n")
 
 async def run_all_tests():
     """Run all tests"""
@@ -238,13 +238,13 @@ async def run_all_tests():
         await test_explanation()
         
         print("="*80)
-        print("✓ ALL TESTS PASSED")
+        print("[OK] ALL TESTS PASSED")
         print("="*80 + "\n")
         
         return True
         
     except Exception as e:
-        print(f"\n✗ TEST FAILED: {e}")
+        print(f"\n[FAIL] TEST FAILED: {e}")
         import traceback
         traceback.print_exc()
         return False

@@ -1,4 +1,4 @@
-"""Grace External Agent
+﻿"""Grace External Agent
 
 Autonomous agent that uses external APIs (GitHub, Slack, AWS) based on
 Grace's needs, with Parliament voting for major operations.
@@ -52,7 +52,7 @@ class GraceExternalAgent:
                 secret_access_key_key="grace_aws_secret_key"
             )
             
-            print("✓ Grace External Agent initialized")
+            print("[OK] Grace External Agent initialized")
             return True
             
         except Exception as e:
@@ -157,7 +157,7 @@ class GraceExternalAgent:
                 }
             )
             
-            print(f"✓ Auto-created GitHub issue #{result['number']} in {repo}")
+            print(f"[OK] Auto-created GitHub issue #{result['number']} in {repo}")
             
             # Optionally notify Slack
             if self.auto_notify_slack:
@@ -204,7 +204,7 @@ class GraceExternalAgent:
         # Emoji based on severity
         emoji_map = {
             "critical": "🚨",
-            "high": "⚠️",
+            "high": "[WARN]",
             "medium": "ℹ️",
             "low": "💡",
             "info": "📢"
@@ -249,7 +249,7 @@ _Automated alert from Grace External Agent_
                 details={"alert_type": alert_type, "severity": severity}
             )
             
-            print(f"✓ Sent Slack alert to {channel}")
+            print(f"[OK] Sent Slack alert to {channel}")
             return result
             
         except Exception as e:
@@ -318,7 +318,7 @@ _Automated alert from Grace External Agent_
                 }
             )
             
-            print(f"✓ Backed up {data_type} to s3://{bucket}/{key}")
+            print(f"[OK] Backed up {data_type} to s3://{bucket}/{key}")
             return result
             
         except Exception as e:
@@ -400,7 +400,7 @@ _Automated alert from Grace External Agent_
         # This would typically query a task queue or check Grace's internal state
         # For now, it's a placeholder for the autonomous loop
         
-        print("🤖 Grace External Agent checking for pending actions...")
+        print("[AI] Grace External Agent checking for pending actions...")
         
         return summary
     
@@ -412,14 +412,14 @@ _Automated alert from Grace External Agent_
             interval: Check interval in seconds (default: 5 minutes)
         """
         
-        print(f"🤖 Starting Grace External Agent autonomous loop (interval: {interval}s)")
+        print(f"[AI] Starting Grace External Agent autonomous loop (interval: {interval}s)")
         
         while True:
             try:
                 summary = await self.process_pending_actions()
                 
                 if any(summary.values()):
-                    print(f"✓ Processed: {json.dumps(summary, indent=2)}")
+                    print(f"[OK] Processed: {json.dumps(summary, indent=2)}")
                 
                 await asyncio.sleep(interval)
                 
@@ -462,7 +462,7 @@ async def main():
     # This would send Slack message if credentials were available
     # result = await agent.notify_slack_on_alert(test_alert)
     
-    print("✓ Grace External Agent test complete")
+    print("[OK] Grace External Agent test complete")
 
 
 if __name__ == "__main__":

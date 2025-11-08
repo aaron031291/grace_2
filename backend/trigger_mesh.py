@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 from typing import Dict, Set, Callable, Any, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -30,7 +30,7 @@ class TriggerMesh:
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)
-        print(f"✓ Subscribed to {event_pattern}")
+        print(f"[OK] Subscribed to {event_pattern}")
     
     async def publish(self, event: TriggerEvent):
         """Publish event to mesh"""
@@ -51,14 +51,14 @@ class TriggerMesh:
         if not self._running:
             self._running = True
             self.router_task = asyncio.create_task(self._route_events())
-            print("✓ Trigger Mesh started")
+            print("[OK] Trigger Mesh started")
     
     async def stop(self):
         """Stop event router"""
         self._running = False
         if self.router_task:
             self.router_task.cancel()
-        print("✓ Trigger Mesh stopped")
+        print("[OK] Trigger Mesh stopped")
     
     async def _route_events(self):
         """Background router distributing events"""
@@ -72,7 +72,7 @@ class TriggerMesh:
                             try:
                                 await handler(event)
                             except Exception as e:
-                                print(f"✗ Event handler error: {e}")
+                                print(f"[FAIL] Event handler error: {e}")
                 
                 self.event_queue.task_done()
         except asyncio.CancelledError:
@@ -117,4 +117,4 @@ async def setup_subscriptions():
     trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
     trigger_mesh.subscribe("governance.*", on_governance_event)
     
-    print("✓ Trigger Mesh subscriptions configured")
+    print("[OK] Trigger Mesh subscriptions configured")

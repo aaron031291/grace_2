@@ -1,4 +1,4 @@
-"""
+﻿"""
 Agentic Configuration Loader
 
 Loads configuration for all agentic systems from YAML config file
@@ -30,9 +30,9 @@ class AgenticConfig:
         if config_file.exists():
             with open(config_file, 'r') as f:
                 self.config = yaml.safe_load(f) or {}
-            print(f"✓ Loaded agentic config from {self.config_path}")
+            print(f"[OK] Loaded agentic config from {self.config_path}")
         else:
-            print(f"⚠️  Agentic config not found at {self.config_path}, using defaults")
+            print(f"[WARN]  Agentic config not found at {self.config_path}, using defaults")
             self.config = self._default_config()
     
     def _default_config(self) -> Dict[str, Any]:

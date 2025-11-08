@@ -1,11 +1,11 @@
-"""
+﻿"""
 Memory Learning Pipeline with Governance
 
 Captures every user interaction, applies governance filters,
 stores in memory, and feeds into continuous learning loops.
 
 Pipeline:
-User Input → Redaction → Classification → Governance Filter → Memory Storage → Learning
+User Input -> Redaction -> Classification -> Governance Filter -> Memory Storage -> Learning
 """
 
 import asyncio
@@ -330,7 +330,7 @@ class MemoryLearningPipeline:
             result="success"
         )
         
-        print(f"  ✓ Processed {len(approved_memories)} memories in batch {batch_id}")
+        print(f"  [OK] Processed {len(approved_memories)} memories in batch {batch_id}")
     
     async def request_human_curation(self, memory_id: str) -> str:
         """Request human review for yellow memories"""
@@ -382,7 +382,7 @@ class MemoryLearningPipeline:
         """
         Get full provenance of a memory.
         
-        Returns chain: conversation → memory → batch → model update
+        Returns chain: conversation -> memory -> batch -> model update
         """
         
         memory = self.memory_store.get(memory_id)

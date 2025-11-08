@@ -1,4 +1,4 @@
-"""GitHub API Connector with Governance and Security
+﻿"""GitHub API Connector with Governance and Security
 
 Integrates with GitHub using PyGithub with full governance, Hunter scanning,
 and verification signatures on all operations.
@@ -78,7 +78,7 @@ class GitHubClient:
                 details={"username": username}
             )
             
-            print(f"✓ GitHub authenticated as {username}")
+            print(f"[OK] GitHub authenticated as {username}")
             return True
             
         except Exception as e:

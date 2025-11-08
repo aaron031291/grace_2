@@ -1,4 +1,4 @@
-"""Integration helpers for Memory Scoring System
+﻿"""Integration helpers for Memory Scoring System
 
 Provides convenience functions for integrating LoopMemoryBank with existing services.
 """
@@ -274,7 +274,7 @@ def remember_output(
             
             # Store in memory
             ref = await loop_memory_bank.store(output, domain=domain)
-            print(f"✓ Stored {func.__name__} output: {ref.memory_ref}")
+            print(f"[OK] Stored {func.__name__} output: {ref.memory_ref}")
             
             return result
         

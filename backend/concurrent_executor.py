@@ -1,4 +1,4 @@
-"""
+﻿"""
 Concurrent Task Executor - Multi-threading for Background Tasks
 
 Enables Grace to:
@@ -334,7 +334,7 @@ class ConcurrentExecutor:
                 ))
                 
             except Exception as e:
-                print(f"  ✗ Worker {worker_id} error: {e}")
+                print(f"  [FAIL] Worker {worker_id} error: {e}")
         
         print(f"  [OK] Worker {worker_id} stopped")
     

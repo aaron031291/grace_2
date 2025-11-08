@@ -1,4 +1,4 @@
-import json
+﻿import json
 from typing import Optional
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
 from .models import async_session
@@ -56,7 +56,7 @@ class GovernanceEngine:
                             session.add(req)
 
                     await session.commit()
-                    print(f"✓ Governance: {policy.action} - {actor} {action} {resource}")
+                    print(f"[OK] Governance: {policy.action} - {actor} {action} {resource}")
                     return {"decision": policy.action, "policy": policy.name, "audit_id": audit.id}
 
             audit = AuditLog(
@@ -128,7 +128,7 @@ class GovernanceEngine:
             from .grace_parliament_agent import grace_voting_agent
             await grace_voting_agent.cast_automated_vote(session["session_id"])
         except Exception as e:
-            print(f"⚠️  Grace auto-vote failed: {e}")
+            print(f"[WARN]  Grace auto-vote failed: {e}")
         
         return session
     

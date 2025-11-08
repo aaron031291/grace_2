@@ -1,19 +1,19 @@
-"""
+﻿"""
 Meta-Coordinated Self-Healing Architecture
 
 PROPER HIERARCHY:
-1. Meta Loop → Decides WHEN and WHAT to focus on
-2. ML/DL Models → Embedded advisors (scoring, ranking, root-cause)
-3. Agentic Layer → Execution engine (planner + trust + verification)
-4. Immutable Log → Single source of truth (signed, auditable)
+1. Meta Loop -> Decides WHEN and WHAT to focus on
+2. ML/DL Models -> Embedded advisors (scoring, ranking, root-cause)
+3. Agentic Layer -> Execution engine (planner + trust + verification)
+4. Immutable Log -> Single source of truth (signed, auditable)
 
 Flow:
-  Meta Loop observes system → Decides "focus on latency drift this cycle"
-  → ML/DL scores anomalies, suggests root causes, ranks playbooks
-  → Meta Loop issues directive to agentic planner
-  → Agentic layer: plan → trust check → execute → verify
-  → Results signed to immutable log
-  → Meta loop learns from outcome, adjusts next cycle
+  Meta Loop observes system -> Decides "focus on latency drift this cycle"
+  -> ML/DL scores anomalies, suggests root causes, ranks playbooks
+  -> Meta Loop issues directive to agentic planner
+  -> Agentic layer: plan -> trust check -> execute -> verify
+  -> Results signed to immutable log
+  -> Meta loop learns from outcome, adjusts next cycle
 """
 
 from __future__ import annotations
@@ -152,7 +152,7 @@ class MetaCoordinatedHealing:
             signature=await self._sign_action("coordination_started")
         )
         
-        print("  ✓ Meta-coordinated healing started")
+        print("  [OK] Meta-coordinated healing started")
     
     async def stop(self):
         """Stop coordination"""
@@ -177,7 +177,7 @@ class MetaCoordinatedHealing:
             signature=await self._sign_action("coordination_stopped")
         )
         
-        print("  ✓ Meta-coordinated healing stopped")
+        print("  [OK] Meta-coordinated healing stopped")
     
     async def _coordination_loop(self):
         """
@@ -235,7 +235,7 @@ class MetaCoordinatedHealing:
                     # STEP 3: Request ML/DL advice (embedded models)
                     ml_advice = await self._request_ml_advice(focus)
                     
-                    print(f"  🤖 ML Root Causes: {ml_advice.root_cause_candidates[:2]}")
+                    print(f"  [AI] ML Root Causes: {ml_advice.root_cause_candidates[:2]}")
                     print(f"  📊 Top Playbook: {ml_advice.ranked_playbooks[0] if ml_advice.ranked_playbooks else 'none'}")
                     
                     # STEP 4: Issue directive to agentic planner
@@ -249,7 +249,7 @@ class MetaCoordinatedHealing:
                     await self._learn_from_outcomes()
                 
                 except Exception as e:
-                    print(f"  ⚠️ Cycle error: {e}")
+                    print(f"  [WARN] Cycle error: {e}")
                     await immutable_log.append(
                         actor="meta_coordinator",
                         action="cycle_error",
@@ -336,7 +336,7 @@ class MetaCoordinatedHealing:
                                 
                                 if recent_avg > older_avg * 1.3:
                                     focus_area = FocusArea.LATENCY_DRIFT
-                                    reasoning = [f"Latency drift: {older_avg:.0f}ms → {recent_avg:.0f}ms"]
+                                    reasoning = [f"Latency drift: {older_avg:.0f}ms -> {recent_avg:.0f}ms"]
                                     guardrail = GuardrailAdjustment.LOOSEN  # Allow proactive scaling
                                     extra_probes = ["latency_histograms"]
                                     playbook_priorities = ["scale_up_instances", "warm_cache"]
@@ -582,11 +582,11 @@ class MetaCoordinatedHealing:
         
         # Adjust guardrails based on success rate
         if success_rate < 0.5 and self.guardrail_state != GuardrailAdjustment.TIGHTEN:
-            print(f"  📉 Low success rate ({success_rate:.1%}) → Tightening guardrails")
+            print(f"  📉 Low success rate ({success_rate:.1%}) -> Tightening guardrails")
             self.guardrail_state = GuardrailAdjustment.TIGHTEN
         
         elif success_rate > 0.85 and self.guardrail_state != GuardrailAdjustment.LOOSEN:
-            print(f"  📈 High success rate ({success_rate:.1%}) → Loosening guardrails")
+            print(f"  📈 High success rate ({success_rate:.1%}) -> Loosening guardrails")
             self.guardrail_state = GuardrailAdjustment.LOOSEN
     
     async def record_outcome(self, outcome: SignedOutcome):
@@ -615,7 +615,7 @@ class MetaCoordinatedHealing:
             signature=outcome.actor_signature
         )
         
-        print(f"  📝 Outcome recorded: {outcome.playbook} → {outcome.result}")
+        print(f"  📝 Outcome recorded: {outcome.playbook} -> {outcome.result}")
     
     async def _sign_action(self, action_id: str) -> str:
         """Generate signature for immutable log entry"""

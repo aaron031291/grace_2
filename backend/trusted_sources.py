@@ -1,4 +1,4 @@
-"""Trust scoring system for knowledge sources"""
+﻿"""Trust scoring system for knowledge sources"""
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
@@ -47,7 +47,7 @@ class TrustScoreManager:
                     )
                     session.add(trusted)
             await session.commit()
-        print("✓ Trusted sources initialized")
+        print("[OK] Trusted sources initialized")
     
     async def get_trust_score(self, url: str) -> float:
         """Get trust score for a URL"""

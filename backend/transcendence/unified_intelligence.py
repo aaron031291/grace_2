@@ -1,7 +1,7 @@
-"""Transcendence - Unified Intelligence System
+﻿"""Transcendence - Unified Intelligence System
 
 ALL Grace systems united under one roof:
-Memory → Learning → Knowledge → Action → Verification → Governance
+Memory -> Learning -> Knowledge -> Action -> Verification -> Governance
 
 Grace as collaborative partner: proposes, you approve, together you build.
 """
@@ -63,7 +63,7 @@ class TrustedSource(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class AgenticLearningCycle(Base):
-    """Track complete learning cycles: Ingest → Understand → Apply → Adapt"""
+    """Track complete learning cycles: Ingest -> Understand -> Apply -> Adapt"""
     __tablename__ = "transcendence_learning_cycles"
     
     id = Column(Integer, primary_key=True)
@@ -330,9 +330,9 @@ class TranscendenceUnified:
         ingest_result = await self._stage_ingest(topic, domain, sources)
         cycle_data['stage_ingest'] = ingest_result
         
-        print(f"✓ Ingested {len(ingest_result['artifacts'])} artifacts")
-        print(f"✓ Trust score: {ingest_result['avg_trust_score']:.2f}")
-        print(f"✓ Verification: {ingest_result['verification_id']}\n")
+        print(f"[OK] Ingested {len(ingest_result['artifacts'])} artifacts")
+        print(f"[OK] Trust score: {ingest_result['avg_trust_score']:.2f}")
+        print(f"[OK] Verification: {ingest_result['verification_id']}\n")
         
         # STAGE 2: UNDERSTAND
         print("STAGE 2: UNDERSTAND")
@@ -341,9 +341,9 @@ class TranscendenceUnified:
         understand_result = await self._stage_understand(ingest_result['artifacts'])
         cycle_data['stage_understand'] = understand_result
         
-        print(f"✓ Understood: {understand_result['summary']}")
-        print(f"✓ Key concepts: {len(understand_result['concepts'])}")
-        print(f"✓ Confidence: {understand_result['confidence']:.2f}\n")
+        print(f"[OK] Understood: {understand_result['summary']}")
+        print(f"[OK] Key concepts: {len(understand_result['concepts'])}")
+        print(f"[OK] Confidence: {understand_result['confidence']:.2f}\n")
         
         # STAGE 3: INTERPRET
         print("STAGE 3: INTERPRET")
@@ -352,8 +352,8 @@ class TranscendenceUnified:
         interpret_result = await self._stage_interpret(understand_result)
         cycle_data['stage_interpret'] = interpret_result
         
-        print(f"✓ Meaning: {interpret_result['meaning'][:100]}...")
-        print(f"✓ Implications: {len(interpret_result['implications'])}\n")
+        print(f"[OK] Meaning: {interpret_result['meaning'][:100]}...")
+        print(f"[OK] Implications: {len(interpret_result['implications'])}\n")
         
         # STAGE 4: INTENT
         print("STAGE 4: INTENT (How/When/Where to Use)")
@@ -362,8 +362,8 @@ class TranscendenceUnified:
         intent_result = await self._stage_intent(interpret_result)
         cycle_data['stage_intent'] = intent_result
         
-        print(f"✓ Use cases: {len(intent_result['use_cases'])}")
-        print(f"✓ Applications: {', '.join(intent_result['applications'][:3])}\n")
+        print(f"[OK] Use cases: {len(intent_result['use_cases'])}")
+        print(f"[OK] Applications: {', '.join(intent_result['applications'][:3])}\n")
         
         # STAGE 5: APPLY
         print("STAGE 5: APPLY")
@@ -372,8 +372,8 @@ class TranscendenceUnified:
         apply_result = await self._stage_apply(intent_result)
         cycle_data['stage_apply'] = apply_result
         
-        print(f"✓ Applied to: {apply_result['applied_to']}")
-        print(f"✓ Success: {apply_result['success']}\n")
+        print(f"[OK] Applied to: {apply_result['applied_to']}")
+        print(f"[OK] Success: {apply_result['success']}\n")
         
         # STAGE 6: CREATE
         print("STAGE 6: CREATE (Generate Artifacts)")
@@ -382,8 +382,8 @@ class TranscendenceUnified:
         create_result = await self._stage_create(apply_result, domain)
         cycle_data['stage_create'] = create_result
         
-        print(f"✓ Created: {len(create_result['artifacts'])} artifacts")
-        print(f"✓ Types: {', '.join(create_result['types'])}\n")
+        print(f"[OK] Created: {len(create_result['artifacts'])} artifacts")
+        print(f"[OK] Types: {', '.join(create_result['types'])}\n")
         
         # STAGE 7: MANAGE
         print("STAGE 7: MANAGE")
@@ -392,8 +392,8 @@ class TranscendenceUnified:
         manage_result = await self._stage_manage(create_result)
         cycle_data['stage_manage'] = manage_result
         
-        print(f"✓ Monitoring: {manage_result['monitored']}")
-        print(f"✓ Automation: {manage_result['automated']}\n")
+        print(f"[OK] Monitoring: {manage_result['monitored']}")
+        print(f"[OK] Automation: {manage_result['automated']}\n")
         
         # STAGE 8: ADAPT
         print("STAGE 8: ADAPT (Learn & Improve)")
@@ -402,8 +402,8 @@ class TranscendenceUnified:
         adapt_result = await self._stage_adapt(cycle_data)
         cycle_data['stage_adapt'] = adapt_result
         
-        print(f"✓ Improvements: {len(adapt_result['improvements'])}")
-        print(f"✓ Grace learned: {adapt_result['learned']}\n")
+        print(f"[OK] Improvements: {len(adapt_result['improvements'])}")
+        print(f"[OK] Grace learned: {adapt_result['learned']}\n")
         
         # Store complete cycle
         async with async_session() as session:
@@ -432,7 +432,7 @@ class TranscendenceUnified:
             await session.commit()
         
         print("="*70)
-        print("✓ LEARNING CYCLE COMPLETE")
+        print("[OK] LEARNING CYCLE COMPLETE")
         print("="*70)
         print(f"\nCycle ID: {cycle_id}")
         print(f"Status: Complete")
@@ -602,8 +602,8 @@ class TranscendenceUnified:
             )
             
             # If you approve, Grace Architect builds it
-            print(f"  → Grace Architect can build: {domain}_system.py")
-            print(f"  → Awaiting approval: {proposal['decision_id']}")
+            print(f"  -> Grace Architect can build: {domain}_system.py")
+            print(f"  -> Awaiting approval: {proposal['decision_id']}")
             
             artifacts_created.append({
                 'type': 'code_component',

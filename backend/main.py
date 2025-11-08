@@ -106,7 +106,7 @@ async def on_startup():
         await conn.execute(text("PRAGMA journal_mode=WAL"))
         await conn.execute(text("PRAGMA busy_timeout=30000"))
         await conn.execute(text("PRAGMA foreign_keys=ON"))
-    print("✓ Database initialized (WAL mode enabled, foreign keys enforced)")
+    print("[OK] Database initialized (WAL mode enabled, foreign keys enforced)")
     
     # Metrics DB (separate)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -126,9 +126,9 @@ async def on_startup():
         await mconn.execute(text("PRAGMA foreign_keys=ON"))
     
     # Pass session factory instead of shared session
-    init_metrics_collector(session_factory=app.state.metrics_sessionmaker)
+    init_metrics_collector(db_session_factory=app.state.metrics_sessionmaker)
     
-    print("✓ Grace API server starting...")
+    print("[OK] Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
     
@@ -143,14 +143,14 @@ async def on_startup():
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
-    print("✓ Benchmark scheduler started (evaluates every hour)")
+    print("[OK] Benchmark scheduler started (evaluates every hour)")
 
     # Self-heal observe-only scheduler (feature-gated)
     try:
         from .settings import settings as _settings2
         if getattr(_settings2, "SELF_HEAL_OBSERVE_ONLY", True) or getattr(_settings2, "SELF_HEAL_EXECUTE", False):
             await self_heal_scheduler.start()
-            print("✓ Self-heal observe-only scheduler started")
+            print("[OK] Self-heal observe-only scheduler started")
     except Exception:
         # keep startup resilient
         pass
@@ -160,7 +160,7 @@ async def on_startup():
         from .settings import settings as _settings3
         if getattr(_settings3, "SELF_HEAL_EXECUTE", False):
             await self_heal_runner.start()
-            print("✓ Self-heal execution runner started (execute mode)")
+            print("[OK] Self-heal execution runner started (execute mode)")
     except Exception:
         pass
 
@@ -176,9 +176,9 @@ async def on_startup():
         seeds_val = None
     
     await start_discovery_scheduler(interval_val, seeds_val)
-    print(f"✓ Knowledge discovery scheduler started")
+    print(f"[OK] Knowledge discovery scheduler started")
     
-    print("\n🤖 ==================== ADVANCED AI SYSTEMS ====================")
+    print("\n[AI] ==================== ADVANCED AI SYSTEMS ====================")
     
     # Load policy-as-code engine
     await policy_engine.load_policies()
@@ -192,7 +192,7 @@ async def on_startup():
     # Register all domain adapters
     from .self_heal.adapter import self_healing_adapter
     domain_registry.register_adapter("core", self_healing_adapter)
-    print(f"  ✓ Registered {len(domain_registry.get_all_adapters())} domain adapters")
+    print(f"  [OK] Registered {len(domain_registry.get_all_adapters())} domain adapters")
     
     # Start shard orchestrator for parallel multi-agent execution
     await shard_orchestrator.start()
@@ -203,13 +203,13 @@ async def on_startup():
     # Preload AI expertise into Grace
     if KnowledgePreloader:
         try:
-            print("📚 Loading expert AI knowledge into Grace...")
+            print("[INFO] Loading expert AI knowledge into Grace...")
             preloader = KnowledgePreloader()
             await preloader.preload_ai_expertise()
         except Exception as e:
-            print(f"  ⚠️ Knowledge preload partial: {e}")
+            print(f"  [WARN] Knowledge preload partial: {e}")
     else:
-        print("  ⚠️ Knowledge preloader not available (missing dependencies)")
+        print("  [WARN] Knowledge preloader not available (missing dependencies)")
     
     print("============================================================\n")
     
@@ -218,7 +218,7 @@ async def on_startup():
     
     # Start GRACE Agentic Spine
     await activate_grace_autonomy()
-    print("✓ GRACE Agentic Spine activated")
+    print("[OK] GRACE Agentic Spine activated")
 
 @app.on_event("shutdown")
 async def on_shutdown():

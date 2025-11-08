@@ -1,4 +1,4 @@
-"""
+﻿"""
 Meta-Loop Approval Queue System
 Manages approval workflow for meta-loop recommendations
 """
@@ -201,7 +201,7 @@ class ApprovalQueue:
                     approved_count += 1
             
             if approved_count > 0:
-                print(f"🤖 Auto-approved {approved_count} low-risk recommendations")
+                print(f"[AI] Auto-approved {approved_count} low-risk recommendations")
             
             return approved_count
     

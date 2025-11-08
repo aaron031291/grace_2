@@ -1,4 +1,4 @@
-"""
+﻿"""
 Agentic Observability - Transparent view into autonomous decisions
 
 Surfaces what the agent sensed, diagnosed, planned, checked, and executed
@@ -144,7 +144,7 @@ class AgenticInsightCapture:
             guardrails_passed=passed,
             risk_score=risk_score,
             approval_required=approval_required,
-            rationale=f"Risk score: {risk_score:.2f}, Guardrails: {'✓ passed' if passed else '✗ failed'}"
+            rationale=f"Risk score: {risk_score:.2f}, Guardrails: {'[OK] passed' if passed else '[FAIL] failed'}"
         )
     
     async def record_approval(
@@ -193,7 +193,7 @@ class AgenticInsightCapture:
             phase=DecisionPhase.VERIFICATION,
             verified=verified,
             outcome_detail=outcome_detail,
-            rationale=f"Verification: {'✓ success' if verified else '✗ failed'}"
+            rationale=f"Verification: {'[OK] success' if verified else '[FAIL] failed'}"
         )
     
     async def complete_run(
@@ -542,7 +542,7 @@ class AgenticObservability:
         trigger_mesh.subscribe("agentic.run.*", self._handle_run_event)
         
         self.running = True
-        print("✓ Agentic Observability started - Transparent decision tracking")
+        print("[OK] Agentic Observability started - Transparent decision tracking")
     
     async def stop(self):
         """Stop agentic observability"""
@@ -555,7 +555,7 @@ class AgenticObservability:
     async def set_verbosity(self, level: InsightVerbosity):
         """Set observability verbosity level"""
         self.capture.verbosity = level
-        print(f"✓ Agentic observability verbosity set to: {level.value}")
+        print(f"[OK] Agentic observability verbosity set to: {level.value}")
     
     async def get_dashboard(self) -> Dict[str, Any]:
         """Get dashboard summary"""

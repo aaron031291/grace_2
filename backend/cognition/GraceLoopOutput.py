@@ -1,4 +1,4 @@
-"""Standardized Output Format for All Grace Components
+﻿"""Standardized Output Format for All Grace Components
 
 One schema everywhere - enables governance linting, memory scoring,
 and reproducible audit trails without per-component adapters.
@@ -57,7 +57,7 @@ class GraceLoopOutput:
     Standardized output format for ALL Grace components
     
     This is THE schema that flows through:
-    - Specialists → Quorum → Governance → FeedbackIntegrator → Memory
+    - Specialists -> Quorum -> Governance -> FeedbackIntegrator -> Memory
     """
     
     # Identity

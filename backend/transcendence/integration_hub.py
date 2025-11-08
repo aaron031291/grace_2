@@ -1,4 +1,4 @@
-"""Integration Hub - Connect Grace to Everything
+﻿"""Integration Hub - Connect Grace to Everything
 
 Major platform integrations:
 - Google Drive (storage, docs, sheets)
@@ -84,7 +84,7 @@ class GoogleDriveConnector:
         # For now, mock
         drive_file_id = f"drive_{datetime.now().timestamp()}"
         
-        print(f"✓ Uploaded {file_path} to Google Drive")
+        print(f"[OK] Uploaded {file_path} to Google Drive")
         print(f"  File ID: {drive_file_id}")
         
         return {
@@ -200,7 +200,7 @@ class GitHubEnhancedConnector:
             Learning results
         """
         
-        print(f"\n📚 Learning from GitHub repo: {repo_url}")
+        print(f"\n[INFO] Learning from GitHub repo: {repo_url}")
         print()
         
         # Governance approval
@@ -219,10 +219,10 @@ class GitHubEnhancedConnector:
         
         from ..code_memory import code_memory
         
-        print("  ✓ Repository cloned")
-        print("  ✓ Parsing codebase...")
-        print("  ✓ Extracting patterns...")
-        print("  ✓ Storing in code memory...")
+        print("  [OK] Repository cloned")
+        print("  [OK] Parsing codebase...")
+        print("  [OK] Extracting patterns...")
+        print("  [OK] Storing in code memory...")
         print()
         
         return {
@@ -279,8 +279,8 @@ class AmpIntegration:
             business_need=context.get('business_need')
         )
         
-        print("  ✓ Generated with Grace Architect")
-        print(f"  ✓ Constitutional compliant: {result['constitutional_compliant']}")
+        print("  [OK] Generated with Grace Architect")
+        print(f"  [OK] Constitutional compliant: {result['constitutional_compliant']}")
         print()
         
         return result
@@ -385,11 +385,11 @@ class IntegrationHub:
         }
         
         for integration, status in integrations.items():
-            print(f"  ✓ {integration}: {status}")
+            print(f"  [OK] {integration}: {status}")
         
         print()
         print("="*70)
-        print("✓ All integrations initialized")
+        print("[OK] All integrations initialized")
         print("="*70)
         print()
         

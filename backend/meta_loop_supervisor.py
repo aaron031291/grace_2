@@ -1,4 +1,4 @@
-"""
+﻿"""
 Meta Loop Supervisor - Systemic oversight and governance layer
 
 Sits atop the agentic spine, analyzing cross-domain performance and
@@ -676,7 +676,7 @@ class MetaLoopSupervisor:
         self.running = True
         asyncio.create_task(self._supervisor_loop())
         
-        print("✓ Meta Loop Supervisor started - Watching spine behavior")
+        print("[OK] Meta Loop Supervisor started - Watching spine behavior")
     
     async def stop(self):
         """Stop meta loop supervisor"""
@@ -736,14 +736,14 @@ class MetaLoopSupervisor:
                 print(f"\n[Meta Loop] Starting supervisory cycle at {datetime.utcnow().strftime('%H:%M:%S')}")
                 
                 snapshot = await self.snapshot_builder.build_snapshot()
-                print(f"  → Built cross-domain snapshot: {len(snapshot.domain_snapshots)} domains")
+                print(f"  -> Built cross-domain snapshot: {len(snapshot.domain_snapshots)} domains")
                 
                 directives = await self.strategy_engine.analyze_and_decide(snapshot)
-                print(f"  → Strategy engine issued {len(directives)} directives")
+                print(f"  -> Strategy engine issued {len(directives)} directives")
                 
                 for directive in directives:
                     await self.directive_pipeline.submit_directive(directive)
-                    print(f"    • {directive.directive_type.value}: {directive.justification}")
+                    print(f"    * {directive.directive_type.value}: {directive.justification}")
                     
                     if directive.executed and not directive.requires_approval:
                         asyncio.create_task(
@@ -753,7 +753,7 @@ class MetaLoopSupervisor:
                 await self._publish_summary(snapshot, directives)
                 
             except Exception as e:
-                print(f"✗ Meta loop cycle error: {e}")
+                print(f"[FAIL] Meta loop cycle error: {e}")
             
             await asyncio.sleep(self.cycle_interval_seconds)
     

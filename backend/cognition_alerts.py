@@ -1,4 +1,4 @@
-"""
+﻿"""
 Cognition Alert System
 Sends notifications when benchmarks cross thresholds or SaaS readiness achieved
 """
@@ -95,9 +95,9 @@ class SlackAlertChannel(AlertChannel):
             return (
                 f"🚀 *Grace SaaS Readiness Achieved!*\n\n"
                 f"Grace has sustained 90%+ performance for 7 days:\n"
-                f"• Health: {alert.get('health', 0):.1%}\n"
-                f"• Trust: {alert.get('trust', 0):.1%}\n"
-                f"• Confidence: {alert.get('confidence', 0):.1%}\n\n"
+                f"* Health: {alert.get('health', 0):.1%}\n"
+                f"* Trust: {alert.get('trust', 0):.1%}\n"
+                f"* Confidence: {alert.get('confidence', 0):.1%}\n\n"
                 f"*Time to consider SaaS commercialization!*"
             )
         
@@ -111,7 +111,7 @@ class SlackAlertChannel(AlertChannel):
         
         elif alert_type == "domain_dip":
             return (
-                f"⚠️ *Domain Performance Dip*\n\n"
+                f"[WARN] *Domain Performance Dip*\n\n"
                 f"Domain: {alert.get('domain')}\n"
                 f"Health: {alert.get('health', 0):.1%}\n"
                 f"Action needed!"

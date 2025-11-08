@@ -17,7 +17,8 @@ from sqlalchemy import select, func, and_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import async_session
-from .immutable_log import ImmutableLog, LogEntry
+from .immutable_log import ImmutableLog
+from .base_models import ImmutableLogEntry as LogEntry
 from .trigger_mesh import trigger_mesh, TriggerEvent
 
 

@@ -1,6 +1,6 @@
-"""Feedback Integrator - Deterministic Write Path
+﻿"""Feedback Integrator - Deterministic Write Path
 
-Orchestrates the feedback loop: Governance → Trust → Memory → Events
+Orchestrates the feedback loop: Governance -> Trust -> Memory -> Events
 All specialist outputs flow through this single integration point.
 """
 
@@ -58,7 +58,7 @@ class FeedbackIntegrator:
         output: GraceLoopOutput
     ) -> Optional[str]:
         """
-        Integrate output through governance → trust → memory pipeline
+        Integrate output through governance -> trust -> memory pipeline
         
         Args:
             output: GraceLoopOutput to integrate

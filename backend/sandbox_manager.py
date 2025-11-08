@@ -1,4 +1,4 @@
-import os
+﻿import os
 import asyncio
 import time
 from pathlib import Path
@@ -126,7 +126,7 @@ class SandboxManager:
                 session.add(run_record)
                 await session.commit()
             
-            print(f"✓ Sandbox run: {command[:50]}... (exit={exit_code}, {duration_ms}ms)")
+            print(f"[OK] Sandbox run: {command[:50]}... (exit={exit_code}, {duration_ms}ms)")
             
             from .trigger_mesh import trigger_mesh, TriggerEvent
             from datetime import datetime as dt
@@ -172,7 +172,7 @@ class SandboxManager:
             item.unlink()
             count += 1
         
-        print(f"✓ Sandbox reset: {count} files deleted")
+        print(f"[OK] Sandbox reset: {count} files deleted")
         return {"files_deleted": count, "status": "reset"}
 
 sandbox_manager = SandboxManager()

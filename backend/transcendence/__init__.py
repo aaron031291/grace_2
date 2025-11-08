@@ -1,7 +1,7 @@
-"""Transcendence - Unified Intelligence System
+﻿"""Transcendence - Unified Intelligence System
 
 Everything under one roof:
-- Memory → Learning → Knowledge → Action
+- Memory -> Learning -> Knowledge -> Action
 - Grace Architect (self-building)
 - Agentic cycles (8-stage learning)
 - Collaborative decisions (Grace + You)

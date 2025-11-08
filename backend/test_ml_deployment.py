@@ -1,4 +1,4 @@
-"""End-to-end test for ML deployment and auto-retrain"""
+﻿"""End-to-end test for ML deployment and auto-retrain"""
 
 import asyncio
 import random
@@ -23,11 +23,11 @@ class MLDeploymentTest:
         """Initialize test environment"""
         print("\n🔧 Setting up test environment...")
         await init_db()
-        print("✓ Database initialized")
+        print("[OK] Database initialized")
     
     async def create_test_knowledge(self, count: int = 50):
         """Create test knowledge artifacts"""
-        print(f"\n📚 Creating {count} test knowledge artifacts...")
+        print(f"\n[INFO] Creating {count} test knowledge artifacts...")
         
         async with async_session() as session:
             for i in range(count):
@@ -43,7 +43,7 @@ class MLDeploymentTest:
             
             await session.commit()
         
-        print(f"✓ Created {count} knowledge artifacts")
+        print(f"[OK] Created {count} knowledge artifacts")
     
     async def test_training_pipeline(self):
         """Test 1: Train a model"""
@@ -92,7 +92,7 @@ class MLDeploymentTest:
             model.f1_score = 0.85
             await session.commit()
             
-            print(f"✓ Model metrics set:")
+            print(f"[OK] Model metrics set:")
             print(f"   Accuracy: {model.accuracy}")
             print(f"   F1 Score: {model.f1_score}")
         
@@ -239,7 +239,7 @@ class MLDeploymentTest:
         
         verified = await self.test_verification(model_id)
         if not verified:
-            print("\n⚠️  Continuing despite verification issues...")
+            print("\n[WARN]  Continuing despite verification issues...")
         
         deployed = await self.test_deployment(model_id)
         if not deployed:
@@ -256,9 +256,9 @@ class MLDeploymentTest:
         print("TEST SUMMARY")
         print("="*60)
         print("✅ Training Pipeline: PASSED")
-        print(f"{'✅' if verified else '⚠️ '} Model Verification: {'PASSED' if verified else 'WARNING'}")
+        print(f"{'✅' if verified else '[WARN] '} Model Verification: {'PASSED' if verified else 'WARNING'}")
         print(f"{'✅' if deployed else '❌'} Model Deployment: {'PASSED' if deployed else 'FAILED'}")
-        print(f"{'✅' if new_model_id else '⚠️ '} Auto-Retrain: {'PASSED' if new_model_id else 'NO NEW MODEL'}")
+        print(f"{'✅' if new_model_id else '[WARN] '} Auto-Retrain: {'PASSED' if new_model_id else 'NO NEW MODEL'}")
         print("✅ Model Rollback: PASSED")
         print("✅ Load Latest Model: PASSED")
         print("="*60)

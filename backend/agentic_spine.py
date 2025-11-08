@@ -1,4 +1,4 @@
-"""
+﻿"""
 GRACE Agentic Spine - Autonomous Decision-Making Architecture
 
 This is the central nervous system that gives GRACE autonomous agency.
@@ -700,12 +700,12 @@ class AgenticSpine:
         """Start the agentic spine"""
         trigger_mesh.subscribe("*", self._handle_event)
         self.running = True
-        print("✓ Agentic Spine activated - GRACE is now autonomous")
+        print("[OK] Agentic Spine activated - GRACE is now autonomous")
     
     async def stop(self):
         """Stop the agentic spine"""
         self.running = False
-        print("✓ Agentic Spine deactivated")
+        print("[OK] Agentic Spine deactivated")
     
     async def _handle_event(self, event: TriggerEvent):
         """Main event handler - enriches, reasons, plans, and acts"""

@@ -1,4 +1,4 @@
-"""CLI tool for model deployment operations"""
+﻿"""CLI tool for model deployment operations"""
 
 import asyncio
 import sys
@@ -120,7 +120,7 @@ class DeployModelCLI:
             artifact_path = model_registry._get_model_path(model_id)
             print(f"\nArtifact:")
             print(f"  Path:          {artifact_path}")
-            print(f"  Exists:        {'✓' if artifact_path.exists() else '✗'}")
+            print(f"  Exists:        {'[OK]' if artifact_path.exists() else '[FAIL]'}")
 
 async def main():
     """CLI entry point"""

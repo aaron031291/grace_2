@@ -1,4 +1,4 @@
-"""
+﻿"""
 Proactive Chat System - Grace initiates conversations
 Grace can send notifications, ask questions, discuss ideas
 """
@@ -104,7 +104,7 @@ async def proactive_websocket(websocket: WebSocket):
     # Send welcome message from Grace
     await websocket.send_json({
         "type": "system",
-        "content": "🤖 Grace is now online and can proactively reach out to you.",
+        "content": "[AI] Grace is now online and can proactively reach out to you.",
         "domain": "core",
         "timestamp": datetime.now().isoformat()
     })

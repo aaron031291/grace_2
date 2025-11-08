@@ -1,4 +1,4 @@
-import json
+﻿import json
 from datetime import datetime, timedelta
 from .governance_models import SecurityRule, SecurityEvent
 from .models import async_session
@@ -40,12 +40,12 @@ class Hunter:
                             
                             if ml_confidence >= self.ml_confidence_threshold:
                                 ml_used = True
-                                print(f"🤖 ML override: {rule_severity} → {predicted_severity} (confidence: {ml_confidence:.2%})")
+                                print(f"[AI] ML override: {rule_severity} -> {predicted_severity} (confidence: {ml_confidence:.2%})")
                             else:
                                 predicted_severity = rule_severity
                                 print(f"📊 ML prediction: {predicted_severity} (confidence: {ml_confidence:.2%}, using rule severity)")
                         except Exception as e:
-                            print(f"⚠️ ML prediction failed: {e}, using rule severity")
+                            print(f"[WARN] ML prediction failed: {e}, using rule severity")
                             predicted_severity = rule_severity
                     
                     details_dict = payload.copy()
@@ -66,7 +66,7 @@ class Hunter:
                     session.add(event)
                     await session.flush()
                     triggered.append((rule.name, event.id))
-                    print(f"⚠️ Security alert: {rule.name} triggered by {actor} [severity: {predicted_severity}]")
+                    print(f"[WARN] Security alert: {rule.name} triggered by {actor} [severity: {predicted_severity}]")
             
             if triggered:
                 await session.commit()

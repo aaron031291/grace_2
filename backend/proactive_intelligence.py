@@ -1,4 +1,4 @@
-"""
+﻿"""
 Proactive Intelligence - Predict & Prevent Before Incidents Occur
 
 Shifts GRACE from reactive (responding to incidents) to predictive
@@ -799,7 +799,7 @@ class ProactiveIntelligence:
         asyncio.create_task(self._prediction_loop())
         
         self.running = True
-        print("✓ Proactive Intelligence started - GRACE now predicts & prevents")
+        print("[OK] Proactive Intelligence started - GRACE now predicts & prevents")
     
     async def stop(self):
         """Stop proactive intelligence"""
@@ -817,7 +817,7 @@ class ProactiveIntelligence:
                 await self._run_risk_assessment()
                 
             except Exception as e:
-                print(f"✗ Prediction cycle error: {e}")
+                print(f"[FAIL] Prediction cycle error: {e}")
             
             await asyncio.sleep(self.prediction_interval_seconds)
     
@@ -842,7 +842,7 @@ class ProactiveIntelligence:
                     total_forecasts += 1
         
         if total_forecasts > 0:
-            print(f"  → Issued {total_forecasts} preventive directives")
+            print(f"  -> Issued {total_forecasts} preventive directives")
     
     async def _run_capacity_prediction(self):
         """Run capacity prediction"""
@@ -860,7 +860,7 @@ class ProactiveIntelligence:
             await self._issue_capacity_directive(prediction)
         
         if predictions:
-            print(f"  → Predicted {len(predictions)} capacity needs")
+            print(f"  -> Predicted {len(predictions)} capacity needs")
     
     async def _run_risk_assessment(self):
         """Run risk assessment"""
@@ -884,7 +884,7 @@ class ProactiveIntelligence:
                 high_risk_count += 1
         
         if high_risk_count > 0:
-            print(f"  → Identified {high_risk_count} high-risk systems")
+            print(f"  -> Identified {high_risk_count} high-risk systems")
     
     async def _handle_metric_event(self, event: TriggerEvent):
         """Handle metric events for time series analysis"""
@@ -932,7 +932,7 @@ class ProactiveIntelligence:
             timestamp=datetime.utcnow()
         ))
         
-        print(f"  ⚠️  Preventive action: {forecast.recommended_action}")
+        print(f"  [WARN]  Preventive action: {forecast.recommended_action}")
     
     async def _issue_capacity_directive(self, prediction: CapacityPrediction):
         """Issue capacity scaling directive"""

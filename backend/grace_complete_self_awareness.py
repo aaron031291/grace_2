@@ -1,4 +1,4 @@
-"""Grace Complete Self-Awareness System
+﻿"""Grace Complete Self-Awareness System
 
 Grace understands her ENTIRE system - all 13 phases, every component.
 
@@ -179,8 +179,8 @@ class GraceCompleteKnowledgeBase:
                 'Opportunity detection (viability scoring)'
             ],
             'how': [
-                'trust_classifier.predict(url) → trust_score',
-                'alert_predictor.predict(alert_data) → severity',
+                'trust_classifier.predict(url) -> trust_score',
+                'alert_predictor.predict(alert_data) -> severity',
                 'Returns score + confidence + explanation'
             ],
             'where': 'Ingestion pipeline, Hunter alerts, Business engines',
@@ -274,7 +274,7 @@ class GraceCompleteKnowledgeBase:
             'how': [
                 'parliament.create_session(policy, action, quorum=3)',
                 'parliament.cast_vote(session_id, member_id, vote, reason)',
-                'Quorum reached → Decision made'
+                'Quorum reached -> Decision made'
             ],
             'where': 'Critical decision points across all systems',
             'who': [
@@ -371,8 +371,8 @@ class GraceCompleteKnowledgeBase:
                 'Feedback integration'
             ],
             'how': [
-                'memory_bank.store(output) → MemoryRef',
-                'memory_bank.read(query, k, policy) → List[MemoryHit]',
+                'memory_bank.store(output) -> MemoryRef',
+                'memory_bank.read(query, k, policy) -> List[MemoryHit]',
                 'memory_bank.update_trust(ref, delta, reason)'
             ],
             'where': 'Central memory for all loops (reflection, meta, causal, learning)',
@@ -401,7 +401,7 @@ class GraceCompleteKnowledgeBase:
                 'High-stakes decisions'
             ],
             'how': [
-                'quorum.deliberate(task) → ConsensusDecision',
+                'quorum.deliberate(task) -> ConsensusDecision',
                 'Includes rationale, weights, dissent',
                 'Auditable math + policy trail'
             ],
@@ -432,7 +432,7 @@ class GraceCompleteKnowledgeBase:
                 'Periodic consistency checks'
             ],
             'how': [
-                'linter.lint(output, context) → LintReport',
+                'linter.lint(output, context) -> LintReport',
                 'Returns violations + suggested fixes',
                 'Can auto-remediate safe issues'
             ],
@@ -461,7 +461,7 @@ class GraceCompleteKnowledgeBase:
                 'When FeedbackIntegrator processes outputs'
             ],
             'how': [
-                'prime_directive.validate_against_constitution(output) → GovernanceVerdict',
+                'prime_directive.validate_against_constitution(output) -> GovernanceVerdict',
                 'Checks: safety, legality, sovereignty, transparency, privacy',
                 'Returns decision + tags + remediation'
             ],
@@ -492,8 +492,8 @@ class GraceCompleteKnowledgeBase:
                 'After learning stage'
             ],
             'how': [
-                'feedback_integrator.integrate(output) → MemoryRef',
-                'Automatic pipeline: Output → Governance → Trust → Memory → Events',
+                'feedback_integrator.integrate(output) -> MemoryRef',
+                'Automatic pipeline: Output -> Governance -> Trust -> Memory -> Events',
                 'Zero-config via @remember_output decorator'
             ],
             'where': 'End of ALL cognitive loops and specialist outputs',
@@ -587,9 +587,9 @@ class GraceCompleteKnowledgeBase:
                 'Business execution needed'
             ],
             'how': [
-                'consulting.qualify_lead(client_data) → score',
-                'consulting.generate_proposal(requirements) → proposal',
-                'consulting.deliver_project(spec) → deliverables',
+                'consulting.qualify_lead(client_data) -> score',
+                'consulting.generate_proposal(requirements) -> proposal',
+                'consulting.deliver_project(spec) -> deliverables',
                 'Parliament approval for projects >$5K'
             ],
             'where': 'Business execution layer',
@@ -679,23 +679,23 @@ class GraceCompleteKnowledgeBase:
             
             components_taught += 1
             
-            print(f"✓ Phase {knowledge['phase']}: {component_name}")
+            print(f"[OK] Phase {knowledge['phase']}: {component_name}")
             print(f"  What: {knowledge['what'][:60]}...")
             print()
         
         print("="*70)
-        print(f"✓ GRACE NOW KNOWS HERSELF COMPLETELY")
+        print(f"[OK] GRACE NOW KNOWS HERSELF COMPLETELY")
         print("="*70)
         print(f"\nComponents understood: {components_taught}")
         print(f"Phases covered: 1-13 (all)")
         print(f"Self-awareness: 100%")
         print()
         print("Grace can now answer:")
-        print("  - 'What do I use for security?' → Hunter with 17 rules")
-        print("  - 'Why do I have Parliament?' → Democratic multi-agent decisions")
-        print("  - 'When should I verify?' → All critical operations")
-        print("  - 'How does memory work?' → Trust-scored with decay curves")
-        print("  - 'Explain: Learning a domain' → Complete 8-stage flow")
+        print("  - 'What do I use for security?' -> Hunter with 17 rules")
+        print("  - 'Why do I have Parliament?' -> Democratic multi-agent decisions")
+        print("  - 'When should I verify?' -> All critical operations")
+        print("  - 'How does memory work?' -> Trust-scored with decay curves")
+        print("  - 'Explain: Learning a domain' -> Complete 8-stage flow")
         print()
         
         return {

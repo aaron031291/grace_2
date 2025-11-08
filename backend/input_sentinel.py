@@ -1,4 +1,4 @@
-"""
+﻿"""
 Input Sentinel - Agentic Error Triage & Resolution Orchestration
 
 Autonomous agent that:
@@ -23,15 +23,15 @@ class InputSentinel:
     Autonomous agent for immediate error triage and resolution orchestration.
     
     Lifecycle:
-    error.detected → agentic.problem_identified → agentic.action_planned 
-    → agentic.action_executing → agentic.problem_resolved/failed
+    error.detected -> agentic.problem_identified -> agentic.action_planned 
+    -> agentic.action_executing -> agentic.problem_resolved/failed
     """
     
     def __init__(self):
         self.immutable_log = ImmutableLog()
         self.running = False
         
-        # Playbook mapping: error pattern → recovery action
+        # Playbook mapping: error pattern -> recovery action
         self.playbook_registry = {
             "database_locked": {
                 "actions": ["clear_lock_files", "restart_service", "enable_wal_mode"],
@@ -79,7 +79,7 @@ class InputSentinel:
         await trigger_mesh.subscribe("agentic.action_completed", self._handle_action_completed)
         
         self.running = True
-        print("✓ Input Sentinel active - monitoring errors in real-time")
+        print("[OK] Input Sentinel active - monitoring errors in real-time")
         
         await self.immutable_log.append(
             actor="input_sentinel",
