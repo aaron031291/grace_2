@@ -47,7 +47,7 @@ class ImmutableLogAnalytics:
             self._verification_loop(interval_minutes)
         )
         
-        print(f"✓ Immutable log analytics started (verifies every {interval_minutes}min)")
+        print(f"[OK] Immutable log analytics started (verifies every {interval_minutes}min)")
     
     async def stop(self):
         """Stop the verification service"""
@@ -139,7 +139,8 @@ class ImmutableLogAnalytics:
         
         # Check 3: Recent activity (no silent failures)
         last_entry = entries[-1]
-        time_since_last = datetime.now(timezone.utc) - last_entry.timestamp
+        last_ts = last_entry.timestamp if last_entry.timestamp.tzinfo else last_entry.timestamp.replace(tzinfo=timezone.utc)
+        time_since_last = datetime.now(timezone.utc) - last_ts
         
         if time_since_last > timedelta(hours=1):
             issues.append({
@@ -227,7 +228,9 @@ class ImmutableLogAnalytics:
                 })
             else:
                 # Check if last log is too old (> 6 hours)
-                time_since_last = datetime.now(timezone.utc) - stats["last_logged"]
+                last_logged = stats["last_logged"]
+                last_logged_tz = last_logged if last_logged.tzinfo else last_logged.replace(tzinfo=timezone.utc)
+                time_since_last = datetime.now(timezone.utc) - last_logged_tz
                 if time_since_last > timedelta(hours=6):
                     gaps.append({
                         "subsystem": subsystem,

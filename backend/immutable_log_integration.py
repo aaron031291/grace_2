@@ -1,4 +1,4 @@
-﻿"""
+"""
 Immutable Log Integration - Universal Subsystem Logging
 
 Ensures every subsystem in GRACE properly logs to the immutable ledger.
@@ -277,7 +277,7 @@ class ImmutableLogAnalyzer:
                 
                 self.pattern_history.append(pattern)
                 
-                print(f"  📜 Pattern: Recurring {action} errors ({len(group)}x) on {resource}")
+                print(f"  [PATTERN] Pattern: Recurring {action} errors ({len(group)}x) on {resource}")
     
     async def _detect_anomalous_sequences(self, events):
         """Detect anomalous event sequences"""
@@ -318,7 +318,7 @@ class ImmutableLogAnalyzer:
                     
                     self.pattern_history.append(sequence)
                     
-                    print(f"  📜 Sequence: Error cascade detected across {len(resources)} resource(s)")
+                    print(f"  [SEQUENCE] Sequence: Error cascade detected across {len(resources)} resource(s)")
                     
                     # Clear buffer to avoid duplicates
                     sequence_buffer.clear()
@@ -369,7 +369,7 @@ class ImmutableLogAnalyzer:
                         timestamp=datetime.now(timezone.utc)
                     ))
                     
-                    print(f"  📜 Performance: {action} degrading ({older_avg:.0f}ms -> {recent_avg:.0f}ms)")
+                    print(f"  [PERF] Performance: {action} degrading ({older_avg:.0f}ms -> {recent_avg:.0f}ms)")
 
 
 class SubsystemLogRegistry:
