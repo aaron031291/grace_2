@@ -1,4 +1,4 @@
-﻿"""
+"""
 GRACE Agentic Spine Integration
 
 Coordinates all agentic subsystems and provides unified startup/shutdown.
@@ -143,7 +143,7 @@ class GraceAgenticSystem:
         print("  - Manage her own resources")
         print("  - Monitor ethics and compliance")
         print("  - Supervise her own behavior cross-domain")
-        print("\n  🧠 Agentic Memory:")
+        print("\n  [MEMORY] Agentic Memory:")
         print("    * Intelligent Broker -> All domains request through broker")
         print("    * Policy-Aware -> Trust/governance on every access")
         print("    * Context Ranking -> Semantic search & relevance")
@@ -153,7 +153,7 @@ class GraceAgenticSystem:
         print("    * ML/DL Advisors -> Embedded scoring & ranking")
         print("    * Agentic Planner -> Executes with verification")
         print("    * Immutable Log -> Single source of truth (signed)")
-        print("\n  📡 Intelligent Triggers:")
+        print("\n  [TRIGGERS] Intelligent Triggers:")
         print("    * Proactive ML -> Forecasts & predictions")
         print("    * Cross-Domain -> Health graph monitoring")
         print("    * Pattern Detection -> Recurring issue analysis")

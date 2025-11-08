@@ -88,6 +88,7 @@ except ImportError:
 
 @app.on_event("startup")
 async def on_startup():
+    print("[STARTUP] Beginning Grace initialization...")
     # Ensure model modules imported so Base.metadata is populated
     try:
         import importlib
@@ -100,6 +101,7 @@ async def on_startup():
         print(f"  Warning: Model import error: {e}")
     
     # Initialize database
+    print("[STARTUP] Initializing database...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         # Enable WAL mode for better concurrency
