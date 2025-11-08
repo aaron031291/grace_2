@@ -1,4 +1,4 @@
-﻿"""
+"""
 Shard Orchestrator - Parallel Multi-Agent Execution
 
 Coordinates specialized agents (shards) for concurrent task execution.
@@ -68,7 +68,7 @@ class ShardOrchestrator:
         
     async def start(self):
         """Initialize shards and start orchestration loop"""
-        print("🎯 Starting Shard Orchestrator...")
+        print("[SHARD] Starting Shard Orchestrator...")
         
         # Initialize domain shards
         await self._init_shards()

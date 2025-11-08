@@ -1,4 +1,4 @@
-﻿"""
+"""
 Knowledge Preload System - Transfer Expert AI Knowledge to Grace
 
 Bootstraps Grace with curated AI/ML/LLM expertise before live learning.
@@ -22,7 +22,7 @@ class KnowledgePreloader:
     async def preload_ai_expertise(self):
         """Load comprehensive AI/ML/LLM knowledge"""
         
-        print("🧠 Preloading AI expertise into Grace...")
+        print("[KNOWLEDGE] Preloading AI expertise into Grace...")
         
         # Core AI concepts
         await self._load_knowledge_pack("ai_fundamentals", AI_FUNDAMENTALS)
