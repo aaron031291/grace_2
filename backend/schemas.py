@@ -10,12 +10,42 @@ from datetime import datetime
 # ============ Health & Status ============
 
 class HealthResponse(BaseModel):
-    status: str = Field(..., description="Overall system health status")
-    message: str = Field(..., description="Human-readable status message")
-    version: str = Field(..., description="API version")
-    uptime_seconds: float = Field(..., description="System uptime in seconds")
-    services: Dict[str, str] = Field(..., description="Status of individual services")
-    timestamp: str = Field(..., description="ISO timestamp of health check")
+    status: str = Field(..., description="Overall system health status", example="healthy")
+    message: str = Field(..., description="Human-readable status message", example="Grace AI is fully operational")
+    version: str = Field(..., description="API version", example="3.0.0")
+    uptime_seconds: float = Field(..., description="System uptime in seconds", example=3600.5)
+    services: Dict[str, str] = Field(
+        ..., 
+        description="Status of individual services",
+        example={
+            "database": "connected",
+            "trigger_mesh": "active",
+            "memory_system": "ready",
+            "agentic_spine": "autonomous",
+            "governance": "enforcing",
+            "self_heal": "monitoring"
+        }
+    )
+    timestamp: str = Field(..., description="ISO timestamp of health check", example="2025-11-08T12:00:00Z")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status": "healthy",
+                "message": "Grace AI is fully operational",
+                "version": "3.0.0",
+                "uptime_seconds": 3600.5,
+                "services": {
+                    "database": "connected",
+                    "trigger_mesh": "active",
+                    "memory_system": "ready",
+                    "agentic_spine": "autonomous",
+                    "governance": "enforcing",
+                    "self_heal": "monitoring"
+                },
+                "timestamp": "2025-11-08T12:00:00Z"
+            }
+        }
 
 # ============ Memory ============
 
