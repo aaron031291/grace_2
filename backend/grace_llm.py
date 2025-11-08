@@ -7,8 +7,6 @@ for intelligence rather than external APIs.
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from .memory import PersistentMemory
-from .knowledge import knowledge_service
-from .code_understanding import code_understanding
 from .causal import causal_tracker
 
 class GraceLLM:
@@ -123,11 +121,17 @@ and can autonomously execute tasks when appropriate."""
     async def _handle_code_question(self, message: str, intent: Dict) -> Dict[str, Any]:
         """Handle code-related questions"""
         
-        # Search code memory for relevant patterns
-        relevant_code = await code_understanding.search_codebase(
-            query=message,
-            limit=3
-        ) if hasattr(code_understanding, 'search_codebase') else []
+        # Search code memory for relevant patterns (optional integration)
+        relevant_code = []
+        try:
+            from .code_understanding import code_understanding
+            if hasattr(code_understanding, 'search_codebase'):
+                relevant_code = await code_understanding.search_codebase(
+                    query=message,
+                    limit=3
+                )
+        except Exception:
+            pass
         
         if relevant_code:
             response = "I found relevant code in the codebase:\n\n"
@@ -151,12 +155,20 @@ and can autonomously execute tasks when appropriate."""
     async def _handle_knowledge_query(self, message: str, intent: Dict) -> Dict[str, Any]:
         """Handle knowledge queries using knowledge service"""
         
+        results = []
         try:
-            # Search knowledge base
-            results = await knowledge_service.semantic_search(
-                query=message,
-                limit=3
-            )
+            from .knowledge import KnowledgeManager
+            km = KnowledgeManager()
+            # Search knowledge base if available
+            if hasattr(km, 'semantic_search'):
+                results = await km.semantic_search(
+                    query=message,
+                    limit=3
+                )
+        except Exception:
+            pass
+        
+        try:
             
             if results:
                 response = "Based on my knowledge base:\n\n"
