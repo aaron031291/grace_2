@@ -8,6 +8,7 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..memory_models import MemoryArtifact
 from ..models import async_session
+from ..schemas import MemoryTreeResponse, MemoryArtifactResponse, SuccessResponse, ExportBundleResponse, DomainStatsResponse
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
@@ -23,7 +24,7 @@ class UpdateArtifact(BaseModel):
     content: str
     reason: str = ""
 
-@router.get("/tree")
+@router.get("/tree", response_model=MemoryTreeResponse)
 async def get_tree(
     domain: str = None,
     category: str = None,
@@ -154,7 +155,7 @@ async def update_item(
         "security_alerts": len(alerts) if alerts else 0
     }
 
-@router.post("/export")
+@router.post("/export", response_model=ExportBundleResponse)
 async def export_knowledge(
     domains: List[str] = None,
     current_user: str = Depends(get_current_user)
@@ -176,7 +177,7 @@ async def export_knowledge(
     
     return bundle
 
-@router.get("/domains")
+@router.get("/domains", response_model=DomainStatsResponse)
 async def list_domains(current_user: str = Depends(get_current_user)):
     """List all memory domains"""
     artifacts = await memory_service.list_artifacts()

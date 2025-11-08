@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from typing import List
 from ..auth import get_current_user
 from ..task_executor import task_executor
 from ..verification_middleware import verify_action
+from ..schemas import ExecutionResponse, TaskStatusResponse
 import asyncio
 
 router = APIRouter(prefix="/api/executor", tags=["executor"])
@@ -35,14 +37,14 @@ async def submit_task(
     
     return {"task_id": task_id, "status": "queued"}
 
-@router.get("/status/{task_id}")
+@router.get("/status/{task_id}", response_model=TaskStatusResponse)
 async def get_status(
     task_id: str,
     current_user: str = Depends(get_current_user)
 ):
     status = await task_executor.get_task_status(task_id)
     if not status:
-        return {"error": "Task not found"}
+        return {"task_id": task_id, "status": "not_found", "progress": 0.0}
     return status
 
 @router.get("/tasks")

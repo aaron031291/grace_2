@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, func
+from typing import List
 from ..auth import get_current_user
 from ..meta_loop import MetaAnalysis, MetaMetaEvaluation, MetaLoopConfig
 from ..meta_loop_approval import approval_queue, RecommendationQueue
 from ..meta_loop_engine import AppliedRecommendation
 from ..models import async_session
+from ..schemas import MetaAnalysisResponse, MetaMetaEvaluationResponse, MetaRecommendationResponse, SuccessResponse
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/meta", tags=["meta_loops"])
@@ -81,7 +83,7 @@ async def create_sample_data():
             "message": "Sample recommendations created"
         }
 
-@router.get("/analyses")
+@router.get("/analyses", response_model=List[MetaAnalysisResponse])
 async def list_meta_analyses(limit: int = 20):
     """View Level 1 meta-loop analyses"""
     async with async_session() as session:
@@ -104,7 +106,7 @@ async def list_meta_analyses(limit: int = 20):
             for a in result.scalars().all()
         ]
 
-@router.get("/evaluations")
+@router.get("/evaluations", response_model=List[MetaMetaEvaluationResponse])
 async def list_meta_meta_evals(limit: int = 20):
     """View Level 2 meta-meta evaluations"""
     async with async_session() as session:
@@ -142,12 +144,12 @@ async def get_meta_config():
             for c in result.scalars().all()
         ]
 
-@router.get("/recommendations/pending")
+@router.get("/recommendations/pending", response_model=List[MetaRecommendationResponse])
 async def get_pending_recommendations():
     """Get all pending recommendations awaiting approval"""
     return await approval_queue.get_pending_recommendations()
 
-@router.post("/recommendations/{rec_id}/approve")
+@router.post("/recommendations/{rec_id}/approve", response_model=SuccessResponse)
 async def approve_recommendation(
     rec_id: int, 
     user = Depends(get_current_user),
@@ -159,7 +161,7 @@ async def approve_recommendation(
         raise HTTPException(status_code=400, detail=result.get("error", "Failed to approve"))
     return result
 
-@router.post("/recommendations/{rec_id}/reject")
+@router.post("/recommendations/{rec_id}/reject", response_model=SuccessResponse)
 async def reject_recommendation(
     rec_id: int,
     user = Depends(get_current_user),
@@ -171,12 +173,12 @@ async def reject_recommendation(
         raise HTTPException(status_code=400, detail=result.get("error", "Failed to reject"))
     return result
 
-@router.get("/recommendations/applied")
+@router.get("/recommendations/applied", response_model=List[MetaRecommendationResponse])
 async def get_applied_recommendations(limit: int = 20):
     """Show history of applied recommendations with effectiveness metrics"""
     return await approval_queue.get_applied_recommendations(limit)
 
-@router.post("/recommendations/{applied_id}/rollback")
+@router.post("/recommendations/{applied_id}/rollback", response_model=SuccessResponse)
 async def rollback_recommendation(
     applied_id: int,
     user = Depends(get_current_user),

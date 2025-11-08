@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.sql import func
-from typing import Optional
+from typing import Optional, List
 import os
 import time
 from collections import deque
@@ -16,6 +16,7 @@ from ..constitutional_verifier import constitutional_verifier
 from ..governance import governance_engine
 from ..action_executor import ActionExecutor
 from ..trigger_mesh import trigger_mesh, TriggerEvent
+from ..schemas import GovernanceCheckResponse, ApprovalResponse, ApprovalStatsResponse, SuccessResponse
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
@@ -146,7 +147,7 @@ async def list_audit(limit: int = 100):
             for log in result.scalars().all()
         ]
 
-@router.post("/approvals")
+@router.post("/approvals", response_model=ApprovalResponse)
 async def create_approval(data: ApprovalCreate, request: Request, current_user: str = Depends(get_current_user)):
     # Build payload for verification/governance checks
     payload = data.dict()
@@ -202,7 +203,7 @@ async def create_approval(data: ApprovalCreate, request: Request, current_user: 
     result_dict["_verification_id"] = action_id
     return result_dict
 
-@router.get("/approvals/stats")
+@router.get("/approvals/stats", response_model=ApprovalStatsResponse)
 async def approvals_stats(current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         # Simple counts by status
@@ -213,7 +214,7 @@ async def approvals_stats(current_user: str = Depends(get_current_user)):
             counts[s] = counts.get(s, 0) + 1
         return counts
 
-@router.get("/approvals/{request_id}")
+@router.get("/approvals/{request_id}", response_model=ApprovalResponse)
 async def get_approval(request_id: int, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         req = await session.get(ApprovalRequest, request_id)
@@ -231,7 +232,7 @@ async def get_approval(request_id: int, current_user: str = Depends(get_current_
             "decided_at": req.decided_at,
         }
 
-@router.get("/approvals")
+@router.get("/approvals", response_model=List[ApprovalResponse])
 async def list_approvals(status: Optional[str] = None, requested_by: Optional[str] = None, limit: int = 50, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         stmt = select(ApprovalRequest).order_by(ApprovalRequest.created_at.desc()).limit(limit)
@@ -252,7 +253,7 @@ async def list_approvals(status: Optional[str] = None, requested_by: Optional[st
             for req in result.scalars().all()
         ]
 
-@router.post("/approvals/{request_id}/decision")
+@router.post("/approvals/{request_id}/decision", response_model=ApprovalResponse)
 async def decide(request_id: int, body: ApprovalDecision, request: Request, current_user: str = Depends(get_current_user)):
     # RBAC allowlist: enforce only if APPROVAL_DECIDERS is set
     deciders = _deciders_allowlist()

@@ -119,10 +119,15 @@ class ApprovalRequest(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
 
 class ApprovalResponse(BaseModel):
-    approval_id: str
+    id: int
+    event_id: int
     status: str
-    tier: str
-    can_auto_approve: bool
+    requested_by: str
+    reason: str
+    decision_by: Optional[str] = None
+    decision_reason: Optional[str] = None
+    created_at: datetime
+    decided_at: Optional[datetime] = None
 
 # ============ Knowledge ============
 
@@ -188,11 +193,36 @@ class MetaLoopStatusResponse(BaseModel):
     last_cycle_at: Optional[datetime] = None
 
 class MetaRecommendationResponse(BaseModel):
-    id: str
-    recommendation: str
-    impact: str
+    id: int
+    recommendation_type: str
+    target: str
+    current_value: Any
+    proposed_value: Any
+    recommendation_text: str
     confidence: float
+    risk_level: str
     status: str
+    created_at: datetime
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+
+class MetaAnalysisResponse(BaseModel):
+    id: int
+    type: str
+    subject: str
+    findings: str
+    recommendation: str
+    confidence: float
+    applied: bool
+    created_at: datetime
+
+class MetaMetaEvaluationResponse(BaseModel):
+    id: int
+    metric: str
+    before: float
+    after: float
+    improvement: float
+    conclusion: str
     created_at: datetime
 
 # ============ Code Generation ============
@@ -226,3 +256,26 @@ class StatusResponse(BaseModel):
     status: str
     timestamp: datetime
     metrics: Optional[Dict[str, Any]] = None
+
+# ============ Additional Responses ============
+
+class DomainStatsResponse(BaseModel):
+    domains: Dict[str, Dict[str, Any]]
+
+class ExportBundleResponse(BaseModel):
+    exported_at: str
+    exported_by: str
+    artifact_count: int
+    domains: List[str]
+    artifacts: List[Dict[str, Any]]
+
+class TaskStatusResponse(BaseModel):
+    task_id: str
+    status: str
+    progress: float
+    result: Optional[Any] = None
+
+class ApprovalStatsResponse(BaseModel):
+    pending: int
+    approved: int
+    rejected: int
