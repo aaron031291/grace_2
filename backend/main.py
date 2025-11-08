@@ -4,10 +4,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 import logging
-from pydantic import BaseModel
-from typing import Dict
 from datetime import datetime, timezone
 import time
+from .schemas import HealthResponse
 from .base_models import Base, engine
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
@@ -264,14 +263,6 @@ async def on_shutdown():
         await engine.dispose()
     except Exception:
         pass
-
-class HealthResponse(BaseModel):
-    status: str
-    message: str
-    version: str
-    uptime_seconds: float
-    services: Dict[str, str]
-    timestamp: str
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
