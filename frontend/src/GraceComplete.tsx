@@ -62,8 +62,8 @@ interface UIState {
 const useUI = create<UIState>((set) => ({
   theme: "dark",
   mode: 50,
-  leftCollapsed: false,
-  rightCollapsed: false,
+  leftCollapsed: true,
+  rightCollapsed: true,
   activeTab: "chat",
   setTheme: (t) => set({ theme: t }),
   setMode: (m) => set({ mode: m }),

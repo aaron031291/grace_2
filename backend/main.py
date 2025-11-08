@@ -9,7 +9,7 @@ import time
 import psutil
 from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from backend.base_models import Base, engine
-from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api
+from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes
 from backend.transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from backend.transcendence.business.api import router as business_api_router
 from backend.reflection import reflection_service
@@ -130,6 +130,7 @@ from .auto_retrain import auto_retrain_engine
 from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
 from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
 from .grace_spine_integration import activate_grace_autonomy, deactivate_grace_autonomy
+from .autonomous_improver import autonomous_improver
 from .routes.agentic_insights import router as agentic_insights_router
 from .self_heal.scheduler import scheduler as self_heal_scheduler
 from .self_heal.runner import runner as self_heal_runner
@@ -280,9 +281,16 @@ async def on_startup():
     # Start GRACE Agentic Spine
     await activate_grace_autonomy()
     print("[OK] GRACE Agentic Spine activated")
+    
+    # Start Autonomous Improver - Proactive hunting and fixing
+    await autonomous_improver.start()
+    print("[AUTONOMOUS] 🎯 Proactive Improver started - hunting for fixes...")
 
 @app.on_event("shutdown")
 async def on_shutdown():
+    # Stop autonomous improver
+    await autonomous_improver.stop()
+    
     # Stop agentic spine first
     await deactivate_grace_autonomy()
     
@@ -535,6 +543,7 @@ app.include_router(verification_api.router)
 app.include_router(verification_router)
 app.include_router(cognition_api.router)
 app.include_router(concurrent_api.router)
+app.include_router(autonomous_improver_routes.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
