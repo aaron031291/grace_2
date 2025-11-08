@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from ..auth import get_current_user
 from ..summaries import Summary, summary_generator, async_session
+from ..schemas_extended import SummariesListResponse, SummaryGenerateResponse
 
 router = APIRouter(prefix="/api/summaries", tags=["summaries"])
 
-@router.get("/")
+@router.get("/", response_model=SummariesListResponse)
 async def get_summaries(
     limit: int = 10,
     current_user: str = Depends(get_current_user)
@@ -17,7 +18,7 @@ async def get_summaries(
             .limit(limit)
         )
         summaries = result.scalars().all()
-        return [
+        summary_list = [
             {
                 "id": s.id,
                 "period": s.period,
@@ -30,8 +31,19 @@ async def get_summaries(
             }
             for s in summaries
         ]
+        return SummariesListResponse(
+            summaries=summary_list,
+            count=len(summary_list),
+            execution_trace=None,
+            data_provenance=[]
+        )
 
-@router.post("/generate")
+@router.post("/generate", response_model=SummaryGenerateResponse)
 async def generate_summary(current_user: str = Depends(get_current_user)):
     summary = await summary_generator.generate_daily_summary()
-    return {"status": "generated", "summary": summary}
+    return SummaryGenerateResponse(
+        status="generated",
+        summary=summary,
+        execution_trace=None,
+        data_provenance=[]
+    )

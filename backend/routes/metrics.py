@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 from ..models import ChatMessage, User, async_session
 from ..metrics_models import MetricEvent as MetricEventDB
 from ..metrics_service import get_metrics_collector
+from ..schemas_extended import MetricsSummaryResponse, MetricsUserStatsResponse, MetricsHistoryResponse
 
 router = APIRouter(prefix="/api/metrics", tags=["metrics"])
 
-@router.get("/summary")
+@router.get("/summary", response_model=MetricsSummaryResponse)
 async def summary():
     async with async_session() as session:
         total_messages = await session.scalar(select(func.count(ChatMessage.id)))
@@ -17,13 +18,15 @@ async def summary():
         
         user_count = await session.scalar(select(func.count(User.id)))
         
-    return {
-        "total_messages": total_messages or 0,
-        "active_users": distinct_users or 0,
-        "registered_users": user_count or 0
-    }
+    return MetricsSummaryResponse(
+        total_messages=total_messages or 0,
+        active_users=distinct_users or 0,
+        registered_users=user_count or 0,
+        execution_trace=None,
+        data_provenance=[]
+    )
 
-@router.get("/user/{username}")
+@router.get("/user/{username}", response_model=MetricsUserStatsResponse)
 async def user_stats(username: str):
     async with async_session() as session:
         user_messages = await session.scalar(
@@ -36,14 +39,16 @@ async def user_stats(username: str):
             .where(ChatMessage.user == username, ChatMessage.role == "grace")
         )
         
-    return {
-        "username": username,
-        "total_messages": user_messages or 0,
-        "grace_responses": grace_responses or 0,
-        "user_messages": (user_messages or 0) - (grace_responses or 0)
-    }
+    return MetricsUserStatsResponse(
+        username=username,
+        total_messages=user_messages or 0,
+        grace_responses=grace_responses or 0,
+        user_messages=(user_messages or 0) - (grace_responses or 0),
+        execution_trace=None,
+        data_provenance=[]
+    )
 
-@router.get("/history")
+@router.get("/history", response_model=MetricsHistoryResponse)
 async def history(request: Request, domain: str, kpi: str, hours: int = 24):
     """
     Historical metric events.
@@ -72,16 +77,23 @@ async def history(request: Request, domain: str, kpi: str, hours: int = 24):
                     "timestamp": e.timestamp.isoformat(),
                     "metadata": e.metric_metadata or {},
                 })
-            return {"domain": domain, "kpi": kpi, "count": len(events), "events": events}
+            return MetricsHistoryResponse(
+                domain=domain,
+                kpi=kpi,
+                count=len(events),
+                events=events,
+                execution_trace=None,
+                data_provenance=[]
+            )
 
     # Fallback: in-memory
     collector = get_metrics_collector()
     events = collector.get_metric_history(domain, kpi, hours=hours)
-    return {
-        "domain": domain,
-        "kpi": kpi,
-        "count": len(events),
-        "events": [
+    return MetricsHistoryResponse(
+        domain=domain,
+        kpi=kpi,
+        count=len(events),
+        events=[
             {
                 "domain": e.domain,
                 "kpi": e.kpi,
@@ -91,4 +103,6 @@ async def history(request: Request, domain: str, kpi: str, hours: int = 24):
             }
             for e in events
         ],
-    }
+        execution_trace=None,
+        data_provenance=[]
+    )

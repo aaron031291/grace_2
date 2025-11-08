@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from ..auth import get_current_user
 from ..settings import settings
 from ..self_heal import playbooks as pb
+from ..schemas_extended import PlaybooksListResponse
 
 router = APIRouter(prefix="/api/playbooks", tags=["playbooks"])  # feature-gated in main via settings
 
@@ -17,12 +18,18 @@ class PlanRequest(BaseModel):
     parameters: Optional[Dict[str, Any]] = Field(default=None, description="Template parameter overrides")
 
 
-@router.get("/", summary="List available playbook templates")
+@router.get("/", summary="List available playbook templates", response_model=PlaybooksListResponse)
 async def list_playbooks(current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         # Router is conditionally included, but double-guard for safety
         raise HTTPException(status_code=404, detail="Endpoint disabled")
-    return {"templates": pb.list_templates(), "count": len(pb.list_templates())}
+    templates = pb.list_templates()
+    return PlaybooksListResponse(
+        templates=templates,
+        count=len(templates),
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 
 @router.post("/plan", summary="Produce a dry-run recovery plan from templates")

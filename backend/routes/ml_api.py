@@ -5,10 +5,11 @@ from ..ml_models_table import MLModel, TrainingRun
 from ..models import async_session
 from ..training_pipeline import training_pipeline
 from ..verification_middleware import verify_action
+from ..schemas_extended import MLTrainResponse, MLDeployResponse, MLModelsListResponse
 
 router = APIRouter(prefix="/api/ml", tags=["machine_learning"])
 
-@router.post("/train")
+@router.post("/train", response_model=MLTrainResponse)
 @verify_action("ml_train", lambda data: data.get("model_name", "unknown"))
 async def train_model(
     model_name: str,
@@ -25,11 +26,21 @@ async def train_model(
     )
     
     if model_id:
-        return {"status": "trained", "model_id": model_id}
+        return MLTrainResponse(
+            status="trained",
+            model_id=model_id,
+            execution_trace=None,
+            data_provenance=[]
+        )
     else:
-        return {"status": "blocked", "message": "Training blocked by governance"}
+        return MLTrainResponse(
+            status="blocked",
+            message="Training blocked by governance",
+            execution_trace=None,
+            data_provenance=[]
+        )
 
-@router.post("/deploy/{model_id}")
+@router.post("/deploy/{model_id}", response_model=MLDeployResponse)
 @verify_action("ml_deploy", lambda data: f"model_{data.get('model_id', 'unknown')}")
 async def deploy_model(
     model_id: int,
@@ -37,16 +48,20 @@ async def deploy_model(
 ):
     """Deploy trained model"""
     success = await training_pipeline.deploy_model(model_id, current_user)
-    return {"status": "deployed" if success else "blocked"}
+    return MLDeployResponse(
+        status="deployed" if success else "blocked",
+        execution_trace=None,
+        data_provenance=[]
+    )
 
-@router.get("/models")
+@router.get("/models", response_model=MLModelsListResponse)
 async def list_models():
     """List all trained models"""
     async with async_session() as session:
         result = await session.execute(
             select(MLModel).order_by(MLModel.created_at.desc())
         )
-        return [
+        models = [
             {
                 "id": m.id,
                 "name": m.model_name,
@@ -58,3 +73,9 @@ async def list_models():
             }
             for m in result.scalars().all()
         ]
+        return MLModelsListResponse(
+            models=models,
+            count=len(models),
+            execution_trace=None,
+            data_provenance=[]
+        )

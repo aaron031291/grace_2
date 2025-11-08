@@ -10,16 +10,17 @@ Provides real-time visibility into scheduler behavior:
 
 from __future__ import annotations
 from typing import Dict, Any
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 
 from ..auth import get_current_user
 from ..settings import settings
+from ..schemas_extended import SchedulerCountersResponse, SchedulerHealthResponse
 
 router = APIRouter(prefix="/api/self_heal", tags=["self-heal-observability"])
 
 
-@router.get("/scheduler_counters")
+@router.get("/scheduler_counters", response_model=SchedulerCountersResponse)
 async def get_scheduler_counters(current_user: str = Depends(get_current_user)):
     """
     Get scheduler observability counters.
@@ -68,32 +69,34 @@ async def get_scheduler_counters(current_user: str = Depends(get_current_user)):
                 "limit": 3
             })
     
-    return {
-        "scheduler_state": {
+    return SchedulerCountersResponse(
+        scheduler_state={
             "poll_interval_seconds": scheduler._interval,
             "running": bool(scheduler._task and not scheduler._task.done())
         },
-        "backoff": {
+        backoff={
             "active_count": len(backoff_active),
             "services": backoff_active
         },
-        "rate_limiting": {
+        rate_limiting={
             "active_count": len(rate_limited_services),
             "services": rate_limited_services
         },
-        "statistics": {
+        statistics={
             "total_backoff_entries": len(scheduler._backoff),
             "total_rate_tracked_services": len(scheduler._rate)
         },
-        "metadata": {
+        metadata={
             "timestamp": now.isoformat(),
             "observe_only": settings.SELF_HEAL_OBSERVE_ONLY,
             "execute_enabled": settings.SELF_HEAL_EXECUTE
-        }
-    }
+        },
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 
-@router.get("/scheduler_health")
+@router.get("/scheduler_health", response_model=SchedulerHealthResponse)
 async def get_scheduler_health(current_user: str = Depends(get_current_user)):
     """Get scheduler health status"""
     
@@ -105,17 +108,21 @@ async def get_scheduler_health(current_user: str = Depends(get_current_user)):
         
         is_running = bool(scheduler._task and not scheduler._task.done())
         
-        return {
-            "status": "running" if is_running else "stopped",
-            "poll_interval_seconds": scheduler._interval,
-            "backoff_entries": len(scheduler._backoff),
-            "rate_tracked_services": len(scheduler._rate),
-            "healthy": is_running
-        }
+        return SchedulerHealthResponse(
+            status="running" if is_running else "stopped",
+            poll_interval_seconds=scheduler._interval,
+            backoff_entries=len(scheduler._backoff),
+            rate_tracked_services=len(scheduler._rate),
+            healthy=is_running,
+            execution_trace=None,
+            data_provenance=[]
+        )
     
     except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e),
-            "healthy": False
-        }
+        return SchedulerHealthResponse(
+            status="error",
+            healthy=False,
+            error=str(e),
+            execution_trace=None,
+            data_provenance=[]
+        )

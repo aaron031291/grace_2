@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from ..auth import get_current_user
+from ..schemas_extended import LearningStatsResponse, LearningStatusResponse
 
 router = APIRouter(prefix="/api/learning-pipeline", tags=["learning_pipeline"])
 
@@ -20,27 +21,31 @@ class CaptureMemoryRequest(BaseModel):
     domain: str = "general"
 
 
-@router.get("/stats")
+@router.get("/stats", response_model=LearningStatsResponse)
 async def get_learning_stats(user=Depends(get_current_user)):
     """Get learning pipeline statistics"""
     
     # TODO: Wire to memory_learning_pipeline once imports resolved
-    return {
-        "total_memories": 0,
-        "green_memories": 0,
-        "yellow_memories": 0,
-        "red_memories": 0,
-        "approved_for_training": 0,
-        "total_batches": 0,
-        "batches_completed": 0,
-        "status": "ready"
-    }
+    return LearningStatsResponse(
+        total_memories=0,
+        green_memories=0,
+        yellow_memories=0,
+        red_memories=0,
+        approved_for_training=0,
+        total_batches=0,
+        batches_completed=0,
+        status="ready",
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 
-@router.get("/status")
+@router.get("/status", response_model=LearningStatusResponse)
 async def get_pipeline_status():
     """Get learning pipeline status"""
-    return {
-        "status": "active",
-        "message": "Memory learning pipeline ready"
-    }
+    return LearningStatusResponse(
+        status="active",
+        message="Memory learning pipeline ready",
+        execution_trace=None,
+        data_provenance=[]
+    )

@@ -8,6 +8,7 @@ from typing import List, Dict, Any
 import asyncio
 import json
 from datetime import datetime
+from ..schemas_extended import SubagentsActiveResponse, SubagentSpawnResponse
 
 router = APIRouter(prefix="/api/subagents", tags=["subagents"])
 
@@ -153,27 +154,31 @@ async def broadcast_subagent_update(update: Dict):
         except:
             subagent_connections.remove(conn)
 
-@router.get("/active")
+@router.get("/active", response_model=SubagentsActiveResponse)
 async def get_active_subagents():
     """Get all currently active subagents"""
-    return {
-        "agents": {k: v.to_dict() for k, v in active_subagents.items()},
-        "total": len(active_subagents),
-        "running": len([a for a in active_subagents.values() if a.status == "running"])
-    }
+    return SubagentsActiveResponse(
+        agents={k: v.to_dict() for k, v in active_subagents.items()},
+        total=len(active_subagents),
+        running=len([a for a in active_subagents.values() if a.status == "running"]),
+        execution_trace=None,
+        data_provenance=[]
+    )
 
-@router.post("/spawn")
+@router.post("/spawn", response_model=SubagentSpawnResponse)
 async def spawn_agent_endpoint(agent_type: str, task: str, domain: str = "core"):
     """
     API to spawn a new subagent
     Used by Grace or user to start parallel processing
     """
     task_id = await spawn_subagent(agent_type, task, domain)
-    return {
-        "success": True,
-        "task_id": task_id,
-        "message": f"Spawned {agent_type} subagent"
-    }
+    return SubagentSpawnResponse(
+        success=True,
+        task_id=task_id,
+        message=f"Spawned {agent_type} subagent",
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 # Export for use by Grace subsystems
 __all__ = ['spawn_subagent', 'router']

@@ -17,6 +17,7 @@ from sqlalchemy import select
 from ..auth import get_current_user
 from ..models import async_session
 from ..settings import settings
+from ..schemas_extended import MetaCyclesResponse
 
 router = APIRouter(prefix="/api/meta", tags=["meta-loop"])
 
@@ -174,7 +175,7 @@ async def get_meta_focus(current_user: str = Depends(get_current_user)):
         }
 
 
-@router.get("/cycles")
+@router.get("/cycles", response_model=MetaCyclesResponse)
 async def get_meta_cycles(
     limit: int = 10,
     current_user: str = Depends(get_current_user)
@@ -199,11 +200,13 @@ async def get_meta_cycles(
                 "created_at": cycle.created_at.isoformat()
             })
         
-        return {
-            "cycles": cycles,
-            "count": len(cycles),
-            "current_cycle": cycles[0] if cycles else None
-        }
+        return MetaCyclesResponse(
+            cycles=cycles,
+            count=len(cycles),
+            current_cycle=cycles[0] if cycles else None,
+            execution_trace=None,
+            data_provenance=[]
+        )
     
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Meta-loop not available: {str(e)}")
