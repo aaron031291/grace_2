@@ -10,27 +10,42 @@ from datetime import datetime
 # ============ Health & Status ============
 
 class HealthResponse(BaseModel):
-    status: str = Field(..., description="Overall system health status", example="healthy")
-    message: str = Field(..., description="Human-readable status message", example="Grace AI is fully operational")
-    version: str = Field(..., description="API version", example="3.0.0")
-    uptime_seconds: float = Field(..., description="System uptime in seconds", example=3600.5)
+    """Comprehensive health check response with all system services"""
+    status: str = Field(
+        description="Overall system health status (healthy, degraded, down)",
+        examples=["healthy"]
+    )
+    message: str = Field(
+        description="Human-readable status message",
+        examples=["Grace AI is fully operational"]
+    )
+    version: str = Field(
+        description="API version number",
+        examples=["3.0.0"]
+    )
+    uptime_seconds: float = Field(
+        description="System uptime in seconds",
+        examples=[3600.5]
+    )
     services: Dict[str, str] = Field(
-        ..., 
-        description="Status of individual services",
-        example={
+        description="Status of each individual service component",
+        examples=[{
             "database": "connected",
-            "trigger_mesh": "active",
+            "trigger_mesh": "active", 
             "memory_system": "ready",
             "agentic_spine": "autonomous",
             "governance": "enforcing",
             "self_heal": "monitoring"
-        }
+        }]
     )
-    timestamp: str = Field(..., description="ISO timestamp of health check", example="2025-11-08T12:00:00Z")
+    timestamp: str = Field(
+        description="ISO 8601 timestamp of health check",
+        examples=["2025-11-08T12:00:00Z"]
+    )
     
-    class Config:
-        json_schema_extra = {
-            "example": {
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{
                 "status": "healthy",
                 "message": "Grace AI is fully operational",
                 "version": "3.0.0",
@@ -44,8 +59,9 @@ class HealthResponse(BaseModel):
                     "self_heal": "monitoring"
                 },
                 "timestamp": "2025-11-08T12:00:00Z"
-            }
+            }]
         }
+    }
 
 # ============ Memory ============
 
