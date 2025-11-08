@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import select
 from ..auth import get_current_user
 from ..models import Task, async_session
+from ..schemas import TaskResponse
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
@@ -18,19 +19,6 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     priority: Optional[str] = None
-
-class TaskResponse(BaseModel):
-    id: int
-    title: str
-    description: Optional[str]
-    status: str
-    priority: str
-    auto_generated: bool
-    created_at: datetime
-    completed_at: Optional[datetime]
-    
-    class Config:
-        from_attributes = True
 
 @router.get("/", response_model=List[TaskResponse])
 async def get_tasks(current_user: str = Depends(get_current_user)):
@@ -71,7 +59,7 @@ async def update_task(
         )
         task = result.scalar_one_or_none()
         if not task:
-            return {"error": "Task not found"}
+            raise HTTPException(status_code=404, detail="Task not found")
         
         if task_update.title:
             task.title = task_update.title

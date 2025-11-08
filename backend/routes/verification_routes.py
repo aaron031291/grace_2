@@ -19,13 +19,19 @@ from ..self_heal.safe_hold import snapshot_manager, SafeHoldSnapshot
 from ..benchmarks import benchmark_suite
 from ..progression_tracker import progression_tracker
 from ..models import async_session
+from ..schemas import (
+    ContractListResponse, ContractDetailResponse, SnapshotListResponse, SnapshotDetailResponse,
+    SnapshotRestoreResponse, GoldenSnapshotResponse, BenchmarkRunListResponse, BenchmarkRunDetailResponse,
+    BenchmarkGoldenResponse, MissionStartResponse, MissionCompleteResponse, MissionHistoryResponse,
+    VerificationStatusResponse
+)
 
 router = APIRouter(prefix="/api/verification", tags=["verification"])
 
 
 # ============= Action Contracts =============
 
-@router.get("/contracts")
+@router.get("/contracts", response_model=ContractListResponse)
 async def list_contracts(
     limit: int = 20,
     status: Optional[str] = None
@@ -62,7 +68,7 @@ async def list_contracts(
         }
 
 
-@router.get("/contracts/{contract_id}")
+@router.get("/contracts/{contract_id}", response_model=ContractDetailResponse)
 async def get_contract(contract_id: str):
     """Get detailed contract information"""
     

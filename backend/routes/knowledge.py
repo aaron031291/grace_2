@@ -8,7 +8,11 @@ from ..knowledge import knowledge_manager
 from ..verification_middleware import verify_action
 from ..models import async_session
 from ..knowledge_models import KnowledgeArtifact, KnowledgeRevision, KnowledgeTombstone
-from ..schemas import KnowledgeQueryResponse, SuccessResponse
+from ..schemas import (
+    KnowledgeQueryResponse, SuccessResponse, KnowledgeRevisionListResponse,
+    KnowledgeRenameResponse, KnowledgeDeleteResponse, KnowledgeRestoreResponse,
+    KnowledgeExportResponse, KnowledgeDiscoveryResponse, KnowledgeSearchResponse
+)
 
 # Metrics publishing (async)
 try:
@@ -53,7 +57,7 @@ async def ingest_knowledge(
     return {"success": True, "message": "ingested", "data": {"id": entry_id}}
 
 
-@router.post("/search")
+@router.post("/search", response_model=KnowledgeSearchResponse)
 async def search_knowledge(
     req: SearchRequest,
     current_user: str = Depends(get_current_user)
@@ -62,7 +66,7 @@ async def search_knowledge(
     return {"results": results, "count": len(results)}
 
 
-@router.get("/artifacts/{artifact_id}/revisions")
+@router.get("/artifacts/{artifact_id}/revisions", response_model=KnowledgeRevisionListResponse)
 async def list_revisions(
     artifact_id: int,
     current_user: str = Depends(get_current_user)
@@ -91,7 +95,7 @@ async def list_revisions(
         }
 
 
-@router.patch("/artifacts/{artifact_id}/rename")
+@router.patch("/artifacts/{artifact_id}/rename", response_model=KnowledgeRenameResponse)
 async def rename_artifact(
     artifact_id: int,
     req: RenameRequest,
@@ -162,7 +166,7 @@ async def rename_artifact(
     return {"status": "renamed", "artifact_id": artifact_id, "new_title": new_title}
 
 
-@router.delete("/artifacts/{artifact_id}")
+@router.delete("/artifacts/{artifact_id}", response_model=KnowledgeDeleteResponse)
 async def soft_delete_artifact(
     artifact_id: int,
     req: DeleteRequest,
@@ -206,7 +210,7 @@ async def soft_delete_artifact(
     return {"status": "deleted", "artifact_id": artifact_id}
 
 
-@router.post("/artifacts/{artifact_id}/restore")
+@router.post("/artifacts/{artifact_id}/restore", response_model=KnowledgeRestoreResponse)
 async def restore_artifact(
     artifact_id: int,
     current_user: str = Depends(get_current_user)
@@ -239,7 +243,7 @@ async def restore_artifact(
     return {"status": "restored", "artifact_id": artifact_id}
 
 
-@router.get("/export")
+@router.get("/export", response_model=KnowledgeExportResponse)
 async def export_dataset(
     domain: Optional[str] = None,
     artifact_type: Optional[str] = None,
@@ -327,7 +331,7 @@ class DiscoverRequest(BaseModel):
     seed_urls: Optional[List[str]] = None
 
 
-@router.post("/discover")
+@router.post("/discover", response_model=KnowledgeDiscoveryResponse)
 async def request_discovery(
     req: DiscoverRequest,
     current_user: str = Depends(get_current_user)

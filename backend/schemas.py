@@ -279,3 +279,481 @@ class ApprovalStatsResponse(BaseModel):
     pending: int
     approved: int
     rejected: int
+
+# ============ Governance (Extended) ============
+
+class PolicyResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    severity: str
+    condition: str
+    action: str
+
+class PolicyListResponse(BaseModel):
+    __root__: List[PolicyResponse]
+
+class PolicyCreateResponse(BaseModel):
+    id: int
+    name: str
+
+class AuditLogResponse(BaseModel):
+    id: int
+    actor: str
+    action: str
+    resource: str
+    policy_checked: str
+    result: str
+    timestamp: datetime
+
+class AuditLogListResponse(BaseModel):
+    __root__: List[AuditLogResponse]
+
+class ConfigItemResponse(BaseModel):
+    key: str
+    value: str
+    type: str
+    approved: bool
+    last_updated_by: Optional[str] = None
+
+class ConfigListResponse(BaseModel):
+    __root__: List[ConfigItemResponse]
+
+# ============ Memory (Extended) ============
+
+class MemoryItemResponse(BaseModel):
+    id: int
+    path: str
+    content: str
+    domain: str
+    category: str
+    status: str
+    version: int
+    size: Optional[int] = None
+    updated_at: Optional[datetime] = None
+    audit_trail: Optional[List[Dict[str, Any]]] = None
+    chain_verification: Optional[Dict[str, Any]] = None
+
+class MemoryCreateResponse(BaseModel):
+    id: int
+    path: str
+    security_alerts: int
+
+class MemoryUpdateResponse(BaseModel):
+    success: bool
+    security_alerts: int
+
+# ============ Knowledge (Extended) ============
+
+class KnowledgeRevisionResponse(BaseModel):
+    id: int
+    revision_number: int
+    edited_by: str
+    change_summary: str
+    diff: Optional[str] = None
+    created_at: datetime
+
+class KnowledgeRevisionListResponse(BaseModel):
+    artifact_id: int
+    revisions: List[KnowledgeRevisionResponse]
+    count: int
+
+class KnowledgeRenameResponse(BaseModel):
+    status: str
+    artifact_id: int
+    new_title: str
+
+class KnowledgeDeleteResponse(BaseModel):
+    status: str
+    artifact_id: int
+
+class KnowledgeRestoreResponse(BaseModel):
+    status: str
+    artifact_id: int
+    note: Optional[str] = None
+
+class KnowledgeExportItem(BaseModel):
+    id: int
+    title: str
+    type: str
+    domain: str
+    source: str
+    tags: List[str]
+    metadata: Dict[str, Any]
+    content: Optional[str] = None
+
+class KnowledgeExportResponse(BaseModel):
+    count: int
+    items: List[KnowledgeExportItem]
+
+class KnowledgeDiscoveryResponse(BaseModel):
+    status: str
+    topic: str
+    approved: List[str]
+    pending_review: List[Dict[str, Any]]
+    blocked: List[Dict[str, Any]]
+
+class KnowledgeSearchResponse(BaseModel):
+    results: List[Dict[str, Any]]
+    count: int
+
+# ============ Executor (Extended) ============
+
+class ExecutorTaskSubmitResponse(BaseModel):
+    task_id: str
+    status: str
+
+class ExecutorTaskListResponse(BaseModel):
+    tasks: List[Dict[str, Any]]
+    count: int
+
+# ============ Meta API (Extended) ============
+
+class MetaSampleCreateResponse(BaseModel):
+    success: bool
+    created: List[int]
+    message: str
+
+class MetaRecommendationStatsResponse(BaseModel):
+    pending: int
+    approved: int
+    rejected: int
+    applied: int
+    rolled_back: int
+    average_effectiveness: float
+
+class MetaPerformanceResponse(BaseModel):
+    effectiveness_over_time: List[Dict[str, Any]]
+    acceptance_rate: float
+    avg_improvement: float
+    component_trends: Dict[str, List[Dict[str, Any]]]
+
+class MetaMeasureResponse(BaseModel):
+    success: bool
+    effectiveness_score: Optional[float] = None
+    message: Optional[str] = None
+
+# ============ Autonomy (Extended) ============
+
+class AutonomyStatusResponse(BaseModel):
+    tiers: Dict[str, int]
+    pending_approvals: int
+    total_policies: int
+
+class AutonomyPolicyItem(BaseModel):
+    name: str
+    description: str
+    auto_approved: Optional[bool] = None
+    approval_required: Optional[bool] = None
+    impact: str
+
+class AutonomyPoliciesResponse(BaseModel):
+    tier_1_operational: List[AutonomyPolicyItem]
+    tier_2_code_touching: List[AutonomyPolicyItem]
+    tier_3_governance: List[AutonomyPolicyItem]
+
+class AutonomyCheckResponse(BaseModel):
+    can_execute: bool
+    approval_id: Optional[str] = None
+    requires_approval: Optional[bool] = None
+    tier: Optional[str] = None
+
+class AutonomyApprovalListResponse(BaseModel):
+    __root__: List[Dict[str, Any]]
+
+class AutonomyApprovalResponse(BaseModel):
+    status: str
+    approval_id: str
+
+class ShardTaskSubmitResponse(BaseModel):
+    task_id: str
+    status: str
+
+class ShardQueueResponse(BaseModel):
+    queued: int
+    completed: int
+    tasks: List[Dict[str, Any]]
+
+# ============ Verification Routes (Extended) ============
+
+class ContractItemResponse(BaseModel):
+    id: str
+    action_type: str
+    playbook_id: Optional[str] = None
+    status: str
+    tier: str
+    confidence_score: float
+    created_at: Optional[str] = None
+    verified_at: Optional[str] = None
+    requires_approval: bool
+
+class ContractListResponse(BaseModel):
+    contracts: List[ContractItemResponse]
+
+class ContractDetailResponse(BaseModel):
+    id: str
+    action_type: str
+    playbook_id: Optional[str] = None
+    run_id: Optional[str] = None
+    status: str
+    tier: str
+    expected_effect: Optional[Dict[str, Any]] = None
+    baseline_state: Optional[Dict[str, Any]] = None
+    actual_effect: Optional[Dict[str, Any]] = None
+    verification_result: Optional[Dict[str, Any]] = None
+    confidence_score: float
+    safe_hold_snapshot_id: Optional[str] = None
+    created_at: Optional[str] = None
+    executed_at: Optional[str] = None
+    verified_at: Optional[str] = None
+    triggered_by: Optional[str] = None
+
+class SnapshotItemResponse(BaseModel):
+    id: str
+    snapshot_type: str
+    status: str
+    is_golden: bool
+    is_validated: bool
+    system_health_score: Optional[float] = None
+    created_at: Optional[str] = None
+    triggered_by: Optional[str] = None
+    action_contract_id: Optional[str] = None
+    notes: Optional[str] = None
+
+class SnapshotListResponse(BaseModel):
+    snapshots: List[SnapshotItemResponse]
+
+class SnapshotDetailResponse(BaseModel):
+    id: str
+    snapshot_type: str
+    status: str
+    is_golden: bool
+    is_validated: bool
+    manifest: Optional[Dict[str, Any]] = None
+    manifest_hash: Optional[str] = None
+    storage_uri: Optional[str] = None
+    baseline_metrics: Optional[Dict[str, Any]] = None
+    system_health_score: Optional[float] = None
+    created_at: Optional[str] = None
+    validated_at: Optional[str] = None
+    restored_at: Optional[str] = None
+    triggered_by: Optional[str] = None
+    action_contract_id: Optional[str] = None
+    playbook_run_id: Optional[str] = None
+    notes: Optional[str] = None
+
+class SnapshotRestoreResponse(BaseModel):
+    success: bool
+    error: Optional[str] = None
+    dry_run: Optional[bool] = None
+    details: Optional[Dict[str, Any]] = None
+
+class GoldenSnapshotResponse(BaseModel):
+    id: str
+    snapshot_type: str
+    system_health_score: Optional[float] = None
+    created_at: Optional[str] = None
+    validated_at: Optional[str] = None
+    manifest: Optional[Dict[str, Any]] = None
+
+class BenchmarkRunItemResponse(BaseModel):
+    run_id: str
+    benchmark_type: str
+    passed: bool
+    drift_detected: bool
+    is_golden: bool
+    duration_seconds: float
+    created_at: Optional[str] = None
+    triggered_by: Optional[str] = None
+
+class BenchmarkRunListResponse(BaseModel):
+    runs: List[BenchmarkRunItemResponse]
+
+class BenchmarkRunDetailResponse(BaseModel):
+    run_id: str
+    benchmark_type: str
+    passed: bool
+    drift_detected: bool
+    is_golden: bool
+    results: Optional[Dict[str, Any]] = None
+    metrics: Optional[Dict[str, Any]] = None
+    baseline_id: Optional[str] = None
+    delta_from_baseline: Optional[Dict[str, Any]] = None
+    duration_seconds: float
+    created_at: Optional[str] = None
+    triggered_by: Optional[str] = None
+
+class BenchmarkGoldenResponse(BaseModel):
+    success: bool
+    run_id: str
+    status: str
+
+class MissionStartResponse(BaseModel):
+    mission_id: str
+    mission_name: str
+    started_at: Optional[str] = None
+    planned_actions: int
+
+class MissionCompleteResponse(BaseModel):
+    mission_id: str
+    status: str
+
+class MissionHistoryResponse(BaseModel):
+    missions: List[Dict[str, Any]]
+
+class VerificationStatusResponse(BaseModel):
+    mission: Optional[Dict[str, Any]] = None
+    golden_snapshot: Optional[Dict[str, Any]] = None
+    contracts: Dict[str, Any]
+    timestamp: str
+
+# ============ Tasks (Extended) ============
+
+class TaskListResponse(BaseModel):
+    __root__: List[TaskResponse]
+
+class TaskUpdateErrorResponse(BaseModel):
+    error: str
+
+# ============ Autonomy (Additional) ============
+
+class AutonomyTaskStatusResponse(BaseModel):
+    task_id: str
+    domain: str
+    action: str
+    status: str
+    priority: int
+    result: Optional[Dict[str, Any]] = None
+    created_at: Optional[str] = None
+    completed_at: Optional[str] = None
+
+class ShardStatusResponse(BaseModel):
+    total_shards: int
+    active_shards: int
+    shards: Dict[str, Any]
+
+# ============ Governance (Additional) ============
+
+class PolicyItem(BaseModel):
+    id: int
+    name: str
+    description: str
+    severity: str
+    condition: str
+    action: str
+
+class AuditLogItem(BaseModel):
+    id: int
+    actor: str
+    action: str
+    resource: str
+    policy_checked: str
+    result: str
+    timestamp: datetime
+
+class ConfigItem(BaseModel):
+    key: str
+    value: str
+    type: str
+    approved: bool
+    last_updated_by: Optional[str] = None
+
+# ============ Meta API (Additional) ============
+
+class MetaAnalysisItem(BaseModel):
+    id: int
+    type: str
+    subject: str
+    findings: str
+    recommendation: str
+    confidence: float
+    applied: bool
+    created_at: datetime
+
+class MetaMetaEvaluationItem(BaseModel):
+    id: int
+    metric: str
+    before: float
+    after: float
+    improvement: float
+    conclusion: str
+    created_at: datetime
+
+class MetaConfigItem(BaseModel):
+    key: str
+    value: str
+    type: str
+    approved: bool
+    last_updated_by: Optional[str] = None
+
+class MetaRecommendationItem(BaseModel):
+    id: int
+    recommendation_type: str
+    target: str
+    current_value: Any
+    proposed_value: Any
+    recommendation_text: str
+    confidence: float
+    risk_level: str
+    status: str
+    created_at: Optional[datetime] = None
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+
+# ============ Cognition API ============
+
+class CognitionIntentParseResponse(BaseModel):
+    intent_type: str
+    parameters: Dict[str, Any]
+    confidence: float
+    context: Optional[Dict[str, Any]] = None
+
+class CognitionExecuteResponse(BaseModel):
+    plan_id: str
+    success: bool
+    actions_completed: int
+    actions_failed: int
+    outputs: Dict[str, Any]
+    verification: Optional[Dict[str, Any]] = None
+    rollback_available: bool
+    confidence: float
+
+class CognitionIntentItemResponse(BaseModel):
+    id: int
+    utterance: str
+    intent_type: str
+    status: str
+    plan_id: Optional[str] = None
+    requires_approval: bool
+    created_at: Optional[str] = None
+    completed_at: Optional[str] = None
+
+class CognitionSessionResponse(BaseModel):
+    session_id: str
+    intents: List[CognitionIntentItemResponse]
+
+class CognitionRecentIntentItemResponse(BaseModel):
+    id: int
+    utterance: str
+    intent_type: str
+    status: str
+    confidence: float
+    created_at: Optional[str] = None
+
+class CognitionRecentIntentsResponse(BaseModel):
+    intents: List[CognitionRecentIntentItemResponse]
+
+class CognitionCapabilitiesResponse(BaseModel):
+    capabilities: List[Dict[str, Any]]
+    count: int
+
+class CognitionLLMToolsResponse(BaseModel):
+    tools: List[Dict[str, Any]]
+
+class CognitionStatusResponse(BaseModel):
+    total_intents: int
+    completed: int
+    failed: int
+    success_rate: float
+    capabilities_registered: int
+    status: str

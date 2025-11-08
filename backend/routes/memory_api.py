@@ -8,7 +8,10 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..memory_models import MemoryArtifact
 from ..models import async_session
-from ..schemas import MemoryTreeResponse, MemoryArtifactResponse, SuccessResponse, ExportBundleResponse, DomainStatsResponse
+from ..schemas import (
+    MemoryTreeResponse, MemoryArtifactResponse, SuccessResponse, ExportBundleResponse, 
+    DomainStatsResponse, MemoryItemResponse, MemoryCreateResponse, MemoryUpdateResponse
+)
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
@@ -55,7 +58,7 @@ async def get_tree(
     
     return {"tree": tree, "flat_list": artifacts}
 
-@router.get("/item/{path:path}")
+@router.get("/item/{path:path}", response_model=MemoryItemResponse)
 async def get_item(
     path: str,
     current_user: str = Depends(get_current_user)
@@ -74,7 +77,7 @@ async def get_item(
         "chain_verification": chain_valid
     }
 
-@router.post("/items")
+@router.post("/items", response_model=MemoryCreateResponse)
 async def create_item(
     req: CreateArtifact,
     current_user: str = Depends(get_current_user)
@@ -114,7 +117,7 @@ async def create_item(
         "security_alerts": len(alerts) if alerts else 0
     }
 
-@router.patch("/items/{artifact_id}")
+@router.patch("/items/{artifact_id}", response_model=MemoryUpdateResponse)
 async def update_item(
     artifact_id: int,
     req: UpdateArtifact,

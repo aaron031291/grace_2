@@ -16,7 +16,11 @@ from ..constitutional_verifier import constitutional_verifier
 from ..governance import governance_engine
 from ..action_executor import ActionExecutor
 from ..trigger_mesh import trigger_mesh, TriggerEvent
-from ..schemas import GovernanceCheckResponse, ApprovalResponse, ApprovalStatsResponse, SuccessResponse
+from ..schemas import (
+    GovernanceCheckResponse, ApprovalResponse, ApprovalStatsResponse, SuccessResponse,
+    PolicyListResponse, PolicyCreateResponse, AuditLogListResponse, ConfigListResponse,
+    PolicyItem, AuditLogItem
+)
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/governance", tags=["governance"])
@@ -96,7 +100,7 @@ def _deciders_allowlist() -> Optional[set]:
         return None
     return {u.strip() for u in raw.split(",") if u.strip()}
 
-@router.get("/policies")
+@router.get("/policies", response_model=List[PolicyItem])
 async def list_policies():
     async with async_session() as session:
         result = await session.execute(select(GovernancePolicy))
@@ -112,7 +116,7 @@ async def list_policies():
             for p in result.scalars().all()
         ]
 
-@router.post("/policies")
+@router.post("/policies", response_model=PolicyCreateResponse)
 @verify_action("policy_create", lambda data: data.get("name", "unknown"))
 async def create_policy(data: PolicyCreate, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
@@ -128,7 +132,7 @@ async def create_policy(data: PolicyCreate, current_user: str = Depends(get_curr
         await session.refresh(policy)
         return {"id": policy.id, "name": policy.name}
 
-@router.get("/audit")
+@router.get("/audit", response_model=List[AuditLogItem])
 async def list_audit(limit: int = 100):
     async with async_session() as session:
         result = await session.execute(
@@ -363,8 +367,8 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
     result_dict["_verification_id"] = action_id
     return result_dict
 
-@router.get("/approvals/stats")
-async def approvals_stats(current_user: str = Depends(get_current_user)):
+@router.get("/approvals/stats/duplicate", response_model=ApprovalStatsResponse)
+async def approvals_stats_duplicate(current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         # Simple counts by status
         result = await session.execute(select(ApprovalRequest.status))

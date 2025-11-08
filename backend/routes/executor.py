@@ -4,7 +4,7 @@ from typing import List
 from ..auth import get_current_user
 from ..task_executor import task_executor
 from ..verification_middleware import verify_action
-from ..schemas import ExecutionResponse, TaskStatusResponse
+from ..schemas import ExecutionResponse, TaskStatusResponse, ExecutorTaskSubmitResponse, ExecutorTaskListResponse
 import asyncio
 
 router = APIRouter(prefix="/api/executor", tags=["executor"])
@@ -14,7 +14,7 @@ class TaskSubmit(BaseModel):
     description: str
     steps: int = 10
 
-@router.post("/submit")
+@router.post("/submit", response_model=ExecutorTaskSubmitResponse)
 @verify_action("task_execution", lambda data: data.get("task_type", "unknown"))
 async def submit_task(
     req: TaskSubmit,
@@ -47,7 +47,7 @@ async def get_status(
         return {"task_id": task_id, "status": "not_found", "progress": 0.0}
     return status
 
-@router.get("/tasks")
+@router.get("/tasks", response_model=ExecutorTaskListResponse)
 async def list_tasks(
     limit: int = 20,
     current_user: str = Depends(get_current_user)

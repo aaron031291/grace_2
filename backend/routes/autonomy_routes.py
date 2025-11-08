@@ -8,6 +8,11 @@ from typing import List, Dict, Optional
 from ..autonomy_tiers import autonomy_manager, AutonomyTier
 from ..shard_orchestrator import shard_orchestrator
 from ..auth import get_current_user
+from ..schemas import (
+    AutonomyStatusResponse, AutonomyPoliciesResponse, AutonomyCheckResponse,
+    AutonomyApprovalListResponse, AutonomyApprovalResponse, ShardTaskSubmitResponse, 
+    ShardQueueResponse, AutonomyTaskStatusResponse, ShardStatusResponse
+)
 
 router = APIRouter(prefix="/api/autonomy", tags=["autonomy"])
 
@@ -36,7 +41,7 @@ class TaskSubmission(BaseModel):
 
 # ==================== AUTONOMY ENDPOINTS ====================
 
-@router.get("/status")
+@router.get("/status", response_model=AutonomyStatusResponse)
 async def get_autonomy_status():
     """Get current autonomy configuration"""
     tier_counts = {
@@ -52,7 +57,7 @@ async def get_autonomy_status():
     }
 
 
-@router.get("/policies")
+@router.get("/policies", response_model=AutonomyPoliciesResponse)
 async def list_policies():
     """List all action policies"""
     return {
@@ -86,7 +91,7 @@ async def list_policies():
     }
 
 
-@router.post("/check")
+@router.post("/check", response_model=AutonomyCheckResponse)
 async def check_action(request: ActionRequest, user=Depends(get_current_user)):
     """Check if an action can be executed"""
     can_execute, approval_id = await autonomy_manager.can_execute(
@@ -104,13 +109,13 @@ async def check_action(request: ActionRequest, user=Depends(get_current_user)):
     }
 
 
-@router.get("/approvals")
+@router.get("/approvals", response_model=List[AutonomyApprovalListResponse])
 async def get_pending_approvals(user=Depends(get_current_user)):
     """Get all pending approval requests"""
     return autonomy_manager.get_pending_approvals()
 
 
-@router.post("/approve")
+@router.post("/approve", response_model=AutonomyApprovalResponse)
 async def approve_action(decision: ApprovalDecision, user=Depends(get_current_user)):
     """Approve or reject a pending action"""
     try:
@@ -134,7 +139,7 @@ async def approve_action(decision: ApprovalDecision, user=Depends(get_current_us
 
 # ==================== SHARD ORCHESTRATION ENDPOINTS ====================
 
-@router.post("/tasks/submit")
+@router.post("/tasks/submit", response_model=ShardTaskSubmitResponse)
 async def submit_task(task: TaskSubmission, user=Depends(get_current_user)):
     """Submit a task to the shard orchestrator"""
     task_id = await shard_orchestrator.submit_task(
@@ -163,7 +168,7 @@ async def get_shards_status():
     return await shard_orchestrator.get_shard_status()
 
 
-@router.get("/queue")
+@router.get("/queue", response_model=ShardQueueResponse)
 async def get_task_queue():
     """Get current task queue"""
     return {
