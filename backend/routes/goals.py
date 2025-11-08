@@ -7,6 +7,12 @@ import json
 from ..auth import get_current_user
 from ..models import Goal, async_session
 from ..goal_models import GoalDependency, GoalEvaluation
+from ..schemas_extended import (
+    GoalCriteriaResponse,
+    GoalDependencyResponse,
+    GoalGraphResponse,
+    GoalEvaluationResponse
+)
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 
@@ -134,7 +140,7 @@ async def update_goal(
         await session.refresh(goal)
         return goal
 
-@router.post("/{goal_id}/criteria")
+@router.post("/{goal_id}/criteria", response_model=GoalCriteriaResponse)
 async def set_goal_criteria(
     goal_id: int,
     body: GoalCriteria,
@@ -149,9 +155,9 @@ async def set_goal_criteria(
             raise HTTPException(status_code=404, detail="Goal not found")
         goal.success_criteria = json.dumps(body.criteria)
         await session.commit()
-        return {"ok": True}
+        return GoalCriteriaResponse(ok=True)
 
-@router.post("/{goal_id}/dependencies")
+@router.post("/{goal_id}/dependencies", response_model=GoalDependencyResponse)
 async def add_goal_dependency(
     goal_id: int,
     body: GoalDependencyCreate,
@@ -170,9 +176,9 @@ async def add_goal_dependency(
         dep = GoalDependency(goal_id=goal_id, depends_on_goal_id=body.depends_on_id, type=body.type, note=body.note)
         session.add(dep)
         await session.commit()
-        return {"ok": True, "dependency_id": dep.id}
+        return GoalDependencyResponse(ok=True, dependency_id=dep.id)
 
-@router.get("/{goal_id}/graph")
+@router.get("/{goal_id}/graph", response_model=GoalGraphResponse)
 async def get_goal_graph(goal_id: int, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         # Fetch goal and its neighborhood
@@ -192,9 +198,9 @@ async def get_goal_graph(goal_id: int, current_user: str = Depends(get_current_u
             {"from": d.depends_on_goal_id, "to": d.goal_id, "type": d.type, "note": d.note}
             for d in deps
         ]
-        return {"nodes": nodes, "edges": edges}
+        return GoalGraphResponse(nodes=nodes, edges=edges)
 
-@router.post("/{goal_id}/evaluate")
+@router.post("/{goal_id}/evaluate", response_model=GoalEvaluationResponse)
 async def evaluate_goal(goal_id: int, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         result = await session.execute(select(Goal).where(Goal.id == goal_id, Goal.user == current_user))
@@ -231,4 +237,4 @@ async def evaluate_goal(goal_id: int, current_user: str = Depends(get_current_us
         ge = GoalEvaluation(goal_id=goal.id, status=status, explanation=explanation, confidence=confidence)
         session.add(ge)
         await session.commit()
-        return {"goal_id": goal.id, "status": status, "confidence": confidence, "explanation": explanation}
+        return GoalEvaluationResponse(goal_id=goal.id, status=status, confidence=confidence, explanation=explanation)

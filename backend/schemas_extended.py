@@ -380,8 +380,15 @@ class EvaluationResponse(BaseModel):
 
 class AgenticInsightsStatusResponse(BaseModel):
     status: str
-    total_runs: int
     active_runs: int
+    pending_approvals: int
+    highest_risk: Optional[float] = None
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class AgenticInsightsVerbosityResponse(BaseModel):
+    verbosity: str
+    message: str
     execution_trace: Optional[ExecutionTrace] = None
     data_provenance: List[DataProvenance] = Field(default_factory=list)
 
@@ -392,14 +399,15 @@ class AgenticInsightsTimelineResponse(BaseModel):
     data_provenance: List[DataProvenance] = Field(default_factory=list)
 
 class AgenticInsightsSearchResponse(BaseModel):
-    results: List[Dict[str, Any]]
-    count: int
+    message: str
+    filters: Dict[str, Any]
     execution_trace: Optional[ExecutionTrace] = None
     data_provenance: List[DataProvenance] = Field(default_factory=list)
 
 class AgenticInsightsHealthResponse(BaseModel):
     status: str
-    metrics: Dict[str, Any]
+    verbosity: str
+    active_tracking: int
     execution_trace: Optional[ExecutionTrace] = None
     data_provenance: List[DataProvenance] = Field(default_factory=list)
 
@@ -719,6 +727,315 @@ class GraceArchitectDeployResponse(BaseModel):
 class GraceArchitectKnowledgeResponse(BaseModel):
     knowledge: List[Dict[str, Any]]
     total: int
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Goals API Responses ============
+
+class GoalCriteriaResponse(BaseModel):
+    ok: bool = Field(description="Success status")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class GoalDependencyResponse(BaseModel):
+    ok: bool = Field(description="Success status")
+    dependency_id: int = Field(description="Created dependency ID")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class GoalGraphResponse(BaseModel):
+    nodes: List[Dict[str, Any]] = Field(description="Goal nodes in the graph")
+    edges: List[Dict[str, Any]] = Field(description="Dependency edges")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class GoalEvaluationResponse(BaseModel):
+    goal_id: int = Field(description="Goal identifier")
+    status: str = Field(description="Evaluation status")
+    confidence: float = Field(description="Confidence score")
+    explanation: str = Field(description="Evaluation explanation")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Ingestion API Responses ============
+
+class IngestTextResponse(BaseModel):
+    status: str = Field(description="Ingestion status")
+    artifact_id: int = Field(description="Artifact ID")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IngestUrlResponse(BaseModel):
+    status: str = Field(description="Ingestion status")
+    artifact_id: Optional[int] = Field(None, description="Artifact ID if ingested")
+    approval_id: Optional[int] = Field(None, description="Approval ID if pending")
+    url: Optional[str] = Field(None, description="Ingested URL")
+    trust_score: Optional[float] = Field(None, description="Trust score")
+    verified: Optional[bool] = Field(None, description="Verification status")
+    message: Optional[str] = Field(None, description="Status message")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IngestFileResponse(BaseModel):
+    status: str = Field(description="Ingestion status")
+    artifact_id: int = Field(description="Artifact ID")
+    filename: str = Field(description="Uploaded filename")
+    size: int = Field(description="File size in bytes")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IngestArtifactsListResponse(BaseModel):
+    artifacts: List[Dict[str, Any]] = Field(description="List of knowledge artifacts")
+    count: int = Field(description="Number of artifacts")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Health Unified API Responses ============
+
+class HealthIngestSignalResponse(BaseModel):
+    ok: bool = Field(description="Success status")
+    service_id: int = Field(description="Service ID")
+    signal_id: int = Field(description="Signal ID")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class HealthStateResponse(BaseModel):
+    service: str = Field(description="Service name")
+    status: str = Field(description="Health status")
+    confidence: float = Field(description="Confidence score")
+    top_symptoms: Optional[List[str]] = Field(None, description="Top symptoms")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class TriageDiagnoseResponse(BaseModel):
+    service: str = Field(description="Service name")
+    diagnoses: List[Dict[str, Any]] = Field(description="Diagnostic findings")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Incidents API Responses ============
+
+class IncidentNotifyResponse(BaseModel):
+    ok: bool = Field(description="Success status")
+    incident_id: int = Field(description="Incident ID")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IncidentAckResponse(BaseModel):
+    ok: bool = Field(description="Success status")
+    incident_id: int = Field(description="Incident ID")
+    status: str = Field(description="Incident status")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IncidentDetailResponse(BaseModel):
+    id: int
+    service: str
+    severity: Optional[str] = None
+    status: str
+    title: Optional[str] = None
+    summary: Optional[str] = None
+    created_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None
+    events: List[Dict[str, Any]] = Field(default_factory=list)
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Issues API Responses ============
+
+class IssuesListResponse(BaseModel):
+    issues: List[Dict[str, Any]] = Field(description="List of issues")
+    count: int = Field(description="Number of issues")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IssueDetailResponse(BaseModel):
+    id: int
+    source: str
+    summary: Optional[str] = None
+    details: Optional[str] = None
+    explanation: Optional[str] = None
+    likely_cause: Optional[str] = None
+    suggested_fix: Optional[str] = None
+    action_label: Optional[str] = None
+    action_payload: Optional[str] = None
+    status: str
+    applied_fix: Optional[str] = None
+    fix_result: Optional[str] = None
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class IssueResolveResponse(BaseModel):
+    status: str = Field(description="Resolution status")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Metrics API Responses ============
+
+class MetricsSummaryResponse(BaseModel):
+    total_messages: int
+    active_users: int
+    registered_users: int
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class MetricsUserStatsResponse(BaseModel):
+    username: str
+    total_messages: int
+    grace_responses: int
+    user_messages: int
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class MetricsHistoryResponse(BaseModel):
+    domain: str
+    kpi: str
+    count: int
+    events: List[Dict[str, Any]]
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ ML API Responses ============
+
+class MLTrainResponse(BaseModel):
+    status: str = Field(description="Training status")
+    model_id: Optional[int] = Field(None, description="Model ID if trained")
+    message: Optional[str] = Field(None, description="Status message")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class MLDeployResponse(BaseModel):
+    status: str = Field(description="Deployment status")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class MLModelsListResponse(BaseModel):
+    models: List[Dict[str, Any]] = Field(description="List of ML models")
+    count: int = Field(description="Number of models")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Plugin Routes Responses ============
+
+class PluginsListResponse(BaseModel):
+    plugins: List[Dict[str, Any]] = Field(description="List of plugins")
+    count: int = Field(description="Number of plugins")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class PluginActionResponse(BaseModel):
+    status: str = Field(description="Action status (enabled/disabled)")
+    plugin: str = Field(description="Plugin name")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Evaluation API Responses ============
+
+class EvaluateResponse(BaseModel):
+    status: str = Field(description="Evaluation status")
+    events_processed: int = Field(description="Number of events processed")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Learning Routes Responses ============
+
+class LearningStatsResponse(BaseModel):
+    total_memories: int
+    green_memories: int
+    yellow_memories: int
+    red_memories: int
+    approved_for_training: int
+    total_batches: int
+    batches_completed: int
+    status: str
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class LearningStatusResponse(BaseModel):
+    status: str
+    message: str
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Meta Focus API Responses ============
+
+class MetaCyclesResponse(BaseModel):
+    cycles: List[Dict[str, Any]] = Field(description="List of meta loop cycles")
+    count: int = Field(description="Number of cycles")
+    current_cycle: Optional[Dict[str, Any]] = Field(None, description="Current cycle")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Playbooks API Responses ============
+
+class PlaybooksListResponse(BaseModel):
+    templates: List[str] = Field(description="List of playbook templates")
+    count: int = Field(description="Number of templates")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Reflections API Responses ============
+
+class ReflectionsListResponse(BaseModel):
+    reflections: List[Dict[str, Any]] = Field(description="List of reflections")
+    count: int = Field(description="Number of reflections")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class ReflectionTriggerResponse(BaseModel):
+    status: str = Field(description="Trigger status")
+    message: str = Field(description="Status message")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Scheduler Observability API Responses ============
+
+class SchedulerCountersResponse(BaseModel):
+    scheduler_state: Dict[str, Any] = Field(description="Scheduler state")
+    backoff: Dict[str, Any] = Field(description="Backoff state")
+    rate_limiting: Dict[str, Any] = Field(description="Rate limiting state")
+    statistics: Dict[str, Any] = Field(description="Statistics")
+    metadata: Dict[str, Any] = Field(description="Metadata")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class SchedulerHealthResponse(BaseModel):
+    status: str = Field(description="Scheduler status")
+    poll_interval_seconds: Optional[int] = Field(None, description="Poll interval")
+    backoff_entries: Optional[int] = Field(None, description="Backoff entries count")
+    rate_tracked_services: Optional[int] = Field(None, description="Rate tracked services")
+    healthy: bool = Field(description="Health status")
+    error: Optional[str] = Field(None, description="Error message if unhealthy")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Subagent Bridge API Responses ============
+
+class SubagentsActiveResponse(BaseModel):
+    agents: Dict[str, Any] = Field(description="Active subagents")
+    total: int = Field(description="Total subagents")
+    running: int = Field(description="Running subagents count")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class SubagentSpawnResponse(BaseModel):
+    success: bool = Field(description="Spawn success")
+    task_id: str = Field(description="Task ID")
+    message: str = Field(description="Status message")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+# ============ Summaries API Responses ============
+
+class SummariesListResponse(BaseModel):
+    summaries: List[Dict[str, Any]] = Field(description="List of summaries")
+    count: int = Field(description="Number of summaries")
+    execution_trace: Optional[ExecutionTrace] = None
+    data_provenance: List[DataProvenance] = Field(default_factory=list)
+
+class SummaryGenerateResponse(BaseModel):
+    status: str = Field(description="Generation status")
+    summary: Optional[Dict[str, Any]] = Field(None, description="Generated summary")
     execution_trace: Optional[ExecutionTrace] = None
     data_provenance: List[DataProvenance] = Field(default_factory=list)
 "" 

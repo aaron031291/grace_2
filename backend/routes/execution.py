@@ -7,6 +7,7 @@ from typing import Optional, Dict
 from ..auth import get_current_user
 from ..execution_engine import execution_engine
 from ..execution_config import LANGUAGE_CONFIGS, EXECUTION_PRESETS
+from ..schemas_extended import ExecutionLanguagesResponse, ExecutionPresetsResponse, ExecutionValidateResponse
 
 router = APIRouter(prefix="/api/execute", tags=["execution"])
 
@@ -66,47 +67,47 @@ async def execute_code(
         raise HTTPException(status_code=500, detail=f"Execution failed: {str(e)}")
 
 
-@router.get("/languages")
+@router.get("/languages", response_model=ExecutionLanguagesResponse)
 async def get_supported_languages(
     current_user: str = Depends(get_current_user)
 ):
     """Get list of supported programming languages and their configurations"""
     languages = []
     for key, config in LANGUAGE_CONFIGS.items():
-        languages.append({
-            "id": key,
-            "name": config.name,
-            "file_extension": config.file_extension,
-            "timeout": config.timeout,
-            "memory_limit_mb": config.memory_limit_mb,
-            "requires_compilation": config.requires_compilation,
-            "allow_network": config.allow_network
-        })
+        languages.append(key)
     
-    return {"languages": languages, "count": len(languages)}
+    return ExecutionLanguagesResponse(
+        languages=languages,
+        count=len(languages),
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 
-@router.get("/presets")
+@router.get("/presets", response_model=ExecutionPresetsResponse)
 async def get_execution_presets(
     current_user: str = Depends(get_current_user)
 ):
     """Get list of execution presets and their configurations"""
-    presets = []
+    presets = {}
     for key, preset in EXECUTION_PRESETS.items():
-        presets.append({
-            "id": key,
+        presets[key] = {
             "name": preset.name,
             "timeout_multiplier": preset.timeout_multiplier,
             "memory_multiplier": preset.memory_multiplier,
             "allow_network": preset.allow_network,
             "enable_logging": preset.enable_logging,
             "strict_limits": preset.strict_limits
-        })
+        }
     
-    return {"presets": presets, "count": len(presets)}
+    return ExecutionPresetsResponse(
+        presets=presets,
+        execution_trace=None,
+        data_provenance=[]
+    )
 
 
-@router.post("/validate")
+@router.post("/validate", response_model=ExecutionValidateResponse)
 async def validate_code(
     request: ExecuteRequest,
     current_user: str = Depends(get_current_user)
@@ -123,14 +124,13 @@ async def validate_code(
     
     engine = ExecutionEngine()
     
+    errors = []
+    warnings = []
+    
     if request.language == "bash":
         validation_error = engine._validate_shell_code(request.code)
         if validation_error:
-            return {
-                "valid": False,
-                "error": validation_error,
-                "language": request.language
-            }
+            errors.append(validation_error)
     
     from ..governance import governance_engine
     governance_result = await governance_engine.check(
@@ -144,15 +144,14 @@ async def validate_code(
     )
     
     if governance_result["decision"] == "deny":
-        return {
-            "valid": False,
-            "error": "Code denied by governance policy",
-            "language": request.language,
-            "governance_decision": governance_result["decision"]
-        }
+        errors.append("Code denied by governance policy")
+    elif governance_result["decision"] == "warn":
+        warnings.append("Code triggered governance warning")
     
-    return {
-        "valid": True,
-        "language": request.language,
-        "governance_decision": governance_result["decision"]
-    }
+    return ExecutionValidateResponse(
+        valid=len(errors) == 0,
+        errors=errors,
+        warnings=warnings,
+        execution_trace=None,
+        data_provenance=[]
+    )

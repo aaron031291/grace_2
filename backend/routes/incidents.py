@@ -9,6 +9,7 @@ from ..settings import settings
 from ..models import async_session
 from ..self_heal_models import Incident, IncidentEvent
 from ..integrations.notify import notify
+from ..schemas_extended import IncidentNotifyResponse, IncidentAckResponse, IncidentDetailResponse
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])  # feature-gated in main
 
@@ -27,7 +28,7 @@ class IncidentAck(BaseModel):
     actor: Optional[str] = None
 
 
-@router.post("/notify")
+@router.post("/notify", response_model=IncidentNotifyResponse)
 async def incident_notify(body: IncidentNotify, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -59,10 +60,15 @@ async def incident_notify(body: IncidentNotify, current_user: str = Depends(get_
         except Exception:
             pass
 
-        return {"ok": True, "incident_id": inc.id}
+        return IncidentNotifyResponse(
+            ok=True,
+            incident_id=inc.id,
+            execution_trace=None,
+            data_provenance=[]
+        )
 
 
-@router.post("/ack")
+@router.post("/ack", response_model=IncidentAckResponse)
 async def incident_ack(body: IncidentAck, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -88,10 +94,16 @@ async def incident_ack(body: IncidentAck, current_user: str = Depends(get_curren
         except Exception:
             pass
 
-        return {"ok": True, "incident_id": inc.id, "status": inc.status}
+        return IncidentAckResponse(
+            ok=True,
+            incident_id=inc.id,
+            status=inc.status,
+            execution_trace=None,
+            data_provenance=[]
+        )
 
 
-@router.get("/{incident_id}")
+@router.get("/{incident_id}", response_model=IncidentDetailResponse)
 async def get_incident(incident_id: int, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -110,14 +122,16 @@ async def get_incident(incident_id: int, current_user: str = Depends(get_current
             }
             for e in evs.scalars().all()
         ]
-        return {
-            "id": inc.id,
-            "service": inc.service,
-            "severity": inc.severity,
-            "status": inc.status,
-            "title": inc.title,
-            "summary": inc.summary,
-            "created_at": inc.created_at,
-            "resolved_at": inc.resolved_at,
-            "events": events,
-        }
+        return IncidentDetailResponse(
+            id=inc.id,
+            service=inc.service,
+            severity=inc.severity,
+            status=inc.status,
+            title=inc.title,
+            summary=inc.summary,
+            created_at=inc.created_at,
+            resolved_at=inc.resolved_at,
+            events=events,
+            execution_trace=None,
+            data_provenance=[]
+        )

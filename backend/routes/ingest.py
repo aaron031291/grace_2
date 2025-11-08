@@ -9,6 +9,12 @@ from ..trusted_sources import trust_manager
 from ..verification import verification_engine
 from ..verification_middleware import verify_action
 from ..knowledge_models import KnowledgeTombstone
+from ..schemas_extended import (
+    IngestTextResponse,
+    IngestUrlResponse,
+    IngestFileResponse,
+    IngestArtifactsListResponse
+)
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
@@ -24,7 +30,7 @@ class IngestURL(BaseModel):
     url: str
     domain: str = "external"
 
-@router.post("/text")
+@router.post("/text", response_model=IngestTextResponse)
 @verify_action("data_ingest", lambda data: data.get("title", "unknown"))
 async def ingest_text(
     req: IngestText,
@@ -41,13 +47,13 @@ async def ingest_text(
             tags=req.tags,
             metadata=req.metadata
         )
-        return {"status": "ingested", "artifact_id": artifact_id}
+        return IngestTextResponse(status="ingested", artifact_id=artifact_id)
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/url")
+@router.post("/url", response_model=IngestUrlResponse)
 async def ingest_url(
     req: IngestURL,
     current_user: str = Depends(get_current_user)
@@ -74,12 +80,12 @@ async def ingest_url(
             await session.commit()
             await session.refresh(approval)
         
-        return {
-            "status": "pending_approval",
-            "approval_id": approval.id,
-            "trust_score": trust_score,
-            "message": f"Medium trust source ({trust_score}). Approval required."
-        }
+        return IngestUrlResponse(
+            status="pending_approval",
+            approval_id=approval.id,
+            trust_score=trust_score,
+            message=f"Medium trust source ({trust_score}). Approval required."
+        )
     
     try:
         artifact_id = await ingestion_service.ingest_url(req.url, current_user)
@@ -96,17 +102,17 @@ async def ingest_url(
             criteria_met=True
         )
         
-        return {
-            "status": "ingested",
-            "artifact_id": artifact_id,
-            "url": req.url,
-            "trust_score": trust_score,
-            "verified": True
-        }
+        return IngestUrlResponse(
+            status="ingested",
+            artifact_id=artifact_id,
+            url=req.url,
+            trust_score=trust_score,
+            verified=True
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/file")
+@router.post("/file", response_model=IngestFileResponse)
 @verify_action("file_ingest", lambda data: data.get("filename", "unknown"))
 async def ingest_file(
     file: UploadFile = File(...),
@@ -123,18 +129,18 @@ async def ingest_file(
             actor=current_user
         )
         
-        return {
-            "status": "ingested",
-            "artifact_id": artifact_id,
-            "filename": file.filename,
-            "size": len(file_content)
-        }
+        return IngestFileResponse(
+            status="ingested",
+            artifact_id=artifact_id,
+            filename=file.filename,
+            size=len(file_content)
+        )
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/artifacts")
+@router.get("/artifacts", response_model=IngestArtifactsListResponse)
 async def list_artifacts(
     domain: str = None,
     artifact_type: str = None,
@@ -165,7 +171,7 @@ async def list_artifacts(
         query = query.limit(limit)
         result = await session.execute(query)
         
-        return [
+        artifacts = [
             {
                 "id": a.id,
                 "path": a.path,
@@ -178,3 +184,5 @@ async def list_artifacts(
             }
             for a in result.scalars().all()
         ]
+        
+        return IngestArtifactsListResponse(artifacts=artifacts, count=len(artifacts))
