@@ -1,4 +1,4 @@
-﻿"""
+"""
 Input Sentinel - Agentic Error Triage & Resolution Orchestration
 
 Autonomous agent that:
@@ -70,13 +70,13 @@ class InputSentinel:
     
     async def start(self):
         """Start the sentinel agent"""
-        print("🛡️ Starting Input Sentinel (Agentic Error Handler)...")
+        print("[SENTINEL] Starting Input Sentinel (Agentic Error Handler)...")
         
         # Subscribe to error events
-        await trigger_mesh.subscribe("error.detected", self._handle_error_detected)
-        await trigger_mesh.subscribe("governance.forbidden", self._handle_governance_block)
-        await trigger_mesh.subscribe("warning.raised", self._handle_warning)
-        await trigger_mesh.subscribe("agentic.action_completed", self._handle_action_completed)
+        trigger_mesh.subscribe("error.detected", self._handle_error_detected)
+        trigger_mesh.subscribe("governance.forbidden", self._handle_governance_block)
+        trigger_mesh.subscribe("warning.raised", self._handle_warning)
+        trigger_mesh.subscribe("agentic.action_completed", self._handle_action_completed)
         
         self.running = True
         print("[OK] Input Sentinel active - monitoring errors in real-time")

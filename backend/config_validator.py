@@ -1,4 +1,4 @@
-﻿"""
+"""
 Configuration Validator
 
 Startup checks for required settings and environment parity.
@@ -193,14 +193,14 @@ class ConfigValidator:
             True if all required config is valid, False otherwise
         """
         
-        print("\n🔍 Validating configuration...")
+        print("\n[CHECK] Validating configuration...")
         
         for item in self.CONFIG_SCHEMA:
             self._validate_item(item)
         
         # Print summary
         if self.errors:
-            print(f"\n❌ Configuration Errors ({len(self.errors)}):")
+            print(f"\n[ERROR] Configuration Errors ({len(self.errors)}):")
             for error in self.errors:
                 print(f"   - {error}")
         

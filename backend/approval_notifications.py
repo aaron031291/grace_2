@@ -1,4 +1,4 @@
-﻿"""
+"""
 Approval Notification System
 
 Server-Sent Events (SSE) and webhooks for real-time approval updates.
@@ -37,9 +37,9 @@ class ApprovalNotificationManager:
             return
         
         # Subscribe to approval-related events
-        await trigger_mesh.subscribe("approval.requested", self._handle_approval_requested)
-        await trigger_mesh.subscribe("approval.granted", self._handle_approval_granted)
-        await trigger_mesh.subscribe("approval.rejected", self._handle_approval_rejected)
+        trigger_mesh.subscribe("approval.requested", self._handle_approval_requested)
+        trigger_mesh.subscribe("approval.granted", self._handle_approval_granted)
+        trigger_mesh.subscribe("approval.rejected", self._handle_approval_rejected)
         
         self._running = True
         print("[OK] Approval notification manager started")
