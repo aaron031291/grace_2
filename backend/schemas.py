@@ -7,6 +7,47 @@ from pydantic import BaseModel, Field, RootModel
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 
+# ============ Execution Tracing ============
+
+class ExecutionStep(BaseModel):
+    """Single step in request execution pipeline"""
+    step_number: int = Field(description="Order in execution sequence")
+    component: str = Field(description="Which component handled this step", examples=["cognition_intent"])
+    action: str = Field(description="What action was performed", examples=["parse_intent"])
+    duration_ms: float = Field(description="Time spent in this step")
+    input_data: Optional[Dict[str, Any]] = Field(None, description="Input received by this step")
+    output_data: Optional[Dict[str, Any]] = Field(None, description="Output produced by this step")
+    data_source: Optional[str] = Field(None, description="Where input data came from", examples=["memory", "database", "api"])
+    cache_hit: bool = Field(False, description="Whether this step used cached data")
+    governance_checked: bool = Field(False, description="Whether governance approval was required")
+    error: Optional[str] = Field(None, description="Error if step failed")
+
+class ExecutionTrace(BaseModel):
+    """Complete execution trace showing data flow"""
+    request_id: str = Field(description="Unique request identifier")
+    total_duration_ms: float = Field(description="Total request processing time")
+    steps: List[ExecutionStep] = Field(description="Ordered list of execution steps")
+    data_sources_used: List[str] = Field(
+        description="All data sources accessed",
+        examples=[["memory", "knowledge_base", "code_understanding"]]
+    )
+    agents_involved: List[str] = Field(
+        description="All agentic components that participated",
+        examples=[["cognition", "grace_llm", "memory_pipeline"]]
+    )
+    governance_checks: int = Field(description="Number of governance approvals checked")
+    cache_hits: int = Field(description="Number of cache hits")
+    database_queries: int = Field(description="Number of database queries executed")
+    external_api_calls: int = Field(0, description="External API calls made")
+    
+class DataProvenance(BaseModel):
+    """Provenance tracking for data used in response"""
+    source_type: str = Field(description="Type of data source", examples=["memory", "knowledge", "database"])
+    source_id: Optional[str] = Field(None, description="Specific source identifier")
+    timestamp: str = Field(description="When data was retrieved")
+    confidence: float = Field(description="Confidence in data accuracy (0-1)")
+    verified: bool = Field(description="Whether data passed verification")
+    
 # ============ Health & Status ============
 
 class ServiceHealth(BaseModel):
@@ -142,6 +183,9 @@ class TaskResponse(BaseModel):
     auto_generated: bool
     created_at: datetime
     completed_at: Optional[datetime] = None
+    created_by: Optional[str] = Field(None, description="User or agent that created the task")
+    assigned_to: Optional[str] = Field(None, description="Agent currently working on task")
+    execution_trace: Optional[ExecutionTrace] = Field(None, description="Execution trace if task was created by agent")
     
     class Config:
         from_attributes = True
@@ -342,7 +386,7 @@ class ChatMetadata(BaseModel):
     agentic_hops: int = Field(0, description="Number of agentic reasoning steps")
 
 class ChatResponseEnhanced(BaseModel):
-    """Enhanced chat response with full traceability"""
+    """Enhanced chat response with full traceability and execution trace"""
     response: str = Field(description="Grace's response text", examples=["I can help you with that task..."])
     domain: Optional[str] = Field(None, description="Response domain context", examples=["code"])
     metadata: ChatMetadata = Field(description="Rich metadata about response generation")
@@ -363,16 +407,26 @@ class ChatResponseEnhanced(BaseModel):
         description="Files referenced in response",
         examples=[["backend/main.py", "frontend/src/App.tsx"]]
     )
+    execution_trace: Optional[ExecutionTrace] = Field(
+        None,
+        description="Detailed execution trace showing data flow through each step - invaluable for debugging"
+    )
+    data_provenance: List[DataProvenance] = Field(
+        default_factory=list,
+        description="Provenance of all data sources used in generating response"
+    )
 
 # ============ Generic Responses ============
 
 class SuccessResponse(BaseModel):
-    """Generic success response with optional data payload"""
+    """Generic success response with optional data payload and execution trace"""
     success: bool = Field(description="Whether operation succeeded", examples=[True])
     message: str = Field(description="Human-readable success message", examples=["Operation completed successfully"])
     data: Optional[Dict[str, Any]] = Field(None, description="Optional result data")
     operation_id: Optional[str] = Field(None, description="Operation tracking ID")
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat(), description="ISO timestamp")
+    execution_trace: Optional[ExecutionTrace] = Field(None, description="Execution path trace for debugging")
+    data_provenance: List[DataProvenance] = Field(default_factory=list, description="Where data came from")
 
 class ErrorResponse(BaseModel):
     """Detailed error response with debugging information"""
