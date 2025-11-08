@@ -1,4 +1,4 @@
-﻿"""
+"""
 Cognition API Routes - Central Authority for Intent & Planning
 
 Exposes cognition domain as the decision-making authority:
@@ -19,6 +19,11 @@ from ..cognition_intent import cognition_authority, CognitionIntent
 from ..capability_registry import capability_registry
 from ..auth import get_current_user
 from ..models import async_session
+from ..schemas import (
+    CognitionIntentParseResponse, CognitionExecuteResponse, CognitionSessionResponse,
+    CognitionRecentIntentsResponse, CognitionCapabilitiesResponse, CognitionLLMToolsResponse,
+    CognitionStatusResponse
+)
 
 router = APIRouter(prefix="/api/cognition", tags=["cognition"])
 
@@ -47,7 +52,7 @@ class ExecuteRequest(BaseModel):
 
 # ============= Intent Endpoints =============
 
-@router.post("/intent/parse")
+@router.post("/intent/parse", response_model=CognitionIntentParseResponse)
 async def parse_intent(
     req: IntentRequest,
     user=Depends(get_current_user)
@@ -73,7 +78,7 @@ async def parse_intent(
     }
 
 
-@router.post("/intent/execute")
+@router.post("/intent/execute", response_model=CognitionExecuteResponse)
 async def execute_intent(
     req: ExecuteRequest,
     user=Depends(get_current_user)
@@ -134,7 +139,7 @@ async def process_request(
 
 # ============= Session & History =============
 
-@router.get("/session/{session_id}")
+@router.get("/session/{session_id}", response_model=CognitionSessionResponse)
 async def get_session_status(
     session_id: str,
     user=Depends(get_current_user)
@@ -172,7 +177,7 @@ async def get_session_status(
         }
 
 
-@router.get("/intents/recent")
+@router.get("/intents/recent", response_model=CognitionRecentIntentsResponse)
 async def get_recent_intents(
     limit: int = 20,
     user=Depends(get_current_user)
@@ -207,7 +212,7 @@ async def get_recent_intents(
 
 # ============= Capabilities =============
 
-@router.get("/capabilities")
+@router.get("/capabilities", response_model=CognitionCapabilitiesResponse)
 async def list_capabilities():
     """
     List all available capabilities.
@@ -222,7 +227,7 @@ async def list_capabilities():
     }
 
 
-@router.get("/capabilities/llm-tools")
+@router.get("/capabilities/llm-tools", response_model=CognitionLLMToolsResponse)
 async def get_llm_tools():
     """
     Get capabilities in OpenAI function calling format.
@@ -238,7 +243,7 @@ async def get_llm_tools():
 
 # ============= Status & Monitoring =============
 
-@router.get("/status")
+@router.get("/status", response_model=CognitionStatusResponse)
 async def get_cognition_status():
     """Get cognition system status"""
     

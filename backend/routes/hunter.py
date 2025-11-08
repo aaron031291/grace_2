@@ -4,10 +4,11 @@ from sqlalchemy.sql import func
 from ..governance_models import SecurityEvent, SecurityRule
 from ..models import async_session
 from ..auth import get_current_user
+from ..schemas import HunterAlertsResponse, HunterResolveResponse, HunterRulesResponse, HunterRuleUpdateResponse
 
 router = APIRouter(prefix="/api/hunter", tags=["hunter"])
 
-@router.get("/alerts")
+@router.get("/alerts", response_model=HunterAlertsResponse)
 async def list_alerts(status: str = None, limit: int = 50):
     async with async_session() as session:
         query = select(SecurityEvent).order_by(SecurityEvent.created_at.desc()).limit(limit)
@@ -27,7 +28,7 @@ async def list_alerts(status: str = None, limit: int = 50):
             for ev in result.scalars().all()
         ]
 
-@router.post("/alerts/{alert_id}/resolve")
+@router.post("/alerts/{alert_id}/resolve", response_model=HunterResolveResponse)
 async def resolve_alert(
     alert_id: int,
     status: str,
@@ -46,7 +47,7 @@ async def resolve_alert(
     
     return {"status": event.status}
 
-@router.get("/rules")
+@router.get("/rules", response_model=HunterRulesResponse)
 async def list_rules():
     async with async_session() as session:
         result = await session.execute(select(SecurityRule))
@@ -64,7 +65,7 @@ async def list_rules():
             for r in result.scalars().all()
         ]
 
-@router.patch("/rules/{rule_id}")
+@router.patch("/rules/{rule_id}", response_model=HunterRuleUpdateResponse)
 async def update_rule(
     rule_id: int,
     enabled: bool = None,

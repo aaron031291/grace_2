@@ -757,3 +757,243 @@ class CognitionStatusResponse(BaseModel):
     success_rate: float
     capabilities_registered: int
     status: str
+
+# ============ Coding Agent API ============
+
+class CodeParseResponse(BaseModel):
+    status: str
+    result: Dict[str, Any]
+    timestamp: str
+
+class CodeContextResponse(BaseModel):
+    status: str
+    context: Dict[str, Any]
+    timestamp: str
+
+class CodeSuggestionsResponse(BaseModel):
+    status: str
+    suggestions: List[Dict[str, Any]]
+    context: Dict[str, Any]
+    timestamp: str
+
+class CodeIntentResponse(BaseModel):
+    status: str
+    intent: Dict[str, Any]
+    timestamp: str
+
+class CodeGenerateResponse(BaseModel):
+    status: str
+    result: Dict[str, Any]
+    timestamp: str
+
+class CodeTaskResponse(BaseModel):
+    status: str
+    task: Dict[str, Any]
+    plan: Dict[str, Any]
+    message: str
+    timestamp: str
+
+class CodeTaskProgressResponse(BaseModel):
+    status: str
+    progress: Dict[str, Any]
+    timestamp: str
+
+class CodeRelatedResponse(BaseModel):
+    status: str
+    related: List[Dict[str, Any]]
+    timestamp: str
+
+class CodePatternsResponse(BaseModel):
+    status: str
+    patterns: List[Dict[str, Any]]
+    count: int
+    timestamp: str
+
+class CodeOrchestrationPlanResponse(BaseModel):
+    status: str
+    plan: Dict[str, Any]
+    timestamp: str
+
+class CodeOrchestrationExecuteResponse(BaseModel):
+    status: str
+    result: Dict[str, Any]
+    timestamp: str
+
+# ============ Hunter API ============
+
+class HunterAlertResponse(BaseModel):
+    id: int
+    timestamp: Optional[str] = None
+    severity: str
+    rule_name: str
+    action_taken: str
+    details: str
+    user_id: Optional[str] = None
+
+class HunterAlertsResponse(BaseModel):
+    __root__: List[HunterAlertResponse]
+
+class HunterResolveResponse(BaseModel):
+    status: str
+
+class HunterRuleResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    severity: str
+    enabled: bool
+    pattern: str
+    action: str
+    created_at: Optional[str] = None
+
+class HunterRulesResponse(BaseModel):
+    __root__: List[HunterRuleResponse]
+
+class HunterRuleUpdateResponse(BaseModel):
+    id: int
+    enabled: bool
+
+# ============ Immutable Log API ============
+
+class ImmutableLogEntriesResponse(BaseModel):
+    entries: List[Dict[str, Any]]
+    count: int
+
+class ImmutableLogVerifyResponse(BaseModel):
+    success: bool
+    valid: Optional[bool] = None
+    errors: Optional[List[str]] = None
+    verified_range: Optional[Dict[str, int]] = None
+
+# ============ Temporal API ============
+
+class TemporalPredictionResponse(BaseModel):
+    predictions: List[Dict[str, Any]]
+    discovered_patterns: List[Dict[str, Any]]
+    timestamp: str
+
+class TemporalSimulationResponse(BaseModel):
+    simulation_result: Dict[str, Any]
+    action: Dict[str, Any]
+    iterations: int
+    timestamp: str
+
+class TemporalPatternsResponse(BaseModel):
+    period: str
+    active_patterns: List[Dict[str, Any]]
+    historical_patterns: List[Dict[str, Any]]
+
+class TemporalPlanResponse(BaseModel):
+    plan: Dict[str, Any]
+    goal: str
+    timestamp: str
+
+class TemporalDurationEstimateResponse(BaseModel):
+    task_type: Optional[str] = None
+    estimate: Dict[str, Any]
+    source: str
+
+class TemporalDurationsResponse(BaseModel):
+    estimates: List[Dict[str, Any]]
+
+class TemporalAnomaliesResponse(BaseModel):
+    recent_anomalies: List[Dict[str, Any]]
+    historical_anomalies: List[Dict[str, Any]]
+
+class TemporalPeakLoadResponse(BaseModel):
+    next_peak: Optional[str] = None
+    patterns: List[Dict[str, Any]]
+    recommendation: str
+
+class TemporalPreventiveActionsResponse(BaseModel):
+    suggestions: List[Dict[str, Any]]
+    timestamp: str
+
+class TemporalScenariosResponse(BaseModel):
+    comparison: Dict[str, Any]
+    timestamp: str
+
+class TemporalSimulationDetailResponse(BaseModel):
+    id: int
+    scenario: str
+    parameters: Optional[Dict[str, Any]] = None
+    predicted_outcome: Optional[Dict[str, Any]] = None
+    actual_outcome: Optional[Dict[str, Any]] = None
+    accuracy_score: Optional[float] = None
+    created_at: str
+
+class TemporalActualOutcomeResponse(BaseModel):
+    success: bool
+    comparison: Dict[str, Any]
+
+# ============ Learning API ============
+
+class LearningAggregatesResponse(BaseModel):
+    bucket: str
+    time_range: str
+    total_runs: int
+    overall_success_rate: float
+    by_status: Dict[str, int]
+    by_playbook: Dict[str, Dict[str, Any]]
+    by_service: Dict[str, Dict[str, Any]]
+    playbook_rankings: List[Dict[str, Any]]
+    recent_trends: List[Dict[str, Any]]
+    metadata: Dict[str, Any]
+
+class LearningOutcomesResponse(BaseModel):
+    outcomes: List[Dict[str, Any]]
+    count: int
+    service_filter: Optional[str] = None
+
+# ============ Health Routes (Extended) ============
+
+class HealthCheckItemResponse(BaseModel):
+    component: str
+    status: str
+    latency_ms: Optional[float] = None
+    error: Optional[str] = None
+    at: Optional[datetime] = None
+
+class HealingActionItemResponse(BaseModel):
+    component: str
+    action: str
+    result: str
+    detail: Optional[str] = None
+    at: Optional[datetime] = None
+
+class HealthStatusResponse(BaseModel):
+    system_mode: str
+    mode_reason: Optional[str] = None
+    mode_changed: Optional[datetime] = None
+    checks: List[HealthCheckItemResponse]
+    actions: List[HealingActionItemResponse]
+
+class HealthRestartResponse(BaseModel):
+    success: bool
+    message: str
+    component: str
+
+class HealthModeResponse(BaseModel):
+    mode: str
+    reason: Optional[str] = None
+    changed_at: Optional[datetime] = None
+
+class HealthModeSetResponse(BaseModel):
+    status: str
+    mode: Optional[str] = None
+    reason: Optional[str] = None
+    decision: Optional[str] = None
+
+# ============ Verification Routes (Additional) ============
+
+class VerificationSmokeTestResponse(BaseModel):
+    success: bool
+    tests_run: int
+    tests_passed: int
+    duration: float
+
+class VerificationRegressionResponse(BaseModel):
+    success: bool
+    drift_detected: bool
+    baseline_compared: bool
+    results: Dict[str, Any]
