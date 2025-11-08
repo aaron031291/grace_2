@@ -1,5 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { http, setAuthToken } from './api/client';
+import { 
+  fetchMemoryTree, 
+  fetchTasks, 
+  createTask as apiCreateTask,
+  updateTaskStatus,
+  fetchActiveSubagents,
+  type MemoryArtifact,
+  type TaskItem
+} from './api/grace';
 import './GraceHybrid.css';
 
 interface Message {
@@ -8,24 +17,6 @@ interface Message {
   content: string;
   timestamp: Date;
   domain?: string;
-}
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  created_at: string;
-}
-
-interface MemoryItem {
-  id: number;
-  path: string;
-  domain: string;
-  category: string;
-  status: string;
-  updated_at: string;
 }
 
 interface Subagent {
@@ -53,8 +44,8 @@ export default function GraceHybrid() {
   const [showAgents, setShowAgents] = useState(true);
   
   // Data
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [memoryItems, setMemoryItems] = useState<MemoryArtifact[]>([]);
   const [subagents, setSubagents] = useState<Subagent[]>([]);
   const [activeModel, setActiveModel] = useState('grace-default');
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -80,12 +71,14 @@ export default function GraceHybrid() {
 
   const loadData = async () => {
     try {
-      const [tasksData, memoryData] = await Promise.all([
-        http.get<Task[]>('/api/tasks/').catch(() => []),
-        http.get<{flat_list: MemoryItem[]}>('/api/memory/tree').then(d => d.flat_list).catch(() => [])
+      const [tasksData, memoryData, agentsData] = await Promise.all([
+        fetchTasks().catch(() => []),
+        fetchMemoryTree().then(d => d.flat_list).catch(() => []),
+        fetchActiveSubagents().then(d => Object.values(d.agents)).catch(() => [])
       ]);
       setTasks(tasksData);
       setMemoryItems(memoryData);
+      setSubagents(agentsData);
     } catch (error) {
       console.error('Failed to load data:', error);
     }
@@ -195,7 +188,7 @@ export default function GraceHybrid() {
     if (!title) return;
     
     try {
-      await http.post('/api/tasks/', { title, priority: 'medium' });
+      await apiCreateTask({ title, priority: 'medium' });
       loadData();
     } catch (error) {
       alert('Failed to create task');
@@ -204,7 +197,7 @@ export default function GraceHybrid() {
 
   const completeTask = async (taskId: number) => {
     try {
-      await http.patch(`/api/tasks/${taskId}`, { status: 'completed' });
+      await updateTaskStatus(taskId, { status: 'completed' });
       loadData();
     } catch (error) {
       alert('Failed to update task');
