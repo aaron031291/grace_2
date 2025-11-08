@@ -5,7 +5,7 @@ Ensures proper API documentation and type safety
 
 from pydantic import BaseModel, Field, RootModel
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ============ Health & Status ============
 
@@ -326,23 +326,74 @@ class CodeGenerationResponse(BaseModel):
     governance_verdict: str
     suggestions: List[str]
 
+# ============ Chat ============
+
+class ChatMetadata(BaseModel):
+    """Rich metadata about chat response generation"""
+    operation_id: str = Field(description="Unique operation identifier")
+    duration_ms: float = Field(description="Response generation time in milliseconds")
+    user_memory_id: Optional[int] = Field(None, description="Memory ID for user message")
+    grace_memory_id: Optional[int] = Field(None, description="Memory ID for Grace response")
+    intent_detected: Optional[str] = Field(None, description="Detected user intent type")
+    intent_confidence: Optional[float] = Field(None, description="Confidence in intent detection (0-1)")
+    agents_consulted: List[str] = Field(default_factory=list, description="Which agents were involved")
+    memory_items_retrieved: int = Field(0, description="Number of memory items used for context")
+    governance_checks: int = Field(0, description="Number of governance checks performed")
+    agentic_hops: int = Field(0, description="Number of agentic reasoning steps")
+
+class ChatResponseEnhanced(BaseModel):
+    """Enhanced chat response with full traceability"""
+    response: str = Field(description="Grace's response text", examples=["I can help you with that task..."])
+    domain: Optional[str] = Field(None, description="Response domain context", examples=["code"])
+    metadata: ChatMetadata = Field(description="Rich metadata about response generation")
+    degraded: bool = Field(False, description="Whether response used fallback/degraded mode")
+    request_id: Optional[str] = Field(None, description="Request tracking ID")
+    suggestions: List[str] = Field(
+        default_factory=list, 
+        description="Follow-up suggestions or actions",
+        examples=[["Would you like me to create a task?", "I can show you related code examples"]]
+    )
+    code_snippets: List[Dict[str, str]] = Field(
+        default_factory=list,
+        description="Any code snippets generated",
+        examples=[[{"language": "python", "code": "def example():\n    pass"}]]
+    )
+    files_referenced: List[str] = Field(
+        default_factory=list,
+        description="Files referenced in response",
+        examples=[["backend/main.py", "frontend/src/App.tsx"]]
+    )
+
 # ============ Generic Responses ============
 
 class SuccessResponse(BaseModel):
-    success: bool
-    message: str
-    data: Optional[Dict[str, Any]] = None
+    """Generic success response with optional data payload"""
+    success: bool = Field(description="Whether operation succeeded", examples=[True])
+    message: str = Field(description="Human-readable success message", examples=["Operation completed successfully"])
+    data: Optional[Dict[str, Any]] = Field(None, description="Optional result data")
+    operation_id: Optional[str] = Field(None, description="Operation tracking ID")
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat(), description="ISO timestamp")
 
 class ErrorResponse(BaseModel):
-    error: str
-    message: str
-    details: Optional[Dict[str, Any]] = None
-    request_id: Optional[str] = None
+    """Detailed error response with debugging information"""
+    error: str = Field(description="Error type/code", examples=["validation_error"])
+    message: str = Field(description="Human-readable error message", examples=["Invalid input provided"])
+    details: Optional[Dict[str, Any]] = Field(None, description="Additional error context")
+    request_id: Optional[str] = Field(None, description="Request tracking ID for debugging")
+    suggestions: List[str] = Field(
+        default_factory=list,
+        description="Suggestions to fix the error",
+        examples=[["Check your input format", "Ensure all required fields are provided"]]
+    )
+    documentation_url: Optional[str] = Field(None, description="Link to relevant documentation")
 
 class StatusResponse(BaseModel):
-    status: str
-    timestamp: datetime
-    metrics: Optional[Dict[str, Any]] = None
+    """Generic status response with metrics"""
+    status: str = Field(description="Current status", examples=["active"])
+    timestamp: datetime = Field(description="Status check timestamp")
+    metrics: Optional[Dict[str, Any]] = Field(None, description="Status metrics")
+    healthy: bool = Field(True, description="Whether status is healthy")
+    warnings: List[str] = Field(default_factory=list, description="Any warnings or issues")
 
 # ============ Additional Responses ============
 
