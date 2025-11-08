@@ -236,7 +236,7 @@ class MetaCoordinatedHealing:
                     ml_advice = await self._request_ml_advice(focus)
                     
                     print(f"  [AI] ML Root Causes: {ml_advice.root_cause_candidates[:2]}")
-                    print(f"  📊 Top Playbook: {ml_advice.ranked_playbooks[0] if ml_advice.ranked_playbooks else 'none'}")
+                    print(f"  [STATS] Top Playbook: {ml_advice.ranked_playbooks[0] if ml_advice.ranked_playbooks else 'none'}")
                     
                     # STEP 4: Issue directive to agentic planner
                     if ml_advice.recommendations:
