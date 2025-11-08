@@ -18,11 +18,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..auth import get_current_user
 from ..models import async_session
 from ..settings import settings
+from ..schemas import LearningAggregatesResponse, LearningOutcomesResponse
 
 router = APIRouter(prefix="/api/self_heal", tags=["self-heal-learning"])
 
 
-@router.get("/learning")
+@router.get("/learning", response_model=LearningAggregatesResponse)
 async def get_learning_aggregates(
     time_bucket: str = Query("24h", description="Time bucket: all, 24h, 7d"),
     service: Optional[str] = Query(None, description="Filter by service"),
@@ -202,7 +203,7 @@ async def get_learning_aggregates(
         }
 
 
-@router.get("/learning/outcomes")
+@router.get("/learning/outcomes", response_model=LearningOutcomesResponse)
 async def get_learning_outcomes(
     limit: int = Query(50, le=500),
     service: Optional[str] = None,

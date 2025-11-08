@@ -7,6 +7,12 @@ from ..models import async_session
 from ..temporal_reasoning import temporal_reasoner
 from ..simulation_engine import simulation_engine
 from ..temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly
+from ..schemas import (
+    TemporalPredictionResponse, TemporalSimulationResponse, TemporalPatternsResponse,
+    TemporalPlanResponse, TemporalDurationEstimateResponse, TemporalDurationsResponse,
+    TemporalAnomaliesResponse, TemporalPeakLoadResponse, TemporalPreventiveActionsResponse,
+    TemporalScenariosResponse, TemporalSimulationDetailResponse, TemporalActualOutcomeResponse
+)
 
 router = APIRouter(prefix="/api/temporal", tags=["temporal"])
 
@@ -25,7 +31,7 @@ class PlanRequest(BaseModel):
 class ScenarioComparisonRequest(BaseModel):
     scenarios: List[Dict[str, Any]]
 
-@router.post("/predict")
+@router.post("/predict", response_model=TemporalPredictionResponse)
 async def predict_next_events(request: PredictRequest):
     """Predict what events are likely to happen next"""
     try:
@@ -46,7 +52,7 @@ async def predict_next_events(request: PredictRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/simulate")
+@router.post("/simulate", response_model=TemporalSimulationResponse)
 async def simulate_action(request: SimulateRequest):
     """Run Monte Carlo simulation of proposed action"""
     try:
@@ -64,7 +70,7 @@ async def simulate_action(request: SimulateRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/patterns")
+@router.get("/patterns", response_model=TemporalPatternsResponse)
 async def get_recurring_patterns(period: str = "daily"):
     """Get recurring temporal patterns"""
     try:
@@ -96,7 +102,7 @@ async def get_recurring_patterns(period: str = "daily"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/plan")
+@router.post("/plan", response_model=TemporalPlanResponse)
 async def plan_for_goal(request: PlanRequest):
     """Find action sequence to achieve goal"""
     try:
@@ -113,7 +119,7 @@ async def plan_for_goal(request: PlanRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/durations")
+@router.get("/durations", response_model=TemporalDurationsResponse)
 async def get_duration_estimates(task_type: Optional[str] = None):
     """Get task duration estimates"""
     try:
@@ -164,7 +170,7 @@ async def get_duration_estimates(task_type: Optional[str] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/anomalies")
+@router.get("/anomalies", response_model=TemporalAnomaliesResponse)
 async def get_timing_anomalies(hours: int = 24):
     """Detect anomalous timing events"""
     try:
@@ -199,7 +205,7 @@ async def get_timing_anomalies(hours: int = 24):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/peak-load")
+@router.get("/peak-load", response_model=TemporalPeakLoadResponse)
 async def predict_peak_load():
     """Predict when system will be busiest"""
     try:
@@ -215,7 +221,7 @@ async def predict_peak_load():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/preventive-actions")
+@router.get("/preventive-actions", response_model=TemporalPreventiveActionsResponse)
 async def get_preventive_actions():
     """Get suggested preventive actions based on patterns"""
     try:
@@ -230,7 +236,7 @@ async def get_preventive_actions():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/compare-scenarios")
+@router.post("/compare-scenarios", response_model=TemporalScenariosResponse)
 async def compare_scenarios(request: ScenarioComparisonRequest):
     """Compare multiple scenarios and recommend best"""
     try:
@@ -243,7 +249,7 @@ async def compare_scenarios(request: ScenarioComparisonRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/simulations/{simulation_id}")
+@router.get("/simulations/{simulation_id}", response_model=TemporalSimulationDetailResponse)
 async def get_simulation(simulation_id: int):
     """Get a specific simulation result"""
     try:
@@ -270,7 +276,7 @@ async def get_simulation(simulation_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/simulations/{simulation_id}/actual")
+@router.post("/simulations/{simulation_id}/actual", response_model=TemporalActualOutcomeResponse)
 async def record_actual_outcome(simulation_id: int, actual_outcome: Dict[str, Any]):
     """Record actual outcome and compare with prediction"""
     try:

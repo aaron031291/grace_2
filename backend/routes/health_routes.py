@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import select
 from datetime import datetime
@@ -6,6 +6,7 @@ from ..governance_models import HealthCheck, HealingAction
 from ..models import async_session
 from ..auth import get_current_user
 from ..self_healing import health_monitor, system_state
+from ..schemas import HealthStatusResponse, HealthRestartResponse, HealthModeResponse, HealthModeSetResponse
 
 router = APIRouter(prefix="/api/health", tags=["health"])
 
