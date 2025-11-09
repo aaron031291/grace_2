@@ -133,6 +133,24 @@ if (-not (Test-Path ".env")) {
     Write-Host "[OK] .env created (add API keys later)" -ForegroundColor Green
 }
 
+# ============================================================================
+# PRE-FLIGHT SELF-HEALING
+# ============================================================================
+Write-Host ""
+Write-Host "========================================================================" -ForegroundColor Cyan
+Write-Host "STARTUP SELF-HEALING - Checking for issues before boot" -ForegroundColor Cyan
+Write-Host "========================================================================" -ForegroundColor Cyan
+Write-Host ""
+
+.venv\Scripts\python.exe backend\startup_healer.py
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ""
+    Write-Host "[WARNING] Startup healing found issues" -ForegroundColor Yellow
+    Write-Host "[INFO] Grace will attempt to start anyway..." -ForegroundColor Yellow
+    Write-Host ""
+}
+
 # Create directories
 $dirs = @("logs", "databases", "storage", "ml_artifacts", "reports")
 foreach ($dir in $dirs) {
