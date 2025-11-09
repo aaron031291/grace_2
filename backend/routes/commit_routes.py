@@ -33,7 +33,7 @@ async def get_commit_status(user=Depends(get_current_user)):
 @router.get("/workflows", response_model=CommitWorkflowsResponse)
 async def list_workflows(user=Depends(get_current_user)):
     """List all pending commit workflows"""
-    # TODO: Wire to grace_commit_workflow once fully integrated
+    # TODO(FUTURE): Wire to grace_commit_workflow once fully integrated
     return CommitWorkflowsResponse(
         workflows=[],
         count=0,

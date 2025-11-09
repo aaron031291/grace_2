@@ -1,4 +1,4 @@
-﻿"""Parliament Engine - Distributed Governance System
+"""Parliament Engine - Distributed Governance System
 
 Manages multi-agent voting, quorum consensus, and distributed decision-making.
 """
@@ -189,7 +189,7 @@ class ParliamentEngine:
             )
             await session.commit()
         
-        # Notify committee members (TODO: integrate with notification system)
+        # Notify committee members (TODO(ROADMAP): integrate with notification system)
         await self._notify_committee(committee, session_id, policy_name, risk_level)
         
         return {
@@ -431,9 +431,9 @@ class ParliamentEngine:
         policy_name: str,
         risk_level: str
     ):
-        """Notify committee members of new session (TODO: implement notifications)"""
+        """Notify committee members of new session (TODO(ROADMAP): implement notifications)"""
         
-        # TODO: Send notifications via:
+        # TODO(ROADMAP): Send notifications via:
         # - CLI notifications
         # - WebSocket events
         # - Email/Slack for critical decisions

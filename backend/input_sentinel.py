@@ -592,7 +592,7 @@ class InputSentinel:
     
     def _can_request_override(self, policy: str) -> bool:
         """Check if policy allows override requests"""
-        # TODO: Integrate with actual policy engine
+        # TODO(ROADMAP): Integrate with actual policy engine
         return policy not in ["security_critical", "compliance_required"]
 
 

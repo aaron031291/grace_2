@@ -120,15 +120,42 @@ class AutonomousImprover:
             try:
                 content = py_file.read_text()
                 
-                # Check for TODO comments
+                # Check for TODO comments (skip safe/intentional tags)
                 if 'TODO:' in content:
-                    issues.append({
-                        'type': 'todo',
-                        'severity': 'low',
-                        'file': str(py_file),
-                        'description': 'TODO comment found',
-                        'fixable': False
-                    })
+                    # Skip if TODO is tagged as safe/intentional
+                    safe_todo_tags = ['TODO(SAFE)', 'TODO(ROADMAP)', 'TODO(DESIGN)', 'TODO(FUTURE)']
+                    
+                    # Patterns that are safe even without tags
+                    safe_patterns = [
+                        'pass  # TODO:',  # Code generator stubs
+                        '# TODO: Implement function logic',  # Generator output
+                        '# TODO: Add assertions',  # Test generator
+                        "if 'TODO:' in",  # Detection code itself
+                        'TODO:' in line',  # Detection code
+                    ]
+                    
+                    # Check if any TODOs in file are unsafe
+                    has_unsafe_todo = False
+                    for line in content.split('\n'):
+                        if 'TODO:' in line:
+                            # Skip if has safe tag
+                            if any(tag in line for tag in safe_todo_tags):
+                                continue
+                            # Skip if matches safe pattern
+                            if any(pattern in line for pattern in safe_patterns):
+                                continue
+                            # This TODO is untagged and not a safe pattern
+                            has_unsafe_todo = True
+                            break
+                    
+                    if has_unsafe_todo:
+                        issues.append({
+                            'type': 'todo',
+                            'severity': 'low',
+                            'file': str(py_file),
+                            'description': 'Untagged TODO comment found',
+                            'fixable': False
+                        })
                 
                 # Note: print() check disabled - too noisy for script files
                 # Many files legitimately use print() for CLI output

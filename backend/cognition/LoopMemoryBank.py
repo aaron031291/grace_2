@@ -1,4 +1,4 @@
-﻿"""Unified Memory API with Trust Semantics
+"""Unified Memory API with Trust Semantics
 
 Manages memory storage, retrieval, and garbage collection with trust-based ranking.
 """
@@ -312,7 +312,7 @@ class LoopMemoryBank:
                     trust_score = decay_result.decayed_score
                 
                 # Compute relevance (simplified - could use vector similarity)
-                relevance_score = 1.0  # TODO: Implement semantic relevance
+                relevance_score = 1.0  # TODO(FUTURE): Implement semantic relevance
                 
                 # Compute recency score
                 age_hours = (now - artifact.created_at).total_seconds() / 3600

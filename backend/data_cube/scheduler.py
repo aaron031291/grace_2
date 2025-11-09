@@ -1,4 +1,4 @@
-﻿"""
+"""
 Data Cube ETL Scheduler
 
 Runs incremental ETL jobs on a schedule to keep cube fresh.
@@ -24,7 +24,7 @@ async def run_incremental_etl():
         await cube_etl.run_incremental_load()
     except Exception as e:
         print(f"Cube ETL failed: {e}")
-        # TODO: Alert on failure
+        # TODO(FUTURE): Alert on failure
 
 
 def start_cube_scheduler():

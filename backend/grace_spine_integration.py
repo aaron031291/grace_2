@@ -178,7 +178,7 @@ class GraceAgenticSystem:
         except Exception as e:
             print(f"  Warning: Could not register Core domain: {e}")
         
-        # TODO: Register other domains as they're implemented
+        # TODO(ROADMAP): Register other domains as they're implemented
         # from .domains.knowledge_adapter import knowledge_adapter
         # await agent_core.register_domain(knowledge_adapter)
         

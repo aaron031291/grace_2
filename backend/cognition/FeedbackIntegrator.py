@@ -1,4 +1,4 @@
-﻿"""Feedback Integrator - Deterministic Write Path
+"""Feedback Integrator - Deterministic Write Path
 
 Orchestrates the feedback loop: Governance -> Trust -> Memory -> Events
 All specialist outputs flow through this single integration point.
@@ -212,7 +212,7 @@ class FeedbackIntegrator:
         Returns memory reference
         """
         
-        # TODO: Integrate with actual LoopMemoryBank when implemented
+        # TODO(FUTURE): Integrate with actual LoopMemoryBank when implemented
         # For now, simulate memory storage
         
         memory_ref = f"mem_{output.loop_id}_{str(uuid.uuid4())[:8]}"

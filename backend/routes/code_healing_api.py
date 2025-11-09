@@ -28,7 +28,7 @@ async def get_healing_status() -> Dict[str, Any]:
 @router.post("/approve")
 async def approve_fix(request: ApprovalRequest) -> Dict[str, str]:
     """Approve or reject a proposed code fix"""
-    # TODO: Implement approval workflow
+    # TODO(FUTURE): Implement approval workflow
     # For now, return placeholder
     return {
         "fix_id": request.fix_id,
@@ -40,7 +40,7 @@ async def approve_fix(request: ApprovalRequest) -> Dict[str, str]:
 @router.get("/fixes/pending")
 async def get_pending_fixes() -> Dict[str, Any]:
     """Get list of pending fix approvals"""
-    # TODO: Implement pending fixes tracking
+    # TODO(FUTURE): Implement pending fixes tracking
     return {
         "pending_fixes": [],
         "count": 0
@@ -50,7 +50,7 @@ async def get_pending_fixes() -> Dict[str, Any]:
 @router.get("/fixes/history")
 async def get_fix_history(limit: int = 50) -> Dict[str, Any]:
     """Get history of applied fixes"""
-    # TODO: Query from immutable log
+    # TODO(FUTURE): Query from immutable log
     return {
         "fixes": [],
         "count": 0,

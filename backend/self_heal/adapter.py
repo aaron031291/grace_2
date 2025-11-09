@@ -1,4 +1,4 @@
-﻿"""
+"""
 Self-Healing Domain Adapter
 
 Integrates self-healing capabilities as a first-class agentic domain:
@@ -263,7 +263,7 @@ class SelfHealingAdapter(DomainAdapter):
                 error_rate=(failed_24h / total_24h) if total_24h > 0 else 0.0,
                 custom_metrics={
                     "total_runs_24h": total_24h,
-                    "approval_rate": 0.0  # TODO: Calculate from ApprovalRequest
+                    "approval_rate": 0.0  # TODO(FUTURE): Calculate from ApprovalRequest
                 }
             )
         

@@ -56,7 +56,7 @@ async def get_active_runs():
     """Get all active agent runs"""
     
     # For MVP, return mock data
-    # TODO: Integrate with actual agentic_spine run tracking
+    # TODO(FUTURE): Integrate with actual agentic_spine run tracking
     
     return [
         AgentRun(
@@ -77,7 +77,7 @@ async def get_run_timeline(run_id: str):
     """Get detailed timeline for a specific run"""
     
     # For MVP, return mock data
-    # TODO: Integrate with agentic_spine timeline table
+    # TODO(FUTURE): Integrate with agentic_spine timeline table
     
     if run_id != "run_startup_001":
         raise HTTPException(status_code=404, detail="Run not found")
@@ -145,7 +145,7 @@ async def create_run(trigger: str, subsystem: str):
         subsystem=subsystem
     )
     
-    # TODO: Store in database
+    # TODO(FUTURE): Store in database
     
     return run
 
@@ -154,7 +154,7 @@ async def create_run(trigger: str, subsystem: str):
 async def add_timeline_step(run_id: str, step: TimelineStep):
     """Add step to run timeline"""
     
-    # TODO: Store in timeline table
+    # TODO(FUTURE): Store in timeline table
     
     return {"success": True, "step_id": step.step_id}
 
@@ -163,6 +163,6 @@ async def add_timeline_step(run_id: str, step: TimelineStep):
 async def complete_run(run_id: str, status: str):
     """Mark run as complete"""
     
-    # TODO: Update run status in database
+    # TODO(FUTURE): Update run status in database
     
     return {"success": True, "run_id": run_id, "status": status}

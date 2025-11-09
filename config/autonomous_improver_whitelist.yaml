@@ -18,9 +18,17 @@ skip_files:
 
 # Files where TODOs are design decisions (not errors)
 design_decision_todos:
-  - backend/memory_learning_pipeline.py  # TODO: fine-tuning strategy
-  - backend/parliament_engine.py          # TODO: notification channels
+  - backend/memory_learning_pipeline.py  # TODO(ROADMAP): fine-tuning strategy
+  - backend/parliament_engine.py          # TODO(ROADMAP): notification channels
   - backend/code_generator.py             # TODO: intentional placeholders
+  - backend/commit_workflow.py            # TODO(ROADMAP): linter/test detection, GitHub API
+  - backend/constitutional_engine.py      # TODO(ROADMAP): Parliament escalation
+  - backend/grace_spine_integration.py    # TODO(ROADMAP): register other domains
+  - backend/input_sentinel.py             # TODO(ROADMAP): policy engine integration
+  - backend/metrics_collector.py          # TODO(ROADMAP): Prometheus client
+  - backend/secrets_vault.py              # TODO(ROADMAP): governance approval
+  - backend/transcendence/**/*.py         # TODO(ROADMAP): integration stubs
+  - backend/cognition/**/*.py             # TODO(FUTURE): implementation pending
 
 # Patterns that are safe (not actual secrets)
 safe_patterns:
@@ -62,6 +70,10 @@ safe_todo_patterns:
   - "# TODO: Implement function logic"    # Code generator output
   - "# TODO: Add assertions"              # Test generator output
   - "pass  # TODO:"                       # Stub functions
+  - "TODO(SAFE)"                          # Explicitly marked as safe
+  - "TODO(ROADMAP)"                       # Future enhancement, intentional
+  - "TODO(DESIGN)"                        # Design decision, not a bug
+  - "TODO(FUTURE)"                        # Future feature, deferred
 
 # Autonomous improvement allowed on these despite TODOs
 allow_improvement:

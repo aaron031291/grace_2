@@ -1,4 +1,4 @@
-﻿"""Integration Hub - Connect Grace to Everything
+"""Integration Hub - Connect Grace to Everything
 
 Major platform integrations:
 - Google Drive (storage, docs, sheets)
@@ -76,7 +76,7 @@ class GoogleDriveConnector:
             service="google_drive"
         )
         
-        # TODO: Actual Google Drive API call
+        # TODO(ROADMAP): Actual Google Drive API call
         # from googleapiclient.discovery import build
         # service = build('drive', 'v3', credentials=creds)
         # file = service.files().create(body=metadata, media_body=file_path).execute()
@@ -111,7 +111,7 @@ class GoogleDriveConnector:
         if gov_result['decision'] == 'deny':
             raise PermissionError("Governance denied")
         
-        # TODO: Actual download
+        # TODO(ROADMAP): Actual download
         # service.files().get_media(fileId=drive_file_id).execute()
         
         return b"Mock file content from Drive"
@@ -144,7 +144,7 @@ class GoogleDriveConnector:
         print(f"   Domain: {domain}")
         print()
         
-        # TODO: List files, download, ingest
+        # TODO(ROADMAP): List files, download, ingest
         # For now, propose to user
         from .unified_intelligence import transcendence
         
@@ -213,7 +213,7 @@ class GitHubEnhancedConnector:
         if gov_result['decision'] == 'deny':
             raise PermissionError("Governance denied")
         
-        # TODO: Actual clone
+        # TODO(ROADMAP): Actual clone
         # git clone {repo_url}
         # Parse with code_memory.parse_codebase()
         
@@ -270,7 +270,7 @@ class AmpIntegration:
         print(f"\n🤝 Collaborating with Amp on: {task}")
         print()
         
-        # TODO: Actual Amp API call when available
+        # TODO(ROADMAP): Actual Amp API call when available
         # For now, Grace does it herself with Grace Architect
         from ..grace_architect_agent import grace_architect
         

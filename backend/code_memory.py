@@ -416,7 +416,7 @@ class CodeMemoryEngine:
     
     async def _parse_js_file(self, file_path: Path, project: str) -> Dict[str, List]:
         """Parse JavaScript/TypeScript file (basic regex-based)"""
-        # TODO: Implement with proper JS parser (esprima, babel, etc.)
+        # TODO(FUTURE): Implement with proper JS parser (esprima, babel, etc.)
         return {'functions': [], 'classes': [], 'modules': [], 'snippets': []}
     
     async def _parse_generic_file(
@@ -426,7 +426,7 @@ class CodeMemoryEngine:
         project: str
     ) -> Dict[str, List]:
         """Generic parser for languages without AST support"""
-        # TODO: Implement regex-based pattern extraction
+        # TODO(FUTURE): Implement regex-based pattern extraction
         return {'functions': [], 'classes': [], 'modules': [], 'snippets': []}
     
     def _generate_tags(self, name: str, description: str) -> List[str]:

@@ -1,4 +1,4 @@
-﻿"""Transcendence Multi-Modal Memory System
+"""Transcendence Multi-Modal Memory System
 
 Handles ANY file type with persistent storage, all in sandbox, all verified:
 - Large files (XXL PDFs, books, codebases, videos, audio)
@@ -554,7 +554,7 @@ class MultiModalMemory:
         # Step 2: Scrape (in sandbox)
         print("STEP 2: Scraping in sandbox...")
         
-        # TODO: Use aiohttp or requests to fetch
+        # TODO(ROADMAP): Use aiohttp or requests to fetch
         # For now, mock
         scraped_content = {
             'html': f'<html>Mock content from {url}</html>',

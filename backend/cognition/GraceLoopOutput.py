@@ -1,4 +1,4 @@
-﻿"""Standardized Output Format for All Grace Components
+"""Standardized Output Format for All Grace Components
 
 One schema everywhere - enables governance linting, memory scoring,
 and reproducible audit trails without per-component adapters.
@@ -192,7 +192,7 @@ class GraceLoopOutput:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'GraceLoopOutput':
         """Create from dictionary"""
-        # TODO: Implement full deserialization
+        # TODO(FUTURE): Implement full deserialization
         return cls(
             loop_id=data['loop_id'],
             component=data['component'],

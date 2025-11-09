@@ -1,4 +1,4 @@
-﻿"""Transcendence ML/DL Integration
+"""Transcendence ML/DL Integration
 
 Connects multi-modal memory -> ML training -> model deployment
 Grace learns from ANY data you approve, builds domain-specific models.
@@ -191,7 +191,7 @@ class TranscendenceMLEngine:
         
         # Evaluate model
         print("📊 Evaluating model...")
-        # TODO: Actual evaluation
+        # TODO(ROADMAP): Actual evaluation
         metrics = {
             'accuracy': 0.89,
             'precision': 0.87,

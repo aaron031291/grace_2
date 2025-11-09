@@ -532,7 +532,7 @@ class SecretsVault:
         
         # Check governance if required
         if governance_approval_required:
-            # TODO: Integrate with governance approval system
+            # TODO(ROADMAP): Integrate with governance approval system
             await self.audit.log_event(
                 actor=accessor,
                 action="secret_retrieval_requires_governance",

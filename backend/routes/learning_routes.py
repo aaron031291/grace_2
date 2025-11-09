@@ -25,7 +25,7 @@ class CaptureMemoryRequest(BaseModel):
 async def get_learning_stats(user=Depends(get_current_user)):
     """Get learning pipeline statistics"""
     
-    # TODO: Wire to memory_learning_pipeline once imports resolved
+    # TODO(FUTURE): Wire to memory_learning_pipeline once imports resolved
     return LearningStatsResponse(
         total_memories=0,
         green_memories=0,

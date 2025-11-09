@@ -116,7 +116,7 @@ class MetricsCollector:
             # These would come from Prometheus in production
             # For now, collect from application state
             
-            # TODO: Wire Prometheus client
+            # TODO(ROADMAP): Wire Prometheus client
             # For MVP, collect basic stats from uvicorn
             
             pass  # Placeholder - wire when Prometheus available

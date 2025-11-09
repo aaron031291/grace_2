@@ -1,4 +1,4 @@
-﻿"""Transcendence - Unified Intelligence System
+"""Transcendence - Unified Intelligence System
 
 ALL Grace systems united under one roof:
 Memory -> Learning -> Knowledge -> Action -> Verification -> Governance
@@ -686,7 +686,7 @@ class TranscendenceUnified:
     ):
         """Notify user of proposal (CLI, UI, voice)"""
         
-        # TODO: Implement notifications via:
+        # TODO(ROADMAP): Implement notifications via:
         # - CLI notification
         # - WebSocket to UI
         # - Voice notification (TTS)

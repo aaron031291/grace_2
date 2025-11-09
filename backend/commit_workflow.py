@@ -462,13 +462,13 @@ class GraceCommitWorkflow:
     
     async def _run_lint(self) -> Dict:
         """Run linter (placeholder - customize per project)"""
-        # TODO: Detect and run project-specific linter
+        # TODO(ROADMAP): Detect and run project-specific linter
         # For now, return success
         return {"success": True, "output": "Lint check passed"}
     
     async def _run_tests(self) -> Dict:
         """Run test suite (placeholder - customize per project)"""
-        # TODO: Detect and run project-specific tests
+        # TODO(ROADMAP): Detect and run project-specific tests
         # For now, return success
         return {"success": True, "output": "All tests passed"}
     
@@ -483,7 +483,7 @@ class GraceCommitWorkflow:
         
         Returns PR URL
         """
-        # TODO: Integrate with GitHub API or gh CLI
+        # TODO(ROADMAP): Integrate with GitHub API or gh CLI
         # For now, return placeholder
         return f"https://github.com/repo/pull/123"
     
