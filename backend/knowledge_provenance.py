@@ -60,8 +60,8 @@ class KnowledgeSource(Base):
     # Storage
     storage_path = Column(Text)
     
-    # Metadata
-    metadata = Column(JSON)
+    # Source metadata
+    source_metadata = Column(JSON)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
