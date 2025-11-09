@@ -4,9 +4,11 @@
 **Status**: All critical blockers resolved
 
 ## 1. ✅ Verification Events Schema
-**Issue**: `verification_events.passed` column missing  
-**Status**: Already exists in schema (confirmed in Alembic migration)  
-**Location**: `alembic/versions/20251109_avn_verification_events.py`
+**Issue**: `verification_events.passed` column missing + circular import  
+**Fix Applied**: 
+- Schema already had `passed` column
+- Fixed circular import: `avn_avm.py` now imports from `base_models` not `models`
+**Location**: `backend/avn_avm.py` line 3
 
 ## 2. ✅ Autonomous Improver Issues
 **Issue**: 150+ print() warnings + TypeScript scan WinError 2  

@@ -5,22 +5,30 @@
 
 ## Summary
 
-Fixed 6 critical blockers preventing self-healing, autonomous improvement, proactive intelligence, and multimodal chat from functioning properly.
+Fixed 7 critical blockers preventing self-healing, autonomous improvement, proactive intelligence, and multimodal chat from functioning properly.
+
+**Latest Fix**: Circular import between `models.py` ↔ `avn_avm.py` causing runtime error `VerificationEvent has no attribute 'passed'`
 
 ## Fixed Issues
 
 | # | Issue | Status | Impact |
 |---|-------|--------|--------|
 | 1 | verification_events.passed missing | ✅ Already exists | Self-healing verification works |
-| 2 | Autonomous improver errors | ✅ Fixed | No more TypeScript/print() spam |
-| 3 | Playbook schema incomplete | ✅ Fixed + migrated | Proactive intelligence loads playbooks |
-| 4 | Multimodal API missing import | ✅ Fixed | /api/multimodal/chat works |
-| 5 | Trigger mesh not awaited | ✅ Already awaited | No coroutine warnings |
-| 6 | Missing env vars | ✅ Configured | Learning systems no longer warn |
+| 2 | Circular import avn_avm ↔ models | ✅ Fixed | Meta loop can access VerificationEvent |
+| 3 | Autonomous improver errors | ✅ Fixed | No more TypeScript/print() spam |
+| 4 | Playbook schema incomplete | ✅ Fixed + migrated | Proactive intelligence loads playbooks |
+| 5 | Multimodal API missing import | ✅ Fixed | /api/multimodal/chat works |
+| 6 | Trigger mesh not awaited | ✅ Already awaited | No coroutine warnings |
+| 7 | Missing env vars | ✅ Configured | Learning systems no longer warn |
 
 ## Changes Made
 
-### 1. Playbook Schema Enhancement
+### 1. Circular Import Fix (Critical)
+- **File**: `backend/avn_avm.py`
+- **Changes**: Changed `from .models import Base` → `from .base_models import Base`
+- **Error Fixed**: `type object 'VerificationEvent' has no attribute 'passed'`
+
+### 2. Playbook Schema Enhancement
 - **File**: `backend/self_heal_models.py`
 - **Changes**: Added `risk_level` and `autonomy_tier` columns
 - **Migration**: `alembic/versions/20251109_add_playbook_risk_autonomy.py` (applied)
