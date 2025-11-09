@@ -60,8 +60,8 @@ class HealingAttempt(Base):
     hash = Column(String, nullable=True)  # SHA-256 hash of attempt
     previous_hash = Column(String, nullable=True)  # Hash of previous attempt (chain)
     
-    # Metadata
-    metadata = Column(JSON, nullable=True)
+    # Additional metadata
+    healing_metadata = Column(JSON, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
