@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from .immutable_log import ImmutableLog
+from .unified_logger import unified_logger
 
 
 class ShardStatus(Enum):
@@ -87,6 +88,17 @@ class ShardOrchestrator:
             payload={"shard_count": len(self.shards)},
             result="started"
         )
+        
+        # Log to unified logger
+        for shard_id, shard in self.shards.items():
+            await unified_logger.log_shard_activity(
+                shard_id=shard_id,
+                shard_type='domain',
+                domain=shard.domain,
+                status='started',
+                started_at=datetime.utcnow(),
+                success=True
+            )
     
     async def _init_shards(self):
         """Initialize specialized agent shards"""

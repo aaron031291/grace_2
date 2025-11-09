@@ -13,7 +13,8 @@ import logging
 from .models import async_session
 from .healing_models import (
     HealingAttempt, AgenticSpineLog, MetaLoopLog,
-    MLLearningLog, TriggerMeshLog, DataCubeEntry
+    MLLearningLog, TriggerMeshLog, DataCubeEntry,
+    ShardLog, ParallelProcessLog
 )
 from .immutable_log import ImmutableLog
 
@@ -490,6 +491,130 @@ class UnifiedLogger:
                 await session.commit()
                 
                 logger.debug(f"[UNIFIED_LOG] Updated healing attempt: {attempt_id}")
+    
+    async def log_shard_activity(
+        self,
+        shard_id: str,
+        shard_type: str,
+        domain: Optional[str] = None,
+        status: str = 'started',
+        **kwargs
+    ):
+        """Log shard orchestration activity"""
+        
+        async with async_session() as session:
+            log_id = f"shard_{uuid.uuid4()}"
+            
+            # Hash and sign
+            data_for_hash = {
+                'log_id': log_id,
+                'shard_id': shard_id,
+                'timestamp': datetime.utcnow().isoformat()
+            }
+            
+            entry_hash = self._compute_hash(data_for_hash)
+            signature = self._sign_entry(data_for_hash)
+            previous_hash = self.chain_hashes.get('shard_logs')
+            
+            # Create entry
+            shard_log = ShardLog(
+                shard_id=shard_id,
+                log_id=log_id,
+                shard_type=shard_type,
+                domain=domain,
+                worker_id=kwargs.get('worker_id'),
+                task_type=kwargs.get('task_type'),
+                task_description=kwargs.get('task_description'),
+                status=status,
+                started_at=kwargs.get('started_at'),
+                completed_at=kwargs.get('completed_at'),
+                duration_seconds=kwargs.get('duration_seconds'),
+                cpu_usage=kwargs.get('cpu_usage'),
+                memory_usage=kwargs.get('memory_usage'),
+                success=kwargs.get('success'),
+                signature=signature,
+                hash=entry_hash,
+                previous_hash=previous_hash
+            )
+            
+            session.add(shard_log)
+            self.chain_hashes['shard_logs'] = entry_hash
+            
+            # Log to data cube
+            await self._log_to_data_cube(
+                session=session,
+                subsystem='shard_orchestrator',
+                actor=f"shard_{domain or 'unknown'}",
+                action=status,
+                resource=shard_id,
+                success=kwargs.get('success'),
+                duration=kwargs.get('duration_seconds'),
+                confidence=None,
+                severity=None,
+                context={'domain': domain, 'type': shard_type}
+            )
+            
+            await session.commit()
+    
+    async def log_parallel_process(
+        self,
+        process_id: str,
+        process_type: str,
+        executor: str,
+        status: str,
+        **kwargs
+    ):
+        """Log parallel process execution"""
+        
+        async with async_session() as session:
+            # Hash and sign
+            data_for_hash = {
+                'process_id': process_id,
+                'process_type': process_type,
+                'timestamp': datetime.utcnow().isoformat()
+            }
+            
+            entry_hash = self._compute_hash(data_for_hash)
+            signature = self._sign_entry(data_for_hash)
+            
+            # Create entry
+            process_log = ParallelProcessLog(
+                process_id=process_id,
+                process_type=process_type,
+                executor=executor,
+                worker_name=kwargs.get('worker_name'),
+                task_name=kwargs.get('task_name'),
+                task_payload=kwargs.get('task_payload'),
+                status=status,
+                queued_at=kwargs.get('queued_at'),
+                started_at=kwargs.get('started_at'),
+                completed_at=kwargs.get('completed_at'),
+                wait_time_seconds=kwargs.get('wait_time_seconds'),
+                execution_time_seconds=kwargs.get('execution_time_seconds'),
+                cpu_percent=kwargs.get('cpu_percent'),
+                memory_mb=kwargs.get('memory_mb'),
+                success=kwargs.get('success'),
+                signature=signature,
+                hash=entry_hash
+            )
+            
+            session.add(process_log)
+            
+            # Log to data cube
+            await self._log_to_data_cube(
+                session=session,
+                subsystem='parallel_execution',
+                actor=executor,
+                action=process_type,
+                resource=kwargs.get('task_name', 'unknown'),
+                success=kwargs.get('success'),
+                duration=kwargs.get('execution_time_seconds'),
+                confidence=None,
+                severity=None,
+                context={'executor': executor}
+            )
+            
+            await session.commit()
 
 
 # Global instance
