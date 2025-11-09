@@ -201,14 +201,18 @@ Collectors should fetch this catalog at startup to ensure metric IDs, units, and
    - Load metric definitions (queries, thresholds) from the catalog.
    - Normalise values to canonical units.
    - Compute the band (`good|warning|critical`) before publishing to the trigger mesh.
-3. **Dynamic Optimisation (Optional)** – after collectors are reliable, allow Grace to propose threshold adjustments by:
+3. **Proactive Intelligence** – update the proactive intelligence service to subscribe to `metrics.*` events, maintain rolling windows, emit `MetricsSnapshot` records, and hand off to the planner when thresholds are breached.
+4. **Dynamic Optimisation (Optional)** – after collectors are reliable, allow Grace to propose threshold adjustments by:
    - Computing recommended bands from recent `MetricsSnapshot` data (e.g. 7-day windows).
    - Emitting a governance decision request (`metrics.threshold_change`) with the proposed new values, confidence, and impacted playbooks.
    - Requiring an approval response before committing updates to `metrics_catalog.yaml`.
-4. **Snapshot Rollback** – ensure every committed catalog change stores the previous snapshot (e.g. `metrics_catalog.yaml.bak`) so you can revert instantly if a new threshold misbehaves.
-5. **Proactive Intelligence** – update the proactive intelligence service to subscribe to `metrics.*` events, maintain rolling windows, emit `MetricsSnapshot` records, and hand off to the planner when thresholds are breached.
-4. **Playbook Binding** – ensure playbooks referenced in the catalog exist (e.g. `scale-api-shard`, `spawn-executor-worker`) and include risk levels consistent with the thresholds.
-5. **Dashboards and Alerts** – surface the snapshot data in the frontend dashboards and configure alerting (Slack/email) for critical bands.
+5. **Snapshot Rollback** – ensure every committed catalog change stores the previous snapshot (e.g. `metrics_catalog.yaml.bak`) so you can revert instantly if a new threshold misbehaves.
+6. **Baseline Verification** – extend `scripts/bootstrap_verification.py` to capture the current healthy snapshot set and fail the bootstrap if new deployments breach approved bands.
+7. **Configuration Cohesion** – version `metrics_catalog.yaml` alongside `config/agentic_config.yaml` so metric thresholds, autonomy risk gates, and playbooks evolve together and pass through the same review.
+8. **Immutable Audit Trail** – log every catalog update and optimisation proposal to the immutable log (`metrics.threshold_change` actions) to keep a forensic record of why thresholds moved.
+9. **Resilience Drills** – schedule periodic simulations that replay stored snapshots, trigger the related playbooks, and verify rollback/approval paths without waiting for live failures.
+10. **Playbook Binding** – ensure playbooks referenced in the catalog exist (e.g. `scale-api-shard`, `spawn-executor-worker`) and include risk levels consistent with the thresholds.
+11. **Dashboards and Alerts** – surface the snapshot data in the frontend dashboards and configure alerting (Slack/email) for critical bands.
 
 With this catalog and schema in place, Grace can reason over live metrics, predict incidents, and execute governed responses using consistent data throughout the stack.
 
