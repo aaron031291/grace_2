@@ -6,7 +6,8 @@
 param(
     [switch]$Stop,
     [switch]$Status,
-    [switch]$Logs
+    [switch]$Logs,
+    [switch]$Tail
 )
 
 # Set UTF-8 encoding for console
@@ -58,7 +59,7 @@ if ($Status) {
 }
 
 # ============================================================================
-# LOGS MODE
+# LOGS MODE (Last 30 Lines)
 # ============================================================================
 if ($Logs) {
     Write-Host ""
@@ -75,6 +76,61 @@ if ($Logs) {
             Receive-Job -Id $job.Id -Keep | Select-Object -Last 30
         }
     }
+    Write-Host ""
+    exit 0
+}
+
+# ============================================================================
+# TAIL MODE (Live Streaming)
+# ============================================================================
+if ($Tail) {
+    Write-Host ""
+    Write-Host "Grace Live Logs (Press Ctrl+C to exit):" -ForegroundColor Cyan
+    Write-Host "=" * 80
+    
+    $jobs = Get-Job
+    if ($jobs.Count -eq 0) {
+        Write-Host "[FAIL] Grace is not running" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "Start with: .\GRACE.ps1" -ForegroundColor Yellow
+        exit 1
+    }
+    
+    Write-Host ""
+    Write-Host "Streaming logs from Job $($jobs[0].Id)..." -ForegroundColor Green
+    Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "-" * 80
+    
+    $lastOutputCount = 0
+    
+    try {
+        while ($true) {
+            $output = Receive-Job -Id $jobs[0].Id -Keep
+            $currentCount = $output.Count
+            
+            if ($currentCount -gt $lastOutputCount) {
+                # New output available
+                $newLines = $output | Select-Object -Skip $lastOutputCount
+                $newLines | ForEach-Object { Write-Host $_ }
+                $lastOutputCount = $currentCount
+            }
+            
+            Start-Sleep -Milliseconds 500
+            
+            # Check if job still exists
+            $currentJob = Get-Job -Id $jobs[0].Id -ErrorAction SilentlyContinue
+            if (-not $currentJob) {
+                Write-Host ""
+                Write-Host "[INFO] Grace job has stopped" -ForegroundColor Yellow
+                break
+            }
+        }
+    } catch {
+        Write-Host ""
+        Write-Host "[INFO] Log streaming stopped" -ForegroundColor Yellow
+    }
+    
     Write-Host ""
     exit 0
 }
@@ -289,7 +345,8 @@ if ($ready) {
     Write-Host ""
     Write-Host "?? COMMANDS:" -ForegroundColor Cyan
     Write-Host "  Status:     .\GRACE.ps1 -Status" -ForegroundColor White
-    Write-Host "  Logs:       .\GRACE.ps1 -Logs" -ForegroundColor White
+    Write-Host "  Logs:       .\GRACE.ps1 -Logs    (last 30 lines)" -ForegroundColor White
+    Write-Host "  Tail:       .\GRACE.ps1 -Tail    (live stream)" -ForegroundColor White
     Write-Host "  Stop:       .\GRACE.ps1 -Stop" -ForegroundColor White
     Write-Host ""
     Write-Host "?? TEST IT:" -ForegroundColor Cyan
