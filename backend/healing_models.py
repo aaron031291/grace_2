@@ -225,6 +225,93 @@ class TriggerMeshLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
+class ShardLog(Base):
+    """Log all shard orchestration and parallel execution"""
+    __tablename__ = "shard_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    shard_id = Column(String, index=True, nullable=False)
+    log_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # Shard information
+    shard_type = Column(String, index=True, nullable=False)  # domain, workload
+    domain = Column(String, index=True, nullable=True)  # ai_ml, self_heal, code, etc.
+    worker_id = Column(String, index=True, nullable=True)
+    
+    # Task information
+    task_type = Column(String, nullable=True)
+    task_description = Column(Text, nullable=True)
+    task_priority = Column(Integer, default=0)
+    
+    # Execution
+    status = Column(String, index=True, nullable=False)  # started, executing, completed, failed
+    started_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    duration_seconds = Column(Float, nullable=True)
+    
+    # Performance
+    cpu_usage = Column(Float, nullable=True)
+    memory_usage = Column(Float, nullable=True)
+    tasks_processed = Column(Integer, default=0)
+    
+    # Outcome
+    success = Column(Boolean, nullable=True)
+    result_data = Column(JSON, nullable=True)
+    error_message = Column(Text, nullable=True)
+    
+    # Cryptography
+    signature = Column(String, nullable=True)
+    hash = Column(String, nullable=True)
+    previous_hash = Column(String, nullable=True)
+    
+    # Timestamps
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ParallelProcessLog(Base):
+    """Track all parallel process execution"""
+    __tablename__ = "parallel_process_logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    process_id = Column(String, unique=True, index=True, nullable=False)
+    
+    # Process info
+    process_type = Column(String, index=True, nullable=False)  # concurrent_task, shard_work, etc.
+    executor = Column(String, index=True, nullable=False)  # concurrent_executor, shard_orchestrator
+    worker_name = Column(String, nullable=True)
+    
+    # Task details
+    task_name = Column(String, nullable=True)
+    task_payload = Column(JSON, nullable=True)
+    parent_process = Column(String, nullable=True)
+    
+    # Execution
+    status = Column(String, index=True, nullable=False)  # queued, running, completed, failed
+    queued_at = Column(DateTime, nullable=True)
+    started_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    wait_time_seconds = Column(Float, nullable=True)
+    execution_time_seconds = Column(Float, nullable=True)
+    
+    # Performance
+    cpu_percent = Column(Float, nullable=True)
+    memory_mb = Column(Float, nullable=True)
+    
+    # Outcome
+    success = Column(Boolean, nullable=True)
+    result = Column(JSON, nullable=True)
+    error = Column(Text, nullable=True)
+    
+    # Cryptography
+    signature = Column(String, nullable=True)
+    hash = Column(String, nullable=True)
+    
+    # Timestamps
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 class DataCubeEntry(Base):
     """Data cube for multi-dimensional analytics"""
     __tablename__ = "data_cube"
