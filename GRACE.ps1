@@ -134,21 +134,32 @@ if (-not (Test-Path ".env")) {
 }
 
 # ============================================================================
-# PRE-FLIGHT SELF-HEALING
+# BOOT PIPELINE - 8-Stage Error Mitigation
 # ============================================================================
 Write-Host ""
 Write-Host "========================================================================" -ForegroundColor Cyan
-Write-Host "STARTUP SELF-HEALING - Checking for issues before boot" -ForegroundColor Cyan
+Write-Host "BOOT PIPELINE - Error Mitigation & Self-Healing" -ForegroundColor Cyan
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-.venv\Scripts\python.exe backend\startup_healer.py
+# Use enhanced boot pipeline if available, fallback to basic
+if (Test-Path "backend\enhanced_boot_pipeline.py") {
+    .venv\Scripts\python.exe backend\enhanced_boot_pipeline.py
+} else {
+    .venv\Scripts\python.exe backend\boot_pipeline.py
+}
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""
-    Write-Host "[WARNING] Startup healing found issues" -ForegroundColor Yellow
-    Write-Host "[INFO] Grace will attempt to start anyway..." -ForegroundColor Yellow
+    Write-Host "[CRITICAL] Boot pipeline encountered critical failures" -ForegroundColor Red
+    Write-Host "[INFO] Check logs/last_boot_report.txt for details" -ForegroundColor Yellow
     Write-Host ""
+    Write-Host "Continue anyway? (y/N): " -NoNewline -ForegroundColor Yellow
+    $continue = Read-Host
+    if ($continue -ne "y") {
+        Write-Host "[ABORT] Boot cancelled by user" -ForegroundColor Red
+        exit 1
+    }
 }
 
 # Create directories
