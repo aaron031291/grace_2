@@ -22,6 +22,7 @@ from code_generator import CodeGenerator
 from self_healing import SelfHealingEngine
 from governance import governance_engine
 from immutable_log import ImmutableLog
+from governance_framework import governance_framework
 
 logging.basicConfig(
     level=logging.INFO,
@@ -143,6 +144,8 @@ class GraceTerminalChat:
                 return await self._approve_pending_action()
             elif user_message.lower() == "reject":
                 return self._reject_pending_action()
+            elif user_message.lower() == "governance":
+                return self._show_governance()
             
             # Check if this is a code-related request
             code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug", "build"]
@@ -261,15 +264,16 @@ class GraceTerminalChat:
         file_path = parts[0].replace("create file", "").strip()
         description = parts[1].strip()
         
-        # Check governance
-        approval = await governance_engine.check_approval(
+        # Check governance framework (Constitution + Guardrails + Whitelist)
+        approval = await governance_framework.check_action(
             actor=self.user_name,
             action="create_file",
             resource=file_path,
-            context={"description": description}
+            context={"description": description},
+            confidence=0.9
         )
         
-        if not approval.get("approved", False):
+        if not approval.get("approved", False) and not approval.get("requires_human_approval", False):
             return f"❌ Governance denied file creation: {approval.get('reason', 'Unknown')}"
         
         # Request user confirmation
@@ -390,6 +394,42 @@ class GraceTerminalChat:
         
         action = self.pending_actions.pop(0)
         return f"❌ Rejected: {action['type']} for {action.get('file_path', 'unknown')}"
+    
+    def _show_governance(self) -> str:
+        """Show governance framework status"""
+        summary = governance_framework.get_summary()
+        
+        output = "\n🏛️ GRACE GOVERNANCE FRAMEWORK\n\n"
+        
+        # Constitution
+        const = summary.get("constitution", {})
+        output += "📜 CONSTITUTION:\n"
+        output += f"   • Loaded: {'✅' if const.get('loaded') else '❌'}\n"
+        output += f"   • Version: {const.get('version', 'unknown')}\n"
+        output += f"   • Core Values: {const.get('core_values', 0)}\n"
+        
+        boundaries = const.get("ethical_boundaries", {})
+        output += f"   • Never Allowed: {boundaries.get('never_allowed', 0)} rules\n"
+        output += f"   • Requires Approval: {boundaries.get('requires_approval', 0)} rules\n"
+        output += f"   • Auto-Approved: {boundaries.get('auto_approved', 0)} rules\n\n"
+        
+        # Guardrails
+        guards = summary.get("guardrails", {})
+        output += "🛡️ GUARDRAILS:\n"
+        output += f"   • Loaded: {'✅' if guards.get('loaded') else '❌'}\n"
+        output += f"   • Version: {guards.get('version', 'unknown')}\n"
+        output += f"   • Categories: {', '.join(guards.get('categories', []))}\n\n"
+        
+        # Whitelist
+        white = summary.get("whitelist", {})
+        output += "✅ WHITELIST:\n"
+        output += f"   • Loaded: {'✅' if white.get('loaded') else '❌'}\n"
+        output += f"   • Version: {white.get('version', 'unknown')}\n"
+        output += f"   • Approved Actors: {white.get('approved_actors', 0)}\n\n"
+        
+        output += "Type 'help' to see available commands."
+        
+        return output
     
     async def _show_status(self):
         """Show system status"""

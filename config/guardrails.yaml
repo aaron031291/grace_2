@@ -1,0 +1,150 @@
+# Grace's Guardrails
+# Safety limits and boundaries
+
+version: "1.0"
+
+# File System Guardrails
+file_system:
+  allowed_directories:
+    - "backend/"
+    - "frontend/"
+    - "config/"
+    - "docs/"
+    - "scripts/"
+    - "tests/"
+    - "sandbox/"
+    
+  forbidden_directories:
+    - "/etc/"
+    - "/sys/"
+    - "/proc/"
+    - "C:/Windows/"
+    - "C:/Program Files/"
+    - ".git/"
+    - ".env"
+    - "*.key"
+    - "*.pem"
+    
+  max_file_size_mb: 10
+  
+  allowed_extensions:
+    - ".py"
+    - ".md"
+    - ".yaml"
+    - ".json"
+    - ".txt"
+    - ".js"
+    - ".ts"
+    - ".tsx"
+    - ".css"
+    - ".html"
+    
+  forbidden_extensions:
+    - ".exe"
+    - ".dll"
+    - ".so"
+    - ".dylib"
+    - ".bat"  # Except when explicitly approved
+    - ".sh"   # Except when explicitly approved
+
+# Code Generation Guardrails
+code_generation:
+  max_lines_per_file: 1000
+  require_docstrings: true
+  require_type_hints: true
+  
+  forbidden_imports:
+    - "os.system"
+    - "subprocess.Popen"
+    - "eval"
+    - "exec"
+    - "__import__"
+    
+  forbidden_patterns:
+    - pattern: "rm -rf"
+      reason: "Dangerous deletion command"
+    - pattern: "DROP TABLE"
+      reason: "Destructive SQL command"
+    - pattern: "DELETE FROM .* WHERE 1=1"
+      reason: "Dangerous unfiltered deletion"
+    - pattern: "password.*=.*['\"]"
+      reason: "Hardcoded password detected"
+
+# Resource Limits
+resource_limits:
+  max_memory_mb: 500
+  max_cpu_percent: 50
+  max_concurrent_operations: 10
+  max_files_modified_per_session: 20
+  rate_limit_actions_per_minute: 60
+
+# Network Guardrails
+network:
+  allowed_domains:
+    - "localhost"
+    - "127.0.0.1"
+    - "api.openai.com"
+    - "api.anthropic.com"
+    
+  forbidden_ports:
+    - 22    # SSH
+    - 23    # Telnet
+    - 3389  # RDP
+    
+  require_https: true
+
+# Database Guardrails
+database:
+  read_only_tables:
+    - "immutable_log"
+    - "audit_log"
+    
+  max_query_results: 1000
+  
+  forbidden_operations:
+    - "DROP DATABASE"
+    - "DROP TABLE"
+    - "TRUNCATE"
+    - "ALTER USER"
+    - "GRANT ALL"
+
+# Action Guardrails
+actions:
+  max_retries: 3
+  timeout_seconds: 30
+  
+  require_approval:
+    - "delete_file"
+    - "modify_system_config"
+    - "execute_command"
+    - "deploy_code"
+    - "modify_database_schema"
+    
+  auto_reject:
+    - "access_credentials"
+    - "bypass_security"
+    - "disable_logging"
+
+# Learning Guardrails
+learning:
+  min_confidence_for_action: 0.7
+  max_autonomy_increase_per_day: 1  # tier level
+  require_validation_samples: 10
+  
+# Monitoring & Alerts
+monitoring:
+  alert_on:
+    - "constitutional_violation"
+    - "security_threat"
+    - "resource_limit_exceeded"
+    - "unauthorized_access_attempt"
+    - "failed_governance_check"
+    
+  log_all_actions: true
+  immutable_audit: true
+
+# Recovery & Rollback
+recovery:
+  auto_rollback_on_failure: true
+  keep_backups_count: 5
+  snapshot_before_risky_action: true
