@@ -65,9 +65,9 @@ class AutonomousCodeHealer:
         
         self.running = True
         
-        # Subscribe to error events
-        await trigger_mesh.subscribe("error.detected", self._on_error_detected)
-        await trigger_mesh.subscribe("warning.raised", self._on_warning_detected)
+        # Subscribe to error events (subscribe is not async)
+        trigger_mesh.subscribe("error.detected", self._on_error_detected)
+        trigger_mesh.subscribe("warning.raised", self._on_warning_detected)
         
         logger.info("[CODE_HEAL] 🔧 Autonomous Code Healer started")
     

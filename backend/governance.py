@@ -1,4 +1,4 @@
-﻿import json
+import json
 from typing import Optional
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
 from .models import async_session
@@ -189,5 +189,31 @@ class GovernanceEngine:
             if not any(keyword.lower() in data for keyword in keywords):
                 return False
         return True
+    
+    async def check_action(self, *, actor: str, action: str, resource: str, context: dict = None) -> dict:
+        """Alias for check() method for compatibility"""
+        return await self.check(
+            actor=actor,
+            action=action,
+            resource=resource,
+            payload=context or {}
+        )
+    
+    async def check_approval(self, *, actor: str, action: str, resource: str, context: dict = None) -> dict:
+        """Check if action needs approval - returns approved/denied status"""
+        result = await self.check(
+            actor=actor,
+            action=action,
+            resource=resource,
+            payload=context or {}
+        )
+        
+        decision = result.get("decision", "deny")
+        return {
+            "approved": decision in ["allow", "approved"],
+            "reason": f"Policy decision: {decision}",
+            "policy": result.get("policy"),
+            "audit_id": result.get("audit_id")
+        }
 
 governance_engine = GovernanceEngine()
