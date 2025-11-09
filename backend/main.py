@@ -317,6 +317,12 @@ async def on_startup():
     from backend.log_based_healer import log_based_healer
     await log_based_healer.start()
     print("[AUTONOMOUS] 📖 Log Healer started - Monitoring logs for errors")
+    
+    # Start ML/DL Healing - Learning from errors and fixes
+    from backend.ml_healing import ml_healing, dl_healing
+    await ml_healing.start()
+    await dl_healing.start()
+    print("[AUTONOMOUS] 🧠 ML/DL Healing started - Learning from every error")
 
 @app.on_event("shutdown")
 async def on_shutdown():

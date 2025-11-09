@@ -10,6 +10,7 @@ Shows last 50 entries from:
 import asyncio
 import sys
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -19,8 +20,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 from immutable_log import ImmutableLog
 from memory import PersistentMemory
 from models import async_session
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, and_
 from governance_models import ImmutableLogEntry
+from trigger_mesh import TriggerEvent
 
 
 async def view_backend_logs():
@@ -253,6 +255,70 @@ async def view_crypto_graph():
         traceback.print_exc()
 
 
+async def view_trigger_mesh_events():
+    """View last 50 trigger mesh events"""
+    print("\n" + "="*80)
+    print("⚡ TRIGGER MESH EVENTS (Last 50)")
+    print("="*80)
+    
+    try:
+        async with async_session() as session:
+            # Trigger mesh events are logged in immutable log
+            result = await session.execute(
+                select(ImmutableLogEntry)
+                .where(ImmutableLogEntry.result == 'published')  # Events published to mesh
+                .order_by(desc(ImmutableLogEntry.timestamp))
+                .limit(50)
+            )
+            entries = result.scalars().all()
+            
+            if not entries:
+                print("⚠️  No trigger mesh events found")
+                return
+            
+            print(f"\n📊 Found {len(entries)} trigger mesh events\n")
+            
+            for i, entry in enumerate(reversed(entries), 1):
+                print(f"[{i}] {entry.timestamp}")
+                print(f"    Event: {entry.action}")
+                print(f"    Source: {entry.subsystem}")
+                print(f"    Actor: {entry.actor}")
+                print(f"    Resource: {entry.resource}")
+                print()
+    
+    except Exception as e:
+        print(f"❌ Error reading trigger mesh events: {e}")
+
+
+async def view_tail_logs():
+    """View tail of backend logs (last 50 lines)"""
+    print("\n" + "="*80)
+    print("📜 BACKEND TAIL LOGS (Last 50 lines)")
+    print("="*80 + "\n")
+    
+    log_file = Path(__file__).parent.parent / "logs" / "backend.log"
+    
+    if not log_file.exists():
+        log_file = Path(__file__).parent.parent / "backend.log"
+    
+    if log_file.exists():
+        try:
+            with open(log_file, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+                tail_lines = lines[-50:] if len(lines) > 50 else lines
+                
+                for i, line in enumerate(tail_lines, 1):
+                    timestamp_match = re.search(r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})', line)
+                    if timestamp_match:
+                        print(f"[{i}] {line.rstrip()}")
+                    else:
+                        print(f"    {line.rstrip()}")
+        except Exception as e:
+            print(f"❌ Error reading log file: {e}")
+    else:
+        print("⚠️  Log file not found")
+
+
 async def main():
     """Main entry point"""
     print("\n" + "="*80)
@@ -261,8 +327,9 @@ async def main():
     print("="*80)
     
     # View all logs
-    await view_backend_logs()
+    await view_tail_logs()
     await view_immutable_log()
+    await view_trigger_mesh_events()
     await view_memory_storage()
     await view_meta_decisions()
     await view_crypto_graph()

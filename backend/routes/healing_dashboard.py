@@ -129,3 +129,63 @@ async def trigger_immediate_scan() -> Dict[str, str]:
         "status": "success",
         "message": "Log scan triggered"
     }
+
+
+@router.get("/ml/insights")
+async def get_ml_insights() -> Dict[str, Any]:
+    """Get ML/DL learning insights about error patterns and fixes"""
+    
+    from ..ml_healing import ml_healing, dl_healing
+    
+    ml_insights = await ml_healing.get_insights()
+    dl_insights = await dl_healing.get_insights()
+    
+    return {
+        "machine_learning": ml_insights,
+        "deep_learning": dl_insights,
+        "combined_patterns": ml_insights.get('total_patterns_learned', 0)
+    }
+
+
+@router.get("/ml/predictions")
+async def get_error_predictions() -> Dict[str, Any]:
+    """Get ML predictions of likely errors"""
+    
+    from ..ml_healing import ml_healing
+    
+    # Get predictions for common error types
+    error_types = ['incorrect_await', 'missing_attribute', 'json_serialization', 'missing_module']
+    
+    predictions = {}
+    for error_type in error_types:
+        likelihood = await ml_healing.predict_error_likelihood(error_type)
+        predictions[error_type] = {
+            'likelihood': likelihood,
+            'confidence': 'high' if likelihood > 0.7 else 'medium' if likelihood > 0.3 else 'low'
+        }
+    
+    return {
+        "predictions": predictions,
+        "model_info": ml_healing.prediction_model if ml_healing.prediction_model else "Not yet trained"
+    }
+
+
+@router.get("/ml/recommendations/{error_type}")
+async def get_fix_recommendations(error_type: str) -> Dict[str, Any]:
+    """Get ML-recommended fix strategy for error type"""
+    
+    from ..ml_healing import ml_healing
+    
+    recommendation = await ml_healing.recommend_fix_strategy(error_type)
+    
+    if not recommendation:
+        return {
+            "error_type": error_type,
+            "recommendation": None,
+            "message": "No historical data for this error type"
+        }
+    
+    return {
+        "error_type": error_type,
+        "recommendation": recommendation
+    }
