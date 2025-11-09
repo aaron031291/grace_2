@@ -116,6 +116,8 @@ class GraceTerminalChat:
         print("   • status - Show system status")
         print("   • governance - Show governance framework")
         print("   • autonomy - Show/control autonomy mode")
+        print("   • dashboard - Show complete system dashboard")
+        print("   • report - Grace's self-generated activity report")
         print("   • exit / quit - End session\n")
     
     async def chat(self, user_message: str) -> str:
@@ -150,6 +152,10 @@ class GraceTerminalChat:
                 return self._show_governance()
             elif user_message.lower().startswith("autonomy"):
                 return await self._handle_autonomy_command(user_message)
+            elif user_message.lower() == "dashboard":
+                return await self._show_dashboard()
+            elif user_message.lower() == "report":
+                return await self._show_self_report()
             
             # Check if this is a code-related request
             code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug", "build"]
@@ -479,6 +485,52 @@ class GraceTerminalChat:
         
         else:
             return "Usage:\n  • autonomy - Show status\n  • autonomy enable <tier> - Enable (0-3)\n  • autonomy disable - Disable"
+    
+    async def _show_dashboard(self) -> str:
+        """Show comprehensive dashboard"""
+        from grace_log_reader import grace_log_reader
+        from healing_analytics import healing_analytics
+        
+        # Get comprehensive data
+        activity = await grace_log_reader.get_my_recent_activity(hours=24)
+        analytics = await healing_analytics.get_healing_summary(hours=24)
+        ml_stats = await healing_analytics.get_ml_learning_stats(hours=24)
+        
+        output = "\n" + "="*70 + "\n"
+        output += "📊 GRACE COMPLETE DASHBOARD (Last 24h)\n"
+        output += "="*70 + "\n\n"
+        
+        # Healing
+        output += "🔧 HEALING:\n"
+        output += f"   Attempts: {analytics['total_attempts']}\n"
+        output += f"   Success: {analytics['successful']} ({analytics['success_rate']:.1%})\n"
+        output += f"   Failed: {analytics['failed']}\n"
+        output += f"   Pending: {analytics['pending']}\n\n"
+        
+        # ML/DL
+        output += "🧠 ML/DL LEARNING:\n"
+        output += f"   Learning cycles: {ml_stats['total_learning_cycles']}\n"
+        output += f"   Pattern updates: {ml_stats['pattern_updates']}\n"
+        output += f"   Model trainings: {ml_stats['model_trainings']}\n"
+        output += f"   Avg confidence: {ml_stats['average_confidence']:.1%}\n\n"
+        
+        # Activity
+        output += "🤖 AUTONOMOUS ACTIVITY:\n"
+        output += f"   Decisions made: {activity['decisions']['made']}\n"
+        output += f"   Actions executed: {activity['decisions']['executed']}\n"
+        output += f"   Shards active: {activity['shards']['active']}\n"
+        output += f"   Events published: {activity['events']['published']}\n\n"
+        
+        output += "="*70 + "\n"
+        
+        return output
+    
+    async def _show_self_report(self) -> str:
+        """Show Grace's self-generated report"""
+        from grace_log_reader import grace_log_reader
+        
+        report = await grace_log_reader.generate_self_report(hours=24)
+        return "\n" + report
     
     async def _show_status(self):
         """Show system status"""

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Concurrent Task Executor - Multi-threading for Background Tasks
 
 Enables Grace to:
@@ -15,9 +15,11 @@ from typing import Dict, Any, List, Optional, Callable
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum
+import uuid as uuid_lib
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
+from .unified_logger import unified_logger
 
 
 class TaskPriority(Enum):
@@ -264,6 +266,20 @@ class ConcurrentExecutor:
                 task.started_at = datetime.now(timezone.utc)
                 self.active_tasks[task.task_id] = task
                 
+                # Log to unified logger
+                process_id = f"proc_{uuid_lib.uuid4()}"
+                await unified_logger.log_parallel_process(
+                    process_id=process_id,
+                    process_type=task.action,
+                    executor='concurrent_executor',
+                    status='running',
+                    worker_name=worker_id,
+                    task_name=f"{task.domain}.{task.action}",
+                    task_payload=task.parameters,
+                    queued_at=task.created_at,
+                    started_at=task.started_at
+                )
+                
                 # Publish task started event
                 await trigger_mesh.publish(TriggerEvent(
                     event_type="concurrent.task.started",
@@ -281,6 +297,23 @@ class ConcurrentExecutor:
                     task.status = TaskStatus.COMPLETED.value
                     task.result = result
                     task.completed_at = datetime.now(timezone.utc)
+                    
+                    # Calculate execution time
+                    exec_time = (task.completed_at - task.started_at).total_seconds()
+                    
+                    # Update parallel process log
+                    await unified_logger.log_parallel_process(
+                        process_id=process_id,
+                        process_type=task.action,
+                        executor='concurrent_executor',
+                        status='completed',
+                        worker_name=worker_id,
+                        task_name=f"{task.domain}.{task.action}",
+                        started_at=task.started_at,
+                        completed_at=task.completed_at,
+                        execution_time_seconds=exec_time,
+                        success=True
+                    )
                     
                     # Log success
                     await immutable_log.append(
