@@ -40,6 +40,14 @@ except ImportError:
     def set_run_context(run_id):
         pass
 
+# Import learning system
+try:
+    from backend.boot_learning_system import boot_learning
+    from backend.boot_validator import boot_validator
+except ImportError:
+    boot_learning = None
+    boot_validator = None
+
 
 class EnhancedBootPipeline:
     """Production-grade boot pipeline with rollback"""
