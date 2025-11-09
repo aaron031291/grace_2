@@ -20,6 +20,8 @@ from transcendence.self_awareness import SelfAwarenessLayer
 from agentic_spine import AgenticSpine
 from code_generator import CodeGenerator
 from self_healing import SelfHealingEngine
+from governance import governance_engine
+from immutable_log import ImmutableLog
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,6 +52,10 @@ class GraceTerminalChat:
         self.self_awareness: Optional[SelfAwarenessLayer] = None
         self.code_agent: Optional[CodeGenerator] = None
         self.learning_enabled = True
+        self.immutable_log = ImmutableLog()
+        
+        # Track actions for approval
+        self.pending_actions = []
         
         print("\n" + "="*70)
         print("  GRACE - Terminal Chat Interface")
@@ -128,8 +134,18 @@ class GraceTerminalChat:
                 }
             }
             
+            # Check for special commands
+            if user_message.lower().startswith("create file"):
+                return await self._handle_file_creation(user_message, context)
+            elif user_message.lower().startswith("modify file"):
+                return await self._handle_file_modification(user_message, context)
+            elif user_message.lower() == "approve":
+                return await self._approve_pending_action()
+            elif user_message.lower() == "reject":
+                return self._reject_pending_action()
+            
             # Check if this is a code-related request
-            code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug"]
+            code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug", "build"]
             is_code_request = any(keyword in user_message.lower() for keyword in code_keywords)
             
             # Route through appropriate system
@@ -234,6 +250,147 @@ class GraceTerminalChat:
                 logger.error(f"Error in chat loop: {e}", exc_info=True)
                 print(f"\nGrace: I encountered an unexpected error. Continuing...\n")
     
+    async def _handle_file_creation(self, message: str, context: Dict[str, Any]) -> str:
+        """Handle file creation request with approval"""
+        # Parse file path from message
+        # Example: "create file backend/new_module.py with code for ..."
+        parts = message.split("with", 1)
+        if len(parts) < 2:
+            return "Please specify: 'create file <path> with <description>'"
+        
+        file_path = parts[0].replace("create file", "").strip()
+        description = parts[1].strip()
+        
+        # Check governance
+        approval = await governance_engine.check_approval(
+            actor=self.user_name,
+            action="create_file",
+            resource=file_path,
+            context={"description": description}
+        )
+        
+        if not approval.get("approved", False):
+            return f"❌ Governance denied file creation: {approval.get('reason', 'Unknown')}"
+        
+        # Request user confirmation
+        action = {
+            "type": "create_file",
+            "file_path": file_path,
+            "description": description,
+            "context": context
+        }
+        self.pending_actions.append(action)
+        
+        return f"📝 I want to create: {file_path}\n   Description: {description}\n\n   Type 'approve' to proceed or 'reject' to cancel."
+    
+    async def _handle_file_modification(self, message: str, context: Dict[str, Any]) -> str:
+        """Handle file modification request with approval"""
+        # Parse file path from message
+        parts = message.split("to", 1)
+        if len(parts) < 2:
+            return "Please specify: 'modify file <path> to <changes>'"
+        
+        file_path = parts[0].replace("modify file", "").strip()
+        changes = parts[1].strip()
+        
+        # Check governance
+        approval = await governance_engine.check_approval(
+            actor=self.user_name,
+            action="modify_file",
+            resource=file_path,
+            context={"changes": changes}
+        )
+        
+        if not approval.get("approved", False):
+            return f"❌ Governance denied file modification: {approval.get('reason', 'Unknown')}"
+        
+        # Request user confirmation
+        action = {
+            "type": "modify_file",
+            "file_path": file_path,
+            "changes": changes,
+            "context": context
+        }
+        self.pending_actions.append(action)
+        
+        return f"✏️  I want to modify: {file_path}\n   Changes: {changes}\n\n   Type 'approve' to proceed or 'reject' to cancel."
+    
+    async def _approve_pending_action(self) -> str:
+        """Execute pending action after approval"""
+        if not self.pending_actions:
+            return "No pending actions to approve."
+        
+        action = self.pending_actions.pop(0)
+        
+        try:
+            if action["type"] == "create_file":
+                # Generate code for the file
+                result = await self.code_agent.generate_code(
+                    prompt=action["description"],
+                    context=action["context"]
+                )
+                
+                code = result.get("code", "") if isinstance(result, dict) else str(result)
+                
+                # Write file
+                file_path = action["file_path"]
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(code)
+                
+                # Log action
+                await self.immutable_log.append(
+                    actor=self.user_name,
+                    action="file_created",
+                    resource=file_path,
+                    subsystem="terminal_chat",
+                    payload={"description": action["description"]},
+                    result="success"
+                )
+                
+                return f"✅ Created file: {file_path}\n\n```python\n{code[:500]}...\n```"
+            
+            elif action["type"] == "modify_file":
+                # Read existing file
+                file_path = action["file_path"]
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    original = f.read()
+                
+                # Generate modified version
+                result = await self.code_agent.generate_code(
+                    prompt=f"Modify this code:\n{original}\n\nChanges: {action['changes']}",
+                    context=action["context"]
+                )
+                
+                code = result.get("code", "") if isinstance(result, dict) else str(result)
+                
+                # Write modified file
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(code)
+                
+                # Log action
+                await self.immutable_log.append(
+                    actor=self.user_name,
+                    action="file_modified",
+                    resource=file_path,
+                    subsystem="terminal_chat",
+                    payload={"changes": action["changes"]},
+                    result="success"
+                )
+                
+                return f"✅ Modified file: {file_path}"
+        
+        except Exception as e:
+            logger.error(f"Error executing action: {e}", exc_info=True)
+            return f"❌ Error executing action: {e}"
+    
+    def _reject_pending_action(self) -> str:
+        """Reject pending action"""
+        if not self.pending_actions:
+            return "No pending actions to reject."
+        
+        action = self.pending_actions.pop(0)
+        return f"❌ Rejected: {action['type']} for {action.get('file_path', 'unknown')}"
+    
     async def _show_status(self):
         """Show system status"""
         print("\nGrace: 📊 System Status:")
@@ -243,6 +400,7 @@ class GraceTerminalChat:
         print(f"       • Transcendence: {'✅ Active' if self.transcendence else '❌ Inactive'}")
         print(f"       • Code Agent: {'✅ Active' if self.code_agent else '❌ Inactive'}")
         print(f"       • Learning: {'✅ Enabled' if self.learning_enabled else '⏸️  Paused'}")
+        print(f"       • Pending Actions: {len(self.pending_actions)}")
         
         # Show memory stats
         if self.memory:
