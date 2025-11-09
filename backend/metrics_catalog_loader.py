@@ -75,3 +75,15 @@ def get_metric_thresholds(catalog: Dict[str, Any], metric_id: str) -> Dict[str, 
             if metric.get("id") == metric_id:
                 return metric.get("thresholds", {})
     return {}
+
+
+# Eagerly load catalog for legacy imports (e.g., from .metrics_catalog_loader import metrics_catalog)
+try:
+    metrics_catalog = load_metrics_catalog_sync()
+except Exception:
+    # If catalog doesn't exist, use empty catalog
+    metrics_catalog = {
+        "version": "1.0.0",
+        "domains": [],
+        "playbooks": []
+    }
