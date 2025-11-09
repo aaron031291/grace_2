@@ -87,7 +87,10 @@ class ImmutableLog:
                     # Retry with exponential backoff
                     await asyncio.sleep(0.1 * (2 ** attempt))
                     continue
-                raise
+                # If all retries failed, log but don't crash
+                import logging
+                logging.error(f"ImmutableLog append failed after {max_retries} retries: {e}")
+                return -1  # Return error code instead of raising
     
     async def verify_integrity(self, start_seq: int = 1, end_seq: int = None) -> dict:
         """Verify hash chain integrity"""

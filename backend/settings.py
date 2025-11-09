@@ -54,8 +54,14 @@ class Settings(BaseSettings):
     # ============ Database ============
     DATABASE_URL: str = "sqlite+aiosqlite:///./databases/grace.db"
     
+    # ============ Auth Settings (from .env) ============
+    SECRET_KEY: str = "default_secret_key_change_in_production"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    BCRYPT_ROUNDS: int = 12
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # Allow extra fields from .env
 
 settings = Settings()
