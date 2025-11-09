@@ -14,7 +14,7 @@ from .amp_api_integration import amp_api_integration
 from .governance_framework import governance_framework
 from .unified_logger import unified_logger
 from .models import async_session
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, JSON, ForeignKey
 from sqlalchemy.sql import func
 from .base_models import Base
 

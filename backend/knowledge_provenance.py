@@ -13,7 +13,6 @@ from pathlib import Path
 
 from .models import async_session
 from .healing_models import DataCubeEntry
-from .memory_models import Memory
 from .immutable_log import immutable_log
 from .unified_logger import unified_logger
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey, JSON

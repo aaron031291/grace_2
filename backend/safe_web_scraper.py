@@ -19,7 +19,6 @@ from .constitutional_engine import constitutional_engine
 from .unified_logger import unified_logger
 from .secrets_vault import secrets_vault
 from .models import async_session
-from .memory_models import Memory
 from .knowledge_provenance import provenance_tracker
 
 logger = logging.getLogger(__name__)

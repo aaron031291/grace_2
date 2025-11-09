@@ -56,5 +56,5 @@ Write-Host ""
 Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
 Write-Host ""
 
-# Start it
-.venv\Scripts\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+# Start it (no --reload to avoid multiprocessing issues)
+.venv\Scripts\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port 8000

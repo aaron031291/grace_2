@@ -477,7 +477,7 @@ Write-Info "Starting backend on http://localhost:$BackendPort ..."
 $backendJob = Start-Job -ScriptBlock {
     param($rootPath, $port)
     Set-Location $rootPath
-    & .venv\Scripts\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port $port --reload
+    & .venv\Scripts\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port $port
 } -ArgumentList $PWD, $BackendPort
 
 Write-Success "Backend starting (Job ID: $($backendJob.Id))"
