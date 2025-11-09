@@ -616,6 +616,15 @@ class BootDiagnostics:
         print(f"Git SHA: {self.boot_context.get('git_sha', 'unknown')}")
         print()
         
+        # Note about boot pipeline context
+        health = self.boot_context.get("startup_health", {})
+        running = health.get('running_subsystems', 0)
+        if running == 0:
+            print("NOTE: Diagnostics run during boot pipeline (before main.py)")
+            print("      Subsystems start in main.py on_startup event")
+            print("      0% health is expected at this stage")
+            print()
+        
         # Health summary
         health = self.boot_context.get("startup_health", {})
         health_status = health.get("health_status", "unknown")
@@ -698,26 +707,19 @@ class BootDiagnostics:
             params = list(create_capa_sig.parameters.keys())
             
             for finding in self.severity_levels["critical"]:
-                # Try different parameter names based on actual method signature
-                if "issue_description" in params:
-                    await capa_system.create_capa(
-                        issue_description=finding["message"],
-                        severity="high",
-                        category="boot_failure",
-                        detected_by="boot_diagnostics",
-                        evidence=finding["context"],
-                        immediate_action=finding["remediation"]
-                    )
-                elif "description" in params:
-                    await capa_system.create_capa(
-                        description=finding["message"],
-                        severity="high",
-                        category="boot_failure",
-                        detected_by="boot_diagnostics"
-                    )
-                else:
-                    logger.warning(f"[DIAGNOSTICS] Unknown CAPA method signature: {params}, skipping ticket creation")
-                    break
+                # Match CAPASystem.create_capa signature
+                # Required: title, description, capa_type, severity, source
+                from backend.capa_system import CAPAType, CAPASeverity
+                
+                await capa_system.create_capa(
+                    title=f"Boot Diagnostic: {finding['type']}",
+                    description=finding["message"],
+                    capa_type=CAPAType.CORRECTIVE,
+                    severity=CAPASeverity.HIGH,
+                    source="boot_diagnostics",
+                    detected_by="boot_diagnostics",
+                    evidence=finding["context"]
+                )
             
             logger.info(f"[DIAGNOSTICS] Created {len(self.severity_levels['critical'])} CAPA tickets")
             
