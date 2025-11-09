@@ -121,7 +121,7 @@ class AutonomousImprover:
                 content = py_file.read_text()
                 
                 # Check for TODO comments (skip safe/intentional tags)
-                if 'TODO:' in content:
+                if 'TODO:' in content or 'TODO(' in content:
                     # Skip if TODO is tagged as safe/intentional
                     safe_todo_tags = ['TODO(SAFE)', 'TODO(ROADMAP)', 'TODO(DESIGN)', 'TODO(FUTURE)']
                     
@@ -132,30 +132,39 @@ class AutonomousImprover:
                         '# TODO: Add assertions',  # Test generator
                         "if 'TODO:' in",  # Detection code itself
                         "'TODO:' in line",  # Detection code
+                        "'TODO:' in content",  # Detection code
                     ]
                     
                     # Check if any TODOs in file are unsafe
                     has_unsafe_todo = False
-                    for line in content.split('\n'):
+                    unsafe_todo_lines = []
+                    
+                    for line_num, line in enumerate(content.split('\n'), 1):
                         if 'TODO:' in line:
-                            # Skip if has safe tag
+                            # Skip if has safe tag (check for TODO( pattern)
                             if any(tag in line for tag in safe_todo_tags):
+                                logger.debug(f"[AUTONOMOUS] Skipping safe TODO in {py_file.name}:{line_num}")
                                 continue
                             # Skip if matches safe pattern
                             if any(pattern in line for pattern in safe_patterns):
+                                logger.debug(f"[AUTONOMOUS] Skipping pattern TODO in {py_file.name}:{line_num}")
                                 continue
                             # This TODO is untagged and not a safe pattern
                             has_unsafe_todo = True
-                            break
+                            unsafe_todo_lines.append(line_num)
+                            logger.info(f"[AUTONOMOUS] Found untagged TODO in {py_file.name}:{line_num}")
                     
                     if has_unsafe_todo:
                         issues.append({
                             'type': 'todo',
                             'severity': 'low',
                             'file': str(py_file),
-                            'description': 'Untagged TODO comment found',
+                            'description': f'Untagged TODO found on lines: {unsafe_todo_lines}',
                             'fixable': False
                         })
+                        logger.info(f"[AUTONOMOUS] Flagging {py_file.name} for untagged TODOs (not fixable)")
+                    else:
+                        logger.debug(f"[AUTONOMOUS] {py_file.name} - All TODOs are tagged (safe)")
                 
                 # Note: print() check disabled - too noisy for script files
                 # Many files legitimately use print() for CLI output
