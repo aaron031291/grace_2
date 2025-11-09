@@ -4,6 +4,7 @@ Sub-millisecond cryptographic identity assignment for all Grace entities
 Integrates with existing PersistentMemory and AgenticMemory
 """
 
+import asyncio
 import hashlib
 import secrets
 import time
@@ -115,8 +116,8 @@ class UniversalCryptographicAssignmentEngine:
         # Register in crypto registry
         self.crypto_registry[crypto_id] = identity
         
-        # Log to immutable ledger
-        identity.immutable_log_sequence = await self._log_crypto_assignment(identity)
+        # Log to immutable ledger (async, don't block on it)
+        asyncio.create_task(self._log_crypto_assignment_async(identity))
         
         # Performance check
         duration_ms = (time.perf_counter() - start_time) * 1000
@@ -211,6 +212,14 @@ class UniversalCryptographicAssignmentEngine:
         except Exception as e:
             logger.debug(f"Immutable log skipped: {e}")
             return None
+    
+    async def _log_crypto_assignment_async(self, identity: CryptoIdentity):
+        """Log crypto assignment asynchronously (non-blocking)"""
+        try:
+            sequence = await self._log_crypto_assignment(identity)
+            identity.immutable_log_sequence = sequence
+        except Exception as e:
+            logger.debug(f"Async crypto logging failed: {e}")
     
     async def trace_entity_real_time(self, crypto_id: str) -> Dict[str, Any]:
         """Lightning-fast real-time entity tracing across all Grace systems"""
