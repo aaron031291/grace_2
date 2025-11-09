@@ -1,4 +1,4 @@
-﻿"""
+"""
 Meta Loop Supervisor - Systemic oversight and governance layer
 
 Sits atop the agentic spine, analyzing cross-domain performance and
@@ -17,6 +17,7 @@ import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
+from .unified_logger import unified_logger
 
 
 class DirectiveType(Enum):
@@ -731,9 +732,14 @@ class MetaLoopSupervisor:
     async def _supervisor_loop(self):
         """Main supervisory cycle"""
         
+        cycle_number = 0
+        
         while self.running:
             try:
-                print(f"\n[Meta Loop] Starting supervisory cycle at {datetime.utcnow().strftime('%H:%M:%S')}")
+                cycle_number += 1
+                cycle_start = datetime.utcnow()
+                
+                print(f"\n[Meta Loop] Starting supervisory cycle at {cycle_start.strftime('%H:%M:%S')}")
                 
                 snapshot = await self.snapshot_builder.build_snapshot()
                 print(f"  -> Built cross-domain snapshot: {len(snapshot.domain_snapshots)} domains")
@@ -741,14 +747,38 @@ class MetaLoopSupervisor:
                 directives = await self.strategy_engine.analyze_and_decide(snapshot)
                 print(f"  -> Strategy engine issued {len(directives)} directives")
                 
+                directives_executed = 0
+                directives_successful = 0
+                
                 for directive in directives:
                     await self.directive_pipeline.submit_directive(directive)
                     print(f"    * {directive.directive_type.value}: {directive.justification}")
                     
-                    if directive.executed and not directive.requires_approval:
-                        asyncio.create_task(
-                            self.verification_layer.verify_directive(directive, snapshot)
-                        )
+                    if directive.executed:
+                        directives_executed += 1
+                        if not directive.requires_approval:
+                            directives_successful += 1
+                            asyncio.create_task(
+                                self.verification_layer.verify_directive(directive, snapshot)
+                            )
+                
+                cycle_end = datetime.utcnow()
+                duration = (cycle_end - cycle_start).total_seconds()
+                
+                # Log to unified logger
+                await unified_logger.log_meta_loop_cycle(
+                    cycle_number=cycle_number,
+                    focus_area=snapshot.focus_recommendation,
+                    guardrails_mode=snapshot.guardrails_recommendation,
+                    ml_root_causes=snapshot.ml_root_causes,
+                    directives_issued=[d.directive_type.value for d in directives],
+                    directives_executed=directives_executed,
+                    directives_successful=directives_successful,
+                    duration=duration,
+                    domains_analyzed=len(snapshot.domain_snapshots),
+                    outcome='success',
+                    completed_at=cycle_end
+                )
                 
                 await self._publish_summary(snapshot, directives)
                 

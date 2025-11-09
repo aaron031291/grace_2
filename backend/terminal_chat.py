@@ -118,6 +118,8 @@ class GraceTerminalChat:
         print("   • autonomy - Show/control autonomy mode")
         print("   • dashboard - Show complete system dashboard")
         print("   • report - Grace's self-generated activity report")
+        print("   • analyze - Grace analyzes her own performance")
+        print("   • improve - Grace's improvement plan")
         print("   • exit / quit - End session\n")
     
     async def chat(self, user_message: str) -> str:
@@ -156,6 +158,10 @@ class GraceTerminalChat:
                 return await self._show_dashboard()
             elif user_message.lower() == "report":
                 return await self._show_self_report()
+            elif user_message.lower() == "analyze":
+                return await self._show_self_analysis()
+            elif user_message.lower() == "improve":
+                return await self._show_improvement_plan()
             
             # Check if this is a code-related request
             code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug", "build"]
@@ -531,6 +537,41 @@ class GraceTerminalChat:
         
         report = await grace_log_reader.generate_self_report(hours=24)
         return "\n" + report
+    
+    async def _show_self_analysis(self) -> str:
+        """Show Grace's performance analysis"""
+        from grace_self_analysis import grace_self_analysis
+        
+        analysis = await grace_self_analysis.analyze_performance(hours=24)
+        
+        output = f"\n🔍 MY PERFORMANCE ANALYSIS (Last 24h)\n\n"
+        output += f"Health Score: {analysis['health_score']}/100\n\n"
+        
+        output += "📊 Performance Grades:\n"
+        output += f"   • Healing: {analysis['healing_performance']['grade']} ({analysis['healing_performance']['success_rate']:.1%})\n"
+        output += f"   • Learning: {analysis['learning_performance']['grade']} ({analysis['learning_performance']['confidence']:.1%})\n"
+        output += f"   • Autonomy: {analysis['autonomous_performance']['grade']}\n\n"
+        
+        if analysis['strengths']:
+            output += "💪 Strengths:\n"
+            for s in analysis['strengths'][:3]:
+                output += f"   • {s}\n"
+            output += "\n"
+        
+        if analysis['improvement_areas']:
+            output += "🎯 Need Improvement:\n"
+            for area in analysis['improvement_areas'][:3]:
+                output += f"   • {area}\n"
+            output += "\n"
+        
+        return output
+    
+    async def _show_improvement_plan(self) -> str:
+        """Show Grace's improvement plan"""
+        from grace_self_analysis import grace_self_analysis
+        
+        plan = await grace_self_analysis.generate_improvement_plan()
+        return "\n" + plan
     
     async def _show_status(self):
         """Show system status"""

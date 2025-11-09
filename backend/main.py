@@ -164,9 +164,10 @@ async def on_startup():
     # Ensure model modules imported so Base.metadata is populated
     try:
         import importlib
-        for _mod in ("backend.governance_models", "backend.knowledge_models", "backend.parliament_models"):
+        for _mod in ("backend.governance_models", "backend.knowledge_models", "backend.parliament_models", "backend.healing_models"):
             try:
                 importlib.import_module(_mod)
+                print(f"  [OK] Imported {_mod}")
             except Exception as e:
                 print(f"  Warning: Could not import {_mod}: {e}")
     except Exception as e:
@@ -323,6 +324,20 @@ async def on_startup():
     await ml_healing.start()
     await dl_healing.start()
     print("[AUTONOMOUS] 🧠 ML/DL Healing started - Learning from every error")
+    
+    # Startup Verification - Confirm all systems operational
+    from backend.startup_verification import startup_verification
+    
+    # Verify critical systems
+    await startup_verification.verify_system("trigger_mesh", lambda: trigger_mesh._running)
+    await startup_verification.verify_system("agentic_spine", lambda: True)
+    await startup_verification.verify_system("code_healer", lambda: code_healer.running)
+    await startup_verification.verify_system("log_healer", lambda: log_based_healer.running)
+    await startup_verification.verify_system("ml_healing", lambda: ml_healing.running)
+    
+    # Generate and display report
+    verification_report = await startup_verification.generate_startup_report()
+    startup_verification.print_startup_banner(verification_report)
 
 @app.on_event("shutdown")
 async def on_shutdown():
