@@ -178,7 +178,7 @@ class LogBasedHealer:
         }
         
         # Publish error event to trigger mesh for code_healer to handle
-        trigger_mesh.publish(TriggerEvent(
+        await trigger_mesh.publish(TriggerEvent(
             event_type="error.detected",
             source="log_based_healer",
             actor="grace_log_scanner",

@@ -75,14 +75,14 @@ class ResilientStartup:
                 logger.error(f"[RESILIENT] ❌ {component_name} failed (attempt {attempt}): {e}")
                 
                 # Publish error event
-                trigger_mesh.publish(TriggerEvent(
+                asyncio.create_task(trigger_mesh.publish(TriggerEvent(
                     event_type="startup.error",
                     source="resilient_startup",
                     actor="grace_startup",
                     resource=component_name,
                     payload=error_info,
                     timestamp=datetime.utcnow()
-                ))
+                )))
                 
                 # Try to fix if not last attempt
                 if attempt < self.max_retries:

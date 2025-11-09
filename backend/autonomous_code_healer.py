@@ -440,6 +440,30 @@ class AutonomousCodeHealer:
         except Exception as e:
             logger.error(f"[CODE_HEAL] Failed to apply fix: {e}", exc_info=True)
     
+    async def _proactive_scan_loop(self):
+        """Proactive scanning loop - periodically scan for potential issues"""
+        logger.info("[CODE_HEAL] Starting proactive scan loop")
+        
+        while self.running:
+            try:
+                # Wait 5 minutes between scans
+                await asyncio.sleep(300)
+                
+                if not self.running:
+                    break
+                
+                logger.debug("[CODE_HEAL] Running proactive code scan...")
+                
+                # Could scan for common patterns, outdated dependencies, etc.
+                # For now, just log that we're scanning
+                # Future: integrate with code_understanding for deeper analysis
+                
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"[CODE_HEAL] Error in proactive scan: {e}")
+                await asyncio.sleep(60)  # Back off on error
+    
     async def get_status(self) -> Dict[str, Any]:
         """Get healing system status"""
         return {

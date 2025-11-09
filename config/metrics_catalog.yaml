@@ -228,3 +228,161 @@ metrics:
     source: internal
     resource_scope: subsystem
     tags: [trigger_mesh, queue]
+
+# Playbook Definitions
+playbooks:
+  - playbook_id: scale-api-shard
+    description: "Spin up additional API workers"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: failover-gateway
+    description: "Switch to backup gateway"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: restart-workers
+    description: "Rolling restart of worker processes"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: engage-remediation
+    description: "Trigger error remediation workflow"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: pre-scale
+    description: "Proactively scale before hitting limits"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: activate-autoscaling
+    description: "Enable autoscaling for high load"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: scale-workers
+    description: "Add worker capacity"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: spawn-emergency-shard
+    description: "Emergency worker shard for queue overflow"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: increase-workers
+    description: "Gradually increase worker count"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: escalate-to-human
+    description: "Request human intervention"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+
+  - playbook_id: run-trust-analysis
+    description: "Deep analysis of source trust scores"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: stop-ingestion-cycle
+    description: "Pause learning ingestion"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: audit-governance-rules
+    description: "Review and audit governance configuration"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: require-human-review
+    description: "Escalate governance blocks to humans"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+
+  - playbook_id: tighten-guardrails
+    description: "Increase governance strictness"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: downgrade-autonomy-tier
+    description: "Reduce autonomous decision scope"
+    risk_level: high
+    autonomy_tier: tier_4
+    requires_approval: true
+
+  - playbook_id: notify-reviewers
+    description: "Alert approval reviewers"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+
+  - playbook_id: pause-high-risk-plans
+    description: "Temporarily halt high-risk autonomous actions"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: shift-load
+    description: "Move workload to less utilized nodes"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: scale-nodes
+    description: "Add infrastructure nodes"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: restart-non-critical
+    description: "Restart services to free memory"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: migrate-workloads
+    description: "Move workloads to free memory"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true
+
+  - playbook_id: cleanup-tasks
+    description: "Run disk cleanup operations"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: trigger-disk-expansion
+    description: "Expand disk capacity"
+    risk_level: high
+    autonomy_tier: tier_4
+    requires_approval: true
+
+  - playbook_id: scale-router
+    description: "Scale trigger mesh routing capacity"
+    risk_level: low
+    autonomy_tier: tier_2
+    requires_approval: false
+
+  - playbook_id: shed-non-critical-events
+    description: "Drop low-priority events during overload"
+    risk_level: medium
+    autonomy_tier: tier_3
+    requires_approval: true

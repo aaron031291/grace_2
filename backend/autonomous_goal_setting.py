@@ -350,7 +350,7 @@ class AutonomousGoalSetting:
             )
             
             # Publish event
-            trigger_mesh.publish(TriggerEvent(
+            await trigger_mesh.publish(TriggerEvent(
                 event_type='goal.created',
                 source='autonomous_goal_setting',
                 actor='grace',

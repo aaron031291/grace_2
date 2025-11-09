@@ -221,14 +221,15 @@ class CoreDomainAdapter(DomainAdapter):
                 from ..avn_avm import VerificationEvent
                 verification_result = await session.execute(
                     select(
-                        func.count(VerificationEvent.id).label("total")
+                        func.count(VerificationEvent.id).label("total"),
+                        func.sum(func.cast(VerificationEvent.passed, Integer)).label("passed")
                     )
                     .where(VerificationEvent.created_at >= cutoff)
                 )
                 verification_stats = verification_result.one_or_none()
                 
                 total_verifications = verification_stats.total if verification_stats else 0
-                passed_verifications = 0  # Placeholder until schema migrates
+                passed_verifications = verification_stats.passed if verification_stats and verification_stats.passed else 0
             except Exception:
                 # Fallback if table doesn't exist yet
                 total_verifications = 0

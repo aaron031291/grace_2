@@ -130,15 +130,8 @@ class AutonomousImprover:
                         'fixable': False
                     })
                 
-                # Check for print statements (should use logging)
-                if 'print(' in content and 'def test' not in content:
-                    issues.append({
-                        'type': 'code_quality',
-                        'severity': 'low',
-                        'file': str(py_file),
-                        'description': 'Uses print() instead of logging',
-                        'fixable': True
-                    })
+                # Note: print() check disabled - too noisy for script files
+                # Many files legitimately use print() for CLI output
             except:
                 pass
         
@@ -245,9 +238,9 @@ class AutonomousImprover:
             actor="autonomous_improver",
             action="fix_code_issue",
             resource=issue.get('file', 'codebase'),
-            payload=issue
+            context=issue
         )
-        return result['decision'] == 'allow'
+        return result.get('approved', False)
     
     async def _fix_code_quality(self, issue: Dict[str, Any]) -> bool:
         """Fix code quality issues"""

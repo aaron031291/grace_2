@@ -170,7 +170,7 @@ class ProactiveImprovementEngine:
         )
         
         # Publish event
-        trigger_mesh.publish(TriggerEvent(
+        await trigger_mesh.publish(TriggerEvent(
             event_type='improvement.proposed',
             source='proactive_improvement',
             actor='grace',
