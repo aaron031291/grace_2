@@ -1,0 +1,47 @@
+========================================
+GRACE AI SYSTEM - COPY & PASTE COMMANDS
+========================================
+
+🚀 FASTEST WAY TO START (PowerShell):
+--------------------------------------
+cd C:\Users\aaron\grace_2
+.\RUN_GRACE.ps1
+
+
+🐳 DOCKER:
+----------
+cd C:\Users\aaron\grace_2
+docker-compose -f docker-compose.complete.yml up
+
+
+☸️ KUBERNETES:
+--------------
+cd C:\Users\aaron\grace_2\kubernetes
+kubectl apply -f grace-complete-deployment.yaml
+
+
+📊 AFTER BOOT:
+--------------
+Backend:  http://localhost:8000
+Frontend: http://localhost:5173
+API Docs: http://localhost:8000/docs
+
+
+✅ TEST A KERNEL:
+-----------------
+curl -X POST http://localhost:8000/kernel/memory -H "Content-Type: application/json" -d "{\"intent\": \"What do you know?\"}"
+
+
+🛑 STOP:
+--------
+PowerShell: Press Ctrl+C
+Docker:     docker-compose -f docker-compose.complete.yml down
+Kubernetes: kubectl delete namespace grace
+
+
+📖 MORE INFO:
+-------------
+See START_HERE.md for complete documentation
+
+
+🎉 That's it! Grace is ready!
