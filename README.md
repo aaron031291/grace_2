@@ -39,18 +39,29 @@ kubectl apply -f grace-complete-deployment.yaml
 
 ---
 
-## 🎯 What You Get
-
----
-
 ## 🎯 What is Grace?
 
-Grace is a **fully autonomous AI system** that:
-- ✅ Learns from internet (83+ trusted domains)
-- ✅ Verifies knowledge with Amp API
-- ✅ Builds validated source library via ML/DL
-- ✅ Self-improves continuously
-- ✅ Complete governance and traceability
+**A production-ready autonomous AI system with REAL intelligence**
+
+### Intelligence Layer:
+- ✅ **9 Domain Kernels** - AI agents managing 311+ APIs
+- ✅ Natural language intent parsing
+- ✅ Automatic API orchestration
+- ✅ Full provenance tracking
+
+### Learning Layer (REAL APIs):
+- ✅ **YouTube** - Real video transcripts
+- ✅ **Reddit** - Real community posts
+- ✅ **GitHub** - Real repository mining
+- ✅ **Web** - 83+ trusted domains
+- ✅ Constitutional governance on all sources
+
+### Autonomy Layer (REAL Actions):
+- ✅ **22 Production Metrics** - Live CPU/memory/disk/DB telemetry
+- ✅ **23 Executable Playbooks** - Real remedial actions
+- ✅ **Metric-Driven Decisions** - No stubs, real autonomy
+- ✅ **5-Minute Aggregation Windows** - Time-series analysis
+- ✅ **Governance-Checked Execution** - Safe autonomous actions
 
 ---
 
