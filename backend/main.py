@@ -1,5 +1,6 @@
 # Force UTF-8 encoding for Windows console (before any logging)
 import sys
+import asyncio
 try:
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
@@ -367,6 +368,25 @@ async def on_startup():
     await metrics_collector.start()
     await snapshot_aggregator.start()
     await real_proactive_intelligence.start()
+    
+    # =========================================================================
+    # POST-BOOT ORCHESTRATION - Anomaly-Driven Self-Healing
+    # =========================================================================
+    print("\n[POST-BOOT] Starting anomaly-driven healing workflow...")
+    
+    try:
+        from backend.post_boot_orchestrator import post_boot_orchestrator
+        
+        # Run in background task so startup completes
+        asyncio.create_task(post_boot_orchestrator.run_post_boot_workflow())
+        
+        print("[OK] Post-boot workflow scheduled")
+        print("     - Stress test will run")
+        print("     - Baseline will be established")
+        print("     - Watchdog monitoring will start")
+        print("     - Self-healing loop active")
+    except Exception as e:
+        logger.warning(f"Post-boot orchestration skipped: {e}")
     await playbook_executor.start()
     
     print("[METRICS] Real telemetry system started")
