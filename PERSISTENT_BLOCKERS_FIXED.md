@@ -49,12 +49,12 @@
 
 ## Migration Instructions
 
-Run the new migration:
+✅ **COMPLETED**: Migration applied successfully
 ```powershell
-python -m alembic upgrade head
+.\.venv\Scripts\python.exe -m alembic upgrade head
 ```
 
-This will add `risk_level` and `autonomy_tier` columns to existing playbooks table.
+Added `risk_level` and `autonomy_tier` columns to playbooks table.
 
 ## Verification Steps
 
