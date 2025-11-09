@@ -217,18 +217,22 @@ class CoreDomainAdapter(DomainAdapter):
             healing_24h = healing_result.scalar() or 0
             
             # Get verification stats
-            from ..avn_avm import VerificationEvent
-            verification_result = await session.execute(
-                select(
-                    func.count(VerificationEvent.id).label("total"),
-                    func.sum(func.cast(VerificationEvent.passed, Integer)).label("passed")
+            try:
+                from ..avn_avm import VerificationEvent
+                verification_result = await session.execute(
+                    select(
+                        func.count(VerificationEvent.id).label("total")
+                    )
+                    .where(VerificationEvent.created_at >= cutoff)
                 )
-                .where(VerificationEvent.created_at >= cutoff)
-            )
-            verification_stats = verification_result.one_or_none()
-            
-            total_verifications = verification_stats.total if verification_stats else 0
-            passed_verifications = verification_stats.passed if verification_stats else 0
+                verification_stats = verification_result.one_or_none()
+                
+                total_verifications = verification_stats.total if verification_stats else 0
+                passed_verifications = 0  # Placeholder until schema migrates
+            except Exception:
+                # Fallback if table doesn't exist yet
+                total_verifications = 0
+                passed_verifications = 0
             
             verification_rate = (
                 passed_verifications / total_verifications

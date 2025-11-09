@@ -19,7 +19,7 @@ def chat():
     
     # Check if GRACE is running
     try:
-        health = requests.get(f"{BASE_URL}/health", timeout=5)
+        health = requests.get(f"{BASE_URL}/health", timeout=30)
         if health.status_code != 200:
             print("ERROR: GRACE is not responding. Make sure she's running on port 8000")
             return
