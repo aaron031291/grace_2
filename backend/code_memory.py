@@ -6,6 +6,7 @@ for intelligent code completion and generation.
 
 import ast
 import re
+import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
@@ -137,7 +138,24 @@ class CodeMemoryEngine:
             Summary of patterns extracted
         """
         
-        root = Path(root_path)
+        root = Path(root_path) if root_path else Path("./frontend/src")
+        if not root.exists():
+            # Fall back to frontend/src if available; otherwise skip parse safely
+            fallback = Path("./frontend/src")
+            if fallback.exists():
+                root = fallback
+            else:
+                try:
+                    # Best-effort immutable log
+                    from .immutable_log import immutable_log as _ilog
+                    await _ilog.append(actor="code_memory", action="parse_skipped", resource=str(root_path), subsystem="code_memory", payload={"reason": "path_missing"}, result="skipped")
+                except Exception:
+                    pass
+                return {
+                    'project': project_name,
+                    'patterns_extracted': {'functions': 0, 'classes': 0, 'modules': 0, 'snippets': 0},
+                    'total': 0
+                }
         patterns_extracted = {
             'functions': 0,
             'classes': 0,
@@ -146,8 +164,12 @@ class CodeMemoryEngine:
         }
         
         # Find all code files
+        ts_scan_enabled = os.getenv("ENABLE_TS_SCAN", "").lower() in ("1", "true", "yes", "on")
         for ext, lang in self.supported_languages.items():
             if language_filter and lang not in language_filter:
+                continue
+            # Feature flag: optionally skip JS/TS scanning to avoid heavy/unstable scans
+            if not ts_scan_enabled and lang in ("javascript", "typescript"):
                 continue
             
             for file_path in root.rglob(f'*{ext}'):

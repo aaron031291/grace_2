@@ -63,6 +63,20 @@ async def on_startup():
         await conn.run_sync(Base.metadata.create_all)
     print("✓ Database initialized")
 
+    # Compatibility shim: ensure verification_events.passed column exists
+    try:
+        from sqlalchemy import text
+        async with engine.begin() as conn:
+            # SQLite pragma to list columns
+            result = await conn.exec_driver_sql("PRAGMA table_info(verification_events);")
+            cols = [row[1] for row in result.fetchall()]
+            if "passed" not in cols:
+                await conn.exec_driver_sql("ALTER TABLE verification_events ADD COLUMN passed BOOLEAN;")
+                print("✓ Added missing column: verification_events.passed")
+    except Exception as e:
+        # Non-fatal; meta loop verification may still fail until migrations are applied
+        print(f"⚠ Verification schema check failed or not needed: {e}")
+
     # Metrics DB (separate to avoid coupling)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
     from .metrics_models import Base as MetricsBase
@@ -83,6 +97,12 @@ async def on_startup():
     await trigger_mesh.start()
     await setup_subscriptions()
     await setup_ws_subscriptions()
+    # Cognition alerts subscriptions (non-fatal if unavailable)
+    try:
+        from .cognition_alerts import setup_alert_subscriptions as _setup_alerts
+        await _setup_alerts()
+    except Exception:
+        pass
     await trust_manager.initialize_defaults()
     await reflection_service.start()
     await task_executor.start_workers()
@@ -168,6 +188,47 @@ async def on_shutdown():
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "message": "Grace API is running"}
+
+@app.get("/api/status")
+async def api_status():
+    """Public status endpoint used by CLI smoke tests.
+    Returns overall cognition metrics and domain details.
+    """
+    try:
+        # Lazy imports to avoid startup import ordering issues
+        from .metrics_service import get_metrics_collector
+        from .cognition_metrics import get_metrics_engine
+
+        collector = get_metrics_collector()
+        engine = get_metrics_engine()
+
+        # Sync latest aggregates from collector into the engine
+        for domain, kpis in getattr(collector, "aggregates", {}).items():
+            if domain in getattr(engine, "domains", {}):
+                engine.update_domain(domain, kpis)
+
+        status = engine.get_status()
+        # Ensure required keys exist (shape expected by scripts/cli_test.py)
+        required = {
+            "overall_health": status.get("overall_health", 0.0),
+            "overall_trust": status.get("overall_trust", 0.0),
+            "overall_confidence": status.get("overall_confidence", 0.0),
+            "saas_ready": status.get("saas_ready", False),
+            "domains": status.get("domains", {}),
+        }
+        status.update(required)
+        return status
+    except Exception as e:
+        # Non-fatal: return a minimal payload with required keys so clients don't break
+        return {
+            "timestamp": None,
+            "overall_health": 0.0,
+            "overall_trust": 0.0,
+            "overall_confidence": 0.0,
+            "saas_ready": False,
+            "domains": {},
+            "error": str(e),
+        }
 
 @app.get("/api/verification/audit")
 async def verification_audit(
