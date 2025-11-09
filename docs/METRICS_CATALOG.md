@@ -47,6 +47,8 @@ Each metric entry defines:
 | `learning.sources_verified` | Percentage of learned sources passing governance/constitutional checks | Provenance tracker | `subsystem` | 5m | percent | avg | `>85 / 70–85 / <70` | Warn: run trust analysis; Critical: stop ingestion cycle |
 | `learning.sandbox_pass_rate` | Sandbox applications that pass tests | Knowledge sandbox | `subsystem` | 5m | percent | avg | `>80 / 60–80 / <60` | Warn: re-run with stricter policies; Critical: disable auto-application |
 | `learning.governance_blocks` | Count of ingestion attempts blocked by governance | Governance framework | `subsystem` | 5m | count | sum | `<2 / 2–5 / >5` | Warn: audit rules; Critical: require human review |
+| `learning.source_freshness_ratio` | Share of new sources vs. duplicates in last cycle | Provenance tracker | `subsystem` | 5m | percent | avg | `>80 / 60–80 / <60` | Warn: expand discovery seeds; Critical: refresh learning targets |
+| `learning.collector_health` | Time since last successful collector publish | Collector heartbeat | `collector` (`web`, `github`, `reddit`, etc.) | 1m | seconds | max | `<120 / 120–300 / >300` | Warn: restart collector; Critical: fail ingestion cycle |
 
 ### 1.4 Autonomy & Decision Quality
 
@@ -68,12 +70,24 @@ Each metric entry defines:
 
 ### 1.5 Infrastructure & Host Health
 
+### 1.5 Infrastructure & Host Health
+
 | metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
 | --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
 | `infra.cpu_utilization` | CPU usage per host/shard | Prometheus / Cloud provider | `host` | 30s | percent | avg | `<70 / 70–85 / >85` | Warn: shift load; Critical: scale nodes |
 | `infra.memory_utilization` | Memory usage per host/shard | Prometheus | `host` | 30s | percent | avg | `<75 / 75–90 / >90` | Warn: restart non-critical services; Critical: migrate workloads |
 | `infra.disk_usage` | Disk utilisation for critical volumes | Prometheus | `volume` | 5m | percent | max | `<70 / 70–85 / >85` | Warn: cleanup tasks; Critical: trigger disk expansion |
 | `infra.pod_ready_ratio` | Ready pods ÷ desired pods (k8s) | Kubernetes API | `service` | 30s | percent | avg | `>95 / 90–95 / <90` | Warn: reschedule pods; Critical: escalate to infra team |
+
+### 1.7 Event Fabric & Collector Reliability
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `telemetry.collector_uptime` | Collector heartbeat success rate | Collector supervisors | `collector` | 1m | percent | avg | `>99 / 95–99 / <95` | Warn: restart collector service; Critical: switch to backup |
+| `telemetry.publish_latency` | Latency from metric scrape to trigger mesh publish | Collector instrumentation | `collector` | 1m | milliseconds | avg | `<1000 / 1000–3000 / >3000` | Warn: investigate network bottleneck; Critical: pause dependent playbooks |
+| `telemetry.schema_failures` | Count of metric events rejected due to schema validation errors | Metric ingestion validator | `collector` | 1m | count | sum | `=0 / 1–3 / >3` | Warn: review collector payload; Critical: disable collector auto-optimisation |
+| `trigger.mesh_queue_depth` | Events awaiting routing in trigger mesh | Trigger mesh | `subsystem` (`trigger_mesh`) | 30s | count | max | `<50 / 50–150 / >150` | Warn: scale router; Critical: shed non-critical events |
+| `trigger.handler_error_rate` | Percentage of handler invocations raising errors | Trigger mesh | `subsystem` | 1m | percent | avg | `<1 / 1–3 / >3` | Warn: isolate faulty handler; Critical: disable handler and alert team |
 
 ### 1.6 Business & Experience KPIs
 
