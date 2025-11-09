@@ -9,7 +9,7 @@ import asyncio
 import httpx
 
 from .base_kernel import BaseDomainKernel, KernelIntent, KernelPlan, KernelResponse
-from ..schemas import ExecutionStep, DataProvenance
+from ..schemas import ExecutionStep, DataProvenance, ExecutionTrace
 from ..logging_utils import log_event
 from ..grace_llm import get_grace_llm
 

@@ -6,6 +6,7 @@ Grace understands her capacity and optimizes resource usage
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
+import platform
 
 from ..hardware_awareness import hardware_profile
 

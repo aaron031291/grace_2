@@ -10,9 +10,9 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, text
-from backend.models import async_session
-from backend.auth import get_current_user
-from backend.schemas_extended import (
+from ..models import async_session
+from ..auth import get_current_user
+from ..schemas_extended import (
     VerificationMissionDetailResponse, VerificationSmokeCheckResponseExtended, 
     VerificationHealthResponse
 )

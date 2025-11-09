@@ -61,20 +61,33 @@ class GitHubKnowledgeMiner:
     async def start(self):
         """Start GitHub mining session"""
         if not self.session:
-            # Try to get GitHub token from secrets vault
-            try:
-                self.github_token = await secrets_vault.get_secret('GITHUB_TOKEN')
-            except:
-                logger.warning("[GITHUB-MINER] No GitHub token - using unauthenticated requests (rate limited)")
+            # Try to get GitHub token from secrets vault or environment
+            self.github_token = await secrets_vault.get_secret('GITHUB_TOKEN', 'github_miner')
             
-            headers = {'Accept': 'application/vnd.github.v3+json'}
             if self.github_token:
-                headers['Authorization'] = f'token {self.github_token}'
+                logger.info("[GITHUB-MINER] ✅ GitHub token loaded successfully")
+                headers = {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Authorization': f'token {self.github_token}'
+                }
+            else:
+                logger.warning(
+                    "[GITHUB-MINER] ⚠️  No GitHub token found!\n"
+                    "  Using unauthenticated requests (60 requests/hour)\n"
+                    "  To fix:\n"
+                    "    1. Create a GitHub personal access token at https://github.com/settings/tokens\n"
+                    "    2. Add GITHUB_TOKEN=<your_token> to .env file\n"
+                    "    OR set GRACE_VAULT_KEY and store in vault"
+                )
+                headers = {'Accept': 'application/vnd.github.v3+json'}
             
             self.session = aiohttp.ClientSession(
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=30)
             )
+            
+            # Check and display rate limit status
+            await self._check_rate_limit()
         
         logger.info("[GITHUB-MINER] ✅ Started")
     
@@ -84,6 +97,40 @@ class GitHubKnowledgeMiner:
             await self.session.close()
             self.session = None
         logger.info("[GITHUB-MINER] Stopped")
+    
+    async def _check_rate_limit(self):
+        """Check and display GitHub API rate limit status"""
+        try:
+            async with self.session.get(f"{self.base_url}/rate_limit") as response:
+                if response.status == 200:
+                    data = await response.json()
+                    core = data.get('resources', {}).get('core', {})
+                    
+                    remaining = core.get('remaining', 0)
+                    limit = core.get('limit', 0)
+                    reset_timestamp = core.get('reset', 0)
+                    
+                    from datetime import datetime
+                    reset_time = datetime.fromtimestamp(reset_timestamp).strftime('%H:%M:%S')
+                    
+                    if self.github_token:
+                        logger.info(
+                            f"[GITHUB-MINER] 📊 Rate Limit: {remaining}/{limit} requests remaining "
+                            f"(resets at {reset_time})"
+                        )
+                    else:
+                        logger.warning(
+                            f"[GITHUB-MINER] ⚠️  Rate Limit: {remaining}/{limit} requests remaining "
+                            f"(resets at {reset_time})"
+                        )
+                        
+                    if remaining < 10:
+                        logger.error(
+                            f"[GITHUB-MINER] 🚨 LOW RATE LIMIT! Only {remaining} requests left. "
+                            f"Add a GitHub token to get 5000/hour instead of 60/hour"
+                        )
+        except Exception as e:
+            logger.debug(f"[GITHUB-MINER] Could not check rate limit: {e}")
     
     async def mine_repository(
         self,

@@ -335,6 +335,23 @@ async def on_startup():
     await proactive_improvement.start()
     print("[AUTONOMOUS] 🎯 Proactive Improvement started - Grace will propose improvements")
     
+    # Start REAL Metrics Collection - Feeds autonomy with real telemetry
+    from backend.metrics_collector import metrics_collector
+    from backend.metrics_snapshot_aggregator import snapshot_aggregator
+    from backend.real_proactive_intelligence import real_proactive_intelligence
+    from backend.playbook_executor import playbook_executor
+    
+    await metrics_collector.start()
+    await snapshot_aggregator.start()
+    await real_proactive_intelligence.start()
+    await playbook_executor.start()
+    
+    print("[METRICS] ✅ Real telemetry system started")
+    print("[METRICS]   • Collector: Live metrics from system")
+    print("[METRICS]   • Aggregator: 5-minute snapshot windows")
+    print("[METRICS]   • Proactive Intel: Real playbook recommendations")
+    print("[METRICS]   • Executor: Real remedial actions")
+    
     # Start Performance Optimizer - Continuous performance tuning
     from backend.performance_optimizer import performance_optimizer
     await performance_optimizer.start()

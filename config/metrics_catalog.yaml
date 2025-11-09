@@ -1,0 +1,650 @@
+# GRACE Metrics & Telemetry Catalog
+# Production-ready metric definitions for autonomous systems
+# Version: 1.0
+# Last Updated: 2025-11-09
+
+metrics:
+  # ============================================================================
+  # 1. API & Gateway Health
+  # ============================================================================
+  
+  - metric_id: api.latency_p95
+    category: api
+    description: "95th percentile response latency for the public FastAPI gateway"
+    unit: ms
+    aggregation: p95
+    source: prometheus
+    resource_scope: service
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 350 }
+      warning: { lower: 350, upper: 500 }
+      critical: { lower: 500 }
+    playbooks:
+      - scale-api-shard
+      - failover-gateway
+    tags: [production, customer-facing, latency]
+  
+  - metric_id: api.error_rate
+    category: api
+    description: "5xx responses divided by total requests"
+    unit: ratio
+    aggregation: avg
+    source: prometheus
+    resource_scope: service
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 0.01 }
+      warning: { lower: 0.01, upper: 0.03 }
+      critical: { lower: 0.03 }
+    playbooks:
+      - restart-workers
+      - engage-remediation
+    tags: [production, reliability, errors]
+  
+  - metric_id: api.request_rate
+    category: api
+    description: "Requests per second to API gateway"
+    unit: req_per_sec
+    aggregation: avg
+    source: prometheus
+    resource_scope: service
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 200 }
+      warning: { lower: 200, upper: 400 }
+      critical: { lower: 400 }
+    playbooks:
+      - pre-scale-workers
+      - activate-autoscaling
+    tags: [production, capacity, throughput]
+  
+  - metric_id: api.saturation
+    category: api
+    description: "Gunicorn/Uvicorn worker saturation percentage"
+    unit: percent
+    aggregation: max
+    source: prometheus
+    resource_scope: service
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 85 }
+      critical: { lower: 85 }
+    playbooks:
+      - spawn-extra-workers
+      - shed-load
+    tags: [production, capacity, workers]
+  
+  # ============================================================================
+  # 2. Background Execution & Queues
+  # ============================================================================
+  
+  - metric_id: executor.queue_depth
+    category: executor
+    description: "Pending tasks in execution_tasks table"
+    unit: count
+    aggregation: max
+    source: internal_sql
+    resource_scope: queue
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 25 }
+      warning: { lower: 25, upper: 75 }
+      critical: { lower: 75 }
+    playbooks:
+      - scale-workers
+      - spawn-emergency-shard
+    tags: [execution, queue, capacity]
+  
+  - metric_id: executor.task_latency
+    category: executor
+    description: "Age of oldest queued task in seconds"
+    unit: seconds
+    aggregation: max
+    source: internal_sql
+    resource_scope: queue
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 60 }
+      warning: { lower: 60, upper: 180 }
+      critical: { lower: 180 }
+    playbooks:
+      - increase-workers
+      - escalate-to-human
+    tags: [execution, queue, latency]
+  
+  - metric_id: executor.worker_utilization
+    category: executor
+    description: "Active workers divided by total workers"
+    unit: percent
+    aggregation: avg
+    source: internal_telemetry
+    resource_scope: worker_pool
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 90 }
+      critical: { lower: 90 }
+    playbooks:
+      - spawn-additional-worker
+      - block-new-submissions
+    tags: [execution, workers, utilization]
+  
+  # ============================================================================
+  # 3. Learning & Ingestion Pipeline
+  # ============================================================================
+  
+  - metric_id: learning.sessions_started
+    category: learning
+    description: "Learning sessions kicked off"
+    unit: count
+    aggregation: sum
+    source: web_learning_orchestrator
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { upper: 3 }
+      warning: { lower: 3, upper: 6 }
+      critical: { lower: 6 }
+    playbooks:
+      - throttle-learning
+      - review-governance-load
+    tags: [learning, ingestion, rate]
+  
+  - metric_id: learning.sources_verified
+    category: learning
+    description: "Percentage of learned sources passing governance/constitutional checks"
+    unit: percent
+    aggregation: avg
+    source: provenance_tracker
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { lower: 85 }
+      warning: { lower: 70, upper: 85 }
+      critical: { upper: 70 }
+    playbooks:
+      - run-trust-analysis
+      - stop-ingestion-cycle
+    tags: [learning, governance, quality]
+  
+  - metric_id: learning.sandbox_pass_rate
+    category: learning
+    description: "Sandbox applications that pass tests"
+    unit: percent
+    aggregation: avg
+    source: knowledge_sandbox
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { lower: 80 }
+      warning: { lower: 60, upper: 80 }
+      critical: { upper: 60 }
+    playbooks:
+      - rerun-stricter-policies
+      - disable-auto-application
+    tags: [learning, sandbox, quality]
+  
+  - metric_id: learning.governance_blocks
+    category: learning
+    description: "Count of ingestion attempts blocked by governance"
+    unit: count
+    aggregation: sum
+    source: governance_framework
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { upper: 2 }
+      warning: { lower: 2, upper: 5 }
+      critical: { lower: 5 }
+    playbooks:
+      - audit-governance-rules
+      - require-human-review
+    tags: [learning, governance, blocks]
+  
+  - metric_id: learning.source_freshness_ratio
+    category: learning
+    description: "Share of new sources vs duplicates in last cycle"
+    unit: percent
+    aggregation: avg
+    source: provenance_tracker
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { lower: 80 }
+      warning: { lower: 60, upper: 80 }
+      critical: { upper: 60 }
+    playbooks:
+      - expand-discovery-seeds
+      - refresh-learning-targets
+    tags: [learning, quality, freshness]
+  
+  - metric_id: learning.collector_health
+    category: learning
+    description: "Time since last successful collector publish"
+    unit: seconds
+    aggregation: max
+    source: collector_heartbeat
+    resource_scope: collector
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 120 }
+      warning: { lower: 120, upper: 300 }
+      critical: { lower: 300 }
+    playbooks:
+      - restart-collector
+      - fail-ingestion-cycle
+    tags: [learning, collector, health]
+  
+  # ============================================================================
+  # 4. Autonomy & Decision Quality
+  # ============================================================================
+  
+  - metric_id: autonomy.plan_success_rate
+    category: autonomy
+    description: "Percentage of recovery plans completing without rollback"
+    unit: percent
+    aggregation: avg
+    source: agentic_spine
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { lower: 90 }
+      warning: { lower: 75, upper: 90 }
+      critical: { upper: 75 }
+    playbooks:
+      - tighten-guardrails
+      - downgrade-autonomy-tier
+    tags: [autonomy, reliability, plans]
+  
+  - metric_id: autonomy.approvals_pending
+    category: autonomy
+    description: "High-risk actions awaiting approval"
+    unit: count
+    aggregation: max
+    source: governance_engine
+    resource_scope: subsystem
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 3 }
+      warning: { lower: 3, upper: 7 }
+      critical: { lower: 7 }
+    playbooks:
+      - notify-reviewers
+      - pause-high-risk-plans
+    tags: [autonomy, governance, approvals]
+  
+  - metric_id: autonomy.autonomy_ratio
+    category: autonomy
+    description: "Actions executed autonomously divided by total actions"
+    unit: percent
+    aggregation: avg
+    source: agentic_spine
+    resource_scope: subsystem
+    recommended_interval_seconds: 600
+    thresholds:
+      good: { lower: 70, upper: 85 }
+      warning: { lower: 60, upper: 90 }
+      critical: { upper: 60, lower: 90 }
+    playbooks:
+      - review-capability
+      - review-trust-levels
+    tags: [autonomy, governance, ratio]
+  
+  - metric_id: autonomy.rollback_rate
+    category: autonomy
+    description: "Plans rolled back after execution"
+    unit: percent
+    aggregation: avg
+    source: agentic_spine
+    resource_scope: subsystem
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { upper: 5 }
+      warning: { lower: 5, upper: 10 }
+      critical: { lower: 10 }
+    playbooks:
+      - run-postmortem
+      - lock-planner-supervised
+    tags: [autonomy, reliability, rollbacks]
+  
+  # ============================================================================
+  # 5. Infrastructure & Host Health
+  # ============================================================================
+  
+  - metric_id: infra.cpu_utilization
+    category: infra
+    description: "CPU usage per host/shard"
+    unit: percent
+    aggregation: avg
+    source: prometheus
+    resource_scope: host
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 85 }
+      critical: { lower: 85 }
+    playbooks:
+      - shift-load
+      - scale-nodes
+    tags: [infrastructure, cpu, capacity]
+  
+  - metric_id: infra.memory_utilization
+    category: infra
+    description: "Memory usage per host/shard"
+    unit: percent
+    aggregation: avg
+    source: prometheus
+    resource_scope: host
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 75 }
+      warning: { lower: 75, upper: 90 }
+      critical: { lower: 90 }
+    playbooks:
+      - restart-non-critical-services
+      - migrate-workloads
+    tags: [infrastructure, memory, capacity]
+  
+  - metric_id: infra.disk_usage
+    category: infra
+    description: "Disk utilization for critical volumes"
+    unit: percent
+    aggregation: max
+    source: prometheus
+    resource_scope: volume
+    recommended_interval_seconds: 300
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 85 }
+      critical: { lower: 85 }
+    playbooks:
+      - cleanup-tasks
+      - trigger-disk-expansion
+    tags: [infrastructure, disk, storage]
+  
+  - metric_id: infra.pod_ready_ratio
+    category: infra
+    description: "Ready pods divided by desired pods (kubernetes)"
+    unit: percent
+    aggregation: avg
+    source: kubernetes_api
+    resource_scope: service
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { lower: 95 }
+      warning: { lower: 90, upper: 95 }
+      critical: { upper: 90 }
+    playbooks:
+      - reschedule-pods
+      - escalate-to-infra-team
+    tags: [infrastructure, kubernetes, availability]
+  
+  # ============================================================================
+  # 6. Event Fabric & Collector Reliability
+  # ============================================================================
+  
+  - metric_id: telemetry.collector_uptime
+    category: telemetry
+    description: "Collector heartbeat success rate"
+    unit: percent
+    aggregation: avg
+    source: collector_supervisors
+    resource_scope: collector
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { lower: 99 }
+      warning: { lower: 95, upper: 99 }
+      critical: { upper: 95 }
+    playbooks:
+      - restart-collector-service
+      - switch-to-backup-collector
+    tags: [telemetry, collector, reliability]
+  
+  - metric_id: telemetry.publish_latency
+    category: telemetry
+    description: "Latency from metric scrape to trigger mesh publish"
+    unit: ms
+    aggregation: avg
+    source: collector_instrumentation
+    resource_scope: collector
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 1000 }
+      warning: { lower: 1000, upper: 3000 }
+      critical: { lower: 3000 }
+    playbooks:
+      - investigate-network-bottleneck
+      - pause-dependent-playbooks
+    tags: [telemetry, latency, performance]
+  
+  - metric_id: telemetry.schema_failures
+    category: telemetry
+    description: "Count of metric events rejected due to schema validation errors"
+    unit: count
+    aggregation: sum
+    source: metric_ingestion_validator
+    resource_scope: collector
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 0 }
+      warning: { lower: 1, upper: 3 }
+      critical: { lower: 3 }
+    playbooks:
+      - review-collector-payload
+      - disable-collector-auto-optimization
+    tags: [telemetry, validation, quality]
+  
+  - metric_id: trigger.mesh_queue_depth
+    category: trigger
+    description: "Events awaiting routing in trigger mesh"
+    unit: count
+    aggregation: max
+    source: trigger_mesh
+    resource_scope: subsystem
+    recommended_interval_seconds: 30
+    thresholds:
+      good: { upper: 50 }
+      warning: { lower: 50, upper: 150 }
+      critical: { lower: 150 }
+    playbooks:
+      - scale-router
+      - shed-non-critical-events
+    tags: [trigger, queue, performance]
+  
+  - metric_id: trigger.handler_error_rate
+    category: trigger
+    description: "Percentage of handler invocations raising errors"
+    unit: percent
+    aggregation: avg
+    source: trigger_mesh
+    resource_scope: subsystem
+    recommended_interval_seconds: 60
+    thresholds:
+      good: { upper: 1 }
+      warning: { lower: 1, upper: 3 }
+      critical: { lower: 3 }
+    playbooks:
+      - isolate-faulty-handler
+      - disable-handler-alert-team
+    tags: [trigger, errors, reliability]
+
+# ============================================================================
+# Playbook Registry
+# ============================================================================
+
+playbooks:
+  - playbook_id: scale-api-shard
+    description: "Scale API gateway shards horizontally"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+    
+  - playbook_id: failover-gateway
+    description: "Failover to backup API gateway"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+    
+  - playbook_id: restart-workers
+    description: "Restart Uvicorn worker processes"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+    
+  - playbook_id: spawn-extra-workers
+    description: "Spawn additional worker processes"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+    
+  - playbook_id: scale-workers
+    description: "Scale executor worker pool"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+    
+  - playbook_id: spawn-emergency-shard
+    description: "Spawn emergency execution shard"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+    
+  - playbook_id: throttle-learning
+    description: "Reduce learning session frequency"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+    
+  - playbook_id: stop-ingestion-cycle
+    description: "Stop learning ingestion completely"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+    
+  - playbook_id: run-trust-analysis
+    description: "Run ML trust analysis on sources"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+    
+  - playbook_id: tighten-guardrails
+    description: "Increase governance strictness"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+    
+  - playbook_id: downgrade-autonomy-tier
+    description: "Reduce autonomy level for safety"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+    
+  - playbook_id: run-postmortem
+    description: "Run automated postmortem on rollback"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+    
+  - playbook_id: lock-planner-supervised
+    description: "Lock planner to supervised mode only"
+    risk_level: critical
+    autonomy_tier: tier_4
+    requires_approval: true
+    
+  - playbook_id: shift-load
+    description: "Shift workload to different nodes"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+    
+  - playbook_id: scale-nodes
+    description: "Scale infrastructure nodes"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+  
+  - playbook_id: expand-discovery-seeds
+    description: "Expand knowledge discovery seed topics"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+  
+  - playbook_id: refresh-learning-targets
+    description: "Refresh learning target domains"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+  
+  - playbook_id: restart-collector
+    description: "Restart failed collector service"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: fail-ingestion-cycle
+    description: "Fail current ingestion cycle gracefully"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+  
+  - playbook_id: restart-collector-service
+    description: "Restart collector service"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: switch-to-backup-collector
+    description: "Switch to backup collector instance"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+  
+  - playbook_id: investigate-network-bottleneck
+    description: "Investigate network performance issues"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+  
+  - playbook_id: pause-dependent-playbooks
+    description: "Pause playbooks dependent on telemetry"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: review-collector-payload
+    description: "Review collector payload schema"
+    risk_level: low
+    autonomy_tier: tier_1
+    requires_approval: false
+  
+  - playbook_id: disable-collector-auto-optimization
+    description: "Disable collector auto-optimization"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: scale-router
+    description: "Scale trigger mesh router capacity"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: shed-non-critical-events
+    description: "Drop non-critical events to reduce load"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true
+  
+  - playbook_id: isolate-faulty-handler
+    description: "Isolate and disable faulty event handler"
+    risk_level: medium
+    autonomy_tier: tier_2
+    requires_approval: false
+  
+  - playbook_id: disable-handler-alert-team
+    description: "Disable handler and alert team"
+    risk_level: high
+    autonomy_tier: tier_3
+    requires_approval: true

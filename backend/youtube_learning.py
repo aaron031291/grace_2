@@ -12,6 +12,8 @@ import logging
 import re
 import json
 
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
+
 from .governance_framework import governance_framework
 from .constitutional_engine import constitutional_engine
 from .knowledge_provenance import provenance_tracker
@@ -239,43 +241,66 @@ class YouTubeLearning:
     async def _get_video_metadata(self, video_id: str) -> Dict[str, Any]:
         """
         Get video metadata
-        In production, would use YouTube Data API
-        For now, returns placeholder
+        Uses basic info from transcript API
         """
-        
-        # Placeholder - in production would call YouTube API
-        return {
-            'title': f'Video {video_id}',
-            'channel': 'Learning Channel',
-            'duration': '10:00',
-            'views': 10000,
-            'description': 'Educational video'
-        }
+        try:
+            transcript_api = YouTubeTranscriptApi()
+            available_transcripts = transcript_api.list(video_id)
+            
+            return {
+                'title': f'Video {video_id}',
+                'channel': 'YouTube Channel',
+                'duration': 'unknown',
+                'views': 0,
+                'description': 'Educational video',
+                'transcript_available': True
+            }
+        except Exception as e:
+            logger.warning(f"[YOUTUBE] Could not fetch metadata for {video_id}: {str(e)}")
+            return {
+                'title': f'Video {video_id}',
+                'channel': 'YouTube Channel',
+                'duration': 'unknown',
+                'views': 0,
+                'description': 'Educational video',
+                'transcript_available': False
+            }
     
     async def _get_video_transcript(self, video_id: str) -> Optional[str]:
         """
-        Get video transcript
-        In production, would use YouTube Transcript API or similar
-        For now, returns placeholder
+        Get video transcript using youtube-transcript-api
+        Handles errors gracefully and returns formatted transcript text
         """
-        
-        # Placeholder - in production would extract real transcript
-        # Could use: youtube-transcript-api package
-        return f"""
-This is a simulated transcript for video {video_id}.
-In production, Grace would extract the actual video transcript.
-
-Topics covered:
-- Introduction to the subject
-- Key concepts and fundamentals
-- Practical examples and demonstrations
-- Best practices and common patterns
-- Advanced techniques
-- Summary and next steps
-
-Grace learns from this content and applies it in her knowledge base.
-All learning is tracked with complete provenance and governance.
-"""
+        try:
+            logger.info(f"[YOUTUBE] Fetching transcript for video {video_id}")
+            
+            transcript_api = YouTubeTranscriptApi()
+            fetched_transcript = transcript_api.fetch(video_id)
+            
+            if not fetched_transcript or not fetched_transcript.snippets:
+                logger.warning(f"[YOUTUBE] Empty transcript for {video_id}")
+                return None
+            
+            transcript_text = ' '.join([snippet.text for snippet in fetched_transcript.snippets])
+            
+            logger.info(f"[YOUTUBE] ✅ Transcript fetched successfully ({len(transcript_text)} chars)")
+            return transcript_text
+            
+        except TranscriptsDisabled:
+            logger.error(f"[YOUTUBE] ❌ Transcripts are disabled for video {video_id}")
+            return None
+            
+        except NoTranscriptFound:
+            logger.error(f"[YOUTUBE] ❌ No transcript found for video {video_id}")
+            return None
+                
+        except VideoUnavailable:
+            logger.error(f"[YOUTUBE] ❌ Video {video_id} is unavailable")
+            return None
+            
+        except Exception as e:
+            logger.error(f"[YOUTUBE] ❌ Unexpected error fetching transcript for {video_id}: {str(e)}")
+            return None
     
     async def learn_topic(
         self,

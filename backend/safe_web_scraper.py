@@ -20,6 +20,7 @@ from .unified_logger import unified_logger
 from .secrets_vault import secrets_vault
 from .models import async_session
 from .knowledge_provenance import provenance_tracker
+from .memory_models import MemoryArtifact
 
 logger = logging.getLogger(__name__)
 
@@ -408,13 +409,14 @@ class SafeWebScraper:
         
         # Store in memory system with source_id reference
         async with async_session() as session:
-            memory = Memory(
+            memory = MemoryArtifact(
+                path=f"web_learning/{topic}/{hashlib.md5(url.encode()).hexdigest()[:8]}.txt",
                 content=parsed['text'][:5000],  # First 5k chars
-                category='web_learning',
-                subcategory=topic,
-                source='web_scraper',
-                confidence=0.8,
-                metadata={
+                content_hash=hashlib.md5(parsed['text'][:5000].encode()).hexdigest(),
+                domain='web_learning',
+                category=topic,
+                created_by='web_scraper',
+                artifact_metadata=str({
                     'url': url,
                     'title': parsed['title'],
                     'word_count': parsed['word_count'],
@@ -423,7 +425,7 @@ class SafeWebScraper:
                     'source_id': source_id,  # TRACEABLE SOURCE ID
                     'governance_verified': all(governance_checks.values()),
                     'citation': await provenance_tracker.generate_citation(source_id)
-                }
+                })
             )
             session.add(memory)
             await session.commit()

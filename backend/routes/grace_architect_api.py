@@ -6,6 +6,11 @@ API endpoints for autonomous Grace extension and learning.
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
+from ..schemas_extended import (
+    GraceArchitectLearnResponse,
+    GraceArchitectExtendResponse,
+    GraceArchitectPatternsResponse
+)
 
 router = APIRouter(prefix="/api/architect", tags=["Grace Architect"])
 
