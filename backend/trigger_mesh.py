@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Set, Callable, Any
+from typing import Dict, Set, Callable, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import json
@@ -23,12 +23,21 @@ class TriggerMesh:
         self.router_task: Optional[asyncio.Task] = None
         self._running = False
     
+    class _NoOpAwaitable:
+        def __await__(self):
+            if False:
+                yield None
+            return None
+
     def subscribe(self, event_pattern: str, handler: Callable):
-        """Subscribe to event types"""
+        """Subscribe to event types (awaitable-compatible).
+        Returns an awaitable no-op so both `subscribe(...)` and `await subscribe(...)` work.
+        """
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)
         print(f"✓ Subscribed to {event_pattern}")
+        return self._NoOpAwaitable()
     
     async def publish(self, event: TriggerEvent):
         """Publish event to mesh"""
@@ -110,9 +119,30 @@ async def setup_subscriptions():
         if event.payload.get("decision") in ["block", "review"]:
             from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
+
+    async def on_autonomy_event(event: TriggerEvent):
+        """Update metrics based on autonomy plan outcomes"""
+        try:
+            if event.event_type == "autonomy.plan_outcome":
+                success = bool(event.payload.get("success", False))
+                # Publish to metrics: use transcendence.task_success as proxy for plan success
+                from .metrics_service import publish_metric
+                await publish_metric(
+                    "transcendence",
+                    "task_success",
+                    1.0 if success else 0.0,
+                    {
+                        "source": event.source,
+                        "extension_id": event.payload.get("extension_id"),
+                        "resource": event.resource,
+                    },
+                )
+        except Exception as e:
+            print(f"✗ Autonomy metrics handler error: {e}")
     
     trigger_mesh.subscribe("memory.*", on_memory_event)
     trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
     trigger_mesh.subscribe("governance.*", on_governance_event)
+    trigger_mesh.subscribe("autonomy.*", on_autonomy_event)
     
     print("✓ Trigger Mesh subscriptions configured")

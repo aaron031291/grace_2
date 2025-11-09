@@ -11,6 +11,7 @@ class VerificationEvent(Base):
     target_component = Column(String(128))
     verification_method = Column(String(64))
     result = Column(String(32))
+    passed = Column(Boolean, default=None)  # Nullable for backward compatibility
     anomaly_score = Column(Float)
     confidence = Column(Float)
     details = Column(Text)

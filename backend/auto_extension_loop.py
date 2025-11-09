@@ -118,6 +118,25 @@ class AutoExtensionLoop:
                             extension['request_id'],
                             gap['name']
                         )
+
+                        # Publish autonomy plan outcome event for metrics pipeline
+                        try:
+                            from .trigger_mesh import trigger_mesh, TriggerEvent
+                            await trigger_mesh.publish(TriggerEvent(
+                                event_type="autonomy.plan_outcome",
+                                source="auto_extension_loop",
+                                actor="grace_architect",
+                                resource=gap['name'],
+                                payload={
+                                    "extension_id": extension['request_id'],
+                                    "success": True,
+                                    "risk_level": gap.get('risk_level', 'low')
+                                },
+                                timestamp=datetime.utcnow()
+                            ))
+                        except Exception as _e:
+                            # Do not fail the loop if metrics publishing fails
+                            print(f"      ⚠️ Failed to publish plan outcome event: {_e}")
                 else:
                     print(f"      ⏳ Awaiting Parliament approval (risk: {gap.get('risk_level', 'medium')})")
             

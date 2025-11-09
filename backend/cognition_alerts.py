@@ -7,6 +7,7 @@ import asyncio
 import logging
 from typing import Dict, Any, List
 from datetime import datetime
+from .trigger_mesh import trigger_mesh, TriggerEvent
 
 logger = logging.getLogger(__name__)
 
@@ -233,9 +234,9 @@ async def setup_alert_subscriptions():
     """Subscribe to trigger mesh events for alerts"""
     alert_manager = get_alert_manager()
     
-    async def handle_elevation_ready(event):
+    async def handle_elevation_ready(event: TriggerEvent):
         """Handle product.elevation_ready event"""
-        payload = event.get("payload", {})
+        payload = event.payload if hasattr(event, "payload") else {}
         await alert_manager.send_saas_ready_alert(
             health=payload.get("overall_health", 0),
             trust=payload.get("overall_trust", 0),
