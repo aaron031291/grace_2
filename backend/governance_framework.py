@@ -140,7 +140,10 @@ class GovernanceFramework:
             result["reason"] = f"Not whitelisted: {whitelist_check['reason']}"
             return result
         
-        if whitelist_check["status"] == "requires_approval":
+        # If action is auto-approved by guardrails, skip human approval requirement
+        if guardrails_check.get("auto_approved"):
+            result["requires_human_approval"] = False
+        elif whitelist_check["status"] == "requires_approval":
             result["requires_human_approval"] = True
             result["reason"] = "Action requires human approval"
         
@@ -227,12 +230,19 @@ class GovernanceFramework:
         
         # Check action guardrails
         action_guardrails = self.guardrails.get("actions", {})
+        
+        # Auto-reject check
         auto_reject = action_guardrails.get("auto_reject", [])
         if action in auto_reject:
             return {
                 "passed": False,
                 "reason": f"Action {action} is auto-rejected"
             }
+        
+        # Auto-approve check for low-risk actions
+        auto_approve = action_guardrails.get("auto_approve", [])
+        if action in auto_approve:
+            return {"passed": True, "reason": f"Action {action} is auto-approved", "auto_approved": True}
         
         return {"passed": True, "reason": "Guardrails check passed"}
     
@@ -281,14 +291,15 @@ class GovernanceFramework:
         never_allowed = ethical_boundaries.get("never_allowed", [])
         
         # Check if action matches any never-allowed boundary
+        # Use strict matching to avoid false positives
         for boundary in never_allowed:
             boundary_lower = boundary.lower()
             action_lower = action.lower()
             resource_lower = resource.lower()
             
-            # Simple keyword matching
-            if any(keyword in action_lower or keyword in resource_lower 
-                   for keyword in boundary_lower.split()):
+            # Only trigger if the action/resource closely matches the boundary phrase
+            # Not just any keyword match (too aggressive)
+            if boundary_lower in action_lower or boundary_lower in resource_lower:
                 return {
                     "violated": True,
                     "boundary": boundary

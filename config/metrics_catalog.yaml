@@ -98,6 +98,121 @@ metrics:
     resource_scope: service
     tags: [memory_fusion, crypto, latency]
 
+  # Legacy Infrastructure Metrics
+  - metric_id: infra.cpu_utilization
+    category: infra
+    description: "CPU utilization percentage"
+    unit: percent
+    aggregation: avg
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 85 }
+      critical: { lower: 85 }
+    playbooks: [scale-resources]
+    playbook_id: scale-resources
+    risk_level: medium
+    autonomy_tier: 2
+    verification_hooks: [verify_resource_availability]
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: host
+    tags: [infra, resources]
+
+  - metric_id: infra.memory_utilization
+    category: infra
+    description: "Memory utilization percentage"
+    unit: percent
+    aggregation: avg
+    thresholds:
+      good: { upper: 75 }
+      warning: { lower: 75, upper: 90 }
+      critical: { lower: 90 }
+    playbooks: [optimize-memory]
+    playbook_id: optimize-memory
+    risk_level: medium
+    autonomy_tier: 2
+    verification_hooks: [verify_memory_health]
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: host
+    tags: [infra, resources]
+
+  - metric_id: infra.disk_usage
+    category: infra
+    description: "Disk usage percentage"
+    unit: percent
+    aggregation: avg
+    thresholds:
+      good: { upper: 70 }
+      warning: { lower: 70, upper: 85 }
+      critical: { lower: 85 }
+    playbooks: [cleanup-disk]
+    playbook_id: cleanup-disk
+    risk_level: high
+    autonomy_tier: 3
+    verification_hooks: [verify_disk_space]
+    recommended_interval_seconds: 300
+    source: internal
+    resource_scope: host
+    tags: [infra, storage]
+
+  - metric_id: executor.queue_depth
+    category: executor
+    description: "Task executor queue depth"
+    unit: count
+    aggregation: avg
+    thresholds:
+      good: { upper: 10 }
+      warning: { lower: 10, upper: 50 }
+      critical: { lower: 50 }
+    playbooks: [scale-workers]
+    playbook_id: scale-workers
+    risk_level: medium
+    autonomy_tier: 2
+    verification_hooks: [verify_executor_health]
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: service
+    tags: [executor, performance]
+
+  - metric_id: learning.governance_blocks
+    category: learning
+    description: "Governance blocks on learning sources"
+    unit: count
+    aggregation: count
+    thresholds:
+      good: { upper: 5 }
+      warning: { lower: 5, upper: 20 }
+      critical: { lower: 20 }
+    playbooks: [review-governance-policies]
+    playbook_id: review-governance-policies
+    risk_level: low
+    autonomy_tier: 1
+    verification_hooks: []
+    recommended_interval_seconds: 300
+    source: internal
+    resource_scope: service
+    tags: [learning, governance]
+
+  - metric_id: autonomy.approvals_pending
+    category: autonomy
+    description: "Pending approval requests"
+    unit: count
+    aggregation: avg
+    thresholds:
+      good: { upper: 10 }
+      warning: { lower: 10, upper: 30 }
+      critical: { lower: 30 }
+    playbooks: [escalate-approvals]
+    playbook_id: escalate-approvals
+    risk_level: low
+    autonomy_tier: 1
+    verification_hooks: []
+    recommended_interval_seconds: 120
+    source: internal
+    resource_scope: service
+    tags: [autonomy, governance]
+
   # Existing metrics:
   # API & Gateway Health
   - metric_id: api.latency_p95

@@ -215,5 +215,14 @@ class GovernanceEngine:
             "policy": result.get("policy"),
             "audit_id": result.get("audit_id")
         }
+    
+    async def check_action(self, *, actor: str, action: str, resource: str, context: dict = None) -> dict:
+        """Alias for check_approval for compatibility"""
+        return await self.check_approval(
+            actor=actor,
+            action=action,
+            resource=resource,
+            context=context
+        )
 
 governance_engine = GovernanceEngine()

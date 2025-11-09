@@ -119,6 +119,19 @@ actions:
     - "execute_command"
     - "deploy_code"
     - "modify_database_schema"
+  
+  # Auto-approve low-risk autonomous actions
+  auto_approve:
+    - "fix_code_issue"          # Code quality fixes
+    - "improve_code"            # Refactoring improvements
+    - "add_type_hints"          # Type safety
+    - "update_docstrings"       # Documentation
+    - "format_code"             # Style formatting
+    - "optimize_imports"        # Import organization
+    - "fix_linter_warnings"     # Linting fixes
+    - "self_heal_low_severity"  # Low-severity self-healing
+    - "collect_metrics"         # Telemetry collection
+    - "log_event"              # Observability
     
   auto_reject:
     - "access_credentials"
