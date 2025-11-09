@@ -91,6 +91,7 @@ class EnhancedBootPipeline:
             ("5. Full Service Bring-up", self._stage_full_services, False),
             ("6. Smoke Tests & Health Checks", self._stage_smoke_tests, False),
             ("7. Continuous Oversight Setup", self._stage_continuous_oversight, False),
+            ("8. Forensic Diagnostics Sweep", self._stage_diagnostics_sweep, False),
         ]
         
         for stage_name, stage_func, is_critical in stages:
@@ -508,6 +509,42 @@ class EnhancedBootPipeline:
         return {
             "success": True
         }
+    
+    # ========================================================================
+    # STAGE 8: FORENSIC DIAGNOSTICS SWEEP
+    # ========================================================================
+    
+    async def _stage_diagnostics_sweep(self) -> Dict[str, Any]:
+        """
+        Forensic sweep of all subsystems post-boot
+        Validates every component, flags issues, generates comprehensive report
+        """
+        print("[DIAGNOSTICS] Running forensic boot sweep...")
+        print("")
+        
+        try:
+            from backend.boot_diagnostics import run_boot_diagnostics
+            
+            # Run full diagnostics sweep
+            report = await run_boot_diagnostics(self.run_id)
+            
+            # Stage result
+            return {
+                "success": report["summary"]["critical_count"] == 0,
+                "report": report,
+                "critical_count": report["summary"]["critical_count"],
+                "high_count": report["summary"]["high_count"],
+                "health_score": report["boot_context"].get("startup_health", {}).get("health_score", 0)
+            }
+            
+        except Exception as e:
+            print(f"[FAIL] Diagnostics sweep failed: {e}")
+            logger.error(f"Diagnostics sweep failed: {e}", exc_info=True)
+            
+            return {
+                "success": False,
+                "error": str(e)
+            }
     
     # ========================================================================
     # HELPER METHODS
