@@ -1,0 +1,247 @@
+# Grace Complete System - Kubernetes Deployment
+# Includes: 9 Domain Kernels, 311+ APIs, 100+ Autonomous Subsystems
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grace
+  labels:
+    name: grace
+    app: grace-ai-system
+
+---
+# ConfigMap for Grace Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grace-config
+  namespace: grace
+data:
+  WORKERS: "6"
+  DATABASE_URL: "sqlite+aiosqlite:///./databases/grace.db"
+  SELF_HEAL_EXECUTE: "true"
+  LEARNING_AGGREGATION_ENABLED: "true"
+  META_LOOP_ENABLED: "true"
+  AUTONOMOUS_IMPROVER_ENABLED: "true"
+  CODING_AGENT_ENABLED: "true"
+  AGENTIC_SPINE_ENABLED: "true"
+  DOMAIN_KERNELS_ENABLED: "true"
+  PYTHONUNBUFFERED: "1"
+  UVLOOP_ENABLED: "true"
+
+---
+# Grace Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-backend
+  namespace: grace
+  labels:
+    app: grace-backend
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grace-backend
+  template:
+    metadata:
+      labels:
+        app: grace-backend
+        tier: backend
+    spec:
+      containers:
+      - name: grace-backend
+        image: grace-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: grace-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: grace-data
+          mountPath: /app/databases
+        - name: grace-logs
+          mountPath: /app/logs
+        - name: grace-ml
+          mountPath: /app/ml_artifacts
+      volumes:
+      - name: grace-data
+        persistentVolumeClaim:
+          claimName: grace-data-pvc
+      - name: grace-logs
+        persistentVolumeClaim:
+          claimName: grace-logs-pvc
+      - name: grace-ml
+        persistentVolumeClaim:
+          claimName: grace-ml-pvc
+
+---
+# Grace Frontend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-frontend
+  namespace: grace
+  labels:
+    app: grace-frontend
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grace-frontend
+  template:
+    metadata:
+      labels:
+        app: grace-frontend
+        tier: frontend
+    spec:
+      containers:
+      - name: grace-frontend
+        image: grace-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5173
+          name: http
+        env:
+        - name: VITE_API_BASE
+          value: "http://grace-backend-service:8000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-backend-service
+  namespace: grace
+  labels:
+    app: grace-backend
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: grace-backend
+
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-frontend-service
+  namespace: grace
+  labels:
+    app: grace-frontend
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5173
+    targetPort: 5173
+    protocol: TCP
+    name: http
+  selector:
+    app: grace-frontend
+
+---
+# Persistent Volume Claims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-data-pvc
+  namespace: grace
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-logs-pvc
+  namespace: grace
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-ml-pvc
+  namespace: grace
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+# Horizontal Pod Autoscaler for Backend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: grace-backend-hpa
+  namespace: grace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: grace-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

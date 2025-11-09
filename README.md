@@ -1,30 +1,45 @@
-# 🤖 Grace - Autonomous AI Learning System
+# 🤖 Grace AI System
 
-## 🚀 Quick Start
+**9 Intelligent Domain Kernels | 311+ APIs | 100+ Autonomous Subsystems**
 
-### Complete E2E Boot (Recommended)
+---
+
+## ⚡ COPY & PASTE TO START:
+
+### PowerShell (Recommended):
 ```powershell
-.\boot_grace_complete.ps1
-```
-**Starts everything**: Backend + Frontend + Monitoring!
-
-### Simple Start
-```powershell
-.\start_grace.ps1
-```
-
-### Docker
-```powershell
-.\docker-build.ps1
-.\docker-start.ps1
+cd C:\Users\aaron\grace_2
+.\RUN_GRACE.ps1
 ```
 
-### Kubernetes
+### Docker:
 ```powershell
-.\kubernetes\deploy.ps1
+cd C:\Users\aaron\grace_2
+docker-compose -f docker-compose.complete.yml up
 ```
 
-Then open: http://localhost:8000
+### Kubernetes:
+```powershell
+cd C:\Users\aaron\grace_2\kubernetes
+kubectl apply -f grace-complete-deployment.yaml
+```
+
+**Then open:** http://localhost:8000
+
+---
+
+## 📖 Full Documentation
+
+👉 **See [START_HERE.md](START_HERE.md) for complete copy-paste commands**
+
+- [QUICK_START.md](QUICK_START.md) - 5-minute setup
+- [README_KERNELS.md](README_KERNELS.md) - Domain kernels guide
+- [BOOT_README.md](BOOT_README.md) - Boot system details
+- [SUBSYSTEM_CHECKLIST.md](SUBSYSTEM_CHECKLIST.md) - All subsystems
+
+---
+
+## 🎯 What You Get
 
 ---
 
