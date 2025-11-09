@@ -11,18 +11,18 @@ from typing import Optional, Dict, Any
 import logging
 
 # Add backend to path
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from grace_llm import get_grace_llm
-from memory import PersistentMemory
-from transcendence.unified_intelligence import UnifiedIntelligenceEngine
-from transcendence.self_awareness import SelfAwarenessLayer
-from agentic_spine import AgenticSpine
-from code_generator import CodeGenerator
-from self_healing import SelfHealingEngine
-from governance import governance_engine
-from immutable_log import ImmutableLog
-from governance_framework import governance_framework
+from backend.grace_llm import get_grace_llm
+from backend.memory import PersistentMemory
+from backend.transcendence.unified_intelligence import UnifiedIntelligenceEngine
+from backend.transcendence.self_awareness import SelfAwarenessLayer
+from backend.agentic_spine import AgenticSpine
+from backend.code_generator import CodeGenerator
+from backend.self_healing import SelfHealingEngine
+from backend.governance import governance_engine
+from backend.immutable_log import ImmutableLog
+from backend.governance_framework import governance_framework
 
 logging.basicConfig(
     level=logging.INFO,
