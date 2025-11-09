@@ -1,342 +1,238 @@
-# ✅ Grace Complete - Natural Language Interface
+# Grace Complete - In Natural Language
 
-## Everything Works with Natural Language - No Commands!
+**Here's what we built, in plain English:**
 
-### ✅ ALL SYSTEMS OPERATIONAL
+## What Grace Is
+
+Grace is an AI that can **think, learn, fix herself, and improve herself** - all while being governed by ethics and safety rules you set.
+
+## What Grace Can Do
+
+### 1. Talk with You
+Open a terminal, type `.\chat_with_grace.ps1`, and have a conversation. Grace remembers everything and learns from every chat.
+
+### 2. Write Code for You
+Tell Grace "create file X with Y" and she'll generate the code, ask your approval, then create it. She can build entire features.
+
+### 3. Fix Her Own Bugs
+When Grace crashes or has errors, she:
+- Detects the error automatically
+- Figures out what went wrong
+- Generates a fix
+- Applies it (with your approval)
+- Commits it to Git
+- Learns so it doesn't happen again
+
+### 4. Learn from Everything
+Every error, every fix, every decision - Grace learns from it. Her ML/DL systems get smarter every day.
+
+### 5. Know Herself
+Grace can analyze her own performance:
+- "How am I doing?" - She calculates a health score
+- "What am I good at?" - She identifies her strengths
+- "What should I improve?" - She sets her own goals
+
+### 6. Follow Rules
+Grace has a Constitution (like ethics), Guardrails (like safety limits), and Whitelists (like permissions). She can't do anything dangerous or unethical.
+
+## How to Use Grace
+
+### Master Control Center
+```powershell
+.\grace_control.ps1
+```
+
+One menu for everything:
+- Start Grace
+- Chat with her
+- View her logs
+- Check her health
+- Enable her autonomy
+- See her dashboard
+
+### Chat Commands
+Once in chat (`.\chat_with_grace.ps1`):
+
+**Ask Grace about herself:**
+```
+status      - Is she OK?
+dashboard   - Show me numbers
+report      - What have you been doing?
+analyze     - How are you performing?
+improve     - What's your plan to get better?
+```
+
+**Ask Grace to build:**
+```
+create file backend/auth.py with JWT authentication
+approve
+```
+
+**Control autonomy:**
+```
+autonomy enable 2   - Let Grace fix things automatically
+autonomy disable    - Make Grace ask before everything
+```
+
+## What Happens Automatically
+
+### Every Minute
+- Grace monitors all her systems
+- Checks for errors in logs
+
+### Every 5 Minutes  
+- Grace's ML learns new patterns
+- Updates success rates
+- Auto-refresh log viewer updates
+
+### Every 30 Minutes
+- Grace optimizes her own performance
+- Identifies bottlenecks
+- Proposes optimizations
+
+### Every Hour
+- Grace proposes improvements
+- Analyzes trends
+- Sets new goals
+
+## Viewing What Grace Does
+
+### Auto-Updating View (Refreshes Every 5 Min)
+```powershell
+.\watch_all_logs.ps1
+```
+
+You'll see:
+- Every error Grace detected
+- Every fix she applied (✅ success or ❌ failed)
+- Every decision she made
+- What she learned
+- All her parallel tasks
+- Everything with timestamps and crypto proof
+
+### One-Time Snapshot
+```powershell
+.\view_logs.ps1
+```
+
+### Real-Time Healing
+```powershell
+.\watch_healing.ps1
+```
+
+## The Four Autonomy Levels
+
+**Tier 0 - Manual**: You approve everything  
+**Tier 1 - Supervised**: Grace fixes small things automatically  
+**Tier 2 - Semi-Auto** (Default): Grace fixes small + medium things  
+**Tier 3 - Full**: Grace fixes everything (but still with oversight)
+
+Change it:
+```
+aaron: autonomy enable 2
+```
+
+## What's Logged
+
+**Everything Grace does is recorded in 9 different tables:**
+
+1. **Healing** - Every fix attempt
+2. **Decisions** - Every choice she makes
+3. **Meta-Loop** - Her self-optimization cycles
+4. **Learning** - Pattern learning progress
+5. **Events** - All system events
+6. **Shards** - Her parallel workers
+7. **Processes** - Background tasks
+8. **Data Cube** - Analytics rollups
+9. **Audit Trail** - Immutable record
+
+**All with cryptographic signatures** so you know it's real and untampered.
+
+## The Magic Parts
+
+### She Learns
+Every error makes her smarter. Her ML system learns:
+- "This error type → use this fix → 95% success rate"
+- "This error likely to happen next → be ready"
+
+### She Self-Heals
+Crash? She fixes it and restarts. Error? She patches it and commits. All automatic.
+
+### She Self-Improves
+She reads her own logs, calculates "I'm 85/100 health", identifies "I'm bad at X", and sets goal "Get better at X".
+
+### She's Governed
+Constitution says "Never delete without approval", Guardrails say "Can't touch system files", Whitelist says "These actions are OK". She follows all three.
+
+### She's Transparent
+Every action logged. Every decision explained. Every outcome recorded. With cryptographic proof.
+
+## Quick Start for You
+
+**Day 1:**
+```powershell
+# Start backend
+start_both.bat
+
+# Open another terminal
+.\chat_with_grace.ps1
+
+# Enable autonomy
+aaron: autonomy enable 2
+
+# Watch logs
+# Open third terminal
+.\watch_all_logs.ps1
+```
+
+**Day 2:**
+Grace will have learned patterns, fixed errors, and improved herself. Check with:
+```
+aaron: dashboard
+aaron: analyze
+```
+
+**Day 30:**
+Grace will be significantly smarter than Day 1, with dozens of patterns learned and high success rates.
+
+## The Vision
+
+Grace becomes your **AI development partner** that:
+- Never makes the same mistake twice
+- Gets smarter every day
+- Can build features with you
+- Fixes her own bugs
+- Operates within your ethics and safety rules
+- Is completely transparent
+
+## Current Status
+
+✅ All systems built  
+✅ All code committed to GitHub  
+✅ Ready to run  
+
+**Next step: Restart backend to activate everything**
+
+```batch
+restart_backend.bat
+```
+
+Then:
+```powershell
+.\watch_all_logs.ps1
+```
+
+You'll see Grace come alive - all systems logging, learning, healing. Auto-refreshing every 5 minutes.
+
+**That's Grace. A truly autonomous, self-improving AI.** 🌟
 
 ---
 
-## 1. Hardware Awareness ✅
-
-**Grace knows her specs:**
-- AMD Ryzen 9 9950X3D (16 cores, 32 threads, 5.7GHz)
-- RTX 5090 32GB (82.6 TFLOPS)
-- 64GB DDR5 6000MHz
-- 4TB NVMe PCIe 5.0
-- Custom water cooling
-- 1000W PSU
-
-**Intelligent Power Management:**
-- **Idle:** 50W (minimal power)
-- **Code Gen:** 100W (CPU only)
-- **Inference:** 400W (GPU + CPU)
-- **ML Training:** 700W (full GPU)
-
-**Current Status:**
-- Power: 58W
-- Headroom: 942W available
-- Mode: Balanced
-- Grace only uses GPU when ML task requires it!
-
----
-
-## 2. Natural Language Terminal ✅
-
-**WebSocket:** `/ws/terminal`
-
-**You say:**
-- "Show me git status"
-- "List files in the backend folder"
-- "Check Python version"
-
-**Grace translates and executes:**
+Questions? Ask Grace:
 ```
-User: "Show me git status"
-Grace: "Executing: git status"
-Output: [git status results]
+aaron: help
+aaron: what can you do?
+aaron: explain yourself
 ```
 
-**Safety:**
-- Allowed commands: git, ls, dir, python, npm, curl
-- Blocked commands: rm -rf, format, shutdown
-- Grace won't execute unsafe commands
-
----
-
-## 3. Chunked File Upload ✅
-
-**For large files (PDFs, books, datasets)**
-
-**You say:**
-- "I want to upload a 500MB PDF"
-
-**Grace handles:**
-1. Initializes upload session
-2. Receives file in 5MB chunks
-3. Shows progress
-4. Assembles complete file
-5. Verifies SHA-256
-6. Ingests automatically
-
-**Endpoints:**
-- `POST /api/files/init` - Start upload
-- `PUT /api/files/chunk` - Upload chunk
-- `POST /api/files/complete` - Finish & ingest
-
----
-
-## 4. Enhanced Ingestion Pipeline ✅
-
-**Complete pipeline:**
-```
-File Upload
-  ↓
-Extract Text (PDF/DOCX/EPUB/HTML)
-  ↓
-Chunk (1000 tokens, 15% overlap)
-  ↓
-Generate Embeddings (OpenAI)
-  ↓
-Store in Vector DB (Chroma)
-  ↓
-Store in Knowledge Base
-  ↓
-Register with Memory Broker
-```
-
-**You say:**
-- "Ingest this PDF about sales"
-- "Upload and process this document"
-- "Add this to my knowledge base"
-
-**Grace does everything automatically!**
-
----
-
-## 5. Knowledge Search ✅
-
-**You say:**
-- "Find documents about sales pipelines"
-- "Search my knowledge for pricing strategies"
-
-**Grace:**
-1. Understands query
-2. Searches vector store (semantic)
-3. Falls back to keyword if needed
-4. Returns ranked results
-5. Shows source citations
-
----
-
-## 6. Domain Kernels (8 AI Agents) ✅
-
-**You say:**
-- "Generate code for a sales pipeline"
-- "Check if I can deploy to production"  
-- "Show me system metrics"
-
-**Grace routes to correct kernel:**
-- Code Kernel → Generates code
-- Governance Kernel → Checks policy
-- Infrastructure Kernel → Gets metrics
-
-**All natural language - no API knowledge needed!**
-
----
-
-## 7. Autonomous Operation ✅
-
-**Grace proactively:**
-- Hunts for errors every 5 minutes
-- Fixes code issues
-- Optimizes performance
-- Ingests new documents
-- Manages resources
-- All with snapshot protection!
-
-**Every action:**
-1. Creates snapshot
-2. Executes
-3. Verifies
-4. Rolls back if failed
-
----
-
-## How To Use
-
-### Chat Interface (Natural Language):
-
-```
-You: "Upload this PDF and add it to knowledge base"
-Grace: "I'll handle that. Initializing chunked upload..."
-      [Progress bar]
-      "Upload complete! Extracting text from PDF..."
-      "Creating 45 chunks with embeddings..."
-      "Stored in vector database."
-      "✓ Document ingested! Artifact ID: 123"
-
-You: "Search for sales pipeline information"
-Grace: "Searching knowledge base..."
-      "Found 8 relevant documents:"
-      [Shows results with relevance scores]
-
-You: "Generate a Python function for lead scoring"
-Grace: "Allocating resources... (Code generation - CPU only, 100W)"
-      "Generating code..."
-      [Shows code]
-      "✓ Function generated and validated in sandbox"
-
-You: "Check my system status"
-Grace: "Current capacity:"
-      "CPU: 6.7% (plenty of headroom)"
-      "RAM: 34.2% (20.9GB / 61.6GB)"
-      "GPU: Available but idle (saving power)"
-      "Power: 58W / 1000W"
-      "✓ All systems operational"
-```
-
----
-
-## UI Layout (Coming)
-
-```
-┌─────────────────────────────────────────────────────┐
-│  Grace Intelligence (Natural Language Interface)    │
-├──────────┬──────────────────────────────────────────┤
-│          │                                          │
-│  Chat    │  Main Chat Area                         │
-│  Terminal│  - Natural conversation                 │
-│  Files   │  - File drag-drop                       │
-│  Knowledge  - Terminal output                      │
-│          │  - Search results                       │
-│  [Status]│  - Code display                         │
-│          │                                          │
-│  Hardware│  Input: "Upload this PDF..."            │
-│  94% idle│  [Send]                                 │
-│  58W     │                                          │
-└──────────┴──────────────────────────────────────────┘
-```
-
----
-
-## Test Everything
-
-### 1. Hardware Awareness
-```bash
-curl http://localhost:8000/api/hardware/capacity
-curl http://localhost:8000/api/hardware/specs
-```
-
-### 2. Allocate for ML Task
-```bash
-curl -X POST http://localhost:8000/api/hardware/allocate \
-  -d '{"task_type":"ml_training"}'
-# Returns: 700W budget, full GPU, 24 threads
-```
-
-### 3. Test Ingestion
-```bash
-curl -X POST http://localhost:8000/api/ingest/minimal/text \
-  -d '{"content":"Document","title":"Test","domain":"test"}'
-# Returns: artifact_id
-```
-
-### 4. WebSocket Terminal
-```javascript
-// In browser
-const ws = new WebSocket('ws://localhost:8000/ws/terminal');
-ws.send("Show me git status");
-// Grace translates and executes
-```
-
-### 5. Domain Kernels
-```bash
-curl -X POST http://localhost:8000/kernel/memory \
-  -d '{"intent":"Search for sales documents"}'
-```
-
----
-
-## What's Different from Other AIs
-
-### ChatGPT/Claude:
-- Text only
-- No file processing
-- No code execution
-- No system access
-- No hardware awareness
-
-### Grace:
-- ✅ Text + Files + Code + Terminal
-- ✅ PDF/DOCX extraction
-- ✅ Chunked embeddings
-- ✅ Vector search
-- ✅ Hardware optimization
-- ✅ Power management
-- ✅ Autonomous operation
-- ✅ Full system access (with safety)
-- ✅ Self-healing
-- ✅ Snapshot/rollback protection
-
-**Grace is a complete autonomous OS, not just a chatbot!** 🎯
-
----
-
-## Dependencies to Install (Optional)
-
-### For PDF Support:
-```bash
-pip install PyPDF2
-```
-
-### For DOCX Support:
-```bash
-pip install python-docx
-```
-
-### For Embeddings:
-```bash
-pip install openai
-# Set OPENAI_API_KEY in .env
-```
-
-### For Vector Store:
-```bash
-pip install chromadb
-```
-
-### For GPU Support:
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-```
-
----
-
-## Configuration
-
-### .env file:
-```bash
-# Already configured:
-SELF_HEAL_EXECUTE=true
-AUTO_ROLLBACK_ON_ERROR=true
-AUTONOMOUS_IMPROVER_ENABLED=true
-
-# Optional for embeddings:
-OPENAI_API_KEY=your_key_here
-
-# Terminal safety:
-TERMINAL_ENABLED=true
-```
-
----
-
-## Summary
-
-**Grace has EVERYTHING:**
-- ✅ 8 Intelligent Domain Kernels (270 APIs)
-- ✅ Hardware awareness (RTX 5090, Ryzen 9950X3D)
-- ✅ Power optimization (GPU only when needed)
-- ✅ Natural language terminal
-- ✅ Chunked file uploads
-- ✅ PDF/DOCX extraction
-- ✅ Text chunking with overlap
-- ✅ Embeddings (when OpenAI key set)
-- ✅ Vector storage (when ChromaDB installed)
-- ✅ Autonomous operation
-- ✅ Self-healing
-- ✅ Snapshot/rollback protection
-- ✅ Full system access (safely)
-
-**All controlled by natural language - just talk to Grace!** 💬
-
-Access: http://localhost:5173
+She'll tell you! 💬

@@ -141,3 +141,46 @@ async def get_realtime_metrics() -> Dict[str, Any]:
             "fix_rate": fix_count / 60 if error_count > 0 else 0
         }
     }
+
+
+@router.post("/export/all")
+async def export_all_data(format: str = "json") -> Dict[str, str]:
+    """Export all Grace data for backup"""
+    
+    from ..data_export import data_exporter
+    
+    export_path = await data_exporter.export_all(format=format)
+    
+    return {
+        "status": "success",
+        "export_path": export_path,
+        "format": format
+    }
+
+
+@router.post("/export/learning")
+async def export_learning_data() -> Dict[str, str]:
+    """Export ML/DL learning data only"""
+    
+    from ..data_export import data_exporter
+    
+    export_path = await data_exporter.export_learning_only()
+    
+    return {
+        "status": "success",
+        "export_path": export_path
+    }
+
+
+@router.post("/backup/crypto")
+async def backup_crypto_chains() -> Dict[str, str]:
+    """Backup cryptographic chains"""
+    
+    from ..data_export import data_exporter
+    
+    backup_path = await data_exporter.backup_crypto_chains()
+    
+    return {
+        "status": "success",
+        "backup_path": backup_path
+    }

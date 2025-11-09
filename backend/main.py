@@ -330,6 +330,16 @@ async def on_startup():
     await alert_system.start()
     print("[AUTONOMOUS] 🔔 Alert system started - Monitoring for critical events")
     
+    # Start Proactive Improvement - Grace proposes her own improvements
+    from backend.proactive_improvement_engine import proactive_improvement
+    await proactive_improvement.start()
+    print("[AUTONOMOUS] 🎯 Proactive Improvement started - Grace will propose improvements")
+    
+    # Start Performance Optimizer - Continuous performance tuning
+    from backend.performance_optimizer import performance_optimizer
+    await performance_optimizer.start()
+    print("[AUTONOMOUS] ⚡ Performance Optimizer started - Optimizing every 30min")
+    
     # Startup Verification - Confirm all systems operational
     from backend.startup_verification import startup_verification
     
