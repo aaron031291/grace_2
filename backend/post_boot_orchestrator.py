@@ -162,7 +162,7 @@ class PostBootOrchestrator:
         # Step 3: Execute playbook
         print(f"  [3/6] Executing {playbook}...", end=" ")
         exec_result = await self._execute_playbook(playbook, anomaly)
-        print(f"[{''OK' if exec_result['success'] else 'FAIL'}]")
+        print(f"[{'OK' if exec_result['success'] else 'FAIL'}]")
         
         if not exec_result["success"]:
             print(f"  [FAIL] Playbook execution failed")
