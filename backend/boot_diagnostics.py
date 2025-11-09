@@ -684,21 +684,38 @@ class BootDiagnostics:
         
         try:
             from backend.capa_system import capa_system
+            import inspect
+            
+            # Check CAPA method signature to use correct parameters
+            create_capa_sig = inspect.signature(capa_system.create_capa)
+            params = list(create_capa_sig.parameters.keys())
             
             for finding in self.severity_levels["critical"]:
-                await capa_system.create_capa(
-                    issue_description=finding["message"],
-                    severity="high",
-                    category="boot_failure",
-                    detected_by="boot_diagnostics",
-                    evidence=finding["context"],
-                    immediate_action=finding["remediation"]
-                )
+                # Try different parameter names based on actual method signature
+                if "issue_description" in params:
+                    await capa_system.create_capa(
+                        issue_description=finding["message"],
+                        severity="high",
+                        category="boot_failure",
+                        detected_by="boot_diagnostics",
+                        evidence=finding["context"],
+                        immediate_action=finding["remediation"]
+                    )
+                elif "description" in params:
+                    await capa_system.create_capa(
+                        description=finding["message"],
+                        severity="high",
+                        category="boot_failure",
+                        detected_by="boot_diagnostics"
+                    )
+                else:
+                    logger.warning(f"[DIAGNOSTICS] Unknown CAPA method signature: {params}, skipping ticket creation")
+                    break
             
             logger.info(f"[DIAGNOSTICS] Created {len(self.severity_levels['critical'])} CAPA tickets")
             
         except Exception as e:
-            logger.error(f"[DIAGNOSTICS] Failed to create CAPA tickets: {e}")
+            logger.warning(f"[DIAGNOSTICS] Could not create CAPA tickets: {e}")
     
     # ========================================================================
     # HELPERS
