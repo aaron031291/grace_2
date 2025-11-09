@@ -573,6 +573,7 @@ class BootPipeline:
             try:
                 sys.stdout.reconfigure(encoding="utf-8")
                 sys.stderr.reconfigure(encoding="utf-8")
+                os.environ["PYTHONIOENCODING"] = "utf-8"
                 return {"success": True}
             except:
                 return {"success": False, "error": "Could not reconfigure encoding"}

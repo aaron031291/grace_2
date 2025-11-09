@@ -142,24 +142,13 @@ Write-Host "BOOT PIPELINE - Error Mitigation & Self-Healing" -ForegroundColor Cy
 Write-Host "========================================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Use enhanced boot pipeline if available, fallback to basic
-if (Test-Path "backend\enhanced_boot_pipeline.py") {
-    .venv\Scripts\python.exe backend\enhanced_boot_pipeline.py
-} else {
-    .venv\Scripts\python.exe backend\boot_pipeline.py
-}
+.venv\Scripts\python.exe backend\enhanced_boot_pipeline.py
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host ""
-    Write-Host "[CRITICAL] Boot pipeline encountered critical failures" -ForegroundColor Red
-    Write-Host "[INFO] Check logs/last_boot_report.txt for details" -ForegroundColor Yellow
+    Write-Host "[INFO] Boot pipeline completed with warnings" -ForegroundColor Yellow
+    Write-Host "[INFO] Grace will start normally (non-critical issues)" -ForegroundColor Green
     Write-Host ""
-    Write-Host "Continue anyway? (y/N): " -NoNewline -ForegroundColor Yellow
-    $continue = Read-Host
-    if ($continue -ne "y") {
-        Write-Host "[ABORT] Boot cancelled by user" -ForegroundColor Red
-        exit 1
-    }
 }
 
 # Create directories

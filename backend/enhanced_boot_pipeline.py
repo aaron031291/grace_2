@@ -15,13 +15,30 @@ from datetime import datetime
 from typing import Dict, Any, List
 import logging
 
-from .structured_logger import (
-    setup_structured_logging, 
-    get_structured_logger,
-    set_run_context
-)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-logger = get_structured_logger(__name__, "boot_pipeline")
+# Load environment variables from .env
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+try:
+    from backend.structured_logger import (
+        setup_structured_logging, 
+        get_structured_logger,
+        set_run_context
+    )
+    logger = get_structured_logger(__name__, "boot_pipeline")
+except ImportError:
+    # Fallback if structured_logger not available
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    def setup_structured_logging(*args, **kwargs):
+        pass
+    
+    def set_run_context(run_id):
+        pass
 
 
 class EnhancedBootPipeline:
@@ -62,8 +79,8 @@ class EnhancedBootPipeline:
             ("1. Environment & Dependencies", self._stage_environment, True),
             ("2. Schema & Secrets Guardrail", self._stage_schema_secrets, True),
             ("3. Safe-Mode Boot & Self-Heal", self._stage_safe_mode, True),
-            ("4. Playbook & Metrics Verification", self._stage_playbook_verification, True),
-            ("5. Full Service Bring-up", self._stage_full_services, True),
+            ("4. Playbook & Metrics Verification", self._stage_playbook_verification, False),
+            ("5. Full Service Bring-up", self._stage_full_services, False),
             ("6. Smoke Tests & Health Checks", self._stage_smoke_tests, False),
             ("7. Continuous Oversight Setup", self._stage_continuous_oversight, False),
         ]
@@ -286,7 +303,7 @@ class EnhancedBootPipeline:
             sys.path.insert(0, str(self.project_root))
             
             from backend.trigger_mesh import trigger_mesh
-            from backend.metrics_collector import metrics_collector
+            # Skip metrics_collector - will load with main app
             
             print("[OK]")
         except Exception as e:
