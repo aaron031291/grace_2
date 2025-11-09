@@ -147,6 +147,16 @@ class AutonomousImprover:
             logger.debug(f"[AUTONOMOUS] No frontend directory, skipping TypeScript scan")
             return issues
         
+        # Check if npm is available
+        try:
+            npm_check = subprocess.run(['npm', '--version'], capture_output=True, timeout=5)
+            if npm_check.returncode != 0:
+                logger.debug(f"[AUTONOMOUS] npm not available, skipping TypeScript scan")
+                return issues
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            logger.debug(f"[AUTONOMOUS] npm command not found, skipping TypeScript scan")
+            return issues
+        
         try:
             result = subprocess.run(
                 ['npm', 'run', 'build'],

@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, Literal
 
 from ..multimodal_llm import multimodal_llm
+from ..memory import PersistentMemory
 
 router = APIRouter(prefix="/api/multimodal", tags=["multimodal"])
 
