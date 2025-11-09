@@ -149,6 +149,18 @@ except ImportError:
 @app.on_event("startup")
 async def on_startup():
     print("[STARTUP] Beginning Grace initialization...")
+    
+    # Pre-flight validation - Check code before starting systems
+    from backend.preflight_validator import preflight_validator
+    
+    try:
+        print("[PREFLIGHT] Running code validation...")
+        validation_passed = await preflight_validator.validate_before_startup(["backend"])
+        
+        if not validation_passed:
+            print("[PREFLIGHT] ⚠️  Validation warnings detected (non-blocking)")
+    except Exception as e:
+        print(f"[PREFLIGHT] ⚠️  Validation error: {e} (continuing anyway)")
     # Ensure model modules imported so Base.metadata is populated
     try:
         import importlib
@@ -288,8 +300,23 @@ async def on_startup():
     
     # Start Autonomous Code Healer - Self-coding capability
     from backend.autonomous_code_healer import code_healer
-    await code_healer.start()
-    print("[AUTONOMOUS] 🔧 Code Healer started - Grace can fix her own code")
+    from backend.resilient_startup import resilient_startup
+    
+    success = await resilient_startup.execute_with_recovery(
+        startup_func=code_healer.start,
+        component_name="autonomous_code_healer",
+        critical=False  # Non-critical, continue without if fails
+    )
+    
+    if success:
+        print("[AUTONOMOUS] 🔧 Code Healer started - Grace can fix her own code")
+    else:
+        print("[AUTONOMOUS] ⚠️  Code Healer failed to start (non-critical)")
+    
+    # Start Log-Based Healer - Continuous monitoring
+    from backend.log_based_healer import log_based_healer
+    await log_based_healer.start()
+    print("[AUTONOMOUS] 📖 Log Healer started - Monitoring logs for errors")
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -559,6 +586,10 @@ app.include_router(multimodal_api.router)  # Multi-modal LLM (text/voice/vision)
 # Code Healing API - Autonomous code fixing
 from backend.routes import code_healing_api
 app.include_router(code_healing_api.router)
+
+# Healing Dashboard - Monitor all healing systems
+from backend.routes import healing_dashboard
+app.include_router(healing_dashboard.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
