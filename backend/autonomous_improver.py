@@ -131,7 +131,7 @@ class AutonomousImprover:
                         '# TODO: Implement function logic',  # Generator output
                         '# TODO: Add assertions',  # Test generator
                         "if 'TODO:' in",  # Detection code itself
-                        'TODO:' in line',  # Detection code
+                        "'TODO:' in line",  # Detection code
                     ]
                     
                     # Check if any TODOs in file are unsafe
