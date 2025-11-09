@@ -2,6 +2,83 @@
 # Production-ready metric definitions for autonomous monitoring
 
 metrics:
+  # Unified Logic Hub Metrics
+  - metric_id: logic_hub.update_submitted
+    category: logic_hub
+    description: "Updates submitted to unified logic hub"
+    unit: count
+    aggregation: count
+    thresholds:
+      good: { upper: 100 }
+      warning: { lower: 100, upper: 500 }
+      critical: { lower: 500 }
+    playbooks: []
+    recommended_interval_seconds: 300
+    source: internal
+    resource_scope: service
+    tags: [logic_hub, updates]
+
+  - metric_id: logic_hub.update_latency_p95
+    category: logic_hub
+    description: "95th percentile update pipeline latency"
+    unit: ms
+    aggregation: p95
+    thresholds:
+      good: { upper: 2000 }
+      warning: { lower: 2000, upper: 5000 }
+      critical: { lower: 5000 }
+    playbooks: []
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: service
+    tags: [logic_hub, latency, updates]
+
+  - metric_id: logic_hub.rollback_rate
+    category: logic_hub
+    description: "Rollback rate (rollbacks / total updates)"
+    unit: ratio
+    aggregation: avg
+    thresholds:
+      good: { upper: 0.01 }
+      warning: { lower: 0.01, upper: 0.05 }
+      critical: { lower: 0.05 }
+    playbooks: [investigate-rollback-spike]
+    recommended_interval_seconds: 300
+    source: internal
+    resource_scope: service
+    tags: [logic_hub, rollback, quality]
+
+  - metric_id: memory_fusion.crypto_assign_rate
+    category: memory_fusion
+    description: "Crypto assignments per second for memory operations"
+    unit: ops_per_sec
+    aggregation: avg
+    thresholds:
+      good: { upper: 1000 }
+      warning: { lower: 1000, upper: 5000 }
+      critical: { lower: 5000 }
+    playbooks: []
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: service
+    tags: [memory_fusion, crypto, performance]
+
+  - metric_id: memory_fusion.signature_verification_latency
+    category: memory_fusion
+    description: "Crypto signature verification latency"
+    unit: ms
+    aggregation: avg
+    thresholds:
+      good: { upper: 1 }
+      warning: { lower: 1, upper: 10 }
+      critical: { lower: 10 }
+    playbooks: []
+    recommended_interval_seconds: 60
+    source: internal
+    resource_scope: service
+    tags: [memory_fusion, crypto, latency]
+
+  # Existing metrics:
   # API & Gateway Health
   - metric_id: api.latency_p95
     category: api

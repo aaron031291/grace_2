@@ -10,6 +10,83 @@ DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
+async def seed_logic_hub_policies():
+    """Seed governance policies for Unified Logic Hub operations"""
+    from backend.models import async_session
+    from backend.governance_models import GovernancePolicy
+    
+    logic_hub_policies = [
+        {
+            "name": "logic_hub_schema_update",
+            "resource_pattern": "schema_update_*",
+            "action_pattern": "update_schema",
+            "decision": "review",
+            "conditions": {"risk_level": "high"},
+            "priority": 80,
+            "active": True,
+            "description": "High-risk schema updates require review"
+        },
+        {
+            "name": "logic_hub_code_module_update",
+            "resource_pattern": "code_module_*",
+            "action_pattern": "update_code_module",
+            "decision": "review",
+            "conditions": {},
+            "priority": 90,
+            "active": True,
+            "description": "All code module updates require review"
+        },
+        {
+            "name": "logic_hub_playbook_update",
+            "resource_pattern": "playbook_*",
+            "action_pattern": "update_playbook",
+            "decision": "approve",
+            "conditions": {"created_by": "self_heal"},
+            "priority": 70,
+            "active": True,
+            "description": "Self-heal playbook updates auto-approved"
+        },
+        {
+            "name": "logic_hub_config_update",
+            "resource_pattern": "config_*",
+            "action_pattern": "update_config",
+            "decision": "approve",
+            "conditions": {"risk_level": "low"},
+            "priority": 60,
+            "active": True,
+            "description": "Low-risk config updates auto-approved"
+        },
+        {
+            "name": "logic_hub_metric_definition",
+            "resource_pattern": "metric_definition_*",
+            "action_pattern": "update_metric_definition",
+            "decision": "approve",
+            "conditions": {},
+            "priority": 50,
+            "active": True,
+            "description": "Metric definition updates auto-approved"
+        }
+    ]
+    
+    async with async_session() as session:
+        for policy_data in logic_hub_policies:
+            # Check if exists
+            existing = await session.execute(
+                select(GovernancePolicy).where(GovernancePolicy.name == policy_data["name"])
+            )
+            if existing.scalar_one_or_none():
+                print(f"[SKIP] Policy {policy_data['name']} already exists")
+                continue
+            
+            policy = GovernancePolicy(**policy_data)
+            session.add(policy)
+            print(f"[OK] Created policy: {policy_data['name']}")
+        
+        await session.commit()
+    
+    print(f"[OK] Seeded {len(logic_hub_policies)} logic hub governance policies")
+
+
 async def seed_governance_policies():
     """Create 20+ default governance policies for production use"""
     

@@ -97,6 +97,52 @@ class AgenticInsight(Base):
     outcome = Column(String(64))
     outcome_detail = Column(Text)
     verified = Column(Boolean)
+
+
+class LogicUpdateRecord(Base):
+    """Persistent registry for Unified Logic Hub updates"""
+    __tablename__ = "logic_updates"
+    
+    id = Column(Integer, primary_key=True)
+    update_id = Column(String(64), unique=True, nullable=False, index=True)
+    update_type = Column(String(32), nullable=False)  # schema, code_module, playbook, config, metric_definition
+    version = Column(String(32), nullable=False)
+    
+    # Targets
+    component_targets = Column(Text, nullable=False)  # JSON array of component IDs
+    
+    # Content checksums
+    checksum = Column(String(64), nullable=True)
+    
+    # Governance & Crypto
+    governance_approval_id = Column(String(128), nullable=True)
+    crypto_id = Column(String(128), nullable=True)
+    crypto_signature = Column(String(128), nullable=True)
+    
+    # Status
+    status = Column(String(32), default="proposed")  # proposed, validated, approved, distributed, failed, rolled_back
+    
+    # Validation
+    validation_results = Column(Text, nullable=True)  # JSON
+    diagnostics = Column(Text, nullable=True)  # JSON array
+    
+    # Rollback
+    previous_version = Column(String(32), nullable=True)
+    rollback_instructions = Column(Text, nullable=True)  # JSON
+    
+    # Metadata
+    created_by = Column(String(64), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    risk_level = Column(String(16), default="medium")
+    
+    # Observability
+    immutable_log_sequence = Column(Integer, nullable=True)
+    trigger_mesh_event_id = Column(String(64), nullable=True)
+    
+    # Outcome tracking
+    distributed_at = Column(DateTime(timezone=True), nullable=True)
+    failed_at = Column(DateTime(timezone=True), nullable=True)
+    rolled_back_at = Column(DateTime(timezone=True), nullable=True)
     
     # Privacy and metadata
     sensitive_data_redacted = Column(Boolean, default=False)
