@@ -2,10 +2,11 @@ version: '3.8'
 
 services:
   # ============ Grace Backend - Complete System ============
+  # Includes: 9 Domain Kernels, 311+ APIs, 100+ Subsystems
   grace-backend:
     build:
       context: .
-      dockerfile: Dockerfile.complete
+      dockerfile: Dockerfile
     container_name: grace-backend-complete
     ports:
       - "8000:8000"
@@ -17,13 +18,16 @@ services:
       - DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
       
       # Feature Flags (ALL ENABLED)
-      - SELF_HEAL_OBSERVE_ONLY=true
+      - SELF_HEAL_OBSERVE_ONLY=false
       - SELF_HEAL_EXECUTE=true
       - LEARNING_AGGREGATION_ENABLED=true
       - META_LOOP_ENABLED=true
       - AUTONOMOUS_IMPROVER_ENABLED=true
       - CODING_AGENT_ENABLED=true
       - AGENTIC_SPINE_ENABLED=true
+      
+      # Kernel System
+      - DOMAIN_KERNELS_ENABLED=true
       
       # Performance
       - PYTHONUNBUFFERED=1
