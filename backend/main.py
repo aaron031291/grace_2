@@ -33,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from backend.base_models import Base, engine
-from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api, terminal_ws, chunked_upload, multimodal_api, web_learning_api, unified_logic_hub_api, memory_fusion_api
+from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api, terminal_ws, chunked_upload, multimodal_api, web_learning_api, unified_logic_hub_api, memory_fusion_api, capa_api
 from backend.transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from backend.transcendence.business.api import router as business_api_router
 from backend.reflection import reflection_service
@@ -251,6 +251,14 @@ async def on_startup():
         print(f"  Stats: {memory_fusion_service.get_memory_stats()}")
     except Exception as e:
         print(f"[WARNING] Memory Fusion Service failed to initialize: {e}")
+    
+    # Initialize Handshake Protocol
+    try:
+        from backend.handshake_subscribers import initialize_handshake_protocol
+        await initialize_handshake_protocol()
+        print("[STARTUP] Component Handshake Protocol initialized")
+    except Exception as e:
+        print(f"[WARNING] Handshake protocol failed to initialize: {e}")
 
     # Self-heal observe-only scheduler (feature-gated)
     try:
@@ -768,6 +776,7 @@ app.include_router(governance.router)
 app.include_router(hunter.router)
 app.include_router(unified_logic_hub_api.router)
 app.include_router(memory_fusion_api.router)
+app.include_router(capa_api.router)
 app.include_router(health_routes.router)
 # Conditionally include unified health/triage endpoints (observe-only by default)
 try:

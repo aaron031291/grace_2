@@ -143,6 +143,79 @@ class LogicUpdateRecord(Base):
     distributed_at = Column(DateTime(timezone=True), nullable=True)
     failed_at = Column(DateTime(timezone=True), nullable=True)
     rolled_back_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class CAPARecord(Base):
+    """Corrective and Preventive Action records (ISO 9001)"""
+    __tablename__ = "capa_records"
+    
+    id = Column(Integer, primary_key=True)
+    capa_id = Column(String(64), unique=True, nullable=False, index=True)
+    title = Column(String(256), nullable=False)
+    description = Column(Text, nullable=False)
+    
+    # Classification
+    capa_type = Column(String(16), nullable=False)  # corrective, preventive
+    severity = Column(String(16), nullable=False)  # critical, high, medium, low
+    source = Column(String(64), nullable=False)  # anomaly, customer, audit, internal
+    
+    # Linkage
+    related_update_id = Column(String(64), nullable=True)
+    detected_by = Column(String(64), nullable=False)
+    
+    # Status
+    status = Column(String(32), default="open", index=True)
+    
+    # Analysis
+    root_cause = Column(Text, nullable=True)
+    root_cause_analysis = Column(Text, nullable=True)  # JSON
+    
+    # Actions
+    corrective_actions = Column(Text, nullable=True)  # JSON
+    preventive_actions = Column(Text, nullable=True)  # JSON
+    implementation_plan = Column(Text, nullable=True)  # JSON
+    
+    # Implementation
+    implemented_at = Column(DateTime(timezone=True), nullable=True)
+    implemented_by = Column(String(64), nullable=True)
+    
+    # Verification
+    verification_results = Column(Text, nullable=True)  # JSON
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    verified_by = Column(String(64), nullable=True)
+    effective = Column(Boolean, nullable=True)
+    
+    # Closure
+    closed_at = Column(DateTime(timezone=True), nullable=True)
+    closed_by = Column(String(64), nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class ComponentRegistration(Base):
+    """Component handshake and registry"""
+    __tablename__ = "component_registry"
+    
+    id = Column(Integer, primary_key=True)
+    component_id = Column(String(128), unique=True, nullable=False, index=True)
+    component_type = Column(String(64), nullable=False)
+    version = Column(String(32), nullable=False)
+    
+    # Capabilities
+    capabilities = Column(Text, nullable=False)  # JSON
+    expected_metrics = Column(Text, nullable=False)  # JSON
+    
+    # Handshake
+    handshake_id = Column(String(64), nullable=True)
+    crypto_signature = Column(String(128), nullable=True)
+    
+    # Status
+    status = Column(String(32), default="pending")
+    
+    # Timestamps
+    registered_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    integrated_at = Column(DateTime(timezone=True), nullable=True)
     
     # Privacy and metadata
     sensitive_data_redacted = Column(Boolean, default=False)
