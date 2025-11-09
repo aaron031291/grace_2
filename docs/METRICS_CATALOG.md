@@ -201,7 +201,12 @@ Collectors should fetch this catalog at startup to ensure metric IDs, units, and
    - Load metric definitions (queries, thresholds) from the catalog.
    - Normalise values to canonical units.
    - Compute the band (`good|warning|critical`) before publishing to the trigger mesh.
-3. **Proactive Intelligence** – update the proactive intelligence service to subscribe to `metrics.*` events, maintain rolling windows, emit `MetricsSnapshot` records, and hand off to the planner when thresholds are breached.
+3. **Dynamic Optimisation (Optional)** – after collectors are reliable, allow Grace to propose threshold adjustments by:
+   - Computing recommended bands from recent `MetricsSnapshot` data (e.g. 7-day windows).
+   - Emitting a governance decision request (`metrics.threshold_change`) with the proposed new values, confidence, and impacted playbooks.
+   - Requiring an approval response before committing updates to `metrics_catalog.yaml`.
+4. **Snapshot Rollback** – ensure every committed catalog change stores the previous snapshot (e.g. `metrics_catalog.yaml.bak`) so you can revert instantly if a new threshold misbehaves.
+5. **Proactive Intelligence** – update the proactive intelligence service to subscribe to `metrics.*` events, maintain rolling windows, emit `MetricsSnapshot` records, and hand off to the planner when thresholds are breached.
 4. **Playbook Binding** – ensure playbooks referenced in the catalog exist (e.g. `scale-api-shard`, `spawn-executor-worker`) and include risk levels consistent with the thresholds.
 5. **Dashboards and Alerts** – surface the snapshot data in the frontend dashboards and configure alerting (Slack/email) for critical bands.
 
