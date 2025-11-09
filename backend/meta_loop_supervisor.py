@@ -65,6 +65,9 @@ class CrossDomainSnapshot:
     strategic_goals: Dict[str, float]
     goal_gaps: Dict[str, float]
     systemic_patterns: List[Dict]
+    focus_recommendation: str = "routine_maintenance"
+    guardrails_recommendation: str = "maintain"
+    ml_root_causes: List[str] = None
 
 
 @dataclass

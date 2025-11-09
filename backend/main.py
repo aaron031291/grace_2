@@ -5,9 +5,14 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 import logging
 import sys
+import os
 from datetime import datetime, timezone
 import time
 import psutil
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configure logging to console with higher visibility
 logging.basicConfig(
@@ -405,6 +410,42 @@ async def on_startup():
     else:
         print(f"[AMP-API] ⚠️  Amp API not configured (add AMP_API_KEY to .env)")
     
+    # Initialize training storage
+    print("[TRAINING-STORAGE] Initializing knowledge storage system...")
+    from backend.grace_training_storage import training_storage
+    training_storage._initialize_structure()
+    stats = training_storage.get_statistics()
+    print(f"[TRAINING-STORAGE] ✅ {len(stats['categories'])} category folders ready")
+    print(f"[TRAINING-STORAGE] 📁 Base path: {stats['base_path']}")
+    
+    # Initialize ML/AI systems
+    print("[ML-SYSTEMS] Initializing ML/AI forecasting and learning...")
+    from backend.causal_playbook_reinforcement import causal_rl_agent
+    from backend.temporal_forecasting import temporal_forecaster
+    from backend.forecast_scheduler import forecast_scheduler
+    from backend.automated_ml_training import automated_training
+    from backend.metrics_snapshot_integration import snapshot_integration
+    from backend.incident_predictor import incident_predictor
+    
+    await temporal_forecaster.load_or_initialize()
+    rl_stats = causal_rl_agent.get_statistics()
+    fc_stats = temporal_forecaster.get_statistics()
+    
+    print(f"[ML-SYSTEMS] ✅ Causal RL Agent ready ({rl_stats['total_policies']} policies learned)")
+    print(f"[ML-SYSTEMS] ✅ Temporal Forecaster ready ({fc_stats['metrics_learned']} metrics)")
+    print(f"[ML-SYSTEMS] 🧠 Advanced ML systems online")
+    
+    # Start ML subsystems
+    await forecast_scheduler.start()
+    await automated_training.start()
+    await snapshot_integration.start()
+    await incident_predictor.start()
+    
+    print("[ML-SYSTEMS] 🔮 Predictive forecasting active (15min intervals)")
+    print("[ML-SYSTEMS] 🎓 Automated training active (6h intervals)")
+    print("[ML-SYSTEMS] 🔗 Metrics → ML integration active")
+    print("[ML-SYSTEMS] 🚨 Incident prediction active")
+    
     # Startup Verification - Confirm all systems operational
     from backend.startup_verification import startup_verification
     
@@ -429,13 +470,23 @@ async def on_shutdown():
     from backend.autonomous_goal_setting import autonomous_goal_setting
     from backend.web_learning_orchestrator import web_learning_orchestrator
     from backend.amp_api_integration import amp_api_integration
+    from backend.forecast_scheduler import forecast_scheduler
+    from backend.automated_ml_training import automated_training
+    from backend.metrics_snapshot_integration import snapshot_integration
+    from backend.incident_predictor import incident_predictor
     
     await proactive_improvement.stop()
     await performance_optimizer.stop()
     await autonomous_goal_setting.stop()
     await web_learning_orchestrator.stop()
     await amp_api_integration.stop()
+    await forecast_scheduler.stop()
+    await automated_training.stop()
+    await snapshot_integration.stop()
+    await incident_predictor.stop()
     print("[SHUTDOWN] Autonomous systems stopped")
+    print("[SHUTDOWN] ML/AI systems stopped")
+    print("[SHUTDOWN] Predictive analytics stopped")
     
     # Stop agentic spine first
     await deactivate_grace_autonomy()
@@ -670,6 +721,12 @@ app.include_router(plugin_routes.router)
 app.include_router(ingest.router)
 app.include_router(trust_api.router)
 app.include_router(ml_api.router)
+
+# ML Systems API - Causal RL & Temporal Forecasting
+from backend.routes import ml_systems_api, ml_dashboard_api
+app.include_router(ml_systems_api.router)
+app.include_router(ml_dashboard_api.router)
+
 app.include_router(execution.router)
 app.include_router(temporal_api.router)
 app.include_router(causal_graph_api.router)

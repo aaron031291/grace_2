@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import logging
 import httpx
 from typing import Dict, Any
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -123,6 +124,7 @@ class StressTestRunner:
 # SCENARIO 1: Metric Flood + Planner Overload
 # ============================================================================
 
+@pytest.mark.asyncio
 async def test_metric_flood_planner_overload():
     """
     Drive API latency, request rate, and queue depth into critical bands simultaneously.
@@ -190,6 +192,7 @@ async def test_metric_flood_planner_overload():
 # SCENARIO 2: Collector Blackout Drill
 # ============================================================================
 
+@pytest.mark.asyncio
 async def test_collector_blackout():
     """
     Simulate collector failure (e.g., GitHub learning dies mid-run).
@@ -255,6 +258,7 @@ async def test_collector_blackout():
 # SCENARIO 3: Trigger Mesh Backpressure
 # ============================================================================
 
+@pytest.mark.asyncio
 async def test_trigger_mesh_backpressure():
     """
     Flood trigger mesh with events to test backpressure handling.
@@ -319,6 +323,7 @@ async def test_trigger_mesh_backpressure():
 # SCENARIO 4: Learning Misinformation Injection
 # ============================================================================
 
+@pytest.mark.asyncio
 async def test_learning_misinformation():
     """
     Feed duplicative/outdated sources to test quality controls.
@@ -367,6 +372,7 @@ async def test_learning_misinformation():
 # SCENARIO 5: Approval Queue Jam
 # ============================================================================
 
+@pytest.mark.asyncio
 async def test_approval_queue_jam():
     """
     Queue high-risk actions and delay approvals to test governance latency.

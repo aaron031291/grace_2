@@ -160,13 +160,23 @@ class ImmutableLogAnalytics:
             "verified_at": datetime.now(timezone.utc).isoformat()
         }
         
-        # Log verification result
+        # Log verification result (convert report to JSON-safe dict)
+        json_safe_report = {
+            "has_issues": report["has_issues"],
+            "total_entries": report["total_entries"],
+            "first_entry_id": report["first_entry_id"],
+            "last_entry_id": report["last_entry_id"],
+            "time_span_hours": report["time_span_hours"],
+            "issue_count": len(issues),
+            "verified_at": report["verified_at"]
+        }
+        
         await self.immutable_log.append(
             actor="log_analytics",
             action="integrity_verified",
             resource="immutable_log",
             subsystem="analytics",
-            payload=report,
+            payload=json_safe_report,
             result="verified" if not issues else "issues_found"
         )
         
@@ -386,16 +396,18 @@ class ImmutableLogAnalytics:
     async def _emit_gap_alert(self, report: Dict[str, Any]):
         """Emit alert for subsystem gaps"""
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="log.subsystem_gap",
-            source="log_analytics",
-            actor="system",
-            resource="subsystems",
-            payload=report,
-            timestamp=datetime.now(timezone.utc)
-        ))
-        
-        print(f"⚠️  Subsystem logging gaps detected: {len(report['gaps'])} subsystems")
+        # Only alert if gaps are meaningful (not on fresh startup)
+        if len(report['gaps']) > 0 and any(g['type'] == 'stale' for g in report['gaps']):
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="log.subsystem_gap",
+                source="log_analytics",
+                actor="system",
+                resource="subsystems",
+                payload=report,
+                timestamp=datetime.now(timezone.utc)
+            ))
+            
+            print(f"⚠️  Subsystem logging gaps detected: {len(report['gaps'])} subsystems")
 
 
 # Global singleton

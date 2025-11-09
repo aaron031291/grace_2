@@ -12,6 +12,7 @@ from .telemetry_schemas import PlaybookDefinition
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .logging_utils import log_event
 from .immutable_log import immutable_log
+from .causal_playbook_reinforcement import causal_rl_agent, PlaybookExperience
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,11 @@ class PlaybookExecutor:
                     f"[PLAYBOOK-EXEC] ✅ Playbook '{playbook_id}' completed: "
                     f"{result.get('message', 'OK')}"
                 )
+                print(f"[PLAYBOOK-EXEC] 🔧 SELF-HEALING: Executed '{playbook_id}' - {result.get('message', 'OK')}")
+                print(f"[PLAYBOOK-EXEC] 📊 Total executions: {self.execution_count}")
+                
+                # Record experience for causal RL
+                await self._record_playbook_experience(event, playbook_id, result)
             else:
                 logger.warning(f"[PLAYBOOK-EXEC] No handler for playbook: {playbook_id}")
         
@@ -311,6 +317,47 @@ class PlaybookExecutor:
             "action": "nodes_scaling",
             "message": "Infrastructure scaling initiated"
         }
+
+
+    async def _record_playbook_experience(
+        self,
+        event: TriggerEvent,
+        playbook_id: str,
+        result: Dict[str, Any]
+    ):
+        """Record playbook execution for causal RL learning"""
+        try:
+            # Calculate reward based on success
+            reward = 1.0 if result.get("success") else -0.5
+            
+            # Extract KPI deltas (placeholder - would come from metrics)
+            kpi_deltas = {
+                "latency_improvement": 0.1 if result.get("success") else -0.05,
+                "error_rate_delta": -0.01 if result.get("success") else 0.02
+            }
+            
+            # Trust score delta (placeholder)
+            trust_delta = 0.05 if result.get("success") else -0.1
+            
+            experience = PlaybookExperience(
+                incident_id=event.event_id,
+                service=event.payload.get("service", "grace-api"),
+                diagnosis_code=event.payload.get("metric_id", "unknown"),
+                candidate_playbooks=[playbook_id],  # Would include alternatives
+                chosen_playbook=playbook_id,
+                reward=reward,
+                kpi_deltas=kpi_deltas,
+                trust_score_delta=trust_delta,
+                metadata={
+                    "triggered_by": event.source,
+                    "execution_time": result.get("execution_time", "unknown")
+                }
+            )
+            
+            await causal_rl_agent.record_experience(experience)
+            
+        except Exception as e:
+            logger.error(f"[PLAYBOOK-EXEC] Error recording RL experience: {e}")
 
 
 # Global instance

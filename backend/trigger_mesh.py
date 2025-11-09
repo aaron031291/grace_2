@@ -26,8 +26,8 @@ class TriggerMesh:
         self.router_task: Optional[asyncio.Task] = None
         self._running = False
     
-    async def subscribe(self, event_pattern: str, handler: Callable):
-        """Subscribe to event types"""
+    def subscribe(self, event_pattern: str, handler: Callable):
+        """Subscribe to event types (synchronous for ease of use)"""
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)

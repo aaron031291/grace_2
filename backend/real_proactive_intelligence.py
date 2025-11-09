@@ -15,6 +15,8 @@ from .trigger_mesh import trigger_mesh, TriggerEvent
 from .logging_utils import log_event
 from .governance_framework import governance_framework
 from .policy_engine import policy_engine
+from .causal_playbook_reinforcement import causal_rl_agent
+from .temporal_forecasting import temporal_forecaster, ForecastRequest
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +128,18 @@ class RealProactiveIntelligence:
             if not playbook:
                 logger.warning(f"[PROACTIVE-INTEL] Unknown playbook: {playbook_id}")
                 return
+            
+            # Use causal RL to rank playbooks if multiple candidates
+            service = event.payload.get("service", "grace-api")
+            diagnosis = event.payload.get("metric_id", metric_id)
+            candidates = event.payload.get("candidate_playbooks", [playbook_id])
+            
+            if len(candidates) > 1:
+                ranked = await causal_rl_agent.recommend(service, diagnosis, candidates)
+                logger.info(f"[PROACTIVE-INTEL] 🧠 RL ranked playbooks: {ranked[:3]}")
+                print(f"[PROACTIVE-INTEL] 🧠 ML recommended: {ranked[0]} (learned from past incidents)")
+                playbook_id = ranked[0]
+                playbook = self.playbook_registry.get(playbook_id)
             
             logger.info(
                 f"[PROACTIVE-INTEL] 🎯 Evaluating playbook '{playbook_id}' "

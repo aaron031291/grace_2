@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 # Import visual logger (will be initialized)
 visual_ingestion_logger = None
 
+# Import training storage
+from .grace_training_storage import training_storage
+
 
 class KnowledgeSource(Base):
     """Immutable record of knowledge sources"""
@@ -202,6 +205,37 @@ class ProvenanceTracker:
             risk_score=0.1,
             status='completed',
             resource=source_id
+        )
+        
+        # Save to training storage folder
+        category_map = {
+            'web': 'web_scraping',
+            'github': 'github',
+            'youtube': 'youtube',
+            'reddit': 'reddit',
+            'api': 'api_discovery'
+        }
+        category = category_map.get(source_type, 'web_scraping')
+        
+        await training_storage.save_knowledge(
+            category=category,
+            item_id=source_id,
+            content={
+                "title": content.get('title', ''),
+                "text": content.get('text', ''),
+                "url": url,
+                "domain": domain,
+                "word_count": content.get('word_count', 0),
+                "code_count": content.get('code_count', 0),
+                "links": content.get('links', []),
+                "verified": True,
+                "trust_score": 0.8,
+                "governance_approved": governance_checks.get('governance', False),
+                "hunter_verified": governance_checks.get('hunter', False),
+                "constitutional_approved": governance_checks.get('constitutional', False)
+            },
+            source=url,
+            tags=[source_type, domain]
         )
         
         # Create detailed provenance file

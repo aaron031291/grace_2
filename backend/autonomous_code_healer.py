@@ -19,6 +19,7 @@ from .governance import governance_engine
 from .immutable_log import ImmutableLog
 from .ml_healing import ml_healing
 from .unified_logger import unified_logger
+from .grace_training_storage import training_storage
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,8 @@ class AutonomousCodeHealer:
             if fix_proposal:
                 self.fixes_proposed += 1
                 logger.info(f"[CODE_HEAL] 💡 Proposed fix for {error_type}: {fix_proposal['description']}")
+                print(f"[CODE_HEAL] 🔧 SELF-REPAIR: {error_type} detected in {fix_proposal['file_path']}:{fix_proposal['line_number']}")
+                print(f"[CODE_HEAL] 💡 Fix proposed: {fix_proposal['description']}")
                 
                 # Log to unified logger
                 await unified_logger.log_healing_attempt(
@@ -111,6 +114,25 @@ class AutonomousCodeHealer:
                     ml_recommendation=None,  # Will be added if available
                     requires_approval=fix_proposal['requires_approval'],
                     status='proposed'
+                )
+                
+                # Save to training folder
+                await training_storage.save_knowledge(
+                    category="errors_fixed",
+                    item_id=fix_proposal['fix_id'],
+                    content={
+                        "error_type": error_type,
+                        "error_message": error_msg,
+                        "file_path": fix_proposal['file_path'],
+                        "line_number": fix_proposal['line_number'],
+                        "original_code": fix_proposal['original_code'],
+                        "fixed_code": fix_proposal['fix_code'],
+                        "fix_description": fix_proposal['description'],
+                        "confidence": 0.8,
+                        "requires_approval": fix_proposal['requires_approval']
+                    },
+                    source=fix_proposal['file_path'],
+                    tags=["self_heal", error_type, fix_proposal['fix_type']]
                 )
                 
                 # Request governance approval
