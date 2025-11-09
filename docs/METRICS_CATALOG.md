@@ -57,6 +57,15 @@ Each metric entry defines:
 | `autonomy.autonomy_ratio` | Actions executed autonomously ÷ total actions | Agentic spine | `subsystem` | 10m | percent | avg | Target 70–85; `<60` triggers capability review, `>90` triggers trust check | Review thresholds |
 | `autonomy.rollback_rate` | Plans rolled back after execution | Agentic spine | `subsystem` | 5m | percent | avg | `<5 / 5–10 / >10` | Warn: run post-mortem; Critical: lock planner to supervised mode |
 
+### 1.5 Trust & Governance Signals
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `trust.policy_alignment_score` | Average score from trust-core policy evaluations | Trust core partner | `subsystem` (`trust_core`) | 5m | percent | avg | `>90 / 80–90 / <80` | Warn: tighten policy heuristics; Critical: force human approvals |
+| `trust.bias_index` | Bias indicator from ethics sentinel (0 = neutral) | Ethics sentinel | `subsystem` | 10m | ratio | avg | `<0.2 / 0.2–0.35 / >0.35` | Warn: trigger ethics review; Critical: halt autonomous actions |
+| `trust.verification_pass_rate` | Percentage of post-action verifications passing | Verification engine | `subsystem` | 5m | percent | avg | `>95 / 85–95 / <85` | Warn: increase verification depth; Critical: escalate failures |
+| `trust.governance_latency` | Time to resolve approval requests | Governance engine | `subsystem` | 5m | seconds | max | `<120 / 120–300 / >300` | Warn: alert approvers; Critical: reassign approvals |
+
 ### 1.5 Infrastructure & Host Health
 
 | metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
@@ -65,6 +74,15 @@ Each metric entry defines:
 | `infra.memory_utilization` | Memory usage per host/shard | Prometheus | `host` | 30s | percent | avg | `<75 / 75–90 / >90` | Warn: restart non-critical services; Critical: migrate workloads |
 | `infra.disk_usage` | Disk utilisation for critical volumes | Prometheus | `volume` | 5m | percent | max | `<70 / 70–85 / >85` | Warn: cleanup tasks; Critical: trigger disk expansion |
 | `infra.pod_ready_ratio` | Ready pods ÷ desired pods (k8s) | Kubernetes API | `service` | 30s | percent | avg | `>95 / 90–95 / <90` | Warn: reschedule pods; Critical: escalate to infra team |
+
+### 1.6 Business & Experience KPIs
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `kpi.task_cycle_time` | Average time to complete autonomous tasks | Task executor / memory | `subsystem` (`agentic_spine`) | 10m | seconds | avg | `<600 / 600–1200 / >1200` | Warn: review playbooks; Critical: add human oversight |
+| `kpi.issue_resolution_rate` | Percentage of issues resolved without escalation | Issue tracker | `subsystem` | 10m | percent | avg | `>85 / 70–85 / <70` | Warn: refine remediation; Critical: notify ops |
+| `kpi.learning_applications_per_day` | Successful knowledge applications in last 24h | Provenance tracker | `subsystem` (`web_learning`) | 1h | count | sum | `>20 / 10–20 / <10` | Warn: reassess ingestion sources; Critical: boost learning focus |
+| `kpi.user_feedback_score` | Average satisfaction rating (if available) | Frontend / surveys | `tenant` or `global` | 1h | score (1–5) | avg | `>4.2 / 3.5–4.2 / <3.5` | Warn: gather feedback; Critical: pause automation impacting users |
 
 ---
 
