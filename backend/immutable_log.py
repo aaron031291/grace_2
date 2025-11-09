@@ -57,7 +57,13 @@ class ImmutableLog:
                     if signature:
                         payload["_signature"] = signature
                     
-                    payload_str = json.dumps(payload, sort_keys=True)
+                    # Convert datetime objects to ISO format strings
+                    def convert_datetime(obj):
+                        if isinstance(obj, datetime):
+                            return obj.isoformat()
+                        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+                    
+                    payload_str = json.dumps(payload, sort_keys=True, default=convert_datetime)
                     
                     entry_hash = ImmutableLogEntry.compute_hash(
                         sequence, actor, action, resource, payload_str, result, previous_hash

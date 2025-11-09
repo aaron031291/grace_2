@@ -365,7 +365,6 @@ class MetricsCollector:
             source=event.source,
             actor=event.actor,
             resource=event.resource.id,
-            subsystem=resource_scope,
             payload=event.payload,
             timestamp=event.timestamp
         ))

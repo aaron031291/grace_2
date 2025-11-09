@@ -4,9 +4,20 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 import logging
+import sys
 from datetime import datetime, timezone
 import time
 import psutil
+
+# Configure logging to console with higher visibility
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from backend.base_models import Base, engine
 from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api, terminal_ws, chunked_upload, multimodal_api, web_learning_api

@@ -15,6 +15,7 @@ class TriggerEvent:
     payload: dict
     timestamp: datetime
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    subsystem: str = ""  # Subsystem identifier for metrics tracking
 
 class TriggerMesh:
     """Event bus connecting all Grace subsystems"""
@@ -25,7 +26,7 @@ class TriggerMesh:
         self.router_task: Optional[asyncio.Task] = None
         self._running = False
     
-    def subscribe(self, event_pattern: str, handler: Callable):
+    async def subscribe(self, event_pattern: str, handler: Callable):
         """Subscribe to event types"""
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
@@ -130,8 +131,8 @@ async def setup_subscriptions():
             from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
     
-    trigger_mesh.subscribe("memory.*", on_memory_event)
-    trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
-    trigger_mesh.subscribe("governance.*", on_governance_event)
+    await trigger_mesh.subscribe("memory.*", on_memory_event)
+    await trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
+    await trigger_mesh.subscribe("governance.*", on_governance_event)
     
     print("[OK] Trigger Mesh subscriptions configured")

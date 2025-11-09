@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean
 from sqlalchemy.sql import func
 from .models import Base, async_session
 from datetime import datetime
@@ -11,6 +11,7 @@ class VerificationEvent(Base):
     target_component = Column(String(128))
     verification_method = Column(String(64))
     result = Column(String(32))
+    passed = Column(Boolean, default=False)  # Whether verification passed
     anomaly_score = Column(Float)
     confidence = Column(Float)
     details = Column(Text)
@@ -48,6 +49,7 @@ class AVNManager:
                 target_component=component,
                 verification_method=method,
                 result=result,
+                passed=(result == "pass"),
                 anomaly_score=anomaly_score,
                 confidence=1.0 - anomaly_score,
                 details=f"Verified {component} via {method}",
