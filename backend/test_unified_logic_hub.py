@@ -8,6 +8,9 @@ import asyncio
 import sys
 from pathlib import Path
 
+# Force UTF-8 encoding
+sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
+
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
 

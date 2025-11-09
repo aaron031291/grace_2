@@ -4,7 +4,7 @@ import asyncio
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from governance_models import GovernancePolicy, Base
+from backend.governance_models import GovernancePolicy, Base
 
 DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)

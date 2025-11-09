@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '20251109_120000'
-down_revision = None  # Update this based on your latest migration
+down_revision = '20251109_lightning_fusion'
 branch_labels = None
 depends_on = None
 
