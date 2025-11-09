@@ -554,7 +554,11 @@ class UnifiedLogger:
                 context={'domain': domain, 'type': shard_type}
             )
             
-            await session.commit()
+            try:
+                await session.commit()
+            except Exception as e:
+                # Handle database locks during startup gracefully
+                logger.debug(f"Shard log skipped (DB contention): {e}")
     
     async def log_parallel_process(
         self,

@@ -72,7 +72,11 @@ class AutonomousCodeHealer:
         trigger_mesh.subscribe("error.detected", self._on_error_detected)
         trigger_mesh.subscribe("warning.raised", self._on_warning_detected)
         
-        logger.info("[CODE_HEAL] 🔧 Autonomous Code Healer started")
+        # Start proactive scanning loop
+        asyncio.create_task(self._proactive_scan_loop())
+        
+        logger.info("[CODE_HEAL] Autonomous Code Healer started")
+        print("[CODE_HEAL] Self-healing active: monitoring errors + proactive scanning")
     
     async def stop(self):
         """Stop autonomous code healing"""
@@ -448,3 +452,4 @@ class AutonomousCodeHealer:
 
 # Global instance
 code_healer = AutonomousCodeHealer()
+ 
