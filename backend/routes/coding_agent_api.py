@@ -106,7 +106,7 @@ def _plan_to_dict(plan: OrchestrationPlan) -> Dict[str, Any]:
 @router.post("/parse", response_model=CodeParseResponse)
 async def parse_codebase(
     request: ParseCodebaseRequest,
-    current_user: Dict = Depends(get_current_user)
+    current_user: Optional[Dict] = None
 ):
     """
     Parse codebase into Grace's memory
