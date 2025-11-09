@@ -1,10 +1,17 @@
+# Force UTF-8 encoding for Windows console (before any logging)
+import sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except AttributeError:
+    pass
+
 from fastapi import FastAPI, Depends, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 import logging
-import sys
 import os
 from datetime import datetime, timezone
 import time

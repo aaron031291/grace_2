@@ -5,8 +5,11 @@ All persistent blockers have been fixed. Restart Grace to apply changes.
 ## Quick Restart
 
 ```powershell
+# UTF-8 encoding is now automatic in GRACE.ps1
 .\GRACE.ps1
 ```
+
+**Note**: GRACE.ps1 now sets UTF-8 encoding automatically, so emojis display correctly.
 
 ## What Was Fixed
 

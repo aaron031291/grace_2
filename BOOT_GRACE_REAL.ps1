@@ -3,6 +3,10 @@
 # All systems wired with real APIs, real metrics, real playbooks
 # ============================================================================
 
+# Set UTF-8 encoding for console
+chcp 65001 > $null
+$env:PYTHONIOENCODING = "utf-8"
+
 Write-Host ""
 Write-Host "╔════════════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
 Write-Host "║                    GRACE REAL SYSTEM - BOOTING                             ║" -ForegroundColor Green  
