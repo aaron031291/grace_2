@@ -17,6 +17,7 @@ from .code_generator import CodeGenerator
 from .code_understanding import code_understanding
 from .governance import governance_engine
 from .immutable_log import ImmutableLog
+from .ml_healing import ml_healing
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +174,12 @@ class AutonomousCodeHealer:
         fix_type = pattern_config['fix_type']
         file_path = file_info['file_path']
         line_num = file_info['line_number']
+        
+        # Get ML recommendation for best fix strategy
+        ml_recommendation = await ml_healing.recommend_fix_strategy(pattern_name)
+        if ml_recommendation:
+            logger.info(f"[CODE_HEAL] 🧠 ML recommends: {ml_recommendation['strategy']} "
+                       f"(success rate: {ml_recommendation['success_rate']:.2%})")
         
         # Read the file
         try:
@@ -344,6 +351,15 @@ class AutonomousCodeHealer:
                 
                 logger.info(f"[CODE_HEAL] ✅ Applied fix to {file_path}:{line_num}")
                 
+                # Auto-commit the fix
+                from .auto_commit import auto_commit
+                commit_result = await auto_commit.commit_fix(
+                    file_path=file_path,
+                    fix_description=fix_proposal['description'],
+                    actor="grace_autonomous",
+                    auto_approve=True  # Auto-approve low severity fixes
+                )
+                
                 # Log to immutable log
                 await self.immutable_log.append(
                     actor="grace_autonomous",
@@ -353,7 +369,8 @@ class AutonomousCodeHealer:
                     payload={
                         'fix_id': fix_proposal['fix_id'],
                         'line_number': line_num,
-                        'description': fix_proposal['description']
+                        'description': fix_proposal['description'],
+                        'committed': commit_result.get('committed', False)
                     },
                     result="success"
                 )

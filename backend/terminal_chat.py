@@ -109,12 +109,14 @@ class GraceTerminalChat:
         print("   • Autonomous decision making")
         print("   • Memory and context retention")
         print("   • Multi-modal understanding")
-        print("\n💡 Tips:")
-        print("   • Ask Grace to write code")
-        print("   • Request self-healing insights")
-        print("   • Discuss architectural decisions")
-        print("   • Request status of learning systems")
-        print("   • Type 'exit' or 'quit' to end session\n")
+        print("\n💡 Commands:")
+        print("   • create file <path> with <description>")
+        print("   • modify file <path> to <changes>")
+        print("   • approve / reject - Approve/reject pending actions")
+        print("   • status - Show system status")
+        print("   • governance - Show governance framework")
+        print("   • autonomy - Show/control autonomy mode")
+        print("   • exit / quit - End session\n")
     
     async def chat(self, user_message: str) -> str:
         """
@@ -146,6 +148,8 @@ class GraceTerminalChat:
                 return self._reject_pending_action()
             elif user_message.lower() == "governance":
                 return self._show_governance()
+            elif user_message.lower().startswith("autonomy"):
+                return await self._handle_autonomy_command(user_message)
             
             # Check if this is a code-related request
             code_keywords = ["code", "function", "class", "implement", "write", "create", "fix", "debug", "build"]
@@ -430,6 +434,51 @@ class GraceTerminalChat:
         output += "Type 'help' to see available commands."
         
         return output
+    
+    async def _handle_autonomy_command(self, message: str) -> str:
+        """Handle autonomy control commands"""
+        from governance_framework import governance_framework
+        from full_autonomy import full_autonomy
+        
+        msg_lower = message.lower()
+        
+        # Status
+        if msg_lower == "autonomy" or msg_lower == "autonomy status":
+            status = full_autonomy.get_status()
+            
+            output = "\n🤖 AUTONOMY STATUS:\n\n"
+            output += f"   Enabled: {'✅ Yes' if status['enabled'] else '❌ No'}\n"
+            output += f"   Tier: {status['tier']} - {status['tier_name']}\n\n"
+            
+            if status['enabled']:
+                settings = status.get('settings', {})
+                output += "   Capabilities:\n"
+                output += f"      • Auto-detect errors: {'✅' if settings.get('auto_detect') else '❌'}\n"
+                output += f"      • Auto-propose fixes: {'✅' if settings.get('auto_propose') else '❌'}\n"
+                output += f"      • Auto-apply fixes: {'✅' if settings.get('auto_apply') else '❌'}\n"
+                output += f"      • Auto-commit fixes: {'✅' if settings.get('auto_commit') else '❌'}\n"
+            
+            return output
+        
+        # Enable
+        elif msg_lower.startswith("autonomy enable"):
+            parts = msg_lower.split()
+            tier = int(parts[2]) if len(parts) > 2 else 2
+            
+            success = await full_autonomy.enable(tier)
+            
+            if success:
+                return f"✅ Full autonomy enabled at Tier {tier}!\n   Grace can now autonomously detect, fix, and commit code changes."
+            else:
+                return f"❌ Failed to enable autonomy"
+        
+        # Disable
+        elif msg_lower == "autonomy disable":
+            await full_autonomy.disable()
+            return "🛑 Autonomy disabled. Grace now requires approval for all actions."
+        
+        else:
+            return "Usage:\n  • autonomy - Show status\n  • autonomy enable <tier> - Enable (0-3)\n  • autonomy disable - Disable"
     
     async def _show_status(self):
         """Show system status"""

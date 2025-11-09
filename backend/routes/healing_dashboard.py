@@ -5,8 +5,14 @@ Monitor all three healing systems: Code Healer, Log Healer, Resilient Startup
 
 from fastapi import APIRouter
 from typing import Dict, Any
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/healing", tags=["Autonomous Healing"])
+
+
+class AutonomyTierRequest(BaseModel):
+    """Request to change autonomy tier"""
+    tier: int  # 0-3
 
 
 @router.get("/status")
@@ -188,4 +194,42 @@ async def get_fix_recommendations(error_type: str) -> Dict[str, Any]:
     return {
         "error_type": error_type,
         "recommendation": recommendation
+    }
+
+
+@router.get("/autonomy/status")
+async def get_autonomy_status() -> Dict[str, Any]:
+    """Get full autonomy mode status"""
+    
+    from ..full_autonomy import full_autonomy
+    
+    return full_autonomy.get_status()
+
+
+@router.post("/autonomy/enable")
+async def enable_autonomy(request: AutonomyTierRequest) -> Dict[str, Any]:
+    """Enable full autonomy mode"""
+    
+    from ..full_autonomy import full_autonomy
+    
+    success = await full_autonomy.enable(tier=request.tier)
+    
+    return {
+        "enabled": success,
+        "tier": request.tier,
+        "status": full_autonomy.get_status()
+    }
+
+
+@router.post("/autonomy/disable")
+async def disable_autonomy() -> Dict[str, str]:
+    """Disable full autonomy mode"""
+    
+    from ..full_autonomy import full_autonomy
+    
+    await full_autonomy.disable()
+    
+    return {
+        "status": "disabled",
+        "message": "Full autonomy mode disabled"
     }
