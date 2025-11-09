@@ -132,29 +132,52 @@ cd ..
 
 ## 📋 First Time Setup (One-Time Only)
 
+### Step 1: Install Dependencies
 ```powershell
-# 1. Create virtual environment
+# Create virtual environment
 python -m venv .venv
 
-# 2. Install backend dependencies
+# Install backend dependencies
 .venv\Scripts\pip install -r backend\requirements.txt
 
-# 3. Install frontend dependencies (optional)
+# Install frontend dependencies (optional)
 cd frontend
 npm install
 cd ..
+```
 
-# 4. Copy .env.example to .env
+### Step 2: Configure Environment
+```powershell
+# Copy .env template
 Copy-Item .env.example .env
 
-# 5. Edit .env and add your API keys
+# Edit and add API keys (Amp API, etc.)
 notepad .env
 ```
 
-Then run:
+### Step 3: Bootstrap Verification System
+```powershell
+# Run one-shot bootstrap (creates tables, snapshots, benchmarks)
+python scripts\bootstrap_verification.py
+```
+
+See [scripts/bootstrap_verification.py](file:///c:/Users/aaron/grace_2/scripts/bootstrap_verification.py#L1-L282) for complete bootstrap process.
+
+### Step 4: Run Integration Tests
+```powershell
+# Verify deployment readiness
+pytest tests/test_full_integration.py -v
+pytest tests/test_verification_comprehensive.py -v
+```
+
+See [tests/test_full_integration.py](file:///c:/Users/aaron/grace_2/tests/test_full_integration.py) for production readiness verification.
+
+### Step 5: Start Grace
 ```powershell
 .\RUN_GRACE.ps1
 ```
+
+**Production Readiness:** See [docs/PRODUCTION_READY_CHECKLIST.md](file:///c:/Users/aaron/grace_2/docs/PRODUCTION_READY_CHECKLIST.md#L1-L188) for complete deployment checklist.
 
 ---
 

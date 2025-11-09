@@ -92,29 +92,66 @@ All endpoints still accessible:
 
 ---
 
-## 🚀 How to Run
+## 🚀 Production Deployment Readiness
 
-### Quick Start (Recommended)
+### Pre-Deployment Checklist
+
+**Before deploying, verify these requirements** (per [docs/PRODUCTION_READY_CHECKLIST.md](file:///c:/Users/aaron/grace_2/docs/PRODUCTION_READY_CHECKLIST.md#L1-L377)):
+
+#### 1. Environment Configuration
+```powershell
+# Populate .env with all secrets
+Copy-Item .env.example .env
+notepad .env  # Add: AMP_API_KEY, remote access credentials, etc.
+```
+
+See [.env.example](file:///c:/Users/aaron/grace_2/.env.example) for required variables.
+
+#### 2. Bootstrap Verification System  
+```powershell
+# One-shot bootstrap: creates DB tables, snapshots, benchmarks
+python scripts\bootstrap_verification.py
+```
+
+Bootstrap process ([scripts/bootstrap_verification.py:46-105](file:///c:/Users/aaron/grace_2/scripts/bootstrap_verification.py#L46-L105)):
+- ✅ Validates configuration
+- ✅ Initializes database with WAL mode
+- ✅ Creates golden baseline snapshot
+- ✅ Runs initial benchmark
+- ✅ Creates test contracts & missions
+
+#### 3. Run Integration Tests
+```powershell
+# Full integration verification
+pytest tests/test_full_integration.py -v
+pytest tests/test_verification_comprehensive.py -v
+pytest tests/test_verification_integration.py -v
+```
+
+Integration tests verify ([tests/test_full_integration.py:20-286](file:///c:/Users/aaron/grace_2/tests/test_full_integration.py#L20-L286)):
+- ✅ All imports successful
+- ✅ Concurrent executor operational
+- ✅ Domain adapters registered
+- ✅ Cognition authority functional
+- ✅ Capability registry complete
+- ✅ Bidirectional communication working
+
+#### 4. Verify Environment Meets Requirements
+- ✅ SQLite with WAL mode support
+- ✅ Ports 8000/5173 available
+- ✅ Background schedulers allowed
+- ✅ Python 3.10+ installed
+- ✅ Sufficient disk space (databases, logs, ML artifacts)
+
+### Start Production System
+
+Once all checks pass:
+
 ```powershell
 .\RUN_GRACE.ps1
 ```
 
-This will:
-1. ✅ Test environment
-2. ✅ Test all kernels
-3. ✅ Boot complete system
-4. ✅ Monitor until Ctrl+C
-
-### Manual Steps
-```powershell
-# 1. Test everything
-.\TEST_E2E_BOOT.ps1
-
-# 2. Boot system
-.\BOOT_GRACE_COMPLETE_E2E.ps1
-```
-
-### Options
+Or for specific modes:
 ```powershell
 # Backend only
 .\RUN_GRACE.ps1 -SkipFrontend
@@ -125,6 +162,18 @@ This will:
 # Skip tests
 .\RUN_GRACE.ps1 -SkipTest
 ```
+
+### Docker Deployment
+```powershell
+docker-compose -f docker-compose.complete.yml up
+```
+
+### Kubernetes Deployment
+```powershell
+kubectl apply -f kubernetes/grace-complete-deployment.yaml
+```
+
+See [kubernetes/DEPLOY.md](file:///c:/Users/aaron/grace_2/kubernetes/DEPLOY.md#L70-L100) for production K8s configuration.
 
 ---
 
