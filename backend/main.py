@@ -164,7 +164,7 @@ async def on_startup():
     # Ensure model modules imported so Base.metadata is populated
     try:
         import importlib
-        for _mod in ("backend.governance_models", "backend.knowledge_models", "backend.parliament_models", "backend.healing_models"):
+        for _mod in ("backend.governance_models", "backend.knowledge_models", "backend.parliament_models", "backend.healing_models", "backend.transcendence.business.models"):
             try:
                 importlib.import_module(_mod)
                 print(f"  [OK] Imported {_mod}")

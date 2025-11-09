@@ -12,7 +12,7 @@ import logging
 
 from .immutable_log import ImmutableLog
 from .models import async_session
-from .governance_models import ImmutableLogEntry
+from .base_models import ImmutableLogEntry
 from sqlalchemy import select, desc, and_
 
 logger = logging.getLogger(__name__)

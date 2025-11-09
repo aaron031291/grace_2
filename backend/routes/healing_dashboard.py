@@ -42,7 +42,7 @@ async def get_recent_fixes(limit: int = 20) -> Dict[str, Any]:
     
     from ..immutable_log import ImmutableLog
     from ..models import async_session
-    from ..governance_models import ImmutableLogEntry
+    from ..base_models import ImmutableLogEntry
     from sqlalchemy import select, desc, or_
     
     async with async_session() as session:
@@ -85,7 +85,7 @@ async def get_detected_errors(limit: int = 50) -> Dict[str, Any]:
     
     from ..immutable_log import ImmutableLog
     from ..models import async_session
-    from ..governance_models import ImmutableLogEntry
+    from ..base_models import ImmutableLogEntry
     from sqlalchemy import select, desc
     
     async with async_session() as session:

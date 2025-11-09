@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from .models import Base
+from .base_models import Base
 
 class Service(Base):
     __tablename__ = "services"
