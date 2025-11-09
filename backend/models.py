@@ -14,6 +14,7 @@ from .mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact
+from .lightning_fusion_models import CryptoIdentity, FusionMemoryFragment, LightningMemoryCache, ComponentCryptoRegistration, DiagnosticTrace, VerificationAuditLog
 from .trusted_sources import TrustedSource
 from .verification import VerificationEnvelope
 from .ml_models_table import MLModel, TrainingRun

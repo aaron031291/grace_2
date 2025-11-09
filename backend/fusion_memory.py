@@ -5,6 +5,8 @@ Wraps existing PersistentMemory with deep verification capabilities
 """
 
 import logging
+import hashlib
+import time
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
