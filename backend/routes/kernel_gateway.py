@@ -8,6 +8,13 @@ from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 
 from ..kernels.memory_kernel import memory_kernel
+from ..kernels.core_kernel import core_kernel
+from ..kernels.code_kernel import code_kernel
+from ..kernels.governance_kernel import governance_kernel
+from ..kernels.verification_kernel import verification_kernel
+from ..kernels.intelligence_kernel import intelligence_kernel
+from ..kernels.infrastructure_kernel import infrastructure_kernel
+from ..kernels.federation_kernel import federation_kernel
 from ..schemas import ExecutionTrace, DataProvenance
 
 router = APIRouter(prefix="/kernel", tags=["Domain Kernels"])
@@ -69,94 +76,102 @@ async def memory_kernel_endpoint(request: KernelRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Placeholder endpoints for other kernels (to be implemented)
+# ============ Active Kernel Endpoints ============
 
-@router.post("/core")
+@router.post("/core", response_model=KernelResponseSchema)
 async def core_kernel_endpoint(request: KernelRequest):
-    """Core Kernel - System operations & user interaction"""
-    return {
-        "kernel_name": "core",
-        "answer": "Core kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Core Kernel - System operations & user interaction
+    
+    Manages 35 endpoints: chat, auth, tasks, health, metrics, history, 
+    reflections, summaries, plugins, issues, speech, evaluation
+    """
+    try:
+        result = await core_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/code")
+@router.post("/code", response_model=KernelResponseSchema)
 async def code_kernel_endpoint(request: KernelRequest):
-    """Code Kernel - Code generation, execution, understanding"""
-    return {
-        "kernel_name": "code",
-        "answer": "Code kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Code Kernel - Code generation, execution, understanding
+    
+    Manages 30 endpoints: coding, sandbox, execution, commits, grace-architect
+    """
+    try:
+        result = await code_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/governance")
+@router.post("/governance", response_model=KernelResponseSchema)
 async def governance_kernel_endpoint(request: KernelRequest):
-    """Governance Kernel - Policy, safety, approvals"""
-    return {
-        "kernel_name": "governance",
-        "answer": "Governance kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Governance Kernel - Policy, safety, approvals
+    
+    Manages 40 endpoints: governance, constitutional, hunter, autonomy, parliament
+    """
+    try:
+        result = await governance_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/verification")
+@router.post("/verification", response_model=KernelResponseSchema)
 async def verification_kernel_endpoint(request: KernelRequest):
-    """Verification Kernel - Contracts, snapshots, benchmarks"""
-    return {
-        "kernel_name": "verification",
-        "answer": "Verification kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Verification Kernel - Contracts, snapshots, benchmarks
+    
+    Manages 25 endpoints: verification contracts, autonomous improver
+    """
+    try:
+        result = await verification_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/intelligence")
+@router.post("/intelligence", response_model=KernelResponseSchema)
 async def intelligence_kernel_endpoint(request: KernelRequest):
-    """Intelligence Kernel - ML, predictions, causal reasoning"""
-    return {
-        "kernel_name": "intelligence",
-        "answer": "Intelligence kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Intelligence Kernel - ML, predictions, causal reasoning
+    
+    Manages 45 endpoints: ML, temporal, causal, learning, meta, cognition
+    """
+    try:
+        result = await intelligence_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/infrastructure")
+@router.post("/infrastructure", response_model=KernelResponseSchema)
 async def infra_kernel_endpoint(request: KernelRequest):
-    """Infrastructure Kernel - Monitoring, scheduling, workers"""
-    return {
-        "kernel_name": "infrastructure",
-        "answer": "Infrastructure kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Infrastructure Kernel - Monitoring, scheduling, workers
+    
+    Manages 35 endpoints: self-heal, scheduler, healing, concurrent, hardware, terminal, multimodal
+    """
+    try:
+        result = await infrastructure_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/federation")
+@router.post("/federation", response_model=KernelResponseSchema)
 async def federation_kernel_endpoint(request: KernelRequest):
-    """Federation Kernel - External integrations (GitHub, Slack, AWS)"""
-    return {
-        "kernel_name": "federation",
-        "answer": "Federation kernel - Coming soon",
-        "apis_called": [],
-        "kernels_consulted": [],
-        "trust_score": 1.0,
-        "confidence": 1.0
-    }
+    """
+    Federation Kernel - External integrations
+    
+    Manages 35 endpoints: web-learning, external-api, agentic, uploads, websockets, GitHub, Slack, AWS
+    """
+    try:
+        result = await federation_kernel.process(request.intent, request.context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
