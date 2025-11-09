@@ -405,12 +405,41 @@ class EnhancedBootPipeline:
         print("[BOOT] Full service startup...")
         
         issues = []
+        services_started = []
         
-        print("  [INFO] FastAPI app will start after pipeline completes")
+        # 1. Start Meta Loop (Level 1 self-optimization)
+        print("  [1/3] Meta loop (autonomous optimization)...", end=" ")
+        try:
+            from backend.meta_loop import MetaLoopEngine
+            meta_loop = MetaLoopEngine(interval_seconds=300)  # 5 min cycle
+            await meta_loop.start()
+            services_started.append("meta_loop")
+            print("[OK]")
+        except Exception as e:
+            issues.append(f"Meta loop: {e}")
+            print(f"[FAIL] {e}")
+        
+        # 2. Start Agentic Spine (autonomous decision-making)
+        print("  [2/3] Agentic spine (autonomous agency)...", end=" ")
+        try:
+            from backend.agentic_spine import AgenticSpine
+            agentic_spine = AgenticSpine()
+            await agentic_spine.start()
+            services_started.append("agentic_spine")
+            print("[OK]")
+        except Exception as e:
+            issues.append(f"Agentic spine: {e}")
+            print(f"[FAIL] {e}")
+        
+        # 3. Notify main app will start
+        print("  [3/3] FastAPI app...", end=" ")
+        print("[DEFERRED]")
+        print("      (FastAPI will start after pipeline completes)")
         
         return {
-            "success": True,
-            "issues": issues
+            "success": len(issues) == 0,
+            "issues": issues,
+            "services_started": services_started
         }
     
     # ========================================================================
