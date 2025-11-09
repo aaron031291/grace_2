@@ -1,11 +1,10 @@
 @echo off
-cls
 echo.
 echo ========================================
-echo Grace Master Control Panel
+echo Grace Web Learning Demonstration
 echo ========================================
 echo.
 
-python grace_master_control.py
+python demo_web_learning.py
 
 pause

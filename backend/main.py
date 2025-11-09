@@ -9,7 +9,7 @@ import time
 import psutil
 from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from backend.base_models import Base, engine
-from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api, terminal_ws, chunked_upload, multimodal_api
+from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api, terminal_ws, chunked_upload, multimodal_api, web_learning_api
 from backend.transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from backend.transcendence.business.api import router as business_api_router
 from backend.reflection import reflection_service
@@ -340,6 +340,43 @@ async def on_startup():
     await performance_optimizer.start()
     print("[AUTONOMOUS] ⚡ Performance Optimizer started - Optimizing every 30min")
     
+    # Start Autonomous Goal-Setting - Grace sets her own goals
+    from backend.autonomous_goal_setting import autonomous_goal_setting
+    await autonomous_goal_setting.start()
+    print("[AUTONOMOUS] 🎯 Autonomous Goal-Setting started - Grace manages her goals")
+    
+    # Start Web Learning Systems - Grace learns from internet
+    print("\n[WEB-LEARNING] 🌐 Starting Web Learning Systems...")
+    from backend.web_learning_orchestrator import web_learning_orchestrator
+    from backend.visual_ingestion_logger import visual_ingestion_logger
+    from backend.amp_api_integration import amp_api_integration
+    
+    await web_learning_orchestrator.start()
+    await amp_api_integration.start()
+    
+    print("[WEB-LEARNING] ✅ Web Learning Systems online")
+    print("[WEB-LEARNING]   • Web Scraper (83+ trusted domains)")
+    print("[WEB-LEARNING]   • GitHub Miner")
+    print("[WEB-LEARNING]   • YouTube Learning")
+    print("[WEB-LEARNING]   • Reddit Learning (38+ subreddits)")
+    print("[WEB-LEARNING]   • API Discovery & Integration")
+    print("[WEB-LEARNING]   • Remote Computer Access")
+    print("[WEB-LEARNING]   • Amp API (Last Resort - Batch Querying)")
+    print("[WEB-LEARNING]   • Complete Provenance Tracking")
+    print("[WEB-LEARNING]   • Visual Ingestion Logs (with clickable links)")
+    print(f"[WEB-LEARNING]   📋 Visual log: {visual_ingestion_logger.html_log}")
+    print(f"[WEB-LEARNING]   📝 Terminal log: {visual_ingestion_logger.log_file}")
+    
+    # Show Amp API status
+    amp_status = await amp_api_integration.get_status()
+    if amp_status['enabled']:
+        print(f"[AMP-API] ✅ Amp API configured (Last Resort Mode)")
+        print(f"[AMP-API]   Daily limit: {amp_status['daily_limit']} queries")
+        print(f"[AMP-API]   Batch size: {amp_status['batch_size']} questions")
+        print(f"[AMP-API]   Mode: Cost-effective batching")
+    else:
+        print(f"[AMP-API] ⚠️  Amp API not configured (add AMP_API_KEY to .env)")
+    
     # Startup Verification - Confirm all systems operational
     from backend.startup_verification import startup_verification
     
@@ -356,8 +393,21 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def on_shutdown():
-    # Stop autonomous improver
+    # Stop autonomous systems
     await autonomous_improver.stop()
+    
+    from backend.proactive_improvement_engine import proactive_improvement
+    from backend.performance_optimizer import performance_optimizer
+    from backend.autonomous_goal_setting import autonomous_goal_setting
+    from backend.web_learning_orchestrator import web_learning_orchestrator
+    from backend.amp_api_integration import amp_api_integration
+    
+    await proactive_improvement.stop()
+    await performance_optimizer.stop()
+    await autonomous_goal_setting.stop()
+    await web_learning_orchestrator.stop()
+    await amp_api_integration.stop()
+    print("[SHUTDOWN] Autonomous systems stopped")
     
     # Stop agentic spine first
     await deactivate_grace_autonomy()
@@ -618,6 +668,7 @@ app.include_router(hardware_api.router)  # Hardware awareness & optimization
 app.include_router(chunked_upload.router)  # Large file uploads
 app.include_router(terminal_ws.router)  # Natural language terminal
 app.include_router(multimodal_api.router)  # Multi-modal LLM (text/voice/vision)
+app.include_router(web_learning_api.router)  # Web Learning (Internet, YouTube, Remote Access)
 
 # Code Healing API - Autonomous code fixing
 from backend.routes import code_healing_api

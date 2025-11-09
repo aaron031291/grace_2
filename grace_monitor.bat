@@ -1,11 +1,12 @@
 @echo off
-cls
 echo.
 echo ========================================
-echo Grace Master Control Panel
+echo Grace Monitor Dashboard
 echo ========================================
+echo.
+echo Starting visual monitoring interface...
 echo.
 
-python grace_master_control.py
+python grace_monitor_dashboard.py
 
 pause
