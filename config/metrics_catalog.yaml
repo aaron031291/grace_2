@@ -213,6 +213,25 @@ metrics:
     resource_scope: service
     tags: [autonomy, governance]
 
+  - metric_id: autonomy.plan_success_rate
+    category: autonomy
+    description: "Success rate of autonomous plan execution"
+    unit: ratio
+    aggregation: avg
+    thresholds:
+      good: { lower: 0.8 }
+      warning: { lower: 0.6, upper: 0.8 }
+      critical: { upper: 0.6 }
+    playbooks: [review-failed-plans]
+    playbook_id: review-failed-plans
+    risk_level: medium
+    autonomy_tier: 2
+    verification_hooks: [verify_plan_quality]
+    recommended_interval_seconds: 300
+    source: internal
+    resource_scope: service
+    tags: [autonomy, planning, quality]
+
   # Existing metrics:
   # API & Gateway Health
   - metric_id: api.latency_p95
