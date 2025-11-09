@@ -13,6 +13,10 @@ metrics:
       warning: { lower: 100, upper: 500 }
       critical: { lower: 500 }
     playbooks: []
+    playbook_id: null
+    risk_level: low
+    autonomy_tier: 1
+    verification_hooks: []
     recommended_interval_seconds: 300
     source: internal
     resource_scope: service
@@ -27,7 +31,11 @@ metrics:
       good: { upper: 2000 }
       warning: { lower: 2000, upper: 5000 }
       critical: { lower: 5000 }
-    playbooks: []
+    playbooks: [investigate-slow-updates]
+    playbook_id: investigate-slow-updates
+    risk_level: medium
+    autonomy_tier: 2
+    verification_hooks: [verify_pipeline_health]
     recommended_interval_seconds: 60
     source: internal
     resource_scope: service
@@ -43,6 +51,10 @@ metrics:
       warning: { lower: 0.01, upper: 0.05 }
       critical: { lower: 0.05 }
     playbooks: [investigate-rollback-spike]
+    playbook_id: investigate-rollback-spike
+    risk_level: high
+    autonomy_tier: 3
+    verification_hooks: [verify_update_quality, check_capa_records]
     recommended_interval_seconds: 300
     source: internal
     resource_scope: service
@@ -58,6 +70,10 @@ metrics:
       warning: { lower: 1000, upper: 5000 }
       critical: { lower: 5000 }
     playbooks: []
+    playbook_id: null
+    risk_level: low
+    autonomy_tier: 1
+    verification_hooks: []
     recommended_interval_seconds: 60
     source: internal
     resource_scope: service
@@ -73,6 +89,10 @@ metrics:
       warning: { lower: 1, upper: 10 }
       critical: { lower: 10 }
     playbooks: []
+    playbook_id: null
+    risk_level: low
+    autonomy_tier: 1
+    verification_hooks: []
     recommended_interval_seconds: 60
     source: internal
     resource_scope: service

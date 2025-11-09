@@ -259,6 +259,14 @@ async def on_startup():
         print("[STARTUP] Component Handshake Protocol initialized")
     except Exception as e:
         print(f"[WARNING] Handshake protocol failed to initialize: {e}")
+    
+    # Initialize Watchdog Integration
+    try:
+        from backend.watchdog_integration import setup_watchdog_integration
+        await setup_watchdog_integration()
+        print("[STARTUP] Watchdog Integration initialized")
+    except Exception as e:
+        print(f"[WARNING] Watchdog integration failed to initialize: {e}")
 
     # Self-heal observe-only scheduler (feature-gated)
     try:
