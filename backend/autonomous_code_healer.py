@@ -18,6 +18,7 @@ from .code_understanding import code_understanding
 from .governance import governance_engine
 from .immutable_log import ImmutableLog
 from .ml_healing import ml_healing
+from .unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,26 @@ class AutonomousCodeHealer:
             if fix_proposal:
                 self.fixes_proposed += 1
                 logger.info(f"[CODE_HEAL] 💡 Proposed fix for {error_type}: {fix_proposal['description']}")
+                
+                # Log to unified logger
+                await unified_logger.log_healing_attempt(
+                    attempt_id=fix_proposal['fix_id'],
+                    error_type=error_type,
+                    error_message=error_msg,
+                    detected_by='code_healer',
+                    severity=fix_proposal['severity'],
+                    error_file=fix_proposal['file_path'],
+                    error_line=fix_proposal['line_number'],
+                    stack_trace=stack_trace,
+                    fix_type=fix_proposal['fix_type'],
+                    fix_description=fix_proposal['description'],
+                    fix_code=fix_proposal['fix_code'],
+                    original_code=fix_proposal['original_code'],
+                    confidence=0.8,
+                    ml_recommendation=None,  # Will be added if available
+                    requires_approval=fix_proposal['requires_approval'],
+                    status='proposed'
+                )
                 
                 # Request governance approval
                 await self._request_fix_approval(fix_proposal, error_data)

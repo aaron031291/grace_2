@@ -233,3 +233,41 @@ async def disable_autonomy() -> Dict[str, str]:
         "status": "disabled",
         "message": "Full autonomy mode disabled"
     }
+
+
+@router.get("/analytics/summary")
+async def get_healing_analytics(hours: int = 24) -> Dict[str, Any]:
+    """Get comprehensive healing analytics"""
+    
+    from ..healing_analytics import healing_analytics
+    
+    summary = await healing_analytics.get_healing_summary(hours)
+    ml_stats = await healing_analytics.get_ml_learning_stats(hours)
+    
+    return {
+        "healing": summary,
+        "ml_learning": ml_stats,
+        "period_hours": hours
+    }
+
+
+@router.get("/analytics/cube")
+async def get_cube_analytics(
+    dimension: str = "subsystem",
+    metric: str = "count",
+    hours: int = 24
+) -> Dict[str, Any]:
+    """Get data cube analytics"""
+    
+    from ..healing_analytics import healing_analytics
+    
+    return await healing_analytics.get_data_cube_analytics(dimension, metric, hours)
+
+
+@router.get("/crypto/verify")
+async def verify_crypto_chains() -> Dict[str, Any]:
+    """Verify cryptographic chain integrity across all tables"""
+    
+    from ..healing_analytics import healing_analytics
+    
+    return await healing_analytics.get_crypto_verification_report()

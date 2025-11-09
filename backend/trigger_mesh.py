@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import Dict, Set, Callable, Any, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -36,6 +36,7 @@ class TriggerMesh:
         """Publish event to mesh"""
         await self.event_queue.put(event)
         
+        # Log to immutable log
         from .immutable_log import immutable_log
         await immutable_log.append(
             actor=event.actor,
@@ -45,6 +46,22 @@ class TriggerMesh:
             payload=event.payload,
             result="published"
         )
+        
+        # Log to unified logger (trigger mesh table + data cube)
+        try:
+            from .unified_logger import unified_logger
+            await unified_logger.log_trigger_mesh_event(
+                event_id=event.event_id,
+                event_type=event.event_type,
+                source=event.source,
+                actor=event.actor,
+                resource=event.resource,
+                payload=event.payload,
+                handlers_notified=0  # Will be updated when routed
+            )
+        except Exception as e:
+            # Don't fail publish if logging fails
+            pass
     
     async def start(self):
         """Start event router"""

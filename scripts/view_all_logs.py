@@ -23,6 +23,10 @@ from models import async_session
 from sqlalchemy import select, desc, and_
 from governance_models import ImmutableLogEntry
 from trigger_mesh import TriggerEvent
+from healing_models import (
+    HealingAttempt, AgenticSpineLog, MetaLoopLog,
+    MLLearningLog, TriggerMeshLog, DataCubeEntry
+)
 
 
 async def view_backend_logs():
@@ -263,11 +267,10 @@ async def view_trigger_mesh_events():
     
     try:
         async with async_session() as session:
-            # Trigger mesh events are logged in immutable log
+            # Query from trigger mesh logs table
             result = await session.execute(
-                select(ImmutableLogEntry)
-                .where(ImmutableLogEntry.result == 'published')  # Events published to mesh
-                .order_by(desc(ImmutableLogEntry.timestamp))
+                select(TriggerMeshLog)
+                .order_by(desc(TriggerMeshLog.timestamp))
                 .limit(50)
             )
             entries = result.scalars().all()
@@ -279,15 +282,26 @@ async def view_trigger_mesh_events():
             print(f"\n📊 Found {len(entries)} trigger mesh events\n")
             
             for i, entry in enumerate(reversed(entries), 1):
-                print(f"[{i}] {entry.timestamp}")
-                print(f"    Event: {entry.action}")
-                print(f"    Source: {entry.subsystem}")
+                print(f"[{i}] Event ID: {entry.event_id}")
+                print(f"    Timestamp: {entry.timestamp}")
+                print(f"    Type: {entry.event_type}")
+                print(f"    Source: {entry.source}")
                 print(f"    Actor: {entry.actor}")
                 print(f"    Resource: {entry.resource}")
+                print(f"    Handlers: {entry.handlers_succeeded}/{entry.handlers_notified}")
+                
+                # Crypto verification
+                if entry.signature and entry.hash:
+                    print(f"    🔐 Crypto:")
+                    print(f"       - Hash: {entry.hash[:32]}...")
+                    print(f"       - Signature: {entry.signature[:32]}...")
+                
                 print()
     
     except Exception as e:
         print(f"❌ Error reading trigger mesh events: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 async def view_tail_logs():
@@ -319,6 +333,110 @@ async def view_tail_logs():
         print("⚠️  Log file not found")
 
 
+async def view_healing_attempts():
+    """View last 50 healing attempts"""
+    print("\n" + "="*80)
+    print("🔧 HEALING ATTEMPTS (Last 50)")
+    print("="*80)
+    
+    try:
+        async with async_session() as session:
+            result = await session.execute(
+                select(HealingAttempt)
+                .order_by(desc(HealingAttempt.attempted_at))
+                .limit(50)
+            )
+            attempts = result.scalars().all()
+            
+            if not attempts:
+                print("⚠️  No healing attempts found")
+                return
+            
+            print(f"\n📊 Found {len(attempts)} healing attempts\n")
+            
+            for i, attempt in enumerate(reversed(attempts), 1):
+                status_icon = "✅" if attempt.success else "❌" if attempt.success is False else "⏳"
+                
+                print(f"{status_icon} [{i}] Attempt ID: {attempt.attempt_id}")
+                print(f"    Timestamp: {attempt.attempted_at}")
+                print(f"    Error: {attempt.error_type}")
+                print(f"    File: {attempt.error_file}:{attempt.error_line}")
+                print(f"    Severity: {attempt.severity}")
+                print(f"    Status: {attempt.status}")
+                print(f"    Detected by: {attempt.detected_by}")
+                
+                if attempt.fix_description:
+                    print(f"    Fix: {attempt.fix_description}")
+                
+                if attempt.ml_recommendation:
+                    print(f"    🧠 ML Recommendation: {attempt.ml_recommendation}")
+                
+                print(f"    Confidence: {attempt.confidence:.2%}")
+                
+                # Crypto
+                if attempt.hash:
+                    print(f"    🔐 Hash: {attempt.hash[:32]}...")
+                
+                print()
+    
+    except Exception as e:
+        print(f"❌ Error reading healing attempts: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+async def view_ml_learning():
+    """View last 50 ML/DL learning events"""
+    print("\n" + "="*80)
+    print("🧠 ML/DL LEARNING (Last 50)")
+    print("="*80)
+    
+    try:
+        async with async_session() as session:
+            result = await session.execute(
+                select(MLLearningLog)
+                .order_by(desc(MLLearningLog.timestamp))
+                .limit(50)
+            )
+            logs = result.scalars().all()
+            
+            if not logs:
+                print("⚠️  No ML/DL learning events found")
+                return
+            
+            print(f"\n📊 Found {len(logs)} learning events\n")
+            
+            for i, log in enumerate(reversed(logs), 1):
+                print(f"[{i}] Learning ID: {log.learning_id}")
+                print(f"    Timestamp: {log.timestamp}")
+                print(f"    Type: {log.learning_type}")
+                print(f"    Subsystem: {log.subsystem}")
+                
+                if log.pattern_name:
+                    print(f"    Pattern: {log.pattern_name}")
+                    if log.pattern_success_rate:
+                        print(f"    Success Rate: {log.pattern_success_rate:.2%}")
+                
+                if log.model_type:
+                    print(f"    Model: {log.model_type}")
+                    if log.accuracy:
+                        print(f"    Accuracy: {log.accuracy:.2%}")
+                
+                if log.predicted_error:
+                    print(f"    Prediction: {log.predicted_error} (likelihood: {log.predicted_likelihood:.2%})")
+                
+                # Crypto
+                if log.hash:
+                    print(f"    🔐 Hash: {log.hash[:32]}...")
+                
+                print()
+    
+    except Exception as e:
+        print(f"❌ Error reading ML learning: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 async def main():
     """Main entry point"""
     print("\n" + "="*80)
@@ -328,8 +446,10 @@ async def main():
     
     # View all logs
     await view_tail_logs()
+    await view_healing_attempts()
     await view_immutable_log()
     await view_trigger_mesh_events()
+    await view_ml_learning()
     await view_memory_storage()
     await view_meta_decisions()
     await view_crypto_graph()
