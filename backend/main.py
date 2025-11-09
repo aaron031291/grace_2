@@ -325,6 +325,11 @@ async def on_startup():
     await dl_healing.start()
     print("[AUTONOMOUS] 🧠 ML/DL Healing started - Learning from every error")
     
+    # Start Alert System - Notifications for critical events
+    from backend.alert_system import alert_system
+    await alert_system.start()
+    print("[AUTONOMOUS] 🔔 Alert system started - Monitoring for critical events")
+    
     # Startup Verification - Confirm all systems operational
     from backend.startup_verification import startup_verification
     
@@ -611,6 +616,10 @@ app.include_router(code_healing_api.router)
 # Healing Dashboard - Monitor all healing systems
 from backend.routes import healing_dashboard
 app.include_router(healing_dashboard.router)
+
+# System Dashboard - Complete system overview
+from backend.routes import system_dashboard
+app.include_router(system_dashboard.router)
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:

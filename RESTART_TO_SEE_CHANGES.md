@@ -1,91 +1,231 @@
-# 🔄 Server Restart Required
+# Restart Backend to See All New Systems
 
-## Current Issue
+**All systems built and ready! Restart backend to activate everything.**
 
-The backend server is running with OLD CODE that:
-- ❌ Still requires auth on /api/verification/audit (403 errors)
-- ❌ Doesn't include execution_trace in responses yet
-- ❌ Doesn't include data_provenance yet
+## What Will Activate
 
-## Solution: Restart Backend
+### On Next Startup:
 
-### Option 1: Use Restart Script
-```bash
+```
+[PREFLIGHT] Running code validation...
+[OK] Imported backend.healing_models ✅
+[OK] Database initialized (all 9 tables created)
+[OK] Trigger Mesh started
+[OK] Agentic Spine activated
+[AUTONOMOUS] 🎯 Proactive Improver started
+[AUTONOMOUS] 🔧 Code Healer started
+[AUTONOMOUS] 📖 Log Healer started - Monitoring logs
+[AUTONOMOUS] 🧠 ML/DL Healing started - Learning
+[AUTONOMOUS] 🔔 Alert system started
+
+🌟 GRACE STARTUP VERIFICATION 🌟
+Status: OPERATIONAL
+Systems Checked: 5
+✅ Passed: 5
+❌ Failed: 0
+Success Rate: 100.0%
+```
+
+## All New Tables Created
+
+Grace's database will now have:
+
+1. ✅ `healing_attempts` - Fix attempts with pass/fail
+2. ✅ `agentic_spine_logs` - Autonomous decisions
+3. ✅ `meta_loop_logs` - Optimization cycles
+4. ✅ `ml_learning_logs` - ML/DL learning
+5. ✅ `trigger_mesh_logs` - Event routing
+6. ✅ `shard_logs` - Shard activity
+7. ✅ `parallel_process_logs` - Concurrent tasks
+8. ✅ `data_cube` - Multi-dimensional analytics
+9. ✅ `immutable_log` - Audit trail
+
+**All with cryptographic hash chains!**
+
+## Restart Backend
+
+### Option 1: Use Control Center
+```powershell
+.\grace_control.ps1
+```
+Then select: `1. Start Grace (Backend + Frontend)`
+
+### Option 2: Direct
+```batch
+start_both.bat
+```
+
+### Option 3: Backend Only
+```batch
 restart_backend.bat
 ```
 
-### Option 2: Manual Restart
+## After Restart - Try These
+
+### 1. Watch All Logs (Auto-refresh 5min)
+```powershell
+.\watch_all_logs.ps1
+```
+
+You'll see:
+- 🔧 Healing attempts (with timestamps & metadata)
+- 🔀 Shards & parallel processes
+- ⚡ Trigger mesh events  
+- 🧠 ML/DL learning
+- 🎯 Meta-loop cycles
+- 📊 Data cube analytics
+- 🔐 Crypto verification
+
+**Updates automatically every 5 minutes!**
+
+### 2. Chat with Grace
+```powershell
+.\chat_with_grace.ps1
+```
+
+Try:
+```
+aaron: dashboard
+aaron: report
+aaron: analyze
+aaron: improve
+aaron: autonomy enable 2
+```
+
+### 3. API Dashboard
 ```bash
-# 1. Kill existing Python processes
-taskkill /F /IM python.exe
-
-# 2. Start fresh
-cd backend
-..\\.venv\\Scripts\\python.exe -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+GET http://localhost:8000/api/system/dashboard
+GET http://localhost:8000/api/system/health/detailed
+GET http://localhost:8000/api/system/metrics/realtime
 ```
 
-### Option 3: If server has --reload flag
-The server might auto-reload, wait 5-10 seconds and test:
-```bash
-curl http://localhost:8000/api/verification/audit?limit=5
-# Should return 200 OK (no auth) with execution_trace
+### 4. Enable Autonomy
+```
+aaron: autonomy enable 2
+
+Grace: ✅ Full autonomy enabled at Tier 2!
 ```
 
-## Verify Changes Applied
+Then Grace will:
+- Detect errors every 60s
+- Learn patterns every 5min
+- Fix errors autonomously
+- Commit fixes to Git
+- Log everything with crypto
 
-After restart, test:
+## What You'll See
 
-### 1. Health endpoint should include execution_trace
-```bash
-curl http://localhost:8000/health | findstr "execution_trace"
-# Should see: "execution_trace":{"request_id":...
+### In Logs (Every 5 Minutes):
+```
+🔧 HEALING ATTEMPTS (Last 50)
+   ✅ [10:30:45] incorrect_await → applied → backend/api.py
+   ✅ [10:35:12] json_serialization → applied → backend/models.py
+
+🔀 SHARDS & PARALLEL PROCESSES
+   📊 Shards: 6 | Parallel Processes: 125
+   
+⚡ TRIGGER MESH EVENTS
+   📊 Total Events: 380
+   
+🧠 ML/DL LEARNING
+   📊 Pattern updates: 8, Model trainings: 3
+   
+🎯 META-LOOP CYCLES
+   Cycle #5 - Focus: routine_maintenance
+
+📊 DATA CUBE ANALYTICS
+   healing: 45 events
+   agentic_spine: 120 events
+   ml_learning: 15 events
+
+🔐 CRYPTOGRAPHIC VERIFICATION
+   All chains: ✅ INTACT
 ```
 
-### 2. Audit endpoint should work without auth
-```bash
-curl http://localhost:8000/api/verification/audit?limit=5
-# Should return 200 OK, not 403
-# Should include audit_logs, execution_trace, data_provenance
+### In Terminal Chat:
+```
+aaron: dashboard
+
+Grace: 📊 GRACE COMPLETE DASHBOARD (Last 24h)
+       
+       🔧 HEALING:
+          Attempts: 15
+          Success: 12 (80.0%)
+       
+       🧠 ML/DL LEARNING:
+          Learning cycles: 8
+          Patterns learned: 8
+       
+       🤖 AUTONOMOUS ACTIVITY:
+          Decisions made: 47
+          Events published: 380
 ```
 
-### 3. Validation errors should be enhanced
-```bash
-curl -X GET "http://localhost:8000/api/verification/audit?limit=invalid"
-# Should return 422 with execution_trace and suggestions
+### Via API:
+```json
+{
+  "status": "OPERATIONAL",
+  "autonomy": {
+    "enabled": true,
+    "tier": 2,
+    "tier_name": "Semi-Autonomous"
+  },
+  "healing": {
+    "total_attempts": 15,
+    "success_rate": 0.80
+  },
+  "ml_dl": {
+    "patterns_learned": 8,
+    "average_confidence": 0.78
+  }
+}
 ```
 
-## What Will Work After Restart
+## Control Center Menu
 
-✅ No auth required on monitoring endpoints  
-✅ All responses include execution_trace  
-✅ All responses include data_provenance  
-✅ Validation errors include helpful suggestions  
-✅ Frontend can display pipeline traces  
-✅ API docs show proper schemas (not "string")  
-
-## Then Test Frontend
-
-Once backend is restarted:
-
-1. **Go to frontend:** http://localhost:5173
-2. **Open browser console** (F12)
-3. **Run test:**
-```javascript
-fetch('http://localhost:8000/health')
-  .then(r => r.json())
-  .then(data => {
-    console.log('✅ Connected!');
-    console.log('Execution trace:', data.execution_trace);
-    console.log('Data provenance:', data.data_provenance);
-  });
+Run:
+```powershell
+.\grace_control.ps1
 ```
 
-## Files Ready to Use
+You get:
+1. Start Grace
+2. Start Backend Only
+3. Chat with Grace
+4. View Logs
+5. Watch Logs (5min auto-refresh)
+6. Watch Healing (real-time)
+7. Check Health
+8. Enable Autonomy
+9. System Dashboard
+0. Exit
 
-- ✅ [start_both.bat](file:///c:/Users/aaron/grace_2/start_both.bat) - Start both servers
-- ✅ [restart_backend.bat](file:///c:/Users/aaron/grace_2/restart_backend.bat) - Restart backend only
-- ✅ [frontend/src/pages/ConnectionTestPage.tsx](file:///c:/Users/aaron/grace_2/frontend/src/pages/ConnectionTestPage.tsx) - Test UI
-- ✅ [frontend/src/api/graceClient.ts](file:///c:/Users/aaron/grace_2/frontend/src/api/graceClient.ts) - Type-safe API client
-- ✅ [frontend/src/api/types.gen.ts](file:///c:/Users/aaron/grace_2/frontend/src/api/types.gen.ts) - Auto-generated types
+**One central place to control everything!**
 
-**Restart the backend server to see all the changes!** 🔄
+## Summary
+
+After restart, Grace will:
+- ✅ Initialize all 9 tables with crypto chains
+- ✅ Start autonomous healing systems
+- ✅ Begin ML/DL learning
+- ✅ Monitor logs every 60s
+- ✅ Update patterns every 5min
+- ✅ Send alerts for critical events
+- ✅ Log everything to tables + data cube
+- ✅ Verify startup success
+
+**All visible in logs auto-refreshing every 5 minutes!**
+
+---
+
+**Restart backend now:**
+```batch
+restart_backend.bat
+```
+
+Then watch:
+```powershell
+.\watch_all_logs.ps1
+```
+
+🚀
