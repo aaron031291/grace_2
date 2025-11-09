@@ -59,7 +59,7 @@ class GraceTrainingStorage:
                 with open(metadata_file, 'w') as f:
                     json.dump(metadata, f, indent=2)
         
-        print(f"[TRAINING-STORAGE] ✅ Created {len(self.categories)} category folders")
+        print(f"[TRAINING-STORAGE] Created {len(self.categories)} category folders")
     
     async def save_knowledge(
         self,
