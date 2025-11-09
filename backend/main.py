@@ -9,7 +9,7 @@ import time
 import psutil
 from backend.schemas import HealthResponse, ServiceHealth, SystemMetrics, VerificationAuditResponse
 from backend.base_models import Base, engine
-from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal
+from backend.routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, learning, scheduler_observability, meta_focus, proactive_chat, subagent_bridge, autonomy_routes, commit_routes, learning_routes, verification_routes, cognition_api, concurrent_api, verification_api, autonomous_improver_routes, kernel_gateway, ingest_fast, ingest_minimal, hardware_api
 from backend.transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from backend.transcendence.business.api import router as business_api_router
 from backend.reflection import reflection_service
@@ -545,7 +545,8 @@ app.include_router(cognition_api.router)
 app.include_router(concurrent_api.router)
 app.include_router(autonomous_improver_routes.router)
 app.include_router(kernel_gateway.router)
-app.include_router(ingest_minimal.router)  # Test first - no dependencies
+app.include_router(ingest_minimal.router)  # Fast ingestion for autonomy
+app.include_router(hardware_api.router)  # Hardware awareness & optimization
 
 # Self-heal observability and learning endpoints (feature-gated)
 try:
