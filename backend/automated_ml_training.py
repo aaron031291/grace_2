@@ -35,8 +35,8 @@ class AutomatedMLTraining:
         
         self.running = True
         self._task = asyncio.create_task(self._training_loop())
-        logger.info(f"[AUTO-TRAIN] ✅ Started (training every {self.training_interval_hours}h)")
-        print(f"[AUTO-TRAIN] 🎓 Automated ML training started ({self.training_interval_hours}h intervals)")
+        logger.info(f"[AUTO-TRAIN]  Started (training every {self.training_interval_hours}h)")
+        print(f"[AUTO-TRAIN]  Automated ML training started ({self.training_interval_hours}h intervals)")
     
     async def stop(self):
         """Stop training loop"""
@@ -59,31 +59,31 @@ class AutomatedMLTraining:
                 if not self.running:
                     break
                 
-                logger.info("[AUTO-TRAIN] 🎓 Starting automated training cycle...")
-                print("[AUTO-TRAIN] 🎓 Collecting metrics for ML training...")
+                logger.info("[AUTO-TRAIN]  Starting automated training cycle...")
+                print("[AUTO-TRAIN]  Collecting metrics for ML training...")
                 
                 # Collect training data from metrics snapshots
                 training_data = await self._collect_training_data()
                 
                 if not training_data or sum(len(v) for v in training_data.values()) < 10:
                     logger.warning("[AUTO-TRAIN] Insufficient data for training, skipping cycle")
-                    print("[AUTO-TRAIN] ⏭️ Skipped: not enough data yet")
+                    print("[AUTO-TRAIN]  Skipped: not enough data yet")
                     continue
                 
                 # Train temporal forecaster
-                print(f"[AUTO-TRAIN] 🧠 Training forecaster on {len(training_data)} metrics...")
+                print(f"[AUTO-TRAIN]  Training forecaster on {len(training_data)} metrics...")
                 await temporal_forecaster.train(training_data)
                 
                 self.training_count += 1
                 self.last_training = datetime.now(timezone.utc)
                 
                 logger.info(
-                    f"[AUTO-TRAIN] ✅ Training cycle {self.training_count} complete: "
+                    f"[AUTO-TRAIN]  Training cycle {self.training_count} complete: "
                     f"{len(training_data)} metrics, "
                     f"{sum(len(v) for v in training_data.values())} data points"
                 )
                 print(
-                    f"[AUTO-TRAIN] ✅ Training complete: cycle #{self.training_count}, "
+                    f"[AUTO-TRAIN]  Training complete: cycle #{self.training_count}, "
                     f"{sum(len(v) for v in training_data.values())} samples processed"
                 )
                 
@@ -120,13 +120,13 @@ class AutomatedMLTraining:
                 break
             except Exception as e:
                 logger.error(f"[AUTO-TRAIN] Training cycle error: {e}", exc_info=True)
-                print(f"[AUTO-TRAIN] ❌ Training failed: {e}")
+                print(f"[AUTO-TRAIN]  Training failed: {e}")
                 await asyncio.sleep(600)  # Retry in 10 minutes
     
     async def _collect_training_data(self) -> Dict[str, List[float]]:
         """Collect recent metrics data for training"""
         from .models import async_session
-        from .metrics_models import MetricSnapshot
+        
         from sqlalchemy import select
         
         training_data = {}

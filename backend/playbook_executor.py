@@ -39,7 +39,7 @@ class PlaybookExecutor:
             return
         
         # Subscribe to playbook execution events
-        await trigger_mesh.subscribe("playbook.executed.*", self._handle_playbook_execution)
+        trigger_mesh.subscribe("playbook.executed.*", self._handle_playbook_execution)
         
         self.running = True
         logger.info("[PLAYBOOK-EXEC] ✅ Playbook executor started - REAL actions enabled")

@@ -20,6 +20,7 @@ from .telemetry_schemas import (
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .models import async_session
 from .logging_utils import log_event
+from .metrics_catalog_loader import metrics_catalog
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,12 @@ class MetricsCollector:
         if self.running:
             return
         
-        # Load catalog
+        # Load catalog (use new catalog loader)
+        catalog_loaded = metrics_catalog.load()
+        if catalog_loaded:
+            print(f"[METRICS] ✅ Using metrics catalog: {len(metrics_catalog.metrics)} definitions")
+        
+        # Load legacy catalog
         await self._load_catalog()
         
         self.running = True

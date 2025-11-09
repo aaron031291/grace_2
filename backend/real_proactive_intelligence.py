@@ -52,8 +52,8 @@ class RealProactiveIntelligence:
         await self._load_playbooks()
         
         # Subscribe to metrics events
-        await trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
-        await trigger_mesh.subscribe("metrics.action_recommended", self._handle_action_recommendation)
+        trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
+        trigger_mesh.subscribe("metrics.action_recommended", self._handle_action_recommendation)
         
         self.running = True
         logger.info("[PROACTIVE-INTEL] ✅ Real proactive intelligence started")

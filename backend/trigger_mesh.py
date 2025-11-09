@@ -131,8 +131,8 @@ async def setup_subscriptions():
             from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
     
-    await trigger_mesh.subscribe("memory.*", on_memory_event)
-    await trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
-    await trigger_mesh.subscribe("governance.*", on_governance_event)
+    trigger_mesh.subscribe("memory.*", on_memory_event)
+    trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
+    trigger_mesh.subscribe("governance.*", on_governance_event)
     
     print("[OK] Trigger Mesh subscriptions configured")

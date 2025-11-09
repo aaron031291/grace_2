@@ -11,8 +11,10 @@ from ..causal_playbook_reinforcement import causal_rl_agent
 from ..temporal_forecasting import temporal_forecaster
 from ..automated_ml_training import automated_training
 from ..forecast_scheduler import forecast_scheduler
+from ..ml_performance_analytics import ml_performance_analytics
+from ..incident_predictor import incident_predictor
 from ..models import async_session
-from ..metrics_models import MetricSnapshot
+
 from sqlalchemy import select, func
 
 router = APIRouter(prefix="/api/ml/dashboard", tags=["ml_dashboard"])
@@ -25,8 +27,9 @@ async def get_ml_overview():
     rl_stats = causal_rl_agent.get_statistics()
     fc_stats = temporal_forecaster.get_statistics()
     train_stats = automated_training.get_statistics()
+    pred_stats = incident_predictor.get_statistics()
     
-    # Get recent forecast accuracy (placeholder)
+    # Get recent forecast accuracy
     forecast_accuracy = await _calculate_forecast_accuracy()
     
     return {
@@ -36,7 +39,8 @@ async def get_ml_overview():
                 "causal_rl": "operational",
                 "temporal_forecaster": "operational" if fc_stats["model_loaded"] else "initializing",
                 "automated_training": "operational" if train_stats["running"] else "stopped",
-                "forecast_scheduler": "operational" if forecast_scheduler.running else "stopped"
+                "forecast_scheduler": "operational" if forecast_scheduler.running else "stopped",
+                "incident_predictor": "operational" if pred_stats["running"] else "stopped"
             }
         },
         "learning_metrics": {
@@ -44,11 +48,14 @@ async def get_ml_overview():
             "experiences_recorded": rl_stats["total_experiences"],
             "training_cycles_completed": train_stats["training_count"],
             "forecasts_generated": forecast_scheduler.forecast_count,
-            "metrics_under_prediction": fc_stats["metrics_learned"]
+            "metrics_under_prediction": fc_stats["metrics_learned"],
+            "predictions_made": pred_stats["predictions_made"],
+            "incidents_prevented": pred_stats["incidents_prevented"]
         },
         "performance": {
             "forecast_accuracy_pct": forecast_accuracy,
             "policy_coverage_pct": _calculate_policy_coverage(rl_stats),
+            "incident_prevention_rate": pred_stats["prevention_rate"],
             "next_training_in_hours": train_stats["next_training_in_hours"],
             "last_training": train_stats["last_training"]
         },
@@ -204,6 +211,13 @@ async def trigger_manual_training():
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }
+
+
+@router.get("/health-report")
+async def get_ml_health_report():
+    """Generate comprehensive ML health report"""
+    report = await ml_performance_analytics.generate_ml_health_report()
+    return report
 
 
 # Helper functions

@@ -1,7 +1,7 @@
 """
 Temporal forecasting models for proactive intelligence.
 
-This module provides a façade for the Temporal Fusion Transformer (TFT)
+This module provides a faade for the Temporal Fusion Transformer (TFT)
 that Grace will use to predict multi-metric incident risk ahead of time.
 
 The implementation intentionally ships as a scaffold:
@@ -51,7 +51,7 @@ class ForecastResult:
 
 class TemporalFusionForecaster:
     """
-    Temporal Fusion Transformer façade.
+    Temporal Fusion Transformer faade.
 
     Responsibilities:
     - Train/update the TFT model on metrics snapshots.
@@ -79,15 +79,15 @@ class TemporalFusionForecaster:
             try:
                 with open(model_path, 'r') as f:
                     self._model = json.load(f)
-                logger.info("[TEMPORAL-FC] ✅ Loaded existing TFT model")
-                print("[TEMPORAL-FC] 🧠 Loaded trained forecasting model")
+                logger.info("[TEMPORAL-FC]  Loaded existing TFT model")
+                print("[TEMPORAL-FC]  Loaded trained forecasting model")
             except Exception as e:
                 logger.warning(f"[TEMPORAL-FC] Failed to load model: {e}, initializing fresh")
                 self._model = self._initialize_fresh_model()
         else:
             self._model = self._initialize_fresh_model()
-            logger.info("[TEMPORAL-FC] ✅ Initialized fresh TFT model")
-            print("[TEMPORAL-FC] 🧠 Initialized new forecasting model")
+            logger.info("[TEMPORAL-FC]  Initialized fresh TFT model")
+            print("[TEMPORAL-FC]  Initialized new forecasting model")
     
     def _initialize_fresh_model(self) -> Dict:
         """Initialize a fresh model structure"""
@@ -112,7 +112,7 @@ class TemporalFusionForecaster:
             await self.load_or_initialize()
 
         logger.info(f"[TEMPORAL-FC] Training on {len(training_data)} metrics...")
-        print(f"[TEMPORAL-FC] 📚 Training on {len(training_data)} metric series")
+        print(f"[TEMPORAL-FC]  Training on {len(training_data)} metric series")
         
         # Update model with training data baselines
         for metric_id, values in training_data.items():
@@ -140,8 +140,8 @@ class TemporalFusionForecaster:
         }
         self._training_history.append(self._last_training_snapshot)
         
-        logger.info(f"[TEMPORAL-FC] ✅ Training complete: {len(training_data)} metrics")
-        print(f"[TEMPORAL-FC] ✅ Model trained on {sum(len(v) for v in training_data.values())} data points")
+        logger.info(f"[TEMPORAL-FC]  Training complete: {len(training_data)} metrics")
+        print(f"[TEMPORAL-FC]  Model trained on {sum(len(v) for v in training_data.values())} data points")
         
         # Log to immutable log
         await immutable_log.append(
@@ -219,7 +219,7 @@ class TemporalFusionForecaster:
             )
         
         logger.info(f"[TEMPORAL-FC] Generated {len(results)} forecasts")
-        print(f"[TEMPORAL-FC] 🔮 Predicted {len(results)} metrics over {request.horizon_minutes}min")
+        print(f"[TEMPORAL-FC]  Predicted {len(results)} metrics over {request.horizon_minutes}min")
         
         return results
     

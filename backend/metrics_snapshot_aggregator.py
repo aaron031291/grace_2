@@ -69,7 +69,7 @@ class MetricsSnapshotAggregator:
             return
         
         # Subscribe to all metrics events
-        await trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
+        trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
         
         self.running = True
         self.window_start = datetime.now(timezone.utc)

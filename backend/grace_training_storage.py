@@ -8,7 +8,6 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List, Optional
-from .knowledge_provenance import provenance_tracker
 from .immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ class GraceTrainingStorage:
     
     def _initialize_structure(self):
         """Create folder structure"""
-        print(f"[TRAINING-STORAGE] 📁 Initializing knowledge storage at {self.base_path.absolute()}")
+        print(f"[TRAINING-STORAGE] Initializing knowledge storage at {self.base_path.absolute()}")
         
         # Create base folder
         self.base_path.mkdir(exist_ok=True)
@@ -139,8 +138,8 @@ class GraceTrainingStorage:
             result="success"
         )
         
-        logger.info(f"[TRAINING-STORAGE] 💾 Saved to {category}/{today}/{filename}")
-        print(f"[TRAINING-STORAGE] 💾 Saved: {category}/{today}/{filename}")
+        logger.info(f"[TRAINING-STORAGE] Saved to {category}/{today}/{filename}")
+        print(f"[TRAINING-STORAGE] Saved: {category}/{today}/{filename}")
         
         return str(file_path)
     
@@ -197,8 +196,8 @@ class GraceTrainingStorage:
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=2)
         
-        logger.info(f"[TRAINING-STORAGE] 📁 Created subfolder: {category}/{subfolder_name}")
-        print(f"[TRAINING-STORAGE] 📁 Created: {category}/{subfolder_name} - {description}")
+        logger.info(f"[TRAINING-STORAGE] Created subfolder: {category}/{subfolder_name}")
+        print(f"[TRAINING-STORAGE] Created: {category}/{subfolder_name} - {description}")
         
         return str(subfolder_path)
     

@@ -32,8 +32,8 @@ class IncidentPredictor:
         trigger_mesh.subscribe("forecast.metric_predicted", self._handle_metric_forecast)
         
         self.running = True
-        logger.info("[INCIDENT-PREDICT] ✅ Started")
-        print("[INCIDENT-PREDICT] 🚨 Predictive incident detection active")
+        logger.info("[INCIDENT-PREDICT]  Started")
+        print("[INCIDENT-PREDICT]  Predictive incident detection active")
     
     async def stop(self):
         """Stop predictor"""
@@ -52,14 +52,14 @@ class IncidentPredictor:
                 minutes_until = prediction.get("minutes_until", 60)
                 
                 logger.warning(
-                    f"[INCIDENT-PREDICT] 🚨 PREDICTED INCIDENT: {metric_id} will breach "
+                    f"[INCIDENT-PREDICT]  PREDICTED INCIDENT: {metric_id} will breach "
                     f"in ~{minutes_until}min (confidence={confidence:.0%})"
                 )
                 print(
-                    f"[INCIDENT-PREDICT] 🚨 EARLY WARNING: {metric_id} breach predicted "
+                    f"[INCIDENT-PREDICT]  EARLY WARNING: {metric_id} breach predicted "
                     f"in {minutes_until}min (conf: {confidence:.0%})"
                 )
-                print(f"[INCIDENT-PREDICT] 💡 Predicted value: {predicted_max:.2f}")
+                print(f"[INCIDENT-PREDICT]  Predicted value: {predicted_max:.2f}")
                 
                 self.predictions_made += 1
                 
@@ -96,11 +96,11 @@ class IncidentPredictor:
             # If already in warning/critical and forecast shows worsening
             if current_band in ["warning", "critical"] and confidence > 0.6:
                 logger.warning(
-                    f"[INCIDENT-PREDICT] 📈 {metric_id} trending worse: "
+                    f"[INCIDENT-PREDICT]  {metric_id} trending worse: "
                     f"current={current_band}, forecast={predicted_max:.2f}"
                 )
                 print(
-                    f"[INCIDENT-PREDICT] 📈 TREND ALERT: {metric_id} likely to worsen "
+                    f"[INCIDENT-PREDICT]  TREND ALERT: {metric_id} likely to worsen "
                     f"(current: {current_band})"
                 )
         
@@ -129,10 +129,10 @@ class IncidentPredictor:
         
         if playbook_id:
             logger.info(
-                f"[INCIDENT-PREDICT] 🎯 Recommending early playbook: {playbook_id} "
+                f"[INCIDENT-PREDICT]  Recommending early playbook: {playbook_id} "
                 f"for predicted {metric_id} breach"
             )
-            print(f"[INCIDENT-PREDICT] 🎯 PROACTIVE ACTION: Recommending '{playbook_id}'")
+            print(f"[INCIDENT-PREDICT]  PROACTIVE ACTION: Recommending '{playbook_id}'")
             
             # Publish recommendation
             await trigger_mesh.publish(TriggerEvent(

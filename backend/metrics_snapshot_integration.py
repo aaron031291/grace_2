@@ -33,8 +33,8 @@ class MetricsSnapshotIntegration:
         trigger_mesh.subscribe("metrics.action_recommended", self._handle_recommendation)
         
         self.running = True
-        logger.info("[SNAPSHOT-INTEGRATION] ✅ Started")
-        print("[SNAPSHOT-INTEGRATION] 🔗 Metrics → ML pipeline active")
+        logger.info("[SNAPSHOT-INTEGRATION]  Started")
+        print("[SNAPSHOT-INTEGRATION]  Metrics  ML pipeline active")
     
     async def stop(self):
         """Stop integration"""
@@ -54,10 +54,10 @@ class MetricsSnapshotIntegration:
             
             if latest_band in ["critical", "warning"]:
                 logger.info(
-                    f"[SNAPSHOT-INTEGRATION] 📊 {metric_id} in {latest_band} band, "
+                    f"[SNAPSHOT-INTEGRATION]  {metric_id} in {latest_band} band, "
                     "generating forecast..."
                 )
-                print(f"[SNAPSHOT-INTEGRATION] ⚠️ {metric_id} → {latest_band}, predicting trend...")
+                print(f"[SNAPSHOT-INTEGRATION]  {metric_id}  {latest_band}, predicting trend...")
                 
                 # Trigger forecast for this metric
                 await self._generate_targeted_forecast(metric_id, latest_band)
@@ -73,11 +73,11 @@ class MetricsSnapshotIntegration:
             confidence = event.payload.get("confidence", 0.0)
             
             logger.info(
-                f"[SNAPSHOT-INTEGRATION] 🎯 Playbook '{playbook_id}' recommended "
+                f"[SNAPSHOT-INTEGRATION]  Playbook '{playbook_id}' recommended "
                 f"for {metric_id} (confidence={confidence})"
             )
             print(
-                f"[SNAPSHOT-INTEGRATION] 🎯 Recommended: {playbook_id} → {metric_id} "
+                f"[SNAPSHOT-INTEGRATION]  Recommended: {playbook_id}  {metric_id} "
                 f"(ML confidence: {confidence:.0%})"
             )
             
@@ -115,7 +115,7 @@ class MetricsSnapshotIntegration:
                 max_predicted = max(forecast.predicted_values) if forecast.predicted_values else 0
                 
                 logger.info(
-                    f"[SNAPSHOT-INTEGRATION] 🔮 Forecast for {metric_id}: "
+                    f"[SNAPSHOT-INTEGRATION]  Forecast for {metric_id}: "
                     f"max={max_predicted:.2f}, confidence={forecast.confidence:.2f}"
                 )
                 

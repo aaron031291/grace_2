@@ -72,7 +72,7 @@ class CausalPlaybookReinforcementAgent:
             f"{experience.chosen_playbook} reward={reward:.2f} score={new_score:.2f}"
         )
         print(
-            f"[CAUSAL-RL] 📊 Learned: {experience.chosen_playbook} → reward={reward:.2f} "
+            f"[CAUSAL-RL]  Learned: {experience.chosen_playbook}  reward={reward:.2f} "
             f"(trust_delta={experience.trust_score_delta:+.2f})"
         )
         

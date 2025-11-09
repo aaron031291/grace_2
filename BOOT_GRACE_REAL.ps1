@@ -40,6 +40,10 @@ Write-Host ""
 Write-Host "=" * 80 -ForegroundColor Cyan
 Write-Host ""
 
+# Set UTF-8 encoding for Windows console
+$env:PYTHONIOENCODING = "utf-8"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 # Boot Grace
 & .venv\Scripts\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 

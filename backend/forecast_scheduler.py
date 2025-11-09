@@ -40,8 +40,8 @@ class ForecastScheduler:
         
         self.running = True
         self._task = asyncio.create_task(self._forecast_loop())
-        logger.info(f"[FORECAST-SCHED] ✅ Started (running every {self.interval_minutes}min)")
-        print(f"[FORECAST-SCHED] 🔮 Forecasting scheduler started ({self.interval_minutes}min intervals)")
+        logger.info(f"[FORECAST-SCHED]  Started (running every {self.interval_minutes}min)")
+        print(f"[FORECAST-SCHED]  Forecasting scheduler started ({self.interval_minutes}min intervals)")
     
     async def stop(self):
         """Stop the scheduler"""
@@ -63,8 +63,8 @@ class ForecastScheduler:
                 if not self.running:
                     break
                 
-                logger.info("[FORECAST-SCHED] 🔮 Running forecast cycle...")
-                print(f"[FORECAST-SCHED] 🔮 Generating {len(self.key_metrics)}-metric forecast...")
+                logger.info("[FORECAST-SCHED]  Running forecast cycle...")
+                print(f"[FORECAST-SCHED]  Generating {len(self.key_metrics)}-metric forecast...")
                 
                 # Generate forecasts
                 request = ForecastRequest(
@@ -96,10 +96,10 @@ class ForecastScheduler:
                 
                 if predicted_incidents:
                     logger.warning(
-                        f"[FORECAST-SCHED] ⚠️ Predicted {len(predicted_incidents)} future incidents"
+                        f"[FORECAST-SCHED]  Predicted {len(predicted_incidents)} future incidents"
                     )
                     print(
-                        f"[FORECAST-SCHED] ⚠️ PREDICTION: {len(predicted_incidents)} incidents "
+                        f"[FORECAST-SCHED]  PREDICTION: {len(predicted_incidents)} incidents "
                         f"likely in next 60min"
                     )
                     
@@ -117,8 +117,8 @@ class ForecastScheduler:
                         timestamp=datetime.now(timezone.utc)
                     ))
                 else:
-                    logger.info("[FORECAST-SCHED] ✅ No incidents predicted")
-                    print("[FORECAST-SCHED] ✅ System stable - no incidents predicted")
+                    logger.info("[FORECAST-SCHED]  No incidents predicted")
+                    print("[FORECAST-SCHED]  System stable - no incidents predicted")
                 
                 self.forecast_count += 1
                 
