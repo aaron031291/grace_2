@@ -64,6 +64,12 @@ grace = GraceAutonomous(memory=memory)
 grace_llm = get_grace_llm(memory)
 cognition = CognitionAuthority()
 
+@router.post("/local", response_model=ChatResponse)
+async def local_chat_endpoint(req: ChatRequest):
+    """Local unauthenticated chat for terminal use"""
+    # Use 'local_user' as default for terminal sessions
+    return await chat_endpoint(req, current_user="local_user")
+
 @router.post("/", response_model=ChatResponse)
 async def chat_endpoint(
     req: ChatRequest,

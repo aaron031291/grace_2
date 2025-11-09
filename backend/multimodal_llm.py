@@ -217,8 +217,19 @@ class MultiModalLLM:
     
     async def _call_grace_llm(self, message: str, context: Optional[Dict]) -> str:
         """Fallback to built-in Grace LLM"""
-        # Simple response for now - would integrate full grace_llm
-        return f"I received your message: '{message}'. Grace LLM processing (built-in mode)."
+        from .grace_llm import get_grace_llm
+        from .memory import persistent_memory
+        
+        try:
+            grace_llm = get_grace_llm(persistent_memory)
+            result = await grace_llm.generate_response(
+                user_message=message,
+                context=context or {}
+            )
+            return result.get("text", "I'm here and operational.")
+        except Exception as e:
+            logger.error(f"[MULTIMODAL] Grace LLM failed: {e}")
+            return f"I'm operational. You asked: '{message}'. How can I help with coding, system analysis, or autonomous tasks?"
     
     async def _generate_voice(self, text: str) -> Optional[str]:
         """Generate voice using TTS"""
