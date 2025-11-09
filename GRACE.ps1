@@ -150,7 +150,24 @@ Write-Host ""
 Set-Location C:\Users\aaron\grace_2
 Write-Host "[OK] Directory: C:\Users\aaron\grace_2" -ForegroundColor Green
 
-# Clean up any stuck jobs
+# Check if Grace is already running
+Write-Host "? Checking for existing Grace instances..." -ForegroundColor Yellow
+$existingJobs = Get-Job -ErrorAction SilentlyContinue
+if ($existingJobs.Count -gt 0) {
+    Write-Host ""
+    Write-Host "[WARN] Grace is already running with $($existingJobs.Count) job(s)!" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Options:" -ForegroundColor Cyan
+    Write-Host "  1. Stop existing instance:   .\GRACE.ps1 -Stop" -ForegroundColor White
+    Write-Host "  2. Check status:             .\GRACE.ps1 -Status" -ForegroundColor White
+    Write-Host "  3. View logs:                .\GRACE.ps1 -Logs" -ForegroundColor White
+    Write-Host ""
+    Write-Host "To force restart, run: .\GRACE.ps1 -Stop && .\GRACE.ps1" -ForegroundColor Yellow
+    Write-Host ""
+    exit 1
+}
+
+# Clean up any stuck jobs (only if none were running)
 Write-Host "? Cleaning up old jobs..." -ForegroundColor Yellow
 Get-Job | Stop-Job -ErrorAction SilentlyContinue 2>$null
 Get-Job | Remove-Job -Force -ErrorAction SilentlyContinue 2>$null
