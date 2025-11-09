@@ -33,18 +33,18 @@ Fixed 7 critical blockers preventing self-healing, autonomous improvement, proac
 - **Changes**: Added `risk_level` and `autonomy_tier` columns
 - **Migration**: `alembic/versions/20251109_add_playbook_risk_autonomy.py` (applied)
 
-### 2. Autonomous Improver Fixes
+### 3. Autonomous Improver Fixes
 - **File**: `backend/autonomous_improver.py`
 - **Changes**:
   - Disabled print() detection (too noisy for CLI scripts)
   - Added npm availability check before TypeScript scan
   - Graceful fallback when npm not found
 
-### 3. Multimodal API Import
+### 4. Multimodal API Import
 - **File**: `backend/routes/multimodal_api.py`
 - **Changes**: Added `from ..memory import PersistentMemory`
 
-### 4. Environment Configuration
+### 5. Environment Configuration
 - **File**: `.env.example`
 - **Changes**: Added GITHUB_TOKEN and AMP_API_KEY with documentation
 
