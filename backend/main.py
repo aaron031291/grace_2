@@ -174,9 +174,9 @@ async def on_startup():
         validation_passed = await preflight_validator.validate_before_startup(["backend"])
         
         if not validation_passed:
-            print("[PREFLIGHT] ⚠️  Validation warnings detected (non-blocking)")
+            print("[PREFLIGHT] WARNING - Validation warnings detected (non-blocking)")
     except Exception as e:
-        print(f"[PREFLIGHT] ⚠️  Validation error: {e} (continuing anyway)")
+        print(f"[PREFLIGHT] WARNING - Validation error: {e} (continuing anyway)")
     # Ensure model modules imported so Base.metadata is populated
     try:
         import importlib
@@ -326,30 +326,30 @@ async def on_startup():
     )
     
     if success:
-        print("[AUTONOMOUS] 🔧 Code Healer started - Grace can fix her own code")
+        print("[AUTONOMOUS] Code Healer started - Grace can fix her own code")
     else:
-        print("[AUTONOMOUS] ⚠️  Code Healer failed to start (non-critical)")
+        print("[AUTONOMOUS] WARNING - Code Healer failed to start (non-critical)")
     
     # Start Log-Based Healer - Continuous monitoring
     from backend.log_based_healer import log_based_healer
     await log_based_healer.start()
-    print("[AUTONOMOUS] 📖 Log Healer started - Monitoring logs for errors")
+    print("[AUTONOMOUS] Log Healer started - Monitoring logs for errors")
     
     # Start ML/DL Healing - Learning from errors and fixes
     from backend.ml_healing import ml_healing, dl_healing
     await ml_healing.start()
     await dl_healing.start()
-    print("[AUTONOMOUS] 🧠 ML/DL Healing started - Learning from every error")
+    print("[AUTONOMOUS] ML/DL Healing started - Learning from every error")
     
     # Start Alert System - Notifications for critical events
     from backend.alert_system import alert_system
     await alert_system.start()
-    print("[AUTONOMOUS] 🔔 Alert system started - Monitoring for critical events")
+    print("[AUTONOMOUS] Alert system started - Monitoring for critical events")
     
     # Start Proactive Improvement - Grace proposes her own improvements
     from backend.proactive_improvement_engine import proactive_improvement
     await proactive_improvement.start()
-    print("[AUTONOMOUS] 🎯 Proactive Improvement started - Grace will propose improvements")
+    print("[AUTONOMOUS] Proactive Improvement started - Grace will propose improvements")
     
     # Start REAL Metrics Collection - Feeds autonomy with real telemetry
     from backend.metrics_collector import metrics_collector
@@ -362,7 +362,7 @@ async def on_startup():
     await real_proactive_intelligence.start()
     await playbook_executor.start()
     
-    print("[METRICS] ✅ Real telemetry system started")
+    print("[METRICS] Real telemetry system started")
     print("[METRICS]   • Collector: Live metrics from system")
     print("[METRICS]   • Aggregator: 5-minute snapshot windows")
     print("[METRICS]   • Proactive Intel: Real playbook recommendations")
@@ -371,15 +371,15 @@ async def on_startup():
     # Start Performance Optimizer - Continuous performance tuning
     from backend.performance_optimizer import performance_optimizer
     await performance_optimizer.start()
-    print("[AUTONOMOUS] ⚡ Performance Optimizer started - Optimizing every 30min")
+    print("[AUTONOMOUS] Performance Optimizer started - Optimizing every 30min")
     
     # Start Autonomous Goal-Setting - Grace sets her own goals
     from backend.autonomous_goal_setting import autonomous_goal_setting
     await autonomous_goal_setting.start()
-    print("[AUTONOMOUS] 🎯 Autonomous Goal-Setting started - Grace manages her goals")
+    print("[AUTONOMOUS] Autonomous Goal-Setting started - Grace manages her goals")
     
     # Start Web Learning Systems - Grace learns from internet
-    print("\n[WEB-LEARNING] 🌐 Starting Web Learning Systems...")
+    print("\n[WEB-LEARNING] Starting Web Learning Systems...")
     from backend.web_learning_orchestrator import web_learning_orchestrator
     from backend.visual_ingestion_logger import visual_ingestion_logger
     from backend.amp_api_integration import amp_api_integration
@@ -387,7 +387,7 @@ async def on_startup():
     await web_learning_orchestrator.start()
     await amp_api_integration.start()
     
-    print("[WEB-LEARNING] ✅ Web Learning Systems online")
+    print("[WEB-LEARNING] Web Learning Systems online")
     print("[WEB-LEARNING]   • Web Scraper (83+ trusted domains)")
     print("[WEB-LEARNING]   • GitHub Miner")
     print("[WEB-LEARNING]   • YouTube Learning")
@@ -397,26 +397,26 @@ async def on_startup():
     print("[WEB-LEARNING]   • Amp API (Last Resort - Batch Querying)")
     print("[WEB-LEARNING]   • Complete Provenance Tracking")
     print("[WEB-LEARNING]   • Visual Ingestion Logs (with clickable links)")
-    print(f"[WEB-LEARNING]   📋 Visual log: {visual_ingestion_logger.html_log}")
-    print(f"[WEB-LEARNING]   📝 Terminal log: {visual_ingestion_logger.log_file}")
+    print(f"[WEB-LEARNING]   Visual log: {visual_ingestion_logger.html_log}")
+    print(f"[WEB-LEARNING]   Terminal log: {visual_ingestion_logger.log_file}")
     
     # Show Amp API status
     amp_status = await amp_api_integration.get_status()
     if amp_status['enabled']:
-        print(f"[AMP-API] ✅ Amp API configured (Last Resort Mode)")
+        print(f"[AMP-API] Amp API configured (Last Resort Mode)")
         print(f"[AMP-API]   Daily limit: {amp_status['daily_limit']} queries")
         print(f"[AMP-API]   Batch size: {amp_status['batch_size']} questions")
         print(f"[AMP-API]   Mode: Cost-effective batching")
     else:
-        print(f"[AMP-API] ⚠️  Amp API not configured (add AMP_API_KEY to .env)")
+        print(f"[AMP-API] WARNING - Amp API not configured (add AMP_API_KEY to .env)")
     
     # Initialize training storage
     print("[TRAINING-STORAGE] Initializing knowledge storage system...")
     from backend.grace_training_storage import training_storage
     training_storage._initialize_structure()
     stats = training_storage.get_statistics()
-    print(f"[TRAINING-STORAGE] ✅ {len(stats['categories'])} category folders ready")
-    print(f"[TRAINING-STORAGE] 📁 Base path: {stats['base_path']}")
+    print(f"[TRAINING-STORAGE] {len(stats['categories'])} category folders ready")
+    print(f"[TRAINING-STORAGE] Base path: {stats['base_path']}")
     
     # Initialize ML/AI systems
     print("[ML-SYSTEMS] Initializing ML/AI forecasting and learning...")
@@ -431,9 +431,9 @@ async def on_startup():
     rl_stats = causal_rl_agent.get_statistics()
     fc_stats = temporal_forecaster.get_statistics()
     
-    print(f"[ML-SYSTEMS] ✅ Causal RL Agent ready ({rl_stats['total_policies']} policies learned)")
-    print(f"[ML-SYSTEMS] ✅ Temporal Forecaster ready ({fc_stats['metrics_learned']} metrics)")
-    print(f"[ML-SYSTEMS] 🧠 Advanced ML systems online")
+    print(f"[ML-SYSTEMS] Causal RL Agent ready ({rl_stats['total_policies']} policies learned)")
+    print(f"[ML-SYSTEMS] Temporal Forecaster ready ({fc_stats['metrics_learned']} metrics)")
+    print(f"[ML-SYSTEMS] Advanced ML systems online")
     
     # Start ML subsystems
     await forecast_scheduler.start()
@@ -441,10 +441,10 @@ async def on_startup():
     await snapshot_integration.start()
     await incident_predictor.start()
     
-    print("[ML-SYSTEMS] 🔮 Predictive forecasting active (15min intervals)")
-    print("[ML-SYSTEMS] 🎓 Automated training active (6h intervals)")
-    print("[ML-SYSTEMS] 🔗 Metrics → ML integration active")
-    print("[ML-SYSTEMS] 🚨 Incident prediction active")
+    print("[ML-SYSTEMS] Predictive forecasting active (15min intervals)")
+    print("[ML-SYSTEMS] Automated training active (6h intervals)")
+    print("[ML-SYSTEMS] Metrics -> ML integration active")
+    print("[ML-SYSTEMS] Incident prediction active")
     
     # Startup Verification - Confirm all systems operational
     from backend.startup_verification import startup_verification

@@ -1,0 +1,16 @@
+# Add these lines to your .env file to silence configuration warnings:
+
+# Structured logging configuration
+STRUCTURED_LOGGING=true
+
+# Server-Sent Events configuration  
+SSE_ENABLED=true
+
+# Optional: Add GitHub token for higher rate limits (5000 req/hour vs 60)
+# GITHUB_TOKEN=ghp_your_token_here
+
+# Optional: Add Amp API key for last-resort batch queries
+# AMP_API_KEY=your_amp_api_key_here
+
+# Optional: Set vault encryption key (otherwise regenerated each run)
+# GRACE_VAULT_KEY=your-base64-encoded-fernet-key

@@ -141,10 +141,16 @@ class AutonomousImprover:
         """Scan TypeScript for errors"""
         issues = []
         
+        # Check if frontend directory exists
+        frontend_path = Path(__file__).parent.parent / 'frontend'
+        if not frontend_path.exists():
+            logger.debug(f"[AUTONOMOUS] No frontend directory, skipping TypeScript scan")
+            return issues
+        
         try:
             result = subprocess.run(
                 ['npm', 'run', 'build'],
-                cwd='frontend',
+                cwd=str(frontend_path),
                 capture_output=True,
                 text=True,
                 timeout=120
@@ -160,7 +166,7 @@ class AutonomousImprover:
                             'fixable': True
                         })
         except Exception as e:
-            logger.warning(f"[AUTONOMOUS] TypeScript scan failed: {e}")
+            logger.debug(f"[AUTONOMOUS] TypeScript scan skipped: {e}")
         
         return issues
     

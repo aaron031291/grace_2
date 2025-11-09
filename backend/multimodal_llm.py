@@ -218,9 +218,10 @@ class MultiModalLLM:
     async def _call_grace_llm(self, message: str, context: Optional[Dict]) -> str:
         """Fallback to built-in Grace LLM"""
         from .grace_llm import get_grace_llm
-        from .memory import persistent_memory
+        from .memory import PersistentMemory
         
         try:
+            persistent_memory = PersistentMemory()
             grace_llm = get_grace_llm(persistent_memory)
             result = await grace_llm.generate_response(
                 user_message=message,

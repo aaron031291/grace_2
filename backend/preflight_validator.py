@@ -248,7 +248,7 @@ class PreflightValidator:
         
         Returns True if all valid, False if errors found
         """
-        logger.info("[PREFLIGHT] 🔍 Running pre-flight validation...")
+        logger.info("[PREFLIGHT] Running pre-flight validation...")
         
         all_valid = True
         total_errors = 0
@@ -260,12 +260,12 @@ class PreflightValidator:
                 all_valid = False
                 total_errors += result['total_errors']
                 
-                logger.warning(f"[PREFLIGHT] ⚠️  {directory}: {result['files_invalid']} invalid files")
+                logger.warning(f"[PREFLIGHT] WARNING - {directory}: {result['files_invalid']} invalid files")
         
         if all_valid:
-            logger.info("[PREFLIGHT] ✅ All pre-flight checks passed")
+            logger.info("[PREFLIGHT] OK - All pre-flight checks passed")
         else:
-            logger.error(f"[PREFLIGHT] ❌ Pre-flight validation failed: {total_errors} errors")
+            logger.error(f"[PREFLIGHT] FAILED - Pre-flight validation failed: {total_errors} errors")
         
         return all_valid
 
