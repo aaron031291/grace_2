@@ -55,7 +55,12 @@ class UniversalCryptographicAssignmentEngine:
     def __init__(self):
         self.crypto_registry = {}
         self.component_keys = {}
-        
+
+        # Ed25519 signing key for simple sign/verify operations
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+        self._signing_key = ed25519.Ed25519PrivateKey.generate()
+        self._verify_key = self._signing_key.public_key()
+
         # Performance targets (sub-millisecond)
         self.target_speeds = {
             "grace_components": 0.1,  # 0.1ms
@@ -65,6 +70,24 @@ class UniversalCryptographicAssignmentEngine:
             "user_interactions": 0.2,  # 0.2ms
             "decisions_operations": 0.1,  # 0.1ms
         }
+
+    def sign(self, data: str) -> str:
+        """Sign data with Ed25519 - for simple signing operations"""
+        import base64
+        data_bytes = data.encode('utf-8')
+        signature = self._signing_key.sign(data_bytes)
+        return base64.b64encode(signature).decode('utf-8')
+
+    def verify(self, data: str, signature: str) -> bool:
+        """Verify Ed25519 signature - for simple verification"""
+        import base64
+        try:
+            data_bytes = data.encode('utf-8')
+            sig_bytes = base64.b64decode(signature)
+            self._verify_key.verify(sig_bytes, data_bytes)
+            return True
+        except Exception:
+            return False
     
     async def assign_universal_crypto_identity(
         self,

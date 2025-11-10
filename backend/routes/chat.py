@@ -25,14 +25,10 @@ async def chat_endpoint(
 ):
     alerts = await hunter.inspect(current_user, "chat_message", req.message, {"content": req.message})
     if alerts:
-<<<<<<<< HEAD:backend/routes/chat.py
-        print(f"⚠️ Hunter: {len(alerts)} alerts on chat message")
-========
         print(f"[WARN] Hunter: {len(alerts)} alerts on chat message")
->>>>>>>> origin/main:backend/tests/routes/chat.py
-    
+
     await memory.store(current_user, "user", req.message)
-    
+
     async with async_session() as session:
         result = await session.execute(
             select(ChatMessage)
@@ -42,10 +38,10 @@ async def chat_endpoint(
         )
         user_msg = result.scalar_one()
         trigger_id = user_msg.id
-    
+
     result = await grace.respond(current_user, req.message)
     await memory.store(current_user, "grace", result)
-    
+
     async with async_session() as session:
         result_query = await session.execute(
             select(ChatMessage)
@@ -55,7 +51,7 @@ async def chat_endpoint(
         )
         response_msg = result_query.scalar_one()
         response_id = response_msg.id
-    
+
     await causal_tracker.log_interaction(current_user, trigger_id, response_id)
-    
+
     return ChatResponse(response=result)
