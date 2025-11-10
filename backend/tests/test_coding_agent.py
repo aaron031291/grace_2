@@ -1,15 +1,18 @@
 """Tests for AI Coding Agent System"""
 
-import pytest
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+import pytest
 import tempfile
 import os
 
-from ..code_memory import code_memory, CodePattern
-from ..code_understanding import code_understanding
-from ..code_generator import code_generator
-from ..dev_workflow import dev_workflow
-from ..models import engine, Base, async_session
+from backend.code_memory import code_memory, CodePattern
+from backend.code_understanding import code_understanding
+from backend.code_generator import code_generator
+from backend.dev_workflow import dev_workflow
+from backend.models import engine, Base, async_session
 
 @pytest.fixture
 async def setup_database():
