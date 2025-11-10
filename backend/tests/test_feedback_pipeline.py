@@ -10,10 +10,14 @@ from datetime import datetime
 from cognition import (
     GraceLoopOutput,
     OutputType,
-    governance_prime_directive,
-    feedback_integrator,
+    GovernancePrimeDirective,
+    FeedbackIntegrator,
     GovernanceDecision
 )
+
+# Create instances
+governance_prime_directive = GovernancePrimeDirective()
+feedback_integrator = FeedbackIntegrator()
 
 class TestGovernancePrimeDirective:
     """Test constitutional validation gate"""
