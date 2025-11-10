@@ -1,21 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, func
+=======
 from typing import List
+>>>>>>> origin/main
 from ..auth import get_current_user
 from ..meta_loop import MetaAnalysis, MetaMetaEvaluation, MetaLoopConfig
 from ..meta_loop_approval import approval_queue, RecommendationQueue
 from ..meta_loop_engine import AppliedRecommendation
 from ..models import async_session
-from ..schemas import (
-    MetaAnalysisResponse, MetaMetaEvaluationResponse, MetaRecommendationResponse, SuccessResponse,
-    MetaSampleCreateResponse, MetaRecommendationStatsResponse, MetaPerformanceResponse,
-    MetaMeasureResponse, ConfigListResponse, MetaAnalysisItem, MetaMetaEvaluationItem, MetaConfigItem
-)
+<<<<<<< HEAD
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/meta", tags=["meta_loops"])
 
-@router.post("/test/create-samples", response_model=MetaSampleCreateResponse)
+@router.post("/test/create-samples")
 async def create_sample_data():
     """Create sample recommendations for UI testing"""
     from ..meta_loop import MetaAnalysis
@@ -87,7 +85,7 @@ async def create_sample_data():
             "message": "Sample recommendations created"
         }
 
-@router.get("/analyses", response_model=List[MetaAnalysisItem])
+@router.get("/analyses")
 async def list_meta_analyses(limit: int = 20):
     """View Level 1 meta-loop analyses"""
     async with async_session() as session:
@@ -110,7 +108,7 @@ async def list_meta_analyses(limit: int = 20):
             for a in result.scalars().all()
         ]
 
-@router.get("/evaluations", response_model=List[MetaMetaEvaluationItem])
+@router.get("/evaluations")
 async def list_meta_meta_evals(limit: int = 20):
     """View Level 2 meta-meta evaluations"""
     async with async_session() as session:
@@ -132,7 +130,7 @@ async def list_meta_meta_evals(limit: int = 20):
             for e in result.scalars().all()
         ]
 
-@router.get("/config", response_model=List[MetaConfigItem])
+@router.get("/config")
 async def get_meta_config():
     """View meta-loop configuration"""
     async with async_session() as session:
@@ -153,7 +151,7 @@ async def get_pending_recommendations():
     """Get all pending recommendations awaiting approval"""
     return await approval_queue.get_pending_recommendations()
 
-@router.post("/recommendations/{rec_id}/approve", response_model=SuccessResponse)
+@router.post("/recommendations/{rec_id}/approve")
 async def approve_recommendation(
     rec_id: int, 
     user = Depends(get_current_user),
@@ -165,7 +163,7 @@ async def approve_recommendation(
         raise HTTPException(status_code=400, detail=result.get("error", "Failed to approve"))
     return result
 
-@router.post("/recommendations/{rec_id}/reject", response_model=SuccessResponse)
+@router.post("/recommendations/{rec_id}/reject")
 async def reject_recommendation(
     rec_id: int,
     user = Depends(get_current_user),
@@ -182,7 +180,7 @@ async def get_applied_recommendations(limit: int = 20):
     """Show history of applied recommendations with effectiveness metrics"""
     return await approval_queue.get_applied_recommendations(limit)
 
-@router.post("/recommendations/{applied_id}/rollback", response_model=SuccessResponse)
+@router.post("/recommendations/{applied_id}/rollback")
 async def rollback_recommendation(
     applied_id: int,
     user = Depends(get_current_user),
@@ -195,13 +193,13 @@ async def rollback_recommendation(
         raise HTTPException(status_code=400, detail=result.get("error", "Failed to rollback"))
     return result
 
-@router.post("/recommendations/{applied_id}/measure", response_model=MetaMeasureResponse)
+@router.post("/recommendations/{applied_id}/measure")
 async def measure_effectiveness(applied_id: int):
     """Measure effectiveness of applied recommendation"""
     from ..meta_loop_engine import recommendation_applicator
     return await recommendation_applicator.measure_after_metrics(applied_id)
 
-@router.get("/recommendations/stats", response_model=MetaRecommendationStatsResponse)
+@router.get("/recommendations/stats")
 async def get_recommendation_stats():
     """Get statistics about recommendations"""
     async with async_session() as session:
@@ -254,7 +252,7 @@ async def get_recommendation_stats():
             "average_effectiveness": round(avg_eff, 2)
         }
 
-@router.get("/performance", response_model=MetaPerformanceResponse)
+@router.get("/performance")
 async def get_performance_metrics():
     """Get meta-loop performance analytics"""
     async with async_session() as session:

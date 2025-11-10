@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.sql import func
-from typing import Optional, List
+from typing import Optional
 import os
 import time
 from collections import deque
@@ -14,19 +14,7 @@ from ..logging_utils import log_event
 from ..rate_limit import rate_limited
 from ..constitutional_verifier import constitutional_verifier
 from ..governance import governance_engine
-from ..action_executor import ActionExecutor
-from ..trigger_mesh import trigger_mesh, TriggerEvent
-from ..schemas import (
-    GovernanceCheckResponse, ApprovalResponse, ApprovalStatsResponse, SuccessResponse,
-    PolicyListResponse, PolicyCreateResponse, AuditLogListResponse, ConfigListResponse,
-    PolicyItem, AuditLogItem
-)
-from datetime import datetime, timezone
-
 router = APIRouter(prefix="/api/governance", tags=["governance"])
-
-# Executor instance for approval-to-execution
-action_executor = ActionExecutor()
 
 class PolicyCreate(BaseModel):
     name: str
@@ -100,7 +88,7 @@ def _deciders_allowlist() -> Optional[set]:
         return None
     return {u.strip() for u in raw.split(",") if u.strip()}
 
-@router.get("/policies", response_model=List[PolicyItem])
+@router.get("/policies")
 async def list_policies():
     async with async_session() as session:
         result = await session.execute(select(GovernancePolicy))
@@ -116,7 +104,7 @@ async def list_policies():
             for p in result.scalars().all()
         ]
 
-@router.post("/policies", response_model=PolicyCreateResponse)
+@router.post("/policies")
 @verify_action("policy_create", lambda data: data.get("name", "unknown"))
 async def create_policy(data: PolicyCreate, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
@@ -132,7 +120,7 @@ async def create_policy(data: PolicyCreate, current_user: str = Depends(get_curr
         await session.refresh(policy)
         return {"id": policy.id, "name": policy.name}
 
-@router.get("/audit", response_model=List[AuditLogItem])
+@router.get("/audit")
 async def list_audit(limit: int = 100):
     async with async_session() as session:
         result = await session.execute(
@@ -151,7 +139,7 @@ async def list_audit(limit: int = 100):
             for log in result.scalars().all()
         ]
 
-@router.post("/approvals", response_model=ApprovalResponse)
+@router.post("/approvals")
 async def create_approval(data: ApprovalCreate, request: Request, current_user: str = Depends(get_current_user)):
     # Build payload for verification/governance checks
     payload = data.dict()
@@ -207,7 +195,7 @@ async def create_approval(data: ApprovalCreate, request: Request, current_user: 
     result_dict["_verification_id"] = action_id
     return result_dict
 
-@router.get("/approvals/stats", response_model=ApprovalStatsResponse)
+@router.get("/approvals/stats")
 async def approvals_stats(current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         # Simple counts by status
@@ -218,7 +206,7 @@ async def approvals_stats(current_user: str = Depends(get_current_user)):
             counts[s] = counts.get(s, 0) + 1
         return counts
 
-@router.get("/approvals/{request_id}", response_model=ApprovalResponse)
+@router.get("/approvals/{request_id}")
 async def get_approval(request_id: int, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         req = await session.get(ApprovalRequest, request_id)
@@ -236,7 +224,7 @@ async def get_approval(request_id: int, current_user: str = Depends(get_current_
             "decided_at": req.decided_at,
         }
 
-@router.get("/approvals", response_model=List[ApprovalResponse])
+@router.get("/approvals")
 async def list_approvals(status: Optional[str] = None, requested_by: Optional[str] = None, limit: int = 50, current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         stmt = select(ApprovalRequest).order_by(ApprovalRequest.created_at.desc()).limit(limit)
@@ -257,7 +245,7 @@ async def list_approvals(status: Optional[str] = None, requested_by: Optional[st
             for req in result.scalars().all()
         ]
 
-@router.post("/approvals/{request_id}/decision", response_model=ApprovalResponse)
+@router.post("/approvals/{request_id}/decision")
 async def decide(request_id: int, body: ApprovalDecision, request: Request, current_user: str = Depends(get_current_user)):
     # RBAC allowlist: enforce only if APPROVAL_DECIDERS is set
     deciders = _deciders_allowlist()
@@ -339,6 +327,7 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
         request_id=req_id or None,
         verification_id=action_id,
     )
+=======
     
     # If approved, auto-execute via execute_verified_action
     if body.decision == "approve":
@@ -363,12 +352,14 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
                 # Execute the approved action (in background to avoid blocking response)
                 # Note: In production, this should be handled by a background task
                 # For now, we just publish the event for InputSentinel to pick up
+>>>>>>> origin/main
 
     result_dict["_verification_id"] = action_id
     return result_dict
 
-@router.get("/approvals/stats/duplicate", response_model=ApprovalStatsResponse)
-async def approvals_stats_duplicate(current_user: str = Depends(get_current_user)):
+<<<<<<< HEAD
+@router.get("/approvals/stats")
+async def approvals_stats(current_user: str = Depends(get_current_user)):
     async with async_session() as session:
         # Simple counts by status
         result = await session.execute(select(ApprovalRequest.status))

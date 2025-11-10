@@ -1,4 +1,4 @@
-﻿"""Grace Complete Self-Awareness System
+"""Grace Complete Self-Awareness System
 
 Grace understands her ENTIRE system - all 13 phases, every component.
 
@@ -679,12 +679,12 @@ class GraceCompleteKnowledgeBase:
             
             components_taught += 1
             
-            print(f"[OK] Phase {knowledge['phase']}: {component_name}")
+            print(f"✓ Phase {knowledge['phase']}: {component_name}")
             print(f"  What: {knowledge['what'][:60]}...")
             print()
         
         print("="*70)
-        print(f"[OK] GRACE NOW KNOWS HERSELF COMPLETELY")
+        print(f"✓ GRACE NOW KNOWS HERSELF COMPLETELY")
         print("="*70)
         print(f"\nComponents understood: {components_taught}")
         print(f"Phases covered: 1-13 (all)")

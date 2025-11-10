@@ -1,4 +1,4 @@
-﻿"""
+"""
 Ethics & Compliance Sentinel - Oversight and alignment guardian
 
 Watches the immutable ledger for systemic bias, rule violations, and policy drift.
@@ -7,7 +7,7 @@ policy boundaries. Keeps agentic behavior aligned with trust commitments.
 """
 
 import asyncio
-from typing import Dict, List, Optional, Any, Set, Tuple
+from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -583,12 +583,12 @@ class EthicsSentinel:
         
         await self._register_default_rules()
         
-        trigger_mesh.subscribe("*", self._monitor_action)
+        await trigger_mesh.subscribe("*", self._monitor_action)
         
         asyncio.create_task(self._ethics_loop())
         
         self.running = True
-        print("[OK] Ethics & Compliance Sentinel started - Watching for violations")
+        print("✓ Ethics & Compliance Sentinel started - Watching for violations")
     
     async def stop(self):
         """Stop ethics sentinel"""

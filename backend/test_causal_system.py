@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test causal graph construction and inference
 Demonstrates graph building, causal reasoning, and integration
 """
@@ -18,7 +18,7 @@ async def setup_test_data():
     async with async_session() as session:
         existing_msgs = await session.execute(select(ChatMessage))
         if existing_msgs.scalars().all():
-            print("[OK] Using existing data")
+            print("✓ Using existing data")
             return
         
         print("Creating test scenario...")
@@ -99,7 +99,7 @@ async def setup_test_data():
         session.add(auto_task)
         
         await session.commit()
-        print("[OK] Created test scenario with messages and tasks")
+        print("✓ Created test scenario with messages and tasks")
 
 async def test_graph_construction():
     """Test: Build causal graph from events"""
@@ -114,7 +114,7 @@ async def test_graph_construction():
     
     nodes_added = await graph.build_from_events(start, end, user="test_user")
     
-    print(f"\n[OK] Graph built successfully")
+    print(f"\n✓ Graph built successfully")
     print(f"  Nodes: {len(graph.nodes)}")
     print(f"  Edges: {len(graph.edges)}")
     
@@ -153,7 +153,7 @@ async def test_causal_inference(graph: CausalGraph):
         print(f"\nAnalyzing task: {task_node.metadata.get('title', 'Unknown')}")
         
         causes = graph.find_causes(task_node.event_id, task_node.event_type, max_depth=3)
-        print(f"\n[OK] Found {len(causes)} causal events leading to task creation:")
+        print(f"\n✓ Found {len(causes)} causal events leading to task creation:")
         for i, cause in enumerate(causes[:5], 1):
             print(f"  {i}. {cause['event_type']} (strength: {cause['strength']:.2f}, depth: {cause['depth']})")
             if cause.get('metadata'):
@@ -162,7 +162,7 @@ async def test_causal_inference(graph: CausalGraph):
                     print(f"     Content: {content[:60]}...")
         
         effects = graph.find_effects(task_node.event_id, task_node.event_type, max_depth=2)
-        print(f"\n[OK] Found {len(effects)} effects caused by task:")
+        print(f"\n✓ Found {len(effects)} effects caused by task:")
         for i, effect in enumerate(effects[:3], 1):
             print(f"  {i}. {effect['event_type']} (strength: {effect['strength']:.2f})")
         
@@ -174,9 +174,9 @@ async def test_causal_inference(graph: CausalGraph):
         completed = completed_nodes[0]
         root_causes = graph.find_causes(completed.event_id, completed.event_type, max_depth=3)
         deep_causes = [c for c in root_causes if c['depth'] >= 2]
-        print(f"[OK] Found {len(deep_causes)} root causes (depth ≥ 2)")
+        print(f"✓ Found {len(deep_causes)} root causes (depth ≥ 2)")
         for cause in deep_causes[:3]:
-            print(f"  - {cause['event_type']} -> {cause['relationship']}")
+            print(f"  - {cause['event_type']} → {cause['relationship']}")
 
 async def test_influence_calculation(graph: CausalGraph):
     """Test: Calculate event influence scores"""
@@ -186,7 +186,7 @@ async def test_influence_calculation(graph: CausalGraph):
     
     influential = graph.get_most_influential_events(limit=5)
     
-    print(f"\n[OK] Most influential events:")
+    print(f"\n✓ Most influential events:")
     for i, event in enumerate(influential, 1):
         print(f"  {i}. {event['event_type']} (influence: {event['influence']:.2f})")
         if event.get('metadata'):
@@ -196,7 +196,7 @@ async def test_influence_calculation(graph: CausalGraph):
     
     if influential:
         assert influential[0]['influence'] >= 0, "Influence should be non-negative"
-        print(f"\n[OK] Highest influence score: {influential[0]['influence']:.2f}")
+        print(f"\n✓ Highest influence score: {influential[0]['influence']:.2f}")
 
 async def test_feedback_loops(graph: CausalGraph):
     """Test: Detect feedback loops"""
@@ -206,7 +206,7 @@ async def test_feedback_loops(graph: CausalGraph):
     
     cycles = graph.detect_cycles()
     
-    print(f"\n[OK] Found {len(cycles)} feedback loops")
+    print(f"\n✓ Found {len(cycles)} feedback loops")
     
     if cycles:
         for i, cycle in enumerate(cycles[:3], 1):
@@ -232,9 +232,9 @@ async def test_path_finding(graph: CausalGraph):
         )
         
         if path:
-            print(f"\n[OK] Found causal path (length: {len(path)}):")
+            print(f"\n✓ Found causal path (length: {len(path)}):")
             for i, step in enumerate(path, 1):
-                print(f"  {i}. {step['from_event_type']} -> {step['to_event_type']}")
+                print(f"  {i}. {step['from_event_type']} → {step['to_event_type']}")
                 print(f"     Strength: {step['strength']:.2f}, Relation: {step['relationship']}")
         else:
             print("\n  No direct path found between user message and task")
@@ -249,7 +249,7 @@ async def test_analyzer_task_completion():
     
     analysis = await causal_analyzer.analyze_task_completion(user="test_user", days=1)
     
-    print(f"\n[OK] Analysis completed:")
+    print(f"\n✓ Analysis completed:")
     print(f"  Total completed: {analysis['total_completed']}")
     print(f"  Total pending: {analysis['total_pending']}")
     print(f"  Completion rate: {analysis['completion_rate']*100:.1f}%")
@@ -272,7 +272,7 @@ async def test_analyzer_feedback_loops():
     
     analysis = await causal_analyzer.analyze_feedback_loops(user="test_user", days=1)
     
-    print(f"\n[OK] Loop analysis:")
+    print(f"\n✓ Loop analysis:")
     print(f"  Total cycles: {analysis['total_cycles']}")
     print(f"  Reinforcing loops: {len(analysis['reinforcing_loops'])}")
     print(f"  Balancing loops: {len(analysis['balancing_loops'])}")
@@ -298,7 +298,7 @@ async def test_graph_visualization():
     
     viz_data = graph.export_for_visualization()
     
-    print(f"\n[OK] Visualization data generated:")
+    print(f"\n✓ Visualization data generated:")
     print(f"  Nodes: {len(viz_data['nodes'])}")
     print(f"  Edges: {len(viz_data['edges'])}")
     print(f"  Average edge strength: {viz_data['stats']['avg_edge_strength']:.2f}")
@@ -333,7 +333,7 @@ async def test_optimization_insight():
         days=1
     )
     
-    print(f"\n[OK] Optimization analysis:")
+    print(f"\n✓ Optimization analysis:")
     print(f"  Metric: {analysis['metric']}")
     print(f"  Paths analyzed: {len(analysis['optimization_paths'])}")
     
@@ -374,19 +374,19 @@ async def main():
     await test_optimization_insight()
     
     print("\n" + "="*60)
-    print("[OK] ALL TESTS PASSED")
+    print("✓ ALL TESTS PASSED")
     print("="*60)
     print("\nCausal graph system is working correctly!")
     print("\nKey capabilities demonstrated:")
-    print("  [OK] Graph construction from events")
-    print("  [OK] Causal inference (causes & effects)")
-    print("  [OK] Influence calculation")
-    print("  [OK] Feedback loop detection")
-    print("  [OK] Path finding between events")
-    print("  [OK] Task completion analysis")
-    print("  [OK] Optimization recommendations")
-    print("  [OK] Visualization data export")
-    print("  [OK] Meta-loop integration")
+    print("  ✓ Graph construction from events")
+    print("  ✓ Causal inference (causes & effects)")
+    print("  ✓ Influence calculation")
+    print("  ✓ Feedback loop detection")
+    print("  ✓ Path finding between events")
+    print("  ✓ Task completion analysis")
+    print("  ✓ Optimization recommendations")
+    print("  ✓ Visualization data export")
+    print("  ✓ Meta-loop integration")
     print("\nAPI Endpoints available at:")
     print("  POST /api/causal/build-graph")
     print("  GET  /api/causal/causes/{event_id}")

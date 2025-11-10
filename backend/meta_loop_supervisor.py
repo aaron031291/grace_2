@@ -17,7 +17,9 @@ import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
+=======
 from .unified_logger import unified_logger
+>>>>>>> origin/main
 
 
 class DirectiveType(Enum):
@@ -65,9 +67,7 @@ class CrossDomainSnapshot:
     strategic_goals: Dict[str, float]
     goal_gaps: Dict[str, float]
     systemic_patterns: List[Dict]
-    focus_recommendation: str = "routine_maintenance"
-    guardrails_recommendation: str = "maintain"
-    ml_root_causes: List[str] = None
+<<<<<<< HEAD
 
 
 @dataclass
@@ -159,33 +159,13 @@ class SnapshotBuilder:
     
     async def _get_active_domains(self) -> List[str]:
         """Get list of active domains"""
-        from .agent_core import agent_core
-        
-        # Return actual registered domains
-        return list(agent_core.domains.keys()) if agent_core.domains else ["core"]
+        return ["infrastructure", "application", "security", "data"]
     
     async def _build_domain_snapshot(self, domain_id: str) -> DomainSnapshot:
         """Build snapshot for a single domain"""
         
-        from .agent_core import agent_core
-        
-        # Get metrics from domain adapter if registered
-        if domain_id in agent_core.domains:
-            domain_metrics = await agent_core.domains[domain_id].collect_metrics()
-            kpis = {
-                "health_score": domain_metrics.health_score,
-                "active_tasks": float(domain_metrics.active_tasks),
-                "success_rate": (
-                    domain_metrics.completed_tasks_24h / 
-                    (domain_metrics.completed_tasks_24h + domain_metrics.failed_tasks_24h)
-                ) if (domain_metrics.completed_tasks_24h + domain_metrics.failed_tasks_24h) > 0 else 1.0,
-                "error_rate": domain_metrics.error_rate,
-                **domain_metrics.custom_metrics
-            }
-        else:
-            kpis = await self._get_domain_kpis(domain_id)
-        
         health_state = await self._get_health_state(domain_id)
+        kpis = await self._get_domain_kpis(domain_id)
         playbooks = await self._get_active_playbooks(domain_id)
         success_rates = await self._get_success_rates(domain_id)
         drift = await self._calculate_drift_trends(domain_id, kpis)
@@ -675,12 +655,12 @@ class MetaLoopSupervisor:
         
         await self._register_default_policies()
         
-        trigger_mesh.subscribe("meta.*", self._handle_meta_event)
+        await trigger_mesh.subscribe("meta.*", self._handle_meta_event)
         
         self.running = True
         asyncio.create_task(self._supervisor_loop())
         
-        print("[OK] Meta Loop Supervisor started - Watching spine behavior")
+        print("✓ Meta Loop Supervisor started - Watching spine behavior")
     
     async def stop(self):
         """Stop meta loop supervisor"""
@@ -735,58 +715,29 @@ class MetaLoopSupervisor:
     async def _supervisor_loop(self):
         """Main supervisory cycle"""
         
-        cycle_number = 0
-        
         while self.running:
             try:
-                cycle_number += 1
-                cycle_start = datetime.utcnow()
-                
-                print(f"\n[Meta Loop] Starting supervisory cycle at {cycle_start.strftime('%H:%M:%S')}")
+                print(f"\n[Meta Loop] Starting supervisory cycle at {datetime.utcnow().strftime('%H:%M:%S')}")
                 
                 snapshot = await self.snapshot_builder.build_snapshot()
-                print(f"  -> Built cross-domain snapshot: {len(snapshot.domain_snapshots)} domains")
+                print(f"  → Built cross-domain snapshot: {len(snapshot.domain_snapshots)} domains")
                 
                 directives = await self.strategy_engine.analyze_and_decide(snapshot)
-                print(f"  -> Strategy engine issued {len(directives)} directives")
-                
-                directives_executed = 0
-                directives_successful = 0
+                print(f"  → Strategy engine issued {len(directives)} directives")
                 
                 for directive in directives:
                     await self.directive_pipeline.submit_directive(directive)
-                    print(f"    * {directive.directive_type.value}: {directive.justification}")
+                    print(f"    • {directive.directive_type.value}: {directive.justification}")
                     
-                    if directive.executed:
-                        directives_executed += 1
-                        if not directive.requires_approval:
-                            directives_successful += 1
-                            asyncio.create_task(
-                                self.verification_layer.verify_directive(directive, snapshot)
-                            )
-                
-                cycle_end = datetime.utcnow()
-                duration = (cycle_end - cycle_start).total_seconds()
-                
-                # Log to unified logger
-                await unified_logger.log_meta_loop_cycle(
-                    cycle_number=cycle_number,
-                    focus_area=snapshot.focus_recommendation,
-                    guardrails_mode=snapshot.guardrails_recommendation,
-                    ml_root_causes=snapshot.ml_root_causes,
-                    directives_issued=[d.directive_type.value for d in directives],
-                    directives_executed=directives_executed,
-                    directives_successful=directives_successful,
-                    duration=duration,
-                    domains_analyzed=len(snapshot.domain_snapshots),
-                    outcome='success',
-                    completed_at=cycle_end
-                )
+                    if directive.executed and not directive.requires_approval:
+                        asyncio.create_task(
+                            self.verification_layer.verify_directive(directive, snapshot)
+                        )
                 
                 await self._publish_summary(snapshot, directives)
                 
             except Exception as e:
-                print(f"[FAIL] Meta loop cycle error: {e}")
+                print(f"✗ Meta loop cycle error: {e}")
             
             await asyncio.sleep(self.cycle_interval_seconds)
     

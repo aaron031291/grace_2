@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey, JSON
 from sqlalchemy.sql import func
-from ...base_models import Base
+from ...models import Base
 
 
 class StripeTransaction(Base):

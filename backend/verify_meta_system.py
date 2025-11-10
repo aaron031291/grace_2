@@ -1,4 +1,4 @@
-﻿"""
+"""
 Quick Verification of Meta-Loop System Components
 Checks that all pieces are in place without running full workflow
 """
@@ -47,26 +47,26 @@ def verify_system():
     
     try:
         from grace_rebuild.backend import meta_loop_engine
-        print("[OK] meta_loop_engine")
+        print("✓ meta_loop_engine")
         results["imports"].append(("meta_loop_engine", True))
     except Exception as e:
-        print(f"[FAIL] meta_loop_engine: {e}")
+        print(f"✗ meta_loop_engine: {e}")
         results["imports"].append(("meta_loop_engine", False))
     
     try:
         from grace_rebuild.backend import meta_loop_approval
-        print("[OK] meta_loop_approval")
+        print("✓ meta_loop_approval")
         results["imports"].append(("meta_loop_approval", True))
     except Exception as e:
-        print(f"[FAIL] meta_loop_approval: {e}")
+        print(f"✗ meta_loop_approval: {e}")
         results["imports"].append(("meta_loop_approval", False))
     
     try:
         from grace_rebuild.backend.routes import meta_api
-        print("[OK] routes.meta_api")
+        print("✓ routes.meta_api")
         results["imports"].append(("routes.meta_api", True))
     except Exception as e:
-        print(f"[FAIL] routes.meta_api: {e}")
+        print(f"✗ routes.meta_api: {e}")
         results["imports"].append(("routes.meta_api", False))
     
     # Check classes exist
@@ -75,20 +75,20 @@ def verify_system():
     
     try:
         from grace_rebuild.backend.meta_loop_engine import RecommendationApplicator, AppliedRecommendation
-        print("[OK] RecommendationApplicator")
-        print("[OK] AppliedRecommendation")
+        print("✓ RecommendationApplicator")
+        print("✓ AppliedRecommendation")
         results["database_models"].append(("AppliedRecommendation", True))
     except Exception as e:
-        print(f"[FAIL] RecommendationApplicator/AppliedRecommendation: {e}")
+        print(f"✗ RecommendationApplicator/AppliedRecommendation: {e}")
         results["database_models"].append(("AppliedRecommendation", False))
     
     try:
         from grace_rebuild.backend.meta_loop_approval import ApprovalQueue, RecommendationQueue
-        print("[OK] ApprovalQueue")
-        print("[OK] RecommendationQueue")
+        print("✓ ApprovalQueue")
+        print("✓ RecommendationQueue")
         results["database_models"].append(("RecommendationQueue", True))
     except Exception as e:
-        print(f"[FAIL] ApprovalQueue/RecommendationQueue: {e}")
+        print(f"✗ ApprovalQueue/RecommendationQueue: {e}")
         results["database_models"].append(("RecommendationQueue", False))
     
     # Check methods exist
@@ -110,10 +110,10 @@ def verify_system():
         
         for method in methods:
             has_method = hasattr(recommendation_applicator, method)
-            status = "[OK]" if has_method else "[FAIL]"
+            status = "✓" if has_method else "✗"
             print(f"{status} recommendation_applicator.{method}")
     except Exception as e:
-        print(f"[FAIL] Could not check methods: {e}")
+        print(f"✗ Could not check methods: {e}")
     
     # Check API endpoints
     print("\n[5] API ENDPOINT CHECKS")
@@ -139,11 +139,11 @@ def verify_system():
         all_routes = "\n".join(endpoints)
         for exp in expected:
             found = exp in all_routes
-            status = "[OK]" if found else "[FAIL]"
+            status = "✓" if found else "✗"
             print(f"{status} {exp}")
             results["api_endpoints"].append((exp, found))
     except Exception as e:
-        print(f"[FAIL] Could not check endpoints: {e}")
+        print(f"✗ Could not check endpoints: {e}")
     
     # Check safety limits
     print("\n[6] SAFETY LIMITS")
@@ -153,11 +153,11 @@ def verify_system():
         from grace_rebuild.backend.meta_loop_engine import recommendation_applicator
         limits = recommendation_applicator.safety_limits
         
-        print(f"[OK] Task threshold: {limits['task_threshold']['min']}-{limits['task_threshold']['max']}")
-        print(f"[OK] Reflection interval: {limits['reflection_interval']['min']}-{limits['reflection_interval']['max']}")
-        print(f"[OK] Task priority: {limits['task_priority']['min']}-{limits['task_priority']['max']}")
+        print(f"✓ Task threshold: {limits['task_threshold']['min']}-{limits['task_threshold']['max']}")
+        print(f"✓ Reflection interval: {limits['reflection_interval']['min']}-{limits['reflection_interval']['max']}")
+        print(f"✓ Task priority: {limits['task_priority']['min']}-{limits['task_priority']['max']}")
     except Exception as e:
-        print(f"[FAIL] Could not check safety limits: {e}")
+        print(f"✗ Could not check safety limits: {e}")
     
     # Summary
     print("\n" + "=" * 80)
@@ -179,9 +179,9 @@ def verify_system():
     if all_ok:
         print("\n🎉 ALL CHECKS PASSED - System Ready!")
     else:
-        print("\n[WARN]  Some checks failed - Review above")
+        print("\n⚠️  Some checks failed - Review above")
     
-    print("\n[INFO] Documentation:")
+    print("\n📚 Documentation:")
     print("  - Full guide: grace_rebuild/backend/META_LOOP_SYSTEM.md")
     print("  - Quick ref: grace_rebuild/META_LOOP_QUICK_REFERENCE.md")
     print("  - Summary: grace_rebuild/META_LOOP_ACTIVATION_SUMMARY.md")

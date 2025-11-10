@@ -1,4 +1,4 @@
-﻿"""
+"""
 Human Collaboration Interface - Concise signed briefs and proactive engagement
 
 Provides signed briefs in incident channels so humans understand rationale.
@@ -72,7 +72,7 @@ class SignedBrief:
 {self.context}
 ```
 
-{'**[WARN] APPROVAL REQUIRED' + (f' by {self.deadline.strftime("%H:%M:%S")}' if self.deadline else '') + '**' if self.approval_required else '**ℹ️ Informational Only**'}
+{'**⚠️ APPROVAL REQUIRED' + (f' by {self.deadline.strftime("%H:%M:%S")}' if self.deadline else '') + '**' if self.approval_required else '**ℹ️ Informational Only**'}
 
 ---
 *Signed: {self.signature}*
@@ -519,11 +519,7 @@ class HumanCollaboration:
     async def start(self):
         """Start human collaboration system"""
         asyncio.create_task(self._monitor_deadlines())
-        print("[OK] Human Collaboration Interface started")
-    
-    async def stop(self):
-        """Stop human collaboration system"""
-        pass
+        print("✓ Human Collaboration Interface started")
     
     async def notify_incident(
         self,

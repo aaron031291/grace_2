@@ -1,4 +1,4 @@
-﻿"""Test the alert severity ML prediction system"""
+"""Test the alert severity ML prediction system"""
 
 import asyncio
 import json
@@ -24,7 +24,7 @@ async def setup_test_rule():
         )
         session.add(rule)
         await session.commit()
-        print("[OK] Test security rule created")
+        print("✓ Test security rule created")
 
 
 async def test_ml_integration():
@@ -50,7 +50,7 @@ async def test_ml_integration():
         print(f"❌ Training failed: {result}")
         return
     
-    print(f"[OK] Model trained successfully!")
+    print(f"✓ Model trained successfully!")
     print(f"  - Accuracy: {result['accuracy']:.2%}")
     print(f"  - Training samples: {result['training_samples']}")
     print(f"  - Test samples: {result['test_samples']}")
@@ -96,7 +96,7 @@ async def test_ml_integration():
         )
         
         if triggered:
-            print(f"   [OK] Alert triggered: {len(triggered)} rule(s)")
+            print(f"   ✓ Alert triggered: {len(triggered)} rule(s)")
             
             async with async_session() as session:
                 from backend.governance_models import SecurityEvent
@@ -115,7 +115,7 @@ async def test_ml_integration():
                     
                     print(f"   Severity: {event.severity}")
                     if ml_pred.get('ml_used'):
-                        print(f"   [AI] ML-predicted (confidence: {ml_pred['confidence']:.2%})")
+                        print(f"   🤖 ML-predicted (confidence: {ml_pred['confidence']:.2%})")
                     else:
                         print(f"   📋 Rule-based (ML confidence too low: {ml_pred.get('confidence', 0):.2%})")
                     
@@ -126,19 +126,19 @@ async def test_ml_integration():
                         'confidence': ml_pred.get('confidence', 0)
                     })
         else:
-            print(f"   [WARN] No alerts triggered")
+            print(f"   ⚠️ No alerts triggered")
     
     print("\n" + "=" * 70)
     print("Test Summary")
     print("=" * 70)
     
     for result in results:
-        ml_icon = "[AI]" if result['ml_used'] else "📋"
+        ml_icon = "🤖" if result['ml_used'] else "📋"
         print(f"{ml_icon} {result['test_case']}")
         print(f"   Severity: {result['severity']}, Confidence: {result['confidence']:.2%}")
     
     print("\n" + "=" * 70)
-    print("[OK] ML integration test complete!")
+    print("✓ ML integration test complete!")
     print("=" * 70)
 
 
@@ -161,7 +161,7 @@ async def test_prediction_accuracy():
         test_events = result.scalars().all()
     
     if len(test_events) < 5:
-        print("[WARN] Not enough events for accuracy test")
+        print("⚠️ Not enough events for accuracy test")
         return
     
     correct = 0
@@ -185,7 +185,7 @@ async def test_prediction_accuracy():
             correct += 1
         total += 1
         
-        icon = "[OK]" if match else "[FAIL]"
+        icon = "✓" if match else "✗"
         print(f"{icon} Actual: {actual_severity:8s} | Predicted: {predicted_severity:8s} (confidence: {confidence:.2%})")
     
     accuracy = (correct / total) * 100 if total > 0 else 0

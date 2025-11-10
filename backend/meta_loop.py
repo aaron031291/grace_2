@@ -52,13 +52,13 @@ class MetaLoopEngine:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._loop())
-            print(f"[OK] Meta-loop started (Level 1 optimization, interval: {self.interval}s)")
+            print(f"✓ Meta-loop started (Level 1 optimization, interval: {self.interval}s)")
     
     async def stop(self):
         self._running = False
         if self._task:
             self._task.cancel()
-        print("[OK] Meta-loop stopped")
+        print("✓ Meta-loop stopped")
     
     async def _loop(self):
         try:
@@ -112,7 +112,7 @@ class MetaLoopEngine:
             
             if analyses:
                 await session.commit()
-                print(f"[META] Meta-loop: Generated {len(analyses)} actionable recommendations")
+                print(f"🔄 Meta-loop: Generated {len(analyses)} actionable recommendations")
     
     async def _submit_actionable_recommendation(self, meta: MetaAnalysis, analysis: Dict):
         """Convert analysis to actionable recommendation and queue for approval"""
@@ -246,7 +246,7 @@ class MetaMetaEngine:
             session.add(eval)
             await session.commit()
             
-            print(f"[META-META] Meta-meta: {metric_name} changed {improvement:+.1f}% - {conclusion}")
+            print(f"🔄🔄 Meta-meta: {metric_name} changed {improvement:+.1f}% - {conclusion}")
             
             if improvement < -20:
                 from .trigger_mesh import trigger_mesh, TriggerEvent

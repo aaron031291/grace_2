@@ -1,4 +1,4 @@
-﻿"""
+"""
 GRACE Autonomy Activation Script
 
 Quick starter to activate GRACE's agentic spine with example playbooks,
@@ -18,7 +18,7 @@ from .proactive_intelligence import proactive_intelligence
 async def register_example_playbooks():
     """Register example recovery playbooks"""
     
-    print("\n[INFO] Registering example playbooks...")
+    print("\n📚 Registering example playbooks...")
     
     restart_playbook = Playbook(
         playbook_id="restart_degraded_service",
@@ -104,7 +104,7 @@ async def register_example_playbooks():
     )
     await agentic_spine.planner.register_playbook(database_failover)
     
-    print("  [OK] Registered 3 playbooks")
+    print("  ✓ Registered 3 playbooks")
 
 
 async def register_example_health_nodes():
@@ -180,7 +180,7 @@ async def register_example_health_nodes():
     )
     await agentic_spine.health_graph.register_node(frontend)
     
-    print("  [OK] Registered 4 health nodes")
+    print("  ✓ Registered 4 health nodes")
 
 
 async def register_example_compliance_rules():
@@ -235,7 +235,7 @@ async def register_example_compliance_rules():
     )
     await ethics_sentinel.policy_monitor.register_rule(high_cost_approval)
     
-    print("  [OK] Registered 3 compliance rules")
+    print("  ✓ Registered 3 compliance rules")
 
 
 async def main():
@@ -261,16 +261,16 @@ async def main():
     print(f"✅ Capabilities: {len(status['capabilities'])}")
     
     print("\n📊 Meta Loop Supervisor:")
-    print(f"  * Monitoring {len(await meta_loop_supervisor.snapshot_builder._get_active_domains())} domains")
-    print(f"  * Running {len(meta_loop_supervisor.strategy_engine.policies)} meta policies")
-    print(f"  * Cycle interval: {meta_loop_supervisor.cycle_interval_seconds}s")
+    print(f"  • Monitoring {len(await meta_loop_supervisor.snapshot_builder._get_active_domains())} domains")
+    print(f"  • Running {len(meta_loop_supervisor.strategy_engine.policies)} meta policies")
+    print(f"  • Cycle interval: {meta_loop_supervisor.cycle_interval_seconds}s")
     
     print("\n🔮 Proactive Intelligence:")
-    print(f"  * Anomaly forecasting: 30-60min ahead")
-    print(f"  * Capacity prediction: Active")
-    print(f"  * Risk assessment: Continuous")
-    print(f"  * Drift detection: Real-time")
-    print(f"  * Prediction cycle: Every {proactive_intelligence.prediction_interval_seconds}s")
+    print(f"  • Anomaly forecasting: 30-60min ahead")
+    print(f"  • Capacity prediction: Active")
+    print(f"  • Risk assessment: Continuous")
+    print(f"  • Drift detection: Real-time")
+    print(f"  • Prediction cycle: Every {proactive_intelligence.prediction_interval_seconds}s")
     
     print("\n" + "=" * 70)
     print(" MONITORING (Ctrl+C to stop)")

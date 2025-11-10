@@ -1,4 +1,4 @@
-﻿"""Grace Architect Agent - Amp-like Agent for Grace Development
+"""Grace Architect Agent - Amp-like Agent for Grace Development
 
 A specialized coding agent that deeply understands Grace's architecture,
 patterns, and can autonomously extend Grace's capabilities.

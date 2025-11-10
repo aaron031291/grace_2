@@ -10,18 +10,17 @@ from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, Secu
 from .task_executor import ExecutionTask
 from .issue_models import IssueReport
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
+from .immutable_log import ImmutableLogEntry
 from .mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact
 from .lightning_fusion_models import CryptoIdentity, FusionMemoryFragment, LightningMemoryCache, ComponentCryptoRegistration, DiagnosticTrace, VerificationAuditLog
 from .trusted_sources import TrustedSource
-from .verification import VerificationEnvelope
 from .ml_models_table import MLModel, TrainingRun
 from .temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly, PredictionRecord
 from .cognition.models import MemoryArtifact as CognitionMemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
-# Transcendence business models imported in main.py to avoid circular import
-# from .transcendence.business.models import StripeTransaction, StripeWebhook, PaymentMethod, MarketplaceJob, MarketplaceProposal, MarketplaceMessage, MarketplaceDeliverable
+from .transcendence.business.models import StripeTransaction, StripeWebhook, PaymentMethod, MarketplaceJob, MarketplaceProposal, MarketplaceMessage, MarketplaceDeliverable
 from .goal_models import GoalDependency, GoalEvaluation
 
 class User(Base):

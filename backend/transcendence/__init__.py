@@ -1,4 +1,4 @@
-﻿"""Transcendence - Unified Intelligence System
+"""Transcendence - Unified Intelligence System
 
 Everything under one roof:
 - Memory -> Learning -> Knowledge -> Action

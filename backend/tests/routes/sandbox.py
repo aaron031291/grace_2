@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from ..auth import get_current_user
@@ -68,7 +68,7 @@ async def run_command(
     
     alerts = await hunter.inspect(current_user, "sandbox_run", req.command, req.dict())
     if alerts:
-        print(f"[WARN] Security alerts triggered: {len(alerts)}")
+        print(f"⚠️ Security alerts triggered: {len(alerts)}")
     
     stdout, stderr, exit_code, duration = await sandbox_manager.run_command(
         current_user,

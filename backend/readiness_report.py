@@ -1,4 +1,4 @@
-﻿"""
+"""
 SaaS Readiness Report Generator
 Generates comprehensive Markdown and PDF reports when Grace hits 90%
 """

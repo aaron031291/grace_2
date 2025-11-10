@@ -1,484 +1,92 @@
-# GRACE Metrics Catalog
-# Production-ready metric definitions for autonomous monitoring
+# Metrics and Playbooks Catalog
+# This catalog is consumed during the bootstrap loop to validate required governance fields
+# Required fields per entry: playbook_id, risk_level, autonomy_tier, verification_hooks
 
-metrics:
-  # Unified Logic Hub Metrics
-  - metric_id: logic_hub.update_submitted
-    category: logic_hub
-    description: "Updates submitted to unified logic hub"
-    unit: count
-    aggregation: count
-    thresholds:
-      good: { upper: 100 }
-      warning: { lower: 100, upper: 500 }
-      critical: { lower: 500 }
-    playbooks: []
-    playbook_id: null
-    risk_level: low
-    autonomy_tier: 1
-    verification_hooks: []
-    recommended_interval_seconds: 300
-    source: internal
-    resource_scope: service
-    tags: [logic_hub, updates]
+version: 1
+updated_at: 2025-11-09T19:27:00Z
 
-  - metric_id: logic_hub.update_latency_p95
-    category: logic_hub
-    description: "95th percentile update pipeline latency"
-    unit: ms
-    aggregation: p95
-    thresholds:
-      good: { upper: 2000 }
-      warning: { lower: 2000, upper: 5000 }
-      critical: { lower: 5000 }
-    playbooks: [investigate-slow-updates]
-    playbook_id: investigate-slow-updates
-    risk_level: medium
-    autonomy_tier: 2
-    verification_hooks: [verify_pipeline_health]
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [logic_hub, latency, updates]
-
-  - metric_id: logic_hub.rollback_rate
-    category: logic_hub
-    description: "Rollback rate (rollbacks / total updates)"
-    unit: ratio
-    aggregation: avg
-    thresholds:
-      good: { upper: 0.01 }
-      warning: { lower: 0.01, upper: 0.05 }
-      critical: { lower: 0.05 }
-    playbooks: [investigate-rollback-spike]
-    playbook_id: investigate-rollback-spike
-    risk_level: high
-    autonomy_tier: 3
-    verification_hooks: [verify_update_quality, check_capa_records]
-    recommended_interval_seconds: 300
-    source: internal
-    resource_scope: service
-    tags: [logic_hub, rollback, quality]
-
-  - metric_id: memory_fusion.crypto_assign_rate
-    category: memory_fusion
-    description: "Crypto assignments per second for memory operations"
-    unit: req_per_sec
-    aggregation: avg
-    thresholds:
-      good: { upper: 1000 }
-      warning: { lower: 1000, upper: 5000 }
-      critical: { lower: 5000 }
-    playbooks: []
-    playbook_id: null
-    risk_level: low
-    autonomy_tier: 1
-    verification_hooks: []
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [memory_fusion, crypto, performance]
-
-  - metric_id: memory_fusion.signature_verification_latency
-    category: memory_fusion
-    description: "Crypto signature verification latency"
-    unit: ms
-    aggregation: avg
-    thresholds:
-      good: { upper: 1 }
-      warning: { lower: 1, upper: 10 }
-      critical: { lower: 10 }
-    playbooks: []
-    playbook_id: null
-    risk_level: low
-    autonomy_tier: 1
-    verification_hooks: []
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [memory_fusion, crypto, latency]
-
-  # API & Gateway Health
-  - metric_id: api.latency_p95
-    category: api
-    description: "95th percentile FastAPI response latency"
-    unit: ms
-    aggregation: p95
-    thresholds:
-      good: { upper: 350 }
-      warning: { lower: 350, upper: 500 }
-      critical: { lower: 500 }
-    playbooks:
-      - scale-api-shard
-      - failover-gateway
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [production, api, latency]
-
-  - metric_id: api.error_rate
-    category: api
-    description: "5xx error rate (errors / total requests)"
-    unit: ratio
-    aggregation: avg
-    thresholds:
-      good: { upper: 0.01 }
-      warning: { lower: 0.01, upper: 0.03 }
-      critical: { lower: 0.03 }
-    playbooks:
-      - restart-workers
-      - engage-remediation
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [production, api, errors]
-
-  - metric_id: api.request_rate
-    category: api
-    description: "Requests per second"
-    unit: req_per_sec
-    aggregation: avg
-    thresholds:
-      good: { upper: 200 }
-      warning: { lower: 200, upper: 400 }
-      critical: { lower: 400 }
-    playbooks:
-      - pre-scale
-      - activate-autoscaling
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: service
-    tags: [production, api, throughput]
-
-  # Executor & Queue Health
-  - metric_id: executor.queue_depth
-    category: executor
-    description: "Pending tasks in execution queue"
-    unit: count
-    aggregation: max
-    thresholds:
-      good: { upper: 25 }
-      warning: { lower: 25, upper: 75 }
-      critical: { lower: 75 }
-    playbooks:
-      - scale-workers
-      - spawn-emergency-shard
-    recommended_interval_seconds: 30
-    source: internal
-    resource_scope: queue
-    tags: [execution, queue]
-
-  - metric_id: executor.task_latency
-    category: executor
-    description: "Age of oldest queued task"
-    unit: seconds
-    aggregation: max
-    thresholds:
-      good: { upper: 60 }
-      warning: { lower: 60, upper: 180 }
-      critical: { lower: 180 }
-    playbooks:
-      - increase-workers
-      - escalate-to-human
-    recommended_interval_seconds: 30
-    source: internal
-    resource_scope: queue
-    tags: [execution, latency]
-
-  # Learning Pipeline
-  - metric_id: learning.sources_verified
-    category: learning
-    description: "Percentage of sources passing governance checks"
-    unit: percent
-    aggregation: avg
-    thresholds:
-      good: { lower: 85 }
-      warning: { lower: 70, upper: 85 }
-      critical: { upper: 70 }
-    playbooks:
-      - run-trust-analysis
-      - stop-ingestion-cycle
-    recommended_interval_seconds: 300
-    source: internal
-    resource_scope: subsystem
-    tags: [learning, governance]
-
-  - metric_id: learning.governance_blocks
-    category: learning
-    description: "Count of ingestion attempts blocked by governance"
-    unit: count
-    aggregation: sum
-    thresholds:
-      good: { upper: 2 }
-      warning: { lower: 2, upper: 5 }
-      critical: { lower: 5 }
-    playbooks:
-      - audit-governance-rules
-      - require-human-review
-    recommended_interval_seconds: 300
-    source: internal
-    resource_scope: subsystem
-    tags: [learning, governance]
-
-  # Autonomy & Decision Quality
-  - metric_id: autonomy.plan_success_rate
-    category: autonomy
-    description: "Percentage of recovery plans completing successfully"
-    unit: percent
-    aggregation: avg
-    thresholds:
-      good: { lower: 90 }
-      warning: { lower: 75, upper: 90 }
-      critical: { upper: 75 }
-    playbooks:
-      - tighten-guardrails
-      - downgrade-autonomy-tier
-    recommended_interval_seconds: 300
-    source: internal
-    resource_scope: subsystem
-    tags: [autonomy, quality]
-
-  - metric_id: autonomy.approvals_pending
-    category: autonomy
-    description: "High-risk actions awaiting approval"
-    unit: count
-    aggregation: max
-    thresholds:
-      good: { upper: 3 }
-      warning: { lower: 3, upper: 7 }
-      critical: { lower: 7 }
-    playbooks:
-      - notify-reviewers
-      - pause-high-risk-plans
-    recommended_interval_seconds: 60
-    source: internal
-    resource_scope: subsystem
-    tags: [autonomy, governance]
-
-  # Infrastructure Health
-  - metric_id: infra.cpu_utilization
-    category: infra
-    description: "CPU usage percentage"
-    unit: percent
-    aggregation: avg
-    thresholds:
-      good: { upper: 70 }
-      warning: { lower: 70, upper: 85 }
-      critical: { lower: 85 }
-    playbooks:
-      - shift-load
-      - scale-nodes
-    recommended_interval_seconds: 30
-    source: system
-    resource_scope: host
-    tags: [infrastructure, cpu]
-
-  - metric_id: infra.memory_utilization
-    category: infra
-    description: "Memory usage percentage"
-    unit: percent
-    aggregation: avg
-    thresholds:
-      good: { upper: 75 }
-      warning: { lower: 75, upper: 90 }
-      critical: { lower: 90 }
-    playbooks:
-      - restart-non-critical
-      - migrate-workloads
-    recommended_interval_seconds: 30
-    source: system
-    resource_scope: host
-    tags: [infrastructure, memory]
-
-  - metric_id: infra.disk_usage
-    category: infra
-    description: "Disk utilization percentage"
-    unit: percent
-    aggregation: max
-    thresholds:
-      good: { upper: 70 }
-      warning: { lower: 70, upper: 85 }
-      critical: { lower: 85 }
-    playbooks:
-      - cleanup-tasks
-      - trigger-disk-expansion
-    recommended_interval_seconds: 300
-    source: system
-    resource_scope: volume
-    tags: [infrastructure, disk]
-
-  # Trigger Mesh Health
-  - metric_id: trigger.mesh_queue_depth
-    category: trigger
-    description: "Events awaiting routing in trigger mesh"
-    unit: count
-    aggregation: max
-    thresholds:
-      good: { upper: 50 }
-      warning: { lower: 50, upper: 150 }
-      critical: { lower: 150 }
-    playbooks:
-      - scale-router
-      - shed-non-critical-events
-    recommended_interval_seconds: 30
-    source: internal
-    resource_scope: subsystem
-    tags: [trigger_mesh, queue]
-
-# Playbook Definitions
 playbooks:
-  - playbook_id: scale-api-shard
-    description: "Spin up additional API workers"
-    risk_level: low
-    autonomy_tier: tier_2
+  - playbook_id: "pb_bootstrap_health_check"
+    name: "Bootstrap Health Check"
+    description: "Minimal playbook to validate system bootstrap, metrics wiring, and verification pipeline."
+    risk_level: "low"           # one of: low, medium, high, critical
+    autonomy_tier: 1             # 1=minimal autonomy; higher requires added controls
+    verification_hooks:          # verification hooks to run after steps
+      - "verification.basic_sanity"
+      - "verification.audit_log"
+    preconditions: []
+    steps:
+      - id: "step_ping"
+        action: "ping_health_endpoint"
+        params:
+          url: "http://localhost:8000/health"
+      - id: "step_status"
+        action: "fetch_status"
+        params:
+          url: "http://localhost:8000/api/status"
+    verifications:
+      - id: "verify_shapes"
+        type: "response_shape"
+        params:
+          required_keys:
+            - overall_health
+            - overall_trust
+            - overall_confidence
+            - saas_ready
+            - domains
+    rollback_steps: []
     requires_approval: false
 
-  - playbook_id: failover-gateway
-    description: "Switch to backup gateway"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: restart-workers
-    description: "Rolling restart of worker processes"
-    risk_level: low
-    autonomy_tier: tier_2
+  - playbook_id: "pb_meta_loop_readiness"
+    name: "Meta-Loop Readiness"
+    description: "Ensures meta-loop can progress through stages and produce readiness metrics."
+    risk_level: "medium"
+    autonomy_tier: 2
+    verification_hooks:
+      - "verification.post_conditions"
+      - "verification.metrics_rollup"
+    preconditions: []
+    steps:
+      - id: "stage1_ingest"
+        action: "simulate_ingest"
+      - id: "stage2_understand"
+        action: "simulate_understand"
+      - id: "stage3_interpret"
+        action: "simulate_interpret"
+      - id: "stage4_intent"
+        action: "simulate_intent"
+    verifications:
+      - id: "verify_stage4"
+        type: "intent_present"
+        params:
+          require: ["use_cases", "applications"]
+    rollback_steps: []
     requires_approval: false
 
-  - playbook_id: engage-remediation
-    description: "Trigger error remediation workflow"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: pre-scale
-    description: "Proactively scale before hitting limits"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: activate-autoscaling
-    description: "Enable autoscaling for high load"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: scale-workers
-    description: "Add worker capacity"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: spawn-emergency-shard
-    description: "Emergency worker shard for queue overflow"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: increase-workers
-    description: "Gradually increase worker count"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: escalate-to-human
-    description: "Request human intervention"
-    risk_level: low
-    autonomy_tier: tier_1
-    requires_approval: false
-
-  - playbook_id: run-trust-analysis
-    description: "Deep analysis of source trust scores"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: stop-ingestion-cycle
-    description: "Pause learning ingestion"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: audit-governance-rules
-    description: "Review and audit governance configuration"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: require-human-review
-    description: "Escalate governance blocks to humans"
-    risk_level: low
-    autonomy_tier: tier_1
-    requires_approval: false
-
-  - playbook_id: tighten-guardrails
-    description: "Increase governance strictness"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: downgrade-autonomy-tier
-    description: "Reduce autonomous decision scope"
-    risk_level: high
-    autonomy_tier: tier_4
-    requires_approval: true
-
-  - playbook_id: notify-reviewers
-    description: "Alert approval reviewers"
-    risk_level: low
-    autonomy_tier: tier_1
-    requires_approval: false
-
-  - playbook_id: pause-high-risk-plans
-    description: "Temporarily halt high-risk autonomous actions"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: shift-load
-    description: "Move workload to less utilized nodes"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: scale-nodes
-    description: "Add infrastructure nodes"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: restart-non-critical
-    description: "Restart services to free memory"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: migrate-workloads
-    description: "Move workloads to free memory"
-    risk_level: medium
-    autonomy_tier: tier_3
-    requires_approval: true
-
-  - playbook_id: cleanup-tasks
-    description: "Run disk cleanup operations"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: trigger-disk-expansion
-    description: "Expand disk capacity"
-    risk_level: high
-    autonomy_tier: tier_4
-    requires_approval: true
-
-  - playbook_id: scale-router
-    description: "Scale trigger mesh routing capacity"
-    risk_level: low
-    autonomy_tier: tier_2
-    requires_approval: false
-
-  - playbook_id: shed-non-critical-events
-    description: "Drop low-priority events during overload"
-    risk_level: medium
-    autonomy_tier: tier_3
+  - playbook_id: "pb_autonomy_change_request"
+    name: "Autonomy Change Request"
+    description: "Requests increased autonomy when confidence is high; guarded by parliament approval."
+    risk_level: "high"
+    autonomy_tier: 3
+    verification_hooks:
+      - "verification.governance_vote"
+      - "verification.audit_log"
+    preconditions:
+      - condition: "confidence_above_threshold"
+        params:
+          threshold: 0.8
+    steps:
+      - id: "propose_autonomy_increase"
+        action: "propose_parliament_vote"
+        params:
+          committee: "risk"
+          level: "increase"
+    verifications:
+      - id: "verify_vote_outcome"
+        type: "parliament_vote"
+        params:
+          require: "approved"
+    rollback_steps:
+      - id: "revert_autonomy_change"
+        action: "revert_parliament_vote"
     requires_approval: true

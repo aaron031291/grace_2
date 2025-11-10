@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
@@ -15,31 +15,7 @@ from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
-
-app = FastAPI(title="Grace API", version="2.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-# Inject/propagate X-Request-ID for log correlation
-app.add_middleware(RequestIDMiddleware)
-
-from .task_executor import task_executor
-from .self_healing import health_monitor
-from .trigger_mesh import trigger_mesh, setup_subscriptions
-from .meta_loop import meta_loop_engine
-from .websocket_manager import setup_ws_subscriptions
-from .trusted_sources import trust_manager
-from .auto_retrain import auto_retrain_engine
-from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
-from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
-
-@app.on_event("startup")
-async def on_startup():
+from .logging_utils import ensure_utf8_console
     # Core app DB
     # Ensure model modules are imported so Base.metadata is populated
     try:
@@ -59,7 +35,7 @@ async def on_startup():
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("[OK] Database initialized")
+    print("✓ Database initialized")
 
     # Metrics DB (separate to avoid coupling)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -74,7 +50,7 @@ async def on_startup():
     # Initialize global metrics collector with persistence enabled
     init_metrics_collector(db_session=app.state.metrics_session)
 
-    print("[OK] Grace API server starting...")
+    print("✓ Grace API server starting...")
     print("  Visit: http://localhost:8000/health")
     print("  Docs: http://localhost:8000/docs")
     
@@ -88,7 +64,7 @@ async def on_startup():
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
-    print("[OK] Benchmark scheduler started (evaluates every hour)")
+    print("✓ Benchmark scheduler started (evaluates every hour)")
 
     # Knowledge discovery scheduler (configurable via env)
     try:
@@ -102,9 +78,9 @@ async def on_startup():
 
     await start_discovery_scheduler(interval_val, seeds_val)
     if interval_val or seeds_val:
-        print(f"[OK] Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
+        print(f"✓ Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
     else:
-        print("[OK] Knowledge discovery scheduler started")
+        print("✓ Knowledge discovery scheduler started")
 
 @app.on_event("shutdown")
 async def on_shutdown():

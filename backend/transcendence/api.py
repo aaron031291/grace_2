@@ -1,4 +1,4 @@
-﻿"""Transcendence API - Unified Intelligence Interface
+"""Transcendence API - Unified Intelligence Interface
 
 Single interface for ALL Grace capabilities:
 - Collaborative proposals (Grace proposes, you approve)

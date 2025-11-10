@@ -1,4 +1,4 @@
-﻿from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
+from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
@@ -167,7 +167,7 @@ class CausalGraph:
             pattern_edges = self._infer_pattern_causality()
             edges_added += len(pattern_edges)
         
-        print(f"[OK] Built causal graph: {nodes_added} nodes, {edges_added} edges")
+        print(f"✓ Built causal graph: {nodes_added} nodes, {edges_added} edges")
         return nodes_added
     
     def _add_node(self, node: CausalNode):
@@ -451,7 +451,7 @@ class CausalGraph:
             self.reverse_adjacency[edge.target].remove(edge)
             del self.edges[key]
         
-        print(f"[OK] Pruned {len(edges_to_remove)} weak edges (threshold: {threshold})")
+        print(f"✓ Pruned {len(edges_to_remove)} weak edges (threshold: {threshold})")
         return len(edges_to_remove)
     
     def export_for_visualization(self) -> Dict[str, Any]:

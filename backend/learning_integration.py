@@ -1,4 +1,4 @@
-﻿"""
+"""
 Learning Integration - Continuous improvement through decision outcomes
 
 Logs every decision -> outcome, feeds analytics/ML to refine detection,
@@ -548,7 +548,7 @@ class SelfUpgradeEngine:
                     result="applied"
                 )
                 
-                print(f"[OK] Auto-upgraded: {upgrade.subsystem}.{upgrade.parameter} = {upgrade.new_value} (was {upgrade.old_value})")
+                print(f"✓ Auto-upgraded: {upgrade.subsystem}.{upgrade.parameter} = {upgrade.new_value} (was {upgrade.old_value})")
 
 
 class LearningIntegration:
@@ -564,7 +564,7 @@ class LearningIntegration:
     async def start(self):
         """Start learning integration"""
         asyncio.create_task(self._learning_loop())
-        print("[OK] Learning Integration started")
+        print("✓ Learning Integration started")
     
     async def _learning_loop(self):
         """Background loop for continuous learning"""

@@ -76,7 +76,7 @@ class GoogleDriveConnector:
             service="google_drive"
         )
         
-        # TODO(ROADMAP): Actual Google Drive API call
+        # TODO: Actual Google Drive API call
         # from googleapiclient.discovery import build
         # service = build('drive', 'v3', credentials=creds)
         # file = service.files().create(body=metadata, media_body=file_path).execute()
@@ -84,7 +84,7 @@ class GoogleDriveConnector:
         # For now, mock
         drive_file_id = f"drive_{datetime.now().timestamp()}"
         
-        print(f"[OK] Uploaded {file_path} to Google Drive")
+        print(f"✓ Uploaded {file_path} to Google Drive")
         print(f"  File ID: {drive_file_id}")
         
         return {
@@ -111,7 +111,7 @@ class GoogleDriveConnector:
         if gov_result['decision'] == 'deny':
             raise PermissionError("Governance denied")
         
-        # TODO(ROADMAP): Actual download
+        # TODO: Actual download
         # service.files().get_media(fileId=drive_file_id).execute()
         
         return b"Mock file content from Drive"
@@ -144,7 +144,7 @@ class GoogleDriveConnector:
         print(f"   Domain: {domain}")
         print()
         
-        # TODO(ROADMAP): List files, download, ingest
+        # TODO: List files, download, ingest
         # For now, propose to user
         from .unified_intelligence import transcendence
         
@@ -200,7 +200,7 @@ class GitHubEnhancedConnector:
             Learning results
         """
         
-        print(f"\n[INFO] Learning from GitHub repo: {repo_url}")
+        print(f"\n📚 Learning from GitHub repo: {repo_url}")
         print()
         
         # Governance approval
@@ -213,16 +213,16 @@ class GitHubEnhancedConnector:
         if gov_result['decision'] == 'deny':
             raise PermissionError("Governance denied")
         
-        # TODO(ROADMAP): Actual clone
+        # TODO: Actual clone
         # git clone {repo_url}
         # Parse with code_memory.parse_codebase()
         
         from ..code_memory import code_memory
         
-        print("  [OK] Repository cloned")
-        print("  [OK] Parsing codebase...")
-        print("  [OK] Extracting patterns...")
-        print("  [OK] Storing in code memory...")
+        print("  ✓ Repository cloned")
+        print("  ✓ Parsing codebase...")
+        print("  ✓ Extracting patterns...")
+        print("  ✓ Storing in code memory...")
         print()
         
         return {
@@ -270,7 +270,7 @@ class AmpIntegration:
         print(f"\n🤝 Collaborating with Amp on: {task}")
         print()
         
-        # TODO(ROADMAP): Actual Amp API call when available
+        # TODO: Actual Amp API call when available
         # For now, Grace does it herself with Grace Architect
         from ..grace_architect_agent import grace_architect
         
@@ -279,8 +279,8 @@ class AmpIntegration:
             business_need=context.get('business_need')
         )
         
-        print("  [OK] Generated with Grace Architect")
-        print(f"  [OK] Constitutional compliant: {result['constitutional_compliant']}")
+        print("  ✓ Generated with Grace Architect")
+        print(f"  ✓ Constitutional compliant: {result['constitutional_compliant']}")
         print()
         
         return result
@@ -385,11 +385,11 @@ class IntegrationHub:
         }
         
         for integration, status in integrations.items():
-            print(f"  [OK] {integration}: {status}")
+            print(f"  ✓ {integration}: {status}")
         
         print()
         print("="*70)
-        print("[OK] All integrations initialized")
+        print("✓ All integrations initialized")
         print("="*70)
         print()
         

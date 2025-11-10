@@ -8,10 +8,12 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..memory_models import MemoryArtifact
 from ..models import async_session
+=======
 from ..schemas import (
     MemoryTreeResponse, MemoryArtifactResponse, SuccessResponse, ExportBundleResponse, 
     DomainStatsResponse, MemoryItemResponse, MemoryCreateResponse, MemoryUpdateResponse
 )
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
@@ -27,7 +29,8 @@ class UpdateArtifact(BaseModel):
     content: str
     reason: str = ""
 
-@router.get("/tree", response_model=MemoryTreeResponse)
+<<<<<<< HEAD
+@router.get("/tree")
 async def get_tree(
     domain: str = None,
     category: str = None,
@@ -58,7 +61,7 @@ async def get_tree(
     
     return {"tree": tree, "flat_list": artifacts}
 
-@router.get("/item/{path:path}", response_model=MemoryItemResponse)
+@router.get("/item/{path:path}")
 async def get_item(
     path: str,
     current_user: str = Depends(get_current_user)
@@ -77,7 +80,7 @@ async def get_item(
         "chain_verification": chain_valid
     }
 
-@router.post("/items", response_model=MemoryCreateResponse)
+@router.post("/items")
 async def create_item(
     req: CreateArtifact,
     current_user: str = Depends(get_current_user)
@@ -117,7 +120,7 @@ async def create_item(
         "security_alerts": len(alerts) if alerts else 0
     }
 
-@router.patch("/items/{artifact_id}", response_model=MemoryUpdateResponse)
+@router.patch("/items/{artifact_id}")
 async def update_item(
     artifact_id: int,
     req: UpdateArtifact,
@@ -158,7 +161,7 @@ async def update_item(
         "security_alerts": len(alerts) if alerts else 0
     }
 
-@router.post("/export", response_model=ExportBundleResponse)
+@router.post("/export")
 async def export_knowledge(
     domains: List[str] = None,
     current_user: str = Depends(get_current_user)
@@ -180,7 +183,7 @@ async def export_knowledge(
     
     return bundle
 
-@router.get("/domains", response_model=DomainStatsResponse)
+@router.get("/domains")
 async def list_domains(current_user: str = Depends(get_current_user)):
     """List all memory domains"""
     artifacts = await memory_service.list_artifacts()

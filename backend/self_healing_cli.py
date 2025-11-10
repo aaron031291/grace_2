@@ -1,4 +1,4 @@
-﻿"""
+"""
 Self-Healing CLI - Command-line interface for self-healing system
 Usage:
     python -m backend.self_healing_cli status

@@ -1,4 +1,4 @@
-﻿"""Text-to-Speech Service"""
+"""Text-to-Speech Service"""
 
 import asyncio
 import os
@@ -40,7 +40,7 @@ class TTSService:
             from TTS.api import TTS
             self.tts_engine = TTS(model_name="tts_models/en/ljspeech/tacotron2-DDC")
             self.engine_type = "coqui"
-            print("[OK] Coqui TTS loaded")
+            print("✓ Coqui TTS loaded")
             return
         except ImportError:
             print("⚠ Coqui TTS not installed, trying pyttsx3...")
@@ -63,7 +63,7 @@ class TTSService:
                 else:
                     self.tts_engine.setProperty('voice', voices[0].id)
             
-            print("[OK] pyttsx3 TTS loaded")
+            print("✓ pyttsx3 TTS loaded")
             return
         except ImportError:
             print("⚠ pyttsx3 not installed, using mock TTS")
@@ -238,7 +238,7 @@ class TTSService:
                 )
                 await session.commit()
             
-            print(f"[OK] TTS generation completed for message {tts_id}")
+            print(f"✓ TTS generation completed for message {tts_id}")
         
         except Exception as e:
             # Update status to failed
@@ -253,7 +253,7 @@ class TTSService:
                 )
                 await session.commit()
             
-            print(f"[FAIL] TTS generation failed for message {tts_id}: {e}")
+            print(f"✗ TTS generation failed for message {tts_id}: {e}")
     
     async def get_tts_message(self, tts_id: int) -> Optional[Dict[str, Any]]:
         """Get TTS message by ID"""

@@ -1,4 +1,4 @@
-﻿"""Standalone test for trust score classifier (no DB dependencies)"""
+"""Standalone test for trust score classifier (no DB dependencies)"""
 
 import sys
 import os
@@ -174,7 +174,7 @@ def test_classifier():
     
     metrics = classifier.train(X, y)
     
-    print(f"\n[OK] Training completed:")
+    print(f"\n✓ Training completed:")
     print(f"  Accuracy:  {metrics['accuracy']:.3f}")
     print(f"  Precision: {metrics['precision']:.3f}")
     print(f"  Recall:    {metrics['recall']:.3f}")
@@ -221,7 +221,7 @@ def test_classifier():
             print(f"  {name:20s}: {imp:.3f}")
     
     print("\n" + "="*80)
-    print("[OK] ALL TESTS PASSED")
+    print("✓ ALL TESTS PASSED")
     print("="*80 + "\n")
     
     return True
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         success = test_classifier()
         sys.exit(0 if success else 1)
     except Exception as e:
-        print(f"\n[FAIL] TEST FAILED: {e}")
+        print(f"\n✗ TEST FAILED: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

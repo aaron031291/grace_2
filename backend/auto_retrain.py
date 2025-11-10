@@ -23,13 +23,13 @@ class AutoRetrainEngine:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._loop())
-            print(f"[OK] Auto-retrain engine started (interval: {self.check_interval}s)")
+            print(f"✓ Auto-retrain engine started (interval: {self.check_interval}s)")
     
     async def stop(self):
         self._running = False
         if self._task:
             self._task.cancel()
-        print("[OK] Auto-retrain engine stopped")
+        print("✓ Auto-retrain engine stopped")
     
     async def _loop(self):
         try:
@@ -78,7 +78,7 @@ class AutoRetrainEngine:
                 reason = f"weekly schedule ({days_since_training} days since last training)"
             
             if should_retrain:
-                print(f"[RETRAIN] Auto-retrain triggered: {reason}")
+                print(f"🔄 Auto-retrain triggered: {reason}")
                 print(f"   High-trust artifacts: {high_trust_count}/{new_knowledge_count}")
                 
                 from .training_pipeline import training_pipeline
@@ -90,7 +90,7 @@ class AutoRetrainEngine:
                 )
                 
                 if new_model_id:
-                    print(f"[OK] Auto-retrained model: {model.model_name} -> ID {new_model_id}")
+                    print(f"✓ Auto-retrained model: {model.model_name} → ID {new_model_id}")
                     
                     await self._evaluate_and_deploy(new_model_id, model.model_type)
     
@@ -112,7 +112,7 @@ class AutoRetrainEngine:
             model.f1_score = simulated_f1
             await session.commit()
             
-            print(f"[OK] Model evaluated: accuracy={simulated_accuracy:.2f}, f1={simulated_f1:.2f}")
+            print(f"✓ Model evaluated: accuracy={simulated_accuracy:.2f}, f1={simulated_f1:.2f}")
         
         if not self.auto_deploy_enabled:
             print("ℹ️ Auto-deploy disabled - manual approval required")
@@ -129,7 +129,7 @@ class AutoRetrainEngine:
             print(f"ℹ️ Model does not qualify for auto-deploy: {reason}")
             return
         
-        print(f"[OK] Auto-deploy criteria met: {reason}")
+        print(f"✓ Auto-deploy criteria met: {reason}")
         
         success, msg = await deployment_pipeline.deploy_with_pipeline(
             model_id,
@@ -139,6 +139,6 @@ class AutoRetrainEngine:
         if success:
             print(f"🚀 Auto-deployed: {msg}")
         else:
-            print(f"[WARN] Auto-deploy failed: {msg}")
+            print(f"⚠️ Auto-deploy failed: {msg}")
 
 auto_retrain_engine = AutoRetrainEngine(check_interval=3600)

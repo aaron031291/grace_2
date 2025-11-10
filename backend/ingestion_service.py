@@ -1,4 +1,4 @@
-﻿"""Multi-format knowledge ingestion system"""
+"""Multi-format knowledge ingestion system"""
 
 import hashlib
 import json
@@ -57,7 +57,7 @@ class IngestionService:
         })
         
         if alerts:
-            print(f"[WARN] Hunter: {len(alerts)} alerts during ingestion")
+            print(f"⚠️ Hunter: {len(alerts)} alerts during ingestion")
         
         content_hash = self._compute_hash(content)
         
@@ -101,7 +101,7 @@ class IngestionService:
             session.add(revision)
             await session.commit()
 
-            print(f"[OK] Ingested: {title} ({artifact_type}, {len(content)} bytes)")
+            print(f"✓ Ingested: {title} ({artifact_type}, {len(content)} bytes)")
 
             from .trigger_mesh import trigger_mesh, TriggerEvent
             from datetime import datetime
@@ -187,7 +187,7 @@ class IngestionService:
                     }
                 )
         except Exception as e:
-            print(f"[FAIL] URL ingestion failed: {e}")
+            print(f"✗ URL ingestion failed: {e}")
             raise
     
     async def ingest_file(

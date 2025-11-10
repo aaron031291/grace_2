@@ -1,4 +1,4 @@
-﻿"""ML-based trust score classifier"""
+"""ML-based trust score classifier"""
 
 import pickle
 import numpy as np
@@ -258,7 +258,7 @@ class TrustClassifierManager:
                 score = classifier.predict(url)
                 return score, "ml"
             except Exception as e:
-                print(f"[WARN] ML prediction failed: {e}, falling back to heuristics")
+                print(f"⚠️ ML prediction failed: {e}, falling back to heuristics")
         
         score = await trust_manager.get_trust_score(url)
         return int(score), "heuristic"

@@ -1,4 +1,4 @@
-﻿from typing import Dict, Callable, Any
+from typing import Dict, Callable, Any
 from dataclasses import dataclass
 import importlib
 import inspect
@@ -28,7 +28,7 @@ class PluginManager:
                 self.hooks[hook_name] = []
             self.hooks[hook_name].append((plugin.name, hook_func))
         
-        print(f"[OK] Plugin registered: {plugin.name} v{plugin.version}")
+        print(f"✓ Plugin registered: {plugin.name} v{plugin.version}")
     
     async def execute_hook(self, hook_name: str, *args, **kwargs) -> list:
         """Execute all functions registered to a hook"""
@@ -49,7 +49,7 @@ class PluginManager:
                     result = hook_func(*args, **kwargs)
                 results.append((plugin_name, result))
             except Exception as e:
-                print(f"[FAIL] Plugin {plugin_name} hook {hook_name} error: {e}")
+                print(f"✗ Plugin {plugin_name} hook {hook_name} error: {e}")
         
         return results
     
@@ -71,13 +71,13 @@ class PluginManager:
         """Enable a plugin"""
         if name in self.plugins:
             self.plugins[name].enabled = True
-            print(f"[OK] Plugin enabled: {name}")
+            print(f"✓ Plugin enabled: {name}")
     
     def disable_plugin(self, name: str):
         """Disable a plugin"""
         if name in self.plugins:
             self.plugins[name].enabled = False
-            print(f"[OK] Plugin disabled: {name}")
+            print(f"✓ Plugin disabled: {name}")
 
 plugin_manager = PluginManager()
 

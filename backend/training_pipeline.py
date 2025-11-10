@@ -1,4 +1,4 @@
-﻿"""Signature-wrapped ML training pipeline"""
+"""Signature-wrapped ML training pipeline"""
 
 import hashlib
 import json
@@ -59,7 +59,7 @@ class TrainingPipeline:
                 ''.join(sorted(content_hashes)).encode()
             ).hexdigest()
             
-            print(f"[OK] Extracted {len(training_samples)} training samples (trust ≥{trust_threshold})")
+            print(f"✓ Extracted {len(training_samples)} training samples (trust ≥{trust_threshold})")
             
             return training_samples, dataset_hash
     
@@ -82,7 +82,7 @@ class TrainingPipeline:
         )
         
         if decision["decision"] != "allow":
-            print(f"[WARN] Training blocked: {decision['policy']}")
+            print(f"⚠️ Training blocked: {decision['policy']}")
             return None
         
         training_data, dataset_hash = await self.extract_training_data(trust_threshold)
@@ -154,7 +154,7 @@ class TrainingPipeline:
             timestamp=datetime.utcnow()
         ))
         
-        print(f"[OK] Model trained: {model_name} (ID: {model.id}, samples: {len(training_data)})")
+        print(f"✓ Model trained: {model_name} (ID: {model.id}, samples: {len(training_data)})")
         return model.id
     
     async def deploy_model(self, model_id: int, actor: str) -> bool:
@@ -174,7 +174,7 @@ class TrainingPipeline:
             )
             
             if decision["decision"] != "allow":
-                print(f"[WARN] Deployment blocked: {decision['policy']}")
+                print(f"⚠️ Deployment blocked: {decision['policy']}")
                 return False
             
             model.deployment_status = "deployed"
@@ -182,7 +182,7 @@ class TrainingPipeline:
             model.approved_by = actor
             await session.commit()
         
-        print(f"[OK] Model deployed: {model.model_name} v{model.version}")
+        print(f"✓ Model deployed: {model.model_name} v{model.version}")
         return True
     
     async def extract_trust_training_data(self, min_samples: int = 50) -> Tuple[np.ndarray, np.ndarray, list]:
@@ -199,7 +199,7 @@ class TrainingPipeline:
             artifacts = result.scalars().all()
             
             if len(artifacts) < min_samples:
-                print(f"[WARN] Limited data: found {len(artifacts)}, augmenting with known sources...")
+                print(f"⚠️ Limited data: found {len(artifacts)}, augmenting with known sources...")
             
             urls = []
             scores = []
@@ -229,7 +229,7 @@ class TrainingPipeline:
             y_binned = np.digitize(y, bins, right=False)
             y_classes = np.array([labels[i-1] if i-1 < len(labels) else labels[-1] for i in y_binned])
             
-            print(f"[OK] Extracted {len(X)} training samples from knowledge artifacts")
+            print(f"✓ Extracted {len(X)} training samples from knowledge artifacts")
             print(f"  Class distribution: {dict(zip(*np.unique(y_classes, return_counts=True)))}")
             
             return X, y_classes, urls
@@ -252,13 +252,13 @@ class TrainingPipeline:
         )
         
         if decision["decision"] != "allow":
-            print(f"[WARN] Training blocked: {decision['policy']}")
+            print(f"⚠️ Training blocked: {decision['policy']}")
             return None
         
         try:
             X, y, urls = await self.extract_trust_training_data()
         except ValueError as e:
-            print(f"[FAIL] Training failed: {e}")
+            print(f"✗ Training failed: {e}")
             return None
         
         classifier = TrustScoreClassifier(model_type=model_type)
@@ -312,7 +312,7 @@ class TrainingPipeline:
             run.approved = metrics['accuracy'] >= 0.85
             await session.commit()
         
-        print(f"[OK] Trust classifier trained:")
+        print(f"✓ Trust classifier trained:")
         print(f"  Model ID: {model.id}")
         print(f"  Accuracy: {metrics['accuracy']:.3f}")
         print(f"  Precision: {metrics['precision']:.3f}")
@@ -335,7 +335,7 @@ class TrainingPipeline:
         if auto_deploy and metrics['accuracy'] >= 0.85:
             deployed = await self.deploy_model(model.id, actor)
             if deployed:
-                print(f"[OK] Model auto-deployed (accuracy threshold met)")
+                print(f"✓ Model auto-deployed (accuracy threshold met)")
         
         from .trigger_mesh import trigger_mesh, TriggerEvent
         await trigger_mesh.publish(TriggerEvent(

@@ -1,4 +1,4 @@
-﻿"""Tests for Feedback Pipeline - Governance and Integration"""
+"""Tests for Feedback Pipeline - Governance and Integration"""
 
 import sys
 import os

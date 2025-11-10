@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import uuid
 from datetime import datetime
 from typing import Dict, List, Optional, Callable
@@ -33,14 +33,14 @@ class TaskExecutor:
         for i in range(self.max_parallel):
             worker = asyncio.create_task(self._worker(i))
             self.workers.append(worker)
-        print(f"[OK] Task executor started ({self.max_parallel} parallel workers)")
+        print(f"✓ Task executor started ({self.max_parallel} parallel workers)")
     
     async def stop_workers(self):
         """Stop all workers"""
         for worker in self.workers:
             worker.cancel()
         self.workers.clear()
-        print("[OK] Task executor stopped")
+        print("✓ Task executor stopped")
     
     async def _worker(self, worker_id: int):
         """Background worker that processes tasks"""
@@ -78,7 +78,7 @@ class TaskExecutor:
                     self.running_tasks[task_id]["status"] = "completed"
                     self.running_tasks[task_id]["progress"] = 100.0
                     
-                    print(f"[OK] Worker {worker_id}: Task {task_id} completed")
+                    print(f"✓ Worker {worker_id}: Task {task_id} completed")
                     
                 except Exception as e:
                     async with async_session() as session:
@@ -93,7 +93,7 @@ class TaskExecutor:
                     self.running_tasks[task_id]["status"] = "failed"
                     self.running_tasks[task_id]["error"] = str(e)
                     
-                    print(f"[FAIL] Worker {worker_id}: Task {task_id} failed: {e}")
+                    print(f"✗ Worker {worker_id}: Task {task_id} failed: {e}")
                 
                 finally:
                     self.task_queue.task_done()
@@ -146,7 +146,7 @@ class TaskExecutor:
             "type": task_type
         }
         
-        print(f"[OK] Task queued: {task_id} ({task_type})")
+        print(f"✓ Task queued: {task_id} ({task_type})")
         return task_id
     
     async def get_task_status(self, task_id: str) -> Optional[dict]:

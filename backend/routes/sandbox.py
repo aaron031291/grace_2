@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from ..auth import get_current_user
@@ -7,6 +7,7 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
 from ..verification_middleware import verify_action
+=======
 from ..schemas_extended import (
     SandboxFilesListResponse,
     SandboxFileReadResponse,
@@ -15,6 +16,7 @@ from ..schemas_extended import (
     SandboxResetResponse
 )
 
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 
@@ -26,12 +28,13 @@ class RunCommandRequest(BaseModel):
     command: str
     file_name: Optional[str] = None
 
-@router.get("/files", response_model=SandboxFilesListResponse)
+<<<<<<< HEAD
+@router.get("/files")
 async def list_files(current_user: str = Depends(get_current_user)):
     files = await sandbox_manager.list_files(current_user)
     return {"files": files, "count": len(files)}
 
-@router.get("/file", response_model=SandboxFileReadResponse)
+@router.get("/file")
 async def read_file(
     file_path: str,
     current_user: str = Depends(get_current_user)
@@ -44,7 +47,7 @@ async def read_file(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/write", response_model=SandboxFileWriteResponse)
+@router.post("/write")
 @verify_action("file_write", lambda data: data.get("file_path", "unknown"))
 async def write_file(
     req: WriteFileRequest,
@@ -56,7 +59,7 @@ async def write_file(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/run", response_model=SandboxRunResponse)
+@router.post("/run")
 @verify_action("code_execution", lambda data: data.get("command", "unknown"))
 async def run_command(
     req: RunCommandRequest,
@@ -76,7 +79,7 @@ async def run_command(
     
     alerts = await hunter.inspect(current_user, "sandbox_run", req.command, req.dict())
     if alerts:
-        print(f"[WARN] Security alerts triggered: {len(alerts)}")
+        print(f"⚠️ Security alerts triggered: {len(alerts)}")
     
     stdout, stderr, exit_code, duration = await sandbox_manager.run_command(
         current_user,
@@ -104,7 +107,7 @@ async def run_command(
         "issue_id": issue_id
     }
 
-@router.post("/reset", response_model=SandboxResetResponse)
+@router.post("/reset")
 async def reset_sandbox(current_user: str = Depends(get_current_user)):
     result = await sandbox_manager.reset_sandbox(current_user)
     return result

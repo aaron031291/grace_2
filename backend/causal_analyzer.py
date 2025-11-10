@@ -1,4 +1,4 @@
-﻿from typing import Dict, List, Any, Optional, TYPE_CHECKING
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 from collections import defaultdict

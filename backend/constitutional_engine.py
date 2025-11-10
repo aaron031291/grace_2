@@ -497,7 +497,7 @@ class ConstitutionalEngine:
         
         # If critical, escalate to Parliament or create task
         if severity == "critical" and not blocked:
-            # TODO(ROADMAP): Escalate to Parliament for review
+            # TODO: Escalate to Parliament for review
             print(f"CRITICAL VIOLATION: {principle_name} by {actor}")
         
         return {

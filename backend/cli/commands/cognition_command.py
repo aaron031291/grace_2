@@ -1,4 +1,4 @@
-﻿"""
+"""
 Cognition CLI Commands
 Live dashboard and metrics inspection for Grace's cognitive health
 """
@@ -193,7 +193,7 @@ async def generate_report_command():
             response.raise_for_status()
             data = response.json()
             
-            console.print(f"[green][OK] Report generated successfully[/green]")
+            console.print(f"[green]✓ Report generated successfully[/green]")
             console.print(f"  Path: {data['report_path']}")
             console.print(f"  Time: {data['timestamp']}")
             

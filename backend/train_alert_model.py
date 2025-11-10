@@ -1,4 +1,4 @@
-﻿"""Train the alert severity prediction model"""
+"""Train the alert severity prediction model"""
 
 import asyncio
 import sys
@@ -19,7 +19,7 @@ async def train_model():
     print("=" * 60)
     
     await init_db()
-    print("[OK] Database initialized\n")
+    print("✓ Database initialized\n")
     
     print("Training model...")
     result = await training_pipeline.train_alert_predictor(actor="admin")
@@ -55,7 +55,7 @@ async def train_model():
             print(f"{feature:25s}: {importance:.4f} {'█' * int(importance * 50)}")
         
         print("\n" + "=" * 60)
-        print("[OK] Model training complete!")
+        print("✓ Model training complete!")
         print("=" * 60)
     else:
         print("\n" + "=" * 60)
@@ -104,7 +104,7 @@ async def test_prediction():
         predicted_severity, confidence = await alert_severity_predictor.predict_severity(alert)
         explanation = alert_severity_predictor.explain_prediction()
         
-        match = "[OK]" if predicted_severity == alert['expected'] else "[FAIL]"
+        match = "✓" if predicted_severity == alert['expected'] else "✗"
         
         print(f"{i}. {alert['action']} on {alert['resource']} by {alert['actor']}")
         print(f"   Expected: {alert['expected']:8s} | Predicted: {predicted_severity:8s} (confidence: {confidence:.2%}) {match}")

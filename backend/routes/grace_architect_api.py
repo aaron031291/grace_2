@@ -6,11 +6,13 @@ API endpoints for autonomous Grace extension and learning.
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
+=======
 from ..schemas_extended import (
     GraceArchitectLearnResponse,
     GraceArchitectExtendResponse,
     GraceArchitectPatternsResponse
 )
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/architect", tags=["Grace Architect"])
 
@@ -30,7 +32,8 @@ class DeployRequest(BaseModel):
     extension_id: str
     require_parliament: bool = True
 
-@router.post("/learn", response_model=GraceArchitectLearnResponse)
+<<<<<<< HEAD
+@router.post("/learn")
 async def learn_grace_architecture(request: LearnRequest):
     """
     Learn Grace's architecture by parsing codebase
@@ -54,7 +57,7 @@ async def learn_grace_architecture(request: LearnRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/extend", response_model=GraceArchitectExtendResponse)
+@router.post("/extend")
 async def extend_grace(request: ExtensionRequest):
     """
     Generate a new Grace component
@@ -83,7 +86,7 @@ async def extend_grace(request: ExtensionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/patterns", response_model=GraceArchitectPatternsResponse)
+@router.get("/patterns")
 async def get_grace_patterns(
     category: Optional[str] = None,
     phase: Optional[int] = None,
@@ -126,7 +129,7 @@ async def get_grace_patterns(
             "count": len(patterns)
         }
 
-@router.get("/extensions", response_model=GraceArchitectExtensionsListResponse)
+@router.get("/extensions")
 async def list_extensions(
     status: Optional[str] = None,
     limit: int = 50
@@ -164,7 +167,7 @@ async def list_extensions(
             ]
         }
 
-@router.get("/extensions/{request_id}", response_model=GraceArchitectExtensionResponse)
+@router.get("/extensions/{request_id}")
 async def get_extension(request_id: str):
     """Get extension details"""
     
@@ -195,7 +198,7 @@ async def get_extension(request_id: str):
             "deployed": extension.deployed
         }
 
-@router.post("/deploy", response_model=GraceArchitectDeployResponse)
+@router.post("/deploy")
 async def deploy_extension(request: DeployRequest):
     """Deploy a Grace extension (requires Parliament if critical)"""
     
@@ -253,7 +256,7 @@ async def deploy_extension(request: DeployRequest):
                 "message": "Extension deployed successfully"
             }
 
-@router.get("/knowledge", response_model=GraceArchitectKnowledgeResponse)
+@router.get("/knowledge")
 async def get_architecture_knowledge(
     component: Optional[str] = None,
     phase: Optional[int] = None
