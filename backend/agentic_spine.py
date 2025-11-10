@@ -18,6 +18,7 @@ from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
 from .integrations.slack_integration import slack_integration
 from .integrations.pagerduty_integration import pagerduty_integration
+from .integrations.github_integration import github_integration
 
 
 class ConfidenceLevel(Enum):
@@ -763,6 +764,8 @@ class AgenticSpine:
                 await slack_integration.handle_slack_event(event)
             elif "pagerduty" in event.event_type:
                 await pagerduty_integration.handle_pagerduty_webhook(event.payload)
+            elif "github" in event.event_type:
+                await github_integration.handle_github_webhook(event.payload)
     
     async def _handle_incident(self, enriched: EnrichedEvent):
         """Handle incident with autonomous planning and execution"""

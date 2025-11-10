@@ -328,6 +328,17 @@ async def on_startup():
     except Exception as e:
         print(f"⚠️ PagerDuty integration failed to initialize: {e}")
 
+    try:
+        from .integrations.github_integration import github_integration
+        repos = os.getenv("GITHUB_REPOS", "").split(",") if os.getenv("GITHUB_REPOS") else None
+        await github_integration.initialize(
+            token=os.getenv("GITHUB_TOKEN"),
+            repositories=[r.strip() for r in repos] if repos else None,
+            webhook_secret=os.getenv("GITHUB_WEBHOOK_SECRET")
+        )
+    except Exception as e:
+        print(f"⚠️ GitHub integration failed to initialize: {e}")
+
     print("=" * 80)
     print("✅ GRACE'S WISHLIST COMPLETE")
     print("=" * 80 + "\n")
