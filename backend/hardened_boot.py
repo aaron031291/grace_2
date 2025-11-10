@@ -76,6 +76,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+# Add project root to sys.path to enable backend module imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Load .env file before any environment checks
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv not installed; fallback to system env only
+    pass
+
 logger = logging.getLogger(__name__)
 
 
@@ -542,7 +555,13 @@ class HardenedBootOrchestrator:
                 logger.warning("[STAGE 4] ⚠ Self-heal playbooks not available")
                 playbooks_valid = False  # Non-fatal
             
-            success = catalog_valid and collector_loaded
+            # In safe mode, metrics validation is non-fatal (just a check)
+            if self.safe_mode:
+                success = True  # Continue even if metrics aren't available in safe mode
+                if not (catalog_valid and collector_loaded):
+                    logger.warning(f"[STAGE 4] ⚠ Metrics not fully available (non-fatal in safe mode)")
+            else:
+                success = catalog_valid and collector_loaded
             
             self.stage_results["stage_4"] = {
                 "status": "pass" if success else "fail",
@@ -552,7 +571,10 @@ class HardenedBootOrchestrator:
             }
             
             if success:
-                logger.info(f"[STAGE 4] ✓ Metrics & Playbooks validated")
+                if catalog_valid and collector_loaded:
+                    logger.info(f"[STAGE 4] ✓ Metrics & Playbooks validated")
+                else:
+                    logger.info(f"[STAGE 4] ✓ Stage passed (safe mode)")
             else:
                 logger.error(f"[STAGE 4] ✗ Validation failed")
             
