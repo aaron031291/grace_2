@@ -4,7 +4,6 @@ from .knowledge import knowledge_manager
 class GraceAutonomous:
     def __init__(self, memory: PersistentMemory):
         self.memory = memory
-
     async def respond(self, user: str, message: str) -> str:
         normalized = message.lower().strip()
         

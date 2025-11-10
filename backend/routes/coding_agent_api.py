@@ -12,6 +12,13 @@ from ..dev_workflow import dev_workflow
 from ..auth import get_current_user
 from ..agentic import coding_orchestrator
 from ..agentic.orchestrator import OrchestrationPlan
+=======
+from ..schemas import (
+    CodeParseResponse, CodeContextResponse, CodeSuggestionsResponse, CodeIntentResponse,
+    CodeGenerateResponse, CodeTaskResponse, CodeTaskProgressResponse, CodeRelatedResponse,
+    CodePatternsResponse, CodeOrchestrationPlanResponse, CodeOrchestrationExecuteResponse
+)
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/code", tags=["coding_agent"])
 
@@ -98,6 +105,7 @@ def _plan_to_dict(plan: OrchestrationPlan) -> Dict[str, Any]:
         "created_at": plan.created_at.isoformat(),
     }
 
+<<<<<<< HEAD
 @router.post("/parse")
 async def parse_codebase(
     request: ParseCodebaseRequest,

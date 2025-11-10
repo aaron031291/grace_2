@@ -1,0 +1,91 @@
+{
+  "version": "1.0.0",
+  "description": "Grace Metrics Catalog - KPIs, thresholds, and playbook mappings",
+  "domains": [
+    {
+      "name": "startup",
+      "description": "Boot and startup health metrics",
+      "metrics": [
+        {
+          "id": "startup.preflight_status",
+          "name": "Preflight Status",
+          "type": "categorical",
+          "values": ["pass", "fail"],
+          "thresholds": {
+            "healthy": "pass",
+            "critical": "fail"
+          }
+        },
+        {
+          "id": "startup.boot_pipeline_stage",
+          "name": "Boot Pipeline Stage",
+          "type": "numeric",
+          "unit": "stage_number",
+          "thresholds": {
+            "healthy": 7,
+            "warning": 5,
+            "critical": 3
+          }
+        },
+        {
+          "id": "startup.tests_passed",
+          "name": "Startup Tests Passed",
+          "type": "numeric",
+          "unit": "count",
+          "thresholds": {
+            "healthy": 3,
+            "warning": 2,
+            "critical": 1
+          }
+        }
+      ]
+    },
+    {
+      "name": "self_heal",
+      "description": "Self-healing system metrics",
+      "metrics": [
+        {
+          "id": "self_heal.playbooks_executed",
+          "name": "Playbooks Executed",
+          "type": "numeric",
+          "unit": "count"
+        },
+        {
+          "id": "self_heal.verifications_passed",
+          "name": "Verifications Passed",
+          "type": "numeric",
+          "unit": "count"
+        }
+      ]
+    }
+  ],
+  "playbooks": [
+    {
+      "playbook_id": "fix_unicode_logging",
+      "description": "Configure UTF-8 encoding for console output",
+      "risk_level": "low",
+      "autonomy_tier": "tier_1",
+      "requires_approval": false,
+      "triggers": ["startup.console_encoding != utf-8"],
+      "verification": "UTF-8 test passes"
+    },
+    {
+      "playbook_id": "apply_pending_migrations",
+      "description": "Run database schema migrations",
+      "risk_level": "medium",
+      "autonomy_tier": "tier_2",
+      "requires_approval": false,
+      "triggers": ["startup.schema_status == outdated"],
+      "verification": "All required columns exist"
+    },
+    {
+      "playbook_id": "verify_async_subscriptions",
+      "description": "Check trigger mesh publish/subscribe are awaited",
+      "risk_level": "low",
+      "autonomy_tier": "tier_1",
+      "requires_approval": false,
+      "triggers": ["startup.async_warnings > 0"],
+      "verification": "No unawaited coroutine warnings"
+    }
+  ]
+}

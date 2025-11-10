@@ -38,7 +38,7 @@ def sample_output():
 
 @pytest.mark.asyncio
 async def test_full_pipeline(sample_output):
-    """Test complete pipeline: Output → Linter → Governance → Memory"""
+    """Test complete pipeline: Output -> Linter -> Governance -> Memory"""
     
     # Step 1: Lint the output
     linter = GraceCognitionLinter()

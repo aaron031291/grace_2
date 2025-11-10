@@ -6,7 +6,6 @@ from ..auth import get_current_user
 from ..issue_models import IssueReport
 from ..models import async_session
 from ..remedy import remedy_inference
-
 router = APIRouter(prefix="/api/issues", tags=["issues"])
 
 @router.get("/")
@@ -37,7 +36,6 @@ async def list_issues(
             }
             for i in result.scalars().all()
         ]
-
 @router.get("/{issue_id}")
 async def get_issue(
     issue_id: int,

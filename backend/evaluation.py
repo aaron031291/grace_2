@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+﻿from sqlalchemy import select, func
 from .models import CausalEvent, ChatMessage, async_session
 from datetime import datetime, timedelta
 
@@ -98,7 +98,7 @@ class ConfidenceEvaluator:
                 await self.evaluate_response_quality(event.id)
                 evaluated_count += 1
             
-            print(f"✓ Evaluated {evaluated_count} causal events")
+            print(f"[OK] Evaluated {evaluated_count} causal events")
             return evaluated_count
 
 confidence_evaluator = ConfidenceEvaluator()

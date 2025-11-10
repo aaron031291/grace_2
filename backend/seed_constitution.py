@@ -481,7 +481,7 @@ async def seed_operational_tenets():
             {
                 "tenet_name": "ask_on_ambiguity",
                 "description": "When input has multiple valid interpretations, ask user which they meant",
-                "rule_example": "'Fix the bug' → 'Which bug? I see 3 open issues.'",
+                "rule_example": "'Fix the bug' -> 'Which bug? I see 3 open issues.'",
                 "principle_id": principles.get("user_first_alignment"),
                 "integration_point": "clarification",
                 "enforcement_method": "NLP ambiguity detection. If confidence < 0.7, trigger clarification.",
@@ -501,7 +501,7 @@ async def seed_operational_tenets():
             {
                 "tenet_name": "suggest_safer_alternative",
                 "description": "When user requests risky action, suggest safer alternative",
-                "rule_example": "'chmod 777' → 'Suggest: chmod 755 is safer. Still proceed with 777?'",
+                "rule_example": "'chmod 777' -> 'Suggest: chmod 755 is safer. Still proceed with 777?'",
                 "principle_id": principles.get("collaborative"),
                 "integration_point": "clarification",
                 "enforcement_method": "Pattern match risky commands. Offer alternative + reasoning.",
@@ -511,7 +511,7 @@ async def seed_operational_tenets():
             {
                 "tenet_name": "no_guessing_intent",
                 "description": "Never guess what user meant if multiple interpretations exist",
-                "rule_example": "'Delete file' when 5 files match → ask which one, don't pick randomly",
+                "rule_example": "'Delete file' when 5 files match -> ask which one, don't pick randomly",
                 "principle_id": principles.get("truth_over_convenience"),
                 "integration_point": "clarification",
                 "enforcement_method": "Ambiguity detector. If >1 interpretation, clarify before acting.",

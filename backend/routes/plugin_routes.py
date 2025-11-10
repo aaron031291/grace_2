@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from ..auth import get_current_user
 from ..plugin_system import plugin_manager
-
 router = APIRouter(prefix="/api/plugins", tags=["plugins"])
 
 @router.get("/")

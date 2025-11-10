@@ -1,0 +1,147 @@
+# Logic Update Rollback Playbook
+# Automatically rolls back logic updates that cause regressions
+
+playbook_id: logic_update_rollback
+name: "Logic Update Rollback"
+description: "Automatic rollback for logic updates causing anomalies or regressions"
+version: "1.0"
+category: logic_update
+priority: critical
+triggers:
+  - type: observation_anomaly
+    condition: "critical_anomaly_detected AND update_id_present"
+  - type: metric_threshold
+    metric: logic_hub.rollback_rate
+    condition: "> 0.10"
+  - type: health_check_failure
+    condition: "component_health < 0.80 AND recent_update"
+
+steps:
+  - id: verify_anomaly
+    action: verify_anomaly_source
+    description: "Confirm anomaly is tied to specific logic update"
+    parameters:
+      check_immutable_log: true
+      correlate_with_update_id: true
+    timeout_seconds: 30
+    on_failure: abort
+
+  - id: get_update_details
+    action: fetch_update_package
+    description: "Retrieve update package and rollback instructions"
+    parameters:
+      update_id: "${anomaly.update_id}"
+      include_rollback_plan: true
+    timeout_seconds: 60
+    on_failure: abort
+
+  - id: governance_approval
+    action: request_rollback_approval
+    description: "Get governance approval for rollback"
+    parameters:
+      update_id: "${update_details.update_id}"
+      reason: "${anomaly.description}"
+      severity: "${anomaly.severity}"
+      auto_approve_critical: true
+    timeout_seconds: 300
+    on_failure: escalate_to_human
+
+  - id: notify_stakeholders
+    action: send_notification
+    description: "Notify about impending rollback"
+    parameters:
+      recipients: ["ops_team", "dev_team"]
+      message: "Rolling back update ${update_details.update_id} due to ${anomaly.severity} anomaly"
+      channels: ["slack", "email"]
+    timeout_seconds: 10
+    on_failure: continue
+
+  - id: create_snapshot
+    action: capture_pre_rollback_snapshot
+    description: "Snapshot current state before rollback"
+    parameters:
+      update_id: "${update_details.update_id}"
+      capture_metrics: true
+      capture_logs: true
+    timeout_seconds: 120
+    on_failure: continue
+
+  - id: execute_rollback
+    action: trigger_logic_hub_rollback
+    description: "Execute rollback via unified logic hub API"
+    parameters:
+      update_id: "${update_details.update_id}"
+      rollback_plan: "${update_details.rollback_instructions}"
+      wait_for_completion: true
+    timeout_seconds: 600
+    on_failure: escalate_critical
+
+  - id: verify_rollback
+    action: verify_components_restored
+    description: "Verify affected components restored to previous state"
+    parameters:
+      components: "${update_details.component_targets}"
+      expected_version: "${update_details.previous_version}"
+      health_check: true
+    timeout_seconds: 300
+    on_failure: escalate_critical
+
+  - id: monitor_post_rollback
+    action: start_observation_window
+    description: "Monitor system post-rollback for 1 hour"
+    parameters:
+      duration_seconds: 3600
+      components: "${update_details.component_targets}"
+      alert_on_anomaly: true
+    timeout_seconds: 3700
+    on_failure: escalate
+
+  - id: update_learning
+    action: record_rollback_learning
+    description: "Feed rollback data to proactive intelligence"
+    parameters:
+      update_id: "${update_details.update_id}"
+      anomalies: "${anomaly}"
+      rollback_reason: "${anomaly.description}"
+      snapshot: "${snapshot_id}"
+    timeout_seconds: 60
+    on_failure: log_error
+
+  - id: immutable_log_entry
+    action: log_to_immutable_log
+    description: "Record rollback in audit trail"
+    parameters:
+      actor: "logic_update_rollback_playbook"
+      action: "automated_rollback_completed"
+      resource: "${update_details.update_id}"
+      payload:
+        update_id: "${update_details.update_id}"
+        anomaly_severity: "${anomaly.severity}"
+        rollback_timestamp: "${timestamp}"
+      sign: true
+    timeout_seconds: 30
+    on_failure: log_error
+
+rollback_steps:
+  # If this playbook itself fails
+  - id: escalate_to_human
+    action: create_incident
+    description: "Create critical incident for human intervention"
+    parameters:
+      severity: critical
+      title: "Logic Update Rollback Playbook Failed"
+      details: "${failure_details}"
+
+success_criteria:
+  - metric: component_health
+    threshold: "> 0.95"
+  - metric: error_rate
+    threshold: "< 0.01"
+  - condition: "no_critical_anomalies_for_1_hour"
+
+metadata:
+  estimated_duration_seconds: 900
+  requires_approval: false  # Auto-approved for critical anomalies
+  notification_required: true
+  learning_enabled: true
+  crypto_signed: true

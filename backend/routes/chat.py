@@ -7,7 +7,6 @@ from ..grace import GraceAutonomous
 from ..causal import causal_tracker
 from ..hunter import hunter
 from ..models import ChatMessage, async_session
-
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 class ChatRequest(BaseModel):
@@ -26,7 +25,11 @@ async def chat_endpoint(
 ):
     alerts = await hunter.inspect(current_user, "chat_message", req.message, {"content": req.message})
     if alerts:
+<<<<<<<< HEAD:backend/routes/chat.py
         print(f"⚠️ Hunter: {len(alerts)} alerts on chat message")
+========
+        print(f"[WARN] Hunter: {len(alerts)} alerts on chat message")
+>>>>>>>> origin/main:backend/tests/routes/chat.py
     
     await memory.store(current_user, "user", req.message)
     

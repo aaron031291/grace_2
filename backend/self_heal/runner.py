@@ -351,6 +351,9 @@ class ExecutionRunner:
                         impact = str(d.get("impact") or "").lower()
                     except Exception:
                         impact = ""
+=======
+                
+>>>>>>> origin/main
                 # Determine if outside window (weekdays 09:00–18:00 local)
                 try:
                     local_now = now.astimezone()
@@ -408,6 +411,7 @@ class ExecutionRunner:
                     rollback_args = None
                 steps = [_Sim()]
 
+<<<<<<< HEAD
             from ..settings import settings as _settings
             base_url = getattr(_settings, "SELF_HEAL_BASE_URL", "http://localhost:8000")
             order = 1

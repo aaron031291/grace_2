@@ -4,6 +4,16 @@ from sqlalchemy import select
 from ..auth import get_current_user
 from ..trusted_sources import TrustedSource, trust_manager
 from ..models import async_session
+=======
+from ..schemas_extended import (
+    TrustedSourcesListResponse,
+    TrustedSourceResponse,
+    TrustSourceUpdateResponse,
+    TrustSourceDeleteResponse,
+    TrustScoreResponse
+)
+
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/trust", tags=["trust"])
 
@@ -20,6 +30,7 @@ class UpdateTrustedSource(BaseModel):
     description: str | None = None
     auto_approve_threshold: float | None = None
 
+<<<<<<< HEAD
 @router.get("/sources")
 async def list_trusted_sources():
     """List all trusted sources"""

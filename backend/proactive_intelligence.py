@@ -842,7 +842,7 @@ class ProactiveIntelligence:
                     total_forecasts += 1
         
         if total_forecasts > 0:
-            print(f"  → Issued {total_forecasts} preventive directives")
+            print(f"  -> Issued {total_forecasts} preventive directives")
     
     async def _run_capacity_prediction(self):
         """Run capacity prediction"""
@@ -860,7 +860,7 @@ class ProactiveIntelligence:
             await self._issue_capacity_directive(prediction)
         
         if predictions:
-            print(f"  → Predicted {len(predictions)} capacity needs")
+            print(f"  -> Predicted {len(predictions)} capacity needs")
     
     async def _run_risk_assessment(self):
         """Run risk assessment"""
@@ -884,7 +884,7 @@ class ProactiveIntelligence:
                 high_risk_count += 1
         
         if high_risk_count > 0:
-            print(f"  → Identified {high_risk_count} high-risk systems")
+            print(f"  -> Identified {high_risk_count} high-risk systems")
     
     async def _handle_metric_event(self, event: TriggerEvent):
         """Handle metric events for time series analysis"""

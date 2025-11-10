@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, func
+=======
+from typing import List
+>>>>>>> origin/main
 from ..auth import get_current_user
 from ..meta_loop import MetaAnalysis, MetaMetaEvaluation, MetaLoopConfig
 from ..meta_loop_approval import approval_queue, RecommendationQueue
 from ..meta_loop_engine import AppliedRecommendation
 from ..models import async_session
+<<<<<<< HEAD
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/meta", tags=["meta_loops"])

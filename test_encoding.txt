@@ -1,0 +1,50 @@
+﻿# ============================================================================
+# GRACE - ONE SCRIPT TO RULE THEM ALL
+# Fixes everything, installs dependencies, starts complete system, monitors
+# ============================================================================
+
+param(
+    [switch]$Stop,
+    [switch]$Status,
+    [switch]$Logs
+)
+
+# Set UTF-8 encoding for console
+chcp 65001 > $null
+$env:PYTHONIOENCODING = "utf-8"
+
+$ErrorActionPreference = "Continue"
+
+# ============================================================================
+# STOP MODE
+# ============================================================================
+if ($Stop) {
+    Write-Host ""
+    Write-Host "Stopping Grace..." -ForegroundColor Yellow
+    Get-Job | Stop-Job -ErrorAction SilentlyContinue
+    Get-Job | Remove-Job -Force -ErrorAction SilentlyContinue
+    Write-Host "✓ Grace stopped" -ForegroundColor Green
+    Write-Host ""
+    exit 0
+}
+
+# ============================================================================
+# STATUS MODE
+# ============================================================================
+if ($Status) {
+    Write-Host ""
+    Write-Host "Grace Status:" -ForegroundColor Cyan
+    Write-Host "=" * 80
+    $jobs = Get-Job
+    if ($jobs.Count -eq 0) {
+        Write-Host "✗ Grace is not running" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "Start with: .\GRACE.ps1" -ForegroundColor Yellow
+    } else {
+        Write-Host "✓ Grace is running ($($jobs.Count) job(s))" -ForegroundColor Green
+        $jobs | Format-Table Id, Name, State
+        Write-Host ""
+        Write-Host "Backend: http://localhost:8000" -ForegroundColor Cyan
+        Write-Host ""
+        try {
+            $health = Invoke-RestMethod -Uri "http://localhost:8000/health" -TimeoutSec 2 -ErrorAction SilentlyContinue

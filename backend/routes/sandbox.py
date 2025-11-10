@@ -7,6 +7,16 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
 from ..verification_middleware import verify_action
+=======
+from ..schemas_extended import (
+    SandboxFilesListResponse,
+    SandboxFileReadResponse,
+    SandboxFileWriteResponse,
+    SandboxRunResponse,
+    SandboxResetResponse
+)
+
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 
@@ -18,6 +28,7 @@ class RunCommandRequest(BaseModel):
     command: str
     file_name: Optional[str] = None
 
+<<<<<<< HEAD
 @router.get("/files")
 async def list_files(current_user: str = Depends(get_current_user)):
     files = await sandbox_manager.list_files(current_user)

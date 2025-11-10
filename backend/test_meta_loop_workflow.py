@@ -59,7 +59,7 @@ async def test_full_workflow():
         print(f"\nRecommendation #{rec['id']}:")
         print(f"  Type: {rec['type']}")
         print(f"  Target: {rec['target']}")
-        print(f"  Change: {rec['current']} → {rec['proposed']}")
+        print(f"  Change: {rec['current']} -> {rec['proposed']}")
         print(f"  Text: {rec['text']}")
         print(f"  Confidence: {rec['confidence']:.2f}")
         print(f"  Risk: {rec['risk_level']}")
@@ -109,7 +109,7 @@ async def test_full_workflow():
         print(f"\nApplied #{rec['id']}:")
         print(f"  Type: {rec['type']}")
         print(f"  Target: {rec['target']}")
-        print(f"  Change: {rec['old_value']} → {rec['new_value']}")
+        print(f"  Change: {rec['old_value']} -> {rec['new_value']}")
         print(f"  Applied by: {rec['applied_by']}")
         print(f"  Applied at: {rec['applied_at']}")
         if rec.get('effectiveness') is not None:

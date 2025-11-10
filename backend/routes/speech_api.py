@@ -13,6 +13,17 @@ from ..auth import get_current_user
 from ..governance import governance_engine
 from ..hunter import hunter_engine
 from ..websocket_manager import websocket_manager
+=======
+from ..schemas_extended import (
+    SpeechUploadResponse,
+    SpeechMessageResponse,
+    SpeechListResponse,
+    SpeechReviewResponse,
+    SpeechDeleteResponse,
+    TTSGenerateResponse
+)
+
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/audio", tags=["speech"])
 
@@ -28,6 +39,7 @@ class TTSRequest(BaseModel):
     reply_to_speech_id: Optional[int] = None
     reply_to_chat_id: Optional[int] = None
 
+<<<<<<< HEAD
 @router.post("/upload")
 async def upload_audio(
     file: UploadFile = File(...),

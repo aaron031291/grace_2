@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+﻿from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
 from .models import Base, async_session
 
@@ -25,7 +25,7 @@ class KnowledgeManager:
             session.add(entry)
             await session.commit()
             await session.refresh(entry)
-            print(f"✓ Ingested knowledge: {content[:50]}...")
+            print(f"[OK] Ingested knowledge: {content[:50]}...")
             return entry.id
     
     async def search_knowledge(self, query: str, limit: int = 5):

@@ -39,6 +39,15 @@ class ObserveOnlyScheduler:
             return
         self._stopping.clear()
         self._task = asyncio.create_task(self._run_loop())
+=======
+        
+        # Subscribe to proactive predictions
+        try:
+            from ..trigger_mesh import trigger_mesh
+            trigger_mesh.subscribe("self_heal.prediction", self._handle_prediction)
+        except Exception:
+            pass
+>>>>>>> origin/main
 
     async def stop(self) -> None:
         try:
@@ -83,40 +92,6 @@ class ObserveOnlyScheduler:
         except Exception:
             return {"global": {}, "per_service": {}}
 
-    def _should_propose(self, service: str, diagnosis: str, now: datetime) -> tuple[bool, str, int]:
-        """Decide if we should create a proposal.
-        Returns (ok, reason, backoff_ms). reason describes skip if ok=False.
-        """
-        # Rate limit: max 3/hour per service
-        self._cleanup_rate(service, now)
-        if len(self._rate.get(service, [])) >= 3:
-            return (False, "rate_limited", 0)
-        # Backoff per (service, diagnosis)
-        key = (service, diagnosis)
-        bo = self._backoff.get(key)
-        if bo:
-            next_at = bo.get("next_at")
-            if isinstance(next_at, datetime) and next_at > now:
-                delta_ms = int((next_at - now).total_seconds() * 1000)
-                return (False, "backoff", delta_ms)
-        return (True, "ok", 0)
-
-    def _note_proposal(self, service: str, diagnosis: str, now: datetime) -> None:
-        # Record rate event
-        self._rate.setdefault(service, []).append(now)
-        # Increase backoff factor with jitter
-        key = (service, diagnosis)
-        prev = self._backoff.get(key, {"factor": 0})
-        factor = int(prev.get("factor", 0)) + 1
-        # base sequence (minutes): 5, 10, 20, 40, 80; cap 120
-        base_min = min(5 * (2 ** (factor - 1)), 120)
-        # jitter ±20%
-        jitter = 1.0 + (random.random() * 0.4 - 0.2)
-        delay = timedelta(minutes=base_min * jitter)
-        self._backoff[key] = {"factor": factor, "next_at": now + delay}
-
-    def _is_outside_change_window(self, now: datetime) -> bool:
-        """Default change window: weekdays 09:00–18:00 local time. Outside → True."""
         try:
             local = now.astimezone()
         except Exception:
@@ -203,19 +178,6 @@ class ObserveOnlyScheduler:
                             self._bump_counter(svc.name, "skipped_dup")
                         except Exception:
                             pass
-                        continue
-
-                    # New: rate limit and backoff checks
-                    ok, reason, backoff_ms = self._should_propose(svc.name, diag_code, now)
-                    if not ok:
-                        try:
-                            if reason == "backoff":
-                                self._bump_counter(svc.name, "skipped_backoff")
-                            elif reason == "rate_limited":
-                                self._bump_counter(svc.name, "skipped_rate")
-                        except Exception:
-                            pass
-                        try:
                             print(f"[self-heal:scheduler] skip {svc.name}/{diag_code}: {reason} backoff_ms={backoff_ms}")
                         except Exception:
                             pass
@@ -288,6 +250,7 @@ class ObserveOnlyScheduler:
             reason=reason,
         )
         session.add(req)
+<<<<<<< HEAD
 
 
 # Singleton instance for app wiring

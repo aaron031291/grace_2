@@ -7,6 +7,9 @@ from typing import Optional, Dict
 from ..auth import get_current_user
 from ..execution_engine import execution_engine
 from ..execution_config import LANGUAGE_CONFIGS, EXECUTION_PRESETS
+=======
+from ..schemas_extended import ExecutionLanguagesResponse, ExecutionPresetsResponse, ExecutionValidateResponse
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/execute", tags=["execution"])
 
@@ -66,6 +69,7 @@ async def execute_code(
         raise HTTPException(status_code=500, detail=f"Execution failed: {str(e)}")
 
 
+<<<<<<< HEAD
 @router.get("/languages")
 async def get_supported_languages(
     current_user: str = Depends(get_current_user)

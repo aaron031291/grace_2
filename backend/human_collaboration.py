@@ -224,7 +224,7 @@ class IncidentChannel:
         """Notify all channel subscribers"""
         if channel_id in self.subscribers:
             for subscriber in self.subscribers[channel_id]:
-                print(f"📢 [{channel_id}] → {subscriber}: {message[:100]}...")
+                print(f"📢 [{channel_id}] -> {subscriber}: {message[:100]}...")
 
 
 class ApprovalManager:

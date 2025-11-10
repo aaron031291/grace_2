@@ -4,7 +4,6 @@ from sqlalchemy.sql import func
 from ..governance_models import SecurityEvent, SecurityRule
 from ..models import async_session
 from ..auth import get_current_user
-
 router = APIRouter(prefix="/api/hunter", tags=["hunter"])
 
 @router.get("/alerts")

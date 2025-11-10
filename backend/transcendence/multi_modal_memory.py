@@ -287,7 +287,7 @@ class MultiModalMemory:
             # Critical alerts require your approval
             if any(a['severity'] == 'critical' for a in hunter_result['alerts']):
                 print("  🚨 Critical security issues detected")
-                print("  → Escalating to Parliament for your approval...")
+                print("  -> Escalating to Parliament for your approval...")
                 
                 session = await parliament_engine.create_session(
                     policy_name="file_upload_security",

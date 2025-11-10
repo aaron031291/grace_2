@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from ..immutable_log import immutable_log
-
 router = APIRouter(prefix="/api/log", tags=["immutable_log"])
 
 @router.get("/entries")

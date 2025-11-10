@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Float
 from sqlalchemy.sql import func
-from .models import Base
+from .base_models import Base
 
 class GoalDependency(Base):
     __tablename__ = "goal_dependencies"

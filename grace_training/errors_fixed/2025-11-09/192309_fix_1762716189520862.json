@@ -1,0 +1,27 @@
+{
+  "id": "fix_1762716189.520862",
+  "category": "errors_fixed",
+  "source": "c:\\Users\\aaron\\grace_2\\backend\\domains\\core_domain_adapter.py",
+  "tags": [
+    "self_heal",
+    "missing_attribute",
+    "add_attribute"
+  ],
+  "content": {
+    "error_type": "missing_attribute",
+    "error_message": "AttributeError: type object 'VerificationEvent' has no attribute 'passed'",
+    "file_path": "c:\\Users\\aaron\\grace_2\\backend\\domains\\core_domain_adapter.py",
+    "line_number": 224,
+    "original_code": "                        func.count(VerificationEvent.id).label(\"total\"),",
+    "fixed_code": "# Add to VerificationEvent class:\npassed = None  # TODO: Set proper default",
+    "fix_description": "Add missing attribute 'passed' to VerificationEvent",
+    "confidence": 0.8,
+    "requires_approval": true
+  },
+  "saved_at": "2025-11-09T19:23:09.526444",
+  "provenance": {
+    "verified": false,
+    "trust_score": 0.0,
+    "governance_approved": false
+  }
+}

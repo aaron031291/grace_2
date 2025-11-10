@@ -57,7 +57,7 @@ class GraceLoopOutput:
     Standardized output format for ALL Grace components
     
     This is THE schema that flows through:
-    - Specialists → Quorum → Governance → FeedbackIntegrator → Memory
+    - Specialists -> Quorum -> Governance -> FeedbackIntegrator -> Memory
     """
     
     # Identity

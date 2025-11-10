@@ -1,7 +1,7 @@
 """Transcendence - Unified Intelligence System
 
 ALL Grace systems united under one roof:
-Memory → Learning → Knowledge → Action → Verification → Governance
+Memory -> Learning -> Knowledge -> Action -> Verification -> Governance
 
 Grace as collaborative partner: proposes, you approve, together you build.
 """
@@ -63,7 +63,7 @@ class TrustedSource(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class AgenticLearningCycle(Base):
-    """Track complete learning cycles: Ingest → Understand → Apply → Adapt"""
+    """Track complete learning cycles: Ingest -> Understand -> Apply -> Adapt"""
     __tablename__ = "transcendence_learning_cycles"
     
     id = Column(Integer, primary_key=True)
@@ -602,8 +602,8 @@ class TranscendenceUnified:
             )
             
             # If you approve, Grace Architect builds it
-            print(f"  → Grace Architect can build: {domain}_system.py")
-            print(f"  → Awaiting approval: {proposal['decision_id']}")
+            print(f"  -> Grace Architect can build: {domain}_system.py")
+            print(f"  -> Awaiting approval: {proposal['decision_id']}")
             
             artifacts_created.append({
                 'type': 'code_component',

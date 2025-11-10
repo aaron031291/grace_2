@@ -1,31 +1,11 @@
 import hashlib
 import json
+import asyncio
 from typing import List, Optional
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Text, select
-from sqlalchemy.sql import func
-from .models import Base, async_session
-
-class ImmutableLogEntry(Base):
-    """Tamper-proof append-only audit log"""
-    __tablename__ = "immutable_log"
-    id = Column(Integer, primary_key=True)
-    sequence = Column(Integer, unique=True, nullable=False)
-    actor = Column(String(64), nullable=False)
-    action = Column(String(128), nullable=False)
-    resource = Column(String(256))
-    subsystem = Column(String(64))
-    payload = Column(Text)
-    result = Column(String(64))
-    entry_hash = Column(String(64), nullable=False, unique=True)
-    previous_hash = Column(String(64), nullable=False)
-    timestamp = Column(DateTime(timezone=True), server_default=func.now())
-    
-    @staticmethod
-    def compute_hash(sequence: int, actor: str, action: str, resource: str, payload: str, result: str, previous_hash: str) -> str:
-        """Cryptographic hash for tamper detection"""
-        data = f"{sequence}:{actor}:{action}:{resource}:{payload}:{result}:{previous_hash}"
-        return hashlib.sha256(data.encode()).hexdigest()
+from datetime import datetime, timedelta
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from .base_models import ImmutableLogEntry, async_session
 
 class ImmutableLog:
     """Append-only log with cryptographic chain"""
@@ -37,44 +17,85 @@ class ImmutableLog:
         resource: str,
         subsystem: str,
         payload: dict,
-        result: str
+        result: str,
+        signature: Optional[str] = None,
+        max_retries: int = 5
     ) -> int:
-        """Append entry to immutable log"""
+        """
+        Append entry to immutable log with optional signature.
+        Retries on sequence conflicts (handles concurrent writes).
         
-        async with async_session() as session:
-            last_result = await session.execute(
-                select(ImmutableLogEntry)
-                .order_by(ImmutableLogEntry.sequence.desc())
-                .limit(1)
-            )
-            last_entry = last_result.scalar_one_or_none()
-            
-            sequence = (last_entry.sequence + 1) if last_entry else 1
-            previous_hash = last_entry.entry_hash if last_entry else "0" * 64
-            
-            payload_str = json.dumps(payload, sort_keys=True)
-            
-            entry_hash = ImmutableLogEntry.compute_hash(
-                sequence, actor, action, resource, payload_str, result, previous_hash
-            )
-            
-            entry = ImmutableLogEntry(
-                sequence=sequence,
-                actor=actor,
-                action=action,
-                resource=resource,
-                subsystem=subsystem,
-                payload=payload_str,
-                result=result,
-                entry_hash=entry_hash,
-                previous_hash=previous_hash
-            )
-            
-            session.add(entry)
-            await session.commit()
-            await session.refresh(entry)
-            
-            return entry.id
+        Args:
+            actor: Who performed the action
+            action: What action was performed
+            resource: What resource was affected
+            subsystem: Which subsystem logged this
+            payload: Additional data (dict)
+            result: Outcome of the action
+            signature: Optional cryptographic signature for audit trail
+            max_retries: Maximum retry attempts on conflict
+        
+        Returns:
+            Entry ID
+        """
+        
+        for attempt in range(max_retries):
+            try:
+                async with async_session() as session:
+                    last_result = await session.execute(
+                        select(ImmutableLogEntry)
+                        .order_by(ImmutableLogEntry.sequence.desc())
+                        .limit(1)
+                    )
+                    last_entry = last_result.scalar_one_or_none()
+                    
+                    sequence = (last_entry.sequence + 1) if last_entry else 1
+                    previous_hash = last_entry.entry_hash if last_entry else "0" * 64
+                    
+                    # Add signature to payload if provided
+                    if signature:
+                        payload["_signature"] = signature
+                    
+                    # Convert datetime objects to ISO format strings
+                    def convert_datetime(obj):
+                        if isinstance(obj, datetime):
+                            return obj.isoformat()
+                        raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+                    
+                    payload_str = json.dumps(payload, sort_keys=True, default=convert_datetime)
+                    
+                    entry_hash = ImmutableLogEntry.compute_hash(
+                        sequence, actor, action, resource, payload_str, result, previous_hash
+                    )
+                    
+                    entry = ImmutableLogEntry(
+                        sequence=sequence,
+                        actor=actor,
+                        action=action,
+                        resource=resource,
+                        subsystem=subsystem,
+                        payload=payload_str,
+                        result=result,
+                        entry_hash=entry_hash,
+                        previous_hash=previous_hash
+                    )
+                    
+                    session.add(entry)
+                    await session.commit()
+                    await session.refresh(entry)
+                    
+                    return entry.id
+            except (IntegrityError, Exception) as e:
+                error_msg = str(e)
+                if ("UNIQUE constraint failed: immutable_log.sequence" in error_msg or 
+                    "database is locked" in error_msg) and attempt < max_retries - 1:
+                    # Retry with exponential backoff
+                    await asyncio.sleep(0.1 * (2 ** attempt))
+                    continue
+                # If all retries failed, log but don't crash
+                import logging
+                logging.error(f"ImmutableLog append failed after {max_retries} retries: {e}")
+                return -1  # Return error code instead of raising
     
     async def verify_integrity(self, start_seq: int = 1, end_seq: int = None) -> dict:
         """Verify hash chain integrity"""
@@ -122,6 +143,87 @@ class ImmutableLog:
                 "entries_verified": len(entries),
                 "sequence_range": f"{entries[0].sequence}-{entries[-1].sequence}" if entries else "empty"
             }
+    
+    async def replay_cycle(self, cycle_id: str) -> List[dict]:
+        """
+        Replay all events from a specific healing cycle.
+        
+        Used for:
+        - Audit and compliance
+        - Learning from outcomes
+        - Debugging failed cycles
+        - Training ML models
+        
+        Returns chronological list of all signed entries for the cycle.
+        """
+        async with async_session() as session:
+            result = await session.execute(
+                select(ImmutableLogEntry)
+                .where(ImmutableLogEntry.payload.contains(f'"cycle_id": "{cycle_id}"'))
+                .order_by(ImmutableLogEntry.sequence.asc())
+            )
+            entries = result.scalars().all()
+            
+            replay = []
+            for entry in entries:
+                payload = json.loads(entry.payload) if entry.payload else {}
+                signature = payload.pop("_signature", None)
+                
+                replay.append({
+                    "sequence": entry.sequence,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "actor": entry.actor,
+                    "action": entry.action,
+                    "resource": entry.resource,
+                    "subsystem": entry.subsystem,
+                    "payload": payload,
+                    "result": entry.result,
+                    "signature": signature,
+                    "entry_hash": entry.entry_hash
+                })
+            
+            return replay
+    
+    async def get_signed_outcomes(
+        self,
+        subsystem: str = "meta_coordinated_healing",
+        hours_back: int = 24,
+        limit: int = 100
+    ) -> List[dict]:
+        """Get signed execution outcomes for learning"""
+        async with async_session() as session:
+            cutoff = datetime.utcnow() - timedelta(hours=hours_back)
+            
+            result = await session.execute(
+                select(ImmutableLogEntry)
+                .where(
+                    ImmutableLogEntry.subsystem == subsystem,
+                    ImmutableLogEntry.action == "execution_outcome",
+                    ImmutableLogEntry.timestamp >= cutoff
+                )
+                .order_by(ImmutableLogEntry.timestamp.desc())
+                .limit(limit)
+            )
+            entries = result.scalars().all()
+            
+            outcomes = []
+            for entry in entries:
+                payload = json.loads(entry.payload) if entry.payload else {}
+                signature = payload.pop("_signature", None)
+                
+                outcomes.append({
+                    "timestamp": entry.timestamp.isoformat(),
+                    "outcome_id": payload.get("outcome_id"),
+                    "cycle_id": payload.get("cycle_id"),
+                    "playbook": payload.get("playbook"),
+                    "result": entry.result,
+                    "verification_passed": payload.get("verification_passed"),
+                    "duration_seconds": payload.get("duration_seconds"),
+                    "signature": signature,
+                    "learned_insights": payload.get("learned_insights", [])
+                })
+            
+            return outcomes
     
     async def get_entries(
         self,

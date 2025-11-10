@@ -11,6 +11,14 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from ..agentic_observability import agentic_observability, InsightVerbosity
+=======
+from ..schemas_extended import (
+    AgenticInsightsStatusResponse,
+    AgenticInsightsVerbosityResponse,
+    AgenticInsightsSearchResponse,
+    AgenticInsightsHealthResponse
+)
+>>>>>>> origin/main
 
 
 router = APIRouter(prefix="/agent", tags=["Agentic Insights"])
@@ -89,6 +97,7 @@ class DashboardSummary(BaseModel):
     statistics_7d: dict
 
 
+<<<<<<< HEAD
 @router.get("/status", summary="Get current agentic status")
 async def get_status():
     """Get current status of agentic system"""

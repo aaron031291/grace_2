@@ -1,0 +1,127 @@
+# GRACE Agentic Systems Configuration
+
+# Proactive Intelligence
+proactive_intelligence:
+  enabled: true
+  prediction_interval_seconds: 180  # Run predictions every 3 minutes
+  
+  anomaly_forecasting:
+    forecast_horizon_minutes: 30
+    confidence_threshold: 0.6
+    thresholds:
+      latency_p95: 500
+      error_rate: 0.01
+      cpu_utilization: 80
+      memory_utilization: 85
+      disk_utilization: 90
+  
+  capacity_prediction:
+    forecast_horizon_minutes: 60
+    buffer_percentage: 20  # Over-provision by 20%
+  
+  risk_assessment:
+    age_thresholds:
+      low: 30
+      moderate: 90
+      high: 180
+      critical: 365
+
+# Autonomous Planner
+autonomous_planner:
+  enabled: true
+  max_concurrent_recoveries: 10
+  verification_timeout_seconds: 60
+  rollback_on_failure: true
+  
+  risk_thresholds:
+    auto_approve_below: 0.3
+    require_approval_above: 0.5
+    block_above: 0.9
+
+# Learning Integration
+learning:
+  enabled: true
+  learning_cycle_hours: 1
+  outcome_retention_days: 30
+  
+  auto_upgrade:
+    enabled: true
+    confidence_threshold: 0.85
+    max_adjustments_per_cycle: 5
+
+# Human Collaboration
+human_collaboration:
+  enabled: true
+  approval_deadline_minutes: 30
+  notification_channels:
+    - slack
+    - email
+
+# Resource Stewardship
+resource_stewardship:
+  enabled: true
+  capacity_check_interval_minutes: 1
+  credential_rotation_days: 90
+  key_rotation_days: 180
+  playbook_stale_threshold_days: 90
+
+# Ethics Sentinel
+ethics_sentinel:
+  enabled: true
+  bias_check_interval_hours: 1
+  compliance_check_interval_hours: 6
+  auto_block_violations: true
+
+# Meta Loop Supervisor
+meta_loop:
+  enabled: true
+  cycle_interval_seconds: 300  # 5 minutes
+  strategic_goals:
+    overall_success_rate: 0.95
+    mean_recovery_time_seconds: 30
+    autonomy_rate: 0.80
+    compliance_score: 95.0
+    human_intervention_rate: 0.15
+
+# Multi-Agent Shards
+sharding:
+  enabled: true
+  default_shards:
+    - type: domain
+      scope:
+        domain: infrastructure
+      capabilities:
+        - self_healing
+        - capacity_planner
+    
+    - type: domain
+      scope:
+        domain: application
+      capabilities:
+        - self_healing
+        - ingestion_lead
+    
+    - type: workload
+      scope:
+        workload_type: preventive
+      capabilities:
+        - capacity_planner
+  
+  auto_scaling:
+    enabled: true
+    overload_threshold: 0.8
+    idle_threshold: 0.2
+
+# Agentic Observability
+observability:
+  enabled: true
+  verbosity: summary  # minimal, summary, detailed, debug
+  retention_days: 90
+  privacy_filters:
+    - password
+    - token
+    - secret
+    - key
+    - credential
+    - ssn
+    - credit_card

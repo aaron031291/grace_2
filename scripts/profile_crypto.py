@@ -1,6 +1,33 @@
 import statistics
 import time
-from backend.verification import verification_engine
+import sys
+import hashlib
+import json
+from pathlib import Path
+
+# Add backend to path without triggering circular imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Direct imports to avoid circular dependency
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+# Create standalone verification engine for profiling
+class StandaloneVerificationEngine:
+    def __init__(self):
+        self.private_key = Ed25519PrivateKey.generate()
+        self._sign = self.private_key.sign
+    
+    def create_envelope(self, action_id: str, actor: str, action_type: str, resource: str, input_data: dict):
+        """Simplified version of create_envelope for profiling"""
+        input_str = json.dumps(input_data, sort_keys=True, separators=(",", ":"))
+        input_hash = hashlib.sha256(input_str.encode()).hexdigest()
+        message = f"{action_id}:{actor}:{action_type}:{resource}:{input_hash}"
+        signature = self._sign(message.encode())
+        signature_hex = signature.hex()
+        return signature_hex, input_hash
+
+# Global instance
+verification_engine = StandaloneVerificationEngine()
 
 
 def run_once(i: int):

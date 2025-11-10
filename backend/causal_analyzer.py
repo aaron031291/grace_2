@@ -58,7 +58,7 @@ class CausalAnalyzer:
         
         for task in completed_tasks:
             for cause in task["causes"]:
-                pattern_key = f"{cause['event_type']}→task_completed"
+                pattern_key = f"{cause['event_type']}->task_completed"
                 patterns[pattern_key] += 1
         
         total = len(completed_tasks) if completed_tasks else 1
@@ -79,7 +79,7 @@ class CausalAnalyzer:
                 patterns["user_created"] += 1
             
             for cause in task["causes"]:
-                pattern_key = f"{cause['event_type']}→task_pending"
+                pattern_key = f"{cause['event_type']}->task_pending"
                 patterns[pattern_key] += 1
         
         total = len(failed_tasks) if failed_tasks else 1

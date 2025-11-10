@@ -1,0 +1,29 @@
+{
+  "snapshot_id": "snapshot-20251107-182623-1762539983.599804",
+  "timestamp": "2025-11-07T18:26:23.599804+00:00",
+  "components": [
+    {
+      "type": "database",
+      "status": "success",
+      "files": [
+        "grace.db"
+      ],
+      "size_bytes": 1040384
+    },
+    {
+      "type": "config",
+      "status": "success",
+      "files": [
+        ".env",
+        "alembic.ini"
+      ]
+    },
+    {
+      "type": "health",
+      "status": "success",
+      "health_score": 100,
+      "metrics": {},
+      "services_count": 0
+    }
+  ]
+}

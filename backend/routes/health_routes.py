@@ -6,12 +6,16 @@ from ..governance_models import HealthCheck, HealingAction
 from ..models import async_session
 from ..auth import get_current_user
 from ..self_healing import health_monitor, system_state
+=======
+from ..schemas import HealthStatusResponse, HealthRestartResponse, HealthModeResponse, HealthModeSetResponse
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/health", tags=["health"])
 
 class RestartRequest(BaseModel):
     component: str
 
+<<<<<<< HEAD
 @router.get("/status")
 async def status(limit: int = 10):
     """Get health check status and recent healing actions"""

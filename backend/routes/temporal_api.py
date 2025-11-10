@@ -7,6 +7,14 @@ from ..models import async_session
 from ..temporal_reasoning import temporal_reasoner
 from ..simulation_engine import simulation_engine
 from ..temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly
+=======
+from ..schemas import (
+    TemporalPredictionResponse, TemporalSimulationResponse, TemporalPatternsResponse,
+    TemporalPlanResponse, TemporalDurationEstimateResponse, TemporalDurationsResponse,
+    TemporalAnomaliesResponse, TemporalPeakLoadResponse, TemporalPreventiveActionsResponse,
+    TemporalScenariosResponse, TemporalSimulationDetailResponse, TemporalActualOutcomeResponse
+)
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/temporal", tags=["temporal"])
 
@@ -25,6 +33,7 @@ class PlanRequest(BaseModel):
 class ScenarioComparisonRequest(BaseModel):
     scenarios: List[Dict[str, Any]]
 
+<<<<<<< HEAD
 @router.post("/predict")
 async def predict_next_events(request: PredictRequest):
     """Predict what events are likely to happen next"""

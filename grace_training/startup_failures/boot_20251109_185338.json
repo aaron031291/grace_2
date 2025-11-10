@@ -1,0 +1,28 @@
+{
+  "boot_timestamp": "2025-11-09T18:53:38.385148",
+  "stages": [
+    {
+      "success": false,
+      "critical": true,
+      "metrics": {
+        "validation_errors": 0,
+        "linting_warnings": 0,
+        "schema_mismatches": 1
+      },
+      "issues": [
+        "Missing table: meta_loop_config"
+      ],
+      "fixes": []
+    }
+  ],
+  "incidents": [],
+  "fixes_applied": [],
+  "summary": {
+    "success": false,
+    "stages_passed": 0,
+    "stages_failed": 1,
+    "metrics": {
+      "startup.preflight_status": "fail"
+    }
+  }
+}

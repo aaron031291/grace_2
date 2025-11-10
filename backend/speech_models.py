@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
-from .models import Base
+from .base_models import Base
 
 class SpeechMessage(Base):
     """Voice messages with transcripts and audio storage"""
