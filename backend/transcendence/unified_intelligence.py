@@ -20,7 +20,8 @@ from ..parliament_engine import parliament_engine
 from ..constitutional_engine import constitutional_engine
 from ..verification import VerificationEngine
 from ..governance import GovernanceEngine
-from ..grace_architect_agent import grace_architect  # AI coding agent integration
+# Lazy import to avoid circular dependency
+# from ..grace_architect_agent import get_grace_architect
 
 class TrustedSource(Base):
     """Whitelist of trusted topics, domains, and authorities"""

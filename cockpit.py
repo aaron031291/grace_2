@@ -14,13 +14,19 @@ class GraceCockpit:
             "Grace Intelligence",
             "ML/DL",
             "NLP",
+            "Causal Analysis",
+            "Knowledge Base",
+            "Evaluation",
+            "Governance",
+            "Parliament",
+            "Self Healing",
+            "Agentic Coding Agent",
+            "Ingestion",
             "Memory",
             "Immutable Log",
             "TriggerMesh",
             "Crypto Keys",
             "Fusion",
-            "Self Healing",
-            "Agentic Spine",
             "System Status",
         ]
         self.selected_tab = 0
@@ -34,6 +40,16 @@ class GraceCockpit:
         self.intelligence_content = TextArea(text="", read_only=True)
         self.ml_content = TextArea(text="", read_only=True)
         self.nlp_content = TextArea(text="", read_only=True)
+        self.causal_content = TextArea(text="", read_only=True)
+        self.knowledge_content = TextArea(text="", read_only=True)
+        self.evaluation_content = TextArea(text="", read_only=True)
+        self.governance_content = TextArea(text="", read_only=True)
+        self.parliament_content = TextArea(text="", read_only=True)
+        self.healing_content = TextArea(text="", read_only=True)
+        self.ingestion_content = TextArea(text="", read_only=True)
+        self.agentic_content = TextArea(text="", read_only=True)
+        self.file_explorer = Frame(title="File Explorer", body=Window())
+        self.memory_explorer = Frame(title="Memory Explorer", body=Window())
         self.main_content = Frame(title=self.tabs[self.selected_tab], body=self.chat_content)
         self.input_field = TextArea(height=3, prompt="> ", multiline=False)
 
@@ -80,6 +96,8 @@ class GraceCockpit:
             if self.selected_tab == 0: # Chat
                 asyncio.create_task(self.send_message(self.input_field.text))
                 self.input_field.text = ""
+            elif self.selected_tab == 12: # Ingestion
+                self.upload_file()
             else:
                 self.open_powershell_for_tab()
 
@@ -90,7 +108,7 @@ class GraceCockpit:
         self.main_content.title = self.tabs[self.selected_tab]
         if self.selected_tab == 0:
             self.main_content.body = self.chat_content
-        elif self.selected_tab == 2: # Immutable Log
+        elif self.selected_tab == 14: # Immutable Log
             self.main_content.body = self.log_content
         elif self.selected_tab == 1: # Cognition
             self.main_content.body = self.cognition_content
@@ -100,10 +118,33 @@ class GraceCockpit:
             self.main_content.body = self.ml_content
         elif self.selected_tab == 4: # NLP
             self.main_content.body = self.nlp_content
-        elif self.selected_tab == 12: # System Status
+        elif self.selected_tab == 5: # Causal Analysis
+            self.main_content.body = self.causal_content
+        elif self.selected_tab == 6: # Knowledge Base
+            self.main_content.body = self.file_explorer
+        elif self.selected_tab == 13: # Memory
+            self.main_content.body = self.memory_explorer
+        elif self.selected_tab == 7: # Evaluation
+            self.main_content.body = self.evaluation_content
+        elif self.selected_tab == 8: # Governance
+            self.main_content.body = self.governance_content
+        elif self.selected_tab == 9: # Parliament
+            self.main_content.body = self.parliament_content
+        elif self.selected_tab == 10: # Self Healing
+            self.main_content.body = self.healing_content
+        elif self.selected_tab == 11: # Agentic Coding Agent
+            self.main_content.body = self.agentic_content
+        elif self.selected_tab == 12: # Ingestion
+            self.main_content.body = self.ingestion_content
+        elif self.selected_tab == 18: # System Status
             self.main_content.body = self.status_content
         else:
             self.main_content.body = Window()
+
+        if self.selected_tab == 12: # Ingestion
+            self.input_field.text = "Press Enter to select a file to upload."
+        else:
+            self.input_field.text = ""
 
     async def send_message(self, message):
         self.append_to_chat(f"You: {message}")
@@ -111,6 +152,11 @@ class GraceCockpit:
 
     def append_to_chat(self, text):
         self.chat_content.text += f"\n{text}"
+
+    def upload_file(self):
+        # This is a placeholder. In a real application, you would
+        # use a file dialog to select a file and then upload it.
+        self.ingestion_content.text = "File upload is not yet implemented."
 
     def open_powershell_for_tab(self):
         tab_name = self.tabs[self.selected_tab]
@@ -130,8 +176,95 @@ class GraceCockpit:
                 self.update_cognition(),
                 self.update_intelligence(),
                 self.update_ml(),
-                self.update_nlp()
+                self.update_nlp(),
+                self.update_causal(),
+                self.update_knowledge(),
+                self.update_evaluation(),
+                self.update_governance(),
+                self.update_parliament(),
+                self.update_healing(),
+                self.update_ingestion(),
+                self.update_agentic()
             )
+
+    async def update_agentic(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/agentic/status") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.agentic_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_ingestion(self):
+        while True:
+            try:
+                # This is a placeholder. In a real application, you would
+                # use a file dialog to select a file and then upload it.
+                await asyncio.sleep(5)
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_healing(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/healing/status") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.healing_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_parliament(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/parliament/sessions") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.parliament_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_governance(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/governance/policies") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.governance_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_evaluation(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/evaluation/evaluate") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.evaluation_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_knowledge(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/knowledge/search") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.knowledge_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def update_causal(self):
+        while True:
+            try:
+                async with websockets.connect("ws://localhost:8000/api/causal/visualize") as ws:
+                    while True:
+                        data = await ws.recv()
+                        self.causal_content.text = data
+            except Exception:
+                await asyncio.sleep(5)
 
     async def update_nlp(self):
         while True:
