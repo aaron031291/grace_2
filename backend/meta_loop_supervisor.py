@@ -17,9 +17,7 @@ import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
-=======
 from .unified_logger import unified_logger
->>>>>>> origin/main
 
 
 class DirectiveType(Enum):
@@ -67,7 +65,6 @@ class CrossDomainSnapshot:
     strategic_goals: Dict[str, float]
     goal_gaps: Dict[str, float]
     systemic_patterns: List[Dict]
-<<<<<<< HEAD
 
 
 @dataclass

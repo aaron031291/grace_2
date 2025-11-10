@@ -7,7 +7,6 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
 from ..verification_middleware import verify_action
-=======
 from ..schemas_extended import (
     SandboxFilesListResponse,
     SandboxFileReadResponse,
@@ -15,8 +14,6 @@ from ..schemas_extended import (
     SandboxRunResponse,
     SandboxResetResponse
 )
-
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 
@@ -28,7 +25,6 @@ class RunCommandRequest(BaseModel):
     command: str
     file_name: Optional[str] = None
 
-<<<<<<< HEAD
 @router.get("/files")
 async def list_files(current_user: str = Depends(get_current_user)):
     files = await sandbox_manager.list_files(current_user)
@@ -71,22 +67,22 @@ async def run_command(
         resource=req.command,
         payload=req.dict()
     )
-    
+
     if decision["decision"] == "block":
         raise HTTPException(status_code=403, detail=f"Blocked by policy: {decision['policy']}")
     if decision["decision"] == "review":
         raise HTTPException(status_code=423, detail="Awaiting approval")
-    
+
     alerts = await hunter.inspect(current_user, "sandbox_run", req.command, req.dict())
     if alerts:
         print(f"⚠️ Security alerts triggered: {len(alerts)}")
-    
+
     stdout, stderr, exit_code, duration = await sandbox_manager.run_command(
         current_user,
         req.command,
         req.file_name
     )
-    
+
     issue_id = None
     if exit_code != 0 or stderr:
         issue_id = await remedy_inference.log_issue(
@@ -96,7 +92,7 @@ async def run_command(
             details=stderr or stdout,
             context={"command": req.command, "exit_code": exit_code}
         )
-    
+
     return {
         "stdout": stdout,
         "stderr": stderr,

@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends
 from ..auth import get_current_user
 from ..evaluation import confidence_evaluator
-=======
 from ..schemas_extended import EvaluateResponse
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/evaluation", tags=["evaluation"])
 
@@ -12,7 +10,6 @@ async def get_confidence(current_user: str = Depends(get_current_user)):
     confidence = await confidence_evaluator.get_average_confidence(current_user)
     return confidence
 
-<<<<<<< HEAD
 @router.post("/evaluate")
 async def trigger_evaluation(current_user: str = Depends(get_current_user)):
     count = await confidence_evaluator.periodic_evaluation()

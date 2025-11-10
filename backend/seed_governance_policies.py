@@ -10,8 +10,6 @@ DATABASE_URL = "sqlite+aiosqlite:///./grace.db"
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-<<<<<<< HEAD
-=======
 async def seed_logic_hub_policies():
     """Seed governance policies for Unified Logic Hub operations"""
     from backend.models import async_session
@@ -89,7 +87,6 @@ async def seed_logic_hub_policies():
     print(f"[OK] Seeded {len(logic_hub_policies)} logic hub governance policies")
 
 
->>>>>>> origin/main
 async def seed_governance_policies():
     """Create 20+ default governance policies for production use"""
     

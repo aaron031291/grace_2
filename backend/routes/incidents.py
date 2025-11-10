@@ -9,9 +9,7 @@ from ..settings import settings
 from ..models import async_session
 from ..self_heal_models import Incident, IncidentEvent
 from ..integrations.notify import notify
-=======
 from ..schemas_extended import IncidentNotifyResponse, IncidentAckResponse, IncidentDetailResponse
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])  # feature-gated in main
 
@@ -30,7 +28,6 @@ class IncidentAck(BaseModel):
     actor: Optional[str] = None
 
 
-<<<<<<< HEAD
 @router.post("/notify")
 async def incident_notify(body: IncidentNotify, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):

@@ -10,9 +10,7 @@ from ..settings import settings
 from ..health_models import Service, HealthSignal, HealthState
 from ..health.aggregator import compute_health_state
 from ..health.triage import diagnose
-=======
 from ..schemas_extended import HealthIngestSignalResponse, HealthStateResponse, TriageDiagnoseResponse
->>>>>>> origin/main
 
 router = APIRouter(tags=["health-unified"])  # prefix added conditionally in main
 
@@ -38,7 +36,6 @@ async def _get_or_create_service(session: AsyncSession, name: str) -> Service:
     return svc
 
 
-<<<<<<< HEAD
 @router.post("/health/ingest_signal")
 async def ingest_signal(payload: SignalIngest, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):

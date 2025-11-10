@@ -327,8 +327,7 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
         request_id=req_id or None,
         verification_id=action_id,
     )
-=======
-    
+
     # If approved, auto-execute via execute_verified_action
     if body.decision == "approve":
         async with async_session() as session:
@@ -352,12 +351,10 @@ async def decide(request_id: int, body: ApprovalDecision, request: Request, curr
                 # Execute the approved action (in background to avoid blocking response)
                 # Note: In production, this should be handled by a background task
                 # For now, we just publish the event for InputSentinel to pick up
->>>>>>> origin/main
 
     result_dict["_verification_id"] = action_id
     return result_dict
 
-<<<<<<< HEAD
 @router.get("/approvals/stats")
 async def approvals_stats(current_user: str = Depends(get_current_user)):
     async with async_session() as session:

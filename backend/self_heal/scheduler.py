@@ -39,7 +39,6 @@ class ObserveOnlyScheduler:
             return
         self._stopping.clear()
         self._task = asyncio.create_task(self._run_loop())
-=======
         
         # Subscribe to proactive predictions
         try:
@@ -47,7 +46,6 @@ class ObserveOnlyScheduler:
             trigger_mesh.subscribe("self_heal.prediction", self._handle_prediction)
         except Exception:
             pass
->>>>>>> origin/main
 
     async def stop(self) -> None:
         try:
@@ -250,7 +248,6 @@ class ObserveOnlyScheduler:
             reason=reason,
         )
         session.add(req)
-<<<<<<< HEAD
 
 
 # Singleton instance for app wiring

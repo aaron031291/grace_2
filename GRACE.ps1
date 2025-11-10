@@ -7,7 +7,9 @@ param(
     [switch]$Stop,
     [switch]$Status,
     [switch]$Logs,
-    [switch]$Tail
+    [switch]$Tail,
+    [switch]$Audit,
+    [switch]$SkipChecks
 )
 
 # Set UTF-8 encoding for console
@@ -78,6 +80,33 @@ if ($Logs) {
     }
     Write-Host ""
     exit 0
+}
+
+# ============================================================================
+# AUDIT MODE (Production Readiness)
+# ============================================================================
+if ($Audit) {
+    Write-Host ""
+    Write-Host "Running Production Readiness Audit..." -ForegroundColor Cyan
+    Write-Host "=" * 80
+    Write-Host ""
+
+    if (Test-Path ".venv\Scripts\python.exe") {
+        .venv\Scripts\python.exe scripts/production_readiness_audit.py
+        $exitCode = $LASTEXITCODE
+        Write-Host ""
+        if ($exitCode -eq 0) {
+            Write-Host "[SUCCESS] System is production ready!" -ForegroundColor Green
+        } else {
+            Write-Host "[FAIL] Production readiness issues found" -ForegroundColor Red
+        }
+        Write-Host ""
+        exit $exitCode
+    } else {
+        Write-Host "[FAIL] Virtual environment not found" -ForegroundColor Red
+        Write-Host "Run: python -m venv .venv" -ForegroundColor Yellow
+        exit 1
+    }
 }
 
 # ============================================================================
@@ -204,6 +233,43 @@ if (-not (Test-Path ".env")) {
     Write-Host "? Creating .env file..." -ForegroundColor Yellow
     Copy-Item .env.example .env
     Write-Host "[OK] .env created (add API keys later)" -ForegroundColor Green
+}
+
+# ============================================================================
+# PRODUCTION HARDENING CHECKS
+# ============================================================================
+if (-not $SkipChecks) {
+    Write-Host ""
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host "PRODUCTION HARDENING CHECKS" -ForegroundColor Cyan
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host ""
+
+    # Check for merge conflicts
+    Write-Host "? Checking for merge conflicts..." -ForegroundColor Yellow
+    $conflicts = Get-ChildItem backend -Recurse -Include *.py -ErrorAction SilentlyContinue |
+                 Select-String -Pattern "^<<<<<<< |^=======$|^>>>>>>>" -ErrorAction SilentlyContinue
+
+    if ($conflicts) {
+        Write-Host "[FAIL] Merge conflicts found!" -ForegroundColor Red
+        Write-Host "Run: .venv\Scripts\python.exe scripts/fix_merge_conflicts.py" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "Or skip checks with: .\GRACE.ps1 -SkipChecks" -ForegroundColor Yellow
+        Write-Host ""
+        exit 1
+    }
+    Write-Host "[OK] No merge conflicts" -ForegroundColor Green
+
+    # Create missing tables
+    Write-Host "? Ensuring database tables..." -ForegroundColor Yellow
+    .venv\Scripts\python.exe scripts/create_missing_tables.py 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "[OK] Database tables ready" -ForegroundColor Green
+    } else {
+        Write-Host "[WARN] Database initialization had warnings (non-critical)" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
 }
 
 # ============================================================================
@@ -362,6 +428,7 @@ if ($ready) {
     Write-Host ""
     Write-Host "?? COMMANDS:" -ForegroundColor Cyan
     Write-Host "  Status:     .\GRACE.ps1 -Status" -ForegroundColor White
+    Write-Host "  Audit:      .\GRACE.ps1 -Audit   (production readiness)" -ForegroundColor White
     Write-Host "  Logs:       .\GRACE.ps1 -Logs    (last 30 lines)" -ForegroundColor White
     Write-Host "  Tail:       .\GRACE.ps1 -Tail    (live stream)" -ForegroundColor White
     Write-Host "  Stop:       .\GRACE.ps1 -Stop" -ForegroundColor White

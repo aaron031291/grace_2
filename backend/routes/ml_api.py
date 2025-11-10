@@ -57,12 +57,9 @@ async def list_models():
             }
             for m in result.scalars().all()
         ]
-<<<<<<< HEAD
-=======
         return MLModelsListResponse(
             models=models,
             count=len(models),
             execution_trace=None,
             data_provenance=[]
         )
->>>>>>> origin/main
