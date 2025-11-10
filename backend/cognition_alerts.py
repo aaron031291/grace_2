@@ -243,4 +243,4 @@ async def setup_alert_subscriptions():
             confidence=payload.get("overall_confidence", 0)
         )
     
-    trigger_mesh.subscribe("product.elevation_ready", handle_elevation_ready)
+    await trigger_mesh.subscribe("product.elevation_ready", handle_elevation_ready)
