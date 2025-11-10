@@ -46,7 +46,7 @@ def show_status() -> int:
         print(f"\nDomain Status ({len(data['domains'])} domains):")
         for name, domain in list(data['domains'].items())[:8]:
             try:
-                print(f"  {name:15} {domain['health']:.1%}")
+                print(f"  {name:15} {domain['health']:.1f}%")
             except Exception:
                 print(f"  {name:15} (health: n/a)")
 

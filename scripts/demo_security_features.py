@@ -4,9 +4,9 @@ Demonstrates scanner, auto-fix, and quarantine capabilities
 """
 
 print("""
-╔══════════════════════════════════════════════════════════════╗
-║         GRACE IDE SECURITY FEATURES - DEMONSTRATION          ║
-╚══════════════════════════════════════════════════════════════╝
+==============================================================================
+        GRACE IDE SECURITY FEATURES - DEMONSTRATION
+==============================================================================
 
 This demo shows the complete security workflow:
 1. SecurityScanner - Detects threats in code
@@ -34,10 +34,10 @@ def dangerous():
     __import__('os').system('ls')  # Command injection
 '''
 
-print("\n📄 Sample Code:")
+print("\n[INFO] Sample Code:")
 print(malicious_code)
 
-print("\n🔍 Detected Issues (by SecurityScanner):")
+print("\n[SCAN] Detected Issues (by SecurityScanner):")
 print("""
 ┌─────────────────────────────────────────────────────────────┐
 │ CRITICAL: sql_injection (Line 7)                             │
@@ -67,18 +67,18 @@ print("\n" + "="*60)
 print("EXAMPLE 2: Auto-Fix SQL Injection")
 print("="*60)
 
-print("\n❌ Before Fix:")
+print("\n[BEFORE] Before Fix:")
 print('query = "SELECT * FROM users WHERE id=" + user_id')
 print('cursor.execute(query)')
 
-print("\n✅ After Fix (sanitize_sql):")
+print("\n[AFTER] After Fix (sanitize_sql):")
 print('query = "SELECT * FROM users WHERE id=%s"')
 print('cursor.execute(query, (user_id,))')
 
-print("\n📝 Changes Made:")
-print("  ✓ Converted string concatenation to parameterized query")
-print("  ✓ Added parameter tuple (user_id,)")
-print("  ✓ Prevented SQL injection vulnerability")
+print("\n[CHANGES] Changes Made:")
+print("  [OK] Converted string concatenation to parameterized query")
+print("  [OK] Added parameter tuple (user_id,)")
+print("  [OK] Prevented SQL injection vulnerability")
 
 # Example 3: Quarantine
 print("\n" + "="*60)
@@ -108,7 +108,7 @@ Audit Log: "file_quarantine" action recorded
 Original File: REMOVED
 """)
 
-print("\n📋 Quarantine List:")
+print("\n[LIST] Quarantine List:")
 print("""
 ┌─────────────────────────────────────────────────────────────┐
 │ Q20250102_143022_malicious.py                    [QUARANTINED]│
@@ -319,4 +319,4 @@ Next Steps:
 - Test with real malicious code samples
 """)
 
-print("\n🎉 Demo Complete!\n")
+print("\n[SUCCESS] Demo Complete!\n")

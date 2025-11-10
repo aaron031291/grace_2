@@ -30,13 +30,13 @@ async def test_backend_health():
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"
-            print(f"  ✓ Backend is running: {data['message']}")
+            print(f"  [OK] Backend is running: {data['message']}")
             return True
     except httpx.ConnectError:
         print("  ✗ Backend not running. Start with: python -m backend.main")
         return False
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_cognition_status_endpoint():
@@ -56,7 +56,7 @@ async def test_cognition_status_endpoint():
             print(f"    - Domains tracked: {len(data['domains'])}")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_cognition_readiness_endpoint():
@@ -76,7 +76,7 @@ async def test_cognition_readiness_endpoint():
             print(f"    - Next steps: {len(data.get('next_steps', []))}")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_publish_metrics():
@@ -103,7 +103,7 @@ async def test_publish_metrics():
         print("    - ML: 1 metric")
         return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -129,7 +129,7 @@ async def test_metrics_reflected_in_api():
             print(f"    - Domains with metrics: {domains_with_metrics}")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_domain_update_endpoint():
@@ -148,7 +148,7 @@ async def test_domain_update_endpoint():
             print(f"    - Domain: {data['domain']}")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_benchmark_endpoint():
@@ -171,7 +171,7 @@ async def test_benchmark_endpoint():
             print(f"    - Samples: {data['sample_count']}")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_report_generation():
@@ -188,7 +188,7 @@ async def test_report_generation():
             print(f"    - Report size: {report_length} characters")
             return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def test_database_persistence():
@@ -209,7 +209,7 @@ async def test_database_persistence():
             print(f"    - Metric events stored: {count}")
             return count > 0
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -232,7 +232,7 @@ async def test_metrics_collection_service():
         print(f"    - Subscribers: {len(collector.subscribers)}")
         return True
     except Exception as e:
-        print(f"  ✗ Error: {e}")
+        print(f"  [FAIL] Error: {e}")
         return False
 
 async def run_all_tests():

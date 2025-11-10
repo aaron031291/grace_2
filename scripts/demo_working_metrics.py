@@ -70,7 +70,7 @@ async def demo():
     print(f"  Preview (first 400 chars):")
     print("  " + "-" * 76)
     for line in report[:400].split('\n'):
-        print(f"  {line}")
+        print(f"  {line.encode('ascii', 'ignore').decode('ascii')}")
     print("  " + "-" * 76)
     
     print("\n" + "=" * 80)
