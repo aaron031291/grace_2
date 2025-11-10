@@ -917,5 +917,15 @@ async def test_{component_name}_constitutional():
                 'message': 'Extension deployed successfully'
             }
 
-# Singleton
-grace_architect = GraceArchitectAgent()
+# Singleton - lazy loaded to avoid circular imports
+_grace_architect = None
+
+def get_grace_architect():
+    """Get or create the grace architect singleton"""
+    global _grace_architect
+    if _grace_architect is None:
+        _grace_architect = GraceArchitectAgent()
+    return _grace_architect
+
+# For backward compatibility
+grace_architect = None  # Will be lazily initialized when accessed
