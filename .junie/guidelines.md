@@ -78,6 +78,23 @@ Linux/Mac equivalents: use `python` instead of `py`; path separators with `/`.
 4) DB hardening (Phase 1)
 - On full backend boot, verify tables auto-create and seed scripts run without error.
 
+5) Hardened Boot Flow (production-ready boot sequence)
+- Run: `py backend\hardened_boot.py` (full flow) or `py backend\hardened_boot.py --safe-mode` (stages 0-4 only)
+- 8-stage boot pipeline:
+  - Stage 0: Pre-boot snapshot (filesystem + DB + git SHA + config hash)
+  - Stage 1: Environment & dependencies (Python 3.11+, UTF-8, packages)
+  - Stage 2: Schema & secrets (required: SECRET_KEY, DATABASE_URL; optional: GITHUB_TOKEN, AMP_API_KEY)
+  - Stage 3: Safe mode playbooks (unicode logging, subscription checks)
+  - Stage 4: Metrics & playbooks validation (catalog, collector, self-heal)
+  - Stage 5: Main service bring-up (FastAPI, trigger mesh, meta loop)
+  - Stage 6: Smoke tests (imports, DB, UTF-8)
+  - Stage 7: Oversight setup (self-heal scheduler, watchdog, metrics)
+  - Stage 8: Forensic diagnostics (subsystems, governance, stress tests, CAPA tickets)
+- Exit codes: 0=success, 1-8=stage failure, 99=critical error
+- Reports saved to: `logs/diagnostics/boot_<timestamp>.json`
+- Snapshots saved to: `storage/snapshots/pre_boot_<timestamp>/`
+- Use --safe-mode to validate environment without starting full services
+
 ---
 
 ## Tests
