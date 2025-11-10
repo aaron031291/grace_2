@@ -298,20 +298,26 @@ class ParliamentEngine:
                 gov_session.votes_approve += 1
                 gov_session.weighted_approve += member.vote_weight
                 member.votes_approved += 1
+                # Publish metrics for approval vote
+                await ParliamentMetrics.publish_vote_completed(1.0)
             elif vote == "reject":
                 gov_session.votes_reject += 1
                 gov_session.weighted_reject += member.vote_weight
                 member.votes_rejected += 1
+                # Publish metrics for rejection vote
+                await ParliamentMetrics.publish_vote_completed(0.0)
             else:  # abstain
                 gov_session.votes_abstain += 1
                 gov_session.weighted_abstain += member.vote_weight
                 member.votes_abstained += 1
-            
+                # Publish metrics for abstention
+                await ParliamentMetrics.publish_vote_completed(0.5)
+
             gov_session.total_votes += 1
             gov_session.total_weighted += member.vote_weight
             member.total_votes += 1
             member.last_vote_at = datetime.utcnow()
-            
+
             await session.commit()
             
             vote_id = gov_vote.id
