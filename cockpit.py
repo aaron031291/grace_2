@@ -16,10 +16,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 from backend.grace_llm import get_grace_llm
 from backend.memory import PersistentMemory
 from backend.transcendence.unified_intelligence import transcendence
-from backend.transcendence.self_awareness import SelfAwarenessLayer
+from backend.transcendence.self_awareness import grace_self_awareness
 from backend.agentic_spine import AgenticSpine
 from backend.code_generator import CodeGenerator
-from backend.self_healing import SelfHealingEngine
+# from backend.self_healing import SelfHealingEngine  # Not available
 from backend.governance import governance_engine
 from backend.immutable_log import ImmutableLog
 from backend.governance_framework import governance_framework
@@ -50,7 +50,7 @@ class GraceCockpit:
         self.grace_llm: Optional[Any] = None
         self.memory: Optional[PersistentMemory] = None
         self.transcendence = transcendence
-        self.self_awareness: Optional[SelfAwarenessLayer] = None
+        self.self_awareness = grace_self_awareness
         self.code_agent: Optional[CodeGenerator] = None
         self.learning_enabled = True
         self.immutable_log = ImmutableLog()
@@ -59,13 +59,13 @@ class GraceCockpit:
         self.pending_actions = []
 
         print("\n" + "="*80)
-        print("  🚀 GRACE COCKPIT - Full Cognition Interface")
+        print("  GRACE COCKPIT - Full Cognition Interface")
         print("  Autonomous AI System with Complete Agentic Capabilities")
         print("="*80 + "\n")
 
     async def initialize(self):
         """Initialize all Grace systems"""
-        print("🔧 Initializing Grace cognition systems...")
+        print("Initializing Grace cognition systems...")
 
         try:
             # 1. Memory system
@@ -82,7 +82,7 @@ class GraceCockpit:
 
             # 4. Self-Awareness
             print("  [4/6] Initializing Self-Awareness Layer...")
-            self.self_awareness = SelfAwarenessLayer()
+            # Already initialized as singleton
 
             # 5. Code Agent
             print("  [5/6] Initializing Code Agent...")
@@ -91,17 +91,17 @@ class GraceCockpit:
             # 6. Learning indicators
             print("  [6/6] Enabling ML/DL learning systems...")
 
-            print("\n✅ All cognition systems operational\n")
+            print("\nAll cognition systems operational\n")
             self._show_capabilities()
 
         except Exception as e:
             logger.error(f"Initialization error: {e}", exc_info=True)
-            print(f"\n❌ Error during initialization: {e}")
+            print(f"\nError during initialization: {e}")
             print("Some features may be limited.\n")
 
     def _show_capabilities(self):
         """Show what Grace can do in this session"""
-        print("🎯 Active Capabilities:")
+        print("Active Capabilities:")
         print("   • Natural language conversation with full context")
         print("   • Code generation, analysis, and refactoring")
         print("   • Self-healing and continuous learning")
@@ -110,7 +110,8 @@ class GraceCockpit:
         print("   • Multi-modal understanding and reasoning")
         print("   • Governance framework integration")
         print("   • Real-time system monitoring and analytics")
-        print("\n💡 Commands:")
+        print("   • Transcendence unified intelligence system")
+        print("\nCommands:")
         print("   • create file <path> with <description>")
         print("   • modify file <path> to <changes>")
         print("   • approve / reject - Approve/reject pending actions")
@@ -264,7 +265,7 @@ class GraceCockpit:
                 if user_input.lower() == "clear":
                     os.system('cls' if os.name == 'nt' else 'clear')
                     print("\n" + "="*80)
-                    print("  🚀 GRACE COCKPIT - Session Active")
+                    print("  GRACE COCKPIT - Session Active")
                     print("="*80 + "\n")
                     continue
 
@@ -616,7 +617,7 @@ class GraceCockpit:
         print(f"       • Session: {self.session_id}")
         print(f"       • Memory: {'✅ Active' if self.memory else '❌ Inactive'}")
         print(f"       • LLM: {'✅ Active' if self.grace_llm else '❌ Inactive'}")
-        print(f"       • Transcendence: {'✅ Active' if self.transcendence else '❌ Inactive'}")
+        print(f"       • Transcendence: ✅ Active (singleton)")
         print(f"       • Code Agent: {'✅ Active' if self.code_agent else '❌ Inactive'}")
         print(f"       • Learning: {'✅ Enabled' if self.learning_enabled else '⏸️  Paused'}")
         print(f"       • Pending Actions: {len(self.pending_actions)}")
