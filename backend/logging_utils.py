@@ -74,3 +74,37 @@ def log_event(
     except Exception:
         # Fail open: logging must not break the request handling
         pass
+
+
+
+def ensure_utf8_console() -> None:
+    """Best-effort to make console UTF-8 safe on Windows and others.
+    - Sets PYTHONIOENCODING=utf-8
+    - Reconfigures stdout/stderr to utf-8 with errors='replace'
+    - On Windows, attempts to switch console codepages to 65001
+    This prevents crashes when logs include emojis or non-ASCII characters.
+    """
+    try:
+        import sys
+        os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+        # Reconfigure standard streams if possible (Python 3.7+)
+        try:
+            if hasattr(sys.stdout, "reconfigure"):
+                sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            if hasattr(sys.stderr, "reconfigure"):
+                sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+        # Windows console code page tweak
+        if os.name == "nt":
+            try:
+                import ctypes
+                CP_UTF8 = 65001
+                ctypes.windll.kernel32.SetConsoleOutputCP(CP_UTF8)
+                ctypes.windll.kernel32.SetConsoleCP(CP_UTF8)
+            except Exception:
+                # Fall back silently; stream reconfigure usually suffices
+                pass
+    except Exception:
+        # Never raise from a logging/console helper
+        pass

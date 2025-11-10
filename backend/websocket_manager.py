@@ -80,7 +80,7 @@ async def broadcast_event_handler(event):
 async def setup_ws_subscriptions():
     """Subscribe WebSocket manager to Trigger Mesh"""
     from .trigger_mesh import trigger_mesh
-    trigger_mesh.subscribe("*", broadcast_event_handler)
+    await trigger_mesh.subscribe("*", broadcast_event_handler)
     print("✓ WebSocket subscribed to Trigger Mesh")
 
 

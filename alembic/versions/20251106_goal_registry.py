@@ -7,6 +7,7 @@ Create Date: 2025-11-06
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import inspect
 
 # revision identifiers, used by Alembic.
 revision = '20251106_goal_registry'
@@ -18,35 +19,47 @@ depends_on = None
 
 
 def upgrade():
-    # Add new columns to goals
+    bind = op.get_bind()
+    inspector = inspect(bind)
+
+    # Add new columns to goals (idempotent)
+    existing_goal_cols = {c['name'] for c in inspector.get_columns('goals')} if 'goals' in inspector.get_table_names() else set()
     with op.batch_alter_table('goals') as batch_op:
-        batch_op.add_column(sa.Column('priority', sa.String(length=16), nullable=False, server_default='medium'))
-        batch_op.add_column(sa.Column('value_score', sa.Float(), nullable=True))
-        batch_op.add_column(sa.Column('risk_score', sa.Float(), nullable=True))
-        batch_op.add_column(sa.Column('success_criteria', sa.Text(), nullable=True))
-        batch_op.add_column(sa.Column('owner', sa.String(length=64), nullable=True))
-        batch_op.add_column(sa.Column('category', sa.String(length=64), nullable=True))
+        if 'priority' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('priority', sa.String(length=16), nullable=False, server_default='medium'))
+        if 'value_score' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('value_score', sa.Float(), nullable=True))
+        if 'risk_score' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('risk_score', sa.Float(), nullable=True))
+        if 'success_criteria' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('success_criteria', sa.Text(), nullable=True))
+        if 'owner' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('owner', sa.String(length=64), nullable=True))
+        if 'category' not in existing_goal_cols:
+            batch_op.add_column(sa.Column('category', sa.String(length=64), nullable=True))
 
-    # Create goal_dependencies table
-    op.create_table(
-        'goal_dependencies',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
-        sa.Column('depends_on_goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
-        sa.Column('type', sa.String(length=16), nullable=False, server_default='blocks'),
-        sa.Column('note', sa.Text(), nullable=True),
-    )
+    # Create goal_dependencies table (idempotent)
+    if 'goal_dependencies' not in inspector.get_table_names():
+        op.create_table(
+            'goal_dependencies',
+            sa.Column('id', sa.Integer(), primary_key=True),
+            sa.Column('goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
+            sa.Column('depends_on_goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
+            sa.Column('type', sa.String(length=16), nullable=False, server_default='blocks'),
+            sa.Column('note', sa.Text(), nullable=True),
+        )
 
-    # Create goal_evaluations table
-    op.create_table(
-        'goal_evaluations',
-        sa.Column('id', sa.Integer(), primary_key=True),
-        sa.Column('goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
-        sa.Column('status', sa.String(length=16), nullable=False),
-        sa.Column('explanation', sa.Text(), nullable=True),
-        sa.Column('confidence', sa.Float(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
-    )
+    # Create goal_evaluations table (idempotent)
+    if 'goal_evaluations' not in inspector.get_table_names():
+        op.create_table(
+            'goal_evaluations',
+            sa.Column('id', sa.Integer(), primary_key=True),
+            sa.Column('goal_id', sa.Integer(), sa.ForeignKey('goals.id', ondelete='CASCADE')),
+            sa.Column('status', sa.String(length=16), nullable=False),
+            sa.Column('explanation', sa.Text(), nullable=True),
+            sa.Column('confidence', sa.Float(), nullable=True),
+            sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
+        )
 
 
 def downgrade():

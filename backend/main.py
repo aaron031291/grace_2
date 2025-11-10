@@ -15,6 +15,7 @@ from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
+from .logging_utils import ensure_utf8_console
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
@@ -42,6 +43,11 @@ from .self_heal.runner import runner as self_heal_runner
 
 @app.on_event("startup")
 async def on_startup():
+    # Ensure console is UTF-8 safe to avoid crashes on Windows terminals
+    try:
+        ensure_utf8_console()
+    except Exception:
+        pass
     # Core app DB
     # Ensure model modules are imported so Base.metadata is populated
     try:

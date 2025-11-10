@@ -140,9 +140,9 @@ async def setup_subscriptions():
         except Exception as e:
             print(f"✗ Autonomy metrics handler error: {e}")
     
-    trigger_mesh.subscribe("memory.*", on_memory_event)
-    trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
-    trigger_mesh.subscribe("governance.*", on_governance_event)
-    trigger_mesh.subscribe("autonomy.*", on_autonomy_event)
+    await trigger_mesh.subscribe("memory.*", on_memory_event)
+    await trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
+    await trigger_mesh.subscribe("governance.*", on_governance_event)
+    await trigger_mesh.subscribe("autonomy.*", on_autonomy_event)
     
     print("✓ Trigger Mesh subscriptions configured")
