@@ -322,6 +322,7 @@ app.include_router(cognition_router)
 app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
+include_router(websocket_routes.router)
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
