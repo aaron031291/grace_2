@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api
+from .routes.agentic import router as agentic_router
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -299,6 +300,34 @@ async def on_startup():
     except Exception as e:
         print(f"⚠️ Continuous Learning Loop failed to start: {e}")
 
+    # Start autonomous systems
+    from .grace_spine_integration import grace_agentic_system
+    await grace_agentic_system.start()
+
+    # Start mock metrics collector for agentic systems
+    from .collectors.mock_collector import mock_collector
+    await mock_collector.start()
+
+    # Initialize external integrations
+    try:
+        from .integrations.slack_integration import slack_integration
+        await slack_integration.initialize(
+            webhook_url=os.getenv("SLACK_WEBHOOK_URL"),
+            bot_token=os.getenv("SLACK_BOT_TOKEN"),
+            channel=os.getenv("SLACK_CHANNEL", "#grace-alerts")
+        )
+    except Exception as e:
+        print(f"⚠️ Slack integration failed to initialize: {e}")
+
+    try:
+        from .integrations.pagerduty_integration import pagerduty_integration
+        await pagerduty_integration.initialize(
+            api_key=os.getenv("PAGERDUTY_API_KEY"),
+            service_id=os.getenv("PAGERDUTY_SERVICE_ID")
+        )
+    except Exception as e:
+        print(f"⚠️ PagerDuty integration failed to initialize: {e}")
+
     print("=" * 80)
     print("✅ GRACE'S WISHLIST COMPLETE")
     print("=" * 80 + "\n")
@@ -316,6 +345,20 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def on_shutdown():
+    # Stop mock metrics collector
+    try:
+        from .collectors.mock_collector import mock_collector
+        await mock_collector.stop()
+    except Exception:
+        pass
+
+    # Stop autonomous systems
+    try:
+        from .grace_spine_integration import grace_agentic_system
+        await grace_agentic_system.stop()
+    except Exception:
+        pass
+
     await reflection_service.stop()
     await task_executor.stop_workers()
     await health_monitor.stop()
@@ -488,6 +531,7 @@ app.include_router(elite_systems_api.router)  # Elite Self-Healing & Coding Agen
 app.include_router(mission_control_api.router)  # Mission Control & Autonomous Operations
 app.include_router(integration_api.router)  # Integration Orchestration
 app.include_router(integration_api.crypto_router)  # Crypto Key Management
+app.include_router(agentic_router)  # Agentic Dashboard API
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os

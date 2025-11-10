@@ -13,7 +13,7 @@ class TriggerEvent:
     actor: str
     resource: str
     payload: dict
-    timestamp: datetime
+    timestamp: datetime = field(default_factory=datetime.utcnow)
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     subsystem: str = ""  # Subsystem identifier for metrics tracking
 
