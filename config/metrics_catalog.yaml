@@ -1,0 +1,92 @@
+# Metrics and Playbooks Catalog
+# This catalog is consumed during the bootstrap loop to validate required governance fields
+# Required fields per entry: playbook_id, risk_level, autonomy_tier, verification_hooks
+
+version: 1
+updated_at: 2025-11-09T19:27:00Z
+
+playbooks:
+  - playbook_id: "pb_bootstrap_health_check"
+    name: "Bootstrap Health Check"
+    description: "Minimal playbook to validate system bootstrap, metrics wiring, and verification pipeline."
+    risk_level: "low"           # one of: low, medium, high, critical
+    autonomy_tier: 1             # 1=minimal autonomy; higher requires added controls
+    verification_hooks:          # verification hooks to run after steps
+      - "verification.basic_sanity"
+      - "verification.audit_log"
+    preconditions: []
+    steps:
+      - id: "step_ping"
+        action: "ping_health_endpoint"
+        params:
+          url: "http://localhost:8000/health"
+      - id: "step_status"
+        action: "fetch_status"
+        params:
+          url: "http://localhost:8000/api/status"
+    verifications:
+      - id: "verify_shapes"
+        type: "response_shape"
+        params:
+          required_keys:
+            - overall_health
+            - overall_trust
+            - overall_confidence
+            - saas_ready
+            - domains
+    rollback_steps: []
+    requires_approval: false
+
+  - playbook_id: "pb_meta_loop_readiness"
+    name: "Meta-Loop Readiness"
+    description: "Ensures meta-loop can progress through stages and produce readiness metrics."
+    risk_level: "medium"
+    autonomy_tier: 2
+    verification_hooks:
+      - "verification.post_conditions"
+      - "verification.metrics_rollup"
+    preconditions: []
+    steps:
+      - id: "stage1_ingest"
+        action: "simulate_ingest"
+      - id: "stage2_understand"
+        action: "simulate_understand"
+      - id: "stage3_interpret"
+        action: "simulate_interpret"
+      - id: "stage4_intent"
+        action: "simulate_intent"
+    verifications:
+      - id: "verify_stage4"
+        type: "intent_present"
+        params:
+          require: ["use_cases", "applications"]
+    rollback_steps: []
+    requires_approval: false
+
+  - playbook_id: "pb_autonomy_change_request"
+    name: "Autonomy Change Request"
+    description: "Requests increased autonomy when confidence is high; guarded by parliament approval."
+    risk_level: "high"
+    autonomy_tier: 3
+    verification_hooks:
+      - "verification.governance_vote"
+      - "verification.audit_log"
+    preconditions:
+      - condition: "confidence_above_threshold"
+        params:
+          threshold: 0.8
+    steps:
+      - id: "propose_autonomy_increase"
+        action: "propose_parliament_vote"
+        params:
+          committee: "risk"
+          level: "increase"
+    verifications:
+      - id: "verify_vote_outcome"
+        type: "parliament_vote"
+        params:
+          require: "approved"
+    rollback_steps:
+      - id: "revert_autonomy_change"
+        action: "revert_parliament_vote"
+    requires_approval: true
