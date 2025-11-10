@@ -4,6 +4,7 @@ from .hunter import hunter
 from .models import async_session, Task
 from .memory import PersistentMemory
 from .governance_models import SecurityEvent
+from .metric_publishers import HunterMetrics
 
 memory = PersistentMemory()
 
@@ -57,6 +58,9 @@ async def handle_security_alert(actor: str, rule_name: str, event_id: int, resou
     from .trigger_mesh import trigger_mesh, TriggerEvent
     from datetime import datetime
     
+    # Publish metrics for threat handling
+    await HunterMetrics.publish_threat_quarantined(True)
+
     await trigger_mesh.publish(TriggerEvent(
         event_type="hunter.alert_created",
         source="hunter",

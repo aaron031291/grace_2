@@ -13,6 +13,7 @@ import logging
 from .constitutional_engine import ConstitutionalEngine
 from .governance import governance_engine
 from .immutable_log import ImmutableLog
+from .metric_publishers import CoreMetrics
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +160,12 @@ class GovernanceFramework:
         if not result["reason"]:
             result["reason"] = "All governance checks passed"
         
+        # Publish metrics for governance checks
+        if result["approved"]:
+            await CoreMetrics.publish_governance_score(0.95)  # High score for approved actions
+        else:
+            await CoreMetrics.publish_governance_score(0.3)   # Lower score for blocked actions
+
         # Log to immutable log
         await self.immutable_log.append(
             actor=actor,
@@ -172,7 +179,7 @@ class GovernanceFramework:
             },
             result="approved" if result["approved"] else "pending"
         )
-        
+
         return result
     
     def _check_guardrails(self, action: str, resource: str, context: Dict[str, Any]) -> Dict[str, Any]:

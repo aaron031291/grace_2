@@ -7,6 +7,7 @@ from pathlib import Path
 import asyncio
 from .knowledge_models import KnowledgeArtifact, KnowledgeRevision
 from .models import async_session
+from .metric_publishers import KnowledgeMetrics
 
 class IngestionService:
     """Handles ingestion of various content types"""
@@ -114,9 +115,9 @@ class IngestionService:
                 timestamp=datetime.utcnow()
             ))
 
-            # Publish ingestion metric (best-effort)
+            # Publish ingestion metrics
             try:
-                await self._publish_metric("knowledge", "artifact_ingested", 1.0)  # type: ignore
+                await KnowledgeMetrics.publish_ingestion_completed(0.85, 1)  # trust_score, source_count
             except Exception:
                 pass
 

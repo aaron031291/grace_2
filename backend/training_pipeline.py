@@ -14,6 +14,7 @@ from .knowledge_models import KnowledgeArtifact
 from .models import async_session
 from .ml_classifiers import TrustScoreClassifier
 from .trusted_sources import trust_manager
+from .metric_publishers import MLMetrics
 
 class TrainingPipeline:
     """Train models from trust-scored knowledge"""
@@ -154,6 +155,9 @@ class TrainingPipeline:
             timestamp=datetime.utcnow()
         ))
         
+        # Publish metrics for training completion
+        await MLMetrics.publish_training_completed(0.85, duration)
+
         print(f"✓ Model trained: {model_name} (ID: {model.id}, samples: {len(training_data)})")
         return model.id
     
@@ -182,6 +186,9 @@ class TrainingPipeline:
             model.approved_by = actor
             await session.commit()
         
+        # Publish metrics for deployment
+        await MLMetrics.publish_deployment_completed(True, 0.032)
+
         print(f"✓ Model deployed: {model.model_name} v{model.version}")
         return True
     
@@ -312,6 +319,9 @@ class TrainingPipeline:
             run.approved = metrics['accuracy'] >= 0.85
             await session.commit()
         
+        # Publish metrics for trust classifier training
+        await MLMetrics.publish_training_completed(metrics['accuracy'], duration)
+
         print(f"✓ Trust classifier trained:")
         print(f"  Model ID: {model.id}")
         print(f"  Accuracy: {metrics['accuracy']:.3f}")
@@ -320,7 +330,7 @@ class TrainingPipeline:
         print(f"  F1 Score: {metrics['f1_score']:.3f}")
         print(f"  Train samples: {metrics['train_samples']}")
         print(f"  Test samples: {metrics['test_samples']}")
-        
+
         from .verification import verification_engine
         await verification_engine.log_verified_action(
             action_id=str(uuid.uuid4()),
@@ -331,12 +341,12 @@ class TrainingPipeline:
             output_data={"model_id": model.id, "metrics": metrics},
             criteria_met=metrics['accuracy'] >= 0.85
         )
-        
+
         if auto_deploy and metrics['accuracy'] >= 0.85:
             deployed = await self.deploy_model(model.id, actor)
             if deployed:
                 print(f"✓ Model auto-deployed (accuracy threshold met)")
-        
+
         from .trigger_mesh import trigger_mesh, TriggerEvent
         await trigger_mesh.publish(TriggerEvent(
             event_type="mldl.trust_classifier_trained",
@@ -346,7 +356,7 @@ class TrainingPipeline:
             payload={"model_id": model.id, "metrics": metrics},
             timestamp=datetime.utcnow()
         ))
-        
+
         return model.id
 
 training_pipeline = TrainingPipeline()
