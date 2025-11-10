@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from ..models import ChatMessage, User, async_session
 from ..metrics_models import MetricEvent as MetricEventDB
 from ..metrics_service import get_metrics_collector
-
 router = APIRouter(prefix="/api/metrics", tags=["metrics"])
 
 @router.get("/summary")

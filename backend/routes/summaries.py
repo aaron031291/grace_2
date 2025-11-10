@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from ..auth import get_current_user
 from ..summaries import Summary, summary_generator, async_session
-
 router = APIRouter(prefix="/api/summaries", tags=["summaries"])
 
 @router.get("/")
@@ -30,7 +29,6 @@ async def get_summaries(
             }
             for s in summaries
         ]
-
 @router.post("/generate")
 async def generate_summary(current_user: str = Depends(get_current_user)):
     summary = await summary_generator.generate_daily_summary()

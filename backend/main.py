@@ -138,6 +138,9 @@ async def on_startup():
         pass
 
     # Knowledge discovery scheduler (configurable via env)
+=======
+    import os as _os
+>>>>>>> origin/main
     try:
         interval_env = _os.getenv("DISCOVERY_INTERVAL_SECS")
         seeds_env = _os.getenv("DISCOVERY_SEEDS_PER_CYCLE")
@@ -146,7 +149,6 @@ async def on_startup():
     except Exception:
         interval_val = None
         seeds_val = None
-
     await start_discovery_scheduler(interval_val, seeds_val)
     if interval_val or seeds_val:
         print(f"✓ Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
@@ -290,6 +292,7 @@ app.include_router(sandbox.router)
 app.include_router(executor.router)
 app.include_router(governance.router)
 app.include_router(hunter.router)
+<<<<<<< HEAD
 app.include_router(health_routes.router)
 # Conditionally include unified health/triage endpoints (observe-only by default)
 try:
@@ -307,18 +310,6 @@ try:
         app.include_router(_learning.router)
         app.include_router(_meta_focus.router)
         app.include_router(_self_heal_debug.router)
-except Exception:
-    # Keep startup resilient if optional modules/imports fail
-    pass
-app.include_router(issues.router)
-app.include_router(memory_api.router)
-app.include_router(immutable_api.router)
-app.include_router(meta_api.router)
-app.include_router(websocket_routes.router)
-app.include_router(plugin_routes.router)
-app.include_router(ingest.router)
-app.include_router(trust_api.router)
-app.include_router(ml_api.router)
 app.include_router(execution.router)
 app.include_router(temporal_api.router)
 app.include_router(causal_graph_api.router)
@@ -332,7 +323,6 @@ app.include_router(cognition_router)
 app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
-
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
@@ -341,5 +331,8 @@ if _os.getenv("ENABLE_IDE_WS", "0") in {"1", "true", "True", "YES", "yes"}:
         from grace_ide.api.websocket import router as ide_ws_router
         app.include_router(ide_ws_router)
     except ImportError:
+<<<<<<< HEAD
         # Optional dependency not present; continue without IDE websocket
+=======
+>>>>>>> origin/main
         pass

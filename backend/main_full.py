@@ -16,36 +16,6 @@ from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
-
-app = FastAPI(title="Grace API", version="2.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-# Inject/propagate X-Request-ID for log correlation
-app.add_middleware(RequestIDMiddleware)
-
-from .task_executor import task_executor
-from .self_healing import health_monitor
-from .trigger_mesh import trigger_mesh, setup_subscriptions
-from .meta_loop import meta_loop_engine
-from .websocket_manager import setup_ws_subscriptions
-from .trusted_sources import trust_manager
-from .auto_retrain import auto_retrain_engine
-from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_scheduler
-from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
-
-@app.on_event("startup")
-async def on_startup():
-    # Ensure console is UTF-8 safe to avoid crashes on Windows terminals
-    try:
-        ensure_utf8_console()
-    except Exception:
-        pass
     # Core app DB
     # Ensure model modules are imported so Base.metadata is populated
     try:

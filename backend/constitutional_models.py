@@ -7,7 +7,7 @@ and clarification protocols that govern ALL Grace behavior.
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON, Float, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from .models import Base
+from .base_models import Base
 
 class ConstitutionalPrinciple(Base):
     """Foundational principles that are always true"""

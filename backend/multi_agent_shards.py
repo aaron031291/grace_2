@@ -491,7 +491,7 @@ class AgentShard:
     async def _handle_offer(self, message: P2PMessage):
         """Handle capability offer from peer"""
         capability = message.payload.get("capability")
-        print(f"  → Shard {self.shard_id} received offer: {capability} from {message.sender_id}")
+        print(f"  -> Shard {self.shard_id} received offer: {capability} from {message.sender_id}")
     
     async def _handle_need(self, message: P2PMessage):
         """Handle help request from peer"""

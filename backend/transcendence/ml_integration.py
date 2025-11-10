@@ -1,6 +1,6 @@
 """Transcendence ML/DL Integration
 
-Connects multi-modal memory → ML training → model deployment
+Connects multi-modal memory -> ML training -> model deployment
 Grace learns from ANY data you approve, builds domain-specific models.
 """
 
@@ -24,7 +24,7 @@ class TranscendenceMLEngine:
     2. Trains domain-specific models
     3. Deploys models for business use
     4. Retrains when new data arrives
-    5. Tracks model performance → business revenue
+    5. Tracks model performance -> business revenue
     
     All with your consensus via Parliament
     """
@@ -292,7 +292,7 @@ class TranscendenceMLEngine:
         - Web scrapes
         - Whitelisted sources
         
-        When threshold reached → Proposes training to you → You approve → Trains
+        When threshold reached -> Proposes training to you -> You approve -> Trains
         
         Args:
             domain: Domain to train on

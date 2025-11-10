@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from sqlalchemy import select
 from ..reflection import Reflection, reflection_service
 from ..models import async_session
-
 router = APIRouter(prefix="/api/reflections", tags=["reflections"])
 
 @router.get("/")

@@ -4,6 +4,19 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from ..causal_graph import CausalGraph
 from ..causal_analyzer import causal_analyzer
+=======
+from ..schemas_extended import (
+    CausalGraphBuildResponse,
+    CausalCausesResponse,
+    CausalEffectsResponse,
+    CausalPathResponse,
+    CausalInfluenceResponse,
+    CausalCyclesResponse,
+    CausalVisualizeResponse,
+    CausalAnalysisResponse
+)
+
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/causal", tags=["causal_graph"])
 
@@ -19,6 +32,7 @@ class PathRequest(BaseModel):
     event_b_id: int
     event_b_type: str
 
+<<<<<<< HEAD
 @router.post("/build-graph")
 async def build_graph(request: BuildGraphRequest):
     """Build causal graph from date range"""

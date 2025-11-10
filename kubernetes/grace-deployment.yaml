@@ -1,0 +1,474 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grace
+  labels:
+    app: grace
+    environment: production
+
+---
+# ============================================================================
+# ConfigMap for Grace Configuration
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grace-config
+  namespace: grace
+data:
+  DATABASE_URL: "postgresql+asyncpg://grace:password@grace-postgres:5432/grace"
+  REDIS_URL: "redis://grace-redis:6379"
+  LOG_LEVEL: "INFO"
+  PYTHONUNBUFFERED: "1"
+
+---
+# ============================================================================
+# Secret for Sensitive Data (Amp API Key, etc.)
+# ============================================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grace-secrets
+  namespace: grace
+type: Opaque
+stringData:
+  amp-api-key: "YOUR_AMP_API_KEY_HERE"
+  secret-key: "your-secret-key-here"
+  postgres-password: "grace_secure_password"
+
+---
+# ============================================================================
+# Grace Backend Deployment
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-backend
+  namespace: grace
+  labels:
+    app: grace
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grace
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: grace
+        component: backend
+    spec:
+      containers:
+      - name: grace-backend
+        image: grace-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: AMP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: grace-secrets
+              key: amp-api-key
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: grace-secrets
+              key: secret-key
+        envFrom:
+        - configMapRef:
+            name: grace-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+        volumeMounts:
+        - name: grace-storage
+          mountPath: /app/storage
+        - name: grace-logs
+          mountPath: /app/logs
+        - name: grace-sandbox
+          mountPath: /app/sandbox
+      volumes:
+      - name: grace-storage
+        persistentVolumeClaim:
+          claimName: grace-storage-pvc
+      - name: grace-logs
+        persistentVolumeClaim:
+          claimName: grace-logs-pvc
+      - name: grace-sandbox
+        emptyDir: {}
+
+---
+# ============================================================================
+# Grace Backend Service
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-backend-service
+  namespace: grace
+  labels:
+    app: grace
+    component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: grace
+    component: backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+
+---
+# ============================================================================
+# Grace Frontend Deployment
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-frontend
+  namespace: grace
+  labels:
+    app: grace
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grace
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: grace
+        component: frontend
+    spec:
+      containers:
+      - name: grace-frontend
+        image: grace-frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5173
+          name: http
+        env:
+        - name: VITE_API_URL
+          value: "http://grace-backend-service:8000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# ============================================================================
+# Grace Frontend Service
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-frontend-service
+  namespace: grace
+  labels:
+    app: grace
+    component: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: grace
+    component: frontend
+  ports:
+  - port: 5173
+    targetPort: 5173
+    name: http
+
+---
+# ============================================================================
+# PostgreSQL Deployment
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-postgres
+  namespace: grace
+  labels:
+    app: grace
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grace
+      component: database
+  template:
+    metadata:
+      labels:
+        app: grace
+        component: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "grace"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grace-secrets
+              key: postgres-password
+        - name: POSTGRES_DB
+          value: "grace"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: grace-db-pvc
+
+---
+# ============================================================================
+# PostgreSQL Service
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-postgres
+  namespace: grace
+  labels:
+    app: grace
+    component: database
+spec:
+  type: ClusterIP
+  selector:
+    app: grace
+    component: database
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+# ============================================================================
+# Redis Deployment
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-redis
+  namespace: grace
+  labels:
+    app: grace
+    component: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grace
+      component: cache
+  template:
+    metadata:
+      labels:
+        app: grace
+        component: cache
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        command: ["redis-server", "--appendonly", "yes"]
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: grace-redis-pvc
+
+---
+# ============================================================================
+# Redis Service
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-redis
+  namespace: grace
+  labels:
+    app: grace
+    component: cache
+spec:
+  type: ClusterIP
+  selector:
+    app: grace
+    component: cache
+  ports:
+  - port: 6379
+    targetPort: 6379
+
+---
+# ============================================================================
+# Ingress for External Access
+# ============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grace-ingress
+  namespace: grace
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - grace.yourdomain.com
+    secretName: grace-tls
+  rules:
+  - host: grace.yourdomain.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: grace-backend-service
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grace-frontend-service
+            port:
+              number: 5173
+
+---
+# ============================================================================
+# Persistent Volume Claims
+# ============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-db-pvc
+  namespace: grace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-redis-pvc
+  namespace: grace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-storage-pvc
+  namespace: grace
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grace-logs-pvc
+  namespace: grace
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+# ============================================================================
+# Horizontal Pod Autoscaler for Backend
+# ============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: grace-backend-hpa
+  namespace: grace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: grace-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

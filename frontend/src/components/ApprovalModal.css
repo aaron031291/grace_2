@@ -1,0 +1,311 @@
+.approval-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.approval-modal-content {
+  background: var(--bg-secondary, #1a1a2e);
+  border-radius: 16px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.approval-modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color, #333);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.approval-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #7b2cbf, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #a0a0b0);
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  color: var(--text-primary, #fff);
+  transform: rotate(90deg);
+}
+
+.approval-empty {
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-secondary, #a0a0b0);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  display: block;
+  margin-top: 1rem;
+  color: #00ff88;
+}
+
+.approval-list {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.approval-card {
+  background: var(--bg-tertiary, #252537);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color, #333);
+  transition: all 0.2s;
+}
+
+.approval-card:hover {
+  border-color: #7b2cbf;
+  box-shadow: 0 4px 12px rgba(123, 44, 191, 0.2);
+}
+
+.approval-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.approval-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.approval-title h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+}
+
+.tier-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tier-badge.operational {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+}
+
+.tier-badge.code_touching {
+  background: rgba(255, 204, 0, 0.2);
+  color: #ffcc00;
+  border: 1px solid #ffcc00;
+}
+
+.tier-badge.governance {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.impact-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.impact-badge.low {
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+}
+
+.impact-badge.medium {
+  background: rgba(255, 204, 0, 0.15);
+  color: #ffcc00;
+}
+
+.impact-badge.high {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+
+.approval-description {
+  color: var(--text-secondary, #a0a0b0);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.approval-details {
+  background: var(--bg-primary, #0f0f1e);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #7b2cbf;
+  min-width: 80px;
+}
+
+.detail-value {
+  color: var(--text-primary, #fff);
+}
+
+.context-preview {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #a0a0b0);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.approval-decision {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #333);
+}
+
+.reason-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-primary, #0f0f1e);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  color: var(--text-primary, #fff);
+  font-family: inherit;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  resize: vertical;
+}
+
+.reason-input:focus {
+  outline: none;
+  border-color: #7b2cbf;
+  box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.1);
+}
+
+.decision-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.decision-buttons button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+}
+
+.btn-approve {
+  background: #00ff88;
+  color: #0f0f1e;
+}
+
+.btn-approve:hover:not(:disabled) {
+  background: #00dd77;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 255, 136, 0.4);
+}
+
+.btn-reject {
+  background: #ff6b6b;
+  color: white;
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+}
+
+.btn-cancel {
+  background: var(--bg-tertiary, #252537);
+  color: var(--text-primary, #fff);
+}
+
+.btn-cancel:hover {
+  background: var(--bg-secondary, #1a1a2e);
+}
+
+.btn-review {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #7b2cbf, #00d4ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-review:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(123, 44, 191, 0.4);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}

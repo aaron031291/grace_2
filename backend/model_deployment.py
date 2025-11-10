@@ -9,7 +9,7 @@ from .governance import governance_engine
 from .mldl import mldl_manager, MLEvent
 
 class ModelDeploymentPipeline:
-    """End-to-end deployment: train → verify → approve → deploy"""
+    """End-to-end deployment: train -> verify -> approve -> deploy"""
     
     def __init__(self):
         self.min_accuracy_threshold = 0.6
@@ -101,7 +101,7 @@ class ModelDeploymentPipeline:
         model_id: int,
         actor: str = "system"
     ) -> tuple[bool, str]:
-        """Full deployment pipeline: verify → approve → deploy"""
+        """Full deployment pipeline: verify -> approve -> deploy"""
         
         await self.log_deployment_event(
             model_id,

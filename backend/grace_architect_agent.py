@@ -5,7 +5,7 @@ patterns, and can autonomously extend Grace's capabilities.
 
 Unlike general coding agents, this one KNOWS:
 - Grace's 12 phases and their patterns
-- Governance → Hunter → Verification → Audit flow
+- Governance -> Hunter -> Verification -> Audit flow
 - Constitutional principles and how to enforce them
 - Parliament voting patterns
 - Meta-loop optimization patterns
@@ -106,7 +106,7 @@ class GraceArchitectAgent:
     This agent:
     1. Knows Grace's architecture deeply
     2. Understands constitutional principles
-    3. Follows governance → hunter → verification patterns
+    3. Follows governance -> hunter -> verification patterns
     4. Can autonomously extend Grace
     5. Learns from every extension
     """

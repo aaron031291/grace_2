@@ -11,7 +11,7 @@ from causal_analyzer import causal_analyzer
 from causal import causal_tracker
 
 async def setup_test_data():
-    """Create test scenario: User asks question → Grace responds → User creates task"""
+    """Create test scenario: User asks question -> Grace responds -> User creates task"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
@@ -212,7 +212,7 @@ async def test_feedback_loops(graph: CausalGraph):
         for i, cycle in enumerate(cycles[:3], 1):
             print(f"\n  Loop {i} ({len(cycle)} edges):")
             for edge in cycle[:4]:
-                print(f"    {edge['from_event_type']} → {edge['to_event_type']} (strength: {edge['strength']:.2f})")
+                print(f"    {edge['from_event_type']} -> {edge['to_event_type']} (strength: {edge['strength']:.2f})")
     else:
         print("  No cycles detected (system is acyclic - good!)")
 
@@ -313,7 +313,7 @@ async def test_graph_visualization():
     if viz_data['edges']:
         print(f"\n  Sample edge:")
         sample = viz_data['edges'][0]
-        print(f"    {sample['source']} → {sample['target']}")
+        print(f"    {sample['source']} -> {sample['target']}")
         print(f"    Strength: {sample['strength']:.2f}")
         print(f"    Type: {sample['relationship_type']}")
     

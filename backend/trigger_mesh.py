@@ -1,8 +1,9 @@
 import asyncio
 from typing import Dict, Set, Callable, Any, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import json
+import uuid
 
 @dataclass
 class TriggerEvent:
@@ -13,6 +14,8 @@ class TriggerEvent:
     resource: str
     payload: dict
     timestamp: datetime
+    event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    subsystem: str = ""  # Subsystem identifier for metrics tracking
 
 class TriggerMesh:
     """Event bus connecting all Grace subsystems"""
@@ -36,13 +39,14 @@ class TriggerMesh:
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)
-        print(f"✓ Subscribed to {event_pattern}")
+        print(f"[OK] Subscribed to {event_pattern}")
         return self._NoOpAwaitable()
     
     async def publish(self, event: TriggerEvent):
         """Publish event to mesh"""
         await self.event_queue.put(event)
         
+        # Log to immutable log
         from .immutable_log import immutable_log
         await immutable_log.append(
             actor=event.actor,
@@ -119,7 +123,6 @@ async def setup_subscriptions():
         if event.payload.get("decision") in ["block", "review"]:
             from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
-
     async def on_autonomy_event(event: TriggerEvent):
         """Update metrics based on autonomy plan outcomes"""
         try:

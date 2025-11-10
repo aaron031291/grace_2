@@ -5,7 +5,6 @@ from ..ml_models_table import MLModel, TrainingRun
 from ..models import async_session
 from ..training_pipeline import training_pipeline
 from ..verification_middleware import verify_action
-
 router = APIRouter(prefix="/api/ml", tags=["machine_learning"])
 
 @router.post("/train")
@@ -58,3 +57,12 @@ async def list_models():
             }
             for m in result.scalars().all()
         ]
+<<<<<<< HEAD
+=======
+        return MLModelsListResponse(
+            models=models,
+            count=len(models),
+            execution_trace=None,
+            data_provenance=[]
+        )
+>>>>>>> origin/main

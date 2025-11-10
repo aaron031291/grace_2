@@ -1,27 +1,46 @@
 import asyncio
 import os
-
-# Ensure the feature flag is enabled for this repro
-os.environ.setdefault("ENABLE_CAPA_AUTOCREATE", "1")
-
-from backend.integrations.capa_system import auto_create_from_diagnostic
+from backend.integrations.capa_system import auto_create_from_diagnostic, ENABLE_CAPA_AUTOCREATE
 
 
 async def main():
-    diag = {
+    print(f"ENABLE_CAPA_AUTOCREATE={ENABLE_CAPA_AUTOCREATE} (set via env)")
+    
+    # Simulate a critical diagnostic finding
+    diagnostic = {
+        "diagnosis": "sql_injection_vulnerability",
         "severity": "critical",
-        "status": "degraded",
-        "diagnosis": "latency_spike",
-        "details": "p95 latency > 2s for backend_api",
+        "status": "failed",
+        "details": "SQL injection vector detected in user input handler",
+        "summary": "Critical security flaw allowing unauthorized database access",
     }
-    ticket = await auto_create_from_diagnostic(diag)
-    if ticket is None:
-        print("No CAPA created (feature flag disabled or diagnostic not eligible)")
+    
+    print(f"\nSimulating critical diagnostic: {diagnostic['diagnosis']}")
+    ticket = await auto_create_from_diagnostic(diagnostic)
+    
+    if ticket:
+        print(f"\n✓ CAPA ticket auto-created:")
+        print(f"  ID: {ticket.id}")
+        print(f"  Title: {ticket.title}")
+        print(f"  Category: {ticket.category}")
+        print(f"  Severity: {ticket.severity}")
+        print(f"  Status: {ticket.status}")
     else:
-        try:
-            print(ticket.model_dump())
-        except Exception:
-            print(vars(ticket))
+        print("\n✗ No CAPA ticket created (feature disabled or diagnostic not eligible)")
+    
+    # Test with non-critical diagnostic (should not create ticket)
+    print("\n\nTesting with low-severity diagnostic (should not create):")
+    low_diag = {
+        "diagnosis": "minor_latency_increase",
+        "severity": "low",
+        "status": "degraded",
+        "details": "Slight increase in response time",
+    }
+    ticket2 = await auto_create_from_diagnostic(low_diag)
+    if ticket2:
+        print(f"  Unexpected: ticket created for low severity")
+    else:
+        print(f"  ✓ Correctly skipped low-severity diagnostic")
 
 
 if __name__ == "__main__":

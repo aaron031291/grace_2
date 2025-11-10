@@ -1,16 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
-from .settings import settings
+from sqlalchemy.orm import relationship
 
-# Prefer env-provided DATABASE_URL; fallback to local sqlite for dev
-DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
-
-engine = create_async_engine(DATABASE_URL, echo=False, future=True)
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-Base = declarative_base()
+# Import Base, engine, async_session from base_models (foundation layer)
+from .base_models import Base, engine, async_session
 
 from .sandbox_models import SandboxRun, SandboxFile
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
@@ -22,8 +15,8 @@ from .mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact
+from .lightning_fusion_models import CryptoIdentity, FusionMemoryFragment, LightningMemoryCache, ComponentCryptoRegistration, DiagnosticTrace, VerificationAuditLog
 from .trusted_sources import TrustedSource
-from .verification import VerificationEnvelope
 from .ml_models_table import MLModel, TrainingRun
 from .temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly, PredictionRecord
 from .cognition.models import MemoryArtifact as CognitionMemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog

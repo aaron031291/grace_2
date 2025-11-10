@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, Column, Integer, DateTime, Text, Float
 from .models import ChatMessage, async_session, Base
@@ -23,7 +23,7 @@ class ReflectionService:
         if not self._running:
             self._running = True
             self._task = asyncio.create_task(self._run())
-            print(f"✓ Reflection service started (interval: {self.interval}s)")
+            print(f"[OK] Reflection service started (interval: {self.interval}s)")
 
     async def stop(self):
         if self._running:
@@ -31,7 +31,7 @@ class ReflectionService:
             if self._task:
                 self._task.cancel()
             self._task = None
-            print("✓ Reflection service stopped")
+            print("[OK] Reflection service stopped")
 
     async def _run(self):
         try:
@@ -92,7 +92,7 @@ class ReflectionService:
             )
             session.add(reflection)
             await session.commit()
-            print(f"✓ Generated reflection: {summary}")
+            print(f"[OK] Generated reflection: {summary}")
             
             if top_words and user_topics:
                 most_common_word = max(user_topics.items(), key=lambda x: x[1])
@@ -102,10 +102,10 @@ class ReflectionService:
                     most_common_word[1]
                 )
                 if action_created:
-                    print(f"✓ Learning engine created task from pattern: {most_common_word[0]}")
+                    print(f"[OK] Learning engine created task from pattern: {most_common_word[0]}")
             
             eval_count = await confidence_evaluator.periodic_evaluation()
             if eval_count > 0:
-                print(f"✓ Confidence evaluator processed {eval_count} events")
+                print(f"[OK] Confidence evaluator processed {eval_count} events")
 
 reflection_service = ReflectionService(interval_seconds=10)

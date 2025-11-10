@@ -535,16 +535,16 @@ class CognitiveLifecycleObservatory:
         Get complete view of cognitive lifecycle
         
         Shows EVERYTHING:
-        1. Input → What Grace received
-        2. Perception → How Grace interpreted it
-        3. Reasoning → How Grace thought about it
-        4. Memory Access → What Grace remembered
-        5. Decision → What Grace decided
-        6. Action Plan → What Grace will do
-        7. Execution → What Grace did
-        8. Feedback → What happened
-        9. Learning → What Grace learned
-        10. Adaptation → How Grace improved
+        1. Input -> What Grace received
+        2. Perception -> How Grace interpreted it
+        3. Reasoning -> How Grace thought about it
+        4. Memory Access -> What Grace remembered
+        5. Decision -> What Grace decided
+        6. Action Plan -> What Grace will do
+        7. Execution -> What Grace did
+        8. Feedback -> What happened
+        9. Learning -> What Grace learned
+        10. Adaptation -> How Grace improved
         
         Complete cognitive transparency.
         """

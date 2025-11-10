@@ -1,0 +1,162 @@
+{
+  "training_set": "startup_failures",
+  "description": "Startup error patterns and their fixes for self-healing",
+  "version": "1.0.0",
+  "created": "2025-11-09",
+  "incidents": [
+    {
+      "id": "unicode_logging_crash",
+      "pattern": "UnicodeEncodeError: 'charmap' codec can't encode",
+      "root_cause": "Windows console defaults to CP1252, not UTF-8",
+      "symptoms": [
+        "Emoji characters in logs cause crashes",
+        "Script fails at first unicode character",
+        "Error mentions 'charmap' codec"
+      ],
+      "fix": {
+        "playbook": "fix_unicode_logging",
+        "steps": [
+          "sys.stdout.reconfigure(encoding='utf-8')",
+          "sys.stderr.reconfigure(encoding='utf-8')",
+          "Set PYTHONIOENCODING=utf-8 in environment",
+          "Run chcp 65001 before PowerShell scripts"
+        ],
+        "risk_level": "low",
+        "autonomy_tier": "tier_1"
+      },
+      "verification": "Test print with emoji ✅ succeeds"
+    },
+    {
+      "id": "verification_events_schema_mismatch",
+      "pattern": "type object 'VerificationEvent' has no attribute 'passed'",
+      "root_cause": "Database schema out of date, missing passed column",
+      "symptoms": [
+        "Meta loop fails with AttributeError",
+        "Self-healing verification crashes",
+        "Error mentions VerificationEvent.passed"
+      ],
+      "fix": {
+        "playbook": "apply_pending_migrations",
+        "steps": [
+          "Run alembic upgrade head",
+          "Verify passed column exists in verification_events",
+          "Restart meta loop"
+        ],
+        "risk_level": "medium",
+        "autonomy_tier": "tier_2"
+      },
+      "verification": "VerificationEvent model has passed attribute"
+    },
+    {
+      "id": "playbook_missing_risk_fields",
+      "pattern": "Playbook model missing risk_level or autonomy_tier",
+      "root_cause": "Schema migration not applied",
+      "symptoms": [
+        "Proactive intelligence rejects playbooks",
+        "Governance can't assess playbook risk",
+        "AttributeError on playbook.risk_level"
+      ],
+      "fix": {
+        "playbook": "apply_pending_migrations",
+        "steps": [
+          "Run alembic upgrade head",
+          "Verify risk_level column in playbooks table",
+          "Verify autonomy_tier column in playbooks table"
+        ],
+        "risk_level": "medium",
+        "autonomy_tier": "tier_2"
+      },
+      "verification": "Playbook model has risk_level and autonomy_tier attributes"
+    },
+    {
+      "id": "circular_import_avn_models",
+      "pattern": "ImportError: cannot import name 'VerificationEvent' from partially initialized module",
+      "root_cause": "Circular import between models.py and avn_avm.py",
+      "symptoms": [
+        "Startup fails with ImportError",
+        "Error mentions 'partially initialized module'",
+        "Both models.py and avn_avm.py in traceback"
+      ],
+      "fix": {
+        "playbook": "fix_circular_imports",
+        "steps": [
+          "Change avn_avm.py to import from base_models not models",
+          "Verify VerificationEvent imports successfully",
+          "Check no other circular dependencies"
+        ],
+        "risk_level": "high",
+        "autonomy_tier": "tier_3"
+      },
+      "verification": "from backend.avn_avm import VerificationEvent succeeds"
+    },
+    {
+      "id": "database_locked",
+      "pattern": "sqlite3.OperationalError: database is locked",
+      "root_cause": "Previous process didn't close connection or WAL mode active",
+      "symptoms": [
+        "Startup fails with database locked",
+        "SQLite WAL/SHM files exist",
+        "Multiple processes accessing same DB"
+      ],
+      "fix": {
+        "playbook": "unlock_database",
+        "steps": [
+          "Remove .db-shm and .db-wal files",
+          "Wait 500ms for locks to clear",
+          "Retry connection"
+        ],
+        "risk_level": "low",
+        "autonomy_tier": "tier_1"
+      },
+      "verification": "Database connection succeeds"
+    },
+    {
+      "id": "trigger_mesh_unawaited",
+      "pattern": "RuntimeWarning: coroutine 'publish' was never awaited",
+      "root_cause": "trigger_mesh.publish() called without await",
+      "symptoms": [
+        "Warnings about unawaited coroutines",
+        "Events not delivered to handlers",
+        "Logs mention trigger_mesh.publish"
+      ],
+      "fix": {
+        "playbook": "verify_async_subscriptions",
+        "steps": [
+          "Search codebase for trigger_mesh.publish(",
+          "Verify all calls use await",
+          "Add await if missing"
+        ],
+        "risk_level": "low",
+        "autonomy_tier": "tier_1"
+      },
+      "verification": "No RuntimeWarning about unawaited coroutines"
+    },
+    {
+      "id": "missing_env_secrets",
+      "pattern": "KeyError: 'SECRET_KEY' or missing DATABASE_URL",
+      "root_cause": ".env file missing or incomplete",
+      "symptoms": [
+        "Startup fails with KeyError",
+        "App can't find environment variables",
+        ".env file doesn't exist"
+      ],
+      "fix": {
+        "playbook": "create_default_env",
+        "steps": [
+          "Copy .env.example to .env",
+          "Generate random SECRET_KEY",
+          "Set DATABASE_URL to sqlite default"
+        ],
+        "risk_level": "low",
+        "autonomy_tier": "tier_1"
+      },
+      "verification": "All required env vars present"
+    }
+  ],
+  "learning_notes": "These patterns are detected during boot pipeline and trigger automatic fixes. The system learns success rates and refines playbooks over time.",
+  "next_version_improvements": [
+    "Add ML prediction of likely startup failures based on recent changes",
+    "Implement auto-rollback if multiple consecutive boot failures",
+    "Create startup health score based on historical success rate"
+  ]
+}

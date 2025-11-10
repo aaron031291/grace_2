@@ -1,0 +1,287 @@
+================================================================================
+API ROUTE AUDIT REPORT
+================================================================================
+
+Total Endpoints: 283
+With response_model: 126 (44.5%)
+Missing response_model: 157 (55.5%)
+
+================================================================================
+ENDPOINTS MISSING response_model (Priority Order)
+================================================================================
+
+agentic_insights.py:
+  Line 92: GET /status
+  Line 126: GET /runs/{run_id}/timeline
+  Line 179: POST /verbosity
+  Line 204: GET /search
+  Line 227: GET /health
+
+autonomy_routes.py:
+  Line 156: GET /tasks/{task_id}
+  Line 165: GET /shards/status
+
+causal.py:
+  Line 7: GET /patterns
+
+causal_graph_api.py:
+  Line 22: POST /build-graph
+  Line 53: GET /causes/{event_id}
+  Line 81: GET /effects/{event_id}
+  Line 109: POST /path
+  Line 147: GET /influence
+  Line 172: GET /cycles
+  Line 196: GET /visualize
+  Line 220: GET /analyze/task-completion
+  Line 232: GET /analyze/error-chains
+  Line 244: GET /analyze/optimization
+  Line 257: GET /analyze/feedback-loops
+
+cognition_api.py:
+  Line 120: POST /request
+
+commit_routes.py:
+  Line 20: GET /status
+  Line 30: GET /workflows
+
+concurrent_api.py:
+  Line 38: POST /tasks/submit
+  Line 66: POST /tasks/batch
+  Line 92: GET /tasks/{task_id}
+  Line 107: GET /queue/status
+  Line 116: GET /domains
+  Line 134: GET /domains/{domain}/metrics
+  Line 149: GET /domains/metrics/all
+
+constitutional_api.py:
+  Line 41: GET /principles
+  Line 83: GET /principles/{principle_id}
+  Line 117: GET /violations
+  Line 165: GET /violations/stats
+  Line 214: GET /compliance/{action_id}
+  Line 247: POST /compliance/check
+  Line 265: GET /compliance/report
+  Line 284: GET /clarifications/pending
+  Line 297: POST /clarifications/answer
+  Line 320: GET /clarifications/{request_id}
+  Line 357: GET /stats
+  Line 429: GET /tenets
+
+evaluation.py:
+  Line 7: GET /confidence
+  Line 12: POST /evaluate
+
+execution.py:
+  Line 22: POST unknown
+  Line 69: GET /languages
+  Line 89: GET /presets
+  Line 109: POST /validate
+
+external_api_routes.py:
+  Line 86: POST /github/issues
+  Line 108: GET /github/repos
+  Line 125: GET /github/repos/{owner}/{repo}/issues
+  Line 146: POST /github/pr
+  Line 169: GET /github/repos/{owner}/{repo}/commits
+  Line 190: POST /github/comment
+  Line 213: POST /slack/message
+  Line 234: GET /slack/channels
+  Line 251: GET /slack/channels/{channel_id}/history
+  Line 269: POST /slack/upload
+  Line 291: POST /slack/webhook
+  Line 304: POST /aws/s3/upload
+  Line 326: POST /aws/s3/download
+  Line 347: GET /aws/s3/list
+  Line 366: DELETE /aws/s3/delete
+  Line 384: POST /aws/lambda/invoke
+  Line 405: GET /aws/lambda/functions
+  Line 422: GET /aws/ec2/instances
+  Line 436: GET /aws/ec2/instances/{instance_id}/status
+  Line 453: GET /aws/costs
+  Line 469: GET /secrets
+  Line 488: POST /secrets
+  Line 511: GET /secrets/{secret_key}
+  Line 528: DELETE /secrets/{secret_key}
+
+goals.py:
+  Line 137: POST /{goal_id}/criteria
+  Line 154: POST /{goal_id}/dependencies
+  Line 175: GET /{goal_id}/graph
+  Line 197: POST /{goal_id}/evaluate
+
+grace_architect_api.py:
+  Line 28: POST /learn
+  Line 52: POST /extend
+  Line 81: GET /patterns
+  Line 124: GET /extensions
+  Line 162: GET /extensions/{request_id}
+  Line 193: POST /deploy
+  Line 251: GET /knowledge
+
+health_unified.py:
+  Line 38: POST /health/ingest_signal
+  Line 58: GET /health/state
+  Line 99: POST /triage/diagnose
+
+incidents.py:
+  Line 30: POST /notify
+  Line 65: POST /ack
+  Line 94: GET /{incident_id}
+
+ingest.py:
+  Line 27: POST /text
+  Line 50: POST /url
+  Line 109: POST /file
+  Line 137: GET /artifacts
+
+issues.py:
+  Line 12: GET /
+  Line 41: GET /{issue_id}
+  Line 66: POST /{issue_id}/resolve
+
+learning_routes.py:
+  Line 23: GET /stats
+  Line 40: GET /status
+
+meta_api.py:
+  Line 151: GET /recommendations/pending
+  Line 180: GET /recommendations/applied
+
+meta_focus.py:
+  Line 24: GET /focus
+  Line 177: GET /cycles
+
+metrics.py:
+  Line 10: GET /summary
+  Line 26: GET /user/{username}
+  Line 46: GET /history
+
+ml_api.py:
+  Line 11: POST /train
+  Line 32: POST /deploy/{model_id}
+  Line 42: GET /models
+
+parliament_api.py:
+  Line 60: POST /members
+  Line 79: GET /members
+  Line 88: GET /members/{member_id}
+  Line 106: POST /sessions
+  Line 131: GET /sessions
+  Line 149: GET /sessions/{session_id}
+  Line 165: POST /sessions/{session_id}/vote
+  Line 187: GET /sessions/{session_id}/status
+  Line 220: POST /committees
+  Line 243: GET /committees
+  Line 252: GET /committees/{committee_name}
+  Line 270: GET /stats
+  Line 279: GET /stats/member/{member_id}
+
+playbooks.py:
+  Line 20: GET /
+  Line 28: POST /plan
+
+plugin_routes.py:
+  Line 7: GET /
+  Line 12: POST /{plugin_name}/enable
+  Line 21: POST /{plugin_name}/disable
+
+reflections.py:
+  Line 8: GET /
+  Line 31: POST /trigger
+
+sandbox.py:
+  Line 21: GET /files
+  Line 26: GET /file
+  Line 39: POST /write
+  Line 51: POST /run
+  Line 99: POST /reset
+
+scheduler_observability.py:
+  Line 22: GET /scheduler_counters
+  Line 96: GET /scheduler_health
+
+speech_api.py:
+  Line 31: POST /upload
+  Line 82: GET /{speech_id}
+  Line 102: GET /{speech_id}/file
+  Line 142: GET /list
+  Line 163: POST /{speech_id}/review
+  Line 189: DELETE /{speech_id}
+  Line 224: POST /tts/generate
+  Line 252: GET /tts/{tts_id}/file
+
+subagent_bridge.py:
+  Line 156: GET /active
+  Line 165: POST /spawn
+
+summaries.py:
+  Line 8: GET /
+  Line 34: POST /generate
+
+trust_api.py:
+  Line 23: GET /sources
+  Line 40: POST /sources
+  Line 61: PATCH /sources/{source_id}
+  Line 84: DELETE /sources/{source_id}
+  Line 98: GET /score
+
+verification_api.py:
+  Line 300: GET /missions/{mission_id}
+  Line 355: POST /smoke-check
+  Line 447: GET /health
+
+verification_routes.py:
+  Line 336: GET /missions/current
+  Line 349: GET /missions/{mission_id}
+  Line 381: GET /status
+
+================================================================================
+FILES WITH COMPLETE COVERAGE
+================================================================================
+  [OK] auth_routes.py (2 endpoints)
+  [OK] chat.py (1 endpoints)
+  [OK] chat_hardened.py (1 endpoints)
+  [OK] coding_agent_api.py (16 endpoints)
+  [OK] executor.py (3 endpoints)
+  [OK] governance.py (9 endpoints)
+  [OK] health_routes.py (4 endpoints)
+  [OK] history.py (2 endpoints)
+  [OK] hunter.py (4 endpoints)
+  [OK] immutable_api.py (2 endpoints)
+  [OK] knowledge.py (8 endpoints)
+  [OK] learning.py (2 endpoints)
+  [OK] memory_api.py (6 endpoints)
+  [OK] tasks.py (3 endpoints)
+  [OK] temporal_api.py (11 endpoints)
+
+================================================================================
+PRIORITY FIXES (Files with <50% coverage)
+================================================================================
+  causal.py: 0/1 (0%)
+  causal_graph_api.py: 0/11 (0%)
+  commit_routes.py: 0/2 (0%)
+  concurrent_api.py: 0/7 (0%)
+  constitutional_api.py: 0/12 (0%)
+  evaluation.py: 0/2 (0%)
+  execution.py: 0/4 (0%)
+  external_api_routes.py: 0/24 (0%)
+  grace_architect_api.py: 0/7 (0%)
+  health_unified.py: 0/3 (0%)
+  incidents.py: 0/3 (0%)
+  ingest.py: 0/4 (0%)
+  issues.py: 0/3 (0%)
+  learning_routes.py: 0/2 (0%)
+  meta_focus.py: 0/2 (0%)
+  metrics.py: 0/3 (0%)
+  ml_api.py: 0/3 (0%)
+  parliament_api.py: 0/13 (0%)
+  playbooks.py: 0/2 (0%)
+  plugin_routes.py: 0/3 (0%)
+  reflections.py: 0/2 (0%)
+  sandbox.py: 0/5 (0%)
+  scheduler_observability.py: 0/2 (0%)
+  speech_api.py: 0/8 (0%)
+  subagent_bridge.py: 0/2 (0%)
+  summaries.py: 0/2 (0%)
+  trust_api.py: 0/5 (0%)
+  goals.py: 3/7 (43%)

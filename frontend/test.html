@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grace Test</title>
+    <style>
+        body { background: #0f0f1e; color: white; font-family: sans-serif; padding: 40px; }
+        h1 { color: #00ff88; }
+        .status { padding: 20px; margin: 20px 0; background: #1a1a2e; border-radius: 8px; }
+        .ok { border-left: 4px solid #00ff88; }
+        .error { border-left: 4px solid #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Grace System Test</h1>
+    
+    <div class="status ok">
+        <h2>✅ Frontend Server</h2>
+        <p>This page loads = Vite is working</p>
+    </div>
+    
+    <div class="status" id="backend-status">
+        <h2>⏳ Backend API</h2>
+        <p id="backend-result">Testing...</p>
+    </div>
+    
+    <div class="status" id="react-status">
+        <h2>⚠️ React App</h2>
+        <p>If you see a black screen on <a href="http://localhost:5173" style="color: #00ff88">http://localhost:5173</a>, there's a JavaScript error.</p>
+        <p><strong>Open browser DevTools (F12) → Console tab</strong> to see the error.</p>
+    </div>
+
+    <h2>Quick Diagnostics:</h2>
+    <ol>
+        <li>Press <strong>F12</strong> to open DevTools</li>
+        <li>Click <strong>Console</strong> tab</li>
+        <li>Go back to <a href="http://localhost:5173" style="color: #00ff88">main page</a></li>
+        <li>Look for red error messages</li>
+        <li>Tell me what error you see!</li>
+    </ol>
+
+    <script>
+        fetch('http://localhost:8000/health')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('backend-status').className = 'status ok';
+                document.getElementById('backend-result').innerHTML = `✅ Backend OK: ${JSON.stringify(data)}`;
+            })
+            .catch(err => {
+                document.getElementById('backend-status').className = 'status error';
+                document.getElementById('backend-result').innerHTML = `❌ Backend Error: ${err.message}`;
+            });
+    </script>
+</body>
+</html>

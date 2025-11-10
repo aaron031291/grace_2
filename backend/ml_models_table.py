@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean
 from sqlalchemy.sql import func
-from .models import Base
+from .base_models import Base
 
 class MLModel(Base):
     """Trained models with complete lineage"""

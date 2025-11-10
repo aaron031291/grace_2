@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # ============ Grace Backend - Complete System ============
+  # Includes: 9 Domain Kernels, 311+ APIs, 100+ Subsystems
+  grace-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grace-backend-complete
+    ports:
+      - "8000:8000"
+    environment:
+      # Workers
+      - WORKERS=6
+      
+      # Database
+      - DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
+      
+      # Feature Flags (ALL ENABLED)
+      - SELF_HEAL_OBSERVE_ONLY=false
+      - SELF_HEAL_EXECUTE=true
+      - LEARNING_AGGREGATION_ENABLED=true
+      - META_LOOP_ENABLED=true
+      - AUTONOMOUS_IMPROVER_ENABLED=true
+      - CODING_AGENT_ENABLED=true
+      - AGENTIC_SPINE_ENABLED=true
+      
+      # Kernel System
+      - DOMAIN_KERNELS_ENABLED=true
+      
+      # Performance
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - UVLOOP_ENABLED=true
+      
+      # Discovery
+      - DISCOVERY_INTERVAL_SECS=3600
+      - DISCOVERY_SEEDS_PER_CYCLE=5
+    
+    volumes:
+      # Persistent data
+      - ./databases:/app/databases
+      - ./logs:/app/logs
+      - ./ml_artifacts:/app/ml_artifacts
+      - ./audio_messages:/app/audio_messages
+      - ./reports:/app/reports
+      - ./sandbox:/app/sandbox
+      
+      # Hot reload (development only)
+      # - ./backend:/app/backend
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    networks:
+      - grace-network
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '2.0'
+          memory: 2G
+
+  # ============ Grace Frontend ============
+  grace-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: grace-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE=http://localhost:8000
+    depends_on:
+      grace-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - grace-network
+
+  # ============ PostgreSQL (Optional - Production) ============
+  # Uncomment for production deployment with PostgreSQL
+  # grace-db:
+  #   image: postgres:15-alpine
+  #   container_name: grace-postgres
+  #   environment:
+  #     - POSTGRES_DB=grace
+  #     - POSTGRES_USER=grace
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change_me_in_production}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #     - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U grace"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   restart: unless-stopped
+  #   networks:
+  #     - grace-network
+
+networks:
+  grace-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  postgres-data:
+    driver: local

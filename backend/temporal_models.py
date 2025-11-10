@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, JSON
 from sqlalchemy.sql import func
-from .models import Base
+from .base_models import Base
 
 class EventPattern(Base):
     """Stores discovered temporal patterns in event sequences"""

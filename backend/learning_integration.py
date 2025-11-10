@@ -1,7 +1,7 @@
 """
 Learning Integration - Continuous improvement through decision outcomes
 
-Logs every decision → outcome, feeds analytics/ML to refine detection,
+Logs every decision -> outcome, feeds analytics/ML to refine detection,
 playbook selection, and threshold tuning. Self-upgrades heuristics when
 confidence crosses thresholds (with full audit trail).
 """
@@ -61,7 +61,7 @@ class HeuristicUpdate:
 
 
 class OutcomeTracker:
-    """Tracks decision → outcome pairs for learning"""
+    """Tracks decision -> outcome pairs for learning"""
     
     def __init__(self):
         self.outcomes: List[OutcomeRecord] = []

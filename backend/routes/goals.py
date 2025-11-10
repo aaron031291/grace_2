@@ -7,6 +7,14 @@ import json
 from ..auth import get_current_user
 from ..models import Goal, async_session
 from ..goal_models import GoalDependency, GoalEvaluation
+=======
+from ..schemas_extended import (
+    GoalCriteriaResponse,
+    GoalDependencyResponse,
+    GoalGraphResponse,
+    GoalEvaluationResponse
+)
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 
@@ -134,6 +142,7 @@ async def update_goal(
         await session.refresh(goal)
         return goal
 
+<<<<<<< HEAD
 @router.post("/{goal_id}/criteria")
 async def set_goal_criteria(
     goal_id: int,

@@ -8,6 +8,13 @@ from ..knowledge import knowledge_manager
 from ..verification_middleware import verify_action
 from ..models import async_session
 from ..knowledge_models import KnowledgeArtifact, KnowledgeRevision, KnowledgeTombstone
+=======
+from ..schemas import (
+    KnowledgeQueryResponse, SuccessResponse, KnowledgeRevisionListResponse,
+    KnowledgeRenameResponse, KnowledgeDeleteResponse, KnowledgeRestoreResponse,
+    KnowledgeExportResponse, KnowledgeDiscoveryResponse, KnowledgeSearchResponse
+)
+>>>>>>> origin/main
 
 # Metrics publishing (async)
 try:
@@ -38,6 +45,7 @@ class DeleteRequest(BaseModel):
     reason: Optional[str] = None
 
 
+<<<<<<< HEAD
 @router.post("/ingest")
 @verify_action("knowledge_ingest", lambda data: data.get("source", "unknown"))
 async def ingest_knowledge(

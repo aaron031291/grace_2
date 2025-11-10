@@ -19,6 +19,23 @@ from ..constitutional_models import (
 from ..constitutional_engine import constitutional_engine
 from ..constitutional_verifier import constitutional_verifier
 from ..clarifier import clarifier
+=======
+from ..schemas_extended import (
+    ConstitutionalPrinciplesResponse,
+    ConstitutionalPrincipleResponse,
+    ConstitutionalViolationsResponse,
+    ConstitutionalViolationStatsResponse,
+    ConstitutionalComplianceResponse,
+    ConstitutionalCheckResponse,
+    ConstitutionalReportResponse,
+    ConstitutionalClarificationsResponse,
+    ConstitutionalClarificationResponse,
+    ConstitutionalStatsResponse,
+    ConstitutionalTenetsResponse,
+    SuccessResponse
+)
+
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/constitution", tags=["constitutional"])
 
@@ -38,6 +55,7 @@ class ComplianceCheckRequest(BaseModel):
 
 # ========== Principles Endpoints ==========
 
+<<<<<<< HEAD
 @router.get("/principles")
 async def list_principles(
     level: Optional[str] = None,

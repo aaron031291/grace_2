@@ -8,6 +8,12 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..memory_models import MemoryArtifact
 from ..models import async_session
+=======
+from ..schemas import (
+    MemoryTreeResponse, MemoryArtifactResponse, SuccessResponse, ExportBundleResponse, 
+    DomainStatsResponse, MemoryItemResponse, MemoryCreateResponse, MemoryUpdateResponse
+)
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
@@ -23,6 +29,7 @@ class UpdateArtifact(BaseModel):
     content: str
     reason: str = ""
 
+<<<<<<< HEAD
 @router.get("/tree")
 async def get_tree(
     domain: str = None,
