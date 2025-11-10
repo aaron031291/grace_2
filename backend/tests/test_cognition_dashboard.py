@@ -2,13 +2,17 @@
 Integration tests for Cognition Dashboard System
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pytest
 import asyncio
 from datetime import datetime
 
-from ..metrics_service import get_metrics_collector, publish_metric, publish_batch
-from ..cognition_metrics import get_metrics_engine
-from ..metric_publishers import (
+from backend.metrics_service import get_metrics_collector, publish_metric, publish_batch
+from backend.cognition_metrics import get_metrics_engine
+from backend.metric_publishers import (
     OrchestratorMetrics, HunterMetrics, KnowledgeMetrics,
     MLMetrics, TemporalMetrics, ParliamentMetrics,
     FederationMetrics, CoreMetrics, SpeechMetrics

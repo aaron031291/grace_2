@@ -4,20 +4,24 @@ Tests constitutional principles, compliance checking, violations,
 and clarification workflows.
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pytest
 import asyncio
 from datetime import datetime, timedelta
+from sqlalchemy import select
 
-from ..models import async_session, engine, Base
-from ..constitutional_models import (
+from backend.models import async_session, engine, Base
+from backend.constitutional_models import (
     ConstitutionalPrinciple, ConstitutionalViolation,
     ClarificationRequest, ConstitutionalCompliance
 )
-from ..constitutional_engine import constitutional_engine
-from ..constitutional_verifier import constitutional_verifier
-from ..clarifier import clarifier
-from ..seed_constitution import seed_constitutional_principles
-from sqlalchemy import select
+from backend.constitutional_engine import constitutional_engine
+from backend.constitutional_verifier import constitutional_verifier
+from backend.clarifier import clarifier
+from backend.seed_constitution import seed_constitutional_principles
 
 @pytest.fixture(scope="module")
 def event_loop():
