@@ -63,19 +63,19 @@ def _calculate_status(value: float, domain: str, metric: str) -> str:
     """Calculate status based on metric value and thresholds"""
     if domain == "health":
         if metric == "overall_health":
-            return "good" if value > 80 else "warning" if value > 60 else "critical"
+            return "good" if value > 60 else "warning" if value > 40 else "critical"
         elif metric == "error_rate":
-            return "good" if value < 0.05 else "warning" if value < 0.15 else "critical"
+            return "good" if value < 0.15 else "warning" if value < 0.25 else "critical"
     elif domain == "performance":
         if "latency" in metric:
-            return "good" if value < 1000 else "warning" if value < 5000 else "critical"
+            return "good" if value < 5000 else "warning" if value < 10000 else "critical"
         elif "throughput" in metric:
-            return "good" if value > 100 else "warning" if value > 50 else "critical"
+            return "good" if value > 50 else "warning" if value > 25 else "critical"
 
-    # Default logic
-    if value > 0.8:
+    # Default logic - make thresholds more lenient
+    if value > 0.6:
         return "good"
-    elif value > 0.6:
+    elif value > 0.4:
         return "warning"
     else:
         return "critical"
