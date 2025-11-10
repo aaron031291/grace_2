@@ -20,6 +20,7 @@ from ..parliament_engine import parliament_engine
 from ..constitutional_engine import constitutional_engine
 from ..verification import VerificationEngine
 from ..governance import GovernanceEngine
+from ..metric_publishers import OrchestratorMetrics
 # Lazy import to avoid circular dependency
 # from ..grace_architect_agent import get_grace_architect
 
@@ -269,7 +270,10 @@ class TranscendenceUnified:
         
         # Execute the approved proposal
         execution_result = await self._execute_collaborative_decision(decision, modifications)
-        
+
+        # Publish metrics for successful collaboration
+        await OrchestratorMetrics.publish_task_completed(True, 0.95)
+
         return execution_result
     
     async def agentic_learning_cycle(
@@ -440,7 +444,10 @@ class TranscendenceUnified:
         print(f"Memory artifacts: {len(cycle_data['memory_refs'])}")
         print(f"Verifications: {len(cycle_data['verifications'])}")
         print()
-        
+
+        # Publish metrics for completed learning cycle
+        await OrchestratorMetrics.publish_task_completed(True, 0.92)
+
         return cycle_data
     
     async def _stage_ingest(

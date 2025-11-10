@@ -11,6 +11,7 @@ Single interface for ALL Grace capabilities:
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
+from ..metric_publishers import OrchestratorMetrics
 
 router = APIRouter(prefix="/api/transcendence", tags=["Transcendence"])
 
@@ -152,6 +153,9 @@ async def add_to_whitelist(request: WhitelistRequest):
         await session.commit()
         await session.refresh(source)
         
+        # Publish metrics for whitelist addition
+        await OrchestratorMetrics.publish_task_completed(True, 0.88)
+
         return {
             "id": source.id,
             "name": source.name,

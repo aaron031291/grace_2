@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from .governance_models import SecurityRule, SecurityEvent
 from .models import async_session
 from sqlalchemy import select
+from .metric_publishers import HunterMetrics
 
 class Hunter:
     """Security monitoring and threat detection"""
