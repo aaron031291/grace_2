@@ -633,22 +633,20 @@ class SecretsVault:
                 "rotated": rotated,
                 "timestamp": datetime.utcnow().isoformat()
             }
-<<<<<<< HEAD
-=======
-    
+
     async def get_secret(self, secret_key: str, accessor: str = "system") -> Optional[str]:
         """
         Simplified secret getter with fallback to environment variables
-        
+
         Tries:
         1. Secrets vault
         2. Environment variable
         3. Returns None
-        
+
         Args:
             secret_key: Secret identifier
             accessor: Who is accessing (defaults to "system")
-        
+
         Returns:
             Secret value or None
         """
@@ -661,6 +659,5 @@ class SecretsVault:
             if env_value:
                 return env_value
             return None
->>>>>>> origin/main
 
 secrets_vault = SecretsVault()
