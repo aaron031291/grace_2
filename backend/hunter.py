@@ -71,11 +71,14 @@ class Hunter:
             
             if triggered:
                 await session.commit()
-                
+
+                # Publish metrics for security scan
+                await HunterMetrics.publish_scan_completed(len(triggered), 0.95, 0.012)
+
                 from .hunter_integration import handle_security_alert
                 for rule_name, event_id in triggered:
                     await handle_security_alert(actor, rule_name, event_id, resource)
-                
+
                 from .causal_graph import CausalGraph
                 try:
                     graph = CausalGraph()
@@ -88,7 +91,7 @@ class Hunter:
                             print(f"🔍 Hunter traced security event {event_id} to {len(causes)} causal events")
                 except Exception as e:
                     print(f"⚠ Causal trace failed: {e}")
-            
+
             return triggered
 
     def _matches(self, rule: SecurityRule, action: str, resource: str, payload: dict) -> bool:

@@ -1,6 +1,7 @@
 ﻿from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
 from .models import Base, async_session
+from .metric_publishers import KnowledgeMetrics
 
 class KnowledgeEntry(Base):
     __tablename__ = "knowledge_base"
@@ -26,6 +27,10 @@ class KnowledgeManager:
             await session.commit()
             await session.refresh(entry)
             print(f"[OK] Ingested knowledge: {content[:50]}...")
+
+            # Publish metrics for knowledge ingestion
+            await KnowledgeMetrics.publish_ingestion_completed(0.8, 1)
+
             return entry.id
     
     async def search_knowledge(self, query: str, limit: int = 5):
@@ -40,6 +45,11 @@ class KnowledgeManager:
                 .limit(limit)
             )
             entries = result.scalars().all()
+
+            # Publish metrics for knowledge search
+            if entries:
+                await KnowledgeMetrics.publish_search_performed(0.9, len(entries))
+
             return [
                 {
                     "id": e.id,

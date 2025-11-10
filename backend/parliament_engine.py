@@ -17,6 +17,7 @@ from .parliament_models import (
 )
 from .verification import VerificationEngine
 from .immutable_log import ImmutableLog as ImmutableLogger
+from .metric_publishers import ParliamentMetrics
 
 class ParliamentEngine:
     """Multi-agent voting and consensus system"""
