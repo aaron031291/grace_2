@@ -115,18 +115,18 @@ class MockMetricsCollector:
     async def _publish_business_metrics(self):
         """Publish business/application metrics"""
         metrics = [
-            ("user_sessions_active", random.gauss(1200, 150), "count"),  # Keep high
-            ("orders_per_minute", random.gauss(30, 5), "count"),  # Keep above 50 for good status
-            ("payment_success_rate", random.uniform(0.98, 0.999), "ratio"),  # Keep high
-            ("checkout_conversion", random.uniform(0.03, 0.08), "ratio"),  # Keep above 0.02
+            ("user_sessions_active", random.gauss(1200, 200), "count"),
+            ("orders_per_minute", random.gauss(25, 8), "count"),
+            ("payment_success_rate", random.uniform(0.98, 0.999), "ratio"),
+            ("checkout_conversion", random.uniform(0.02, 0.08), "ratio"),
         ]
 
         for metric_name, value, unit in metrics:
-            # Ensure reasonable bounds within good ranges
+            # Ensure reasonable bounds
             if "rate" in metric_name or "conversion" in metric_name:
-                value = max(0.02, min(value, 1.0))  # Keep above 0.02 for good status
+                value = max(0, min(value, 1.0))
             elif "sessions" in metric_name or "orders" in metric_name:
-                value = max(50, int(value))  # Keep above 50 for good status
+                value = max(0, int(value))
 
             await trigger_mesh.publish(TriggerEvent(
                 event_type=f"metrics.{metric_name}",
