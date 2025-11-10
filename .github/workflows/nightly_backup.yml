@@ -20,14 +20,14 @@ jobs:
           pip install boto3 || true
       - name: Run backup
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'sqlite+aiosqlite:///./grace.db' }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_S3_PREFIX: ${{ secrets.AWS_S3_PREFIX }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
-          py scripts/backup_database.py --out-dir backups
+          python scripts/backup_database.py --out-dir backups
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

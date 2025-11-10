@@ -34,7 +34,7 @@ async def run_probe() -> int:
                 else:
                     handler()
         tests_passed += 1
-        print("[1/3] Startup handlers: PASS")
+        print("[1/3] Startup handlers: OK")
     except Exception as e:
         print(f"[1/3] Startup handlers: FAIL -> {e}")
         tests_failed += 1
@@ -88,7 +88,7 @@ async def run_probe() -> int:
                     failures += 1
             if failures == 0:
                 tests_passed += 1
-                print("[2/3] Endpoint checks: PASS")
+                print("[2/3] Endpoint checks: OK")
             else:
                 tests_failed += 1
                 print(f"[2/3] Endpoint checks: FAIL ({failures} failing endpoint(s))")
@@ -105,7 +105,7 @@ async def run_probe() -> int:
                 else:
                     handler()
         tests_passed += 1
-        print("[3/3] Shutdown handlers: PASS")
+        print("[3/3] Shutdown handlers: OK")
     except Exception as e:
         print(f"[3/3] Shutdown handlers: FAIL -> {e}")
         tests_failed += 1

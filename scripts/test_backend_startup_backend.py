@@ -27,7 +27,7 @@ async def run_startup_shutdown():
     try:
         import backend.main as m
         app = m.app
-        print("[1/4] Import backend.main: PASS")
+        print("[1/4] Import backend.main: OK")
         tests_passed += 1
     except Exception as e:
         print(f"[1/4] Import backend.main: FAIL -> {e}")
@@ -58,7 +58,7 @@ async def run_startup_shutdown():
         ms = getattr(app.state, 'metrics_session', None)
         assert me is not None, "metrics_engine missing"
         assert ms is not None, "metrics_session missing"
-        print("[3/4] Metrics DB initialized: PASS")
+        print("[3/4] Metrics DB initialized: OK")
         tests_passed += 1
     except Exception as e:
         print(f"[3/4] Metrics DB check: FAIL -> {e}")
@@ -73,7 +73,7 @@ async def run_startup_shutdown():
                     await handler()
                 else:
                     handler()
-            print("        Shutdown: PASS")
+            print("        Shutdown: OK")
             tests_passed += 1
         else:
             print("[4/4] No shutdown handlers registered (OK)")

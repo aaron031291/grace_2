@@ -246,6 +246,27 @@ async def on_startup():
     print("✅ INTEGRATION & CRYPTO OPERATIONAL")
     print("=" * 80 + "\n")
 
+    # ========== AUTONOMOUS MISSION CREATOR AUTO-BOOT ==========
+    print("\n" + "=" * 80)
+    print("AUTONOMOUS MISSION CREATOR - AUTO-BOOT")
+    print("=" * 80)
+
+    # Start Autonomous Mission Creator
+    try:
+        from .autonomous_mission_creator import autonomous_mission_creator
+        await autonomous_mission_creator.start()
+        print("✅ Autonomous Mission Creator started")
+        print("   Grace can now create her own missions!")
+        print("   Trust threshold: 95%")
+        print("   Sandbox testing: Enabled")
+        print("   Consensus via Parliament: Required")
+    except Exception as e:
+        print(f"⚠️ Autonomous Mission Creator failed to start: {e}")
+
+    print("=" * 80)
+    print("✅ AUTONOMOUS MISSION CREATOR OPERATIONAL")
+    print("=" * 80 + "\n")
+
 @app.on_event("shutdown")
 async def on_shutdown():
     await reflection_service.stop()
