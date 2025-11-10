@@ -5,7 +5,7 @@ import os
 # Pydantic v2 preferred, with v1 fallback for wider compatibility
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict  # type: ignore
-    from pydantic import Field, AnyUrl  # type: ignore
+    from pydantic import Field, AnyUrl, SecretStr  # type: ignore
     _PDANTIC_V2 = True
 except Exception:  # pragma: no cover - fallback path
     from pydantic import BaseModel, Field  # type: ignore
@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     # Database (not yet wired everywhere; future work)
     DATABASE_URL: Optional[str] = Field(None, description="SQLAlchemy database URL")
 
+    # External integrations / secrets
+    try:
+        AMP_API_KEY: Optional[SecretStr] = Field(None, description="AMP API key for external integration")  # type: ignore[name-defined]
+        GITHUB_TOKEN: Optional[SecretStr] = Field(None, description="GitHub token for API access")  # type: ignore[name-defined]
+    except Exception:
+        # Fallback typing if SecretStr unavailable (pydantic v1 shim path)
+        AMP_API_KEY: Optional[str] = Field(None, description="AMP API key for external integration")
+        GITHUB_TOKEN: Optional[str] = Field(None, description="GitHub token for API access")
+    
     # Self-healing feature flags (defaults: observe-only)
     SELF_HEAL_OBSERVE_ONLY: bool = Field(True, description="Enable health state endpoints without executing changes")
     SELF_HEAL_EXECUTE: bool = Field(False, description="Allow automated playbook execution when confident and permitted")

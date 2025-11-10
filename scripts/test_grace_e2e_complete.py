@@ -641,7 +641,17 @@ class GraceE2ETestSuite:
         
         # 2. Publish metrics from multiple domains
         self.logger.info("  → Publishing metrics from all domains")
-        from backend.metric_publishers import *
+        from backend.metric_publishers import (
+            CoreMetrics,
+            OrchestratorMetrics,
+            KnowledgeMetrics,
+            HunterMetrics,
+            MLMetrics,
+            TemporalMetrics,
+            ParliamentMetrics,
+            FederationMetrics,
+            SpeechMetrics,
+        )
         
         await CoreMetrics.publish_uptime(0.99)
         await OrchestratorMetrics.publish_task_completed(True, 0.92)

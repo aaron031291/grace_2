@@ -1,16 +1,20 @@
 import statistics
 import time
+from backend.verification import verification_engine
 
-# TODO: Replace with real import once the crypto hot path is identified
-# from backend.security.crypto_assignments import assign_crypto
 
 def run_once(i: int):
-    # Placeholder: simulate a no-op call; update with real function
-    # assign_crypto(component_id=i % 100)
-    return None
+    # Exercise the hot path used in production: create_envelope signs a message
+    action_id = f"test_{i}"
+    actor = "profile"
+    action_type = "benchmark"
+    resource = "profiling"
+    input_data = {"i": i, "fixed": True}
+    # Returns (signature_hex, input_hash); ignore values
+    verification_engine.create_envelope(action_id, actor, action_type, resource, input_data)
 
 
-def bench(n: int = 1000):
+def bench(n: int = 5000):
     times = []
     for i in range(n):
         t0 = time.perf_counter_ns()
@@ -24,4 +28,4 @@ def bench(n: int = 1000):
 
 
 if __name__ == "__main__":
-    bench(2000)
+    bench(10000)
