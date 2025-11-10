@@ -8,26 +8,56 @@ import logging
 from typing import Dict, Any, List
 from datetime import datetime
 from .trigger_mesh import trigger_mesh, TriggerEvent
+
+logger = logging.getLogger(__name__)
+
+
+class AlertChannel:
+    """Base class for alert channels"""
+
+    async def send(self, alert: Dict[str, Any]):
+        """Send alert through this channel"""
+        raise NotImplementedError
+
+
+class CLIAlertChannel(AlertChannel):
+    """CLI/console notification channel"""
+
+    async def send(self, alert: Dict[str, Any]):
+        """Print alert to console"""
+        alert_type = alert.get("type", "unknown")
+        severity = alert.get("severity", "info")
+
+        # Format message
+        if alert_type == "saas_ready":
+            message = (
+                f"🎉 *SaaS Readiness Achieved!*\n\n"
+                f"Health: {alert.get('health', 0):.1%}\n"
+                f"Trust: {alert.get('trust', 0):.1%}\n"
+                f"Confidence: {alert.get('confidence', 0):.1%}\n\n"
                 f"*Time to consider SaaS commercialization!*"
             )
-        
+
         elif alert_type == "benchmark_crossed":
-            return (
+            message = (
                 f"📈 *Benchmark Threshold Crossed*\n\n"
                 f"Metric: {alert.get('metric')}\n"
                 f"Value: {alert.get('value', 0):.1%} (threshold: 90%)\n"
                 f"Status: Above target!"
             )
-        
+
         elif alert_type == "domain_dip":
-            return (
+            message = (
                 f"⚠️ *Domain Performance Dip*\n\n"
                 f"Domain: {alert.get('domain')}\n"
                 f"Health: {alert.get('health', 0):.1%}\n"
                 f"Action needed!"
             )
-        
-        return f"Grace Alert: {alert_type}"
+
+        else:
+            message = f"Grace Alert: {alert_type}"
+
+        logger.info(f"[ALERT] {message}")
 
 
 class EmailAlertChannel(AlertChannel):
