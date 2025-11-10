@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -188,6 +188,39 @@ async def on_startup():
     print("✅ ELITE SYSTEMS OPERATIONAL")
     print("=" * 80 + "\n")
 
+    # ========== MISSION CONTROL AUTO-BOOT ==========
+    print("\n" + "=" * 80)
+    print("MISSION CONTROL - AUTO-BOOT")
+    print("=" * 80)
+
+    # Start Mission Control Hub
+    try:
+        from .mission_control import mission_control_hub
+        await mission_control_hub.start()
+        print("✅ Mission Control Hub started (git tracking, health monitoring)")
+    except Exception as e:
+        print(f"⚠️ Mission Control Hub failed to start: {e}")
+
+    # Start Autonomous Coding Pipeline
+    try:
+        from .mission_control import autonomous_coding_pipeline
+        await autonomous_coding_pipeline.start()
+        print("✅ Autonomous Coding Pipeline started (governance, testing, observation)")
+    except Exception as e:
+        print(f"⚠️ Autonomous Coding Pipeline failed to start: {e}")
+
+    # Start Self-Healing Workflow
+    try:
+        from .mission_control import self_healing_workflow
+        await self_healing_workflow.start()
+        print("✅ Self-Healing Workflow started (playbooks, verification, CAPA)")
+    except Exception as e:
+        print(f"⚠️ Self-Healing Workflow failed to start: {e}")
+
+    print("=" * 80)
+    print("✅ MISSION CONTROL OPERATIONAL")
+    print("=" * 80 + "\n")
+
 @app.on_event("shutdown")
 async def on_shutdown():
     await reflection_service.stop()
@@ -359,6 +392,7 @@ app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
 app.include_router(websocket_routes.router)
 app.include_router(elite_systems_api.router)  # Elite Self-Healing & Coding Agent
+app.include_router(mission_control_api.router)  # Mission Control & Autonomous Operations
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
