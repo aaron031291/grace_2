@@ -7,14 +7,12 @@ import json
 from ..auth import get_current_user
 from ..models import Goal, async_session
 from ..goal_models import GoalDependency, GoalEvaluation
-=======
 from ..schemas_extended import (
     GoalCriteriaResponse,
     GoalDependencyResponse,
     GoalGraphResponse,
     GoalEvaluationResponse
 )
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 
@@ -50,7 +48,7 @@ class GoalResponse(BaseModel):
     category: Optional[str]
     created_at: datetime
     completed_at: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
 
@@ -78,7 +76,7 @@ async def get_goals(
         if category:
             query = query.where(Goal.category == category)
         query = query.order_by(Goal.created_at.desc())
-        
+
         result = await session.execute(query)
         return result.scalars().all()
 
@@ -116,7 +114,7 @@ async def update_goal(
         goal = result.scalar_one_or_none()
         if not goal:
             raise HTTPException(status_code=404, detail="Goal not found")
-        
+
         if goal_update.goal_text is not None:
             goal.goal_text = goal_update.goal_text
         if goal_update.target_date is not None:
@@ -137,12 +135,11 @@ async def update_goal(
             goal.category = goal_update.category
         if goal_update.success_criteria is not None:
             goal.success_criteria = json.dumps(goal_update.success_criteria)
-        
+
         await session.commit()
         await session.refresh(goal)
         return goal
 
-<<<<<<< HEAD
 @router.post("/{goal_id}/criteria")
 async def set_goal_criteria(
     goal_id: int,

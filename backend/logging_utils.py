@@ -74,8 +74,6 @@ def log_event(
     except Exception:
         # Fail open: logging must not break the request handling
         pass
-<<<<<<< HEAD
-
 
 
 def ensure_utf8_console() -> None:
@@ -109,5 +107,3 @@ def ensure_utf8_console() -> None:
     except Exception:
         # Never raise from a logging/console helper
         pass
-=======
->>>>>>> origin/main
