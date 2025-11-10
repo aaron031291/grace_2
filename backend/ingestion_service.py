@@ -5,6 +5,7 @@ import json
 from typing import Optional, Dict
 from pathlib import Path
 import asyncio
+from sqlalchemy.exc import OperationalError
 from .knowledge_models import KnowledgeArtifact, KnowledgeRevision
 from .models import async_session
 from .metric_publishers import KnowledgeMetrics
@@ -26,6 +27,39 @@ class IngestionService:
     def _compute_hash(content: str) -> str:
         return hashlib.sha256(content.encode()).hexdigest()
     
+    async def ingest_with_retry(
+        self,
+        content: str,
+        artifact_type: str,
+        title: str,
+        actor: str,
+        source: str = "manual",
+        domain: str = "general",
+        tags: list = None,
+        metadata: dict = None,
+        max_retries: int = 3
+    ) -> int:
+        """Ingest content with retry logic for database locking issues"""
+        for attempt in range(max_retries):
+            try:
+                return await self.ingest(
+                    content=content,
+                    artifact_type=artifact_type,
+                    title=title,
+                    actor=actor,
+                    source=source,
+                    domain=domain,
+                    tags=tags,
+                    metadata=metadata
+                )
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    wait_time = 0.1 * (2 ** attempt)  # Exponential backoff
+                    print(f"⚠️ Database locked, retrying in {wait_time:.1f}s (attempt {attempt + 1}/{max_retries})")
+                    await asyncio.sleep(wait_time)
+                else:
+                    raise
+
     async def ingest(
         self,
         content: str,
@@ -38,34 +72,34 @@ class IngestionService:
         metadata: dict = None
     ) -> int:
         """Ingest content into knowledge base"""
-        
+
         from .governance import governance_engine
         from .hunter import hunter
-        
+
         decision = await governance_engine.check(
             actor=actor,
             action="knowledge_ingest",
             resource=title,
             payload={"type": artifact_type, "size": len(content)}
         )
-        
+
         if decision["decision"] == "block":
             raise PermissionError(f"Blocked by policy: {decision['policy']}")
-        
+
         alerts = await hunter.inspect(actor, "ingest", title, {
             "content": content[:1000],
             "type": artifact_type
         })
-        
+
         if alerts:
             print(f"⚠️ Hunter: {len(alerts)} alerts during ingestion")
-        
+
         content_hash = self._compute_hash(content)
-        
+
         path = f"{domain}/{artifact_type}/{title.replace(' ', '_').lower()}"
-        
+
         from sqlalchemy import select
-        
+
         async with async_session() as session:
             existing = await session.execute(
                 select(KnowledgeArtifact).where(KnowledgeArtifact.content_hash == content_hash)
@@ -73,7 +107,7 @@ class IngestionService:
             if existing.scalar_one_or_none():
                 print(f"ℹ️ Duplicate content detected (skipping)")
                 return None
-            
+
             artifact = KnowledgeArtifact(
                 path=path,
                 title=title,
@@ -164,16 +198,16 @@ class IngestionService:
         try:
             import httpx
             from .ml_classifiers import trust_classifier_manager
-            
+
             trust_score, method = await trust_classifier_manager.predict_with_fallback(url)
-            
+
             print(f"🔍 Trust score for {url}: {trust_score} ({method})")
-            
+
             async with httpx.AsyncClient() as client:
                 response = await client.get(url, timeout=30)
                 content = response.text
-                
-                return await self.ingest(
+
+                return await self.ingest_with_retry(
                     content=content,
                     artifact_type="url",
                     title=url.split("/")[-1] or url,
@@ -199,34 +233,34 @@ class IngestionService:
         file_type: str = None
     ) -> int:
         """Ingest uploaded file"""
-        
+
         ext = Path(filename).suffix.lower()
-        
+
         if ext in ['.txt', '.md', '.py', '.js', '.ts', '.json']:
             content = file_content.decode('utf-8', errors='replace')
             artifact_type = "text"
-        
+
         elif ext == '.pdf':
             content = f"[PDF File: {filename}]\nRaw content processing not yet implemented"
             artifact_type = "pdf"
-        
+
         elif ext in ['.png', '.jpg', '.jpeg', '.gif']:
             content = f"[Image: {filename}]\nImage analysis not yet implemented"
             artifact_type = "image"
-        
+
         elif ext in ['.mp3', '.wav', '.m4a']:
             content = f"[Audio: {filename}]\nTranscription not yet implemented"
             artifact_type = "audio"
-        
+
         elif ext in ['.mp4', '.avi', '.mov']:
             content = f"[Video: {filename}]\nVideo processing not yet implemented"
             artifact_type = "video"
-        
+
         else:
             content = f"[File: {filename}]\nBinary content ({len(file_content)} bytes)"
             artifact_type = "binary"
-        
-        return await self.ingest(
+
+        return await self.ingest_with_retry(
             content=content,
             artifact_type=artifact_type,
             title=filename,

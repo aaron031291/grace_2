@@ -7,8 +7,9 @@ import { MetaLoopDashboard } from './components/MetaLoopDashboard';
 import { KnowledgeManager } from './components/Knowledge/KnowledgeManager';
 import { setAuthToken } from './api/client';
 import { ApprovalsAdmin } from './components/Governance/ApprovalsAdmin';
+import { AgenticDashboard } from './components/AgenticDashboard';
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals' | 'agentic'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -115,6 +116,10 @@ export default function App() {
 
   if (page === 'approvals') {
     return <ApprovalsAdmin />;
+  }
+
+  if (page === 'agentic') {
+    return <AgenticDashboard />;
   }
 
   if (page === 'dash') {
@@ -235,6 +240,7 @@ export default function App() {
           <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
           <button onClick={() => setPage('metaloop')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🧠 Meta-Loop</button>
           <button onClick={() => setPage('approvals')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>✅ Approvals</button>
+          <button onClick={() => setPage('agentic')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🤖 Agentic</button>
           <button onClick={() => { setToken(''); localStorage.clear(); setAuthToken(null); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </div>
       </div>

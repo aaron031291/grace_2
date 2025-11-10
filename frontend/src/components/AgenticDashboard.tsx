@@ -1,213 +1,317 @@
-import { useState, useEffect } from 'react';
-import { Bot, Activity, Zap, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { AlertCircle, CheckCircle, Clock, TrendingUp, Activity, Zap } from 'lucide-react';
 
-interface AgentState {
-  name: string;
-  status: 'idle' | 'active' | 'paused' | 'error';
-  progress: number;
-  current_task: string;
-  artifacts_created: number;
-  uptime: number;
+interface MetricData {
+  metric_id: string;
+  category: string;
+  value: number;
+  unit: string;
+  status: 'good' | 'warning' | 'critical';
+  timestamp: string;
 }
 
-interface AgenticDashboardProps {
-  agents: any[];
-  onInterrupt?: (agentId: string) => void;
-  onPause?: (agentId: string) => void;
-  onResume?: (agentId: string) => void;
+interface AgenticAction {
+  id: string;
+  type: string;
+  status: 'pending' | 'executing' | 'completed' | 'failed';
+  description: string;
+  timestamp: string;
+  risk_score: number;
 }
 
-export function AgenticDashboard({ agents, onInterrupt, onPause, onResume }: AgenticDashboardProps) {
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
-  const [activityLog, setActivityLog] = useState<string[]>([]);
+interface SystemHealth {
+  overall_health: number;
+  overall_trust: number;
+  overall_confidence: number;
+  subsystems_running: number;
+  total_subsystems: number;
+}
+
+export const AgenticDashboard: React.FC = () => {
+  const [metrics, setMetrics] = useState<MetricData[]>([]);
+  const [actions, setActions] = useState<AgenticAction[]>([]);
+  const [health, setHealth] = useState<SystemHealth | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 5000); // Refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [metricsRes, actionsRes, healthRes] = await Promise.all([
+        fetch('/api/metrics/recent'),
+        fetch('/api/agentic/actions'),
+        fetch('/api/status')
+      ]);
+
+      if (metricsRes.ok) {
+        const metricsData = await metricsRes.json();
+        setMetrics(metricsData.metrics || []);
+      }
+
+      if (actionsRes.ok) {
+        const actionsData = await actionsRes.json();
+        setActions(actionsData.actions || []);
+      }
+
+      if (healthRes.ok) {
+        const healthData = await healthRes.json();
+        setHealth(healthData);
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'running': return 'text-green-500';
-      case 'paused': return 'text-yellow-500';
-      case 'error': return 'text-red-500';
-      default: return 'text-zinc-400';
+      case 'good':
+      case 'completed':
+        return { backgroundColor: '#10b981', color: '#fff' };
+      case 'warning':
+      case 'pending':
+        return { backgroundColor: '#f59e0b', color: '#fff' };
+      case 'critical':
+      case 'failed':
+        return { backgroundColor: '#ef4444', color: '#fff' };
+      case 'executing':
+        return { backgroundColor: '#8b5cf6', color: '#fff' };
+      default:
+        return { backgroundColor: '#6b7280', color: '#fff' };
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'running': return <Activity className="h-4 w-4 text-green-500 animate-pulse" />;
-      case 'paused': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <CheckCircle className="h-4 w-4 text-zinc-400" />;
+      case 'good':
+      case 'completed':
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'warning':
+      case 'pending':
+        return <Clock className="w-4 h-4 text-yellow-600" />;
+      case 'critical':
+      case 'failed':
+        return <AlertCircle className="w-4 h-4 text-red-600" />;
+      case 'executing':
+        return <Activity className="w-4 h-4 text-blue-600" />;
+      default:
+        return <TrendingUp className="w-4 h-4 text-gray-600" />;
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-indigo-600" />
-          <h3 className="text-lg font-semibold">Agentic Control Center</h3>
-        </div>
-        <div className="text-xs text-zinc-500">
-          {agents.filter(a => a.status === 'running').length} / {agents.length} active
-        </div>
-      </div>
+    <div style={{ background: '#0f0f1e', minHeight: '100vh', padding: '2rem', color: '#fff' }}>
+      <a href="/" style={{ color: '#7b2cbf', marginBottom: '1rem', display: 'block' }}>← Back to Chat</a>
 
-      {/* Agent Grid */}
-      <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-        {agents.map((agent) => (
-          <div
-            key={agent.task_id || agent.id}
-            className={`rounded-lg border p-4 transition-all cursor-pointer ${
-              selectedAgent === agent.task_id
-                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                : 'border-zinc-200 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700'
-            }`}
-            onClick={() => setSelectedAgent(agent.task_id)}
-          >
-            {/* Agent Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                {getStatusIcon(agent.status)}
-                <div>
-                  <div className="font-medium text-sm">{agent.agent_type || agent.name}</div>
-                  <div className={`text-xs ${getStatusColor(agent.status)}`}>
-                    {agent.status}
-                  </div>
-                </div>
+      <h1 style={{ color: '#00d4ff', marginBottom: '2rem' }}>🤖 Agentic Dashboard</h1>
+
+      {/* System Health Overview */}
+      {health && (
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', marginBottom: '2rem' }}>
+          <h3 style={{ color: '#00d4ff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Zap style={{ width: '20px', height: '20px' }} />
+            System Health Overview
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>
+                {health.overall_health.toFixed(1)}%
               </div>
-              <div className="flex gap-1">
-                {agent.status === 'running' && onPause && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onPause(agent.task_id); }}
-                    className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
-                    title="Pause"
-                  >
-                    ⏸️
-                  </button>
-                )}
-                {agent.status === 'paused' && onResume && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onResume(agent.task_id); }}
-                    className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
-                    title="Resume"
-                  >
-                    ▶️
-                  </button>
-                )}
-                {onInterrupt && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onInterrupt(agent.task_id); }}
-                    className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded text-red-600"
-                    title="Stop"
-                  >
-                    <Zap className="h-3 w-3" />
-                  </button>
-                )}
-              </div>
+              <div style={{ fontSize: '0.875rem', color: '#7b2cbf' }}>Health Score</div>
             </div>
-
-            {/* Task Info */}
-            <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-3 line-clamp-2">
-              {agent.task || 'No active task'}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>
+                {health.overall_trust.toFixed(1)}%
+              </div>
+              <div style={{ fontSize: '0.875rem', color: '#7b2cbf' }}>Trust Score</div>
             </div>
-
-            {/* Progress Bar */}
-            <div className="mb-2">
-              <div className="flex justify-between text-xs mb-1">
-                <span>Progress</span>
-                <span className="font-medium">{agent.progress || 0}%</span>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>
+                {health.overall_confidence.toFixed(1)}%
               </div>
-              <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-500 ${
-                    agent.status === 'running' ? 'bg-green-500' :
-                    agent.status === 'paused' ? 'bg-yellow-500' :
-                    agent.status === 'error' ? 'bg-red-500' :
-                    'bg-zinc-400'
-                  }`}
-                  style={{ width: `${agent.progress || 0}%` }}
-                />
-              </div>
+              <div style={{ fontSize: '0.875rem', color: '#7b2cbf' }}>Confidence</div>
             </div>
-
-            {/* Metrics */}
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="text-center p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-                <div className="font-medium">{agent.artifacts_created || 0}</div>
-                <div className="text-zinc-500">Artifacts</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>
+                {health.subsystems_running}/{health.total_subsystems}
               </div>
-              <div className="text-center p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-                <div className="font-medium">{agent.domain || 'core'}</div>
-                <div className="text-zinc-500">Domain</div>
-              </div>
-              <div className="text-center p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-                <div className="font-medium">{formatUptime(agent.started_at)}</div>
-                <div className="text-zinc-500">Uptime</div>
-              </div>
+              <div style={{ fontSize: '0.875rem', color: '#7b2cbf' }}>Systems Running</div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Activity Log */}
-      {selectedAgent && (
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 mt-4">
-          <div className="text-sm font-semibold mb-3">Activity Log</div>
-          <div className="space-y-2 max-h-48 overflow-y-auto text-xs font-mono">
-            {activityLog.length === 0 ? (
-              <div className="text-zinc-500">No activity yet</div>
-            ) : (
-              activityLog.map((log, i) => (
-                <div key={i} className="text-zinc-600 dark:text-zinc-400">
-                  {log}
-                </div>
-              ))
-            )}
           </div>
         </div>
       )}
 
-      {/* Performance Summary */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-4 w-4 text-green-500" />
-            <span className="text-sm font-medium">Total Tasks</span>
-          </div>
-          <div className="text-2xl font-bold">{agents.reduce((sum, a) => sum + (a.artifacts_created || 0), 0)}</div>
+      {/* Recent Metrics */}
+      <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', marginBottom: '2rem' }}>
+        <h3 style={{ color: '#00d4ff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <TrendingUp style={{ width: '20px', height: '20px' }} />
+          Recent Metrics
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {metrics.slice(0, 10).map((metric) => (
+            <div key={metric.metric_id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: '1px solid #333', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {getStatusIcon(metric.status)}
+                <div>
+                  <div style={{ fontWeight: '500' }}>{metric.metric_id.replace(/_/g, ' ')}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#888' }}>{metric.category}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 'bold' }}>{metric.value.toFixed(2)} {metric.unit}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#666' }}>
+                    {new Date(metric.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+                <span style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  ...getStatusColor(metric.status)
+                }}>
+                  {metric.status}
+                </span>
+              </div>
+            </div>
+          ))}
+          {metrics.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
+              No metrics data available
+            </div>
+          )}
         </div>
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Activity className="h-4 w-4 text-indigo-500" />
-            <span className="text-sm font-medium">Active Now</span>
-          </div>
-          <div className="text-2xl font-bold">{agents.filter(a => a.status === 'running').length}</div>
+      </div>
+
+      {/* Agentic Actions */}
+      <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333', marginBottom: '2rem' }}>
+        <h3 style={{ color: '#00d4ff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Activity style={{ width: '20px', height: '20px' }} />
+          Agentic Actions
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {actions.slice(0, 10).map((action) => (
+            <div key={action.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: '1px solid #333', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {getStatusIcon(action.status)}
+                <div>
+                  <div style={{ fontWeight: '500' }}>{action.type.replace(/_/g, ' ')}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#888' }}>{action.description}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#666' }}>
+                    Risk: {action.risk_score.toFixed(2)}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#666' }}>
+                    {new Date(action.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+                <span style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  ...getStatusColor(action.status)
+                }}>
+                  {action.status}
+                </span>
+              </div>
+            </div>
+          ))}
+          {actions.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
+              No agentic actions recorded
+            </div>
+          )}
         </div>
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <span className="text-sm font-medium">Success Rate</span>
-          </div>
-          <div className="text-2xl font-bold">
-            {agents.length > 0 
-              ? Math.round((agents.filter(a => a.status !== 'error').length / agents.length) * 100)
-              : 0}%
-          </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+        <h3 style={{ color: '#00d4ff', marginBottom: '1rem' }}>Quick Actions</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+          <button style={{
+            height: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            background: 'transparent',
+            color: '#fff',
+            cursor: 'pointer'
+          }}>
+            <Activity style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '0.75rem' }}>View Logs</span>
+          </button>
+          <button style={{
+            height: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            background: 'transparent',
+            color: '#fff',
+            cursor: 'pointer'
+          }}>
+            <CheckCircle style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '0.75rem' }}>Health Check</span>
+          </button>
+          <button style={{
+            height: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            background: 'transparent',
+            color: '#fff',
+            cursor: 'pointer'
+          }}>
+            <TrendingUp style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '0.75rem' }}>Metrics</span>
+          </button>
+          <button style={{
+            height: '80px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '1rem',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            background: 'transparent',
+            color: '#fff',
+            cursor: 'pointer'
+          }}>
+            <Zap style={{ width: '20px', height: '20px' }} />
+            <span style={{ fontSize: '0.75rem' }}>Force Action</span>
+          </button>
         </div>
       </div>
     </div>
   );
-}
-
-function formatUptime(startedAt: string | undefined): string {
-  if (!startedAt) return '0m';
-  
-  const start = new Date(startedAt);
-  const now = new Date();
-  const diff = now.getTime() - start.getTime();
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(minutes / 60);
-  
-  if (hours > 0) return `${hours}h`;
-  return `${minutes}m`;
-}
+};

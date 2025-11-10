@@ -16,6 +16,8 @@ from collections import defaultdict
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
+from .integrations.slack_integration import slack_integration
+from .integrations.pagerduty_integration import pagerduty_integration
 
 
 class ConfidenceLevel(Enum):
@@ -588,7 +590,31 @@ class AutonomousPlanner:
     
     async def _execute_step(self, step: Dict, parameters: Dict):
         """Execute a single playbook step"""
-        await asyncio.sleep(0.1)
+        action = step.get("action")
+
+        if action == "scale_up":
+            # Real AWS scaling
+            from .executors.aws_executor import aws_executor
+            node_id = parameters.get("node_id", step.get("target"))
+            target_capacity = parameters.get("target_capacity", step.get("capacity", 2))
+
+            result = await aws_executor.execute_scale_action(node_id, target_capacity, parameters)
+            if not result.get("success", False):
+                raise Exception(f"Scale action failed: {result}")
+
+        elif action == "restart_service":
+            # Real AWS instance restart
+            from .executors.aws_executor import aws_executor
+            instance_id = parameters.get("instance_id", step.get("target"))
+
+            result = await aws_executor.execute_restart_action(instance_id, parameters)
+            if not result.get("success", False):
+                raise Exception(f"Restart action failed: {result}")
+
+        else:
+            # Fallback to mock execution for unknown actions
+            print(f"⚠️ Mock executing step: {action} with params {parameters}")
+            await asyncio.sleep(0.1)
     
     async def _verify_plan(self, plan: RecoveryPlan) -> bool:
         """Verify plan achieved expected outcome"""
@@ -730,6 +756,13 @@ class AgenticSpine:
         
         if event.event_type.startswith(("health.degraded", "alert.", "incident.")):
             await self._handle_incident(enriched)
+
+        # Handle external integration events
+        elif event.event_type.startswith("external."):
+            if "slack" in event.event_type:
+                await slack_integration.handle_slack_event(event)
+            elif "pagerduty" in event.event_type:
+                await pagerduty_integration.handle_pagerduty_webhook(event.payload)
     
     async def _handle_incident(self, enriched: EnrichedEvent):
         """Handle incident with autonomous planning and execution"""
@@ -761,7 +794,7 @@ class AgenticSpine:
         plan = await self.planner.plan_recovery(enriched)
         if not plan:
             return
-        
+
         await immutable_log.append(
             actor="agentic_spine",
             action="recovery_planned",
@@ -774,10 +807,28 @@ class AgenticSpine:
             },
             result="planned"
         )
-        
+
+        # Notify external systems
+        await slack_integration.notify_recovery({
+            "action": plan.playbook.name,
+            "description": plan.justification,
+            "playbook": plan.playbook.name,
+            "risk_score": plan.risk_score,
+            "status": "planned"
+        })
+
         if plan.status == PlanStatus.APPROVED:
             success = await self.planner.execute_plan(plan.plan_id)
-            
+
+            # Update external notifications
+            await slack_integration.notify_recovery({
+                "action": plan.playbook.name,
+                "description": plan.justification,
+                "playbook": plan.playbook.name,
+                "risk_score": plan.risk_score,
+                "status": "completed" if success else "failed"
+            })
+
             await immutable_log.append(
                 actor="agentic_spine",
                 action="recovery_executed",
@@ -786,7 +837,7 @@ class AgenticSpine:
                 payload={"outcome": plan.outcome},
                 result="success" if success else "failed"
             )
-            
+
             await self.meta_loop.schedule_retrospective(plan)
 
 
