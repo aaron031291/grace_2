@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r txt/requirements.txt
           pip install pytest pytest-cov httpx pytest-asyncio websockets bcrypt "python-jose[cryptography]" sqlalchemy aiosqlite fastapi uvicorn pydantic pydantic-settings rich
 
       - name: Run approvals tests with coverage

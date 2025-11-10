@@ -35,7 +35,7 @@ async def run_probe() -> int:
                 else:
                     handler()
         tests_passed += 1
-        print("[1/4] Startup handlers: PASS")
+        print("[1/4] Startup handlers: OK")
     except Exception as e:
         print(f"[1/4] Startup handlers: FAIL -> {e}")
         tests_failed += 1
@@ -93,7 +93,7 @@ async def run_probe() -> int:
                     failures += 1
             if failures == 0:
                 tests_passed += 1
-                print("[2/4] Protected endpoint checks: PASS")
+                print("[2/4] Protected endpoint checks: OK")
             else:
                 tests_failed += 1
                 print(f"[2/4] Protected endpoint checks: FAIL ({failures} failing endpoint(s))")
@@ -102,7 +102,7 @@ async def run_probe() -> int:
             r = await client.get("/api/trust/sources")
             if r.status_code == 200:
                 tests_passed += 1
-                print("[3/4] Trust sources list: PASS")
+                print("[3/4] Trust sources list: OK")
             else:
                 tests_failed += 1
                 print(f"[3/4] Trust sources list: FAIL -> {r.status_code}")
@@ -119,7 +119,7 @@ async def run_probe() -> int:
                 else:
                     handler()
         tests_passed += 1
-        print("[4/4] Shutdown handlers: PASS")
+        print("[4/4] Shutdown handlers: OK")
     except Exception as e:
         print(f"[4/4] Shutdown handlers: FAIL -> {e}")
         tests_failed += 1

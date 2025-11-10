@@ -8,19 +8,31 @@ Provides core API endpoints without all the advanced features.
 
 import asyncio
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
+import json
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Import cognition authority for cockpit integration
+try:
+    from backend.cognition_intent import cognition_authority
+    from backend.websocket_handler import websocket_manager
+    cognition_available = True
+except ImportError:
+    cognition_available = False
+    cognition_authority = None
+    websocket_manager = None
+
 # Create FastAPI app
 app = FastAPI(
     title="Grace Minimal Backend",
-    description="Minimal Grace backend for development",
+    description="Minimal Grace backend for development with cockpit support",
     version="1.0.0"
 )
 
@@ -133,6 +145,151 @@ async def update_domain_kpi(domain_id: str, kpi_data: dict):
         "updated": True,
         "message": f"Domain {domain_id} KPIs updated"
     }
+
+# WebSocket endpoint for cockpit
+@app.websocket("/ws/cognition")
+async def cognition_websocket_endpoint(websocket: WebSocket, client_id: str = None):
+    """WebSocket endpoint for cockpit cognition interface"""
+    if not cognition_available or websocket_manager is None:
+        await websocket.close(code=1008, reason="Cognition system not available")
+        return
+
+    await websocket_manager.connect(websocket, client_id)
+
+    try:
+        while True:
+            # Receive message
+            data = await websocket.receive_json()
+
+            # Handle message through cognition system
+            await handle_cognition_message(websocket, data)
+
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        websocket_manager.disconnect(websocket)
+
+async def handle_cognition_message(websocket: WebSocket, data: dict):
+    """Handle incoming cognition WebSocket messages"""
+    try:
+        message_type = data.get("type", "unknown")
+
+        if message_type == "chat":
+            # Process through cognition authority
+            user_message = data.get("message", "")
+            session_id = data.get("session_id", "cockpit")
+            user_name = data.get("user_name", "cockpit_user")
+
+            if cognition_authority:
+                # Use cognition authority for full AI interaction
+                result = await cognition_authority.process_user_request(
+                    utterance=user_message,
+                    user_id=user_name,
+                    session_id=session_id
+                )
+
+                # Send structured response
+                await websocket.send_json({
+                    "type": "chat_response",
+                    "message": result.get("message", "Response processed"),
+                    "structured_output": result.get("structured_output", {}),
+                    "intent_type": result.get("intent_type", "unknown"),
+                    "status": result.get("status", "completed"),
+                    "timestamp": datetime.now().isoformat()
+                })
+            else:
+                # Fallback response
+                await websocket.send_json({
+                    "type": "chat_response",
+                    "message": f"Echo: {user_message}",
+                    "status": "fallback",
+                    "timestamp": datetime.now().isoformat()
+                })
+
+        elif message_type == "status_request":
+            # Send current system status
+            if websocket_manager:
+                status = await websocket_manager.get_system_status()
+            else:
+                status = {
+                    "overall_health": 50.0,
+                    "overall_trust": 50.0,
+                    "overall_confidence": 50.0,
+                    "saas_ready": False,
+                    "domains": {},
+                    "error": "WebSocket manager not available"
+                }
+            await websocket.send_json({
+                "type": "status_update",
+                "status": status
+            })
+
+        elif message_type == "subscribe":
+            # Handle subscriptions
+            if websocket_manager:
+                subscriptions = data.get("subscriptions", [])
+                websocket_manager.client_states[websocket]["subscriptions"].update(subscriptions)
+                await websocket.send_json({
+                    "type": "subscribed",
+                    "subscriptions": list(websocket_manager.client_states[websocket]["subscriptions"])
+                })
+            else:
+                await websocket.send_json({
+                    "type": "error",
+                    "error": "Subscription system not available"
+                })
+
+        elif message_type == "approval_response":
+            # Handle approval responses
+            approval_id = data.get("approval_id")
+            approved = data.get("approved", False)
+            action = data.get("action", {})
+
+            # Process approval through cognition system
+            if approved:
+                # Execute approved action
+                await websocket.send_json({
+                    "type": "action_executed",
+                    "approval_id": approval_id,
+                    "status": "executing",
+                    "message": f"Executing approved action: {action.get('type', 'unknown')}"
+                })
+            else:
+                await websocket.send_json({
+                    "type": "action_rejected",
+                    "approval_id": approval_id,
+                    "message": "Action rejected"
+                })
+
+        elif message_type == "cockpit_connect":
+            # Handle cockpit connection
+            session_id = data.get("session_id", "cockpit")
+            user_name = data.get("user_name", "cockpit_user")
+
+            capabilities = ["chat", "status"]
+            if cognition_available:
+                capabilities.extend(["cognition_intent", "plan_execution", "system_monitoring"])
+
+            await websocket.send_json({
+                "type": "connected",
+                "message": f"Welcome to Grace Cockpit, {user_name}!",
+                "session_id": session_id,
+                "capabilities": capabilities,
+                "cognition_available": cognition_available
+            })
+
+        else:
+            # Unknown message type
+            await websocket.send_json({
+                "type": "error",
+                "error": f"Unknown message type: {message_type}"
+            })
+
+    except Exception as e:
+        logger.error(f"Error handling cognition message: {e}")
+        await websocket.send_json({
+            "type": "error",
+            "error": str(e)
+        })
 
 # Error handler
 @app.exception_handler(Exception)

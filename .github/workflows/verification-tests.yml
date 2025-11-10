@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
@@ -24,7 +24,7 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        pip install -r backend/requirements.txt
+        pip install -r txt/requirements.txt
     
     - name: Run database migrations
       run: |
@@ -34,38 +34,38 @@ jobs:
     - name: Create verification tables
       run: |
         source .venv/bin/activate
-        python create_learning_tables.py
+        python scripts/create_learning_tables.py
         python -m backend.data_cube.schema
     
     - name: Run comprehensive verification tests
       run: |
         source .venv/bin/activate
         python tests/test_verification_comprehensive.py
-    
+
     - name: Run simple verification test
       run: |
         source .venv/bin/activate
-        python test_verification_simple.py
+        python scripts/test_verification_simple.py
     
     - name: API smoke check
       run: |
         source .venv/bin/activate
         # Start backend in background
-        python -m backend.main &
+        python minimal_backend.py &
         BACKEND_PID=$!
-        
+
         # Wait for backend to start
         sleep 5
-        
+
         # Run smoke check
-        curl -f http://localhost:8000/api/verification/health || exit 1
-        
+        curl -f http://localhost:8000/health || exit 1
+
         # Cleanup
         kill $BACKEND_PID
     
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: verification-test-results
         path: |

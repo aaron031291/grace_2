@@ -27,6 +27,7 @@ from ..mission_control.schemas import (
 from ..mission_control.hub import mission_control_hub
 from ..mission_control.autonomous_coding_pipeline import autonomous_coding_pipeline
 from ..mission_control.self_healing_workflow import self_healing_workflow
+from ..autonomous_mission_creator import autonomous_mission_creator
 
 router = APIRouter(prefix="/mission-control", tags=["Mission Control"])
 
@@ -383,18 +384,162 @@ async def get_next_mission_for_agent(
     """Get next mission for an agent"""
     try:
         mission = await mission_control_hub.get_next_mission(agent_id, agent_role)
-        
+
         if not mission:
             return {
                 "has_mission": False,
                 "message": "No missions available for this agent"
             }
-        
+
         return {
             "has_mission": True,
             "mission": mission.dict()
         }
-        
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========== Autonomous Mission Endpoints ==========
+
+@router.get("/autonomous/missions")
+async def list_autonomous_missions(current_user: str = Depends(get_current_user)):
+    """List all autonomous missions created by Grace"""
+    try:
+        missions = []
+        for mission_id, mission in autonomous_mission_creator.missions.items():
+            missions.append({
+                "mission_id": mission.mission_id,
+                "title": mission.title,
+                "description": mission.description,
+                "rationale": mission.rationale,
+                "phase": mission.phase.value,
+                "trust_score": mission.trust_score,
+                "kpi_score": mission.kpi_metrics.calculate_overall_score(),
+                "consensus_reached": mission.consensus_reached,
+                "approved_for_live": mission.approved_for_live,
+                "created_at": mission.created_at.isoformat(),
+                "parliament_session_id": mission.parliament_session_id
+            })
+
+        return {
+            "total": len(missions),
+            "missions": missions
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/autonomous/missions/{mission_id}")
+async def get_autonomous_mission(
+    mission_id: str,
+    current_user: str = Depends(get_current_user)
+):
+    """Get autonomous mission details"""
+    try:
+        mission = autonomous_mission_creator.missions.get(mission_id)
+        if not mission:
+            raise HTTPException(status_code=404, detail=f"Mission {mission_id} not found")
+
+        return {
+            "mission_id": mission.mission_id,
+            "title": mission.title,
+            "description": mission.description,
+            "rationale": mission.rationale,
+            "phase": mission.phase.value,
+            "trust_score": mission.trust_score,
+            "kpi_metrics": {
+                "performance_improvement": mission.kpi_metrics.performance_improvement,
+                "error_rate_reduction": mission.kpi_metrics.error_rate_reduction,
+                "latency_improvement": mission.kpi_metrics.latency_improvement,
+                "memory_efficiency": mission.kpi_metrics.memory_efficiency,
+                "code_quality_score": mission.kpi_metrics.code_quality_score,
+                "test_coverage": mission.kpi_metrics.test_coverage,
+                "security_score": mission.kpi_metrics.security_score,
+                "overall_score": mission.kpi_metrics.calculate_overall_score()
+            },
+            "sandbox_results": mission.sandbox_results,
+            "user_feedback": mission.user_feedback,
+            "consensus_reached": mission.consensus_reached,
+            "approved_for_live": mission.approved_for_live,
+            "parliament_session_id": mission.parliament_session_id,
+            "created_at": mission.created_at.isoformat(),
+            "tested_at": mission.tested_at.isoformat() if mission.tested_at else None,
+            "consensus_at": mission.consensus_at.isoformat() if mission.consensus_at else None,
+            "executed_at": mission.executed_at.isoformat() if mission.executed_at else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/autonomous/missions")
+async def create_autonomous_mission(
+    title: str = Query(..., description="Mission title"),
+    description: str = Query(..., description="Mission description"),
+    rationale: str = Query(..., description="Why Grace thinks this will help"),
+    current_user: str = Depends(get_current_user)
+):
+    """Create an autonomous mission (Grace or user can trigger)"""
+    try:
+        mission = await autonomous_mission_creator.create_autonomous_mission(
+            title=title,
+            description=description,
+            rationale=rationale
+        )
+
+        return {
+            "success": True,
+            "mission_id": mission.mission_id,
+            "phase": mission.phase.value,
+            "message": "Autonomous mission created, testing in sandbox..."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/autonomous/missions/{mission_id}/feedback")
+async def add_mission_feedback(
+    mission_id: str,
+    feedback: str = Query(..., description="Your feedback"),
+    current_user: str = Depends(get_current_user)
+):
+    """Add feedback to autonomous mission"""
+    try:
+        await autonomous_mission_creator.add_user_feedback(mission_id, feedback)
+
+        return {
+            "success": True,
+            "message": "Feedback added"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/autonomous/missions/{mission_id}/consensus")
+async def reach_mission_consensus(
+    mission_id: str,
+    approved: bool = Query(..., description="Approve mission for live execution"),
+    current_user: str = Depends(get_current_user)
+):
+    """Reach consensus on autonomous mission"""
+    try:
+        await autonomous_mission_creator.reach_consensus(mission_id, approved)
+
+        mission = autonomous_mission_creator.missions.get(mission_id)
+
+        return {
+            "success": True,
+            "approved": approved,
+            "trust_score": mission.trust_score,
+            "will_execute_to_live": approved and mission.trust_score >= autonomous_mission_creator.trust_threshold,
+            "message": "Consensus reached" if approved else "Mission rejected"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
