@@ -10,7 +10,6 @@ from datetime import datetime
 
 from ..parliament_engine import parliament_engine
 from ..auth import get_current_user
-=======
 from ..schemas_extended import (
     ParliamentMemberResponse,
     ParliamentMembersListResponse,
@@ -24,7 +23,6 @@ from ..schemas_extended import (
     ParliamentMemberStatsResponse
 )
 
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/parliament", tags=["parliament"])
 
@@ -72,7 +70,6 @@ class CommitteeCreate(BaseModel):
 
 # ==================== Member Endpoints ====================
 
-<<<<<<< HEAD
 @router.post("/members")
 async def create_member(
     member: MemberCreate,

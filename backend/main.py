@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -152,6 +152,41 @@ async def on_startup():
         print(f"✓ Knowledge discovery scheduler started (interval={interval_val or 'default'}s, seeds={seeds_val or 'default'})")
     else:
         print("✓ Knowledge discovery scheduler started")
+
+    # ========== ELITE SYSTEMS AUTO-BOOT ==========
+    print("\n" + "=" * 80)
+    print("ELITE SYSTEMS - AUTO-BOOT")
+    print("=" * 80)
+
+    # Start Elite Self-Healing System
+    try:
+        from .elite_self_healing import elite_self_healing
+        await elite_self_healing.start()
+        print("✅ Elite Self-Healing System started (agentic, ML/DL-powered)")
+    except Exception as e:
+        print(f"⚠️ Elite Self-Healing failed to start: {e}")
+
+    # Start Elite Coding Agent
+    try:
+        from .elite_coding_agent import elite_coding_agent
+        await elite_coding_agent.start()
+        print("✅ Elite Coding Agent started (parallel orchestration)")
+    except Exception as e:
+        print(f"⚠️ Elite Coding Agent failed to start: {e}")
+
+    # Start Shared Orchestration
+    try:
+        from .shared_orchestration import shared_orchestrator
+        from .elite_self_healing import elite_self_healing
+        from .elite_coding_agent import elite_coding_agent
+        await shared_orchestrator.start(elite_self_healing, elite_coding_agent)
+        print("✅ Shared Orchestration started (coordinating both agents)")
+    except Exception as e:
+        print(f"⚠️ Shared Orchestration failed to start: {e}")
+
+    print("=" * 80)
+    print("✅ ELITE SYSTEMS OPERATIONAL")
+    print("=" * 80 + "\n")
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -322,7 +357,8 @@ app.include_router(cognition_router)
 app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
-include_router(websocket_routes.router)
+app.include_router(websocket_routes.router)
+app.include_router(elite_systems_api.router)  # Elite Self-Healing & Coding Agent
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os

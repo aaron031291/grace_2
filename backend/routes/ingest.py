@@ -9,14 +9,12 @@ from ..trusted_sources import trust_manager
 from ..verification import verification_engine
 from ..verification_middleware import verify_action
 from ..knowledge_models import KnowledgeTombstone
-=======
 from ..schemas_extended import (
     IngestTextResponse,
     IngestUrlResponse,
     IngestFileResponse,
     IngestArtifactsListResponse
 )
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
@@ -186,4 +184,3 @@ async def list_artifacts(
             }
             for a in result.scalars().all()
         ]
-<<<<<<< HEAD

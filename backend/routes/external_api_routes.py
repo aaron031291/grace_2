@@ -12,7 +12,6 @@ from ..external_apis.slack_connector import SlackClient, SlackWebhookReceiver
 from ..external_apis.aws_connector import AWSClient
 from ..secrets_vault import secrets_vault
 from ..auth import get_current_user
-=======
 from ..schemas_extended import (
     GitHubIssueResponse, GitHubReposResponse, GitHubRepoIssuesResponse,
     GitHubPRResponse, GitHubCommitsResponse, SlackMessageResponse,
@@ -21,7 +20,6 @@ from ..schemas_extended import (
     AWS_LambdaListResponse, AWS_EC2InstancesResponse, AWS_EC2InstanceStatusResponse,
     AWS_CostsResponse, SecretsListResponse, SecretResponse, SuccessResponse
 )
->>>>>>> origin/main
 
 router = APIRouter(prefix="/api/external", tags=["External APIs"])
 
@@ -93,7 +91,6 @@ class SecretCreate(BaseModel):
 
 # ==================== GitHub Routes ====================
 
-<<<<<<< HEAD
 @router.post("/github/issues")
 async def create_github_issue(
     data: GitHubIssueCreate,
