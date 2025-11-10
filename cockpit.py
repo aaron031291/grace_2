@@ -1,4 +1,3 @@
-the system iso 
 import asyncio
 import websockets
 from prompt_toolkit import Application
@@ -49,7 +48,7 @@ class GraceCockpit:
                 content += f"> {tab}\n"
             else:
                 content += f"  {tab}\n"
-        return Window(content=content)
+        return TextArea(text=content, read_only=True)
 
     def _get_key_bindings(self):
         kb = KeyBindings()
