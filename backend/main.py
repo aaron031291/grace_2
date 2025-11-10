@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
 from .reflection import reflection_service
@@ -221,6 +221,31 @@ async def on_startup():
     print("✅ MISSION CONTROL OPERATIONAL")
     print("=" * 80 + "\n")
 
+    # ========== INTEGRATION & CRYPTO AUTO-BOOT ==========
+    print("\n" + "=" * 80)
+    print("INTEGRATION & CRYPTO - AUTO-BOOT")
+    print("=" * 80)
+
+    # Start Crypto Key Manager
+    try:
+        from .crypto_key_manager import crypto_key_manager
+        await crypto_key_manager.start()
+        print("✅ Crypto Key Manager started (Ed25519, signing, verification)")
+    except Exception as e:
+        print(f"⚠️ Crypto Key Manager failed to start: {e}")
+
+    # Start Integration Orchestrator
+    try:
+        from .integration_orchestrator import integration_orchestrator
+        await integration_orchestrator.start()
+        print("✅ Integration Orchestrator started (system wiring, data flow, crypto enforcement)")
+    except Exception as e:
+        print(f"⚠️ Integration Orchestrator failed to start: {e}")
+
+    print("=" * 80)
+    print("✅ INTEGRATION & CRYPTO OPERATIONAL")
+    print("=" * 80 + "\n")
+
 @app.on_event("shutdown")
 async def on_shutdown():
     await reflection_service.stop()
@@ -393,6 +418,8 @@ app.include_router(security_domain_router)
 app.include_router(websocket_routes.router)
 app.include_router(elite_systems_api.router)  # Elite Self-Healing & Coding Agent
 app.include_router(mission_control_api.router)  # Mission Control & Autonomous Operations
+app.include_router(integration_api.router)  # Integration Orchestration
+app.include_router(integration_api.crypto_router)  # Crypto Key Management
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
