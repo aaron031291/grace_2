@@ -6,14 +6,17 @@ from ..governance_models import HealthCheck, HealingAction
 from ..models import async_session
 from ..auth import get_current_user
 from ..self_healing import health_monitor, system_state
+=======
 from ..schemas import HealthStatusResponse, HealthRestartResponse, HealthModeResponse, HealthModeSetResponse
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/health", tags=["health"])
 
 class RestartRequest(BaseModel):
     component: str
 
-@router.get("/status", response_model=HealthStatusResponse)
+<<<<<<< HEAD
+@router.get("/status")
 async def status(limit: int = 10):
     """Get health check status and recent healing actions"""
     async with async_session() as session:
@@ -50,7 +53,7 @@ async def status(limit: int = 10):
         ],
     }
 
-@router.post("/restart", response_model=HealthRestartResponse)
+@router.post("/restart")
 async def manual_restart(
     req: RestartRequest,
     current_user: str = Depends(get_current_user)
@@ -59,7 +62,7 @@ async def manual_restart(
     result = await health_monitor.manual_restart(req.component, current_user)
     return result
 
-@router.get("/mode", response_model=HealthModeResponse)
+@router.get("/mode")
 async def get_system_mode():
     """Get current system operational mode"""
     return {
@@ -68,7 +71,7 @@ async def get_system_mode():
         "changed_at": system_state.last_changed
     }
 
-@router.post("/mode", response_model=HealthModeSetResponse)
+@router.post("/mode")
 async def set_system_mode(
     mode: str,
     reason: str = "",

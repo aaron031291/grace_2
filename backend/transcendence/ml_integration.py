@@ -102,7 +102,7 @@ class TranscendenceMLEngine:
                         'source': 'multi_modal'
                     })
         
-        print(f"[OK] Collected {len(training_samples)} training samples")
+        print(f"✓ Collected {len(training_samples)} training samples")
         print(f"  - Average trust: {sum(s['trust_score'] for s in training_samples) / len(training_samples) if training_samples else 0:.2f}")
         print(f"  - Domain: {cycle.domain}")
         print(f"  - Topic: {cycle.topic}")
@@ -186,12 +186,12 @@ class TranscendenceMLEngine:
             actor="transcendence_ml"
         )
         
-        print(f"  [OK] Model trained: {model_id}")
+        print(f"  ✓ Model trained: {model_id}")
         print()
         
         # Evaluate model
         print("📊 Evaluating model...")
-        # TODO(ROADMAP): Actual evaluation
+        # TODO: Actual evaluation
         metrics = {
             'accuracy': 0.89,
             'precision': 0.87,
@@ -199,12 +199,12 @@ class TranscendenceMLEngine:
             'f1': 0.89
         }
         
-        print(f"  [OK] Accuracy: {metrics['accuracy']:.2%}")
+        print(f"  ✓ Accuracy: {metrics['accuracy']:.2%}")
         print()
         
         # Store model metadata
         print("💾 Storing model metadata...")
-        print(f"  [OK] Model ready for deployment")
+        print(f"  ✓ Model ready for deployment")
         print()
         
         return {
@@ -269,7 +269,7 @@ class TranscendenceMLEngine:
             actor="transcendence_ml"
         )
         
-        print(f"  [OK] Deployed successfully")
+        print(f"  ✓ Deployed successfully")
         print()
         
         return {
@@ -320,7 +320,7 @@ class TranscendenceMLEngine:
         print(f"  Training-approved artifacts: {approved_count}/{min_samples}")
         
         if approved_count >= min_samples:
-            print(f"  [OK] Threshold reached!")
+            print(f"  ✓ Threshold reached!")
             print()
             print(f"  Grace proposes: Train {domain} model")
             print()

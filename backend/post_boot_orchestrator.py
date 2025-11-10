@@ -7,7 +7,7 @@ The complete anomaly-driven healing system
 import asyncio
 from datetime import datetime
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 

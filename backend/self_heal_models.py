@@ -10,8 +10,11 @@ class Playbook(Base):
     description = Column(Text, nullable=True)
     service = Column(String(128), nullable=True)
     severity = Column(String(16), nullable=True)
+<<<<<<< HEAD
+=======
     risk_level = Column(String(16), default="medium", nullable=False)  # low, medium, high, critical
     autonomy_tier = Column(String(16), default="tier_1", nullable=False)  # tier_1, tier_2, tier_3, tier_4
+>>>>>>> origin/main
     preconditions = Column(Text, nullable=True)  # JSON
     parameters_schema = Column(Text, nullable=True)  # JSON
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -1,9 +1,9 @@
-﻿"""Cryptographic verification system for all Grace actions"""
+"""Cryptographic verification system for all Grace actions"""
 
 import hashlib
 import json
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives import serialization
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
@@ -31,6 +31,9 @@ class VerificationEngine:
     def __init__(self):
         self.private_key = Ed25519PrivateKey.generate()
         self.public_key = self.private_key.public_key()
+        # Pre-bind methods to reduce attribute lookup overhead in hot path
+        self._sign = self.private_key.sign
+        self._verify = self.public_key.verify
     
     def create_envelope(
         self,
@@ -39,14 +42,15 @@ class VerificationEngine:
         action_type: str,
         resource: str,
         input_data: Dict[str, Any]
-    ) -> str:
+    ) -> Tuple[str, str]:
         """Create signed envelope for action"""
         
-        input_str = json.dumps(input_data, sort_keys=True)
+        # Use compact separators to reduce serialization overhead
+        input_str = json.dumps(input_data, sort_keys=True, separators=(",", ":"))
         input_hash = hashlib.sha256(input_str.encode()).hexdigest()
         
         message = f"{action_id}:{actor}:{action_type}:{resource}:{input_hash}"
-        signature = self.private_key.sign(message.encode())
+        signature = self._sign(message.encode())
         signature_hex = signature.hex()
         
         return signature_hex, input_hash
@@ -61,13 +65,12 @@ class VerificationEngine:
         input_hash: str
     ) -> bool:
         """Verify signature on envelope"""
-        
         try:
             message = f"{action_id}:{actor}:{action_type}:{resource}:{input_hash}"
             signature = bytes.fromhex(signature_hex)
-            self.public_key.verify(signature, message.encode())
+            self._verify(signature, message.encode())
             return True
-        except:
+        except Exception:
             return False
     
     async def log_verified_action(
@@ -106,6 +109,6 @@ class VerificationEngine:
             session.add(envelope)
             await session.commit()
         
-        print(f"[OK] Verified action: {action_type} by {actor}")
+        print(f"✓ Verified action: {action_type} by {actor}")
 
 verification_engine = VerificationEngine()

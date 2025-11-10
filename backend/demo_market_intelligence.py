@@ -1,4 +1,4 @@
-﻿"""Demo: Grace Architect Building Market Intelligence System
+"""Demo: Grace Architect Building Market Intelligence System
 
 This demonstrates the Grace Architect Agent building a complete
 market intelligence system with FULL Grace integration:
@@ -27,7 +27,7 @@ async def demo():
     print("GRACE ARCHITECT DEMO: BUILDING MARKET INTELLIGENCE".center(80))
     print("="*80 + "\n")
     
-    print("[INFO] This demo shows Grace Architect (Amp-like agent) building a")
+    print("📚 This demo shows Grace Architect (Amp-like agent) building a")
     print("   complete market intelligence system with FULL Grace integration.")
     print()
     

@@ -1,4 +1,4 @@
-﻿"""Seed Constitutional AI Framework - GRACE's Bill of Rights
+"""Seed Constitutional AI Framework - GRACE's Bill of Rights
 
 Creates foundational principles, operational tenets, and safety constraints
 that govern ALL GRACE behavior with Constitutional AI approach.
@@ -24,7 +24,7 @@ async def seed_constitutional_principles():
         result = await session.execute(select(ConstitutionalPrinciple))
         existing = result.scalars().all()
         if existing:
-            print(f"[WARN]  {len(existing)} principles already exist. Skipping seed.")
+            print(f"⚠️  {len(existing)} principles already exist. Skipping seed.")
             return
         
         # ====== FOUNDATIONAL PRINCIPLES (5) ======
@@ -96,7 +96,7 @@ async def seed_constitutional_principles():
         for data in foundational:
             principle = ConstitutionalPrinciple(**data, created_by="constitutional_seed", active=True)
             session.add(principle)
-            print(f"  [OK] Foundational: {data['principle_name']}")
+            print(f"  ✓ Foundational: {data['principle_name']}")
         
         await session.flush()
         
@@ -229,7 +229,7 @@ async def seed_constitutional_principles():
         for data in operational_principles:
             principle = ConstitutionalPrinciple(**data, created_by="constitutional_seed", active=True)
             session.add(principle)
-            print(f"  [OK] Operational: {data['principle_name']}")
+            print(f"  ✓ Operational: {data['principle_name']}")
         
         await session.flush()
         
@@ -422,7 +422,7 @@ async def seed_constitutional_principles():
         for data in safety_constraints:
             principle = ConstitutionalPrinciple(**data, created_by="constitutional_seed", active=True)
             session.add(principle)
-            print(f"  [OK] Safety: {data['principle_name']}")
+            print(f"  ✓ Safety: {data['principle_name']}")
         
         await session.commit()
         
@@ -440,7 +440,7 @@ async def seed_operational_tenets():
         result = await session.execute(select(OperationalTenet))
         existing = result.scalars().all()
         if existing:
-            print(f"[WARN]  {len(existing)} tenets already exist. Skipping.")
+            print(f"⚠️  {len(existing)} tenets already exist. Skipping.")
             return
         
         # Get principle IDs for linking
@@ -553,7 +553,7 @@ async def seed_operational_tenets():
         for data in tenets_data:
             tenet = OperationalTenet(**data, active=True)
             session.add(tenet)
-            print(f"  [OK] Tenet: {data['tenet_name']}")
+            print(f"  ✓ Tenet: {data['tenet_name']}")
         
         await session.commit()
         print(f"\n{len(tenets_data)} Operational Tenets seeded")

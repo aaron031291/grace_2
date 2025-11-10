@@ -1,4 +1,4 @@
-﻿"""Model deployment pipeline with governance and verification"""
+"""Model deployment pipeline with governance and verification"""
 
 from datetime import datetime
 from typing import Optional
@@ -120,7 +120,7 @@ class ModelDeploymentPipeline:
             )
             return False, f"Verification failed: {msg}"
         
-        print(f"[OK] Verification passed: {msg}")
+        print(f"✓ Verification passed: {msg}")
         await self.log_deployment_event(
             model_id,
             "deployment_verified",
@@ -142,7 +142,7 @@ class ModelDeploymentPipeline:
             )
             return False, f"Approval denied: {approval_msg}"
         
-        print(f"[OK] Governance approved: {approval_msg}")
+        print(f"✓ Governance approved: {approval_msg}")
         await self.log_deployment_event(
             model_id,
             "deployment_approved",

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Multi-Agent Shard System - Distributed autonomous sub-agents
 
 Shards GRACE into multiple autonomous sub-agents that:
@@ -198,7 +198,7 @@ class AgentShard:
             result="started"
         )
         
-        print(f"[OK] Shard {self.shard_id} started ({self.shard_type.value})")
+        print(f"✓ Shard {self.shard_id} started ({self.shard_type.value})")
     
     async def stop(self):
         """Stop the shard gracefully"""
@@ -303,10 +303,10 @@ class AgentShard:
         
         # Subscribe to events matching scope
         if self.scope.domain:
-            trigger_mesh.subscribe(f"{self.scope.domain}.*", self._handle_event)
+            await trigger_mesh.subscribe(f"{self.scope.domain}.*", self._handle_event)
         
         # Subscribe to P2P messages
-        trigger_mesh.subscribe("shard.p2p.*", self._handle_p2p_message)
+        await trigger_mesh.subscribe("shard.p2p.*", self._handle_p2p_message)
     
     async def _handle_event(self, event: TriggerEvent):
         """Handle event from trigger mesh"""
@@ -374,7 +374,7 @@ class AgentShard:
             except asyncio.TimeoutError:
                 continue
             except Exception as e:
-                print(f"[FAIL] Shard {self.shard_id} workload error: {e}")
+                print(f"✗ Shard {self.shard_id} workload error: {e}")
     
     async def _process_messages(self):
         """Process P2P messages"""
@@ -398,7 +398,7 @@ class AgentShard:
             except asyncio.TimeoutError:
                 continue
             except Exception as e:
-                print(f"[FAIL] Shard {self.shard_id} message error: {e}")
+                print(f"✗ Shard {self.shard_id} message error: {e}")
     
     async def _heartbeat(self):
         """Send heartbeat and update metrics"""
@@ -555,7 +555,7 @@ class ShardCoordinator:
         # Start coordinator loop
         asyncio.create_task(self._coordination_loop())
         
-        print("[OK] Shard Coordinator started")
+        print("✓ Shard Coordinator started")
     
     async def stop(self):
         """Stop all shards"""
@@ -564,7 +564,7 @@ class ShardCoordinator:
         for shard in list(self.shards.values()):
             await shard.stop()
         
-        print("[OK] All shards stopped")
+        print("✓ All shards stopped")
     
     async def spawn_shard(
         self,

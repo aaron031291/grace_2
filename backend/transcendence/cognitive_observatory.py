@@ -1,4 +1,4 @@
-﻿"""Cognitive Observatory - See Grace's Complete Thought Process
+"""Cognitive Observatory - See Grace's Complete Thought Process
 
 Real-time visibility into Grace's entire cognitive lifecycle:
 - Input processing
@@ -207,7 +207,7 @@ class CognitiveLifecycleObservatory:
         print()
         
         if evidence:
-            print(f"[INFO] EVIDENCE:")
+            print(f"📚 EVIDENCE:")
             for e in evidence:
                 print(f"   - {e}")
             print()
@@ -338,13 +338,13 @@ class CognitiveLifecycleObservatory:
         if evidence:
             print("SUPPORTING EVIDENCE:")
             for e in evidence:
-                print(f"  [OK] {e}")
+                print(f"  ✓ {e}")
             print()
         
         if counterarguments:
             print("COUNTERARGUMENTS CONSIDERED:")
             for c in counterarguments:
-                print(f"  [FAIL] {c}")
+                print(f"  ✗ {c}")
             print()
         
         print(f"CONCLUSION: {conclusion}")
@@ -504,7 +504,7 @@ class CognitiveLifecycleObservatory:
             if step.patterns_recognized:
                 patterns.extend(step.patterns_recognized)
         
-        print(f"\n[INFO] WHAT GRACE LEARNED")
+        print(f"\n📚 WHAT GRACE LEARNED")
         print("="*70)
         print()
         

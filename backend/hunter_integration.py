@@ -1,4 +1,4 @@
-﻿"""Integration layer connecting Hunter alerts to tasks/reflections"""
+"""Integration layer connecting Hunter alerts to tasks/reflections"""
 
 from .hunter import hunter
 from .models import async_session, Task
@@ -25,7 +25,7 @@ class HunterIntegration:
             session.add(event)
             await session.commit()
             
-            print(f"[WARN] Verification failure flagged: {action_type} by {actor}")
+            print(f"⚠️ Verification failure flagged: {action_type} by {actor}")
 
 
 hunter_integration = HunterIntegration()
@@ -46,7 +46,7 @@ async def handle_security_alert(actor: str, rule_name: str, event_id: int, resou
         session.add(task)
         await session.commit()
         
-        print(f"[OK] Created security task for alert: {rule_name}")
+        print(f"✓ Created security task for alert: {rule_name}")
     
     await memory.store(
         "system",

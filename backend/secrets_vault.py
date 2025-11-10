@@ -532,7 +532,7 @@ class SecretsVault:
         
         # Check governance if required
         if governance_approval_required:
-            # TODO(ROADMAP): Integrate with governance approval system
+            # TODO: Integrate with governance approval system
             await self.audit.log_event(
                 actor=accessor,
                 action="secret_retrieval_requires_governance",
@@ -633,6 +633,8 @@ class SecretsVault:
                 "rotated": rotated,
                 "timestamp": datetime.utcnow().isoformat()
             }
+<<<<<<< HEAD
+=======
     
     async def get_secret(self, secret_key: str, accessor: str = "system") -> Optional[str]:
         """
@@ -659,5 +661,6 @@ class SecretsVault:
             if env_value:
                 return env_value
             return None
+>>>>>>> origin/main
 
 secrets_vault = SecretsVault()

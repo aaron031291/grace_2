@@ -1,4 +1,4 @@
-﻿"""AWS SDK Integration with Governance and Security
+"""AWS SDK Integration with Governance and Security
 
 Integrates with AWS using boto3 with S3, Lambda, EC2 operations.
 All operations governed and verified with cost tracking.
@@ -117,7 +117,7 @@ class AWSClient:
                 details={"region": region_name}
             )
             
-            print(f"[OK] AWS authenticated in region {region_name}")
+            print(f"✓ AWS authenticated in region {region_name}")
             return True
             
         except Exception as e:

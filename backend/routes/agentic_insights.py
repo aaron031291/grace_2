@@ -11,12 +11,14 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from ..agentic_observability import agentic_observability, InsightVerbosity
+=======
 from ..schemas_extended import (
     AgenticInsightsStatusResponse,
     AgenticInsightsVerbosityResponse,
     AgenticInsightsSearchResponse,
     AgenticInsightsHealthResponse
 )
+>>>>>>> origin/main
 
 
 router = APIRouter(prefix="/agent", tags=["Agentic Insights"])
@@ -95,7 +97,8 @@ class DashboardSummary(BaseModel):
     statistics_7d: dict
 
 
-@router.get("/status", response_model=AgenticInsightsStatusResponse, summary="Get current agentic status")
+<<<<<<< HEAD
+@router.get("/status", summary="Get current agentic status")
 async def get_status():
     """Get current status of agentic system"""
     
@@ -182,7 +185,7 @@ async def get_dashboard():
     return dashboard
 
 
-@router.post("/verbosity", response_model=AgenticInsightsVerbosityResponse, summary="Set observability verbosity")
+@router.post("/verbosity", summary="Set observability verbosity")
 async def set_verbosity(level: str):
     """
     Set verbosity level for agentic insights
@@ -207,7 +210,7 @@ async def set_verbosity(level: str):
     return {"verbosity": level, "message": f"Verbosity set to {level}"}
 
 
-@router.get("/search", response_model=AgenticInsightsSearchResponse, summary="Search agentic runs")
+@router.get("/search", summary="Search agentic runs")
 async def search_runs(
     signal_type: Optional[str] = None,
     outcome: Optional[str] = None,
@@ -230,7 +233,7 @@ async def search_runs(
     }
 
 
-@router.get("/health", response_model=AgenticInsightsHealthResponse, summary="Observability system health")
+@router.get("/health", summary="Observability system health")
 async def health_check():
     """Check health of observability system"""
     

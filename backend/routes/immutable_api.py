@@ -1,10 +1,8 @@
 from fastapi import APIRouter
 from ..immutable_log import immutable_log
-from ..schemas import ImmutableLogEntriesResponse, ImmutableLogVerifyResponse
-
 router = APIRouter(prefix="/api/log", tags=["immutable_log"])
 
-@router.get("/entries", response_model=ImmutableLogEntriesResponse)
+@router.get("/entries")
 async def get_log_entries(
     actor: str = None,
     subsystem: str = None,
@@ -14,7 +12,7 @@ async def get_log_entries(
     entries = await immutable_log.get_entries(actor, subsystem, limit)
     return {"entries": entries, "count": len(entries)}
 
-@router.get("/verify", response_model=ImmutableLogVerifyResponse)
+@router.get("/verify")
 async def verify_log(start_seq: int = 1, end_seq: int = None):
     """Verify hash chain integrity"""
     result = await immutable_log.verify_integrity(start_seq, end_seq)

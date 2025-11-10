@@ -6,11 +6,9 @@ from ..auth import get_current_user
 from ..issue_models import IssueReport
 from ..models import async_session
 from ..remedy import remedy_inference
-from ..schemas_extended import IssuesListResponse, IssueDetailResponse, IssueResolveResponse
-
 router = APIRouter(prefix="/api/issues", tags=["issues"])
 
-@router.get("/", response_model=IssuesListResponse)
+@router.get("/")
 async def list_issues(
     status: str = None,
     limit: int = 50,
@@ -23,7 +21,7 @@ async def list_issues(
         query = query.order_by(IssueReport.created_at.desc()).limit(limit)
         
         result = await session.execute(query)
-        issues = [
+        return [
             {
                 "id": i.id,
                 "source": i.source,
@@ -38,14 +36,7 @@ async def list_issues(
             }
             for i in result.scalars().all()
         ]
-        return IssuesListResponse(
-            issues=issues,
-            count=len(issues),
-            execution_trace=None,
-            data_provenance=[]
-        )
-
-@router.get("/{issue_id}", response_model=IssueDetailResponse)
+@router.get("/{issue_id}")
 async def get_issue(
     issue_id: int,
     current_user: str = Depends(get_current_user)
@@ -55,24 +46,22 @@ async def get_issue(
         if not issue or issue.user != current_user:
             raise HTTPException(status_code=404, detail="Issue not found")
         
-        return IssueDetailResponse(
-            id=issue.id,
-            source=issue.source,
-            summary=issue.summary,
-            details=issue.details,
-            explanation=issue.explanation,
-            likely_cause=issue.likely_cause,
-            suggested_fix=issue.suggested_fix,
-            action_label=issue.action_label,
-            action_payload=issue.action_payload,
-            status=issue.status,
-            applied_fix=issue.applied_fix,
-            fix_result=issue.fix_result,
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return {
+            "id": issue.id,
+            "source": issue.source,
+            "summary": issue.summary,
+            "details": issue.details,
+            "explanation": issue.explanation,
+            "likely_cause": issue.likely_cause,
+            "suggested_fix": issue.suggested_fix,
+            "action_label": issue.action_label,
+            "action_payload": issue.action_payload,
+            "status": issue.status,
+            "applied_fix": issue.applied_fix,
+            "fix_result": issue.fix_result
+        }
 
-@router.post("/{issue_id}/resolve", response_model=IssueResolveResponse)
+@router.post("/{issue_id}/resolve")
 async def resolve_issue(
     issue_id: int,
     decision: str,
@@ -83,11 +72,7 @@ async def resolve_issue(
     
     if decision == "apply":
         result = await remedy_inference.apply_fix(issue_id)
-        return IssueResolveResponse(
-            status=result.get("status", "applied"),
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return result
     else:
         async with async_session() as session:
             issue = await session.get(IssueReport, issue_id)
@@ -95,8 +80,4 @@ async def resolve_issue(
                 issue.status = "dismissed"
                 issue.resolved_at = func.now()
                 await session.commit()
-        return IssueResolveResponse(
-            status="dismissed",
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return {"status": "dismissed"}

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test Meta-Loop Recommendation Application Workflow
 Demonstrates recommendation generation, approval, application, and effectiveness measurement
 """
@@ -38,7 +38,7 @@ async def test_full_workflow():
     pending = await approval_queue.get_pending_recommendations()
     
     if not pending:
-        print("[WARN]  No pending recommendations. Creating a manual test recommendation...")
+        print("⚠️  No pending recommendations. Creating a manual test recommendation...")
         
         # Create a test recommendation manually
         test_rec_id = await approval_queue.submit_for_approval(
@@ -52,7 +52,7 @@ async def test_full_workflow():
             risk_level="medium",
             payload={"component": "learning"}
         )
-        print(f"[OK] Created test recommendation #{test_rec_id}")
+        print(f"✓ Created test recommendation #{test_rec_id}")
         pending = await approval_queue.get_pending_recommendations()
     
     for rec in pending:
@@ -65,7 +65,7 @@ async def test_full_workflow():
         print(f"  Risk: {rec['risk_level']}")
     
     # Step 3: Auto-approve safe changes
-    print("\n[AI] STEP 3: Auto-Approval Check")
+    print("\n🤖 STEP 3: Auto-Approval Check")
     print("-" * 80)
     auto_approved = await approval_queue.auto_approve_safe_changes()
     print(f"Auto-approved {auto_approved} low-risk recommendations")
@@ -85,7 +85,7 @@ async def test_full_workflow():
         )
         
         if result.get("success"):
-            print(f"[OK] Recommendation approved and applied!")
+            print(f"✓ Recommendation approved and applied!")
             print(f"  Applied ID: {result.get('applied_id')}")
             print(f"  Old value: {result.get('old_value')}")
             print(f"  New value: {result.get('new_value')}")
@@ -131,7 +131,7 @@ async def test_full_workflow():
         )
         
         if result.get("success"):
-            print(f"[OK] Recommendation rejected")
+            print(f"✓ Recommendation rejected")
     
     # Step 7: Validation tests
     print("\n🔒 STEP 7: Validation Tests")
@@ -172,7 +172,7 @@ async def test_full_workflow():
     
     for test in test_cases:
         validation = await recommendation_applicator.validate_recommendation(test["rec"])
-        status = "[OK]" if validation.get("valid") else "[FAIL]"
+        status = "✓" if validation.get("valid") else "✗"
         print(f"{status} {test['name']}: {validation.get('reason', 'Valid')}")
         if validation.get("valid"):
             print(f"  Risk level: {validation.get('risk_level')}")
@@ -232,19 +232,19 @@ async def test_full_workflow():
     )
     
     print("\n" + "=" * 80)
-    print("[OK] META-LOOP WORKFLOW TEST COMPLETE")
+    print("✓ META-LOOP WORKFLOW TEST COMPLETE")
     print("=" * 80)
     print("\nKey Features Demonstrated:")
-    print("  [OK] Meta-loop generates actionable recommendations")
-    print("  [OK] Recommendations queued for approval")
-    print("  [OK] Auto-approval for low-risk changes")
-    print("  [OK] Manual approval/rejection workflow")
-    print("  [OK] Before/after metrics capture")
-    print("  [OK] Effectiveness measurement")
-    print("  [OK] Validation and safety checks")
-    print("  [OK] Rollback capability")
-    print("  [OK] Meta-meta evaluation of improvements")
-    print("  [OK] Integration with verification system")
+    print("  ✓ Meta-loop generates actionable recommendations")
+    print("  ✓ Recommendations queued for approval")
+    print("  ✓ Auto-approval for low-risk changes")
+    print("  ✓ Manual approval/rejection workflow")
+    print("  ✓ Before/after metrics capture")
+    print("  ✓ Effectiveness measurement")
+    print("  ✓ Validation and safety checks")
+    print("  ✓ Rollback capability")
+    print("  ✓ Meta-meta evaluation of improvements")
+    print("  ✓ Integration with verification system")
 
 if __name__ == "__main__":
     asyncio.run(test_full_workflow())

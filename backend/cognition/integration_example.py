@@ -1,4 +1,4 @@
-﻿"""Integration Example - Cognition System in Grace Pipeline
+"""Integration Example - Cognition System in Grace Pipeline
 
 Shows how QuorumEngine and GraceCognitionLinter integrate with
 the full Grace processing pipeline.
@@ -102,7 +102,7 @@ class CognitionPipeline:
                     valid_proposals.append(proposal)
             else:
                 # Non-critical violations - penalize but include
-                print(f"[PIPELINE] [WARN]  {specialist_name} has violations, penalizing trust")
+                print(f"[PIPELINE] ⚠️  {specialist_name} has violations, penalizing trust")
                 proposal = SpecialistProposal(
                     specialist_name=specialist_name,
                     output=output,

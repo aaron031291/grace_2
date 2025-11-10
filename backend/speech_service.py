@@ -1,4 +1,4 @@
-﻿"""Speech-to-text and text-to-speech service"""
+"""Speech-to-text and text-to-speech service"""
 
 import asyncio
 import hashlib
@@ -152,7 +152,7 @@ class SpeechService:
                 try:
                     import whisper
                     self.whisper_model = whisper.load_model("base")
-                    print("[OK] Whisper model loaded: base")
+                    print("✓ Whisper model loaded: base")
                 except ImportError:
                     # Fallback: use mock transcription for testing
                     print("⚠ Whisper not installed, using mock transcription")
@@ -205,7 +205,7 @@ class SpeechService:
                 )
                 await session.commit()
             
-            print(f"[FAIL] Transcription failed for speech {speech_id}: {e}")
+            print(f"✗ Transcription failed for speech {speech_id}: {e}")
     
     async def _save_transcription(
         self,
@@ -234,7 +234,7 @@ class SpeechService:
             )
             await session.commit()
         
-        print(f"[OK] Transcription completed for speech {speech_id}: {transcript[:50]}...")
+        print(f"✓ Transcription completed for speech {speech_id}: {transcript[:50]}...")
     
     async def _check_transcript_security(
         self,

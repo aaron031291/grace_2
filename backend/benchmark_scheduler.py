@@ -1,4 +1,4 @@
-﻿"""
+"""
 Benchmark Scheduler
 Evaluates 90% benchmarks hourly and emits product.elevation_ready events
 """

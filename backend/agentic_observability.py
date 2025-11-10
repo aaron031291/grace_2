@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agentic Observability - Transparent view into autonomous decisions
 
 Surfaces what the agent sensed, diagnosed, planned, checked, and executed
@@ -11,9 +11,10 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from sqlalchemy import select
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
+from sqlalchemy.sql import func
 
-from .base_models import AgenticInsight, async_session
+from .models import Base, async_session
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
 
@@ -55,96 +56,54 @@ class AgenticDecisionPoint:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-class AgenticInsightCapture:
-    """Captures agentic decision points for observability"""
+class AgenticInsight(Base):
+    """Compact agentic decision ledger"""
+    __tablename__ = "agentic_insights"
     
-    def __init__(self):
-        self.verbosity = InsightVerbosity.SUMMARY
-        self.active_runs: Dict[str, Dict] = {}
-        self.privacy_filters = ["password", "token", "secret", "key", "credential"]
+    id = Column(Integer, primary_key=True)
+    run_id = Column(String(64), nullable=False, index=True)
+    phase = Column(String(32), nullable=False)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     
-    async def start_run(
-        self,
-        run_id: str,
-        trigger_event: TriggerEvent,
-        context: Dict[str, Any]
-    ):
-        """Start tracking an agentic run"""
-        
-        self.active_runs[run_id] = {
-            "run_id": run_id,
-            "started_at": datetime.utcnow(),
-            "trigger_event": trigger_event,
-            "context": self._redact_sensitive(context),
-            "phases": [],
-            "current_phase": None
-        }
-        
-        await self._capture_insight(
-            run_id=run_id,
-            phase=DecisionPhase.SENSING,
-            signal_type=trigger_event.event_type,
-            signal_summary=f"{trigger_event.source}: {trigger_event.event_type}",
-            metadata={"resource": trigger_event.resource}
-        )
+    # What the agent perceived
+    signal_type = Column(String(64))
+    signal_summary = Column(String(256))
     
-    async def record_diagnosis(
-        self,
-        run_id: str,
-        diagnosis: str,
-        root_cause: Optional[str],
-        confidence: float
-    ):
-        """Record agent's diagnosis"""
-        
-        await self._capture_insight(
-            run_id=run_id,
-            phase=DecisionPhase.DIAGNOSIS,
-            diagnosis=diagnosis,
-            root_cause=root_cause or "unknown",
-            confidence=confidence,
-            rationale=f"Diagnosed based on {confidence:.0%} confidence"
-        )
+    # What the agent diagnosed
+    diagnosis = Column(String(256))
+    root_cause = Column(String(256))
     
-    async def record_plan(
-        self,
-        run_id: str,
-        plan_type: str,
-        plan_summary: str,
-        options_considered: List[str],
-        chosen_option: str,
-        rationale: str
-    ):
-        """Record agent's recovery plan"""
-        
-        await self._capture_insight(
-            run_id=run_id,
-            phase=DecisionPhase.PLANNING,
-            plan_type=plan_type,
-            plan_summary=plan_summary,
-            options_considered="\n".join(options_considered),
-            chosen_option=chosen_option,
-            rationale=rationale
-        )
+    # What the agent planned
+    plan_type = Column(String(64))
+    plan_summary = Column(String(512))
     
-    async def record_guardrail_check(
-        self,
-        run_id: str,
-        guardrails: List[str],
-        passed: bool,
-        risk_score: float,
-        approval_required: bool
-    ):
-        """Record guardrail validation"""
-        
-        await self._capture_insight(
-            run_id=run_id,
-            phase=DecisionPhase.GUARDRAIL_CHECK,
-            guardrails_checked="\n".join(guardrails),
-            guardrails_passed=passed,
-            risk_score=risk_score,
-            approval_required=approval_required,
-            rationale=f"Risk score: {risk_score:.2f}, Guardrails: {'[OK] passed' if passed else '[FAIL] failed'}"
+    # Guardrails and trust
+    guardrails_checked = Column(Text)
+    guardrails_passed = Column(Boolean)
+    risk_score = Column(Float)
+    confidence = Column(Float)
+    
+    # Decision rationale
+    rationale = Column(Text)
+    options_considered = Column(Text)
+    chosen_option = Column(String(256))
+    
+    # Approval and execution
+    approval_required = Column(Boolean, default=False)
+    approved_by = Column(String(64))
+    approved_at = Column(DateTime(timezone=True))
+    executed_at = Column(DateTime(timezone=True))
+    
+    # Outcome
+    outcome = Column(String(64))
+    outcome_detail = Column(Text)
+    verified = Column(Boolean)
+    
+    # Privacy and metadata
+    sensitive_data_redacted = Column(Boolean, default=False)
+    metadata = Column(Text)
+
+
         )
     
     async def record_approval(
@@ -193,7 +152,7 @@ class AgenticInsightCapture:
             phase=DecisionPhase.VERIFICATION,
             verified=verified,
             outcome_detail=outcome_detail,
-            rationale=f"Verification: {'[OK] success' if verified else '[FAIL] failed'}"
+            rationale=f"Verification: {'✓ success' if verified else '✗ failed'}"
         )
     
     async def complete_run(
@@ -539,10 +498,10 @@ class AgenticObservability:
     async def start(self):
         """Start agentic observability"""
         
-        trigger_mesh.subscribe("agentic.run.*", self._handle_run_event)
+        await trigger_mesh.subscribe("agentic.run.*", self._handle_run_event)
         
         self.running = True
-        print("[OK] Agentic Observability started - Transparent decision tracking")
+        print("✓ Agentic Observability started - Transparent decision tracking")
     
     async def stop(self):
         """Stop agentic observability"""
@@ -555,7 +514,7 @@ class AgenticObservability:
     async def set_verbosity(self, level: InsightVerbosity):
         """Set observability verbosity level"""
         self.capture.verbosity = level
-        print(f"[OK] Agentic observability verbosity set to: {level.value}")
+        print(f"✓ Agentic observability verbosity set to: {level.value}")
     
     async def get_dashboard(self) -> Dict[str, Any]:
         """Get dashboard summary"""

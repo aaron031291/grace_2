@@ -1,236 +1,199 @@
 """
-Metrics Catalog Loader & Manager
-Loads, validates, and manages metrics definitions with KPIs, thresholds, playbook mappings
+Metrics Catalog Loader
+
+Provides:
+- load_metrics_catalog(): Loads and validates the metrics/playbooks catalog from config/ (YAML or JSON)
+- metrics_catalog: Eagerly-loaded, validated catalog export for convenient imports
+
+Behavior:
+- Looks for path from env var GRACE_METRICS_CATALOG first.
+- Otherwise searches config/metrics_catalog.yaml|yml|json in project root.
+- Validates required fields for each playbook entry so downstream bootstrap stages don't fail.
+- Returns a normalized dict with key "playbooks": List[Dict[str, Any]].
+
+This module is import-safe: failures raise clear exceptions; callers can catch if desired.
 """
+from __future__ import annotations
 
+import os
 import json
-import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-import logging
+from typing import Any, Dict, List, Optional, Tuple
 
-logger = logging.getLogger(__name__)
-
-CATALOG_PATH = Path(__file__).parent.parent / "config" / "metrics_catalog.json"
-CATALOG_YAML_PATH = Path(__file__).parent.parent / "config" / "metrics_catalog.yaml"
-
-
-class MetricsCatalogManager:
-    """
-    Manages metrics catalog with validation and caching
-    
-    Features:
-    - Loads from YAML or JSON
-    - Validates required fields
-    - Provides defaults for missing fields
-    - Caches definitions
-    - Structured access methods
-    """
-    
-    def __init__(self):
-        self._raw_catalog: Optional[Dict[str, Any]] = None
-        self._metrics: Dict[str, Dict[str, Any]] = {}
-        self._categories: Dict[str, List[str]] = {}
-        self._playbooks: List[Dict[str, Any]] = []
-        self._loaded = False
-    
-    def load(self) -> bool:
-        """
-        Load and parse metrics catalog
-        
-        Returns:
-            True if loaded successfully, False otherwise
-        """
-        
-        try:
-            # Try YAML first (preferred)
-            if CATALOG_YAML_PATH.exists():
-                with CATALOG_YAML_PATH.open("r", encoding="utf-8") as f:
-                    self._raw_catalog = yaml.safe_load(f)
-                    logger.info(f"[METRICS_CATALOG] Loaded from {CATALOG_YAML_PATH}")
-            # Try JSON fallback
-            elif CATALOG_PATH.exists():
-                with CATALOG_PATH.open("r", encoding="utf-8") as f:
-                    self._raw_catalog = json.load(f)
-                    logger.info(f"[METRICS_CATALOG] Loaded from {CATALOG_PATH}")
-            else:
-                logger.warning("[METRICS_CATALOG] No catalog file found, using empty catalog")
-                self._raw_catalog = {"metrics": [], "playbooks": []}
-                return False
-            
-            # Parse and validate
-            self._parse_catalog()
-            self._loaded = True
-            
-            logger.info(f"[METRICS_CATALOG] ✅ Loaded {len(self._metrics)} metric definitions")
-            return True
-            
-        except Exception as e:
-            logger.error(f"[METRICS_CATALOG] Failed to load: {e}")
-            self._raw_catalog = {"metrics": [], "playbooks": []}
-            self._loaded = False
-            return False
-    
-    def _parse_catalog(self):
-        """Parse and validate catalog structure"""
-        
-        if not self._raw_catalog:
-            return
-        
-        # Parse metrics
-        metrics_list = self._raw_catalog.get("metrics", [])
-        
-        for metric in metrics_list:
-            metric_id = metric.get("metric_id")
-            
-            if not metric_id:
-                logger.warning("[METRICS_CATALOG] Skipping metric without metric_id")
-                continue
-            
-            # Validate and set defaults
-            validated_metric = self._validate_metric(metric)
-            
-            self._metrics[metric_id] = validated_metric
-            
-            # Add to category index
-            category = validated_metric.get("category", "uncategorized")
-            if category not in self._categories:
-                self._categories[category] = []
-            self._categories[category].append(metric_id)
-        
-        # Parse playbooks
-        self._playbooks = self._raw_catalog.get("playbooks", [])
-    
-    def _validate_metric(self, metric: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate metric definition and provide defaults
-        
-        Required fields: metric_id, category, description, unit, aggregation
-        Optional fields: playbook_id, risk_level, autonomy_tier, verification_hooks
-        """
-        
-        validated = metric.copy()
-        
-        # Required fields (must exist)
-        required = ["metric_id", "category", "description", "unit", "aggregation"]
-        for field in required:
-            if field not in validated:
-                logger.warning(f"[METRICS_CATALOG] Metric {metric.get('metric_id', 'unknown')} missing {field}")
-        
-        # Optional fields with defaults
-        defaults = {
-            "playbook_id": None,
-            "risk_level": "low",
-            "autonomy_tier": 1,
-            "verification_hooks": [],
-            "playbooks": [],
-            "thresholds": {},
-            "tags": [],
-            "source": "internal",
-            "resource_scope": "service"
-        }
-        
-        for field, default_value in defaults.items():
-            if field not in validated:
-                validated[field] = default_value
-        
-        return validated
-    
-    def get_metric(self, metric_id: str) -> Optional[Dict[str, Any]]:
-        """Get metric definition by ID"""
-        return self._metrics.get(metric_id)
-    
-    def get_by_category(self, category: str) -> List[Dict[str, Any]]:
-        """Get all metrics in a category"""
-        metric_ids = self._categories.get(category, [])
-        return [self._metrics[mid] for mid in metric_ids]
-    
-    def get_thresholds(self, metric_id: str) -> Dict[str, Any]:
-        """Get thresholds for metric"""
-        metric = self._metrics.get(metric_id)
-        return metric.get("thresholds", {}) if metric else {}
-    
-    def get_playbook_for_metric(self, metric_id: str) -> Optional[str]:
-        """Get associated playbook ID for metric"""
-        metric = self._metrics.get(metric_id)
-        return metric.get("playbook_id") if metric else None
-    
-    def list_all_metrics(self) -> List[Dict[str, Any]]:
-        """Get all metric definitions"""
-        return list(self._metrics.values())
-    
-    def list_playbooks(self) -> List[Dict[str, Any]]:
-        """Get all playbook definitions"""
-        return self._playbooks
-    
-    @property
-    def metrics(self) -> Dict[str, Dict[str, Any]]:
-        """Access to all metrics dictionary"""
-        return self._metrics
-    
-    @property
-    def definitions(self) -> List[Dict[str, Any]]:
-        """Access to metrics as list"""
-        return list(self._metrics.values())
-    
-    @property
-    def categories(self) -> List[str]:
-        """List of all categories"""
-        return list(self._categories.keys())
-    
-    @property
-    def is_loaded(self) -> bool:
-        """Check if catalog is loaded"""
-        return self._loaded
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """Get catalog statistics"""
-        return {
-            "loaded": self._loaded,
-            "total_metrics": len(self._metrics),
-            "categories": len(self._categories),
-            "playbooks": len(self._playbooks),
-            "metrics_by_category": {
-                cat: len(metrics) for cat, metrics in self._categories.items()
-            }
-        }
-
-
-# Global instance
-metrics_catalog = MetricsCatalogManager()
-
-# Auto-load on import
+# PyYAML is already used elsewhere in the repo (cli/config.py)
 try:
-    metrics_catalog.load()
-except Exception as e:
-    logger.error(f"[METRICS_CATALOG] Auto-load failed: {e}")
+    import yaml  # type: ignore
+except Exception as e:  # pragma: no cover
+    yaml = None  # type: ignore
 
 
-# Legacy compatibility functions
-async def load_metrics_catalog() -> Dict[str, Any]:
-    """Legacy async load function"""
-    if not metrics_catalog.is_loaded:
-        metrics_catalog.load()
-    return {"metrics": metrics_catalog.definitions}
+REQUIRED_FIELDS: Tuple[str, ...] = (
+    "playbook_id",
+    "risk_level",
+    "autonomy_tier",
+    "verification_hooks",
+)
 
 
-def load_metrics_catalog_sync() -> Dict[str, Any]:
-    """Legacy sync load function"""
-    if not metrics_catalog.is_loaded:
-        metrics_catalog.load()
-    return {"metrics": metrics_catalog.definitions}
+class MetricsCatalogError(Exception):
+    """Raised when the metrics catalog is missing or invalid"""
 
 
-def list_playbooks(catalog: Dict[str, Any] = None) -> List[Dict[str, Any]]:
-    """Legacy playbook list function"""
-    return metrics_catalog.list_playbooks()
+def _find_catalog_path(explicit: Optional[Path] = None) -> Path:
+    """Find the metrics catalog file path.
+
+    Search order:
+    1) Explicit path (if provided)
+    2) Env var GRACE_METRICS_CATALOG (absolute or relative to project root)
+    3) config/metrics_catalog.yaml
+    4) config/metrics_catalog.yml
+    5) config/metrics_catalog.json
+    """
+    if explicit:
+        path = explicit
+        if not path.exists():
+            raise MetricsCatalogError(f"Metrics catalog file not found: {path}")
+        return path
+
+    env_path = os.getenv("GRACE_METRICS_CATALOG")
+    if env_path:
+        env_p = Path(env_path)
+        if not env_p.is_absolute():
+            env_p = Path.cwd() / env_p
+        if not env_p.exists():
+            raise MetricsCatalogError(f"GRACE_METRICS_CATALOG points to missing file: {env_p}")
+        return env_p
+
+    # Default locations under project config/
+    candidates = [
+        Path("config") / "metrics_catalog.yaml",
+        Path("config") / "metrics_catalog.yml",
+        Path("config") / "metrics_catalog.json",
+    ]
+    for cand in candidates:
+        if cand.exists():
+            return cand
+
+    raise MetricsCatalogError(
+        "Metrics catalog not found. Expected one of: "
+        "config/metrics_catalog.yaml|yml|json or set GRACE_METRICS_CATALOG"
+    )
 
 
-def list_metrics(catalog: Dict[str, Any] = None) -> List[Dict[str, Any]]:
-    """Legacy metrics list function"""
-    return metrics_catalog.list_all_metrics()
+def _load_any(path: Path) -> Any:
+    """Load YAML or JSON file by extension"""
+    suffix = path.suffix.lower()
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            if suffix in (".yaml", ".yml"):
+                if yaml is None:
+                    raise MetricsCatalogError("PyYAML not installed; required to parse YAML catalog")
+                return yaml.safe_load(f)
+            elif suffix == ".json":
+                return json.load(f)
+            else:
+                raise MetricsCatalogError(f"Unsupported catalog file type: {suffix}")
+    except MetricsCatalogError:
+        raise
+    except Exception as e:
+        raise MetricsCatalogError(f"Failed to read catalog {path}: {e}")
 
 
-def get_metric_thresholds(catalog: Dict[str, Any], metric_id: str) -> Dict[str, Any]:
-    """Legacy threshold getter"""
-    return metrics_catalog.get_thresholds(metric_id)
+def _normalize_catalog(raw: Any) -> Dict[str, Any]:
+    """Normalize into a dict with key 'playbooks': list, preserving metadata if present."""
+    if raw is None:
+        raise MetricsCatalogError("Catalog file is empty")
+
+    if isinstance(raw, list):
+        catalog = {"playbooks": raw}
+    elif isinstance(raw, dict):
+        # Accept either 'playbooks' key or a flat dict that represents a single entry
+        if "playbooks" in raw and isinstance(raw["playbooks"], list):
+            catalog = dict(raw)
+        else:
+            # Heuristic: treat as single-entry catalog if required fields present at top level
+            if all(k in raw for k in REQUIRED_FIELDS):
+                catalog = {"playbooks": [dict(raw)]}
+            else:
+                # Otherwise try common alias 'items'
+                items = raw.get("items")
+                if isinstance(items, list):
+                    catalog = {**raw, "playbooks": items}
+                else:
+                    raise MetricsCatalogError(
+                        "Catalog dict must contain a 'playbooks' list or a single playbook entry"
+                    )
+    else:
+        raise MetricsCatalogError("Catalog must be a list or dict")
+
+    return catalog
+
+
+def _validate_catalog(catalog: Dict[str, Any]) -> Dict[str, Any]:
+    playbooks = catalog.get("playbooks")
+    if not isinstance(playbooks, list) or not playbooks:
+        raise MetricsCatalogError("Catalog 'playbooks' must be a non-empty list")
+
+    errors: List[str] = []
+    for idx, pb in enumerate(playbooks):
+        if not isinstance(pb, dict):
+            errors.append(f"playbooks[{idx}] is not an object")
+            continue
+        missing = [k for k in REQUIRED_FIELDS if k not in pb]
+        if missing:
+            errors.append(f"playbooks[{idx}] missing required fields: {', '.join(missing)}")
+        # verification_hooks should be a list
+        hooks = pb.get("verification_hooks")
+        if hooks is not None and not isinstance(hooks, list):
+            errors.append(f"playbooks[{idx}].verification_hooks must be a list")
+
+        # Normalize some types
+        if "autonomy_tier" in pb:
+            try:
+                pb["autonomy_tier"] = int(pb["autonomy_tier"])  # type: ignore
+            except Exception:
+                errors.append(f"playbooks[{idx}].autonomy_tier must be an integer")
+
+    if errors:
+        raise MetricsCatalogError("Invalid metrics catalog:\n- " + "\n- ".join(errors))
+
+    return catalog
+
+
+def load_metrics_catalog(path: Optional[Path | str] = None) -> Dict[str, Any]:
+    """Load, normalize, and validate the metrics catalog.
+
+    Args:
+        path: Optional explicit path; may be str or Path.
+    Returns:
+        Dict with keys: 'playbooks' (list), plus any metadata from file.
+    Raises:
+        MetricsCatalogError: when missing/invalid.
+    """
+    explicit = Path(path) if isinstance(path, str) else path
+    catalog_path = _find_catalog_path(explicit)
+    raw = _load_any(catalog_path)
+    catalog = _normalize_catalog(raw)
+    catalog = _validate_catalog(catalog)
+    # Attach resolved path for diagnostics
+    catalog.setdefault("_source", str(catalog_path))
+    return catalog
+
+
+# Eagerly load at import time so users can simply `from backend.metrics_catalog_loader import metrics_catalog`
+try:
+    metrics_catalog: Dict[str, Any] = load_metrics_catalog()
+except Exception as e:  # keep import resilient for optional paths
+    # Defer error to explicit calls if desired; export a helpful placeholder
+    metrics_catalog = {  # type: ignore
+        "playbooks": [],
+        "_error": str(e),
+    }
+
+
+def get_metrics_catalog() -> Dict[str, Any]:
+    """Accessor that always (re)loads catalog from disk.
+
+    Use when you want the latest content rather than the cached module variable.
+    """
+    return load_metrics_catalog()

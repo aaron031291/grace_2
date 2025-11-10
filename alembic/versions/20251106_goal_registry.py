@@ -18,43 +18,28 @@ branch_labels = None
 depends_on = None
 
 
-def _table_exists(bind, table_name: str) -> bool:
-    insp = inspect(bind)
-    return table_name in insp.get_table_names()
-
-
 def upgrade():
     bind = op.get_bind()
-    
-    # Create goals table if it doesn't exist
-    if not _table_exists(bind, 'goals'):
-        op.create_table(
-            'goals',
-            sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
-            sa.Column('description', sa.Text(), nullable=False),
-            sa.Column('status', sa.String(length=16), nullable=False, server_default='pending'),
-            sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
-            sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('completed_at', sa.DateTime(timezone=True), nullable=True),
-            sa.Column('priority', sa.String(length=16), nullable=False, server_default='medium'),
-            sa.Column('value_score', sa.Float(), nullable=True),
-            sa.Column('risk_score', sa.Float(), nullable=True),
-            sa.Column('success_criteria', sa.Text(), nullable=True),
-            sa.Column('owner', sa.String(length=64), nullable=True),
-            sa.Column('category', sa.String(length=64), nullable=True),
-        )
-    else:
-        # Add new columns to goals if table exists
-        with op.batch_alter_table('goals') as batch_op:
+    inspector = inspect(bind)
+
+    # Add new columns to goals (idempotent)
+    existing_goal_cols = {c['name'] for c in inspector.get_columns('goals')} if 'goals' in inspector.get_table_names() else set()
+    with op.batch_alter_table('goals') as batch_op:
+        if 'priority' not in existing_goal_cols:
             batch_op.add_column(sa.Column('priority', sa.String(length=16), nullable=False, server_default='medium'))
+        if 'value_score' not in existing_goal_cols:
             batch_op.add_column(sa.Column('value_score', sa.Float(), nullable=True))
+        if 'risk_score' not in existing_goal_cols:
             batch_op.add_column(sa.Column('risk_score', sa.Float(), nullable=True))
+        if 'success_criteria' not in existing_goal_cols:
             batch_op.add_column(sa.Column('success_criteria', sa.Text(), nullable=True))
+        if 'owner' not in existing_goal_cols:
             batch_op.add_column(sa.Column('owner', sa.String(length=64), nullable=True))
+        if 'category' not in existing_goal_cols:
             batch_op.add_column(sa.Column('category', sa.String(length=64), nullable=True))
 
-    # Create goal_dependencies table
-    if not _table_exists(bind, 'goal_dependencies'):
+    # Create goal_dependencies table (idempotent)
+    if 'goal_dependencies' not in inspector.get_table_names():
         op.create_table(
             'goal_dependencies',
             sa.Column('id', sa.Integer(), primary_key=True),
@@ -64,8 +49,8 @@ def upgrade():
             sa.Column('note', sa.Text(), nullable=True),
         )
 
-    # Create goal_evaluations table
-    if not _table_exists(bind, 'goal_evaluations'):
+    # Create goal_evaluations table (idempotent)
+    if 'goal_evaluations' not in inspector.get_table_names():
         op.create_table(
             'goal_evaluations',
             sa.Column('id', sa.Integer(), primary_key=True),

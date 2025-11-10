@@ -1,4 +1,4 @@
-﻿"""Constitutional AI CLI Commands
+"""Constitutional AI CLI Commands
 
 CLI interface for viewing constitution, checking compliance,
 and managing clarifications.
@@ -77,7 +77,7 @@ async def check_compliance(action_type: str):
         print(f"   Compliant: {result['compliant']}")
     
     if result['violations']:
-        print(f"\n[WARN]  Violations ({len(result['violations'])}):")
+        print(f"\n⚠️  Violations ({len(result['violations'])}):")
         for v in result['violations']:
             print(f"   - {v.get('principle', 'Unknown')}: {v.get('reason', 'No reason')}")
     
@@ -212,7 +212,7 @@ async def show_stats():
         )
         recent_violations = result.scalars().all()
         
-        print(f"\n[WARN]  Violations (last 7 days): {len(recent_violations)}")
+        print(f"\n⚠️  Violations (last 7 days): {len(recent_violations)}")
         
         if recent_violations:
             blocked = len([v for v in recent_violations if v.blocked])

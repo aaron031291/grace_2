@@ -1,4 +1,4 @@
-﻿import hashlib
+import hashlib
 import json
 from typing import Optional, List
 from sqlalchemy import select
@@ -69,7 +69,7 @@ class MemoryService:
             
             await session.commit()
             
-            print(f"[OK] Memory created: {path} by {actor}")
+            print(f"✓ Memory created: {path} by {actor}")
             
             from .trigger_mesh import trigger_mesh, TriggerEvent
             from datetime import datetime as dt
@@ -141,7 +141,7 @@ class MemoryService:
             
             await session.commit()
             
-            print(f"[OK] Memory updated: {artifact.path} (v{artifact.version}) by {actor}")
+            print(f"✓ Memory updated: {artifact.path} (v{artifact.version}) by {actor}")
             
             from .trigger_mesh import trigger_mesh, TriggerEvent
             from datetime import datetime as dt

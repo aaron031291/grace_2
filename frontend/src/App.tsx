@@ -7,10 +7,8 @@ import { MetaLoopDashboard } from './components/MetaLoopDashboard';
 import { KnowledgeManager } from './components/Knowledge/KnowledgeManager';
 import { setAuthToken } from './api/client';
 import { ApprovalsAdmin } from './components/Governance/ApprovalsAdmin';
-import GraceGPT from './components/GraceGPT';
-
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'gpt' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals'>('gpt');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -89,10 +87,12 @@ export default function App() {
     );
   }
 
+=======
   if (page === 'gpt') {
     return <GraceGPT />;
   }
 
+>>>>>>> origin/main
   if (page === 'ide') {
     return <TranscendenceIDE />;
   }
@@ -227,7 +227,7 @@ export default function App() {
       <div style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
         <h1 style={{ color: s.ac2, margin: 0 }}>Grace</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => setPage('gpt')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>⚡ GPT Chat</button>
+<<<<<<< HEAD
           <button onClick={() => setPage('ide')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💻 IDE</button>
           <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dashboard</button>
           <button onClick={() => setPage('memory')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📁 Memory</button>

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Observe-only self-heal scheduler
 - Polls recent HealthSignals
 - Runs deterministic triage
@@ -23,16 +23,23 @@ class ObserveOnlyScheduler:
         self._stopping = asyncio.Event()
         self._interval = poll_interval_s
         # In-memory suppression state (reset on process restart)
-        # key: (service, diagnosis) -> {"factor": int, "next_at": datetime}
+        # key: (service, diagnosis) → {"factor": int, "next_at": datetime}
         self._backoff: Dict[tuple[str, str], Dict[str, Any]] = {}
         # per-service timestamps of recent proposals for simple rate limiting
         self._rate: Dict[str, List[datetime]] = {}
+        # lightweight in-memory counters for observability (reset on restart)
+        # shape: { "global": {counts...}, "per_service": {svc: {counts...}} }
+        self._counters: Dict[str, Any] = {
+            "global": {"proposed": 0, "skipped_rate": 0, "skipped_backoff": 0, "skipped_dup": 0, "last_updated": None},
+            "per_service": {}
+        }
 
     async def start(self) -> None:
         if self._task and not self._task.done():
             return
         self._stopping.clear()
         self._task = asyncio.create_task(self._run_loop())
+=======
         
         # Subscribe to proactive predictions
         try:
@@ -40,6 +47,7 @@ class ObserveOnlyScheduler:
             trigger_mesh.subscribe("self_heal.prediction", self._handle_prediction)
         except Exception:
             pass
+>>>>>>> origin/main
 
     async def stop(self) -> None:
         try:
@@ -61,40 +69,29 @@ class ObserveOnlyScheduler:
         cutoff = now - timedelta(hours=1)
         self._rate[service] = [t for t in lst if t >= cutoff]
 
-    def _should_propose(self, service: str, diagnosis: str, now: datetime) -> tuple[bool, str, int]:
-        """Decide if we should create a proposal.
-        Returns (ok, reason, backoff_ms). reason describes skip if ok=False.
-        """
-        # Rate limit: max 3/hour per service
-        self._cleanup_rate(service, now)
-        if len(self._rate.get(service, [])) >= 3:
-            return (False, "rate_limited", 0)
-        # Backoff per (service, diagnosis)
-        key = (service, diagnosis)
-        bo = self._backoff.get(key)
-        if bo:
-            next_at = bo.get("next_at")
-            if isinstance(next_at, datetime) and next_at > now:
-                delta_ms = int((next_at - now).total_seconds() * 1000)
-                return (False, "backoff", delta_ms)
-        return (True, "ok", 0)
+    def _bump_counter(self, service: str, key: str) -> None:
+        """Increment counters for observability."""
+        try:
+            g = self._counters.get("global", {})
+            g[key] = int(g.get(key, 0)) + 1
+            g["last_updated"] = datetime.now(timezone.utc).isoformat()
+            self._counters["global"] = g
+            per = self._counters.setdefault("per_service", {})
+            svc = per.setdefault(service, {"proposed": 0, "skipped_rate": 0, "skipped_backoff": 0, "skipped_dup": 0, "last_updated": None})
+            svc[key] = int(svc.get(key, 0)) + 1
+            svc["last_updated"] = g["last_updated"]
+            per[service] = svc
+        except Exception:
+            pass
 
-    def _note_proposal(self, service: str, diagnosis: str, now: datetime) -> None:
-        # Record rate event
-        self._rate.setdefault(service, []).append(now)
-        # Increase backoff factor with jitter
-        key = (service, diagnosis)
-        prev = self._backoff.get(key, {"factor": 0})
-        factor = int(prev.get("factor", 0)) + 1
-        # base sequence (minutes): 5, 10, 20, 40, 80; cap 120
-        base_min = min(5 * (2 ** (factor - 1)), 120)
-        # jitter ±20%
-        jitter = 1.0 + (random.random() * 0.4 - 0.2)
-        delay = timedelta(minutes=base_min * jitter)
-        self._backoff[key] = {"factor": factor, "next_at": now + delay}
+    def snapshot_counters(self) -> Dict[str, Any]:
+        """Return a shallow copy of counters for safe readout."""
+        try:
+            import copy
+            return copy.deepcopy(self._counters)
+        except Exception:
+            return {"global": {}, "per_service": {}}
 
-    def _is_outside_change_window(self, now: datetime) -> bool:
-        """Default change window: weekdays 09:00–18:00 local time. Outside -> True."""
         try:
             local = now.astimezone()
         except Exception:
@@ -177,12 +174,10 @@ class ObserveOnlyScheduler:
                             pass
 
                     if skip:
-                        continue
-
-                    # New: rate limit and backoff checks
-                    ok, reason, backoff_ms = self._should_propose(svc.name, diag_code, now)
-                    if not ok:
                         try:
+                            self._bump_counter(svc.name, "skipped_dup")
+                        except Exception:
+                            pass
                             print(f"[self-heal:scheduler] skip {svc.name}/{diag_code}: {reason} backoff_ms={backoff_ms}")
                         except Exception:
                             pass
@@ -226,229 +221,36 @@ class ObserveOnlyScheduler:
                     # Note proposal for future backoff/rate calculations
                     self._note_proposal(svc.name, diag_code, now)
 
-                    # Autonomous approval with trust core integration
+                    # Create approval draft for high/critical impacts and outside change window
                     impact = str(fx.get("impact") or "").lower()
                     outside_window = self._is_outside_change_window(now)
-                    blast_radius = await self._estimate_blast_radius(svc.name)
-                    confidence = float(fx.get("likelihood") or 0.0)
-                    
-                    # Check if we can auto-approve (low risk with trust core)
-                    ok_to_auto = (
-                        impact in {"low", "medium"} and 
-                        blast_radius <= 2 and 
-                        confidence >= 0.7 and 
-                        not outside_window
-                    )
-                    
-                    if ok_to_auto:
+                    if impact in {"high", "critical"} or (impact == "medium" and outside_window):
+                        # Avoid duplicate approval drafts for the same run
                         try:
-                            from ..governance import governance_engine
-                            decision = await governance_engine.check(
-                                actor="self_heal",
-                                action="self_heal_execute",
-                                resource=svc.name,
-                                payload={
-                                    "diag_code": diag_code,
-                                    "impact": impact,
-                                    "confidence": confidence,
-                                    "blast_radius": blast_radius
-                                }
+                            from ..governance_models import ApprovalRequest
+                            existing_req = await session.execute(
+                                select(ApprovalRequest).where(ApprovalRequest.event_id == run.id)
                             )
-                            
-                            if decision["decision"] == "allow":
-                                run.status = "approved"
-                                await self._create_approval_request(
-                                    session, 
-                                    run, 
-                                    reason=f"trust_core:auto-approved impact={impact} br={blast_radius} conf={confidence:.2f}"
-                                )
-                                try:
-                                    from ..self_heal_models import LearningLog
-                                    session.add(LearningLog(
-                                        service=svc.name,
-                                        signal_ref=None,
-                                        diagnosis=run.diagnosis,
-                                        action=json.dumps({"status": "auto_approved", "blast_radius": blast_radius}),
-                                        outcome=None
-                                    ))
-                                except Exception:
-                                    pass
+                            if existing_req.scalars().first() is None:
+                                await self._create_approval_request(session, run, reason=f"Auto-draft (impact={impact}, outside_window={outside_window}) service={svc.name} diagnosis={diag_code}")
                         except Exception:
-                            # If trust core check fails, fall back to manual approval
-                            pass
-                    
-                    # Create approval draft for high/critical impacts and outside change window
-                    if run.status == "proposed":  # Not auto-approved
-                        if impact in {"high", "critical"} or (impact == "medium" and outside_window):
-                            # Avoid duplicate approval drafts for the same run
-                            try:
-                                from ..governance_models import ApprovalRequest
-                                existing_req = await session.execute(
-                                    select(ApprovalRequest).where(ApprovalRequest.event_id == run.id)
-                                )
-                                if existing_req.scalars().first() is None:
-                                    await self._create_approval_request(session, run, reason=f"Auto-draft (impact={impact}, outside_window={outside_window}, br={blast_radius}) service={svc.name} diagnosis={diag_code}")
-                            except Exception:
-                                await self._create_approval_request(session, run, reason=f"Auto-draft (impact={impact}, outside_window={outside_window}, br={blast_radius}) service={svc.name} diagnosis={diag_code}")
+                            await self._create_approval_request(session, run, reason=f"Auto-draft (impact={impact}, outside_window={outside_window}) service={svc.name} diagnosis={diag_code}")
 
                 await session.commit()
 
     async def _create_approval_request(self, session, run_obj, reason: str) -> None:
-        """
-        Create approval request with duplicate prevention.
-        
-        Prevents duplicate requests within backoff window for same (service, diagnosis).
-        """
         try:
             from ..governance_models import ApprovalRequest
-            from ..self_heal_models import PlaybookRun
         except Exception:
             return
-        
-        # HARDENED: Duplicate prevention - check for recent approval request
-        try:
-            run_id = getattr(run_obj, "id", 0)
-            if run_id and run_obj.diagnosis:
-                # Extract diagnosis code
-                try:
-                    diag = json.loads(run_obj.diagnosis)
-                    diag_code = diag.get("code", "")
-                except:
-                    diag_code = ""
-                
-                if diag_code:
-                    # Check for recent approval request (last 10 minutes)
-                    cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
-                    
-                    existing = await session.execute(
-                        select(ApprovalRequest)
-                        .join(PlaybookRun, ApprovalRequest.event_id == PlaybookRun.id)
-                        .where(
-                            PlaybookRun.service == run_obj.service,
-                            PlaybookRun.diagnosis.contains(diag_code),
-                            ApprovalRequest.created_at >= cutoff
-                        )
-                        .limit(1)
-                    )
-                    
-                    if existing.scalar_one_or_none():
-                        # Duplicate detected - skip creation
-                        print(f"[self-heal:scheduler] skipping duplicate approval request for {run_obj.service}/{diag_code}")
-                        return
-        except Exception:
-            # If duplicate check fails, proceed with creation (fail open)
-            pass
-        
         req = ApprovalRequest(
             event_id=getattr(run_obj, "id", 0) or 0,
-            status="pending" if "auto-approved" not in reason else "approved",
+            status="pending",
             requested_by="scheduler",
             reason=reason,
         )
         session.add(req)
-    
-    async def _estimate_blast_radius(self, service_name: str) -> int:
-        """Estimate blast radius by checking dependency count in health graph"""
-        try:
-            from ..agentic_spine import agentic_spine
-            deps = await agentic_spine.health_graph.get_dependents(service_name)
-            return min(len(deps or []), 10)
-        except Exception:
-            # If health graph unavailable, assume conservative blast radius
-            return 5
-    
-    async def _handle_prediction(self, event):
-        """Handle proactive predictions from predictor"""
-        try:
-            from sqlalchemy import select
-            from ..models import async_session
-            from ..health_models import Service
-            from ..self_heal_models import PlaybookRun
-            
-            now = datetime.now(timezone.utc)
-            service_name = event.resource
-            fx = event.payload
-            diag_code = fx.get("code", "prediction")
-            
-            # Rate limit check
-            ok, reason, _ = self._should_propose(service_name, diag_code, now)
-            if not ok:
-                return
-            
-            async with async_session() as session:
-                svc = await session.execute(select(Service).where(Service.name == service_name))
-                service = svc.scalar_one_or_none()
-                if not service:
-                    return
-                
-                # Create proactive playbook run
-                run = PlaybookRun(
-                    playbook_id=None,
-                    service=service_name,
-                    status="proposed",
-                    requested_by="predictor",
-                    parameters=None,
-                    diagnosis=json.dumps({
-                        "code": fx.get("code"),
-                        "title": fx.get("title"),
-                        "likelihood": fx.get("likelihood"),
-                        "impact": fx.get("impact"),
-                        "suggested_playbooks": fx.get("suggested_playbooks", []),
-                        "reasons": fx.get("reasons", []),
-                        "proactive": True
-                    }),
-                )
-                session.add(run)
-                await session.flush()
-                
-                # Try autonomous approval for proactive low-risk actions
-                impact = str(fx.get("impact") or "").lower()
-                blast_radius = await self._estimate_blast_radius(service_name)
-                confidence = float(fx.get("likelihood") or 0.0)
-                
-                ok_to_auto = (
-                    impact in {"low", "medium"} and 
-                    blast_radius <= 2 and 
-                    confidence >= 0.8 and  # Higher threshold for proactive
-                    not self._is_outside_change_window(now)
-                )
-                
-                if ok_to_auto:
-                    try:
-                        from ..governance import governance_engine
-                        decision = await governance_engine.check(
-                            actor="self_heal",
-                            action="self_heal_execute_proactive",
-                            resource=service_name,
-                            payload={
-                                "diag_code": diag_code,
-                                "impact": impact,
-                                "confidence": confidence,
-                                "blast_radius": blast_radius,
-                                "proactive": True
-                            }
-                        )
-                        
-                        if decision["decision"] == "allow":
-                            run.status = "approved"
-                            await self._create_approval_request(
-                                session,
-                                run,
-                                reason=f"trust_core:proactive-auto-approved impact={impact} br={blast_radius} conf={confidence:.2f}"
-                            )
-                    except Exception:
-                        pass
-                
-                self._note_proposal(service_name, diag_code, now)
-                await session.commit()
-                
-                print(f"  🔮 Proactive playbook proposed for {service_name}: {fx.get('title')} (status={run.status})")
-        
-        except Exception as e:
-            try:
-                print(f"[self-heal:scheduler] prediction handler error: {e}")
-            except Exception:
-                pass
+<<<<<<< HEAD
 
 
 # Singleton instance for app wiring

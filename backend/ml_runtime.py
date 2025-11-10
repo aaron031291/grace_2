@@ -1,4 +1,4 @@
-﻿"""ML Runtime for model storage, loading, and deployment"""
+"""ML Runtime for model storage, loading, and deployment"""
 
 import os
 import pickle
@@ -48,7 +48,7 @@ class ModelRegistry:
                 model.signature = str(model_path)
                 await session.commit()
         
-        print(f"[OK] Model artifact saved: {model_path}")
+        print(f"✓ Model artifact saved: {model_path}")
         return str(model_path)
     
     async def load_model(self, model_id: int) -> Optional[Any]:
@@ -57,14 +57,14 @@ class ModelRegistry:
         model_path = self._get_model_path(model_id)
         
         if not model_path.exists():
-            print(f"[WARN] Model artifact not found: {model_path}")
+            print(f"⚠️ Model artifact not found: {model_path}")
             return None
         
         with open(model_path, 'rb') as f:
             model_artifact = pickle.load(f)
         
         self._loaded_models[f"model_{model_id}"] = model_artifact
-        print(f"[OK] Model loaded: {model_id}")
+        print(f"✓ Model loaded: {model_id}")
         return model_artifact
     
     async def load_latest_model(self, model_type: str) -> Optional[tuple]:
@@ -81,7 +81,7 @@ class ModelRegistry:
             model = result.scalar_one_or_none()
             
             if not model:
-                print(f"[WARN] No deployed model found for type: {model_type}")
+                print(f"⚠️ No deployed model found for type: {model_type}")
                 return None
             
             artifact = await self.load_model(model.id)
@@ -96,24 +96,24 @@ class ModelRegistry:
         async with async_session() as session:
             model = await session.get(MLModel, model_id)
             if not model:
-                print(f"[WARN] Model not found: {model_id}")
+                print(f"⚠️ Model not found: {model_id}")
                 return False
             
             model_path = self._get_model_path(model_id)
             if not model_path.exists():
-                print(f"[WARN] Model artifact missing: {model_path}")
+                print(f"⚠️ Model artifact missing: {model_path}")
                 return False
             
             if model.accuracy is None:
-                print(f"[WARN] Model accuracy not evaluated")
+                print(f"⚠️ Model accuracy not evaluated")
                 return False
             
             if model.accuracy < 0.6:
-                print(f"[WARN] Model accuracy too low: {model.accuracy}")
+                print(f"⚠️ Model accuracy too low: {model.accuracy}")
                 return False
             
             if model.training_data_count < 10:
-                print(f"[WARN] Insufficient training samples: {model.training_data_count}")
+                print(f"⚠️ Insufficient training samples: {model.training_data_count}")
                 return False
             
             from .governance import governance_engine
@@ -125,7 +125,7 @@ class ModelRegistry:
             )
             
             if decision["decision"] != "allow":
-                print(f"[WARN] Deployment blocked by governance: {decision['policy']}")
+                print(f"⚠️ Deployment blocked by governance: {decision['policy']}")
                 return False
             
             result = await session.execute(
@@ -154,7 +154,7 @@ class ModelRegistry:
             actor=actor
         )
         
-        print(f"[OK] Model deployed: {model.model_name} v{model.version} (ID: {model_id})")
+        print(f"✓ Model deployed: {model.model_name} v{model.version} (ID: {model_id})")
         return True
     
     async def rollback_model(self, model_type: str, actor: str = "system") -> bool:
@@ -169,7 +169,7 @@ class ModelRegistry:
             current = result.scalar_one_or_none()
             
             if not current:
-                print(f"[WARN] No deployed model to rollback: {model_type}")
+                print(f"⚠️ No deployed model to rollback: {model_type}")
                 return False
             
             result = await session.execute(
@@ -182,7 +182,7 @@ class ModelRegistry:
             previous = result.scalar_one_or_none()
             
             if not previous:
-                print(f"[WARN] No previous version to rollback to: {model_type}")
+                print(f"⚠️ No previous version to rollback to: {model_type}")
                 return False
             
             from .governance import governance_engine
@@ -194,7 +194,7 @@ class ModelRegistry:
             )
             
             if decision["decision"] != "allow":
-                print(f"[WARN] Rollback blocked by governance: {decision['policy']}")
+                print(f"⚠️ Rollback blocked by governance: {decision['policy']}")
                 return False
             
             current.deployment_status = "deprecated"
@@ -214,7 +214,7 @@ class ModelRegistry:
             actor=actor
         )
         
-        print(f"[OK] Rolled back: {model_type} to v{previous.version} (ID: {previous.id})")
+        print(f"✓ Rolled back: {model_type} to v{previous.version} (ID: {previous.id})")
         return True
 
 model_registry = ModelRegistry()

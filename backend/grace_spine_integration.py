@@ -18,7 +18,6 @@ from .meta_loop_supervisor import meta_loop_supervisor
 from .proactive_intelligence import proactive_intelligence
 from .agentic_observability import agentic_observability
 from .multi_agent_shards import shard_coordinator
-from .agent_core import agent_core
 from .trigger_mesh import trigger_mesh
 from .immutable_log import immutable_log
 
@@ -64,56 +63,35 @@ class GraceAgenticSystem:
         print("GRACE AGENTIC SPINE - AUTONOMOUS ACTIVATION")
         print("=" * 60)
         
-        print("\n[1/9] Starting foundational systems...")
+        print("\n🔧 Starting foundational systems...")
         await trigger_mesh.start()
         
-        print("\n[2/9] Starting multi-agent shard coordinator...")
+        print("\n🌐 Starting multi-agent shard coordinator...")
         await shard_coordinator.start()
         
-        print("\n[3/9] Starting agentic observability...")
+        print("\n👁️  Starting agentic observability...")
         await agentic_observability.start()
         
-        print("\n[4/9] Starting proactive intelligence...")
+        print("\n🔮 Starting proactive intelligence...")
         await proactive_intelligence.start()
         
-        print("\n[5/9] Activating autonomous decision core...")
+        print("\n🧠 Activating autonomous decision core...")
         await agentic_spine.start()
         
-        print("\n[6/9] Starting learning integration...")
+        print("\n📊 Starting learning integration...")
         await learning_integration.start()
         
-        print("\n[7/9] Enabling human collaboration...")
+        print("\n👥 Enabling human collaboration...")
         await human_collaboration.start()
         
-        print("\n[8/9] Activating resource stewardship...")
+        print("\n♻️  Activating resource stewardship...")
         await resource_stewardship.start()
         
-        print("\n[9/9] Starting ethics & compliance sentinel...")
+        print("\n⚖️  Starting ethics & compliance sentinel...")
         await ethics_sentinel.start()
         
-        print("\n[FINAL] Starting meta loop supervisor...")
+        print("\n🔄 Starting meta loop supervisor...")
         await meta_loop_supervisor.start()
-        
-        print("\n[MEMORY] Starting agentic memory broker...")
-        from .agentic_memory import agentic_memory
-        await agentic_memory.start()
-        
-        print("\n[INTELLIGENCE] Starting intelligent systems...")
-        from .self_heal.intelligent_triggers import intelligent_trigger_manager
-        from .immutable_log_integration import log_analyzer
-        from .self_heal.meta_coordinated_healing import meta_coordinated_healing
-        
-        # Start log analyzer first (provides pattern detection)
-        await log_analyzer.start()
-        
-        # Start intelligent trigger manager (aggregates from all sources)
-        await intelligent_trigger_manager.start()
-        
-        # Start meta-coordinated healing (orchestrator)
-        await meta_coordinated_healing.start()
-        
-        print("\n[DOMAINS] Registering domain adapters...")
-        await self._register_domains()
         
         self.running = True
         self.started_at = datetime.utcnow()
@@ -131,112 +109,51 @@ class GraceAgenticSystem:
         )
         
         print("\n" + "=" * 60)
-        print("GRACE AGENTIC SPINE FULLY OPERATIONAL")
+        print("✅ GRACE AGENTIC SPINE FULLY OPERATIONAL")
         print("=" * 60)
         print("\nGRACE is now autonomous and can:")
-        print("  - Predict incidents before they occur (proactive)")
-        print("  - Enrich events with intent and context")
-        print("  - Make decisions with trust core partnership")
-        print("  - Plan and execute recovery actions")
-        print("  - Learn from outcomes and self-improve")
-        print("  - Collaborate with humans proactively")
-        print("  - Manage her own resources")
-        print("  - Monitor ethics and compliance")
-        print("  - Supervise her own behavior cross-domain")
-        print("\n  [MEMORY] Agentic Memory:")
-        print("    * Intelligent Broker -> All domains request through broker")
-        print("    * Policy-Aware -> Trust/governance on every access")
-        print("    * Context Ranking -> Semantic search & relevance")
-        print("    * Domain Isolation -> Cross-domain with approval only")
-        print("\n  [AI] Meta-Coordinated Self-Healing:")
-        print("    * Meta Loop -> Orchestrates focus & guardrails")
-        print("    * ML/DL Advisors -> Embedded scoring & ranking")
-        print("    * Agentic Planner -> Executes with verification")
-        print("    * Immutable Log -> Single source of truth (signed)")
-        print("\n  [TRIGGERS] Intelligent Triggers:")
-        print("    * Proactive ML -> Forecasts & predictions")
-        print("    * Cross-Domain -> Health graph monitoring")
-        print("    * Pattern Detection -> Recurring issue analysis")
+        print("  • Predict incidents before they occur (proactive)")
+        print("  • Enrich events with intent and context")
+        print("  • Make decisions with trust core partnership")
+        print("  • Plan and execute recovery actions")
+        print("  • Learn from outcomes and self-improve")
+        print("  • Collaborate with humans proactively")
+        print("  • Manage her own resources")
+        print("  • Monitor ethics and compliance")
+        print("  • Supervise her own behavior cross-domain")
         print("\n" + "=" * 60)
-    
-    async def _register_domains(self):
-        """Register domain adapters with agent core"""
-        
-        # Register Self-Healing domain (agentic self-healing)
-        try:
-            from .self_heal.adapter import self_healing_adapter
-            await agent_core.register_domain(self_healing_adapter)
-            # Start proactive predictor
-            await self_healing_adapter.start_predictor()
-        except Exception as e:
-            print(f"  Warning: Could not register Self-Healing domain: {e}")
-        
-        # Register Core domain (pilot)
-        try:
-            from .domains.core_domain_adapter import core_domain_adapter
-            await agent_core.register_domain(core_domain_adapter)
-        except Exception as e:
-            print(f"  Warning: Could not register Core domain: {e}")
-        
-        # TODO(ROADMAP): Register other domains as they're implemented
-        # from .domains.knowledge_adapter import knowledge_adapter
-        # await agent_core.register_domain(knowledge_adapter)
-        
-        domain_count = len(agent_core.domains)
-        print(f"  [OK] Registered {domain_count} domain(s) with agent core")
     
     async def stop(self):
         """Gracefully stop all agentic systems"""
         
-        print("\nGracefully shutting down GRACE agentic spine...")
-        
-        # Stop intelligent systems (reverse order)
-        try:
-            from .self_heal.meta_coordinated_healing import meta_coordinated_healing
-            from .self_heal.intelligent_triggers import intelligent_trigger_manager
-            from .immutable_log_integration import log_analyzer
-            from .agentic_memory import agentic_memory
-            
-            await meta_coordinated_healing.stop()
-            await intelligent_trigger_manager.stop()
-            await log_analyzer.stop()
-            await agentic_memory.stop()
-        except Exception:
-            pass
-        
-        # Stop self-healing predictor
-        try:
-            from .self_heal.adapter import self_healing_adapter
-            await self_healing_adapter.stop_predictor()
-        except Exception:
-            pass
+        print("\n🛑 Gracefully shutting down GRACE agentic spine...")
         
         await shard_coordinator.stop()
-        print("  [OK] Shard coordinator stopped")
+        print("  ✓ Shard coordinator stopped")
         
         await agentic_observability.stop()
-        print("  [OK] Agentic observability stopped")
+        print("  ✓ Agentic observability stopped")
         
         await proactive_intelligence.stop()
-        print("  [OK] Proactive intelligence stopped")
+        print("  ✓ Proactive intelligence stopped")
         
         await meta_loop_supervisor.stop()
-        print("  [OK] Meta loop supervisor stopped")
+        print("  ✓ Meta loop supervisor stopped")
         
         await ethics_sentinel.stop()
-        print("  [OK] Ethics sentinel stopped")
+        print("  ✓ Ethics sentinel stopped")
         
         await resource_stewardship.stop()
-        print("  [OK] Resource stewardship stopped")
+        print("  ✓ Resource stewardship stopped")
         
         await human_collaboration.stop()
-        print("  [OK] Human collaboration stopped")
+        print("  ✓ Human collaboration stopped")
         
         await agentic_spine.stop()
-        print("  [OK] Agentic spine stopped")
+        print("  ✓ Agentic spine stopped")
         
         await trigger_mesh.stop()
-        print("  [OK] Trigger mesh stopped")
+        print("  ✓ Trigger mesh stopped")
         
         self.running = False
         
@@ -254,7 +171,7 @@ class GraceAgenticSystem:
             result="deactivated"
         )
         
-        print("\nGRACE agentic spine shutdown complete")
+        print("\n✅ GRACE agentic spine shutdown complete")
     
     async def health_check(self) -> Dict[str, Any]:
         """Check health of all agentic systems"""

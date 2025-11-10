@@ -1,4 +1,4 @@
-﻿"""Grace Self-Awareness System
+"""Grace Self-Awareness System
 
 Grace understands her complete internal world:
 - What every component is
@@ -269,7 +269,7 @@ class GraceSelfAwareness:
             )
             components_learned += 1
             
-            print(f"[OK] Learned: {filename}")
+            print(f"✓ Learned: {filename}")
             print(f"  What: {knowledge['what']}")
             print(f"  Why: {knowledge['why']}")
             print()
@@ -278,7 +278,7 @@ class GraceSelfAwareness:
         await self._build_world_map(systems)
         
         print("="*70)
-        print(f"[OK] COMPLETE - Grace learned {components_learned} components")
+        print(f"✓ COMPLETE - Grace learned {components_learned} components")
         print("="*70)
         print()
         print("Grace now knows:")

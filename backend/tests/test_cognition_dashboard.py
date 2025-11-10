@@ -1,4 +1,4 @@
-﻿"""
+"""
 Integration tests for Cognition Dashboard System
 """
 
@@ -232,35 +232,35 @@ if __name__ == "__main__":
         
         print("1. Testing metrics collector...")
         await test_metrics_collector()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("2. Testing cognition engine...")
         await test_cognition_engine()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("3. Testing metric publishers...")
         await test_metric_publishers()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("4. Testing publish functions...")
         await test_publish_convenience_functions()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("5. Testing benchmark windows...")
         await test_benchmark_windows()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("6. Testing domain status...")
         await test_domain_status()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("7. Testing readiness next steps...")
         await test_readiness_next_steps()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("8. Testing thread safety...")
         test_metrics_collector_thread_safety()
-        print("   [OK] Passed\n")
+        print("   ✓ Passed\n")
         
         print("All tests passed! ✅")
     

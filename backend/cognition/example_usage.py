@@ -1,4 +1,4 @@
-﻿"""Simple Cognition System Usage Examples
+"""Simple Cognition System Usage Examples
 
 Demonstrates how to use cognition components in a real workflow.
 """
@@ -50,7 +50,7 @@ async def example_1_simple_output_validation():
     print(f"✅ Lint check: {'PASSED' if lint_report.passed else 'FAILED'}")
     if lint_report.violations:
         for v in lint_report.violations:
-            print(f"   [WARN]  {v.severity.value}: {v.description}")
+            print(f"   ⚠️  {v.severity.value}: {v.description}")
     
     # Validate with governance
     governance = GovernancePrimeDirective()
@@ -184,10 +184,10 @@ def example_3_memory_trust_scoring():
     
     print(f"\n✅ High-quality memory:")
     print(f"   Trust score: {high_quality:.3f}")
-    print(f"   [OK] Provenance verified")
-    print(f"   [OK] 95% consensus agreement")
-    print(f"   [OK] Governance compliant")
-    print(f"   [OK] 92% usage success rate")
+    print(f"   ✓ Provenance verified")
+    print(f"   ✓ 95% consensus agreement")
+    print(f"   ✓ Governance compliant")
+    print(f"   ✓ 92% usage success rate")
     
     # Scenario 2: Uncertain memory
     uncertain = scorer.calculate_trust_score(
@@ -197,12 +197,12 @@ def example_3_memory_trust_scoring():
         usage_success_rate=0.50
     )
     
-    print(f"\n[WARN]  Uncertain memory:")
+    print(f"\n⚠️  Uncertain memory:")
     print(f"   Trust score: {uncertain:.3f}")
-    print(f"   [OK] Provenance verified")
-    print(f"   [WARN]  60% consensus agreement")
-    print(f"   [OK] Governance compliant")
-    print(f"   [WARN]  50% usage success rate")
+    print(f"   ✓ Provenance verified")
+    print(f"   ⚠️  60% consensus agreement")
+    print(f"   ✓ Governance compliant")
+    print(f"   ⚠️  50% usage success rate")
     
     # Scenario 3: Low-quality memory
     low_quality = scorer.calculate_trust_score(
@@ -214,10 +214,10 @@ def example_3_memory_trust_scoring():
     
     print(f"\n❌ Low-quality memory:")
     print(f"   Trust score: {low_quality:.3f}")
-    print(f"   [FAIL] Provenance NOT verified")
-    print(f"   [FAIL] Only 40% consensus")
-    print(f"   [FAIL] Governance violations")
-    print(f"   [FAIL] 30% usage success rate")
+    print(f"   ✗ Provenance NOT verified")
+    print(f"   ✗ Only 40% consensus")
+    print(f"   ✗ Governance violations")
+    print(f"   ✗ 30% usage success rate")
     
     # Show decay over time
     print(f"\n⏱️  Time decay simulation (half-life: 7 days):")
@@ -289,9 +289,9 @@ async def example_4_complete_workflow():
     
     # Step 5: Simulate storage and usage
     print(f"\n5️⃣  Memory Lifecycle")
-    print(f"   [OK] Stored in LoopMemoryBank")
-    print(f"   [OK] Indexed by policy tags: {', '.join(output.policy_tags)}")
-    print(f"   [OK] Available for future loops")
+    print(f"   ✓ Stored in LoopMemoryBank")
+    print(f"   ✓ Indexed by policy tags: {', '.join(output.policy_tags)}")
+    print(f"   ✓ Available for future loops")
     
     print(f"\n✅ Workflow complete! Output processed and stored.")
 

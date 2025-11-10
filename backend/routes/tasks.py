@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import select
 from ..auth import get_current_user
 from ..models import Task, async_session
+=======
 from ..schemas import TaskResponse
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 
@@ -20,46 +22,20 @@ class TaskUpdate(BaseModel):
     status: Optional[str] = None
     priority: Optional[str] = None
 
-@router.get("/", response_model=List[TaskResponse])
-async def get_tasks(current_user: str = Depends(get_current_user)):
-    async with async_session() as session:
-        result = await session.execute(
-            select(Task)
-            .where(Task.user == current_user)
-            .order_by(Task.created_at.desc())
-        )
-        return result.scalars().all()
+<<<<<<< HEAD
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    status: str
+    priority: str
+    auto_generated: bool
+    created_at: datetime
+    completed_at: Optional[datetime]
+    
+    class Config:
+        from_attributes = True
 
-@router.post("/", response_model=TaskResponse)
-async def create_task(
-    task: TaskCreate,
-    current_user: str = Depends(get_current_user)
-):
-    async with async_session() as session:
-        new_task = Task(
-            user=current_user,
-            title=task.title,
-            description=task.description,
-            priority=task.priority
-        )
-        session.add(new_task)
-        await session.commit()
-        await session.refresh(new_task)
-        return new_task
-
-@router.patch("/{task_id}", response_model=TaskResponse)
-async def update_task(
-    task_id: int,
-    task_update: TaskUpdate,
-    current_user: str = Depends(get_current_user)
-):
-    async with async_session() as session:
-        result = await session.execute(
-            select(Task).where(Task.id == task_id, Task.user == current_user)
-        )
-        task = result.scalar_one_or_none()
-        if not task:
-            raise HTTPException(status_code=404, detail="Task not found")
         
         if task_update.title:
             task.title = task_update.title

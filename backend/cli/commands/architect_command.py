@@ -1,4 +1,4 @@
-﻿"""Grace Architect CLI Commands
+"""Grace Architect CLI Commands
 
 CLI interface for the Grace Architect Agent - an Amp-like agent
 specialized for Grace development.
@@ -23,7 +23,7 @@ async def learn_architecture():
     print("GRACE ARCHITECT: LEARNING ARCHITECTURE".center(80))
     print("="*80 + "\n")
     
-    print("[INFO] Analyzing Grace codebase...")
+    print("📚 Analyzing Grace codebase...")
     print("   - Scanning all 12 phases")
     print("   - Extracting integration patterns")
     print("   - Learning constitutional flows")
@@ -298,7 +298,7 @@ async def show_knowledge():
             print("No patterns learned yet. Run: grace architect learn")
             return
         
-        print(f"[INFO] Total Patterns: {len(all_patterns)}")
+        print(f"📚 Total Patterns: {len(all_patterns)}")
         print()
         
         # By category

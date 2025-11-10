@@ -1,4 +1,4 @@
-﻿"""
+"""
 Knowledge Discovery Scheduler
 
 Periodically identifies knowledge coverage gaps and queues discovery requests
@@ -61,7 +61,7 @@ class KnowledgeDiscoveryScheduler:
             return
         self._running = True
         self._task = asyncio.create_task(self._loop())
-        print(f"[OK] Knowledge discovery scheduler started (interval: {self.interval_seconds}s)")
+        print(f"✓ Knowledge discovery scheduler started (interval: {self.interval_seconds}s)")
 
     async def stop(self) -> None:
         self._running = False
@@ -72,7 +72,7 @@ class KnowledgeDiscoveryScheduler:
             except asyncio.CancelledError:
                 pass
             self._task = None
-        print("[OK] Knowledge discovery scheduler stopped")
+        print("✓ Knowledge discovery scheduler stopped")
 
     async def _loop(self) -> None:
         try:

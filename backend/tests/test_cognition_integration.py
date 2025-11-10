@@ -1,4 +1,4 @@
-﻿"""Integration tests for complete cognition pipeline"""
+"""Integration tests for complete cognition pipeline"""
 
 import pytest
 import sys

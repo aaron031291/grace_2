@@ -10,7 +10,9 @@ from ..settings import settings
 from ..health_models import Service, HealthSignal, HealthState
 from ..health.aggregator import compute_health_state
 from ..health.triage import diagnose
+=======
 from ..schemas_extended import HealthIngestSignalResponse, HealthStateResponse, TriageDiagnoseResponse
+>>>>>>> origin/main
 
 router = APIRouter(tags=["health-unified"])  # prefix added conditionally in main
 
@@ -36,7 +38,8 @@ async def _get_or_create_service(session: AsyncSession, name: str) -> Service:
     return svc
 
 
-@router.post("/health/ingest_signal", response_model=HealthIngestSignalResponse)
+<<<<<<< HEAD
+@router.post("/health/ingest_signal")
 async def ingest_signal(payload: SignalIngest, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -53,16 +56,10 @@ async def ingest_signal(payload: SignalIngest, current_user: str = Depends(get_c
         )
         session.add(sig)
         await session.commit()
-        return HealthIngestSignalResponse(
-            ok=True,
-            service_id=svc.id,
-            signal_id=sig.id,
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return {"ok": True, "service_id": svc.id, "signal_id": sig.id}
 
 
-@router.get("/health/state", response_model=HealthStateResponse)
+@router.get("/health/state")
 async def get_health_state(service: str = Query(...), current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -91,21 +88,19 @@ async def get_health_state(service: str = Query(...), current_user: str = Depend
             )
             session.add(st)
         await session.commit()
-        return HealthStateResponse(
-            service=svc.name,
-            status=st.status,
-            confidence=st.confidence,
-            top_symptoms=st.top_symptoms,
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return {
+            "service": svc.name,
+            "status": st.status,
+            "confidence": st.confidence,
+            "top_symptoms": st.top_symptoms,
+        }
 
 
 class DiagnoseRequest(BaseModel):
     service: str
 
 
-@router.post("/triage/diagnose", response_model=TriageDiagnoseResponse)
+@router.post("/triage/diagnose")
 async def triage_diagnose(req: DiagnoseRequest, current_user: str = Depends(get_current_user)):
     if not (settings.SELF_HEAL_OBSERVE_ONLY or settings.SELF_HEAL_EXECUTE):
         raise HTTPException(status_code=404, detail="Endpoint disabled")
@@ -116,9 +111,4 @@ async def triage_diagnose(req: DiagnoseRequest, current_user: str = Depends(get_
         )
         signals = res.scalars().all()
         findings = diagnose(svc.id, signals)
-        return TriageDiagnoseResponse(
-            service=svc.name,
-            diagnoses=findings,
-            execution_trace=None,
-            data_provenance=[]
-        )
+        return {"service": svc.name, "diagnoses": findings}

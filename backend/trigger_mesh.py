@@ -26,12 +26,21 @@ class TriggerMesh:
         self.router_task: Optional[asyncio.Task] = None
         self._running = False
     
+    class _NoOpAwaitable:
+        def __await__(self):
+            if False:
+                yield None
+            return None
+
     def subscribe(self, event_pattern: str, handler: Callable):
-        """Subscribe to event types (synchronous for ease of use)"""
+        """Subscribe to event types (awaitable-compatible).
+        Returns an awaitable no-op so both `subscribe(...)` and `await subscribe(...)` work.
+        """
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = set()
         self.subscribers[event_pattern].add(handler)
         print(f"[OK] Subscribed to {event_pattern}")
+        return self._NoOpAwaitable()
     
     async def publish(self, event: TriggerEvent):
         """Publish event to mesh"""
@@ -47,36 +56,20 @@ class TriggerMesh:
             payload=event.payload,
             result="published"
         )
-        
-        # Log to unified logger (trigger mesh table + data cube)
-        try:
-            from .unified_logger import unified_logger
-            await unified_logger.log_trigger_mesh_event(
-                event_id=event.event_id,
-                event_type=event.event_type,
-                source=event.source,
-                actor=event.actor,
-                resource=event.resource,
-                payload=event.payload,
-                handlers_notified=0  # Will be updated when routed
-            )
-        except Exception as e:
-            # Don't fail publish if logging fails
-            pass
     
     async def start(self):
         """Start event router"""
         if not self._running:
             self._running = True
             self.router_task = asyncio.create_task(self._route_events())
-            print("[OK] Trigger Mesh started")
+            print("✓ Trigger Mesh started")
     
     async def stop(self):
         """Stop event router"""
         self._running = False
         if self.router_task:
             self.router_task.cancel()
-        print("[OK] Trigger Mesh stopped")
+        print("✓ Trigger Mesh stopped")
     
     async def _route_events(self):
         """Background router distributing events"""
@@ -90,7 +83,7 @@ class TriggerMesh:
                             try:
                                 await handler(event)
                             except Exception as e:
-                                print(f"[FAIL] Event handler error: {e}")
+                                print(f"✗ Event handler error: {e}")
                 
                 self.event_queue.task_done()
         except asyncio.CancelledError:
@@ -130,9 +123,29 @@ async def setup_subscriptions():
         if event.payload.get("decision") in ["block", "review"]:
             from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
+    async def on_autonomy_event(event: TriggerEvent):
+        """Update metrics based on autonomy plan outcomes"""
+        try:
+            if event.event_type == "autonomy.plan_outcome":
+                success = bool(event.payload.get("success", False))
+                # Publish to metrics: use transcendence.task_success as proxy for plan success
+                from .metrics_service import publish_metric
+                await publish_metric(
+                    "transcendence",
+                    "task_success",
+                    1.0 if success else 0.0,
+                    {
+                        "source": event.source,
+                        "extension_id": event.payload.get("extension_id"),
+                        "resource": event.resource,
+                    },
+                )
+        except Exception as e:
+            print(f"✗ Autonomy metrics handler error: {e}")
     
-    trigger_mesh.subscribe("memory.*", on_memory_event)
-    trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
-    trigger_mesh.subscribe("governance.*", on_governance_event)
+    await trigger_mesh.subscribe("memory.*", on_memory_event)
+    await trigger_mesh.subscribe("sandbox.*", on_sandbox_event)
+    await trigger_mesh.subscribe("governance.*", on_governance_event)
+    await trigger_mesh.subscribe("autonomy.*", on_autonomy_event)
     
-    print("[OK] Trigger Mesh subscriptions configured")
+    print("✓ Trigger Mesh subscriptions configured")

@@ -1,4 +1,4 @@
-﻿"""Grace Parliament Agent
+"""Grace Parliament Agent
 
 Grace as an autonomous voting member of the Parliament system.
 Uses reflection, causal reasoning, Hunter alerts, and verification history.
@@ -49,11 +49,11 @@ class GraceVotingAgent:
                 vote_weight=1.0
             )
             self.registered = True
-            print(f"[OK] Grace registered as parliament member: {self.member_id}")
+            print(f"✓ Grace registered as parliament member: {self.member_id}")
         except Exception as e:
             if "UNIQUE constraint failed" in str(e) or "already exists" in str(e).lower():
                 self.registered = True
-                print(f"[OK] Grace already registered as parliament member")
+                print(f"✓ Grace already registered as parliament member")
             else:
                 raise
     
@@ -287,7 +287,7 @@ class GraceVotingAgent:
                     })
                 except Exception as e:
                     results["skipped"] += 1
-                    print(f"[WARN]  Failed to vote on {session_id}: {e}")
+                    print(f"⚠️  Failed to vote on {session_id}: {e}")
             else:
                 results["skipped"] += 1
         

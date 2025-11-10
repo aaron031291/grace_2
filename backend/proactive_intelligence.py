@@ -1,4 +1,4 @@
-﻿"""
+"""
 Proactive Intelligence - Predict & Prevent Before Incidents Occur
 
 Shifts GRACE from reactive (responding to incidents) to predictive
@@ -793,13 +793,13 @@ class ProactiveIntelligence:
     async def start(self):
         """Start proactive intelligence"""
         
-        trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
-        trigger_mesh.subscribe("health.*", self._handle_health_event)
+        await trigger_mesh.subscribe("metrics.*", self._handle_metric_event)
+        await trigger_mesh.subscribe("health.*", self._handle_health_event)
         
         asyncio.create_task(self._prediction_loop())
         
         self.running = True
-        print("[OK] Proactive Intelligence started - GRACE now predicts & prevents")
+        print("✓ Proactive Intelligence started - GRACE now predicts & prevents")
     
     async def stop(self):
         """Stop proactive intelligence"""
@@ -817,7 +817,7 @@ class ProactiveIntelligence:
                 await self._run_risk_assessment()
                 
             except Exception as e:
-                print(f"[FAIL] Prediction cycle error: {e}")
+                print(f"✗ Prediction cycle error: {e}")
             
             await asyncio.sleep(self.prediction_interval_seconds)
     
@@ -932,7 +932,7 @@ class ProactiveIntelligence:
             timestamp=datetime.utcnow()
         ))
         
-        print(f"  [WARN]  Preventive action: {forecast.recommended_action}")
+        print(f"  ⚠️  Preventive action: {forecast.recommended_action}")
     
     async def _issue_capacity_directive(self, prediction: CapacityPrediction):
         """Issue capacity scaling directive"""

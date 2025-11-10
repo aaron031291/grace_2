@@ -192,7 +192,7 @@ class GraceLoopOutput:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'GraceLoopOutput':
         """Create from dictionary"""
-        # TODO(FUTURE): Implement full deserialization
+        # TODO: Implement full deserialization
         return cls(
             loop_id=data['loop_id'],
             component=data['component'],

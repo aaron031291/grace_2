@@ -12,11 +12,13 @@ from ..dev_workflow import dev_workflow
 from ..auth import get_current_user
 from ..agentic import coding_orchestrator
 from ..agentic.orchestrator import OrchestrationPlan
+=======
 from ..schemas import (
     CodeParseResponse, CodeContextResponse, CodeSuggestionsResponse, CodeIntentResponse,
     CodeGenerateResponse, CodeTaskResponse, CodeTaskProgressResponse, CodeRelatedResponse,
     CodePatternsResponse, CodeOrchestrationPlanResponse, CodeOrchestrationExecuteResponse
 )
+>>>>>>> origin/main
 
 router = APIRouter(prefix="/api/code", tags=["coding_agent"])
 
@@ -103,10 +105,11 @@ def _plan_to_dict(plan: OrchestrationPlan) -> Dict[str, Any]:
         "created_at": plan.created_at.isoformat(),
     }
 
-@router.post("/parse", response_model=CodeParseResponse)
+<<<<<<< HEAD
+@router.post("/parse")
 async def parse_codebase(
     request: ParseCodebaseRequest,
-    current_user: Optional[Dict] = None
+    current_user: Dict = Depends(get_current_user)
 ):
     """
     Parse codebase into Grace's memory
@@ -129,7 +132,7 @@ async def parse_codebase(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/understand", response_model=CodeContextResponse)
+@router.post("/understand")
 async def analyze_context(
     request: AnalyzeContextRequest,
     current_user: Dict = Depends(get_current_user)
@@ -156,7 +159,7 @@ async def analyze_context(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/suggest", response_model=CodeSuggestionsResponse)
+@router.post("/suggest")
 async def get_suggestions(
     request: AnalyzeContextRequest,
     current_user: Dict = Depends(get_current_user)
@@ -186,7 +189,7 @@ async def get_suggestions(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/intent", response_model=CodeIntentResponse)
+@router.post("/intent")
 async def understand_intent(
     request: UnderstandIntentRequest,
     current_user: Dict = Depends(get_current_user)
@@ -209,7 +212,7 @@ async def understand_intent(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/generate/function", response_model=CodeGenerateResponse)
+@router.post("/generate/function")
 async def generate_function(
     request: GenerateFunctionRequest,
     current_user: Dict = Depends(get_current_user)
@@ -240,7 +243,7 @@ async def generate_function(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/generate/class", response_model=CodeGenerateResponse)
+@router.post("/generate/class")
 async def generate_class(
     request: GenerateClassRequest,
     current_user: Dict = Depends(get_current_user)
@@ -271,7 +274,7 @@ async def generate_class(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/generate/tests", response_model=CodeGenerateResponse)
+@router.post("/generate/tests")
 async def generate_tests(
     request: GenerateTestsRequest,
     current_user: Dict = Depends(get_current_user)
@@ -295,7 +298,7 @@ async def generate_tests(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/fix", response_model=CodeGenerateResponse)
+@router.post("/fix")
 async def fix_errors(
     request: FixErrorsRequest,
     current_user: Dict = Depends(get_current_user)
@@ -319,7 +322,7 @@ async def fix_errors(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/refactor", response_model=CodeGenerateResponse)
+@router.post("/refactor")
 async def refactor_code(
     request: RefactorCodeRequest,
     current_user: Dict = Depends(get_current_user)
@@ -343,7 +346,7 @@ async def refactor_code(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/patterns", response_model=CodePatternsResponse)
+@router.get("/patterns")
 async def search_patterns(
     query: str,
     language: str = "python",
@@ -370,7 +373,7 @@ async def search_patterns(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/task", response_model=CodeTaskResponse)
+@router.post("/task")
 async def submit_task(
     request: SubmitTaskRequest,
     current_user: Dict = Depends(get_current_user)
@@ -402,7 +405,7 @@ async def submit_task(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/task/{task_id}/progress", response_model=CodeTaskProgressResponse)
+@router.get("/task/{task_id}/progress")
 async def get_task_progress(
     task_id: str,
     current_user: Dict = Depends(get_current_user)
@@ -422,7 +425,7 @@ async def get_task_progress(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/related", response_model=CodeRelatedResponse)
+@router.post("/related")
 async def find_related_code(
     pattern: str,
     context: Optional[Dict[str, Any]] = None,
@@ -449,7 +452,7 @@ async def find_related_code(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/orchestrate/plan", response_model=CodeOrchestrationPlanResponse)
+@router.post("/orchestrate/plan")
 async def orchestrate_plan(
     request: OrchestratePlanRequest,
     current_user: Dict = Depends(get_current_user)
@@ -470,7 +473,7 @@ async def orchestrate_plan(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/orchestrate/execute", response_model=CodeOrchestrationExecuteResponse)
+@router.post("/orchestrate/execute")
 async def execute_orchestration(
     request: ExecuteOrchestrationRequest,
     current_user: Dict = Depends(get_current_user)
@@ -500,7 +503,7 @@ async def execute_orchestration(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/orchestrate/run", response_model=CodeOrchestrationExecuteResponse)
+@router.post("/orchestrate/run")
 async def quick_orchestration(
     request: OrchestratePlanRequest,
     current_user: Dict = Depends(get_current_user)

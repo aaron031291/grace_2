@@ -691,37 +691,59 @@ class BootDiagnostics:
         print()
     
     async def _create_capa_tickets_if_needed(self, report: Dict[str, Any]):
-        """Create CAPA tickets for critical findings"""
+        """Create CAPA tickets for critical findings using auto_create_from_diagnostic helper"""
         
-        if not self.severity_levels["critical"]:
+        critical_findings = self.severity_levels.get("critical", [])
+        high_findings = self.severity_levels.get("high", [])
+        
+        if not critical_findings and not high_findings:
             return
         
-        logger.info(f"[DIAGNOSTICS] Creating CAPA tickets for {len(self.severity_levels['critical'])} critical findings...")
-        
         try:
-            from backend.capa_system import capa_system
-            import inspect
+            from backend.integrations.capa_system import auto_create_from_diagnostic, ENABLE_CAPA_AUTOCREATE
             
-            # Check CAPA method signature to use correct parameters
-            create_capa_sig = inspect.signature(capa_system.create_capa)
-            params = list(create_capa_sig.parameters.keys())
+            if not ENABLE_CAPA_AUTOCREATE:
+                logger.debug("[DIAGNOSTICS] CAPA auto-creation disabled (ENABLE_CAPA_AUTOCREATE=0)")
+                return
             
-            for finding in self.severity_levels["critical"]:
-                # Match CAPASystem.create_capa signature
-                # Required: title, description, capa_type, severity, source
-                from backend.capa_system import CAPAType, CAPASeverity
-                
-                await capa_system.create_capa(
-                    title=f"Boot Diagnostic: {finding['type']}",
-                    description=finding["message"],
-                    capa_type=CAPAType.CORRECTIVE,
-                    severity=CAPASeverity.HIGH,
-                    source="boot_diagnostics",
-                    detected_by="boot_diagnostics",
-                    evidence=finding["context"]
-                )
+            logger.info(f"[DIAGNOSTICS] Auto-creating CAPA tickets for {len(critical_findings)} critical + {len(high_findings)} high findings...")
             
-            logger.info(f"[DIAGNOSTICS] Created {len(self.severity_levels['critical'])} CAPA tickets")
+            tickets_created = 0
+            
+            # Process critical findings
+            for finding in critical_findings:
+                diagnostic = {
+                    "diagnosis": finding.get("type", "unknown_issue"),
+                    "severity": "critical",
+                    "status": "failed",
+                    "details": finding.get("message", "No details provided"),
+                    "summary": f"Boot diagnostic critical finding: {finding.get('type', 'unknown')}",
+                    "context": finding.get("context", {}),
+                    "remediation": finding.get("remediation", "No remediation provided"),
+                }
+                ticket = await auto_create_from_diagnostic(diagnostic)
+                if ticket:
+                    tickets_created += 1
+            
+            # Process high findings
+            for finding in high_findings:
+                diagnostic = {
+                    "diagnosis": finding.get("type", "unknown_issue"),
+                    "severity": "high",
+                    "status": "degraded",
+                    "details": finding.get("message", "No details provided"),
+                    "summary": f"Boot diagnostic high-priority finding: {finding.get('type', 'unknown')}",
+                    "context": finding.get("context", {}),
+                    "remediation": finding.get("remediation", "No remediation provided"),
+                }
+                ticket = await auto_create_from_diagnostic(diagnostic)
+                if ticket:
+                    tickets_created += 1
+            
+            if tickets_created > 0:
+                logger.info(f"[DIAGNOSTICS] Created {tickets_created} CAPA tickets successfully")
+            else:
+                logger.info(f"[DIAGNOSTICS] No CAPA tickets created (eligibility criteria not met)")
             
         except Exception as e:
             logger.warning(f"[DIAGNOSTICS] Could not create CAPA tickets: {e}")
