@@ -1,24 +1,138 @@
 #!/usr/bin/env python3
 """
-Grace CLI entry point script
+Universal Grace Launcher - Works on ALL Operating Systems
+One command to rule them all: ./grace
 """
-
 import sys
-import asyncio
+import subprocess
+import platform
+import os
 from pathlib import Path
 
-# Add CLI directory to path
-cli_dir = Path(__file__).parent
-sys.path.insert(0, str(cli_dir))
+def detect_os_details():
+    """Detect detailed OS information"""
+    system = platform.system().lower()
+    machine = platform.machine().lower()
+    release = platform.release()
+    
+    # Detailed OS detection
+    if system == "windows":
+        return "windows", "powershell"
+    elif system == "darwin":
+        return "macos", "bash"
+    elif system == "linux":
+        # Detect Linux distribution
+        try:
+            with open('/etc/os-release', 'r') as f:
+                content = f.read().lower()
+                if 'ubuntu' in content:
+                    return "ubuntu", "bash"
+                elif 'debian' in content:
+                    return "debian", "bash"
+                elif 'centos' in content or 'rhel' in content:
+                    return "centos", "bash"
+                elif 'fedora' in content:
+                    return "fedora", "bash"
+                elif 'arch' in content:
+                    return "arch", "bash"
+                elif 'alpine' in content:
+                    return "alpine", "sh"
+                else:
+                    return "linux", "bash"
+        except:
+            return "linux", "bash"
+    elif system == "freebsd":
+        return "freebsd", "sh"
+    elif system == "openbsd":
+        return "openbsd", "sh"
+    elif system == "netbsd":
+        return "netbsd", "sh"
+    elif system == "sunos":
+        return "solaris", "bash"
+    elif system == "aix":
+        return "aix", "ksh"
+    else:
+        return "unknown", "sh"
 
-from enhanced_grace_cli import main
+def get_launcher_command(os_type, shell_type):
+    """Get appropriate launcher command for OS"""
+    launchers = {
+        # Windows variants
+        "windows": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "RUN_GRACE.ps1"],
+        
+        # macOS
+        "macos": [sys.executable, "backend/grace.py"],
+        
+        # Linux distributions
+        "ubuntu": [sys.executable, "backend/grace.py"],
+        "debian": [sys.executable, "backend/grace.py"],
+        "centos": [sys.executable, "backend/grace.py"],
+        "fedora": [sys.executable, "backend/grace.py"],
+        "arch": [sys.executable, "backend/grace.py"],
+        "alpine": [sys.executable, "backend/grace.py"],
+        "linux": [sys.executable, "backend/grace.py"],
+        
+        # BSD variants
+        "freebsd": [sys.executable, "backend/grace.py"],
+        "openbsd": [sys.executable, "backend/grace.py"],
+        "netbsd": [sys.executable, "backend/grace.py"],
+        
+        # Unix variants
+        "solaris": [sys.executable, "backend/grace.py"],
+        "aix": [sys.executable, "backend/grace.py"],
+        
+        # Fallback
+        "unknown": [sys.executable, "backend/grace.py"]
+    }
+    
+    return launchers.get(os_type, launchers["unknown"])
+
+def check_dependencies(os_type):
+    """Check OS-specific dependencies"""
+    print(f"🔍 Detected: {os_type.title()}")
+    
+    # Check Python
+    if sys.version_info < (3, 9):
+        print(f"⚠️  Python {sys.version_info.major}.{sys.version_info.minor} detected. Python 3.9+ recommended.")
+    
+    # OS-specific checks
+    if os_type == "alpine":
+        print("📦 Alpine Linux: Ensure python3-dev and gcc are installed")
+    elif os_type == "centos":
+        print("📦 CentOS: Ensure python3-devel and gcc are installed")
+    elif os_type == "arch":
+        print("📦 Arch Linux: Ensure base-devel is installed")
+
+def main():
+    """Universal Grace launcher for all operating systems"""
+    try:
+        # Detect OS
+        os_type, shell_type = detect_os_details()
+        
+        # Check dependencies
+        check_dependencies(os_type)
+        
+        # Get launcher command
+        launcher_cmd = get_launcher_command(os_type, shell_type)
+        
+        # Add user arguments
+        full_cmd = launcher_cmd + sys.argv[1:]
+        
+        print(f"🚀 Starting Grace on {os_type.title()}...")
+        
+        # Execute launcher
+        result = subprocess.run(full_cmd)
+        sys.exit(result.returncode)
+        
+    except KeyboardInterrupt:
+        print("\n✅ Grace stopped")
+        sys.exit(0)
+    except Exception as e:
+        print(f"❌ Error starting Grace: {e}")
+        print(f"OS: {platform.system()} {platform.release()}")
+        print(f"Python: {sys.version}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nInterrupted by user")
-        sys.exit(130)
-    except Exception as e:
-        print(f"\nFatal error: {e}")
-        sys.exit(1)
+    main()
+
