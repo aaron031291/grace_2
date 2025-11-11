@@ -1,0 +1,3 @@
+[project.scripts]
+grace = "backend.grace_boot:main"
+grace-boot = "backend.grace_boot:main"
