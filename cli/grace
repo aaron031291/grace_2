@@ -1,36 +1,18 @@
-#!/usr/bin/env python3
-"""
-Grace Unified CLI - Cross-platform entry point
-"""
-import sys
-import os
-import subprocess
-from pathlib import Path
+#!/usr/bin/env bash
+# Grace CLI wrapper script
 
-def main():
-    """Main CLI entry point"""
-    # Find Grace root
-    script_path = Path(__file__).resolve()
-    grace_root = script_path.parent.parent
-    
-    # Add backend to Python path
-    backend_path = grace_root / "backend"
-    sys.path.insert(0, str(backend_path))
-    
-    # Import and run orchestrator
-    try:
-        from unified_grace_orchestrator import main as orchestrator_main
-        orchestrator_main()
-    except ImportError:
-        # Fallback to direct Python execution
-        python_cmd = [
-            sys.executable,
-            str(grace_root / "backend" / "unified_grace_orchestrator.py")
-        ] + sys.argv[1:]
-        
-        result = subprocess.run(python_cmd)
-        sys.exit(result.returncode)
+# Find Grace root directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GRACE_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
 
-if __name__ == "__main__":
-    main()
+# Activate virtual environment if it exists
+if [ -f "$GRACE_ROOT/.venv/bin/activate" ]; then
+    source "$GRACE_ROOT/.venv/bin/activate"
+elif [ -f "$GRACE_ROOT/venv/bin/activate" ]; then
+    source "$GRACE_ROOT/venv/bin/activate"
+fi
+
+# Run the orchestrator
+python -m backend.unified_grace_orchestrator "$@"
+
 

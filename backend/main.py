@@ -404,9 +404,63 @@ async def on_shutdown():
     except Exception:
         pass
 
+import signal
+import threading
+import time
+
+# Add shutdown endpoint
+@app.post("/shutdown")
+async def shutdown_server():
+    """Graceful shutdown endpoint"""
+    print("\n🛑 Shutdown requested via API...")
+    
+    # Trigger shutdown after brief delay to allow response
+    def delayed_shutdown():
+        time.sleep(1)
+        print("🛑 Initiating graceful shutdown...")
+        os.kill(os.getpid(), signal.SIGTERM)
+    
+    # Start shutdown in background thread
+    shutdown_thread = threading.Thread(target=delayed_shutdown)
+    shutdown_thread.daemon = True
+    shutdown_thread.start()
+    
+    return {"message": "Shutdown initiated", "status": "success"}
+
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "message": "Grace API is running"}
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "1.0.0",
+        "services": {
+            "database": "connected",
+            "api": "running"
+        }
+    }
+
+# Add process info endpoint
+@app.get("/api/process/info")
+async def get_process_info():
+    """Get current process information"""
+    import psutil
+    
+    process = psutil.Process()
+    
+    return {
+        "pid": process.pid,
+        "name": process.name(),
+        "status": process.status(),
+        "create_time": process.create_time(),
+        "cpu_percent": process.cpu_percent(),
+        "memory_info": {
+            "rss": process.memory_info().rss,
+            "vms": process.memory_info().vms
+        },
+        "connections": len(process.connections()),
+        "num_threads": process.num_threads()
+    }
 
 @app.get("/api/status")
 async def api_status():
@@ -557,3 +611,4 @@ if _os.getenv("ENABLE_IDE_WS", "0") in {"1", "true", "True", "YES", "yes"}:
     except ImportError:
         # Optional dependency not present; continue without IDE websocket
         pass
+

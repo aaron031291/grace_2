@@ -147,6 +147,10 @@ class GraceUnifiedOrchestrator:
         self.config: Dict[str, Any] = {}
         self.secrets: Dict[str, Any] = {}
         
+        # Process tracking
+        self.boot_id = f"boot_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.launched_processes: List[str] = []  # Track process IDs we launched
+        
         # Stage contracts
         self.stage_contracts = self._define_stage_contracts()
         
@@ -1169,23 +1173,56 @@ class GraceUnifiedOrchestrator:
         
         return status
 
-    async def stop(self):
-        """Stop all Grace services"""
+    async def stop(self, force: bool = False, timeout: int = 30) -> bool:
+        """Stop all Grace services using process registry"""
         self.logger.info("🛑 Stopping Grace services...")
-        await self._stop_all_services()
-        self.logger.info("✅ All services stopped")
+        
+        if self.dry_run:
+            self.logger.info("🔍 DRY RUN: Would stop all services")
+            return True
+        
+        # Stop all registered processes
+        results = await process_registry.stop_all_processes(force=force, timeout=timeout)
+        
+        # Clear our tracking
+        self.launched_processes.clear()
+        self.process_registry.clear()
+        
+        # Report results
+        total_stopped = len(results["stopped"]) + len(results["force_killed"])
+        total_failed = len(results["failed"])
+        
+        if total_failed == 0:
+            self.logger.info(f"✅ Successfully stopped {total_stopped} processes")
+            return True
+        else:
+            self.logger.warning(f"⚠️  Stopped {total_stopped} processes, {total_failed} failed")
+            return False
 
 
 def main():
-    """Main CLI entry point"""
+    """Enhanced main CLI with stop command"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Grace Unified Production Orchestrator")
+    parser = argparse.ArgumentParser(
+        description="Grace Unified Production Orchestrator",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  grace                                    # Boot development environment
+  grace --env prod --profile docker       # Boot production with Docker
+  grace --stop                            # Stop all Grace processes
+  grace --stop --force                    # Force stop all processes
+  grace --status                          # Show process status
+  grace --registry                        # Show process registry
+        """
+    )
+    
     parser.add_argument("--env", default="dev", choices=["dev", "staging", "prod"],
-                       help="Environment to boot")
+                       help="Environment to boot (default: dev)")
     parser.add_argument("--profile", default="native", 
                        choices=["native", "docker", "kubernetes", "safe_mode"],
-                       help="Boot profile")
+                       help="Boot profile (default: native)")
     parser.add_argument("--config", type=Path, help="Path to config file")
     parser.add_argument("--safe-mode", action="store_true",
                        help="Boot in safe mode (minimal services)")
@@ -1193,33 +1230,119 @@ def main():
                        help="Dry run (don't actually start services)")
     parser.add_argument("--status", action="store_true",
                        help="Show system status")
+    parser.add_argument("--registry", action="store_true",
+                       help="Show process registry")
     parser.add_argument("--stop", action="store_true",
                        help="Stop all Grace services")
+    parser.add_argument("--force", action="store_true",
+                       help="Force stop (use with --stop)")
+    parser.add_argument("--timeout", type=int, default=30,
+                       help="Shutdown timeout in seconds (default: 30)")
+    parser.add_argument("--watch", action="store_true",
+                       help="Watch status continuously")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                       help="Verbose output")
     
     args = parser.parse_args()
     
-    # Create orchestrator
-    orchestrator = GraceUnifiedOrchestrator(
-        environment=args.env,
-        profile=BootProfile(args.profile),
-        config_path=args.config,
-        safe_mode=args.safe_mode,
-        dry_run=args.dry_run
-    )
-    
     async def run_command():
-        if args.status:
-            status = await orchestrator.status()
-            print(json.dumps(status, indent=2))
-            return
-        
-        if args.stop:
-            await orchestrator.stop()
-            return
-        
-        # Boot Grace
-        success = await orchestrator.boot()
-        sys.exit(0 if success else 1)
+        try:
+            if args.registry:
+                process_registry.print_status()
+                return
+            
+            if args.stop:
+                print("🛑 Stopping all Grace processes...")
+                if args.force:
+                    print("⚠️  Force mode enabled - will kill stubborn processes")
+                
+                results = await process_registry.stop_all_processes(
+                    force=args.force, 
+                    timeout=args.timeout
+                )
+                
+                # Print detailed results
+                total_stopped = len(results["stopped"]) + len(results["force_killed"])
+                print(f"\n📊 SHUTDOWN RESULTS:")
+                print(f"✅ Stopped: {len(results['stopped'])}")
+                print(f"🔨 Force killed: {len(results['force_killed'])}")
+                print(f"❌ Failed: {len(results['failed'])}")
+                print(f"❓ Not found: {len(results['not_found'])}")
+                print(f"📈 Total: {total_stopped} processes stopped")
+                
+                if results["failed"]:
+                    print(f"\n⚠️  Failed to stop:")
+                    for process_id in results["failed"]:
+                        if process_id in process_registry.processes:
+                            proc_info = process_registry.processes[process_id]
+                            print(f"   • {proc_info.name} (PID: {proc_info.pid})")
+                    
+                    if not args.force:
+                        print(f"\n💡 Try: grace --stop --force")
+                
+                return
+            
+            # Create orchestrator for other commands
+            orchestrator = GraceUnifiedOrchestrator(
+                environment=args.env,
+                profile=BootProfile(args.profile),
+                config_path=args.config,
+                safe_mode=args.safe_mode,
+                dry_run=args.dry_run
+            )
+            
+            if args.status:
+                status = await orchestrator.status()
+                if args.verbose:
+                    print(json.dumps(status, indent=2))
+                else:
+                    orchestrator.print_status(status)
+                
+                # Also show process registry
+                print()
+                process_registry.print_status()
+                return
+            
+            if args.watch:
+                await watch_status(orchestrator)
+                return
+            
+            # Boot Grace
+            print(f"🚀 Starting Grace ({args.env}/{args.profile})")
+            if args.dry_run:
+                print("🔍 DRY RUN MODE - No services will actually start")
+            
+            success = await orchestrator.boot()
+            
+            if success:
+                print("\n✅ Grace boot completed successfully!")
+                print(f"🆔 Boot ID: {orchestrator.boot_id}")
+                print(f"📝 Launched {len(orchestrator.launched_processes)} processes")
+                
+                print("\n📋 Process Registry:")
+                process_registry.print_status()
+                
+                if not args.dry_run:
+                    print("\n💡 Commands:")
+                    print("   grace --status     # Check status")
+                    print("   grace --registry   # Show process registry")
+                    print("   grace --stop       # Stop all services")
+                    print("   grace --stop --force # Force stop all")
+            else:
+                print("\n❌ Grace boot failed!")
+                sys.exit(1)
+            
+        except KeyboardInterrupt:
+            print("\n🛑 Interrupted by user")
+            if 'orchestrator' in locals():
+                await orchestrator.stop()
+            sys.exit(0)
+        except Exception as e:
+            print(f"❌ Command failed: {e}")
+            if args.verbose:
+                import traceback
+                traceback.print_exc()
+            sys.exit(1)
     
     try:
         asyncio.run(run_command())
