@@ -1,138 +1,237 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Universal Grace Launcher - Works on ALL Operating Systems
-One command to rule them all: ./grace
+One command to rule them all: grace
 """
 import sys
 import subprocess
 import platform
 import os
 from pathlib import Path
+import time
 
-def detect_os_details():
-    """Detect detailed OS information"""
-    system = platform.system().lower()
-    machine = platform.machine().lower()
-    release = platform.release()
+# Get the directory where this script is located
+GRACE_ROOT = Path(__file__).parent.absolute()
+
+def setup_working_directory():
+    """Ensure we're in the Grace root directory"""
+    print(f"📁 Grace root: {GRACE_ROOT}")
     
-    # Detailed OS detection
-    if system == "windows":
-        return "windows", "powershell"
-    elif system == "darwin":
-        return "macos", "bash"
-    elif system == "linux":
-        # Detect Linux distribution
-        try:
-            with open('/etc/os-release', 'r') as f:
-                content = f.read().lower()
-                if 'ubuntu' in content:
-                    return "ubuntu", "bash"
-                elif 'debian' in content:
-                    return "debian", "bash"
-                elif 'centos' in content or 'rhel' in content:
-                    return "centos", "bash"
-                elif 'fedora' in content:
-                    return "fedora", "bash"
-                elif 'arch' in content:
-                    return "arch", "bash"
-                elif 'alpine' in content:
-                    return "alpine", "sh"
+    # Change to Grace directory
+    os.chdir(GRACE_ROOT)
+    print(f"📂 Working directory: {os.getcwd()}")
+    
+    # Verify critical files exist
+    critical_files = [
+        "backend/grace.py",
+        "backend/main.py",
+        "RUN_GRACE.ps1"
+    ]
+    
+    missing_files = []
+    for file_path in critical_files:
+        if not (GRACE_ROOT / file_path).exists():
+            missing_files.append(file_path)
+    
+    if missing_files:
+        print(f"❌ Missing files: {', '.join(missing_files)}")
+        print(f"❌ Are you in the Grace directory? Current: {GRACE_ROOT}")
+        return False
+    
+    print("✅ All critical files found")
+    return True
+
+def find_log_files():
+    """Find log files in various possible locations"""
+    possible_log_paths = [
+        GRACE_ROOT / "logs" / "backend.log",
+        GRACE_ROOT / "logs" / "grace.log",
+        GRACE_ROOT / "backend.log",
+        GRACE_ROOT / "grace.log",
+        GRACE_ROOT / "logs" / "ingestion.log",
+        GRACE_ROOT / "logs" / "ingestion_visual.log"
+    ]
+    
+    existing_logs = [path for path in possible_log_paths if path.exists()]
+    return existing_logs
+
+def tail_logs(lines=50):
+    """Cross-platform log tailing with directory awareness"""
+    log_files = find_log_files()
+    
+    if not log_files:
+        print("❌ No log files found in:")
+        print(f"   - {GRACE_ROOT}/logs/")
+        print(f"   - {GRACE_ROOT}/")
+        return
+    
+    # Use the most recent log file
+    latest_log = max(log_files, key=lambda p: p.stat().st_mtime)
+    
+    print(f"📜 Tailing {latest_log.name} (last {lines} entries)")
+    print(f"📁 Location: {latest_log}")
+    print("=" * 80)
+    
+    try:
+        with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
+            all_lines = f.readlines()
+            tail_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
+            
+            for i, line in enumerate(tail_lines, 1):
+                timestamp = ""
+                if line.startswith('[') or line.startswith('20'):
+                    timestamp = f"[{i:2d}] "
                 else:
-                    return "linux", "bash"
-        except:
-            return "linux", "bash"
-    elif system == "freebsd":
-        return "freebsd", "sh"
-    elif system == "openbsd":
-        return "openbsd", "sh"
-    elif system == "netbsd":
-        return "netbsd", "sh"
-    elif system == "sunos":
-        return "solaris", "bash"
-    elif system == "aix":
-        return "aix", "ksh"
+                    timestamp = f"[{i:2d}] "
+                print(f"{timestamp}{line.rstrip()}")
+                
+    except Exception as e:
+        print(f"❌ Error reading logs: {e}")
+
+def tail_logs_live():
+    """Live log streaming with directory awareness"""
+    log_files = find_log_files()
+    
+    if not log_files:
+        print("❌ No log files found")
+        return
+    
+    # Use the most recent log file
+    latest_log = max(log_files, key=lambda p: p.stat().st_mtime)
+    
+    print(f"📡 Live streaming: {latest_log.name}")
+    print(f"📁 Location: {latest_log}")
+    print("📡 Press Ctrl+C to stop...")
+    print("=" * 80)
+    
+    try:
+        with open(latest_log, 'r', encoding='utf-8', errors='ignore') as f:
+            # Go to end of file
+            f.seek(0, 2)
+            
+            while True:
+                line = f.readline()
+                if line:
+                    print(line.rstrip())
+                else:
+                    time.sleep(0.1)
+                    
+    except KeyboardInterrupt:
+        print("\n✅ Log streaming stopped")
+    except Exception as e:
+        print(f"❌ Error streaming logs: {e}")
+
+def get_launcher_command(os_type, args):
+    """Get appropriate launcher command for OS with proper paths"""
+    if os_type == "windows":
+        # Use full path to PowerShell script
+        ps_script = GRACE_ROOT / "RUN_GRACE.ps1"
+        return [
+            "powershell", 
+            "-ExecutionPolicy", "Bypass",
+            "-File", str(ps_script)
+        ] + args
     else:
-        return "unknown", "sh"
+        # Use full path to Python script
+        py_script = GRACE_ROOT / "backend" / "grace.py"
+        return [sys.executable, str(py_script)] + args
 
-def get_launcher_command(os_type, shell_type):
-    """Get appropriate launcher command for OS"""
-    launchers = {
-        # Windows variants
-        "windows": ["powershell", "-ExecutionPolicy", "Bypass", "-File", "RUN_GRACE.ps1"],
-        
-        # macOS
-        "macos": [sys.executable, "backend/grace.py"],
-        
-        # Linux distributions
-        "ubuntu": [sys.executable, "backend/grace.py"],
-        "debian": [sys.executable, "backend/grace.py"],
-        "centos": [sys.executable, "backend/grace.py"],
-        "fedora": [sys.executable, "backend/grace.py"],
-        "arch": [sys.executable, "backend/grace.py"],
-        "alpine": [sys.executable, "backend/grace.py"],
-        "linux": [sys.executable, "backend/grace.py"],
-        
-        # BSD variants
-        "freebsd": [sys.executable, "backend/grace.py"],
-        "openbsd": [sys.executable, "backend/grace.py"],
-        "netbsd": [sys.executable, "backend/grace.py"],
-        
-        # Unix variants
-        "solaris": [sys.executable, "backend/grace.py"],
-        "aix": [sys.executable, "backend/grace.py"],
-        
-        # Fallback
-        "unknown": [sys.executable, "backend/grace.py"]
-    }
+def show_status():
+    """Show Grace status with directory info"""
+    print(f"📁 Grace Directory: {GRACE_ROOT}")
+    print(f"📂 Working Directory: {os.getcwd()}")
+    print(f"🐍 Python: {sys.executable}")
+    print(f"🖥️  OS: {platform.system()} {platform.release()}")
     
-    return launchers.get(os_type, launchers["unknown"])
-
-def check_dependencies(os_type):
-    """Check OS-specific dependencies"""
-    print(f"🔍 Detected: {os_type.title()}")
+    # Check if Grace is running (simple check)
+    try:
+        import requests
+        response = requests.get("http://localhost:8000/health", timeout=2)
+        if response.status_code == 200:
+            print("✅ Grace Backend: Running (port 8000)")
+        else:
+            print("❌ Grace Backend: Not responding")
+    except:
+        print("❌ Grace Backend: Not running")
     
-    # Check Python
-    if sys.version_info < (3, 9):
-        print(f"⚠️  Python {sys.version_info.major}.{sys.version_info.minor} detected. Python 3.9+ recommended.")
-    
-    # OS-specific checks
-    if os_type == "alpine":
-        print("📦 Alpine Linux: Ensure python3-dev and gcc are installed")
-    elif os_type == "centos":
-        print("📦 CentOS: Ensure python3-devel and gcc are installed")
-    elif os_type == "arch":
-        print("📦 Arch Linux: Ensure base-devel is installed")
+    # Show log files
+    log_files = find_log_files()
+    if log_files:
+        print(f"📜 Log Files Found: {len(log_files)}")
+        for log_file in log_files:
+            size = log_file.stat().st_size
+            print(f"   - {log_file.name} ({size:,} bytes)")
+    else:
+        print("📜 No log files found")
 
 def main():
-    """Universal Grace launcher for all operating systems"""
+    """Universal Grace launcher with directory awareness"""
     try:
+        print("🤖 Grace AI - Universal Launcher")
+        print(f"📍 Script location: {Path(__file__).absolute()}")
+        
+        # Setup working directory first
+        if not setup_working_directory():
+            sys.exit(1)
+        
+        # Parse arguments
+        args = sys.argv[1:]
+        
+        # Handle help
+        if "--help" in args or "-h" in args:
+            show_help()
+            return
+        
+        # Handle status
+        if "--status" in args:
+            show_status()
+            return
+        
+        # Handle logs
+        if "--logs" in args:
+            idx = args.index("--logs")
+            lines = 50
+            if idx + 1 < len(args) and args[idx + 1].isdigit():
+                lines = int(args[idx + 1])
+            tail_logs(lines)
+            return
+        
+        # Handle live tail
+        if "--tail" in args:
+            tail_logs_live()
+            return
+        
         # Detect OS
         os_type, shell_type = detect_os_details()
+        print(f"🔍 Detected: {os_type.title()}")
         
-        # Check dependencies
-        check_dependencies(os_type)
+        # Setup OS environment
+        setup_os_environment(os_type)
         
         # Get launcher command
-        launcher_cmd = get_launcher_command(os_type, shell_type)
+        launcher_cmd = get_launcher_command(os_type, args)
         
-        # Add user arguments
-        full_cmd = launcher_cmd + sys.argv[1:]
-        
-        print(f"🚀 Starting Grace on {os_type.title()}...")
+        print(f"🚀 Starting Grace...")
+        print(f"📁 Command: {' '.join(launcher_cmd)}")
         
         # Execute launcher
-        result = subprocess.run(full_cmd)
+        result = subprocess.run(launcher_cmd)
         sys.exit(result.returncode)
         
     except KeyboardInterrupt:
         print("\n✅ Grace stopped")
         sys.exit(0)
     except Exception as e:
-        print(f"❌ Error starting Grace: {e}")
-        print(f"OS: {platform.system()} {platform.release()}")
-        print(f"Python: {sys.version}")
+        print(f"❌ Error: {e}")
+        print(f"📁 Current directory: {os.getcwd()}")
+        print(f"📁 Grace root: {GRACE_ROOT}")
         sys.exit(1)
 
 if __name__ == "__main__":
     main()
+
+
+
+
 
