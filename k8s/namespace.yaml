@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grace
+  labels:
+    name: grace
+    app.kubernetes.io/name: grace
+    app.kubernetes.io/version: "1.0.0"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grace-config
+  namespace: grace
+data:
+  environment: "kubernetes"
+  database_url: "postgresql://grace:grace@grace-db:5432/grace"
+  redis_url: "redis://grace-redis:6379"
+  log_level: "INFO"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grace-secrets
+  namespace: grace
+type: Opaque
+data:
+  database_password: Z3JhY2U=  # base64 encoded "grace"
+  jwt_secret: c3VwZXItc2VjcmV0LWp3dC1rZXk=  # base64 encoded "super-secret-jwt-key"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grace-backend
+  namespace: grace
+  labels:
+    app: grace-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grace-backend
+  template:
+    metadata:
+      labels:
+        app: grace-backend
+    spec:
+      containers:
+      - name: grace-backend
+        image: grace/backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "kubernetes"
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: grace-config
+              key: database_url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: grace-secrets
+              key: jwt_secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grace-backend
+  namespace: grace
+spec:
+  selector:
+    app: grace-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grace-ingress
+  namespace: grace
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - grace.example.com
+    secretName: grace-tls
+  rules:
+  - host: grace.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grace-backend
+            port:
+              number: 8000
