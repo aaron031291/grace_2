@@ -306,6 +306,19 @@ async def handle_cognition_message(websocket: WebSocket, data: dict):
             "error": str(e)
         })
 
+# Chat endpoint for frontend
+@app.post("/api/chat")
+async def chat_endpoint(request: dict):
+    """Chat endpoint for frontend"""
+    try:
+        user_message = request.get("message", "Hello")
+        return {
+            "response": f"Grace: I received '{user_message}'. Full system integration in progress!",
+            "status": "success"
+        }
+    except Exception as e:
+        return {"response": f"Grace: Error - {str(e)}", "status": "error"}
+
 # Error handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
