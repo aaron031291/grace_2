@@ -1,153 +1,120 @@
 version: '3.8'
 
 services:
-  # ============================================================================
-  # Grace Backend - Main AI System
-  # ============================================================================
   grace-backend:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: grace-backend
+      dockerfile: Dockerfile.backend
     ports:
       - "8000:8000"
     environment:
-      - PYTHONUNBUFFERED=1
-      - DATABASE_URL=sqlite+aiosqlite:///./databases/grace.db
-      - AMP_API_KEY=${AMP_API_KEY}
-      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
-    volumes:
-      - ./backend:/app/backend:ro
-      - ./databases:/app/databases
-      - ./logs:/app/logs
-      - ./storage:/app/storage
-      - ./sandbox:/app/sandbox
-      - ./config:/app/config
-    restart: unless-stopped
-    networks:
-      - grace-network
+      - ENVIRONMENT=docker
+      - DATABASE_URL=postgresql://grace:grace@grace-db:5432/grace
+      - REDIS_URL=redis://grace-redis:6379
+    depends_on:
+      - grace-db
+      - grace-redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-    labels:
-      - "com.grace.service=backend"
-      - "com.grace.description=Grace AI Backend with Amp Integration"
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
 
-  # ============================================================================
-  # Grace Frontend - Web UI
-  # ============================================================================
   grace-frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: grace-frontend
+      context: .
+      dockerfile: Dockerfile.frontend
     ports:
       - "5173:5173"
     environment:
       - VITE_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend/src:/app/src:ro
-      - ./frontend/public:/app/public:ro
     depends_on:
       - grace-backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
-    networks:
-      - grace-network
-    labels:
-      - "com.grace.service=frontend"
-      - "com.grace.description=Grace Web Interface"
 
-  # ============================================================================
-  # PostgreSQL Database (Production-ready alternative to SQLite)
-  # ============================================================================
   grace-db:
     image: postgres:15-alpine
-    container_name: grace-postgres
+    environment:
+      - POSTGRES_DB=grace
+      - POSTGRES_USER=grace
+      - POSTGRES_PASSWORD=grace
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=grace
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-grace_secure_password}
-      - POSTGRES_DB=grace
     volumes:
-      - grace-db-data:/var/lib/postgresql/data
-      - ./databases/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    restart: unless-stopped
-    networks:
-      - grace-network
+      - grace_db_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U grace"]
       interval: 10s
       timeout: 5s
       retries: 5
-    labels:
-      - "com.grace.service=database"
-      - "com.grace.description=Grace PostgreSQL Database"
+    restart: unless-stopped
 
-  # ============================================================================
-  # Redis Cache (Optional - for session/caching)
-  # ============================================================================
   grace-redis:
     image: redis:7-alpine
-    container_name: grace-redis
     ports:
       - "6379:6379"
     volumes:
-      - grace-redis-data:/data
-    restart: unless-stopped
-    networks:
-      - grace-network
+      - grace_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    command: redis-server --appendonly yes
-    labels:
-      - "com.grace.service=cache"
-      - "com.grace.description=Grace Redis Cache"
-
-  # ============================================================================
-  # Nginx Reverse Proxy (Production)
-  # ============================================================================
-  grace-nginx:
-    image: nginx:alpine
-    container_name: grace-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - grace-backend
-      - grace-frontend
     restart: unless-stopped
-    networks:
-      - grace-network
-    labels:
-      - "com.grace.service=proxy"
-      - "com.grace.description=Grace Nginx Reverse Proxy"
 
-# ============================================================================
-# Networks
-# ============================================================================
-networks:
-  grace-network:
-    driver: bridge
-    labels:
-      - "com.grace.network=main"
+  grace-prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: unless-stopped
 
-# ============================================================================
-# Volumes
-# ============================================================================
+  grace-grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=grace
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana:/etc/grafana/provisioning
+    depends_on:
+      - grace-prometheus
+    restart: unless-stopped
+
+  grace-jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    restart: unless-stopped
+
 volumes:
-  grace-db-data:
-    labels:
-      - "com.grace.volume=database"
-  grace-redis-data:
-    labels:
-      - "com.grace.volume=cache"
+  grace_db_data:
+  grace_redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: grace-network
+

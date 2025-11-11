@@ -1,3 +1,98 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grace"
+version = "1.0.0"
+description = "Grace Unified AI System"
+authors = [{name = "Grace Team", email = "team@grace.ai"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "psutil>=5.9.0",
+    "aiohttp>=3.9.0",
+    "aiofiles>=23.2.0",
+    "pyyaml>=6.0.1",
+    "pydantic>=2.5.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.6",
+    "redis>=5.0.0",
+    "celery>=5.3.0",
+    "prometheus-client>=0.19.0",
+    "opentelemetry-api>=1.21.0",
+    "opentelemetry-sdk>=1.21.0",
+    "opentelemetry-instrumentation-fastapi>=0.42b0",
+    "structlog>=23.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.9.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.6.0",
+    "pre-commit>=3.5.0",
+]
+
+docker = [
+    "docker>=6.1.0",
+    "docker-compose>=1.29.0",
+]
+
+k8s = [
+    "kubernetes>=28.1.0",
+    "helm>=3.13.0",
+]
+
 [project.scripts]
-grace = "backend.grace_boot:main"
-grace-boot = "backend.grace_boot:main"
+grace = "backend.unified_grace_orchestrator:main"
+grace-boot = "backend.unified_grace_orchestrator:main"
+grace-status = "backend.unified_grace_orchestrator:main"
+
+[project.urls]
+Homepage = "https://github.com/grace-ai/grace"
+Documentation = "https://docs.grace.ai"
+Repository = "https://github.com/grace-ai/grace.git"
+Issues = "https://github.com/grace-ai/grace/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*", "frontend*", "config*", "scripts*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
