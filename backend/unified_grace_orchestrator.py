@@ -7,6 +7,7 @@ import asyncio
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import subprocess
 import sys
 import os
@@ -36,45 +37,28 @@ try:
 except ImportError as e:
     print(f"⚠️ Some Grace modules not available: {e}")
 
-# Setup logging
+# Setup logging once
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-app = FastAPI(title="Grace AI System", version="2.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/")
-async def root():
-    return {"message": "Grace AI System is running", "status": "active", "version": "2.0.0"}
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy", "backend": "running", "frontend": "available"}
-
-@app.get("/api/status")
-async def api_status():
-    orchestrator = GraceUnifiedOrchestrator()
-    return await orchestrator.get_detailed_status()
-
-@app.post("/api/shutdown")
-async def shutdown():
-    """Graceful shutdown endpoint"""
-    orchestrator = GraceUnifiedOrchestrator()
-    await orchestrator.stop()
-    return {"message": "Grace shutdown initiated"}
 
 class GraceUnifiedOrchestrator:
     """Production-ready Grace orchestrator with full system integration"""
     
+    _instance = None
+    _lock = asyncio.Lock()
+    _initialized = False
+    
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
     def __init__(self, environment: str = "dev", profile: str = "native", 
                  safe_mode: bool = False, dry_run: bool = False, timeout: int = 60):
+        # Only initialize once
+        if self._initialized:
+            return
+            
         self.environment = environment
         self.profile = profile
         self.safe_mode = safe_mode
@@ -93,16 +77,34 @@ class GraceUnifiedOrchestrator:
         self.frontend_process = None
         self.launched_processes = []
         self.stage_results = {}
+        self._is_running = False
+        self._boot_task = None
         
-        # Setup file logging
-        file_handler = logging.FileHandler(self.log_file)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(file_handler)
+        # Setup file logging (only once)
+        if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
+            file_handler = logging.FileHandler(self.log_file)
+            file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+            logger.addHandler(file_handler)
         
         logger.info(f"Grace Orchestrator initialized - {self.boot_id}")
+        self._initialized = True
 
     async def boot(self) -> bool:
         """Main boot orchestration with full Grace integration"""
+        async with self._lock:
+            if self._is_running:
+                logger.warning("Boot already in progress or completed")
+                return True
+                
+            if self._boot_task and not self._boot_task.done():
+                logger.warning("Boot task already running")
+                return await self._boot_task
+            
+            self._boot_task = asyncio.create_task(self._execute_boot())
+            return await self._boot_task
+
+    async def _execute_boot(self) -> bool:
+        """Execute the actual boot sequence"""
         logger.info(f"🚀 Grace Unified Boot - {self.environment.upper()} ({self.profile})")
         logger.info(f"📍 Boot ID: {self.boot_id}")
         
@@ -111,6 +113,8 @@ class GraceUnifiedOrchestrator:
             return await self._dry_run_boot()
         
         try:
+            self._is_running = True
+            
             # Stage 1: Pre-flight checks
             if not await self._stage_preflight():
                 logger.error("❌ Pre-flight checks failed")
@@ -170,6 +174,8 @@ class GraceUnifiedOrchestrator:
             logger.error(traceback.format_exc())
             await self._emergency_rollback()
             return False
+        finally:
+            self._is_running = False
 
     async def _stage_preflight(self) -> bool:
         """Stage 1: Pre-flight environment checks"""
@@ -232,20 +238,24 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Initialize trigger mesh
-            await trigger_mesh.start()
-            logger.info("✅ Trigger mesh started")
+            if hasattr(trigger_mesh, 'start'):
+                await trigger_mesh.start()
+                logger.info("✅ Trigger mesh started")
             
             # Initialize immutable log
-            await immutable_log.start()
-            logger.info("✅ Immutable log started")
+            if hasattr(immutable_log, 'start'):
+                await immutable_log.start()
+                logger.info("✅ Immutable log started")
             
             # Initialize unified logic hub
-            await unified_logic_hub.start()
-            logger.info("✅ Unified logic hub started")
+            if hasattr(unified_logic_hub, 'start'):
+                await unified_logic_hub.start()
+                logger.info("✅ Unified logic hub started")
             
-            # Initialize process registry
-            process_registry.start()
-            logger.info("✅ Process registry started")
+            # Initialize process registry (lazy start)
+            if hasattr(process_registry, 'start'):
+                process_registry.start()
+                logger.info("✅ Process registry started")
             
             self.stage_results["core_services"] = True
             return True
@@ -265,8 +275,9 @@ class GraceUnifiedOrchestrator:
         try:
             # Initialize integration orchestrator
             self.integration_orchestrator = IntegrationOrchestrator()
-            await self.integration_orchestrator.start()
-            logger.info("✅ Integration orchestrator started")
+            if hasattr(self.integration_orchestrator, 'start'):
+                await self.integration_orchestrator.start()
+                logger.info("✅ Integration orchestrator started")
             
             # Start domain kernels (9 kernels with 311+ APIs)
             kernel_count = await self._start_domain_kernels()
@@ -289,8 +300,9 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Start web learning orchestrator
-            await web_learning_orchestrator.start()
-            logger.info("✅ Web learning orchestrator started")
+            if hasattr(web_learning_orchestrator, 'start'):
+                await web_learning_orchestrator.start()
+                logger.info("✅ Web learning orchestrator started")
             
             # Initialize learning systems
             learning_systems = [
@@ -321,8 +333,9 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Activate Grace autonomy (agentic spine)
-            await activate_grace_autonomy()
-            logger.info("✅ Grace autonomy activated")
+            if hasattr(activate_grace_autonomy, '__call__'):
+                await activate_grace_autonomy()
+                logger.info("✅ Grace autonomy activated")
             
             # Start elite agents
             elite_agents = [
@@ -352,17 +365,20 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Start memory fusion
-            await memory_fusion.start()
-            logger.info("✅ Memory fusion started")
+            if hasattr(memory_fusion, 'start'):
+                await memory_fusion.start()
+                logger.info("✅ Memory fusion started")
             
             # Start lightning memory
-            await lightning_memory.start()
-            logger.info("✅ Lightning memory started")
+            if hasattr(lightning_memory, 'start'):
+                await lightning_memory.start()
+                logger.info("✅ Lightning memory started")
             
             # Initialize Grace core
             self.grace_core = GraceCore()
-            await self.grace_core.start()
-            logger.info("✅ Grace core started")
+            if hasattr(self.grace_core, 'start'):
+                await self.grace_core.start()
+                logger.info("✅ Grace core started")
             
             self.stage_results["memory_systems"] = True
             return True
@@ -384,23 +400,24 @@ class GraceUnifiedOrchestrator:
                     logger.warning("⚠️ Frontend startup failed (non-critical)")
             
             # Register backend process
-            process_id = process_registry.register_process(
-                pid=os.getpid(),
-                name="Grace Backend",
-                component="uvicorn",
-                command=f"{sys.executable} -m backend.unified_grace_orchestrator",
-                cwd=str(Path.cwd()),
-                ports=[8000],
-                endpoints=["http://localhost:8000"],
-                boot_id=self.boot_id,
-                environment=self.environment,
-                process_type="uvicorn",
-                shutdown_method="http",
-                shutdown_endpoint="http://localhost:8000/api/shutdown",
-                health_endpoint="http://localhost:8000/health"
-            )
-            
-            self.launched_processes.append(process_id)
+            if hasattr(process_registry, 'register_process'):
+                process_id = process_registry.register_process(
+                    pid=os.getpid(),
+                    name="Grace Backend",
+                    component="uvicorn",
+                    command=f"{sys.executable} -m backend.unified_grace_orchestrator",
+                    cwd=str(Path.cwd()),
+                    ports=[8000],
+                    endpoints=["http://localhost:8000"],
+                    boot_id=self.boot_id,
+                    environment=self.environment,
+                    process_type="uvicorn",
+                    shutdown_method="http",
+                    shutdown_endpoint="http://localhost:8000/api/shutdown",
+                    health_endpoint="http://localhost:8000/health"
+                )
+                
+                self.launched_processes.append(process_id)
             
             self.stage_results["web_services"] = True
             return True
@@ -415,11 +432,14 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Verify core systems
-            health_checks = [
-                ("trigger_mesh", trigger_mesh.health_check),
-                ("immutable_log", immutable_log.health_check),
-                ("unified_logic_hub", unified_logic_hub.health_check),
-            ]
+            health_checks = []
+            
+            if hasattr(trigger_mesh, 'health_check'):
+                health_checks.append(("trigger_mesh", trigger_mesh.health_check))
+            if hasattr(immutable_log, 'health_check'):
+                health_checks.append(("immutable_log", immutable_log.health_check))
+            if hasattr(unified_logic_hub, 'health_check'):
+                health_checks.append(("unified_logic_hub", unified_logic_hub.health_check))
             
             for name, check in health_checks:
                 try:
@@ -443,13 +463,14 @@ class GraceUnifiedOrchestrator:
         
         try:
             # Run boot pipeline diagnostics
-            if self.boot_pipeline:
+            if self.boot_pipeline and hasattr(self.boot_pipeline, 'run_diagnostics'):
                 diagnostics = await self.boot_pipeline.run_diagnostics()
                 logger.info(f"✅ Boot diagnostics completed: {diagnostics}")
             
             # Verify process registry
-            active_processes = len(process_registry.processes)
-            logger.info(f"✅ {active_processes} processes registered")
+            if hasattr(process_registry, 'processes'):
+                active_processes = len(process_registry.processes)
+                logger.info(f"✅ {active_processes} processes registered")
             
             self.stage_results["post_boot_diagnostics"] = True
             return True
@@ -497,20 +518,21 @@ class GraceUnifiedOrchestrator:
             
             if self.frontend_process.poll() is None:
                 # Register frontend process
-                process_id = process_registry.register_process(
-                    pid=self.frontend_process.pid,
-                    name="Grace Frontend",
-                    component="vite",
-                    command="npm run dev",
-                    cwd=str(frontend_dir),
-                    ports=[5173],
-                    endpoints=["http://localhost:5173"],
-                    boot_id=self.boot_id,
-                    environment=self.environment,
-                    process_type="frontend"
-                )
-                
-                self.launched_processes.append(process_id)
+                if hasattr(process_registry, 'register_process'):
+                    process_id = process_registry.register_process(
+                        pid=self.frontend_process.pid,
+                        name="Grace Frontend",
+                        component="vite",
+                        command="npm run dev",
+                        cwd=str(frontend_dir),
+                        ports=[5173],
+                        endpoints=["http://localhost:5173"],
+                        boot_id=self.boot_id,
+                        environment=self.environment,
+                        process_type="frontend"
+                    )
+                    
+                    self.launched_processes.append(process_id)
                 return True
             
         except Exception as e:
@@ -579,7 +601,8 @@ class GraceUnifiedOrchestrator:
             "processes": len(self.launched_processes) if state else 0,
             "stage_results": state.get("stage_results", {}) if state else {},
             "started_at": state.get("started_at") if state else None,
-            "uptime": self._calculate_uptime(state.get("started_at")) if state else None
+            "uptime": self._calculate_uptime(state.get("started_at")) if state else None,
+            "is_running": self._is_running
         }
 
     def _load_state(self) -> Optional[Dict]:
@@ -611,42 +634,97 @@ class GraceUnifiedOrchestrator:
 
     async def stop(self, force: bool = False, timeout: int = 30) -> bool:
         """Stop all Grace services"""
-        logger.info("🛑 Stopping Grace services...")
-        
-        try:
-            # Stop all registered processes
-            results = await process_registry.stop_all_processes(force=force, timeout=timeout)
+        async with self._lock:
+            logger.info("🛑 Stopping Grace services...")
             
-            # Stop frontend process
-            if self.frontend_process:
-                try:
-                    self.frontend_process.terminate()
-                    if force:
-                        self.frontend_process.kill()
-                except:
-                    pass
-            
-            # Stop core systems
-            if self.grace_core:
-                await self.grace_core.stop()
-            
-            # Clear state
-            self.launched_processes.clear()
-            if self.state_file.exists():
-                self.state_file.unlink()
-            
-            total_stopped = len(results["stopped"]) + len(results["force_killed"])
-            logger.info(f"✅ Successfully stopped {total_stopped} processes")
-            return True
-            
-        except Exception as e:
-            logger.error(f"❌ Stop failed: {e}")
-            return False
+            try:
+                # Stop all registered processes
+                if hasattr(process_registry, 'stop_all_processes'):
+                    results = await process_registry.stop_all_processes(force=force, timeout=timeout)
+                    total_stopped = len(results.get("stopped", [])) + len(results.get("force_killed", []))
+                    logger.info(f"✅ Successfully stopped {total_stopped} processes")
+                
+                # Stop frontend process
+                if self.frontend_process:
+                    try:
+                        self.frontend_process.terminate()
+                        if force:
+                            self.frontend_process.kill()
+                    except:
+                        pass
+                
+                # Stop core systems
+                if self.grace_core and hasattr(self.grace_core, 'stop'):
+                    await self.grace_core.stop()
+                
+                # Clear state
+                self.launched_processes.clear()
+                if self.state_file.exists():
+                    self.state_file.unlink()
+                
+                self._is_running = False
+                return True
+                
+            except Exception as e:
+                logger.error(f"❌ Stop failed: {e}")
+                return False
+
+# Global orchestrator instance
+orchestrator = GraceUnifiedOrchestrator()
+
+# Lifespan context manager for FastAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("🚀 FastAPI startup - Grace orchestrator ready")
+    yield
+    # Shutdown
+    logger.info("🛑 FastAPI shutdown - stopping Grace services")
+    await orchestrator.stop(force=True)
+
+# FastAPI app with lifespan
+app = FastAPI(
+    title="Grace AI System", 
+    version="2.0.0",
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Grace AI System is running", "status": "active", "version": "2.0.0"}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "backend": "running", "frontend": "available"}
+
+@app.get("/api/status")
+async def api_status():
+    return await orchestrator.get_detailed_status()
+
+@app.post("/api/shutdown")
+async def shutdown():
+    """Graceful shutdown endpoint"""
+    await orchestrator.stop()
+    return {"message": "Grace shutdown initiated"}
+
+@app.post("/api/boot")
+async def boot():
+    """Boot Grace systems"""
+    success = await orchestrator.boot()
+    return {"success": success, "boot_id": orchestrator.boot_id}
 
 # Process manager for compatibility
 class GraceProcessManager:
     def __init__(self):
-        self.orchestrator = GraceUnifiedOrchestrator()
+        self.orchestrator = orchestrator
     
     def start_frontend(self):
         return asyncio.run(self.orchestrator._start_frontend())
@@ -658,7 +736,7 @@ process_manager = GraceProcessManager()
 
 def signal_handler(signum, frame):
     """Handle shutdown signals properly"""
-    asyncio.run(process_manager.orchestrator.stop(force=True))
+    asyncio.run(orchestrator.stop(force=True))
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -674,9 +752,12 @@ def main():
     parser.add_argument("--safe-mode", action="store_true", help="Safe mode")
     parser.add_argument("--dry-run", action="store_true", help="Dry run")
     parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
+    parser.add_argument("--serve", action="store_true", help="Start API server only")
     
     args = parser.parse_args()
     
+    # Update global orchestrator with CLI args
+    global orchestrator
     orchestrator = GraceUnifiedOrchestrator(
         environment=args.env,
         profile=args.profile,
@@ -695,19 +776,30 @@ def main():
             print(json.dumps(status, indent=2))
             return
         
-        # Boot Grace
+        if args.serve:
+            # Just start the API server without booting
+            print("🌐 Starting Grace API server...")
+            print("🔗 Backend: http://localhost:8000")
+            print("📚 API Docs: http://localhost:8000/docs")
+            uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+            return
+        
+        # Boot Grace first, then optionally serve
         success = await orchestrator.boot()
         
-        if success and not args.dry_run:
+        if success:
             print(f"\n✅ Grace boot completed successfully!")
             print(f"🆔 Boot ID: {orchestrator.boot_id}")
             print(f"🌐 Backend: http://localhost:8000")
             print(f"🎨 Frontend: http://localhost:5173")
             print(f"📚 API Docs: http://localhost:8000/docs")
             
-            # Start uvicorn server
-            uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
-        elif not success:
+            # Only start uvicorn if not in dry-run mode and not already running under uvicorn
+            if not args.dry_run and not os.getenv("UVICORN_RUNNING"):
+                print("\n🚀 Starting API server...")
+                os.environ["UVICORN_RUNNING"] = "1"
+                uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+        else:
             sys.exit(1)
     
     try:
@@ -721,5 +813,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
