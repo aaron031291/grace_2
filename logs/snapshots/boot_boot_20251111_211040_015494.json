@@ -1,0 +1,14 @@
+{
+  "boot_id": "boot_20251111_211040_015494",
+  "timestamp": "2025-11-11T21:10:40.015512+00:00",
+  "environment": "dev",
+  "profile": "native",
+  "config_hash": "f8f430d98c83eb4b5867f1d587646beb0a23415db08f9a71e870520714bc8aab",
+  "git_sha": "e24bb074a265cfc1ed00fb4111d4b5423aad0ca7",
+  "system_info": {
+    "os": "windows",
+    "python_version": "3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]",
+    "working_directory": "C:\\Users\\aaron\\grace_2",
+    "grace_root": "C:\\Users\\aaron\\grace_2"
+  }
+}
