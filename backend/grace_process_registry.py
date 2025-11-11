@@ -58,8 +58,8 @@ class GraceProcessRegistry:
         # Load existing registry
         self._load_registry()
         
-        # Clean up stale entries on startup
-        asyncio.create_task(self._cleanup_stale_processes())
+        # Don't create async task during init - do it lazily
+        self._cleanup_done = False
     
     def _load_registry(self):
         """Load process registry from disk"""
@@ -144,6 +144,12 @@ class GraceProcessRegistry:
         if stale_processes:
             self._save_registry()
             self.logger.info(f"🧹 Cleaned up {len(stale_processes)} stale processes")
+    
+    async def _ensure_cleanup(self):
+        """Ensure cleanup has been done"""
+        if not self._cleanup_done:
+            await self._cleanup_stale_processes()
+            self._cleanup_done = True
     
     def register_process(
         self,
@@ -556,3 +562,4 @@ class GraceProcessRegistry:
 
 # Global registry instance
 process_registry = GraceProcessRegistry()
+
