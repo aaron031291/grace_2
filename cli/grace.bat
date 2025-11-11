@@ -1,4 +1,4 @@
 @echo off
-REM Grace CLI Windows launcher
+REM Windows wrapper for universal grace command
+python grace %*
 
-python "%~dp0enhanced_grace_cli.py" %*
