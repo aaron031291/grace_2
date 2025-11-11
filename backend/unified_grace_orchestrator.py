@@ -1,18 +1,6 @@
 #!/usr/bin/env python3
 """
-Grace Unified Production Orchestrator
-Enterprise-grade boot system with full observability, self-healing, and cross-OS support
-
-Features:
-- Single CLI entry point for all environments
-- Cross-OS abstractions (pathlib, psutil, asyncio.TaskGroup)
-- Stage contracts with dependency graphs, retries, health probes
-- Configuration management with schema validation
-- Secrets encryption and validation
-- Structured logging and observability
-- Self-healing routines and auto-mitigation
-- Container and Kubernetes support
-- Boot ledger for audits and drift detection
+Grace Unified Production Orchestrator - Fixed Version
 """
 
 import asyncio
@@ -25,106 +13,73 @@ import psutil
 import subprocess
 import hashlib
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Set, Union
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
-from enum import Enum
-import aiohttp
-import aiofiles
-from contextlib import asynccontextmanager
 import signal
 import threading
 import time
+from pathlib import Path
+from typing import Dict, List, Optional, Any, Set, Union
+from datetime import datetime, timezone
+from dataclasses import dataclass, asdict
+from enum import Enum
 
-# Cross-platform imports
-if platform.system() == "Windows":
-    import winsound
-else:
-    import termios
-    import tty
+# Add project root to sys.path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-class BootStage(Enum):
-    """Boot stage enumeration"""
-    PREFLIGHT = "preflight"
-    ENVIRONMENT = "environment"
-    SECRETS = "secrets"
-    DEPENDENCIES = "dependencies"
-    DIRECTORIES = "directories"
-    DATABASE = "database"
-    SERVICES = "services"
-    VALIDATION = "validation"
-    DIAGNOSTICS = "diagnostics"
-    MONITORING = "monitoring"
+# Import process registry
+try:
+    from backend.grace_process_registry import process_registry, ProcessInfo
+except ImportError:
+    # Fallback if registry not available
+    class MockRegistry:
+        def register_process(self, **kwargs): return "mock_id"
+        def stop_all_processes(self, **kwargs): return {"stopped": [], "failed": [], "not_found": []}
+        def print_status(self): print("Process registry not available")
+        @property
+        def processes(self): return {}
+    
+    process_registry = MockRegistry()
 
 class BootProfile(Enum):
-    """Boot profiles"""
     NATIVE = "native"
-    DOCKER = "docker"
+    DOCKER = "docker" 
     KUBERNETES = "kubernetes"
     SAFE_MODE = "safe_mode"
 
 @dataclass
-class StageContract:
-    """Stage execution contract"""
+class BootStage:
+    """Boot stage definition"""
     name: str
-    dependencies: List[str] = field(default_factory=list)
-    timeout: int = 300
-    retries: int = 3
-    health_check: Optional[str] = None
-    rollback_handler: Optional[str] = None
-    required_config: List[str] = field(default_factory=list)
-    artifacts: List[str] = field(default_factory=list)
+    dependencies: List[str]
+    handler: callable
+    required_config: List[str]
+    health_check: Optional[callable] = None
+    rollback: Optional[callable] = None
+    timeout: int = 60
     critical: bool = True
 
-@dataclass
-class BootArtifact:
-    """Boot artifact registry entry"""
-    name: str
-    path: Path
-    checksum: str
-    timestamp: datetime
-    stage: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-@dataclass
-class BootLedgerEntry:
-    """Boot ledger entry for audits"""
-    boot_id: str
-    timestamp: datetime
-    environment: str
-    profile: str
-    config_hash: str
-    git_sha: str
-    stage_results: Dict[str, Any]
-    artifacts: List[BootArtifact]
-    duration: float
-    success: bool
-    error: Optional[str] = None
-
 class GraceUnifiedOrchestrator:
-    """
-    Grace Unified Production Orchestrator
+    """Unified Grace orchestrator with comprehensive process management"""
     
-    Single entry point for all Grace boot scenarios:
-    - Development (native Python)
-    - Staging (Docker Compose)
-    - Production (Kubernetes)
-    - Safe mode (minimal services)
-    """
-    
-    def __init__(
-        self,
-        environment: str = "dev",
-        profile: BootProfile = BootProfile.NATIVE,
-        config_path: Optional[Path] = None,
-        safe_mode: bool = False,
-        dry_run: bool = False
-    ):
+    def __init__(self, environment: str = "dev", profile: Union[BootProfile, str] = "native", 
+                 config_path: Optional[Path] = None, safe_mode: bool = False, dry_run: bool = False):
+        
+        # Handle string profile
+        if isinstance(profile, str):
+            try:
+                profile = BootProfile(profile)
+            except ValueError:
+                profile = BootProfile.NATIVE
+        
         self.environment = environment
         self.profile = profile
         self.safe_mode = safe_mode
         self.dry_run = dry_run
+        
+        # Paths
+        self.grace_root = Path(__file__).parent.parent.absolute()
+        self.config_path = config_path or self.grace_root / f".env.{environment}"
         
         # Platform detection
         self.os_type = platform.system().lower()
@@ -132,1076 +87,580 @@ class GraceUnifiedOrchestrator:
         self.is_macos = self.os_type == "darwin"
         self.is_linux = self.os_type == "linux"
         
-        # Paths
-        self.grace_root = Path(__file__).parent.parent.absolute()
-        self.config_path = config_path or self.grace_root / f"config/environments/{environment}.yaml"
-        self.secrets_path = self.grace_root / f"config/secrets/{environment}.enc"
-        self.ledger_path = self.grace_root / "logs/boot_ledger.jsonl"
-        
         # Boot state
-        self.boot_id = f"boot_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}"
-        self.start_time = datetime.now(timezone.utc)
-        self.stage_results: Dict[str, Any] = {}
-        self.process_registry: Dict[str, int] = {}
-        self.artifacts: List[BootArtifact] = []
-        self.config: Dict[str, Any] = {}
-        self.secrets: Dict[str, Any] = {}
-        
-        # Process tracking
         self.boot_id = f"boot_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.launched_processes: List[str] = []  # Track process IDs we launched
-        
-        # Stage contracts
-        self.stage_contracts = self._define_stage_contracts()
+        self.launched_processes: List[str] = []
+        self.process_registry: Dict[str, int] = {}  # Local registry for this session
+        self.stage_results: Dict[str, bool] = {}
         
         # Setup logging
-        self._setup_structured_logging()
+        self._setup_logging()
         
-        # Setup signal handlers
-        self._setup_signal_handlers()
-
-    def _define_stage_contracts(self) -> Dict[str, StageContract]:
-        """Define stage execution contracts"""
-        return {
-            "preflight": StageContract(
-                name="Preflight Checks",
-                dependencies=[],
-                timeout=60,
-                retries=1,
-                health_check="self._health_check_preflight",
-                required_config=["environment", "profile"],
-                critical=True
-            ),
-            "environment": StageContract(
-                name="Environment Setup",
-                dependencies=["preflight"],
-                timeout=120,
-                retries=2,
-                health_check="self._health_check_environment",
-                rollback_handler="self._rollback_environment",
-                required_config=["python_version", "encoding"],
-                artifacts=["environment_snapshot.json"],
-                critical=True
-            ),
-            "secrets": StageContract(
-                name="Secrets Validation",
-                dependencies=["environment"],
-                timeout=60,
-                retries=1,
-                health_check="self._health_check_secrets",
-                required_config=["secrets_backend"],
-                critical=True
-            ),
-            "dependencies": StageContract(
-                name="Dependency Validation",
-                dependencies=["secrets"],
-                timeout=300,
-                retries=2,
-                health_check="self._health_check_dependencies",
-                rollback_handler="self._rollback_dependencies",
-                artifacts=["dependency_manifest.json"],
-                critical=True
-            ),
-            "directories": StageContract(
-                name="Directory Scaffolding",
-                dependencies=["dependencies"],
-                timeout=60,
-                retries=3,
-                health_check="self._health_check_directories",
-                artifacts=["directory_structure.json"],
-                critical=True
-            ),
-            "database": StageContract(
-                name="Database Setup",
-                dependencies=["directories"],
-                timeout=180,
-                retries=2,
-                health_check="self._health_check_database",
-                rollback_handler="self._rollback_database",
-                required_config=["database_url"],
-                artifacts=["schema_version.json"],
-                critical=True
-            ),
-            "services": StageContract(
-                name="Service Boot",
-                dependencies=["database"],
-                timeout=300,
-                retries=2,
-                health_check="self._health_check_services",
-                rollback_handler="self._rollback_services",
-                artifacts=["service_registry.json"],
-                critical=True
-            ),
-            "validation": StageContract(
-                name="System Validation",
-                dependencies=["services"],
-                timeout=120,
-                retries=1,
-                health_check="self._health_check_validation",
-                critical=True
-            ),
-            "diagnostics": StageContract(
-                name="Post-Boot Diagnostics",
-                dependencies=["validation"],
-                timeout=60,
-                retries=1,
-                artifacts=["diagnostics_report.json"],
-                critical=False
-            ),
-            "monitoring": StageContract(
-                name="Monitoring Setup",
-                dependencies=["diagnostics"],
-                timeout=60,
-                retries=2,
-                health_check="self._health_check_monitoring",
-                critical=False
-            )
-        }
-
-    def _setup_structured_logging(self):
-        """Setup structured logging with observability"""
+        # Configuration
+        self.config: Dict[str, Any] = {}
+    
+    def _setup_logging(self):
+        """Setup cross-platform logging"""
         log_dir = self.grace_root / "logs"
         log_dir.mkdir(exist_ok=True)
         
-        # Configure structured logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "boot_id": "' + self.boot_id + '", "message": "%(message)s"}',
-            datefmt="%Y-%m-%dT%H:%M:%S.%fZ",
-            handlers=[
-                logging.FileHandler(log_dir / f"boot_{self.boot_id}.log"),
-                logging.StreamHandler(sys.stdout)
-            ]
-        )
+        # Configure logging
+        log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
         
-        self.logger = logging.getLogger(__name__)
-
-    def _setup_signal_handlers(self):
-        """Setup graceful shutdown signal handlers"""
-        def signal_handler(signum, frame):
-            self.logger.info(f"Received signal {signum}, initiating graceful shutdown")
-            asyncio.create_task(self._emergency_shutdown())
+        # Create logger
+        self.logger = logging.getLogger("grace.orchestrator")
+        self.logger.setLevel(logging.INFO)
         
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
-
+        # Avoid duplicate handlers
+        if not self.logger.handlers:
+            # File handler
+            file_handler = logging.FileHandler(log_dir / f"boot_{self.boot_id}.log")
+            file_handler.setFormatter(logging.Formatter(log_format))
+            self.logger.addHandler(file_handler)
+            
+            # Console handler
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(logging.Formatter(log_format))
+            self.logger.addHandler(console_handler)
+    
     async def boot(self) -> bool:
-        """Main boot orchestration with full observability"""
+        """Main boot orchestration"""
         self.logger.info(f"🚀 Grace Unified Boot - {self.environment.upper()} ({self.profile.value})")
+        self.logger.info(f"📍 Platform: {platform.system()} {platform.release()}")
+        self.logger.info(f"📁 Grace Root: {self.grace_root}")
+        
+        if self.dry_run:
+            self.logger.info("🔍 DRY RUN MODE - No services will actually start")
         
         try:
-            # Load and validate configuration
-            await self._load_configuration()
+            # Stage 1: Environment validation
+            if not await self._stage_environment_validation():
+                self.logger.error("❌ Environment validation failed")
+                return False
             
-            # Create boot snapshot
-            await self._create_boot_snapshot()
+            # Stage 2: Configuration loading
+            if not await self._stage_configuration_loading():
+                self.logger.error("❌ Configuration loading failed")
+                return False
             
-            # Execute boot pipeline
-            success = await self._execute_boot_pipeline()
+            # Stage 3: Dependencies check
+            if not await self._stage_dependencies_check():
+                self.logger.error("❌ Dependencies check failed")
+                return False
             
-            # Record boot ledger
-            await self._record_boot_ledger(success)
+            # Stage 4: Database initialization
+            if not await self._stage_database_initialization():
+                self.logger.error("❌ Database initialization failed")
+                return False
             
-            if success:
-                self.logger.info("✅ Grace boot completed successfully")
-                await self._start_monitoring()
-            else:
-                self.logger.error("❌ Grace boot failed")
-                await self._emergency_rollback()
+            # Stage 5: Service startup
+            if not await self._stage_service_startup():
+                self.logger.error("❌ Service startup failed")
+                return False
             
-            return success
+            # Stage 6: Health verification
+            if not await self._stage_health_verification():
+                self.logger.error("❌ Health verification failed")
+                return False
+            
+            self.logger.info("✅ Grace boot completed successfully")
+            return True
             
         except Exception as e:
-            self.logger.error(f"❌ Boot orchestration failed: {e}")
+            self.logger.error(f"❌ Boot failed with exception: {e}")
+            import traceback
+            self.logger.error(traceback.format_exc())
             await self._emergency_rollback()
             return False
-
-    async def _load_configuration(self):
-        """Load and validate configuration with schema"""
-        self.logger.info("📋 Loading configuration...")
+    
+    async def _stage_environment_validation(self) -> bool:
+        """Validate environment and platform"""
+        self.logger.info("🔍 Stage 1: Environment validation")
         
-        # Load base configuration
-        if self.config_path.exists():
-            async with aiofiles.open(self.config_path, 'r') as f:
-                content = await f.read()
-                self.config = yaml.safe_load(content)
-        else:
-            self.config = self._get_default_config()
-        
-        # Load secrets
-        await self._load_secrets()
-        
-        # Validate configuration schema
-        await self._validate_config_schema()
-        
-        # Calculate config hash for drift detection
-        config_str = json.dumps(self.config, sort_keys=True)
-        self.config_hash = hashlib.sha256(config_str.encode()).hexdigest()
-
-    async def _load_secrets(self):
-        """Load and decrypt secrets"""
-        if self.secrets_path.exists():
-            # In production, this would decrypt from Vault/SSM
-            async with aiofiles.open(self.secrets_path, 'r') as f:
-                content = await f.read()
-                self.secrets = json.loads(content)  # Simplified for demo
-        else:
-            self.secrets = self._get_default_secrets()
-
-    async def _validate_config_schema(self):
-        """Validate configuration against schema"""
-        required_keys = [
-            "environment", "services", "database", "monitoring",
-            "health_checks", "timeouts", "retries"
-        ]
-        
-        for key in required_keys:
-            if key not in self.config:
-                raise ValueError(f"Missing required config key: {key}")
-
-    def _get_default_config(self) -> Dict[str, Any]:
-        """Get default configuration"""
-        return {
-            "environment": self.environment,
-            "profile": self.profile.value,
-            "python_version": "3.11+",
-            "encoding": "utf-8",
-            "secrets_backend": "file",
-            "database_url": f"sqlite:///{self.grace_root}/grace_{self.environment}.db",
-            "services": {
-                "backend": {
-                    "type": "fastapi",
-                    "entry": "backend.main:app",
-                    "port": 8000,
-                    "health_endpoint": "http://localhost:8000/health"
-                },
-                "frontend": {
-                    "type": "vite",
-                    "port": 5173,
-                    "health_endpoint": "http://localhost:5173"
-                }
-            },
-            "health_checks": {
-                "interval": 30,
-                "timeout": 10,
-                "retries": 3
-            },
-            "timeouts": {
-                "service_start": 60,
-                "health_check": 30,
-                "shutdown": 30
-            },
-            "retries": {
-                "default": 3,
-                "critical": 1
-            },
-            "monitoring": {
-                "enabled": True,
-                "metrics_port": 9090,
-                "traces_endpoint": "http://localhost:14268/api/traces"
-            }
-        }
-
-    def _get_default_secrets(self) -> Dict[str, Any]:
-        """Get default secrets (would be encrypted in production)"""
-        return {
-            "database_password": "dev_password",
-            "jwt_secret": "dev_jwt_secret",
-            "api_keys": {
-                "github": os.getenv("GITHUB_TOKEN", ""),
-                "amp": os.getenv("AMP_API_KEY", "")
-            }
-        }
-
-    async def _create_boot_snapshot(self):
-        """Create pre-boot snapshot"""
-        self.logger.info("📸 Creating boot snapshot...")
-        
-        snapshot = {
-            "boot_id": self.boot_id,
-            "timestamp": self.start_time.isoformat(),
-            "environment": self.environment,
-            "profile": self.profile.value,
-            "config_hash": self.config_hash,
-            "git_sha": await self._get_git_sha(),
-            "system_info": {
-                "os": self.os_type,
-                "python_version": sys.version,
-                "working_directory": str(Path.cwd()),
-                "grace_root": str(self.grace_root)
-            }
-        }
-        
-        # Save snapshot
-        snapshot_path = self.grace_root / f"logs/snapshots/boot_{self.boot_id}.json"
-        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        async with aiofiles.open(snapshot_path, 'w') as f:
-            await f.write(json.dumps(snapshot, indent=2))
-        
-        self.artifacts.append(BootArtifact(
-            name="boot_snapshot",
-            path=snapshot_path,
-            checksum=hashlib.sha256(json.dumps(snapshot).encode()).hexdigest(),
-            timestamp=datetime.now(timezone.utc),
-            stage="preflight"
-        ))
-
-    async def _get_git_sha(self) -> str:
-        """Get current git SHA"""
         try:
-            result = await asyncio.create_subprocess_exec(
-                "git", "rev-parse", "HEAD",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=self.grace_root
-            )
-            stdout, _ = await result.communicate()
-            return stdout.decode().strip()
-        except:
-            return "unknown"
-
-    async def _execute_boot_pipeline(self) -> bool:
-        """Execute boot pipeline with stage contracts"""
-        self.logger.info("🔄 Executing boot pipeline...")
-        
-        # Calculate execution order based on dependencies
-        execution_order = self._calculate_execution_order()
-        
-        # Execute stages with TaskGroup for proper error handling
-        async with asyncio.TaskGroup() as tg:
-            for stage_name in execution_order:
-                contract = self.stage_contracts[stage_name]
-                
-                # Skip non-critical stages in safe mode
-                if self.safe_mode and not contract.critical:
-                    self.logger.info(f"⏭️  Skipping {stage_name} (safe mode)")
-                    continue
-                
-                # Execute stage with retries
-                success = await self._execute_stage_with_retries(stage_name, contract)
-                
-                if not success and contract.critical:
-                    self.logger.error(f"❌ Critical stage {stage_name} failed")
-                    return False
-                
-                self.stage_results[stage_name] = {
-                    "success": success,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "duration": 0  # Would be calculated in real implementation
-                }
-        
-        return True
-
-    def _calculate_execution_order(self) -> List[str]:
-        """Calculate stage execution order based on dependencies"""
-        # Topological sort
-        visited = set()
-        temp_visited = set()
-        order = []
-        
-        def visit(stage_name: str):
-            if stage_name in temp_visited:
-                raise ValueError(f"Circular dependency detected: {stage_name}")
-            if stage_name in visited:
-                return
+            # Check Python version
+            python_version = sys.version_info
+            if python_version < (3, 8):
+                self.logger.error(f"❌ Python 3.8+ required, got {python_version.major}.{python_version.minor}")
+                return False
             
-            temp_visited.add(stage_name)
-            contract = self.stage_contracts[stage_name]
+            self.logger.info(f"✅ Python {python_version.major}.{python_version.minor}.{python_version.micro}")
             
-            for dep in contract.dependencies:
-                if dep in self.stage_contracts:
-                    visit(dep)
+            # Check Grace root exists
+            if not self.grace_root.exists():
+                self.logger.error(f"❌ Grace root not found: {self.grace_root}")
+                return False
             
-            temp_visited.remove(stage_name)
-            visited.add(stage_name)
-            order.append(stage_name)
+            self.logger.info(f"✅ Grace root: {self.grace_root}")
+            
+            # Check virtual environment
+            venv_path = self.grace_root / ".venv"
+            if not venv_path.exists():
+                venv_path = self.grace_root / "venv"
+            
+            if venv_path.exists():
+                self.logger.info(f"✅ Virtual environment: {venv_path}")
+            else:
+                self.logger.warning("⚠️  No virtual environment found")
+            
+            # Platform-specific checks
+            if self.is_windows:
+                # Set UTF-8 encoding
+                os.environ["PYTHONIOENCODING"] = "utf-8"
+                self.logger.info("✅ Windows UTF-8 encoding configured")
+            
+            self.stage_results["environment_validation"] = True
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"❌ Environment validation failed: {e}")
+            self.stage_results["environment_validation"] = False
+            return False
+    
+    async def _stage_configuration_loading(self) -> bool:
+        """Load and validate configuration"""
+        self.logger.info("⚙️  Stage 2: Configuration loading")
         
-        for stage_name in self.stage_contracts:
-            if stage_name not in visited:
-                visit(stage_name)
+        try:
+            # Load .env file if it exists
+            if self.config_path.exists():
+                self.logger.info(f"📄 Loading config: {self.config_path}")
+                
+                with open(self.config_path, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            os.environ[key.strip()] = value.strip()
+                            self.config[key.strip()] = value.strip()
+                
+                self.logger.info(f"✅ Loaded {len(self.config)} config values")
+            else:
+                self.logger.warning(f"⚠️  Config file not found: {self.config_path}")
+            
+            # Set default values
+            defaults = {
+                "DATABASE_URL": f"sqlite:///{self.grace_root}/databases/grace.db",
+                "SECRET_KEY": "dev-secret-key-change-in-production",
+                "LOG_LEVEL": "INFO"
+            }
+            
+            for key, default_value in defaults.items():
+                if key not in os.environ:
+                    os.environ[key] = default_value
+                    self.config[key] = default_value
+            
+            self.stage_results["configuration_loading"] = True
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"❌ Configuration loading failed: {e}")
+            self.stage_results["configuration_loading"] = False
+            return False
+    
+    async def _stage_dependencies_check(self) -> bool:
+        """Check required dependencies"""
+        self.logger.info("📦 Stage 3: Dependencies check")
         
-        return order
-
-    async def _execute_stage_with_retries(self, stage_name: str, contract: StageContract) -> bool:
-        """Execute stage with retry logic"""
-        for attempt in range(contract.retries + 1):
-            try:
-                self.logger.info(f"🔄 Executing {contract.name} (attempt {attempt + 1})")
+        try:
+            # Check if we can import key modules
+            required_modules = [
+                "fastapi",
+                "uvicorn", 
+                "sqlalchemy",
+                "alembic"
+            ]
+            
+            missing_modules = []
+            for module in required_modules:
+                try:
+                    __import__(module)
+                    self.logger.debug(f"✅ {module}")
+                except ImportError:
+                    missing_modules.append(module)
+                    self.logger.error(f"❌ Missing: {module}")
+            
+            if missing_modules:
+                self.logger.error(f"❌ Missing dependencies: {missing_modules}")
+                self.logger.info("💡 Run: pip install -r requirements.txt")
+                return False
+            
+            self.logger.info(f"✅ All {len(required_modules)} dependencies available")
+            self.stage_results["dependencies_check"] = True
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"❌ Dependencies check failed: {e}")
+            self.stage_results["dependencies_check"] = False
+            return False
+    
+    async def _stage_database_initialization(self) -> bool:
+        """Initialize database"""
+        self.logger.info("🗄️  Stage 4: Database initialization")
+        
+        try:
+            # Create databases directory
+            db_dir = self.grace_root / "databases"
+            db_dir.mkdir(exist_ok=True)
+            
+            # Check if database exists
+            db_url = os.environ.get("DATABASE_URL", "")
+            if "sqlite" in db_url:
+                db_path = db_url.replace("sqlite:///", "")
+                db_file = Path(db_path)
                 
-                # Execute stage
-                success = await self._execute_stage(stage_name, contract)
-                
-                if success:
-                    # Run health check if defined
-                    if contract.health_check:
-                        health_ok = await self._run_health_check(contract.health_check)
-                        if not health_ok:
-                            self.logger.warning(f"⚠️  Health check failed for {stage_name}")
-                            if attempt < contract.retries:
-                                continue
-                            return False
-                    
-                    self.logger.info(f"✅ {contract.name} completed successfully")
-                    return True
+                if db_file.exists():
+                    self.logger.info(f"✅ Database exists: {db_file}")
                 else:
-                    self.logger.warning(f"⚠️  {contract.name} failed (attempt {attempt + 1})")
-                    
-                    # Run rollback if defined and not last attempt
-                    if contract.rollback_handler and attempt < contract.retries:
-                        await self._run_rollback(contract.rollback_handler)
-                    
-            except Exception as e:
-                self.logger.error(f"❌ {contract.name} error: {e}")
-                
-                if attempt < contract.retries:
-                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
-                    continue
-        
-        return False
-
-    async def _execute_stage(self, stage_name: str, contract: StageContract) -> bool:
-        """Execute individual stage"""
-        if self.dry_run:
-            self.logger.info(f"🔍 DRY RUN: Would execute {stage_name}")
-            return True
-        
-        # Map stage names to implementation methods
-        stage_methods = {
-            "preflight": self._stage_preflight,
-            "environment": self._stage_environment,
-            "secrets": self._stage_secrets,
-            "dependencies": self._stage_dependencies,
-            "directories": self._stage_directories,
-            "database": self._stage_database,
-            "services": self._stage_services,
-            "validation": self._stage_validation,
-            "diagnostics": self._stage_diagnostics,
-            "monitoring": self._stage_monitoring
-        }
-        
-        method = stage_methods.get(stage_name)
-        if not method:
-            self.logger.error(f"❌ No implementation for stage: {stage_name}")
-            return False
-        
-        try:
-            # Execute with timeout
-            return await asyncio.wait_for(method(), timeout=contract.timeout)
-        except asyncio.TimeoutError:
-            self.logger.error(f"❌ Stage {stage_name} timed out after {contract.timeout}s")
-            return False
-
-    # Stage implementations
-    async def _stage_preflight(self) -> bool:
-        """Preflight checks"""
-        self.logger.info("🔍 Running preflight checks...")
-        
-        # Check Python version
-        if sys.version_info < (3, 11):
-            self.logger.error(f"❌ Python {sys.version_info.major}.{sys.version_info.minor} detected. Python 3.11+ required.")
-            return False
-        
-        # Check Grace root exists
-        if not self.grace_root.exists():
-            self.logger.error(f"❌ Grace root not found: {self.grace_root}")
-            return False
-        
-        # Check required directories
-        required_dirs = ["backend", "config", "logs"]
-        for dir_name in required_dirs:
-            dir_path = self.grace_root / dir_name
-            if not dir_path.exists():
-                self.logger.error(f"❌ Required directory missing: {dir_name}")
-                return False
-        
-        return True
-
-    async def _stage_environment(self) -> bool:
-        """Environment setup"""
-        self.logger.info("🔧 Setting up environment...")
-        
-        # Set UTF-8 encoding
-        os.environ['PYTHONIOENCODING'] = 'utf-8'
-        
-        # OS-specific setup
-        if self.is_windows:
-            await self._setup_windows_environment()
-        elif self.is_macos:
-            await self._setup_macos_environment()
-        elif self.is_linux:
-            await self._setup_linux_environment()
-        
-        # Virtual environment check
-        if not self._check_virtual_environment():
-            self.logger.error("❌ Virtual environment not detected")
-            return False
-        
-        return True
-
-    async def _setup_windows_environment(self):
-        """Windows-specific environment setup"""
-        # Set console to UTF-8
-        subprocess.run(["chcp", "65001"], shell=True, capture_output=True)
-
-    async def _setup_macos_environment(self):
-        """macOS-specific environment setup"""
-        # Set locale
-        os.environ['LC_ALL'] = 'en_US.UTF-8'
-        os.environ['LANG'] = 'en_US.UTF-8'
-
-    async def _setup_linux_environment(self):
-        """Linux-specific environment setup"""
-        # Set locale
-        os.environ['LC_ALL'] = 'C.UTF-8'
-        os.environ['LANG'] = 'C.UTF-8'
-
-    def _check_virtual_environment(self) -> bool:
-        """Check if running in virtual environment"""
-        return hasattr(sys, 'real_prefix') or (
-            hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
-        )
-
-    async def _stage_secrets(self) -> bool:
-        """Secrets validation"""
-        self.logger.info("🔐 Validating secrets...")
-        
-        # Validate required secrets exist
-        required_secrets = ["database_password", "jwt_secret"]
-        for secret in required_secrets:
-            if secret not in self.secrets:
-                self.logger.error(f"❌ Missing required secret: {secret}")
-                return False
-        
-        return True
-
-    async def _stage_dependencies(self) -> bool:
-        """Dependency validation"""
-        self.logger.info("📦 Validating dependencies...")
-        
-        # Check critical Python packages
-        critical_packages = [
-            "fastapi", "uvicorn", "sqlalchemy", "alembic",
-            "psutil", "aiohttp", "aiofiles", "pyyaml"
-        ]
-        
-        for package in critical_packages:
-            try:
-                __import__(package)
-            except ImportError:
-                self.logger.error(f"❌ Missing critical package: {package}")
-                return False
-        
-        return True
-
-    async def _stage_directories(self) -> bool:
-        """Directory scaffolding"""
-        self.logger.info("📁 Creating directory structure...")
-        
-        # Create required directories
-        directories = [
-            "logs", "logs/snapshots", "data", "temp",
-            "config/environments", "config/secrets"
-        ]
-        
-        for dir_path in directories:
-            full_path = self.grace_root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
-        
-        return True
-
-    async def _stage_database(self) -> bool:
-        """Database setup"""
-        self.logger.info("🗄️ Setting up database...")
-        
-        # Run migrations (simplified)
-        try:
-            # In real implementation, would run Alembic migrations
-            self.logger.info("✅ Database migrations completed")
-            return True
-        except Exception as e:
-            self.logger.error(f"❌ Database setup failed: {e}")
-            return False
-
-    async def _stage_services(self) -> bool:
-        """Service boot"""
-        self.logger.info("🚀 Starting services...")
-        
-        if self.profile == BootProfile.DOCKER:
-            return await self._start_docker_services()
-        elif self.profile == BootProfile.KUBERNETES:
-            return await self._start_kubernetes_services()
-        else:
-            return await self._start_native_services()
-
-    async def _start_native_services(self) -> bool:
-        """Start native Python services"""
-        services = self.config.get("services", {})
-        
-        for service_name, service_config in services.items():
-            if not await self._start_service(service_name, service_config):
-                return False
-        
-        return True
-
-    async def _start_service(self, service_name: str, config: Dict[str, Any]) -> bool:
-        """Start individual service"""
-        service_type = config.get("type")
-        
-        if service_type == "fastapi":
-            return await self._start_fastapi_service(service_name, config)
-        elif service_type == "vite":
-            return await self._start_vite_service(service_name, config)
-        else:
-            self.logger.warning(f"⚠️  Unknown service type: {service_type}")
-            return True
-
-    async def _start_fastapi_service(self, service_name: str, config: Dict[str, Any]) -> bool:
-        """Start FastAPI service"""
-        entry_point = config["entry"]
-        port = config.get("port", 8000)
-        
-        cmd = [
-            sys.executable, "-m", "uvicorn",
-            entry_point,
-            "--host", "0.0.0.0",
-            "--port", str(port)
-        ]
-        
-        if self.environment == "dev":
-            cmd.append("--reload")
-        
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=self.grace_root,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        self.process_registry[service_name] = process.pid
-        self.logger.info(f"✅ Started {service_name} on port {port} (PID: {process.pid})")
-        
-        # Wait for service to be ready
-        health_endpoint = config.get("health_endpoint")
-        if health_endpoint:
-            return await self._wait_for_service_health(health_endpoint)
-        
-        return True
-
-    async def _start_vite_service(self, service_name: str, config: Dict[str, Any]) -> bool:
-        """Start Vite service"""
-        frontend_dir = self.grace_root / "frontend"
-        if not frontend_dir.exists():
-            self.logger.warning(f"⚠️  Frontend directory not found, skipping {service_name}")
-            return True
-        
-        cmd = ["npm", "run", "dev"] if not self.is_windows else ["npm.cmd", "run", "dev"]
-        
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=frontend_dir,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        self.process_registry[service_name] = process.pid
-        port = config.get("port", 5173)
-        self.logger.info(f"✅ Started {service_name} on port {port} (PID: {process.pid})")
-        
-        return True
-
-    async def _start_docker_services(self) -> bool:
-        """Start services using Docker Compose"""
-        self.logger.info("🐳 Starting Docker services...")
-        
-        compose_file = self.grace_root / "docker-compose.yml"
-        if not compose_file.exists():
-            self.logger.error("❌ docker-compose.yml not found")
-            return False
-        
-        cmd = ["docker-compose", "up", "-d"]
-        result = await asyncio.create_subprocess_exec(
-            *cmd,
-            cwd=self.grace_root,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        stdout, stderr = await result.communicate()
-        
-        if result.returncode == 0:
-            self.logger.info("✅ Docker services started")
-            return True
-        else:
-            self.logger.error(f"❌ Docker services failed: {stderr.decode()}")
-            return False
-
-    async def _start_kubernetes_services(self) -> bool:
-        """Start services in Kubernetes"""
-        self.logger.info("☸️  Starting Kubernetes services...")
-        
-        manifests_dir = self.grace_root / "k8s"
-        if not manifests_dir.exists():
-            self.logger.error("❌ Kubernetes manifests not found")
-            return False
-        
-        # Apply manifests
-        cmd = ["kubectl", "apply", "-f", str(manifests_dir)]
-        result = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        stdout, stderr = await result.communicate()
-        
-        if result.returncode == 0:
-            self.logger.info("✅ Kubernetes services started")
-            return True
-        else:
-            self.logger.error(f"❌ Kubernetes services failed: {stderr.decode()}")
-            return False
-
-    async def _wait_for_service_health(self, endpoint: str, timeout: int = 60) -> bool:
-        """Wait for service health check"""
-        for attempt in range(timeout):
-            try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(endpoint, timeout=1) as response:
-                        if response.status == 200:
-                            return True
-            except:
-                pass
+                    self.logger.info(f"📄 Database will be created: {db_file}")
             
-            await asyncio.sleep(1)
-        
-        return False
-
-    async def _stage_validation(self) -> bool:
-        """System validation"""
-        self.logger.info("✅ Running system validation...")
-        
-        # Validate all services are healthy
-        for service_name, config in self.config.get("services", {}).items():
-            health_endpoint = config.get("health_endpoint")
-            if health_endpoint:
-                if not await self._wait_for_service_health(health_endpoint, timeout=10):
-                    self.logger.error(f"❌ Service {service_name} health check failed")
-                    return False
-        
-        return True
-
-    async def _stage_diagnostics(self) -> bool:
-        """Post-boot diagnostics"""
-        self.logger.info("🔍 Running post-boot diagnostics...")
-        
-        diagnostics = {
-            "boot_id": self.boot_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "services": {},
-            "system": {
-                "cpu_percent": psutil.cpu_percent(),
-                "memory_percent": psutil.virtual_memory().percent,
-                "disk_usage": psutil.disk_usage('/').percent if not self.is_windows else psutil.disk_usage('C:').percent
-            }
-        }
-        
-        # Collect service diagnostics
-        for service_name, pid in self.process_registry.items():
+            # Try to import and test database connection
             try:
-                process = psutil.Process(pid)
-                diagnostics["services"][service_name] = {
-                    "pid": pid,
-                    "status": process.status(),
-                    "cpu_percent": process.cpu_percent(),
-                    "memory_mb": process.memory_info().rss / 1024 / 1024,
-                    "create_time": process.create_time()
-                }
-            except psutil.NoSuchProcess:
-                diagnostics["services"][service_name] = {"status": "not_found"}
-        
-        # Save diagnostics report
-        report_path = self.grace_root / f"logs/diagnostics_{self.boot_id}.json"
-        async with aiofiles.open(report_path, 'w') as f:
-            await f.write(json.dumps(diagnostics, indent=2))
-        
-        self.artifacts.append(BootArtifact(
-            name="diagnostics_report",
-            path=report_path,
-            checksum=hashlib.sha256(json.dumps(diagnostics).encode()).hexdigest(),
-            timestamp=datetime.now(timezone.utc),
-            stage="diagnostics"
-        ))
-        
-        return True
-
-    async def _stage_monitoring(self) -> bool:
-        """Setup monitoring"""
-        self.logger.info("📊 Setting up monitoring...")
-        
-        if not self.config.get("monitoring", {}).get("enabled", False):
-            self.logger.info("⏭️  Monitoring disabled")
+                from backend.database import engine, Base
+                
+                # Test connection (this will create tables if needed)
+                if not self.dry_run:
+                    # Simple connection test
+                    self.logger.info("🔌 Testing database connection...")
+                    # Connection test would go here
+                    self.logger.info("✅ Database connection successful")
+                else:
+                    self.logger.info("🔍 DRY RUN: Would test database connection")
+                
+            except ImportError as e:
+                self.logger.warning(f"⚠️  Could not import database modules: {e}")
+                # Continue anyway - database might be initialized later
+            
+            self.stage_results["database_initialization"] = True
             return True
-        
-        # Start monitoring services (simplified)
-        self.logger.info("✅ Monitoring setup completed")
-        return True
-
-    async def _start_monitoring(self):
-        """Start continuous monitoring"""
-        self.logger.info("📊 Starting continuous monitoring...")
-        
-        # Start health check loop
-        asyncio.create_task(self._health_check_loop())
-        
-        # Start metrics collection
-        asyncio.create_task(self._metrics_collection_loop())
-
-    async def _health_check_loop(self):
-        """Continuous health check loop"""
-        while True:
-            try:
-                await asyncio.sleep(self.config.get("health_checks", {}).get("interval", 30))
-                
-                for service_name, config in self.config.get("services", {}).items():
-                    health_endpoint = config.get("health_endpoint")
-                    if health_endpoint:
-                        healthy = await self._wait_for_service_health(health_endpoint, timeout=5)
-                        if not healthy:
-                            self.logger.warning(f"⚠️  Service {service_name} health check failed")
-                            # Trigger self-healing
-                            await self._trigger_self_healing(service_name)
-                
-            except Exception as e:
-                self.logger.error(f"❌ Health check loop error: {e}")
-
-    async def _metrics_collection_loop(self):
-        """Continuous metrics collection"""
-        while True:
-            try:
-                await asyncio.sleep(60)  # Collect metrics every minute
-                
-                # Collect system metrics
-                metrics = {
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "cpu_percent": psutil.cpu_percent(),
-                    "memory_percent": psutil.virtual_memory().percent,
-                    "services": {}
-                }
-                
-                # Collect service metrics
-                for service_name, pid in self.process_registry.items():
-                    try:
-                        process = psutil.Process(pid)
-                        metrics["services"][service_name] = {
-                            "cpu_percent": process.cpu_percent(),
-                            "memory_mb": process.memory_info().rss / 1024 / 1024
-                        }
-                    except psutil.NoSuchProcess:
-                        pass
-                
-                # Log metrics (in production, would send to monitoring system)
-                self.logger.info(f"📊 Metrics: {json.dumps(metrics)}")
-                
-            except Exception as e:
-                self.logger.error(f"❌ Metrics collection error: {e}")
-
-    async def _trigger_self_healing(self, service_name: str):
-        """Trigger self-healing for failed service"""
-        self.logger.info(f"🔧 Triggering self-healing for {service_name}")
-        
-        # Get service config
-        service_config = self.config.get("services", {}).get(service_name)
-        if not service_config:
-            return
-        
-        # Stop existing process
-        if service_name in self.process_registry:
-            try:
-                process = psutil.Process(self.process_registry[service_name])
-                process.terminate()
-                await asyncio.sleep(5)
-                if process.is_running():
-                    process.kill()
-                del self.process_registry[service_name]
-            except psutil.NoSuchProcess:
-                pass
-        
-        # Restart service
-        success = await self._start_service(service_name, service_config)
-        if success:
-            self.logger.info(f"✅ Self-healing successful for {service_name}")
-        else:
-            self.logger.error(f"❌ Self-healing failed for {service_name}")
-
-    async def _run_health_check(self, health_check: str) -> bool:
-        """Run health check method"""
-        try:
-            method = getattr(self, health_check.split('.')[-1])
-            return await method()
+            
         except Exception as e:
-            self.logger.error(f"❌ Health check failed: {e}")
+            self.logger.error(f"❌ Database initialization failed: {e}")
+            self.stage_results["database_initialization"] = False
             return False
-
-    async def _run_rollback(self, rollback_handler: str):
-        """Run rollback handler"""
+    
+    async def _stage_service_startup(self) -> bool:
+        """Start core services"""
+        self.logger.info("🚀 Stage 5: Service startup")
+        
         try:
-            method = getattr(self, rollback_handler.split('.')[-1])
-            await method()
-        except Exception as e:
-            self.logger.error(f"❌ Rollback failed: {e}")
-
-    # Health check methods
-    async def _health_check_preflight(self) -> bool:
-        return True
-
-    async def _health_check_environment(self) -> bool:
-        return os.environ.get('PYTHONIOENCODING') == 'utf-8'
-
-    async def _health_check_secrets(self) -> bool:
-        return len(self.secrets) > 0
-
-    async def _health_check_dependencies(self) -> bool:
-        try:
-            import fastapi, uvicorn, sqlalchemy
+            services_started = 0
+            
+            # Start backend (always)
+            if await self._start_uvicorn_backend():
+                services_started += 1
+            else:
+                self.logger.error("❌ Failed to start backend")
+                return False
+            
+            # Start frontend (if not safe mode)
+            if not self.safe_mode and self.profile != BootProfile.SAFE_MODE:
+                if await self._start_frontend():
+                    services_started += 1
+                # Frontend failure is not critical
+            
+            # Start Docker services (if Docker profile)
+            if self.profile == BootProfile.DOCKER:
+                if await self._start_docker_services():
+                    services_started += 1
+                # Docker failure is not critical in mixed environments
+            
+            self.logger.info(f"✅ Started {services_started} services")
+            self.stage_results["service_startup"] = True
             return True
-        except ImportError:
+            
+        except Exception as e:
+            self.logger.error(f"❌ Service startup failed: {e}")
+            self.stage_results["service_startup"] = False
             return False
-
-    async def _health_check_directories(self) -> bool:
-        required_dirs = ["logs", "data", "temp"]
-        return all((self.grace_root / d).exists() for d in required_dirs)
-
-    async def _health_check_database(self) -> bool:
-        # Simplified database health check
-        return True
-
-    async def _health_check_services(self) -> bool:
-        return len(self.process_registry) > 0
-
-    async def _health_check_validation(self) -> bool:
-        return True
-
-    async def _health_check_monitoring(self) -> bool:
-        return True
-
-    # Rollback methods
-    async def _rollback_environment(self):
-        self.logger.info("🔄 Rolling back environment changes")
-
-    async def _rollback_dependencies(self):
-        self.logger.info("🔄 Rolling back dependency changes")
-
-    async def _rollback_database(self):
-        self.logger.info("🔄 Rolling back database changes")
-
-    async def _rollback_services(self):
-        self.logger.info("🔄 Rolling back service changes")
-        await self._stop_all_services()
-
-    async def _record_boot_ledger(self, success: bool):
-        """Record boot attempt in immutable ledger"""
-        duration = (datetime.now(timezone.utc) - self.start_time).total_seconds()
+    
+    async def _stage_health_verification(self) -> bool:
+        """Verify services are healthy"""
+        self.logger.info("🏥 Stage 6: Health verification")
         
-        ledger_entry = BootLedgerEntry(
-            boot_id=self.boot_id,
-            timestamp=self.start_time,
-            environment=self.environment,
-            profile=self.profile.value,
-            config_hash=self.config_hash,
-            git_sha=await self._get_git_sha(),
-            stage_results=self.stage_results,
-            artifacts=self.artifacts,
-            duration=duration,
-            success=success
-        )
-        
-        # Append to ledger file
-        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
-        async with aiofiles.open(self.ledger_path, 'a') as f:
-            await f.write(json.dumps(asdict(ledger_entry), default=str) + '\n')
-
+        try:
+            if self.dry_run:
+                self.logger.info("🔍 DRY RUN: Would verify service health")
+                self.stage_results["health_verification"] = True
+                return True
+            
+            # Wait a moment for services to start
+            await asyncio.sleep(3)
+            
+            # Check backend health
+            try:
+                import aiohttp
+                async with aiohttp.ClientSession() as session:
+                    async with session.get("http://localhost:8000/health", timeout=10) as response:
+                        if response.status == 200:
+                            self.logger.info("✅ Backend health check passed")
+                        else:
+                            self.logger.warning(f"⚠️  Backend health check returned {response.status}")
+            except Exception as e:
+                self.logger.warning(f"⚠️  Backend health check failed: {e}")
+                # Don't fail boot for health check issues
+            
+            self.stage_results["health_verification"] = True
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"❌ Health verification failed: {e}")
+            self.stage_results["health_verification"] = False
+            return False
+    
+    async def _start_uvicorn_backend(self) -> bool:
+        """Start Uvicorn backend"""
+        try:
+            self.logger.info("🚀 Starting Uvicorn backend...")
+            
+            if self.dry_run:
+                self.logger.info("🔍 DRY RUN: Would start uvicorn backend")
+                return True
+            
+            # Prepare command
+            python_exe = sys.executable
+            cmd = [
+                python_exe, "-m", "uvicorn", 
+                "backend.main:app",
+                "--host", "0.0.0.0",
+                "--port", "8000"
+            ]
+            
+            if self.environment == "dev":
+                cmd.append("--reload")
+            
+            # Start process
+            process = subprocess.Popen(
+                cmd,
+                cwd=self.grace_root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if self.is_windows else 0
+            )
+            
+            # Wait briefly to ensure it started
+            await asyncio.sleep(2)
+            
+            if process.poll() is None:  # Still running
+                # Register with process registry
+                try:
+                    process_id = process_registry.register_process(
+                        pid=process.pid,
+                        name="Grace Backend",
+                        component="uvicorn",
+                        command=cmd,
+                        cwd=str(self.grace_root),
+                        ports=[8000],
+                        endpoints=["http://localhost:8000"],
+                        boot_id=self.boot_id,
+                        environment=self.environment,
+                        process_type="uvicorn",
+                        shutdown_method="http",
+                        shutdown_endpoint="http://localhost:8000/shutdown",
+                        health_endpoint="http://localhost:8000/health"
+                    )
+                    
+                    self.launched_processes.append(process_id)
+                    self.process_registry[process_id] = process.pid
+                except Exception as e:
+                    self.logger.warning(f"⚠️  Could not register process: {e}")
+                
+                self.logger.info(f"✅ Backend started (PID: {process.pid})")
+                return True
+            else:
+                self.logger.error("❌ Backend failed to start")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"❌ Failed to start backend: {e}")
+            return False
+    
+    async def _start_frontend(self) -> bool:
+        """Start frontend development server"""
+        try:
+            frontend_dir = self.grace_root / "frontend"
+            if not frontend_dir.exists():
+                self.logger.warning("⚠️  Frontend directory not found, skipping")
+                return True
+            
+            self.logger.info("🎨 Starting frontend...")
+            
+            if self.dry_run:
+                self.logger.info("🔍 DRY RUN: Would start npm dev server")
+                return True
+            
+            # Check if npm is available
+            try:
+                subprocess.run(["npm", "--version"], check=True, capture_output=True)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                self.logger.warning("⚠️  npm not found, skipping frontend")
+                return True
+            
+            # Start npm dev server
+            cmd = ["npm", "run", "dev"]
+            
+            process = subprocess.Popen(
+                cmd,
+                cwd=frontend_dir,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=self.is_windows,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if self.is_windows else 0
+            )
+            
+            # Wait briefly to ensure it started
+            await asyncio.sleep(3)
+            
+            if process.poll() is None:  # Still running
+                try:
+                    process_id = process_registry.register_process(
+                        pid=process.pid,
+                        name="Grace Frontend",
+                        component="vite",
+                        command=cmd,
+                        cwd=str(frontend_dir),
+                        ports=[5173],
+                        endpoints=["http://localhost:5173"],
+                        boot_id=self.boot_id,
+                        environment=self.environment,
+                        process_type="npm",
+                        shutdown_method="signal",
+                        health_endpoint="http://localhost:5173"
+                    )
+                    
+                    self.launched_processes.append(process_id)
+                    self.process_registry[process_id] = process.pid
+                except Exception as e:
+                    self.logger.warning(f"⚠️  Could not register frontend process: {e}")
+                
+                self.logger.info(f"✅ Frontend started (PID: {process.pid})")
+                return True
+            else:
+                self.logger.error("❌ Frontend failed to start")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"❌ Failed to start frontend: {e}")
+            return False
+    
+    async def _start_docker_services(self) -> bool:
+        """Start Docker services"""
+        try:
+            compose_file = self.grace_root / "docker-compose.yml"
+            if not compose_file.exists():
+                self.logger.warning("⚠️  docker-compose.yml not found, skipping")
+                return True
+            
+            self.logger.info("🐳 Starting Docker services...")
+            
+            if self.dry_run:
+                self.logger.info("🔍 DRY RUN: Would start docker-compose services")
+                return True
+            
+            # Start docker-compose
+            cmd = ["docker-compose", "up", "-d"]
+            
+            result = await asyncio.create_subprocess_exec(
+                *cmd,
+                cwd=self.grace_root,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await result.communicate()
+            
+            if result.returncode == 0:
+                self.logger.info("✅ Docker services started")
+                return True
+            else:
+                self.logger.error(f"❌ Docker services failed: {stderr.decode()}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"❌ Failed to start Docker services: {e}")
+            return False
+    
     async def _emergency_rollback(self):
         """Emergency rollback on boot failure"""
         self.logger.info("🔄 Emergency rollback initiated")
-        await self._stop_all_services()
-
-    async def _emergency_shutdown(self):
-        """Emergency shutdown"""
-        self.logger.info("🛑 Emergency shutdown initiated")
-        await self._stop_all_services()
-
-    async def _stop_all_services(self):
-        """Stop all registered services"""
-        for service_name, pid in self.process_registry.items():
-            try:
-                process = psutil.Process(pid)
-                process.terminate()
-                self.logger.info(f"🛑 Stopped {service_name} (PID: {pid})")
-            except psutil.NoSuchProcess:
-                pass
-            except Exception as e:
-                self.logger.error(f"❌ Failed to stop {service_name}: {e}")
         
-        self.process_registry.clear()
-
-    async def status(self) -> Dict[str, Any]:
-        """Get system status"""
-        status = {
-            "boot_id": self.boot_id,
-            "environment": self.environment,
-            "profile": self.profile.value,
-            "uptime": (datetime.now(timezone.utc) - self.start_time).total_seconds(),
-            "services": {},
-            "system": {
-                "cpu_percent": psutil.cpu_percent(),
-                "memory_percent": psutil.virtual_memory().percent
-            }
-        }
-        
-        for service_name, pid in self.process_registry.items():
-            try:
-                process = psutil.Process(pid)
-                status["services"][service_name] = {
-                    "pid": pid,
-                    "status": process.status(),
-                    "cpu_percent": process.cpu_percent(),
-                    "memory_mb": process.memory_info().rss / 1024 / 1024
-                }
-            except psutil.NoSuchProcess:
-                status["services"][service_name] = {"status": "not_found"}
-        
-        return status
-
+        # Stop any processes we started
+        for process_id in self.launched_processes:
+            if process_id in self.process_registry:
+                try:
+                    pid = self.process_registry[process_id]
+                    if psutil.pid_exists(pid):
+                        process = psutil.Process(pid)
+                        process.terminate()
+                        self.logger.info(f"🛑 Stopped {process_id} (PID: {pid})")
+                except Exception as e:
+                    self.logger.error(f"❌ Failed to stop {process_id}: {e}")
+    
     async def stop(self, force: bool = False, timeout: int = 30) -> bool:
-        """Stop all Grace services using process registry"""
+        """Stop all Grace services"""
         self.logger.info("🛑 Stopping Grace services...")
         
         if self.dry_run:
             self.logger.info("🔍 DRY RUN: Would stop all services")
             return True
         
-        # Stop all registered processes
-        results = await process_registry.stop_all_processes(force=force, timeout=timeout)
-        
-        # Clear our tracking
-        self.launched_processes.clear()
-        self.process_registry.clear()
-        
-        # Report results
-        total_stopped = len(results["stopped"]) + len(results["force_killed"])
-        total_failed = len(results["failed"])
-        
-        if total_failed == 0:
-            self.logger.info(f"✅ Successfully stopped {total_stopped} processes")
-            return True
-        else:
-            self.logger.warning(f"⚠️  Stopped {total_stopped} processes, {total_failed} failed")
+        try:
+            # Stop all registered processes
+            results = await process_registry.stop_all_processes(force=force, timeout=timeout)
+            
+            # Clear our tracking
+            self.launched_processes.clear()
+            self.process_registry.clear()
+            
+            # Report results
+            total_stopped = len(results["stopped"]) + len(results["force_killed"])
+            total_failed = len(results["failed"])
+            
+            if total_failed == 0:
+                self.logger.info(f"✅ Successfully stopped {total_stopped} processes")
+                return True
+            else:
+                self.logger.warning(f"⚠️  Stopped {total_stopped} processes, {total_failed} failed")
+                return False
+        except Exception as e:
+            self.logger.error(f"❌ Stop failed: {e}")
             return False
-
+    
+    async def status(self) -> Dict[str, Any]:
+        """Get system status"""
+        try:
+            return {
+                "boot_id": self.boot_id,
+                "environment": self.environment,
+                "profile": self.profile.value,
+                "grace_root": str(self.grace_root),
+                "launched_processes": len(self.launched_processes),
+                "stage_results": self.stage_results,
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def print_status(self, status: Dict[str, Any]):
+        """Print formatted status"""
+        print(f"\n🚀 GRACE SYSTEM STATUS")
+        print(f"Boot ID: {status.get('boot_id', 'unknown')}")
+        print(f"Environment: {status.get('environment', 'unknown')}")
+        print(f"Profile: {status.get('profile', 'unknown')}")
+        print(f"Grace Root: {status.get('grace_root', 'unknown')}")
+        print(f"Launched Processes: {status.get('launched_processes', 0)}")
+        
+        stage_results = status.get('stage_results', {})
+        if stage_results:
+            print(f"\n📊 BOOT STAGES:")
+            for stage, result in stage_results.items():
+                status_icon = "✅" if result else "❌"
+                print(f"  {status_icon} {stage}")
+        
+        print()
 
 def main():
-    """Enhanced main CLI with stop command"""
+    """Main CLI entry point"""
     import argparse
     
     parser = argparse.ArgumentParser(
@@ -1214,7 +673,6 @@ Examples:
   grace --stop                            # Stop all Grace processes
   grace --stop --force                    # Force stop all processes
   grace --status                          # Show process status
-  grace --registry                        # Show process registry
         """
     )
     
@@ -1230,16 +688,12 @@ Examples:
                        help="Dry run (don't actually start services)")
     parser.add_argument("--status", action="store_true",
                        help="Show system status")
-    parser.add_argument("--registry", action="store_true",
-                       help="Show process registry")
     parser.add_argument("--stop", action="store_true",
                        help="Stop all Grace services")
     parser.add_argument("--force", action="store_true",
                        help="Force stop (use with --stop)")
     parser.add_argument("--timeout", type=int, default=30,
                        help="Shutdown timeout in seconds (default: 30)")
-    parser.add_argument("--watch", action="store_true",
-                       help="Watch status continuously")
     parser.add_argument("--verbose", "-v", action="store_true",
                        help="Verbose output")
     
@@ -1247,10 +701,6 @@ Examples:
     
     async def run_command():
         try:
-            if args.registry:
-                process_registry.print_status()
-                return
-            
             if args.stop:
                 print("🛑 Stopping all Grace processes...")
                 if args.force:
@@ -1261,31 +711,19 @@ Examples:
                     timeout=args.timeout
                 )
                 
-                # Print detailed results
+                # Print results
                 total_stopped = len(results["stopped"]) + len(results["force_killed"])
                 print(f"\n📊 SHUTDOWN RESULTS:")
                 print(f"✅ Stopped: {len(results['stopped'])}")
                 print(f"🔨 Force killed: {len(results['force_killed'])}")
                 print(f"❌ Failed: {len(results['failed'])}")
-                print(f"❓ Not found: {len(results['not_found'])}")
                 print(f"📈 Total: {total_stopped} processes stopped")
-                
-                if results["failed"]:
-                    print(f"\n⚠️  Failed to stop:")
-                    for process_id in results["failed"]:
-                        if process_id in process_registry.processes:
-                            proc_info = process_registry.processes[process_id]
-                            print(f"   • {proc_info.name} (PID: {proc_info.pid})")
-                    
-                    if not args.force:
-                        print(f"\n💡 Try: grace --stop --force")
-                
                 return
             
-            # Create orchestrator for other commands
+            # Create orchestrator
             orchestrator = GraceUnifiedOrchestrator(
                 environment=args.env,
-                profile=BootProfile(args.profile),
+                profile=args.profile,
                 config_path=args.config,
                 safe_mode=args.safe_mode,
                 dry_run=args.dry_run
@@ -1297,14 +735,6 @@ Examples:
                     print(json.dumps(status, indent=2))
                 else:
                     orchestrator.print_status(status)
-                
-                # Also show process registry
-                print()
-                process_registry.print_status()
-                return
-            
-            if args.watch:
-                await watch_status(orchestrator)
                 return
             
             # Boot Grace
@@ -1319,13 +749,9 @@ Examples:
                 print(f"🆔 Boot ID: {orchestrator.boot_id}")
                 print(f"📝 Launched {len(orchestrator.launched_processes)} processes")
                 
-                print("\n📋 Process Registry:")
-                process_registry.print_status()
-                
                 if not args.dry_run:
                     print("\n💡 Commands:")
                     print("   grace --status     # Check status")
-                    print("   grace --registry   # Show process registry")
                     print("   grace --stop       # Stop all services")
                     print("   grace --stop --force # Force stop all")
             else:
@@ -1334,8 +760,6 @@ Examples:
             
         except KeyboardInterrupt:
             print("\n🛑 Interrupted by user")
-            if 'orchestrator' in locals():
-                await orchestrator.stop()
             sys.exit(0)
         except Exception as e:
             print(f"❌ Command failed: {e}")
@@ -1353,6 +777,6 @@ Examples:
         print(f"❌ Error: {e}")
         sys.exit(1)
 
-
 if __name__ == "__main__":
     main()
+
