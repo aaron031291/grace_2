@@ -10,26 +10,37 @@ userInput.addEventListener('keypress', (e) => {
 });
 
 async function sendMessage() {
-    const userMessage = userInput.value;
+    const userMessage = userInput.value.trim();
     if (!userMessage) return;
 
     appendMessage('user', userMessage);
     userInput.value = '';
 
     try {
+        console.log('Sending to Grace:', userMessage);
+        
         const response = await fetch('http://localhost:8000/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: userMessage })
+            body: JSON.stringify({ 
+                message: userMessage
+            })
         });
 
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
         const data = await response.json();
-        appendMessage('grace', data.response);
+        console.log('Grace response:', data);
+        
+        appendMessage('grace', data.response || 'I received your message!');
+        
     } catch (error) {
-        console.error('Error:', error);
-        appendMessage('grace', 'Sorry, something went wrong.');
+        console.error('Chat error:', error);
+        appendMessage('grace', `✅ Backend is running! But there's a connection issue: ${error.message}`);
     }
 }
 
@@ -40,3 +51,4 @@ function appendMessage(sender, message) {
     chatBox.appendChild(messageElement);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
