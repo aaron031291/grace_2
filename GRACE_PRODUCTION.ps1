@@ -129,8 +129,8 @@ if (-not $SkipChecks) {
 # Step 2: Syntax validation
 if (-not $SkipChecks) {
     Write-Host "[2/7] Syntax Validation" -ForegroundColor Yellow
-    Write-Host "-" * 80
-    
+    Write-Host ("-" * 80)
+
     # Check for merge conflicts
     $conflicts = Get-ChildItem backend -Recurse -Include *.py | Select-String -Pattern "^<<<<<<< |^=======$|^>>>>>>>" -ErrorAction SilentlyContinue
     if ($conflicts) {
@@ -139,7 +139,7 @@ if (-not $SkipChecks) {
         exit 1
     }
     Write-Host "  ✓ No merge conflicts" -ForegroundColor Green
-    
+
     Write-Host ""
 }
 
@@ -158,24 +158,24 @@ Write-Host ""
 # Step 4: Dependency check
 if (-not $SkipChecks) {
     Write-Host "[4/7] Dependency Check" -ForegroundColor Yellow
-    Write-Host "-" * 80
-    
+    Write-Host ("-" * 80)
+
     $required = @("fastapi", "uvicorn", "sqlalchemy", "pydantic")
     $missing = @()
-    
+
     foreach ($pkg in $required) {
         & $PYTHON_EXE -c "import $pkg" 2>$null
         if ($LASTEXITCODE -ne 0) {
             $missing += $pkg
         }
     }
-    
+
     if ($missing.Count -gt 0) {
         Write-Host "  [FAIL] Missing packages: $($missing -join ', ')" -ForegroundColor Red
         Write-Host "  Run: pip install -r backend/requirements.txt" -ForegroundColor Yellow
         exit 1
     }
-    
+
     Write-Host "  ✓ All dependencies installed" -ForegroundColor Green
     Write-Host ""
 }

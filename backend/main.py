@@ -14,6 +14,12 @@ from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
+from .routers.knowledge_domain import router as knowledge_domain_router
+from .routers.ml_domain import router as ml_domain_router
+from .routers.temporal_domain import router as temporal_domain_router
+from .routers.parliament_domain import router as parliament_domain_router
+from .routers.federation_domain import router as federation_domain_router
+from .routers.speech_domain import router as speech_domain_router
 from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
@@ -31,7 +37,7 @@ app.add_middleware(
 app.add_middleware(RequestIDMiddleware)
 
 from .task_executor import task_executor
-from .self_healing import health_monitor
+from .unified_health import unified_health
 from .trigger_mesh import trigger_mesh, setup_subscriptions
 from .meta_loop import meta_loop_engine
 from .websocket_manager import setup_ws_subscriptions
@@ -41,6 +47,7 @@ from .benchmark_scheduler import start_benchmark_scheduler, stop_benchmark_sched
 from .knowledge_discovery_scheduler import start_discovery_scheduler, stop_discovery_scheduler
 from .self_heal.scheduler import scheduler as self_heal_scheduler
 from .self_heal.runner import runner as self_heal_runner
+from .grace_core import grace_core
 
 @app.on_event("startup")
 async def on_startup():
@@ -113,7 +120,8 @@ async def on_startup():
     await trust_manager.initialize_defaults()
     await reflection_service.start()
     await task_executor.start_workers()
-    await health_monitor.start()
+    await unified_health.start()
+    await grace_core.start()
     await meta_loop_engine.start()
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
@@ -300,13 +308,9 @@ async def on_startup():
     except Exception as e:
         print(f"⚠️ Continuous Learning Loop failed to start: {e}")
 
-    # Start autonomous systems
-    from .grace_spine_integration import grace_agentic_system
-    await grace_agentic_system.start()
-
-    # Start mock metrics collector for agentic systems
-    from .collectors.mock_collector import mock_collector
-    await mock_collector.start()
+    # Start simplified autonomous systems
+    # GRACE Core and Unified Health are now started above
+    print("✓ Simplified GRACE systems operational")
 
     # Initialize external integrations
     try:
@@ -363,16 +367,10 @@ async def on_shutdown():
     except Exception:
         pass
 
-    # Stop autonomous systems
-    try:
-        from .grace_spine_integration import grace_agentic_system
-        await grace_agentic_system.stop()
-    except Exception:
-        pass
-
     await reflection_service.stop()
     await task_executor.stop_workers()
-    await health_monitor.stop()
+    await unified_health.stop()
+    await grace_core.stop()
     await trigger_mesh.stop()
     await meta_loop_engine.stop()
     await auto_retrain_engine.stop()
@@ -537,6 +535,12 @@ app.include_router(cognition_router)
 app.include_router(core_domain_router)
 app.include_router(transcendence_domain_router)
 app.include_router(security_domain_router)
+app.include_router(knowledge_domain_router)
+app.include_router(ml_domain_router)
+app.include_router(temporal_domain_router)
+app.include_router(parliament_domain_router)
+app.include_router(federation_domain_router)
+app.include_router(speech_domain_router)
 app.include_router(websocket_routes.router)
 app.include_router(elite_systems_api.router)  # Elite Self-Healing & Coding Agent
 app.include_router(mission_control_api.router)  # Mission Control & Autonomous Operations
