@@ -1,0 +1,66 @@
+table: memory_datasets
+description: |
+  Catalog of structured datasets used for learning or analytics.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: dataset_name
+    type: string
+    required: true
+
+  - name: file_path
+    type: string
+    required: true
+    unique: true
+
+  - name: rows
+    type: integer
+    default: 0
+
+  - name: columns
+    type: integer
+    default: 0
+
+  - name: column_schema
+    type: json
+    default: []
+    description: [{"name": "timestamp", "type": "datetime"}, ...]
+
+  - name: source_url
+    type: string
+    nullable: true
+
+  - name: license
+    type: string
+    nullable: true
+
+  - name: refresh_cadence
+    type: string
+    nullable: true
+
+  - name: ingestion_pipeline_id
+    type: string
+    nullable: true
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [dataset_name]
+  - fields: [risk_level, trust_score]

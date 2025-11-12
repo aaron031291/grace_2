@@ -1,0 +1,83 @@
+table: memory_documents
+description: |
+  Structured metadata for textual knowledge assets (books, whitepapers,
+  manuals, knowledge articles). Generated automatically when a new document
+  is ingested; entries sync to Memory Fusion once approved.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: file_path
+    type: string
+    unique: true
+    required: true
+    description: Relative path in the Memory workspace
+
+  - name: title
+    type: string
+    description: Title extracted from the document
+
+  - name: authors
+    type: json
+    default: []
+    description: Array of authors/contributors
+
+  - name: source_type
+    type: string
+    allowed:
+      - book
+      - report
+      - policy
+      - article
+      - transcript
+      - custom
+    default: custom
+
+  - name: summary
+    type: text
+    description: Grace-generated abstract
+
+  - name: key_topics
+    type: json
+    default: []
+    description: Tag-like keywords for discovery
+
+  - name: token_count
+    type: integer
+    default: 0
+
+  - name: trust_score
+    type: float
+    default: 0.0
+    description: 0–1 trust rating computed by clarity pipeline
+
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: low
+
+  - name: last_synced_at
+    type: datetime
+    nullable: true
+    description: When the document was pushed to Memory Fusion
+
+  - name: ingestion_pipeline_id
+    type: string
+    nullable: true
+    description: Pipeline run identifier that produced this entry
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+    description: Approval metadata (approver, timestamp, policy refs)
+
+  - name: notes
+    type: text
+    nullable: true
+    description: Human or LLM annotations
+indexes:
+  - fields: [source_type]
+  - fields: [risk_level]
+  - fields: [trust_score, last_synced_at]
