@@ -709,6 +709,77 @@ async def chat_endpoint(req: ChatRequest):
         "clarity_enabled": True
     }
 
+# Memory File Service API
+@app.get("/api/memory/files")
+async def list_memory_files(path: str = ""):
+    """List files in memory workspace"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return service.list_files(path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/memory/file")
+async def read_memory_file(path: str):
+    """Read a file from memory workspace"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return service.read_file(path)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@app.post("/api/memory/file")
+async def save_memory_file(path: str, content: str, metadata: dict = None):
+    """Save a file to memory workspace"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return await service.save_file(path, content, metadata)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/memory/file")
+async def delete_memory_file(path: str, recursive: bool = False):
+    """Delete a file from memory workspace"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return await service.delete_file(path, recursive)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/api/memory/file")
+async def rename_memory_file(old_path: str, new_path: str):
+    """Rename or move a file"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return await service.rename_file(old_path, new_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/memory/folder")
+async def create_memory_folder(path: str):
+    """Create a new folder"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return await service.create_folder(path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/memory/status")
+async def get_memory_service_status():
+    """Get memory service status"""
+    try:
+        from backend.memory_file_service import get_memory_service
+        service = await get_memory_service()
+        return service.get_status()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Domain Kernels API
 @app.get("/api/kernels")
 async def list_all_kernels():
