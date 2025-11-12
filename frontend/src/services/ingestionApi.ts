@@ -1,64 +1,56 @@
+/**
+ * Ingestion Orchestrator API Client
+ */
+
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export interface IngestionTask {
-  id: string;
+  task_id: string;
+  task_type: string;
   source: string;
-  type: 'file' | 'directory' | 'url' | 'database';
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: string;
   progress: number;
-  total_items: number;
-  processed_items: number;
-  started_at: string;
+  started_at?: string;
   completed_at?: string;
   error?: string;
+  results: Record<string, any>;
 }
 
-export interface IngestionStats {
-  total_ingested: number;
+export interface IngestionStatus {
+  component_id: string;
+  component_type: string;
+  status: string;
+  total_tasks: number;
   active_tasks: number;
-  failed_tasks: number;
-  total_size_mb: number;
-  avg_speed_items_per_sec: number;
+  max_concurrent: number;
+  modules_loaded: string[];
 }
 
-export interface IngestionHistory {
-  id: string;
-  source: string;
-  type: string;
-  items_processed: number;
-  duration_seconds: number;
-  completed_at: string;
+export async function getIngestionStatus(): Promise<IngestionStatus> {
+  const response = await axios.get(`${API_BASE}/api/ingestion/status`);
+  return response.data;
+}
+
+export async function getIngestionTasks(statusFilter?: string): Promise<IngestionTask[]> {
+  const response = await axios.get(`${API_BASE}/api/ingestion/tasks`, {
+    params: statusFilter ? { status: statusFilter } : {}
+  });
+  return response.data.tasks;
+}
+
+export async function startIngestion(taskType: string, source: string): Promise<{
   success: boolean;
+  task: IngestionTask;
+}> {
+  const response = await axios.post(`${API_BASE}/api/ingestion/start`, null, {
+    params: { task_type: taskType, source }
+  });
+  return response.data;
 }
 
-export const ingestionApi = {
-  async getActiveTasks(): Promise<IngestionTask[]> {
-    const { data } = await axios.get(`${API_BASE}/api/ingestion/tasks`);
-    return data.tasks || [];
-  },
-
-  async getStats(): Promise<IngestionStats> {
-    const { data } = await axios.get(`${API_BASE}/api/ingestion/stats`);
-    return data;
-  },
-
-  async getHistory(limit: number = 20): Promise<IngestionHistory[]> {
-    const { data } = await axios.get(`${API_BASE}/api/ingestion/history`, { params: { limit } });
-    return data.history || [];
-  },
-
-  async startIngestion(source: string, type: string): Promise<{ task_id: string }> {
-    const { data } = await axios.post(`${API_BASE}/api/ingestion/start`, { source, type });
-    return data;
-  },
-
-  async stopIngestion(taskId: string): Promise<void> {
-    await axios.post(`${API_BASE}/api/ingestion/stop/${taskId}`);
-  },
-
-  async retryFailed(taskId: string): Promise<void> {
-    await axios.post(`${API_BASE}/api/ingestion/retry/${taskId}`);
-  }
-};
+export async function stopIngestion(taskId: string): Promise<{ success: boolean }> {
+  const response = await axios.post(`${API_BASE}/api/ingestion/stop/${taskId}`);
+  return response.data;
+}

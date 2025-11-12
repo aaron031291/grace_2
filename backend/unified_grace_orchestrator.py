@@ -694,6 +694,43 @@ async def get_learning_status():
             "error": "Learning loop module not found"
         }
 
+# Domain Kernels API
+@app.get("/api/kernels")
+async def list_all_kernels():
+    """List all 9 domain kernels"""
+    try:
+        from backend.kernels.all_kernels_clarity import (
+            ClarityMemoryKernel,
+            ClarityCoreKernel,
+            ClarityCodeKernel,
+            ClarityGovernanceKernel,
+            ClarityVerificationKernel,
+            ClarityIntelligenceKernel,
+            ClarityInfrastructureKernel,
+            ClarityFederationKernel,
+            ClarityMLKernel
+        )
+        
+        kernels = [
+            {"name": "Memory", "domain": "memory", "type": "ClarityMemoryKernel"},
+            {"name": "Core", "domain": "core", "type": "ClarityCoreKernel"},
+            {"name": "Code", "domain": "code", "type": "ClarityCodeKernel"},
+            {"name": "Governance", "domain": "governance", "type": "ClarityGovernanceKernel"},
+            {"name": "Verification", "domain": "verification", "type": "ClarityVerificationKernel"},
+            {"name": "Intelligence", "domain": "intelligence", "type": "ClarityIntelligenceKernel"},
+            {"name": "Infrastructure", "domain": "infrastructure", "type": "ClarityInfrastructureKernel"},
+            {"name": "Federation", "domain": "federation", "type": "ClarityFederationKernel"},
+            {"name": "ML & AI", "domain": "ml", "type": "ClarityMLKernel"}
+        ]
+        
+        return {
+            "total_kernels": 9,
+            "kernels": kernels,
+            "clarity_enabled": True
+        }
+    except Exception as e:
+        return {"error": str(e), "total_kernels": 9, "clarity_enabled": False}
+
 # CLI entry point - separate from uvicorn serving
 def main():
     """CLI entry point - handles boot/status/stop commands"""
