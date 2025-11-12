@@ -1,5 +1,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { MemoryBrowser } from './components/MemoryBrowser';
+import { MemoryPanel } from './panels/MemoryPanel';
+import { MemoryHubPanel } from './panels/MemoryHubPanel';
 import { TranscendenceIDE } from './components/TranscendenceIDE';
 import { HunterDashboard } from './components/HunterDashboard';
 import { KnowledgeIngestion } from './components/KnowledgeIngestion';
@@ -102,7 +104,7 @@ export default function App() {
   }
 
   if (page === 'memory') {
-    return <MemoryBrowser />;
+    return <MemoryHubPanel />;
   }
 
   if (page === 'knowledge') {
