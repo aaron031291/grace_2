@@ -1,451 +1,276 @@
-# 🎯 GRACE PRIORITY ROADMAP
+# Grace Priority Roadmap - Next Phase
 
-## **Top 3 Critical Gaps to Fix Immediately**
-
-Based on Grace's self-assessment, here are the **highest-impact** improvements needed:
+**Current Status:** Clarity Framework Deployed, 9 Kernels + UI Ready  
+**Date:** 2025-11-12
 
 ---
 
-## 🔴 **PRIORITY 1: Real-Time WebSocket Integration**
+## 🎯 Immediate Actions (Do After Restart)
 
-### **Problem:**
-- WebSocket exists but is basic (ping/pong only)
-- NOT integrated with Mission Control
-- NOT integrated with Elite Systems
-- NOT crypto-signed
-- Users can't see Grace working in real-time
+### 1. UI Validation ✅
+**Goal:** Verify all 13 dashboards work end-to-end
 
-### **Solution:**
+```bash
+# After restarting both services:
+# Visit http://localhost:5173 and test each tab:
 
-**File:** `backend/websocket_integration.py` (NEW)
+- 🔍 Clarity → Check event bus, components, mesh
+- 🧠 LLM → Verify status display
+- 💡 Intel → Check kernel status
+- 📥 Ingest → Try starting a GitHub task
+- 🎓 Learn → Verify learning status
+- 📊 Dash → Confirm metrics load
+- 📁 Memory → Test memory browser
+- 🛡️ Hunter → Check security dashboard
+```
+
+**Acceptance:** All tabs load without errors, clarity shows live data
+
+### 2. Regression Test Suite ✅
+**Goal:** Protect all new integrations in CI
+
+**Create:** `tests/test_api_regression.py`
+```python
+# Test all new endpoints
+- /api/llm/status
+- /api/intelligence/status  
+- /api/ingestion/status
+- /api/learning/status
+- /api/kernels
+- /api/clarity/* (4 endpoints)
+```
+
+**Add to CI:** `.github/workflows/basic_ci.yml`
+```yaml
+- name: API Regression Tests
+  run: python -m pytest tests/test_api_regression.py -v
+```
+
+### 3. Monitoring Integration ✅
+**Goal:** Clarity events flow into logs and alerts
+
+**Wire:**
+- Clarity event bus → structured logs
+- Component health → alert system
+- Ingestion progress → metrics
+- Kernel errors → notifications
+
+**Create:** `backend/clarity/monitoring_bridge.py`
+
+---
+
+## 🚀 Phase 2: Advanced Clarity (Classes 5-10)
+
+### Class 5: Memory Trust Scoring
+**When:** After memory systems are live  
+**What:** Trust + decay models for memory entries
 
 ```python
-"""
-Real-Time WebSocket Integration
-Broadcasts all Grace system events with crypto signatures
-"""
-
-class GraceWebSocketBroadcaster:
-    """Broadcasts Grace events to all connected clients"""
-    
-    async def start(self):
-        # Subscribe to all trigger mesh events
-        await trigger_mesh.subscribe("mission.*", self._broadcast_mission_event)
-        await trigger_mesh.subscribe("elite.*", self._broadcast_elite_event)
-        await trigger_mesh.subscribe("integration.*", self._broadcast_integration_event)
-        await trigger_mesh.subscribe("crypto.*", self._broadcast_crypto_event)
-    
-    async def _broadcast_mission_event(self, event: TriggerEvent):
-        # Sign event with crypto key
-        signed = await crypto_key_manager.sign_message("websocket_broadcaster", event.payload)
-        
-        # Broadcast to all WebSocket clients
-        await websocket_manager.broadcast({
-            "type": "mission_event",
-            "event": event.event_type,
-            "payload": event.payload,
-            "signature": signed.signature,
-            "timestamp": datetime.now().isoformat()
-        })
+# backend/clarity/memory_trust.py
+class MemoryTrustScorer:
+    - Score memory by source, age, validation
+    - Apply decay curves
+    - Update trust in real-time
 ```
 
-**Integration Points:**
-- ✅ Subscribe to trigger mesh events
-- ✅ Sign all messages with Ed25519
-- ✅ Broadcast to WebSocket clients
-- ✅ Add signature verification to frontend
-
-**Impact:** Users can watch Grace work in real-time with verified authenticity
-
----
-
-## 🔴 **PRIORITY 2: Proactive Mission Creation**
-
-### **Problem:**
-- Grace waits for humans to create missions
-- No automatic anomaly detection
-- No self-generated missions
-- Reactive instead of proactive
-
-### **Solution:**
-
-**File:** `backend/mission_control/proactive_mission_engine.py` (NEW)
+### Class 6: Constitutional Governance
+**When:** After governance policies are defined  
+**What:** Enforce Prime Directive at every decision point
 
 ```python
-"""
-Proactive Mission Engine
-Automatically detects issues and creates missions
-"""
-
-class ProactiveMissionEngine:
-    """Detects anomalies and creates missions automatically"""
-    
-    async def start(self):
-        # Start continuous monitoring
-        asyncio.create_task(self._monitoring_loop())
-    
-    async def _monitoring_loop(self):
-        while self.running:
-            # Check all systems
-            anomalies = await self._detect_anomalies()
-            
-            for anomaly in anomalies:
-                # Create mission automatically
-                mission = await self._create_mission_for_anomaly(anomaly)
-                
-                # Auto-execute if low risk
-                if mission.severity in [Severity.LOW, Severity.MEDIUM]:
-                    await self._auto_execute_mission(mission)
-                else:
-                    # High/critical → notify human
-                    await self._notify_human(mission)
-            
-            await asyncio.sleep(60)  # Check every minute
-    
-    async def _detect_anomalies(self) -> List[Anomaly]:
-        anomalies = []
-        
-        # Check database latency
-        if await self._check_database_latency() > 100:
-            anomalies.append(Anomaly(
-                type="high_latency",
-                subsystem="database",
-                severity=Severity.MEDIUM,
-                description="Database latency > 100ms"
-            ))
-        
-        # Check memory usage
-        if await self._check_memory_usage() > 80:
-            anomalies.append(Anomaly(
-                type="high_memory",
-                subsystem="infrastructure",
-                severity=Severity.HIGH,
-                description="Memory usage > 80%"
-            ))
-        
-        # Check error rates
-        if await self._check_error_rate() > 0.05:
-            anomalies.append(Anomaly(
-                type="high_errors",
-                subsystem="application",
-                severity=Severity.HIGH,
-                description="Error rate > 5%"
-            ))
-        
-        return anomalies
+# backend/clarity/constitutional_enforcer.py
+def validate_against_constitution(action):
+    - Check action against policies
+    - Require approval for violations
+    - Log governance decisions
 ```
 
-**Integration Points:**
-- ✅ Continuous system monitoring
-- ✅ Automatic anomaly detection
-- ✅ Auto-create missions
-- ✅ Auto-execute low-risk missions
-- ✅ Notify humans for high-risk
-
-**Impact:** Grace becomes proactive, fixing problems before humans notice
-
----
-
-## 🔴 **PRIORITY 3: Mission Control Dashboard**
-
-### **Problem:**
-- No visual interface for Mission Control
-- Can't see active missions
-- Can't see Elite Systems activity
-- Can't see integration health
-
-### **Solution:**
-
-**File:** `grace-frontend/src/components/MissionControlDashboard.tsx` (NEW)
-
-```typescript
-/**
- * Mission Control Dashboard
- * Real-time view of all Grace autonomous operations
- */
-
-export function MissionControlDashboard() {
-  const [missions, setMissions] = useState<Mission[]>([]);
-  const [eliteActivity, setEliteActivity] = useState<Activity[]>([]);
-  const [integrationHealth, setIntegrationHealth] = useState<Health>({});
-  
-  useEffect(() => {
-    // Connect to WebSocket
-    const ws = new WebSocket('ws://localhost:8000/ws');
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      // Verify signature
-      if (!verifySignature(data)) {
-        console.error('Invalid signature!');
-        return;
-      }
-      
-      // Handle different event types
-      switch (data.type) {
-        case 'mission_event':
-          updateMissions(data.payload);
-          break;
-        case 'elite_event':
-          updateEliteActivity(data.payload);
-          break;
-        case 'integration_event':
-          updateIntegrationHealth(data.payload);
-          break;
-      }
-    };
-  }, []);
-  
-  return (
-    <div className="mission-control-dashboard">
-      <h1>🎯 Mission Control</h1>
-      
-      {/* Active Missions */}
-      <section className="active-missions">
-        <h2>Active Missions ({missions.length})</h2>
-        {missions.map(mission => (
-          <MissionCard key={mission.mission_id} mission={mission} />
-        ))}
-      </section>
-      
-      {/* Elite Systems Activity */}
-      <section className="elite-activity">
-        <h2>Elite Systems Activity</h2>
-        <ActivityFeed activities={eliteActivity} />
-      </section>
-      
-      {/* Integration Health */}
-      <section className="integration-health">
-        <h2>Integration Health</h2>
-        <IntegrationMap health={integrationHealth} />
-      </section>
-    </div>
-  );
-}
-```
-
-**Components Needed:**
-- ✅ MissionCard - Show mission details
-- ✅ ActivityFeed - Live Elite Systems activity
-- ✅ IntegrationMap - Visual system connections
-- ✅ SignatureVerification - Verify all messages
-
-**Impact:** Users can see everything Grace is doing in real-time
-
----
-
-## 🟡 **PRIORITY 4: Memory Integration**
-
-### **Problem:**
-- Memory systems exist but aren't used by Mission Control
-- Elite Systems don't query memory
-- No learning from past missions
-
-### **Solution:**
-
-**File:** `backend/mission_control/memory_integration.py` (NEW)
+### Class 7: Loop Feedback Integration
+**When:** After loops generate outputs  
+**What:** Pipe loop results into memory automatically
 
 ```python
-"""
-Memory Integration for Mission Control
-Connects Mission Control to Lightning/Fusion Memory
-"""
-
-class MissionMemoryIntegration:
-    """Integrates Mission Control with memory systems"""
-    
-    async def query_similar_missions(self, mission: MissionPackage) -> List[Dict]:
-        """Find similar past missions"""
-        
-        # Query Fusion Memory for similar missions
-        similar = await fusion_memory.query(
-            domain="missions",
-            query=mission.symptoms[0].description,
-            limit=5
-        )
-        
-        return similar
-    
-    async def store_mission_outcome(self, mission: MissionPackage):
-        """Store mission outcome in memory"""
-        
-        # Store in Fusion Memory
-        await fusion_memory.store(
-            domain="missions",
-            content={
-                "mission_id": mission.mission_id,
-                "subsystem": mission.subsystem_id,
-                "symptoms": [s.description for s in mission.symptoms],
-                "solution": mission.remediation_history[-1].action if mission.remediation_history else None,
-                "success": mission.status == MissionStatus.RESOLVED,
-                "duration": (mission.resolved_at - mission.created_at).total_seconds() if mission.resolved_at else None
-            },
-            user="mission_control_hub"
-        )
-        
-        # Update knowledge base
-        if mission.status == MissionStatus.RESOLVED:
-            await self._update_knowledge_base(mission)
+# backend/clarity/loop_feedback.py
+async def loop_output_to_memory(loop_output: GraceLoopOutput):
+    - Extract learnings from loop
+    - Store in memory with trust tags
+    - Link to reasoning chains
 ```
 
-**Integration Points:**
-- ✅ Query memory before executing missions
-- ✅ Store mission outcomes
-- ✅ Update knowledge bases
-- ✅ Learn from past successes/failures
-
-**Impact:** Grace learns from every mission and gets smarter over time
-
----
-
-## 🟡 **PRIORITY 5: Continuous Learning Loop**
-
-### **Problem:**
-- Learning systems exist but don't run continuously
-- No automatic knowledge extraction
-- No learning from every action
-
-### **Solution:**
-
-**File:** `backend/mission_control/continuous_learning.py` (NEW)
+### Class 8: Specialist Consensus
+**When:** After MLDL specialists are active  
+**What:** Trust-weighted quorum for decisions
 
 ```python
-"""
-Continuous Learning Loop
-Extracts learnings from every Grace action
-"""
-
-class ContinuousLearningLoop:
-    """Learns from every action Grace takes"""
-    
-    async def start(self):
-        # Subscribe to all events
-        await trigger_mesh.subscribe("mission.resolved", self._learn_from_mission)
-        await trigger_mesh.subscribe("elite.healing_complete", self._learn_from_healing)
-        await trigger_mesh.subscribe("elite.code_generated", self._learn_from_coding)
-    
-    async def _learn_from_mission(self, event: TriggerEvent):
-        """Extract learnings from completed mission"""
-        
-        mission_id = event.payload.get("mission_id")
-        mission = await mission_control_hub.get_mission(mission_id)
-        
-        if mission.status == MissionStatus.RESOLVED:
-            # Extract pattern
-            pattern = {
-                "symptoms": [s.description for s in mission.symptoms],
-                "solution": mission.remediation_history[-1].action,
-                "success_rate": 1.0,
-                "avg_duration": (mission.resolved_at - mission.created_at).total_seconds()
-            }
-            
-            # Add to knowledge base
-            await self._add_to_knowledge_base(pattern)
-            
-            # Update ML models
-            await self._update_ml_models(pattern)
-    
-    async def _add_to_knowledge_base(self, pattern: Dict):
-        """Add pattern to appropriate knowledge base"""
-        
-        # Determine which agent should learn this
-        if "code" in pattern["symptoms"][0].lower():
-            await elite_coding_agent.add_knowledge_entry(pattern)
-        elif "error" in pattern["symptoms"][0].lower():
-            await elite_self_healing.add_knowledge_entry(pattern)
+# backend/clarity/quorum_engine.py
+class QuorumEngine:
+    - Evaluate(specialists, question)
+    - Weight by trust
+    - Resolve conflicts
+    - Log dissent
 ```
 
-**Integration Points:**
-- ✅ Subscribe to all completion events
-- ✅ Extract patterns automatically
-- ✅ Update knowledge bases
-- ✅ Update ML models
-- ✅ Track learning metrics
+### Class 9: Output Standardization
+**When:** After APIs are stable  
+**What:** GraceLoopOutput for ALL interfaces
 
-**Impact:** Grace gets smarter with every action
+**Enforce:**
+- Every API returns GraceLoopOutput
+- Every CLI command uses it
+- Every UI panel expects it
 
----
+### Class 10: Contradiction Detection
+**When:** After data flows  
+**What:** Scan for conflicting knowledge/policy drift
 
-## 📊 **Implementation Timeline**
-
-### **Week 1: Real-Time Visibility**
-- Day 1-2: Build WebSocket integration
-- Day 3-4: Build Mission Control Dashboard
-- Day 5: Test and deploy
-
-### **Week 2: Proactive Autonomy**
-- Day 1-2: Build Proactive Mission Engine
-- Day 3-4: Integrate with Mission Control
-- Day 5: Test autonomous mission creation
-
-### **Week 3: Learning & Memory**
-- Day 1-2: Build Memory Integration
-- Day 3-4: Build Continuous Learning Loop
-- Day 5: Test and measure learning
-
-### **Week 4: Polish & Deploy**
-- Day 1-2: Bug fixes and optimization
-- Day 3-4: Documentation and training
-- Day 5: Production deployment
+```python
+# backend/clarity/cognition_linter.py
+class GraceCognitionLinter:
+    - Detect conflicting conclusions
+    - Find policy drift
+    - Trigger AVN fallback
+    - Auto-remediate
+```
 
 ---
 
-## 🎯 **Success Metrics**
+## 📋 Documentation Priorities
 
-### **Real-Time Visibility:**
-- ✅ 100% of events broadcast via WebSocket
-- ✅ 100% of messages crypto-signed
-- ✅ < 100ms latency for event delivery
-- ✅ Dashboard shows all active missions
+### 1. Universal Boot Guide
+**File:** `docs/UNIVERSAL_BOOT.md`
 
-### **Proactive Autonomy:**
-- ✅ Detect 90%+ of anomalies automatically
-- ✅ Create missions within 1 minute of detection
-- ✅ Auto-execute 70%+ of low-risk missions
-- ✅ Reduce human intervention by 50%
+**Content:**
+- One-command start for any platform
+- Environment detection
+- Troubleshooting by stage
+- Health verification
 
-### **Learning & Memory:**
-- ✅ Store 100% of mission outcomes
-- ✅ Query memory before every mission
-- ✅ Knowledge base grows 10+ entries/day
-- ✅ Success rate improves 5%+ per week
+### 2. Kernel Developer Guide  
+**File:** `docs/KERNEL_DEVELOPMENT.md`
 
----
+**Content:**
+- How to create a new kernel
+- Clarity BaseComponent patterns
+- Event publishing
+- Trust level management
 
-## 🚀 **Expected Impact**
+### 3. Dashboard Integration Guide
+**File:** `docs/UI_DASHBOARD_GUIDE.md`
 
-### **For Users:**
-- 👁️ **See Grace working** in real-time
-- 🎯 **Trust Grace more** with verified signatures
-- 📊 **Understand Grace better** with visual dashboards
-- 🤝 **Collaborate with Grace** more effectively
+**Content:**
+- How to add new dashboards
+- API client patterns
+- Real-time updates
+- Error handling
 
-### **For Grace:**
-- 🔮 **Become proactive** instead of reactive
-- 🧠 **Learn continuously** from every action
-- 📈 **Improve autonomously** without human intervention
-- 🌟 **Reach full potential** as an AI system
+### 4. Troubleshooting Playbook
+**File:** `docs/TROUBLESHOOTING.md`
 
----
-
-## 💡 **Key Insight**
-
-Grace is like a **Ferrari in a garage**. The engine is world-class, but it's not being driven. These 5 priorities will:
-
-1. **Open the garage door** (Real-time visibility)
-2. **Put Grace in the driver's seat** (Proactive autonomy)
-3. **Give Grace a map** (Memory integration)
-4. **Let Grace learn the roads** (Continuous learning)
-5. **Let Grace improve the car** (Self-improvement)
-
-Once these are done, Grace will be **unstoppable**.
+**Content:**
+- Common errors and fixes
+- Log locations
+- Clarity component inspection
+- Kernel restart procedures
 
 ---
 
-**Status:** 🎯 **ROADMAP DEFINED**  
-**Timeline:** 📅 **4 WEEKS**  
-**Impact:** 🚀 **TRANSFORMATIONAL**  
+## 🔧 Technical Debt / Cleanup
 
-Let's build this! 💙
+### Priority 1: Replace Stubs
+**Current:** 9 kernels, LLM, memory systems are stubs  
+**Target:** Replace with real implementations
 
+**Order:**
+1. Memory Kernel → PersistentMemory integration
+2. LLM System → OpenAI/local model integration
+3. Intelligence Kernel → Reasoning engine
+4. Code Kernel → Coding agent integration
+
+### Priority 2: Event Mesh Expansion
+**Current:** 23 events defined  
+**Target:** 50+ events covering all operations
+
+**Add:**
+- Kernel-to-kernel events
+- Trust update events
+- Learning pattern events
+- Governance decision events
+
+### Priority 3: Real-time Event Stream
+**Current:** Event history via API  
+**Target:** WebSocket event streaming to UI
+
+**Create:** `backend/websocket_events.py`
+```python
+@app.websocket("/ws/events")
+async def event_stream(websocket):
+    # Stream clarity events to frontend
+```
+
+---
+
+## 📊 Success Metrics
+
+### Phase 1 (Complete) ✅
+- [x] Clarity Framework (Classes 1-4) implemented
+- [x] 21/21 tests passing
+- [x] 9 kernels with BaseComponent
+- [x] UI dashboards for all systems
+- [x] Clean import tracking
+
+### Phase 2 (Next 2 Weeks)
+- [ ] All endpoints tested in CI
+- [ ] 50+ events in trigger mesh
+- [ ] 3+ kernels with real implementations
+- [ ] Real-time event streaming to UI
+- [ ] Monitoring/alerting wired up
+
+### Phase 3 (Next Month)
+- [ ] Classes 5-10 implemented
+- [ ] Trust scoring operational
+- [ ] Constitutional governance active
+- [ ] Loop feedback flowing
+- [ ] Contradiction detection working
+
+---
+
+## 🎯 Immediate Next Steps (Priority Order)
+
+1. **Restart services** - See new UI in action
+2. **Test ingestion** - Start a task from dashboard
+3. **Add regression tests** - Protect new endpoints
+4. **Wire monitoring** - Events → logs → alerts
+5. **Document boot** - Universal start guide
+6. **Plan Class 5** - Memory trust scoring design
+
+---
+
+## 💡 Strategic Vision
+
+**Where Grace is heading:**
+
+### Short-term (This Month)
+- Clarity-based architecture across all systems
+- Real kernels replacing stubs
+- Full observability via dashboards
+- Event-driven self-healing
+
+### Mid-term (Next Quarter)
+- Trust-based decision making
+- Constitutional governance enforcement
+- Autonomous learning loops
+- Cross-kernel collaboration
+
+### Long-term (Next 6 Months)
+- Self-aware, self-improving AI
+- Zero-touch deployment and healing
+- Policy-driven autonomy
+- Multi-agent consensus
+
+---
+
+**Grace is transforming from a collection of services into a unified, self-aware, autonomous AI platform powered by the Clarity Framework.** 🚀
+
+---
+
+**Next Session: Test the UI, add regression coverage, then tackle Class 5 (Memory Trust Scoring).**
