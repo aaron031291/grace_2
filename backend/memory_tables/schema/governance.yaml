@@ -1,0 +1,93 @@
+table: memory_governance_decisions
+description: |
+  Governance decisions log with approvals/denials, policy references,
+  risk levels, and audit stamps. Immutable record of all governance actions.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: decision_id
+    type: string
+    required: true
+    unique: true
+
+  - name: decision_type
+    type: string
+    allowed: [approval, denial, delegation, escalation]
+    required: true
+
+  - name: subject
+    type: string
+    required: true
+    description: What was being decided
+
+  - name: context
+    type: text
+    description: Full context of the decision
+
+  - name: policy_references
+    type: json
+    default: []
+    description: Array of policy IDs that apply
+
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    required: true
+
+  - name: decision_maker
+    type: string
+    required: true
+    description: Who or what made the decision
+
+  - name: decision_outcome
+    type: string
+    required: true
+    allowed: [approved, denied, deferred, escalated]
+
+  - name: reasoning
+    type: text
+    description: Explanation of why this decision was made
+
+  - name: conditions
+    type: json
+    nullable: true
+    description: Conditional requirements for approval
+
+  - name: expiration_date
+    type: datetime
+    nullable: true
+    description: When this decision expires
+
+  - name: affected_components
+    type: json
+    default: []
+
+  - name: requires_review
+    type: boolean
+    default: false
+
+  - name: review_date
+    type: datetime
+    nullable: true
+
+  - name: created_at
+    type: datetime
+    required: true
+
+  - name: audit_stamp
+    type: json
+    required: true
+    description: Immutable audit metadata
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [decision_type]
+  - fields: [risk_level]
+  - fields: [decision_outcome]
+  - fields: [created_at]
+  - fields: [decision_maker]

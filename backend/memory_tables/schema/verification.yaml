@@ -1,0 +1,87 @@
+table: memory_verification_suites
+description: |
+  Test suites, coverage metrics, pass/fail history, and linked fixes.
+  Tracks verification across all Grace components.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: suite_name
+    type: string
+    required: true
+
+  - name: suite_type
+    type: string
+    allowed: [unit, integration, e2e, smoke, performance, security]
+    default: integration
+
+  - name: component_under_test
+    type: string
+    required: true
+    description: Which Grace component this tests
+
+  - name: test_cases
+    type: json
+    default: []
+    description: Array of test case definitions
+
+  - name: total_tests
+    type: integer
+    default: 0
+
+  - name: passed_tests
+    type: integer
+    default: 0
+
+  - name: failed_tests
+    type: integer
+    default: 0
+
+  - name: skipped_tests
+    type: integer
+    default: 0
+
+  - name: code_coverage_percent
+    type: float
+    default: 0.0
+
+  - name: last_run_at
+    type: datetime
+    nullable: true
+
+  - name: last_run_duration_ms
+    type: integer
+    default: 0
+
+  - name: last_run_status
+    type: string
+    allowed: [pass, fail, error, timeout]
+    nullable: true
+
+  - name: linked_fixes
+    type: json
+    default: []
+    description: Array of work order IDs that fixed issues
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: auto_run
+    type: boolean
+    default: true
+    description: Run automatically on code changes
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [component_under_test]
+  - fields: [last_run_status]
+  - fields: [code_coverage_percent]

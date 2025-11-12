@@ -1,0 +1,103 @@
+table: memory_execution_logs
+description: |
+  Command execution logs with runtime details, errors, and post-mortem
+  findings. Tracks all Grace operations.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: execution_id
+    type: string
+    required: true
+    unique: true
+
+  - name: command_type
+    type: string
+    required: true
+    description: Type of command executed
+
+  - name: component
+    type: string
+    required: true
+    description: Which component executed this
+
+  - name: parameters
+    type: json
+    default: {}
+    description: Command parameters
+
+  - name: status
+    type: string
+    allowed: [pending, running, success, failed, timeout, cancelled]
+    required: true
+
+  - name: started_at
+    type: datetime
+    required: true
+
+  - name: completed_at
+    type: datetime
+    nullable: true
+
+  - name: duration_ms
+    type: integer
+    default: 0
+
+  - name: exit_code
+    type: integer
+    nullable: true
+
+  - name: stdout_path
+    type: string
+    nullable: true
+    description: Path to stdout log
+
+  - name: stderr_path
+    type: string
+    nullable: true
+    description: Path to stderr log
+
+  - name: error_message
+    type: text
+    nullable: true
+
+  - name: stack_trace
+    type: text
+    nullable: true
+
+  - name: resource_usage
+    type: json
+    nullable: true
+    description: CPU, memory, disk usage
+
+  - name: triggered_by
+    type: string
+    description: What triggered this execution
+
+  - name: post_mortem_findings
+    type: json
+    nullable: true
+    description: Root cause analysis for failures
+
+  - name: remediation_applied
+    type: boolean
+    default: false
+
+  - name: linked_playbook_id
+    type: string
+    nullable: true
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [component]
+  - fields: [started_at]
+  - fields: [command_type]

@@ -1,0 +1,84 @@
+table: memory_self_healing_playbooks
+description: |
+  Self-healing playbooks with remediation scripts, triggers, success metrics,
+  and outcomes per incident. Enables Grace to learn from past incidents and
+  auto-apply fixes.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: playbook_name
+    type: string
+    required: true
+    unique: true
+
+  - name: description
+    type: text
+    description: What this playbook does
+
+  - name: trigger_conditions
+    type: json
+    default: []
+    description: Conditions that trigger this playbook
+
+  - name: actions
+    type: json
+    default: []
+    description: Remediation steps to execute
+
+  - name: target_components
+    type: json
+    default: []
+    description: Which components this playbook can heal
+
+  - name: success_rate
+    type: float
+    default: 0.0
+    description: Historical success rate (0-1)
+
+  - name: total_runs
+    type: integer
+    default: 0
+
+  - name: successful_runs
+    type: integer
+    default: 0
+
+  - name: last_used_at
+    type: datetime
+    nullable: true
+
+  - name: avg_execution_time_ms
+    type: integer
+    default: 0
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+
+  - name: requires_approval
+    type: boolean
+    default: false
+
+  - name: created_by
+    type: string
+    default: grace
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [success_rate]
+  - fields: [last_used_at]
+  - fields: [trust_score]

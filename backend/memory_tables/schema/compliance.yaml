@@ -1,0 +1,100 @@
+table: memory_compliance_reports
+description: |
+  Risk and compliance reports tracking controls, compliance status,
+  remediation actions, and evidence links.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: report_id
+    type: string
+    required: true
+    unique: true
+
+  - name: compliance_framework
+    type: string
+    required: true
+    description: GDPR, SOC2, HIPAA, ISO27001, etc.
+
+  - name: report_type
+    type: string
+    allowed: [audit, assessment, remediation, evidence, certification]
+    required: true
+
+  - name: scope
+    type: json
+    default: []
+    description: Which components/systems are covered
+
+  - name: controls_assessed
+    type: json
+    default: []
+    description: Array of control IDs and status
+
+  - name: compliance_status
+    type: string
+    allowed: [compliant, non_compliant, partial, in_progress]
+    default: in_progress
+
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+
+  - name: gaps_identified
+    type: json
+    default: []
+    description: Array of compliance gaps
+
+  - name: remediation_actions
+    type: json
+    default: []
+    description: Required actions to achieve compliance
+
+  - name: evidence_links
+    type: json
+    default: []
+    description: Paths to supporting evidence
+
+  - name: assessor
+    type: string
+    description: Who conducted the assessment
+
+  - name: assessment_date
+    type: datetime
+    required: true
+
+  - name: next_assessment_date
+    type: datetime
+    nullable: true
+
+  - name: certification_status
+    type: string
+    nullable: true
+
+  - name: certification_expiry
+    type: datetime
+    nullable: true
+
+  - name: findings_count
+    type: integer
+    default: 0
+
+  - name: critical_findings
+    type: integer
+    default: 0
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [compliance_framework]
+  - fields: [compliance_status]
+  - fields: [risk_level]
+  - fields: [assessment_date]

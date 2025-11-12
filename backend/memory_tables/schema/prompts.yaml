@@ -1,0 +1,101 @@
+table: memory_llm_prompts
+description: |
+  LLM prompt library indexing prompts, parameters, use cases,
+  and performance metrics per model.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: prompt_id
+    type: string
+    required: true
+    unique: true
+
+  - name: prompt_name
+    type: string
+    required: true
+
+  - name: category
+    type: string
+    allowed: [analysis, generation, summarization, extraction, classification, other]
+    default: other
+
+  - name: prompt_template
+    type: text
+    required: true
+    description: The actual prompt with placeholders
+
+  - name: parameters
+    type: json
+    default: {}
+    description: Template parameters and their types
+
+  - name: use_cases
+    type: json
+    default: []
+    description: When to use this prompt
+
+  - name: target_models
+    type: json
+    default: []
+    description: Which LLMs this works best with
+
+  - name: performance_metrics
+    type: json
+    nullable: true
+    description: Latency, token usage, success rate per model
+
+  - name: total_uses
+    type: integer
+    default: 0
+
+  - name: successful_uses
+    type: integer
+    default: 0
+
+  - name: avg_tokens
+    type: integer
+    default: 0
+
+  - name: avg_latency_ms
+    type: integer
+    default: 0
+
+  - name: quality_score
+    type: float
+    default: 0.0
+    description: User ratings or auto-evaluation
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: version
+    type: string
+    default: 1.0.0
+
+  - name: created_by
+    type: string
+    default: grace
+
+  - name: last_used_at
+    type: datetime
+    nullable: true
+
+  - name: is_public
+    type: boolean
+    default: false
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [category]
+  - fields: [quality_score]
+  - fields: [total_uses]

@@ -1,0 +1,88 @@
+table: memory_sub_agents
+description: |
+  Sub-agent configurations capturing mission, capability matrix,
+  constraints, and trust scores for each shard/agent instance.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: agent_id
+    type: string
+    required: true
+    unique: true
+
+  - name: agent_name
+    type: string
+    required: true
+
+  - name: agent_type
+    type: string
+    allowed: [shard, specialist, orchestrator, worker]
+    default: worker
+
+  - name: mission
+    type: text
+    description: Primary purpose of this agent
+
+  - name: capabilities
+    type: json
+    default: []
+    description: Array of capabilities/skills
+
+  - name: constraints
+    type: json
+    default: {}
+    description: Resource limits, access restrictions
+
+  - name: status
+    type: string
+    allowed: [idle, active, busy, error, offline]
+    default: idle
+
+  - name: current_task
+    type: string
+    nullable: true
+
+  - name: tasks_completed
+    type: integer
+    default: 0
+
+  - name: tasks_failed
+    type: integer
+    default: 0
+
+  - name: success_rate
+    type: float
+    default: 0.0
+
+  - name: trust_score
+    type: float
+    default: 0.5
+
+  - name: last_active_at
+    type: datetime
+    nullable: true
+
+  - name: heartbeat_interval_sec
+    type: integer
+    default: 30
+
+  - name: parent_agent_id
+    type: string
+    nullable: true
+    description: For hierarchical agent structures
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [agent_type]
+  - fields: [trust_score]
+  - fields: [last_active_at]

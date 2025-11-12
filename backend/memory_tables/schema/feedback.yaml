@@ -1,0 +1,106 @@
+table: memory_feedback_tickets
+description: |
+  User feedback and support tickets with issues, resolution steps,
+  and knowledge base tie-ins.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: ticket_id
+    type: string
+    required: true
+    unique: true
+
+  - name: ticket_type
+    type: string
+    allowed: [bug, feature_request, question, feedback, incident]
+    required: true
+
+  - name: title
+    type: string
+    required: true
+
+  - name: description
+    type: text
+    required: true
+
+  - name: priority
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+
+  - name: status
+    type: string
+    allowed: [open, assigned, in_progress, resolved, closed, wont_fix]
+    default: open
+
+  - name: reporter
+    type: string
+    required: true
+
+  - name: assigned_to
+    type: string
+    nullable: true
+
+  - name: affected_component
+    type: string
+    nullable: true
+
+  - name: steps_to_reproduce
+    type: text
+    nullable: true
+
+  - name: resolution_steps
+    type: json
+    default: []
+
+  - name: root_cause
+    type: text
+    nullable: true
+
+  - name: knowledge_base_links
+    type: json
+    default: []
+    description: Related KB articles
+
+  - name: linked_work_orders
+    type: json
+    default: []
+    description: Related coding work orders
+
+  - name: created_at
+    type: datetime
+    required: true
+
+  - name: resolved_at
+    type: datetime
+    nullable: true
+
+  - name: resolution_time_hours
+    type: float
+    default: 0.0
+
+  - name: user_satisfaction
+    type: integer
+    nullable: true
+    description: Rating 1-5
+
+  - name: tags
+    type: json
+    default: []
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [priority]
+  - fields: [ticket_type]
+  - fields: [created_at]
+  - fields: [assigned_to]
