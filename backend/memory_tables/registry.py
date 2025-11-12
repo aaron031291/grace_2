@@ -228,11 +228,24 @@ class SchemaRegistry:
             logger.error(f"Failed to query {table_name}: {e}")
             return []
     
-    def update_row(self, table_name: str, row_id: uuid.UUID, updates: Dict[str, Any]) -> bool:
+    def update_row(self, table_name: str, row_id: Any, updates: Dict[str, Any]) -> bool:
         """Update a row in a table"""
         model = self.get_model(table_name)
         if not model or not self.engine:
             return False
+        
+        # Validate and convert row_id
+        if not row_id or row_id == {}:
+            logger.error(f"Invalid row_id for update in {table_name}: {row_id}")
+            return False
+        
+        # Convert string to UUID if needed
+        if isinstance(row_id, str):
+            try:
+                row_id = uuid.UUID(row_id)
+            except (ValueError, AttributeError) as e:
+                logger.error(f"Invalid UUID string for {table_name}: {row_id} - {e}")
+                return False
         
         try:
             with Session(self.engine) as session:
