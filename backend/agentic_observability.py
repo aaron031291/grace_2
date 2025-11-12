@@ -103,6 +103,14 @@ class AgenticInsight(Base):
     # Privacy and metadata
     sensitive_data_redacted = Column(Boolean, default=False)
     meta_data = Column('metadata', Text)
+
+
+class AgenticInsightCapture:
+    """Captures agentic insights and writes them to the DB + trigger mesh."""
+    def __init__(self):
+        self.verbosity = InsightVerbosity.SUMMARY
+        self.active_runs = {}
+        self.privacy_filters = ["password", "secret", "token", "api_key", "ssn"]
     
     async def record_approval(
         self,
@@ -112,81 +120,64 @@ class AgenticInsight(Base):
         notes: str = ""
     ):
         """Record human approval"""
-        
         await self._capture_insight(
             run_id=run_id,
-            phase=DecisionPhase.APPROVAL,
-            approved_by=approved_by,
-            approved_at=datetime.utcnow(),
+            phase=DecisionPhase.APPROVAL.value,
             rationale=f"{'Approved' if approved else 'Rejected'} by {approved_by}: {notes}"
         )
     
-    async def record_execution(
-        self,
-        run_id: str,
-        action_taken: str,
-        outcome: str
-    ):
+    async def record_execution(self, run_id: str, action_taken: str, outcome: str):
         """Record execution of plan"""
-        
         await self._capture_insight(
             run_id=run_id,
-            phase=DecisionPhase.EXECUTION,
-            executed_at=datetime.utcnow(),
+            phase=DecisionPhase.EXECUTION.value,
             outcome=outcome,
             rationale=f"Executed: {action_taken}"
         )
     
-    async def record_verification(
-        self,
-        run_id: str,
-        verified: bool,
-        outcome_detail: str
-    ):
+    async def record_verification(self, run_id: str, verified: bool, outcome_detail: str):
         """Record verification of outcome"""
-        
         await self._capture_insight(
             run_id=run_id,
-            phase=DecisionPhase.VERIFICATION,
+            phase=DecisionPhase.VERIFICATION.value,
             verified=verified,
             outcome_detail=outcome_detail,
             rationale=f"Verification: {'✓ success' if verified else '✗ failed'}"
         )
     
-    async def complete_run(
-        self,
-        run_id: str,
-        final_outcome: str,
-        success: bool
-    ):
+    async def complete_run(self, run_id: str, final_outcome: str, success: bool):
         """Complete an agentic run"""
-        
         await self._capture_insight(
             run_id=run_id,
-            phase=DecisionPhase.COMPLETION,
+            phase=DecisionPhase.COMPLETION.value,
             outcome="success" if success else "failed",
             outcome_detail=final_outcome,
             verified=success
         )
+    
+    async def _capture_insight(self, run_id: str, phase: str, **kwargs):
+        """Capture insight to database"""
+        from .models import async_session
         
-        if run_id in self.active_runs:
-            run = self.active_runs[run_id]
-            duration = (datetime.utcnow() - run["started_at"]).total_seconds()
-            
-            await immutable_log.append(
-                actor="agentic_observability",
-                action="run_completed",
-                resource=run_id,
-                subsystem="agentic_observability",
-                payload={
-                    "duration_seconds": duration,
-                    "outcome": final_outcome,
-                    "success": success
-                },
-                result="completed"
+        async with async_session() as session:
+            insight = AgenticInsight(
+                run_id=run_id,
+                phase=phase,
+                **kwargs
             )
-            
-            del self.active_runs[run_id]
+            session.add(insight)
+            await session.commit()
+        
+        await trigger_mesh.publish(TriggerEvent(
+            event_type=f"agentic.insight.{phase}",
+            source="agentic_observability",
+            actor="grace_agent",
+            resource=run_id,
+            payload={"phase": phase, "run_id": run_id, **kwargs},
+            timestamp=datetime.utcnow()
+        ))
+    
+
     
     async def _capture_insight(self, run_id: str, phase: DecisionPhase, **kwargs):
         """Capture insight to database"""
