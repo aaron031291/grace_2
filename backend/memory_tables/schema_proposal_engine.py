@@ -27,7 +27,9 @@ class SchemaProposalEngine:
         self.registry = table_registry
         self.unified_logic_hub = unified_logic_hub
         
-        if not self.registry.tables:
+        # Ensure schemas are loaded
+        tables = self.registry.list_tables()
+        if not tables:
             self.registry.load_all_schemas()
     
     async def propose_schema_from_file(
@@ -52,7 +54,7 @@ class SchemaProposalEngine:
         confidence = analysis_result.get('confidence', 0.0)
         
         # Check if table exists
-        table_exists = proposed_table in self.registry.tables
+        table_exists = proposed_table in self.registry.list_tables()
         
         proposal = {
             'file_path': str(file_path),
@@ -93,7 +95,7 @@ class SchemaProposalEngine:
                 created_by="schema_proposal_engine"
             )
             
-            proposal_id = result.get('update_id')
+            proposal_id = result.get('update_id', f'proposal_{len(self.pending_proposals)}')
             self.pending_proposals[proposal_id] = proposal
             
             return {
