@@ -142,20 +142,40 @@ class AutoIngestionService:
             
             logger.info(f"💡 Schema proposal: {proposal['action']} → {proposal.get('table_name')}")
             
-            # Step 3: Submit to Unified Logic Hub
-            approval_result = await self._submit_for_approval(file_path, analysis, proposal)
+            # Step 3: Submit to Schema Proposal Engine (routes through Unified Logic)
+            from backend.memory_tables.schema_proposal_engine import schema_proposal_engine
             
-            if not approval_result.get('approved'):
-                # Store in pending approvals
-                approval_id = approval_result.get('update_id', str(file_path))
-                self.pending_approvals[approval_id] = {
-                    'file_path': str(file_path),
-                    'analysis': analysis,
-                    'proposal': proposal,
-                    'timestamp': datetime.now().isoformat()
-                }
-                logger.info(f"⏳ Awaiting approval: {approval_id}")
+            if not schema_proposal_engine.registry:
+                await schema_proposal_engine.initialize()
+            
+            proposal_result = await schema_proposal_engine.propose_schema_from_file(
+                file_path,
+                proposal
+            )
+            
+            if not proposal_result.get('success'):
+                logger.error(f"❌ Proposal failed: {proposal_result.get('error')}")
                 return
+            
+            # Auto-approve if high confidence (>90%)
+            confidence = proposal.get('confidence', 0.0)
+            if confidence >= 0.9 and proposal.get('action') == 'insert_row':
+                # Auto-approve high-confidence row insertions
+                proposal_id = proposal_result.get('proposal_id')
+                await schema_proposal_engine.approve_proposal(proposal_id)
+                logger.info(f"✅ Auto-approved high-confidence insertion")
+                return
+            
+            # Store in pending approvals for manual review
+            approval_id = proposal_result.get('proposal_id')
+            self.pending_approvals[approval_id] = {
+                'file_path': str(file_path),
+                'analysis': analysis,
+                'proposal': proposal,
+                'timestamp': datetime.now().isoformat()
+            }
+            logger.info(f"⏳ Awaiting manual approval: {approval_id}")
+            return
             
             # Step 4: Insert to table
             await self._insert_to_table(file_path, proposal)
