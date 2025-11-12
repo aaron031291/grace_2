@@ -1,0 +1,41 @@
+table: memory_data_quality_monitors
+description: Data quality checks, drift alerts, remediation.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: check_name
+    type: string
+    required: true
+  - name: dataset_reference
+    type: string
+    nullable: true
+  - name: check_type
+    type: string
+    allowed: [nulls, drift, schema, anomaly, other]
+    default: other
+  - name: last_run_at
+    type: datetime
+    nullable: true
+  - name: severity
+    type: string
+    allowed: [info, warning, critical]
+    default: info
+  - name: status
+    type: string
+    allowed: [passing, failing, suppressed]
+    default: passing
+  - name: remediation_actions
+    type: json
+    default: []
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [severity]
+  - fields: [dataset_reference]

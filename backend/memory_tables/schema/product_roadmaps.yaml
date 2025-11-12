@@ -1,0 +1,39 @@
+table: memory_product_roadmaps
+description: Feature specs, dependencies, release planning.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: feature_name
+    type: string
+    required: true
+  - name: description
+    type: text
+    nullable: true
+  - name: priority
+    type: string
+    allowed: [p0, p1, p2, p3]
+    default: p2
+  - name: status
+    type: string
+    allowed: [ideation, planning, building, testing, shipped]
+    default: planning
+  - name: target_release
+    type: string
+    nullable: true
+  - name: dependencies
+    type: json
+    default: []
+  - name: stakeholder_votes
+    type: json
+    default: []
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [priority]
+  - fields: [status]

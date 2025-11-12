@@ -1,0 +1,39 @@
+table: memory_vendor_management
+description: Procurement vendors, SLAs, performance, risk.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: vendor_name
+    type: string
+    required: true
+  - name: service_description
+    type: text
+    nullable: true
+  - name: sla_path
+    type: string
+    nullable: true
+  - name: performance_score
+    type: float
+    default: 0.0
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+  - name: renewal_date
+    type: datetime
+    nullable: true
+  - name: cost_center
+    type: string
+    nullable: true
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [vendor_name]
+  - fields: [risk_level]
+  - fields: [renewal_date]

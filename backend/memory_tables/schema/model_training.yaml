@@ -1,0 +1,42 @@
+table: memory_model_training_logs
+description: ML/DL training jobs, hyperparameters, evaluation results.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: model_name
+    type: string
+    required: true
+  - name: version
+    type: string
+    default: "1.0"
+  - name: dataset_reference
+    type: string
+    nullable: true
+  - name: hyperparameters
+    type: json
+    default: []
+  - name: metrics
+    type: json
+    default: []
+  - name: started_at
+    type: datetime
+    required: true
+  - name: completed_at
+    type: datetime
+    nullable: true
+  - name: status
+    type: string
+    allowed: [queued, running, succeeded, failed]
+    default: queued
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [model_name]
+  - fields: [status]
+  - fields: [started_at]
