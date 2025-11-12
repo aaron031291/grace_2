@@ -59,6 +59,7 @@ class AgenticDecisionPoint:
 class AgenticInsight(Base):
     """Compact agentic decision ledger"""
     __tablename__ = "agentic_insights"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     run_id = Column(String(64), nullable=False, index=True)
@@ -101,10 +102,7 @@ class AgenticInsight(Base):
     
     # Privacy and metadata
     sensitive_data_redacted = Column(Boolean, default=False)
-    metadata = Column(Text)
-
-
-        )
+    meta_data = Column('metadata', Text)
     
     async def record_approval(
         self,

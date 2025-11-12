@@ -74,3 +74,4 @@ if result.stderr:
     print("\nSTDERR:")
     print(result.stderr)
 print(f"\nReturn code: {result.returncode}")
+
