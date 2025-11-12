@@ -6,25 +6,35 @@ def validate_workflow(file_path):
     print(f"🔍 Validating {file_path.name}...")
     
     try:
-        with open(file_path, 'r') as f:
-            workflow = yaml.safe_load(f)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            
+        # Parse YAML
+        workflow = yaml.safe_load(content)
+        
+        if workflow is None:
+            print(f"  ❌ Failed to parse YAML")
+            return False
         
         issues = []
         
-        # Check required fields
+        # Check required fields - use correct key names
         if 'name' not in workflow:
             issues.append("Missing 'name' field")
         
+        # GitHub Actions uses 'on' (not 'trigger')
         if 'on' not in workflow:
             issues.append("Missing 'on' field")
         
         if 'jobs' not in workflow:
             issues.append("Missing 'jobs' field")
         
-        # Check for invalid secret syntax
-        content = file_path.read_text()
-        if '${{ secrets.' in content and '||' in content:
-            issues.append("Invalid secret fallback syntax found")
+        # Check for problematic secret syntax patterns
+        if '${{ secrets.' in content and ' || ' in content:
+            # Look for patterns like: ${{ secrets.KEY || 'fallback' }}
+            import re
+            if re.search(r'\$\{\{\s*secrets\.[^}]+\s*\|\|\s*[^}]+\}\}', content):
+                issues.append("Invalid secret fallback syntax found")
         
         if issues:
             print(f"  ❌ Issues found:")
@@ -39,7 +49,7 @@ def validate_workflow(file_path):
         print(f"  ❌ YAML parsing error: {e}")
         return False
     except Exception as e:
-        print(f"  ❌ Error: {e}")
+        print(f"  ❌ Error reading file: {e}")
         return False
 
 def main():

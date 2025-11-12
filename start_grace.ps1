@@ -1,3 +1,15 @@
-Start-Process powershell -ArgumentList "-NoExit", "-Command", ".\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --host 0.0.0.0 --port 8000"
-Start-Sleep -Seconds 5
-Invoke-Expression "python .\\frontend.py"
+# Start Grace Backend Server
+Write-Host "Starting Grace API Server..." -ForegroundColor Green
+Write-Host ""
+
+# Check if port 8000 is already in use
+$port8000 = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue
+if ($port8000) {
+    Write-Host "ERROR: Port 8000 is already in use!" -ForegroundColor Red
+    Write-Host "Run this to kill the process:" -ForegroundColor Yellow
+    Write-Host "  taskkill /PID $($port8000.OwningProcess) /F"
+    exit 1
+}
+
+# Start the server
+python backend/unified_grace_orchestrator.py --serve
