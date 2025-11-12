@@ -84,7 +84,7 @@ class CodingAgentIntegration:
                 }
             }
             
-            result = self.registry.insert_row(self.table_name, row_data)
+            result = self.registry.insert_row(self.table_name, row_data, upsert=True)
             logger.info(f"📝 Created work order: {work_order_id} - {title}")
             return result
         

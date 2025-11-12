@@ -85,7 +85,7 @@ class SubAgentsIntegration:
                 }
             }
             
-            result = self.registry.insert_row(self.table_name, row_data)
+            result = self.registry.insert_row(self.table_name, row_data, upsert=True)
             logger.info(f"🤖 Registered agent: {agent_id} ({agent_type})")
             return result
         

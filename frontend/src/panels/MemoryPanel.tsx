@@ -1,454 +1,447 @@
 /**
- * Memory Panel - File Explorer and Editor for Grace's Training Corpus
- * Shows file tree on left, Monaco editor on right
+ * Memory Workspace Panel
+ * Top-level memory management interface with file tree, table grid, and schema review
  */
 
 import { useState, useEffect } from 'react';
-import { FileTree } from '../components/FileTree';
-import { Save, FilePlus, FolderPlus, Trash2, Upload, RefreshCw } from 'lucide-react';
-import { 
-  listFiles, readFile, saveFile, deleteFile, createFolder, 
-  getStatus, uploadFile, FileNode, FileSystemStatus 
+import {
+  Database,
+  Upload,
+  FilePlus,
+  RefreshCw,
+  Shield,
+  Activity,
+  AlertCircle
+} from 'lucide-react';
+
+import { FileTree, FileTreeNode } from '../components/FileTree';
+import { SchemaReviewModal } from '../components/SchemaReviewModal';
+import { TableGrid } from '../components/TableGrid';
+
+import {
+  fetchFileTree,
+  fetchTableRows,
+  fetchTableList,
+  fetchTableSchema,
+  fetchPendingSchemas,
+  approveSchema,
+  rejectSchema,
+  uploadFile,
+  updateTableRow,
+  deleteTableRow,
+  fetchActiveAgents,
+  fetchAlerts,
+  SchemaProposal,
+  AgentStatus
 } from '../api/memory';
-import Editor from '@monaco-editor/react';
 
 export function MemoryPanel() {
-  const [tree, setTree] = useState<FileNode | null>(null);
+  const [view, setView] = useState<'files' | 'tables' | 'agents'>('tables');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
-  const [fileContent, setFileContent] = useState<string>('');
-  const [originalContent, setOriginalContent] = useState<string>('');
+  const [selectedTable, setSelectedTable] = useState<string>('');
+  
+  const [fileTree, setFileTree] = useState<FileTreeNode[]>([]);
+  const [tables, setTables] = useState<string[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [tableSchema, setTableSchema] = useState<any>(null);
+  const [pendingSchemas, setPendingSchemas] = useState<SchemaProposal[]>([]);
+  const [activeAgents, setActiveAgents] = useState<AgentStatus[]>([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  
+  const [showSchemaModal, setShowSchemaModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<FileSystemStatus | null>(null);
-  const [isDirty, setIsDirty] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
+  // Load initial data
   useEffect(() => {
-    loadTree();
-    loadStatus();
-    const interval = setInterval(loadStatus, 10000);
+    loadInitialData();
+    
+    // Auto-refresh
+    const interval = setInterval(() => {
+      loadPendingSchemas();
+      loadActiveAgents();
+      loadAlerts();
+    }, 5000);
+    
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    setIsDirty(fileContent !== originalContent);
-  }, [fileContent, originalContent]);
+    if (view === 'files') {
+      loadFileTree();
+    } else if (view === 'tables') {
+      loadTables();
+    } else if (view === 'agents') {
+      loadActiveAgents();
+    }
+  }, [view]);
 
-  async function loadTree() {
+  useEffect(() => {
+    if (selectedTable) {
+      loadTableData();
+    }
+  }, [selectedTable]);
+
+  async function loadInitialData() {
+    await Promise.all([
+      loadTables(),
+      loadPendingSchemas(),
+      loadActiveAgents(),
+      loadAlerts()
+    ]);
+  }
+
+  async function loadFileTree() {
     try {
-      setError(null);
-      const data = await listFiles();
-      setTree(data);
-    } catch (err: any) {
-      setError('Failed to load file tree: ' + err.message);
+      const tree = await fetchFileTree();
+      setFileTree(tree);
+    } catch (err) {
       console.error('Failed to load file tree:', err);
     }
   }
 
-  async function loadStatus() {
+  async function loadTables() {
     try {
-      const data = await getStatus();
-      setStatus(data);
-    } catch (err) {
-      console.error('Failed to load status:', err);
-    }
-  }
-
-  async function handleSelect(path: string, node: FileNode) {
-    if (node.type === 'file') {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await readFile(path);
-        setFileContent(data.content);
-        setOriginalContent(data.content);
-        setSelectedPath(path);
-        setSelectedNode(node);
-      } catch (err: any) {
-        setError('Failed to load file: ' + err.message);
-      } finally {
-        setLoading(false);
+      const tableList = await fetchTableList();
+      setTables(tableList);
+      
+      if (tableList.length > 0 && !selectedTable) {
+        setSelectedTable(tableList[0]);
       }
-    } else {
-      setSelectedPath(path);
-      setSelectedNode(node);
+    } catch (err) {
+      console.error('Failed to load tables:', err);
     }
   }
 
-  async function handleSave() {
-    if (!selectedPath) return;
+  async function loadTableData() {
+    if (!selectedTable) return;
     
     setLoading(true);
-    setError(null);
     try {
-      await saveFile(selectedPath, fileContent);
-      setOriginalContent(fileContent);
-      await loadTree();
-      setError(null);
-    } catch (err: any) {
-      setError('Failed to save file: ' + err.message);
+      const [rows, schema] = await Promise.all([
+        fetchTableRows(selectedTable, 100),
+        fetchTableSchema(selectedTable)
+      ]);
+      
+      setTableData(rows);
+      setTableSchema(schema);
+    } catch (err) {
+      console.error('Failed to load table data:', err);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleNewFile() {
-    const fileName = prompt('Enter file name:');
-    if (!fileName) return;
-    
-    const basePath = selectedNode?.type === 'folder' ? selectedPath || '' : '';
-    const newPath = basePath ? `${basePath}/${fileName}` : fileName;
-    
-    setError(null);
+  async function loadPendingSchemas() {
     try {
-      await saveFile(newPath, '');
-      await loadTree();
-      setSelectedPath(newPath);
-      setFileContent('');
-      setOriginalContent('');
-    } catch (err: any) {
-      setError('Failed to create file: ' + err.message);
+      const proposals = await fetchPendingSchemas();
+      setPendingSchemas(proposals);
+    } catch (err) {
+      console.error('Failed to load pending schemas:', err);
     }
   }
 
-  async function handleNewFolder() {
-    const folderName = prompt('Enter folder name:');
-    if (!folderName) return;
-    
-    const basePath = selectedNode?.type === 'folder' ? selectedPath || '' : '';
-    const newPath = basePath ? `${basePath}/${folderName}` : folderName;
-    
-    setError(null);
+  async function loadActiveAgents() {
     try {
-      await createFolder(newPath);
-      await loadTree();
-    } catch (err: any) {
-      setError('Failed to create folder: ' + err.message);
+      const agents = await fetchActiveAgents();
+      setActiveAgents(agents);
+    } catch (err) {
+      console.error('Failed to load active agents:', err);
     }
   }
 
-  async function handleDelete() {
-    if (!selectedPath) return;
-    
-    const confirmMsg = `Delete ${selectedPath}?`;
-    if (!window.confirm(confirmMsg)) return;
-    
-    setError(null);
+  async function loadAlerts() {
     try {
-      await deleteFile(selectedPath, selectedNode?.type === 'folder');
-      await loadTree();
-      setSelectedPath(null);
-      setSelectedNode(null);
-      setFileContent('');
-      setOriginalContent('');
-    } catch (err: any) {
-      setError('Failed to delete: ' + err.message);
+      const alertList = await fetchAlerts();
+      setAlerts(alertList);
+    } catch (err) {
+      console.error('Failed to load alerts:', err);
     }
   }
 
-  async function handleUpload() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = async (e: any) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      
-      const basePath = selectedNode?.type === 'folder' ? selectedPath || '' : '';
-      const filePath = basePath ? `${basePath}/${file.name}` : file.name;
-      
-      setError(null);
-      try {
-        await uploadFile(filePath, file);
-        await loadTree();
-        setError(null);
-      } catch (err: any) {
-        setError('Failed to upload file: ' + err.message);
-      }
-    };
-    input.click();
+  async function handleFileUpload(file: File, targetPath: string) {
+    try {
+      await uploadFile(file, targetPath);
+      alert('File uploaded successfully');
+      await loadFileTree();
+      await loadPendingSchemas();
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Upload failed');
+    }
   }
+
+  async function handleApproveSchema(proposalId: string) {
+    await approveSchema(proposalId);
+    await loadPendingSchemas();
+    await loadTableData();
+  }
+
+  async function handleRejectSchema(proposalId: string, reason: string) {
+    await rejectSchema(proposalId, reason);
+    await loadPendingSchemas();
+  }
+
+  async function handleUpdateRow(rowId: string, updates: Record<string, any>) {
+    if (!selectedTable) return;
+    await updateTableRow(selectedTable, rowId, updates);
+  }
+
+  async function handleDeleteRow(rowId: string) {
+    if (!selectedTable) return;
+    await deleteTableRow(selectedTable, rowId);
+  }
+
+  const criticalAlerts = alerts.filter(a => a.severity === 'critical' || a.severity === 'error');
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh', 
-      background: '#0a0a0a', 
-      color: '#e5e7ff',
-      overflow: 'hidden'
-    }}>
-      {/* Left: File Tree */}
-      <div style={{
-        width: '300px',
-        borderRight: '1px solid rgba(255,255,255,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'rgba(10,12,23,0.6)'
-      }}>
-        {/* Header */}
-        <div style={{ 
-          padding: '16px', 
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          background: 'rgba(139, 92, 246, 0.1)'
-        }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', color: '#a78bfa', fontWeight: 600 }}>
-            Memory Workspace
-          </h3>
-          {status && (
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-              <div>{status.total_files} files • {status.total_size_mb.toFixed(2)} MB</div>
-            </div>
-          )}
-        </div>
-        
-        {/* Error Display */}
-        {error && (
-          <div style={{
-            margin: '8px',
-            padding: '8px 12px',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '6px',
-            fontSize: '0.75rem',
-            color: '#fca5a5'
-          }}>
-            {error}
+    <div className="h-full flex flex-col bg-gray-900 text-white">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Database className="w-6 h-6 text-blue-400" />
+            <h1 className="text-2xl font-bold">Memory Workspace</h1>
           </div>
-        )}
-        
-        {/* File Tree */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-          {tree ? (
-            <FileTree 
-              tree={tree} 
-              selectedPath={selectedPath} 
-              onSelect={handleSelect} 
-            />
-          ) : (
-            <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>
-              Loading...
+          
+          <div className="flex items-center gap-3">
+            {/* Pending Schemas Badge */}
+            {pendingSchemas.length > 0 && (
+              <button
+                onClick={() => setShowSchemaModal(true)}
+                className="
+                  px-3 py-1 bg-orange-600 hover:bg-orange-700 rounded 
+                  flex items-center gap-2 text-sm font-medium
+                "
+              >
+                <AlertCircle className="w-4 h-4" />
+                {pendingSchemas.length} Pending Schema{pendingSchemas.length > 1 ? 's' : ''}
+              </button>
+            )}
+            
+            {/* Active Agents Badge */}
+            <div className="px-3 py-1 bg-gray-800 rounded flex items-center gap-2 text-sm">
+              <Activity className="w-4 h-4 text-green-400" />
+              <span>{activeAgents.length} Active Agent{activeAgents.length !== 1 ? 's' : ''}</span>
             </div>
-          )}
-        </div>
-        
-        {/* Action Buttons */}
-        <div style={{ 
-          padding: '12px', 
-          borderTop: '1px solid rgba(255,255,255,0.1)', 
-          display: 'flex', 
-          gap: '8px',
-          flexWrap: 'wrap'
-        }}>
-          <button
-            onClick={handleNewFile}
-            title="New File"
-            style={{
-              background: '#8b5cf6',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.875rem',
-              fontWeight: 500
-            }}
-          >
-            <FilePlus size={16} />
-            File
-          </button>
-          <button
-            onClick={handleNewFolder}
-            title="New Folder"
-            style={{
-              background: '#6b7280',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.875rem',
-              fontWeight: 500
-            }}
-          >
-            <FolderPlus size={16} />
-            Folder
-          </button>
-          <button
-            onClick={handleUpload}
-            title="Upload File"
-            style={{
-              background: '#3b82f6',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.875rem',
-              fontWeight: 500
-            }}
-          >
-            <Upload size={16} />
-            Upload
-          </button>
-          <button
-            onClick={loadTree}
-            title="Refresh"
-            style={{
-              background: '#374151',
-              color: '#fff',
-              border: 'none',
-              padding: '8px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <RefreshCw size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Right: Editor */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {selectedNode && selectedNode.type === 'file' ? (
-          <>
-            {/* File Header */}
-            <div style={{
-              padding: '12px 16px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: 'rgba(10,12,23,0.6)'
-            }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '1rem' }}>{selectedNode.name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px' }}>
-                  {selectedNode.modified && new Date(selectedNode.modified).toLocaleString()}
-                  {isDirty && <span style={{ color: '#f59e0b', marginLeft: '8px' }}>● Modified</span>}
-                </div>
-              </div>
-              
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={handleSave}
-                  disabled={!isDirty || loading}
-                  style={{
-                    background: isDirty ? '#10b981' : '#374151',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: isDirty && !loading ? 'pointer' : 'not-allowed',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                    opacity: isDirty && !loading ? 1 : 0.6
-                  }}
-                >
-                  <Save size={16} />
-                  {loading ? 'Saving...' : 'Save'}
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={loading}
-                  style={{
-                    background: '#ef4444',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  <Trash2 size={16} />
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            {/* Monaco Editor */}
-            <div style={{ flex: 1, background: '#1e1e1e' }}>
-              <Editor
-                height="100%"
-                defaultLanguage="markdown"
-                language={getLanguageFromExtension(selectedNode.extension || '')}
-                value={fileContent}
-                onChange={(value) => setFileContent(value || '')}
-                theme="vs-dark"
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  wordWrap: 'on',
-                  lineNumbers: 'on',
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                }}
-              />
-            </div>
-          </>
-        ) : (
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#6b7280',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            <div style={{ fontSize: '3rem', opacity: 0.3 }}>📁</div>
-            <div style={{ fontSize: '1.1rem' }}>
-              {selectedNode ? 
-                `Folder: ${selectedNode.name}` : 
-                'Select a file to edit'
-              }
-            </div>
-            {selectedNode && selectedNode.children && (
-              <div style={{ fontSize: '0.875rem', opacity: 0.7 }}>
-                {selectedNode.children.length} items
+            
+            {/* Critical Alerts Badge */}
+            {criticalAlerts.length > 0 && (
+              <div className="px-3 py-1 bg-red-900 bg-opacity-40 rounded flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4 text-red-400" />
+                <span>{criticalAlerts.length} Alert{criticalAlerts.length !== 1 ? 's' : ''}</span>
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* View Tabs */}
+      <div className="border-b border-gray-700 flex">
+        <button
+          onClick={() => setView('tables')}
+          className={`
+            px-6 py-3 font-medium border-b-2 transition-colors
+            ${view === 'tables'
+              ? 'border-blue-500 text-blue-400 bg-gray-800'
+              : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+            }
+          `}
+        >
+          <Database className="w-4 h-4 inline mr-2" />
+          Tables ({tables.length})
+        </button>
+        
+        <button
+          onClick={() => setView('files')}
+          className={`
+            px-6 py-3 font-medium border-b-2 transition-colors
+            ${view === 'files'
+              ? 'border-blue-500 text-blue-400 bg-gray-800'
+              : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+            }
+          `}
+        >
+          <FilePlus className="w-4 h-4 inline mr-2" />
+          Files
+        </button>
+        
+        <button
+          onClick={() => setView('agents')}
+          className={`
+            px-6 py-3 font-medium border-b-2 transition-colors
+            ${view === 'agents'
+              ? 'border-blue-500 text-blue-400 bg-gray-800'
+              : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800'
+            }
+          `}
+        >
+          <Activity className="w-4 h-4 inline mr-2" />
+          Agents ({activeAgents.length})
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {view === 'files' && (
+          <>
+            <aside className="w-80 border-r border-gray-700 overflow-y-auto">
+              <FileTree
+                data={fileTree}
+                onSelect={setSelectedPath}
+                selectedPath={selectedPath || undefined}
+                onUpload={handleFileUpload}
+              />
+            </aside>
+            <main className="flex-1">
+              {selectedPath ? (
+                <div className="p-6">
+                  <h3 className="text-lg font-bold mb-2">File Details</h3>
+                  <p className="text-sm text-gray-400">{selectedPath}</p>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-400">
+                  Select a file to view details
+                </div>
+              )}
+            </main>
+          </>
+        )}
+
+        {view === 'tables' && (
+          <>
+            <aside className="w-80 border-r border-gray-700 overflow-y-auto p-4">
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-gray-400 mb-2">TABLES</h3>
+                <div className="space-y-1">
+                  {tables.map(table => (
+                    <button
+                      key={table}
+                      onClick={() => setSelectedTable(table)}
+                      className={`
+                        w-full text-left px-3 py-2 rounded text-sm
+                        ${selectedTable === table
+                          ? 'bg-blue-900 bg-opacity-40 text-blue-400'
+                          : 'text-gray-300 hover:bg-gray-800'
+                        }
+                      `}
+                    >
+                      {table.replace('memory_', '')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </aside>
+            
+            <main className="flex-1 overflow-hidden">
+              {loading ? (
+                <div className="h-full flex items-center justify-center text-gray-400">
+                  <RefreshCw className="w-8 h-8 animate-spin" />
+                </div>
+              ) : (
+                <TableGrid
+                  rows={tableData}
+                  tableName={selectedTable}
+                  schema={tableSchema}
+                  onUpdate={handleUpdateRow}
+                  onDelete={handleDeleteRow}
+                  onRefresh={loadTableData}
+                />
+              )}
+            </main>
+          </>
+        )}
+
+        {view === 'agents' && (
+          <main className="flex-1 overflow-y-auto p-6">
+            <h3 className="text-lg font-bold mb-4">Active Agents</h3>
+            
+            {activeAgents.length === 0 ? (
+              <div className="text-center text-gray-400 py-12">
+                <Activity className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                <p>No active agents</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeAgents.map(agent => (
+                  <div
+                    key={agent.agent_id}
+                    className="bg-gray-800 p-4 rounded border border-gray-700"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-bold">{agent.agent_name}</h4>
+                        <p className="text-xs text-gray-400 mt-1">{agent.agent_id}</p>
+                      </div>
+                      <span
+                        className={`
+                          px-2 py-1 rounded text-xs font-medium
+                          ${agent.status === 'busy'
+                            ? 'bg-yellow-900 text-yellow-300'
+                            : agent.status === 'active'
+                            ? 'bg-green-900 text-green-300'
+                            : 'bg-gray-700 text-gray-300'
+                          }
+                        `}
+                      >
+                        {agent.status}
+                      </span>
+                    </div>
+                    
+                    {agent.current_task && (
+                      <div className="mb-3 text-sm text-gray-300">
+                        <span className="text-gray-400">Task:</span> {agent.current_task}
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="text-xs text-gray-400 mb-1">Trust Score</div>
+                        <div
+                          className={`
+                            font-bold
+                            ${agent.trust_score >= 0.8
+                              ? 'text-green-400'
+                              : agent.trust_score >= 0.6
+                              ? 'text-yellow-400'
+                              : 'text-red-400'
+                            }
+                          `}
+                        >
+                          {(agent.trust_score * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-xs text-gray-400 mb-1">Jobs</div>
+                        <div className="font-bold">
+                          {agent.jobs_completed}
+                          {agent.jobs_failed > 0 && (
+                            <span className="text-red-400 ml-1">
+                              (+{agent.jobs_failed} failed)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </main>
         )}
       </div>
+
+      {/* Schema Review Modal */}
+      {showSchemaModal && pendingSchemas.length > 0 && (
+        <SchemaReviewModal
+          proposals={pendingSchemas}
+          onApprove={handleApproveSchema}
+          onReject={handleRejectSchema}
+          onClose={() => setShowSchemaModal(false)}
+        />
+      )}
     </div>
   );
 }
 
-function getLanguageFromExtension(extension: string): string {
-  const map: Record<string, string> = {
-    '.md': 'markdown',
-    '.py': 'python',
-    '.ts': 'typescript',
-    '.tsx': 'typescript',
-    '.js': 'javascript',
-    '.jsx': 'javascript',
-    '.json': 'json',
-    '.yaml': 'yaml',
-    '.yml': 'yaml',
-    '.txt': 'plaintext',
-    '.html': 'html',
-    '.css': 'css',
-    '.sql': 'sql',
-    '.sh': 'shell',
-    '.bash': 'shell',
-  };
-  return map[extension] || 'plaintext';
-}
+export default MemoryPanel;
