@@ -52,7 +52,7 @@ fields:
   - name: follow_up_actions
     type: json
     default: []
-    description: [{action: "run_pipeline", payload: {...}}]
+    description: Array of follow-up action objects
 indexes:
   - fields: [file_path]
   - fields: [insight_type]

@@ -12,11 +12,11 @@ from pathlib import Path
 async def test_pipeline():
     """Test the complete ingestion pipeline"""
     
-    print("🧪 Testing Grace Complete Learning Pipeline\n")
+    print("Testing Grace Complete Learning Pipeline\n")
     print("=" * 60)
     
     # Test 1: Schema Registry
-    print("\n1️⃣  Testing Schema Registry...")
+    print("\n[1] Testing Schema Registry...")
     try:
         from backend.memory_tables.registry import table_registry
         
@@ -37,7 +37,7 @@ async def test_pipeline():
         return False
     
     # Test 2: Content Pipeline
-    print("\n2️⃣  Testing Content Pipeline...")
+    print("\n[2] Testing Content Pipeline...")
     try:
         from backend.memory_tables.content_pipeline import content_pipeline
         
@@ -58,7 +58,7 @@ async def test_pipeline():
         return False
     
     # Test 3: Schema Inference
-    print("\n3️⃣  Testing Schema Inference...")
+    print("\n[3] Testing Schema Inference...")
     try:
         from backend.memory_tables.schema_agent import SchemaInferenceAgent
         
@@ -88,7 +88,7 @@ async def test_pipeline():
         return False
     
     # Test 4: Table Operations
-    print("\n4️⃣  Testing Table Operations...")
+    print("\n[4] Testing Table Operations...")
     try:
         # Insert test row
         test_data = {
@@ -122,7 +122,7 @@ async def test_pipeline():
         return False
     
     # Test 5: Learning Integration
-    print("\n5️⃣  Testing Learning Integration...")
+    print("\n[5] Testing Learning Integration...")
     try:
         from backend.memory_tables.learning_integration import learning_bridge
         
@@ -139,7 +139,7 @@ async def test_pipeline():
         return False
     
     # Test 6: Auto-Ingestion Service
-    print("\n6️⃣  Testing Auto-Ingestion Service...")
+    print("\n[6] Testing Auto-Ingestion Service...")
     try:
         from backend.memory_tables.auto_ingestion import auto_ingestion_service
         
@@ -154,22 +154,22 @@ async def test_pipeline():
     
     # Summary
     print("\n" + "=" * 60)
-    print("✅ ALL TESTS PASSED")
+    print("[PASS] ALL TESTS PASSED")
     print("\nComplete pipeline verified:")
-    print("  • Schema registry ✓")
-    print("  • Content analysis ✓")
-    print("  • Schema inference ✓")
-    print("  • Table operations ✓")
-    print("  • Learning integration ✓")
-    print("  • Auto-ingestion ✓")
-    print("\n🎉 Grace is ready to learn from the real world!")
+    print("  - Schema registry [OK]")
+    print("  - Content analysis [OK]")
+    print("  - Schema inference [OK]")
+    print("  - Table operations [OK]")
+    print("  - Learning integration [OK]")
+    print("  - Auto-ingestion [OK]")
+    print("\nGrace is ready to learn from the real world!")
     
     return True
 
 
 async def test_api_availability():
     """Test if API routes are available"""
-    print("\n📡 Testing API Routes...\n")
+    print("\n[API] Testing API Routes...\n")
     
     try:
         from backend.routes import memory_tables_api

@@ -8,6 +8,7 @@ import yaml
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Type
+from sqlalchemy import Column, JSON
 from datetime import datetime
 import uuid
 from sqlmodel import SQLModel, Field, create_engine, Session, select
@@ -70,8 +71,9 @@ class SchemaRegistry:
             logger.error(f"Schema not found: {table_name}")
             return None
         
-        # Build field definitions
-        field_defs = {}
+        # Build field definitions and annotations
+        annotations = {}
+        field_values = {}
         
         for field_spec in schema.get('fields', []):
             field_name = field_spec['name']
@@ -89,7 +91,11 @@ class SchemaRegistry:
             if field_spec.get('unique'):
                 field_kwargs['unique'] = True
             
-            if field_spec.get('nullable', False):
+            # For JSON fields, specify sa_column with nullable
+            if field_type == 'json':
+                is_nullable = field_spec.get('nullable', False)
+                field_kwargs['sa_column'] = Column(JSON, nullable=is_nullable)
+            elif field_spec.get('nullable', False):
                 field_kwargs['nullable'] = True
             
             if 'default' in field_spec:
@@ -97,27 +103,53 @@ class SchemaRegistry:
             elif field_spec.get('generated') and field_type == 'uuid':
                 field_kwargs['default_factory'] = uuid.uuid4
             
-            # Create the field
+            # Create the field with proper annotation
             if field_spec.get('primary_key') and field_type == 'uuid':
-                field_defs[field_name] = (
-                    Optional[uuid.UUID],
-                    Field(default_factory=uuid.uuid4, **{k: v for k, v in field_kwargs.items() if k != 'default_factory'})
-                )
+                # Primary key UUID with default factory
+                annotations[field_name] = Optional[uuid.UUID]
+                field_values[field_name] = Field(default_factory=uuid.uuid4, primary_key=True)
             elif field_spec.get('nullable'):
-                field_defs[field_name] = (Optional[python_type], Field(None, **field_kwargs))
+                annotations[field_name] = Optional[python_type]
+                field_values[field_name] = Field(None, **field_kwargs)
             else:
-                field_defs[field_name] = (python_type, Field(**field_kwargs))
+                annotations[field_name] = python_type
+                field_values[field_name] = Field(**field_kwargs)
         
-        # Create the class dynamically
-        model_class = type(
-            table_name.title().replace('_', ''),
-            (SQLModel,),
-            {
-                '__tablename__': table_name,
-                '__table_args__': {'extend_existing': True},
-                **field_defs
-            }
-        )
+        # Build class code with proper type references
+        class_code = [f"class {table_name.title().replace('_', '')}(SQLModel, table=True):"]
+        class_code.append(f"    __tablename__ = '{table_name}'")
+        class_code.append(f"    __table_args__ = {{'extend_existing': True}}")
+        
+        # Prepare exec globals with all needed types
+        exec_globals = {
+            'SQLModel': SQLModel,
+            'Optional': Optional,
+            'Field': Field,
+            'uuid': uuid,
+            'datetime': datetime,
+            'str': str,
+            'int': int,
+            'float': float,
+            'bool': bool,
+            'dict': dict,
+            '_field_values': field_values,
+        }
+        
+        # Add each field with proper type annotation
+        for field_name in annotations.keys():
+            annotation = annotations[field_name]
+            
+            # Store type in globals for reference
+            type_key = f'_type_{field_name}'
+            exec_globals[type_key] = annotation
+            
+            # Add field definition using the type reference
+            class_code.append(f"    {field_name}: {type_key} = _field_values['{field_name}']")
+        
+        exec_locals = {}
+        
+        exec('\n'.join(class_code), exec_globals, exec_locals)
+        model_class = exec_locals[table_name.title().replace('_', '')]
         
         self.models[table_name] = model_class
         logger.info(f"Created model class: {table_name}")
@@ -125,6 +157,7 @@ class SchemaRegistry:
     
     def _map_type(self, yaml_type: str) -> type:
         """Map YAML type strings to Python types"""
+        from typing import Any
         type_map = {
             'uuid': uuid.UUID,
             'string': str,
@@ -133,7 +166,7 @@ class SchemaRegistry:
             'float': float,
             'boolean': bool,
             'datetime': datetime,
-            'json': dict,
+            'json': Any,  # Use Any for JSON fields instead of dict
         }
         return type_map.get(yaml_type, str)
     
