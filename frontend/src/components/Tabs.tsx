@@ -2,7 +2,7 @@
  * Tabs Component - Navigation for Grace dashboards
  */
 
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 export interface Tab {
   key: string;

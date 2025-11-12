@@ -2,7 +2,7 @@
  * Chat Tab - Main chat interface
  */
 
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 
 const s = {
