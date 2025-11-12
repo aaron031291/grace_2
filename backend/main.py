@@ -557,6 +557,7 @@ app.include_router(sandbox.router)
 app.include_router(executor.router)
 app.include_router(governance.router)
 app.include_router(hunter.router)
+app.include_router(memory_api.router)
 app.include_router(health_routes.router)
 # Conditionally include unified health/triage endpoints (observe-only by default)
 try:
