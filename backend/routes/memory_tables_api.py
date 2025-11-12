@@ -421,3 +421,75 @@ async def get_memory_tables_stats():
     except Exception as e:
         logger.error(f"Failed to get stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/sync-to-learning/{table_name}/{row_id}")
+async def sync_row_to_learning(table_name: str, row_id: str):
+    """Sync a table row to learning systems"""
+    try:
+        from backend.memory_tables.learning_integration import learning_bridge
+        
+        success = await learning_bridge.sync_to_ingestion(table_name, row_id)
+        
+        return {
+            'success': success,
+            'table': table_name,
+            'row_id': row_id,
+            'message': 'Synced to learning pipeline' if success else 'Sync failed'
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to sync: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/update-trust-scores/{table_name}")
+async def update_table_trust_scores(table_name: str):
+    """Update trust scores for all rows in a table"""
+    try:
+        from backend.memory_tables.learning_integration import learning_bridge
+        
+        count = await learning_bridge.update_trust_scores(table_name)
+        
+        return {
+            'success': True,
+            'table': table_name,
+            'updated_count': count
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to update trust scores: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/cross-domain-query")
+async def cross_domain_query(query_spec: Dict[str, Any]):
+    """Execute a cross-domain query across multiple tables"""
+    try:
+        from backend.memory_tables.learning_integration import learning_bridge
+        
+        results = await learning_bridge.cross_domain_query(query_spec)
+        
+        return results
+    
+    except Exception as e:
+        logger.error(f"Cross-domain query failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/learning-report")
+async def get_learning_report():
+    """Get comprehensive learning status report"""
+    try:
+        from backend.memory_tables.learning_integration import learning_bridge
+        
+        report = await learning_bridge.generate_learning_report()
+        
+        return {
+            'success': True,
+            'report': report
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to generate report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
