@@ -1,355 +1,293 @@
-# Next Steps - Get CLI and Localhost Running
+# Grace - What to Do Next
 
-**Goal:** Test everything working together - Backend API + Frontend UI + CLI
-
----
-
-## Current Situation
-
-**What's ready:**
-- ✅ Backend code written (minimal_backend.py)
-- ✅ Frontend components created
-- ✅ CLI test script created
-- ✅ All files organized
-
-**What's not tested:**
-- ❌ Backend never successfully started and tested
-- ❌ Frontend never connected to backend
-- ❌ CLI never connected to running backend
-- ❌ No end-to-end flow verified
+**Current Status:** System fully operational, UI ready but needs restart to display
 
 ---
 
-## Option 1: Quick Win - Get Backend Running (15 minutes)
+## 🔄 Immediate: See the New UI
 
-**Goal:** Just get the backend API responding so you can test with browser and CLI
+**The ChatGPT-style UI is ready but you need to restart the frontend:**
 
-### Steps:
-
-1. **Kill any running Python processes**
-   ```bash
-   taskkill /F /IM python.exe
-   ```
-
-2. **Start minimal backend**
-   ```bash
-   py minimal_backend.py
-   ```
-   Should see:
-   ```
-   Starting Grace Minimal Backend
-   API: http://localhost:8000
-   INFO: Uvicorn running on http://127.0.0.1:8000
-   ```
-
-3. **Test in browser** (new terminal)
-   ```
-   http://localhost:8000/health
-   http://localhost:8000/api/status
-   http://localhost:8000/docs
-   ```
-
-4. **Test with CLI**
-   ```bash
-   py scripts\cli_test.py status
-   ```
-
-5. **Publish test metrics**
-   ```bash
-   py scripts\demo_working_metrics.py
-   ```
-   Then refresh http://localhost:8000/api/status to see metrics
-
-**Time:** 15 minutes  
-**Benefit:** Backend API working, can test all endpoints  
-**Next:** Connect frontend
-
----
-
-## Option 2: Full Stack - Backend + Frontend (30 minutes)
-
-**Goal:** Get both backend and frontend running and connected
-
-### Steps:
-
-1. **Start backend** (Terminal 1)
-   ```bash
-   py minimal_backend.py
-   ```
-   Wait for: "Uvicorn running on http://127.0.0.1:8000"
-
-2. **Test backend works** (Terminal 2)
-   ```bash
-   py -c "import httpx; print(httpx.get('http://localhost:8000/health').json())"
-   ```
-   Should show: `{'status': 'ok', 'message': 'Minimal backend running'}`
-
-3. **Start frontend** (Terminal 2)
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Wait for: "Local: http://localhost:5173/"
-
-4. **Open in browser**
-   ```
-   http://localhost:5173
-   ```
-   Should show CognitionDashboard with domain metrics
-
-5. **Test CLI**
-   ```bash
-   py scripts\cli_test.py status
-   ```
-
-**Time:** 30 minutes (includes npm install)  
-**Benefit:** Full UI working, visual dashboard  
-**Next:** Wire real metrics into domain code
-
----
-
-## Option 3: Debug Session - Fix All Blockers (1-2 hours)
-
-**Goal:** Methodically fix every startup issue until everything runs perfectly
-
-### Steps:
-
-1. **Create debug log script**
-   ```python
-   # debug_startup.py
-   import sys
-   sys.path.insert(0, '.')
-   
-   print("Testing backend startup...")
-   try:
-       from backend.metrics_server import app
-       print("✓ Metrics server imports")
-   except Exception as e:
-       print(f"✗ Error: {e}")
-   
-   try:
-       import uvicorn
-       print("✓ Uvicorn available")
-   except:
-       print("✗ Install: pip install uvicorn")
-   
-   # Test each component
-   ```
-
-2. **Run debug script**
-   ```bash
-   py debug_startup.py
-   ```
-
-3. **Fix each error one by one**
-   - Missing dependencies → install
-   - Import errors → fix imports
-   - Port conflicts → change ports
-   - Database errors → recreate DB
-
-4. **Once clean, start everything**
-
-**Time:** 1-2 hours  
-**Benefit:** Everything working robustly  
-**Next:** Production deployment
-
----
-
-## Option 4: Standalone First - No Server Needed (5 minutes)
-
-**Goal:** See metrics system working immediately without any server
-
-### Steps:
-
-1. **Run working demo**
-   ```bash
-   py scripts\demo_working_metrics.py
-   ```
-
-2. **See output:**
-   ```
-   Publishing metrics from all 9 domains...
-   [OK] 17 metrics published
-   
-   Overall Health:     79.3%
-   Overall Trust:      75.3%
-   Domains tracked:    8
-   
-   Report generated: 2475 characters
-   ```
-
-3. **Integrate into your code** (example)
-   ```python
-   # your_code.py
-   from backend.metric_publishers import OrchestratorMetrics
-   
-   async def my_task():
-       result = do_work()
-       await OrchestratorMetrics.publish_task_completed(True, 0.95)
-       return result
-   ```
-
-**Time:** 5 minutes  
-**Benefit:** Metrics working now, can integrate today  
-**Limitation:** No API, no UI, no CLI - just programmatic
-
----
-
-## Option 5: CLI-First Approach (20 minutes)
-
-**Goal:** Get CLI working with lightweight backend
-
-### Steps:
-
-1. **Create ultra-minimal backend**
-   ```python
-   # tiny_backend.py
-   from fastapi import FastAPI
-   import sys
-   sys.path.insert(0, '.')
-   
-   app = FastAPI()
-   
-   @app.get("/health")
-   def health():
-       return {"status": "ok"}
-   
-   @app.get("/api/status")
-   def status():
-       from backend.cognition_metrics import get_metrics_engine
-       return get_metrics_engine().get_status()
-   
-   if __name__ == "__main__":
-       import uvicorn
-       uvicorn.run(app, host="127.0.0.1", port=8000)
-   ```
-
-2. **Start it**
-   ```bash
-   py tiny_backend.py
-   ```
-
-3. **Test CLI immediately**
-   ```bash
-   py scripts\cli_test.py status
-   ```
-
-4. **Build from there**
-
-**Time:** 20 minutes  
-**Benefit:** Simple, debuggable, CLI works fast  
-**Next:** Expand backend features incrementally
-
----
-
-## Recommended Path (My Suggestion)
-
-### Phase 1: Option 4 + Option 5 (25 minutes)
-
-**Why:** Get something working immediately, then build up
-
-1. **First 5 min:** Run standalone demo to prove metrics work
-   ```bash
-   py scripts\demo_working_metrics.py
-   ```
-
-2. **Next 20 min:** Get tiny backend + CLI working
-   - Create tiny_backend.py (5 min)
-   - Start and test (5 min)
-   - Test CLI connects (5 min)
-   - Publish metrics and verify (5 min)
-
-**Result:** Working CLI + API in 25 minutes
-
-### Phase 2: Add Frontend (15 minutes)
-
-3. **Start frontend**
-   ```bash
-   cd frontend
-   npm install  # May take 5 min
-   npm run dev
-   ```
-
-4. **Open browser:** http://localhost:5173
-
-**Result:** Full stack working in 40 minutes total
-
----
-
-## What Each Option Gets You
-
-| Option | Time | Backend | Frontend | CLI | Complexity |
-|--------|------|---------|----------|-----|------------|
-| **Option 1** | 15min | ✅ API | ❌ | ✅ | Low |
-| **Option 2** | 30min | ✅ API | ✅ UI | ✅ | Medium |
-| **Option 3** | 2hr | ✅ Robust | ✅ Tested | ✅ Tested | High |
-| **Option 4** | 5min | ❌ | ❌ | ❌ | Very Low |
-| **Option 5** | 20min | ✅ Minimal | ❌ | ✅ | Low |
-| **Recommended** | 40min | ✅ Full | ✅ Full | ✅ Full | Medium |
-
----
-
-## Immediate Commands to Try
-
-### Test Metrics System (Works Right Now - No server)
 ```bash
-py scripts\demo_working_metrics.py
-```
-
-### Start Minimal Backend
-```bash
-py minimal_backend.py
-```
-
-### Test Backend is Running (New terminal)
-```bash
-py -c "import httpx; print(httpx.get('http://localhost:8000/health').json())"
-```
-
-### Test CLI
-```bash
-py scripts\cli_test.py status
-```
-
-### Start Frontend
-```bash
-cd frontend
+# In the frontend terminal:
+Ctrl+C
 npm run dev
+
+# Then in browser:
+Ctrl+Shift+R at http://localhost:5173
 ```
 
----
-
-## My Recommendation
-
-**Start with Option 4, then Option 1, then Option 2:**
-
-1. Run `py scripts\demo_working_metrics.py` (5 min)
-   - Proves metrics work
-   - No dependencies
-   - Immediate feedback
-
-2. Start `py minimal_backend.py` (10 min)
-   - Get API running
-   - Test with browser
-   - Test with CLI
-
-3. Start frontend `cd frontend && npm run dev` (15 min)
-   - Full visual dashboard
-   - Real-time updates
-   - Complete experience
-
-**Total: 30 minutes to fully working system**
+**Expected:** Left sidebar with 9 kernels + 9 functions, ChatGPT-style dark theme
 
 ---
 
-## What Do You Want to Do?
+## 🎯 Option 1: Expand Clarity Framework (Classes 5-10)
 
-**A.** Quick win - Just get backend API running (Option 1 - 15 min)  
-**B.** Full stack - Backend + Frontend + CLI (Option 2 - 30 min)  
-**C.** Debug everything - Make it bulletproof (Option 3 - 2 hours)  
-**D.** Standalone demo - See it work now (Option 4 - 5 min)  
-**E.** CLI-focused - Get CLI working first (Option 5 - 20 min)  
-**F.** Recommended path - Build up incrementally (40 min)  
+**Implement advanced clarity features:**
 
-**Choose a letter and I'll execute that path step by step.**
+### Class 5: Memory Trust Scoring
+```python
+# backend/clarity/memory_trust.py
+- Trust scoring algorithm
+- Decay models
+- Real-time trust updates
+```
+
+### Class 6: Constitutional Governance
+```python
+# backend/clarity/constitutional_enforcer.py
+- Policy validation at decision points
+- Approval workflows
+- Governance logging
+```
+
+### Class 7: Loop Feedback Integration
+```python
+# backend/clarity/loop_feedback.py
+- Auto-pipe loop outputs to memory
+- Extract learnings
+- Tag with trust scores
+```
+
+### Classes 8-10
+- Specialist consensus/quorum
+- Output standardization
+- Contradiction detection
+
+**Effort:** 2-4 weeks for all 6 classes
+
+---
+
+## 🎯 Option 2: Replace Kernel Stubs with Real Logic
+
+**Currently:** All 9 kernels are stubs  
+**Goal:** Implement real functionality
+
+### Start with Memory Kernel
+```python
+# backend/kernels/memory_kernel.py
+- Integrate PersistentMemory
+- Add semantic search
+- Implement trust scoring
+- Wire to fusion memory
+```
+
+### Then Code Kernel
+```python
+# backend/kernels/code_kernel.py
+- Integrate coding agent
+- Add code analysis
+- Wire GitHub integration
+```
+
+**Effort:** 1-2 weeks per kernel
+
+---
+
+## 🎯 Option 3: Enhance UI/UX
+
+### Real-Time Event Streaming
+```python
+# backend/websocket_events.py
+@app.websocket("/ws/events")
+async def stream_clarity_events(websocket):
+    # Stream events to UI
+```
+
+### Advanced Visualizations
+- Kernel activity graphs
+- Event timeline
+- Trust score charts
+- Ingestion progress animations
+
+### Interactive Controls
+- Kernel start/stop buttons
+- Config editors
+- Log viewers
+- Task schedulers
+
+**Effort:** 1-2 weeks
+
+---
+
+## 🎯 Option 4: Production Hardening
+
+### Authentication & Security
+- JWT authentication
+- Role-based access control
+- API key management
+- Rate limiting
+
+### Monitoring & Alerting
+- Prometheus metrics
+- Grafana dashboards
+- Alert rules
+- Log aggregation
+
+### Performance
+- Database connection pooling
+- API response caching
+- Frontend lazy loading
+- CDN for static assets
+
+**Effort:** 2-3 weeks
+
+---
+
+## 🎯 Option 5: Knowledge Integration
+
+**Wire real ingestion pipelines:**
+
+### GitHub Learning
+```python
+# Use backend/github_knowledge_miner.py
+- Auto-ingest from repos
+- Extract patterns
+- Store in memory
+- Display in UI
+```
+
+### Reddit/YouTube
+- Wire reddit_learning.py
+- Wire youtube_learning.py
+- Add scheduling
+- Show progress in Ingestion panel
+
+### Web Scraping
+- safe_web_scraper integration
+- Article extraction
+- Knowledge graph building
+
+**Effort:** 1-2 weeks
+
+---
+
+## 🎯 Option 6: Autonomous Features
+
+### Self-Healing
+```python
+# Wire backend/elite_self_healing.py
+- Auto-detect issues
+- Apply fixes
+- Learn from outcomes
+- Display in UI
+```
+
+### Mission System
+```python
+# Wire mission_control
+- Auto-generate missions
+- Execute autonomously
+- Report progress
+- Learn from results
+```
+
+### Coding Agent
+```python
+# Wire elite_coding_agent.py
+- Code generation
+- GitHub integration
+- Auto-commits
+- Display in IDE panel
+```
+
+**Effort:** 2-3 weeks
+
+---
+
+## 🎯 Recommended Priority
+
+**Week 1:**
+1. ✅ See new UI (restart frontend)
+2. ✅ Test all dashboards
+3. ✅ Add regression tests to CI
+4. Wire 1-2 real kernels (Memory + Intelligence)
+
+**Week 2:**
+5. Implement Class 5 (Memory Trust Scoring)
+6. Real-time event streaming (WebSocket)
+7. GitHub ingestion integration
+8. Enhanced monitoring
+
+**Week 3-4:**
+9. Implement Classes 6-7
+10. More kernel implementations
+11. Self-healing integration
+12. Production auth
+
+---
+
+## 💡 Quick Wins (1-2 Hours Each)
+
+1. **Wire GitHub Ingestion**
+   - Already have `github_knowledge_miner.py`
+   - Connect to Ingestion dashboard
+   - Test with a repo
+
+2. **Add Kernel Detail Panels**
+   - Create specific panels for each kernel
+   - Show APIs managed
+   - Display recent operations
+
+3. **Event Timeline View**
+   - Show clarity events in real-time
+   - Filter by type
+   - Visual timeline
+
+4. **Chat History**
+   - Save chat messages
+   - Show conversation history
+   - Export conversations
+
+---
+
+## 🔥 Most Impactful Next Steps
+
+**If you want the system to "do more":**
+1. Wire real LLM (OpenAI/local model)
+2. Implement Memory Trust Scoring
+3. Enable GitHub ingestion
+4. Add WebSocket event streaming
+
+**If you want better visibility:**
+1. Add regression tests
+2. Real-time event viewer
+3. Kernel activity charts
+4. Ingestion progress animations
+
+**If you want production-ready:**
+1. Proper authentication
+2. HTTPS/TLS
+3. Monitoring/alerting
+4. Deployment automation
+
+---
+
+## 📊 Current Capabilities
+
+**What Works Now:**
+- ✅ Full system boots in 1 command
+- ✅ 18 API endpoints respond
+- ✅ Clarity Framework tracks everything
+- ✅ UI shows all dashboards (after restart)
+- ✅ Chat works (echo mode)
+- ✅ Ingestion orchestrator ready
+- ✅ All components registered
+
+**What's Stubbed (works but simulated):**
+- Domain kernels (logic stubbed)
+- LLM responses (echo mode)
+- Memory systems (stub storage)
+- Learning loops (structure only)
+
+**What's Next:**
+- Replace stubs with real implementations
+- Add advanced clarity classes
+- Enhance UI interactivity
+- Production hardening
+
+---
+
+**Pick an option above and we'll implement it!** 🚀
+
+Or restart the frontend first to see what we've built, then decide next steps based on what you see.
