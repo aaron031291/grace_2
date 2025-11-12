@@ -123,7 +123,7 @@ else:
 routes_path = Path("backend/routes")
 chat_router = None
 if (routes_path / "chat.py").exists():
-    chat_router = safe_import('chat_router', 'backend.routes.chat')
+    chat_router = safe_import('router', 'backend.routes.chat')
 
 multimodal_router = None
 if (routes_path / "multimodal_api.py").exists():
@@ -131,11 +131,9 @@ if (routes_path / "multimodal_api.py").exists():
 
 # CLI Systems - check if cli directory exists
 cli_path = Path("cli")
-enhanced_grace_cli = None
+EnhancedGraceCLI = StubComponent
 if cli_path.exists() and (cli_path / "enhanced_grace_cli.py").exists():
-    enhanced_grace_cli = safe_import('enhanced_grace_cli', 'cli.enhanced_grace_cli')
-else:
-    enhanced_grace_cli = StubComponent('enhanced_grace_cli')
+    EnhancedGraceCLI = safe_import('EnhancedGraceCLI', 'cli.enhanced_grace_cli') or StubComponent
 
 # Multi-OS Detection and Configuration
 CURRENT_OS = platform.system().lower()
