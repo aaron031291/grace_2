@@ -158,6 +158,11 @@ ingestion_router = None
 if (routes_path / "ingestion_api.py").exists():
     ingestion_router = safe_import('router', 'backend.routes.ingestion_api', optional=True)
 
+# Memory Tables Routes
+memory_tables_router = None
+if (routes_path / "memory_tables_api.py").exists():
+    memory_tables_router = safe_import('router', 'backend.routes.memory_tables_api', optional=True)
+
 # CLI Systems - check if cli directory exists (OPTIONAL - not required for orchestrator)
 cli_path = Path("cli")
 EnhancedGraceCLI = StubComponent
@@ -327,7 +332,7 @@ class GraceUnifiedOrchestrator:
         """Start core Grace systems with proper status tracking"""
         logger.info("🚀 Starting core Grace systems...")
         
-        counts = {"core": 0, "memory": 0, "kernels": 0, "cognition": 0}
+        counts = {"core": 0, "memory": 0, "kernels": 0, "cognition": 0, "memory_tables": 0}
         
         # Start LLM system
         try:
@@ -399,6 +404,16 @@ class GraceUnifiedOrchestrator:
                     logger.info(f"✅ Domain kernel: {name}")
             except Exception as e:
                 logger.error(f"❌ Domain kernel {name}: {e}")
+        
+        # Initialize Memory Tables system
+        try:
+            from backend.memory_tables.initialization import initialize_memory_tables
+            tables_initialized = await initialize_memory_tables()
+            if tables_initialized:
+                counts["memory_tables"] = 1
+                logger.info("✅ Memory Tables system started")
+        except Exception as e:
+            logger.error(f"❌ Memory Tables initialization failed: {e}")
         
         return counts
 
@@ -543,6 +558,10 @@ if grace_memory_router:
 if ingestion_router:
     app.include_router(ingestion_router)
     logger.info("✅ Ingestion API router included")
+
+if memory_tables_router:
+    app.include_router(memory_tables_router)
+    logger.info("✅ Memory Tables API router included")
 
 @app.get("/")
 async def root():

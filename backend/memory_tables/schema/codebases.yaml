@@ -1,0 +1,57 @@
+table: memory_codebases
+description: |
+  Metadata for imported repositories / code files. Tracks languages,
+  entrypoints, and health so Grace can reason about engineering domains.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: repo_name
+    type: string
+    required: true
+
+  - name: root_path
+    type: string
+    required: true
+    unique: true
+
+  - name: languages
+    type: json
+    default: []
+    description: Language distribution (e.g., [{"python": 0.7}, {"ts": 0.3}])
+
+  - name: entry_points
+    type: json
+    default: []
+    description: Main scripts/services detected
+
+  - name: dependency_files
+    type: json
+    default: []
+    description: Paths to requirements.txt, package.json, etc.
+
+  - name: last_indexed_at
+    type: datetime
+    nullable: true
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: changelog
+    type: json
+    default: []
+    description: History of major updates
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [repo_name]
+  - fields: [last_indexed_at]
