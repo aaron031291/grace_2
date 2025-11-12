@@ -1,0 +1,84 @@
+table: memory_business_intelligence
+description: |
+  Business intelligence dashboards with KPI definitions, data sources,
+  refresh cadence, and ownership. Structured BI metadata.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: dashboard_id
+    type: string
+    required: true
+    unique: true
+
+  - name: dashboard_name
+    type: string
+    required: true
+
+  - name: category
+    type: string
+    allowed: [sales, marketing, operations, finance, product, custom]
+    default: custom
+
+  - name: kpi_definitions
+    type: json
+    default: []
+    description: Array of KPI metrics and calculations
+
+  - name: data_sources
+    type: json
+    default: []
+    description: Which tables/APIs this dashboard queries
+
+  - name: refresh_cadence
+    type: string
+    allowed: [realtime, hourly, daily, weekly, monthly, manual]
+    default: daily
+
+  - name: owner
+    type: string
+    description: Who owns this dashboard
+
+  - name: viewers
+    type: json
+    default: []
+    description: Who can view this dashboard
+
+  - name: last_refresh_at
+    type: datetime
+    nullable: true
+
+  - name: next_refresh_at
+    type: datetime
+    nullable: true
+
+  - name: query_performance_ms
+    type: integer
+    default: 0
+
+  - name: data_freshness_hours
+    type: integer
+    default: 24
+
+  - name: trust_score
+    type: float
+    default: 0.0
+    description: Trust in the data sources
+
+  - name: is_public
+    type: boolean
+    default: false
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [category]
+  - fields: [owner]
+  - fields: [refresh_cadence]

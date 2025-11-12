@@ -1,0 +1,96 @@
+table: memory_sop_manuals
+description: |
+  Standard Operating Procedures with versioning, policies, sign-offs,
+  and required refresh dates.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: sop_id
+    type: string
+    required: true
+    unique: true
+
+  - name: title
+    type: string
+    required: true
+
+  - name: category
+    type: string
+    allowed: [operations, security, deployment, incident_response, onboarding, other]
+    default: operations
+
+  - name: version
+    type: string
+    required: true
+
+  - name: status
+    type: string
+    allowed: [draft, review, approved, active, deprecated]
+    default: draft
+
+  - name: content_path
+    type: string
+    required: true
+    description: Path to the actual SOP document
+
+  - name: procedures
+    type: json
+    default: []
+    description: Step-by-step procedures
+
+  - name: required_approvers
+    type: json
+    default: []
+
+  - name: approval_signatures
+    type: json
+    default: []
+    description: Array of approval records
+
+  - name: last_reviewed_at
+    type: datetime
+    nullable: true
+
+  - name: next_review_date
+    type: datetime
+    nullable: true
+
+  - name: review_frequency_days
+    type: integer
+    default: 90
+
+  - name: affected_systems
+    type: json
+    default: []
+
+  - name: compliance_frameworks
+    type: json
+    default: []
+    description: Which compliance frameworks this supports
+
+  - name: training_required
+    type: boolean
+    default: false
+
+  - name: trained_users
+    type: json
+    default: []
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [category]
+  - fields: [status]
+  - fields: [next_review_date]

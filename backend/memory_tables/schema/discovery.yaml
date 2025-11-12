@@ -1,0 +1,98 @@
+table: memory_discovery_targets
+description: |
+  Hunter/discovery targets managing external sites, repositories, feeds
+  with priority, status, and last scan details.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: target_id
+    type: string
+    required: true
+    unique: true
+
+  - name: target_name
+    type: string
+    required: true
+
+  - name: target_type
+    type: string
+    allowed: [website, api, repository, feed, database, filesystem]
+    required: true
+
+  - name: target_url
+    type: string
+    required: true
+
+  - name: discovery_priority
+    type: integer
+    default: 5
+    description: Priority 1-10, higher = more important
+
+  - name: scan_frequency
+    type: string
+    allowed: [continuous, hourly, daily, weekly, monthly, manual]
+    default: daily
+
+  - name: status
+    type: string
+    allowed: [active, paused, error, archived]
+    default: active
+
+  - name: last_scan_at
+    type: datetime
+    nullable: true
+
+  - name: next_scan_at
+    type: datetime
+    nullable: true
+
+  - name: items_discovered
+    type: integer
+    default: 0
+
+  - name: items_ingested
+    type: integer
+    default: 0
+
+  - name: error_count
+    type: integer
+    default: 0
+
+  - name: last_error
+    type: text
+    nullable: true
+
+  - name: authentication
+    type: json
+    nullable: true
+    description: Auth config (encrypted)
+
+  - name: filters
+    type: json
+    default: {}
+    description: What to include/exclude
+
+  - name: metadata_mapping
+    type: json
+    default: {}
+    description: How to map discovered data to tables
+
+  - name: trust_score
+    type: float
+    default: 0.5
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [target_type]
+  - fields: [status]
+  - fields: [discovery_priority]
+  - fields: [last_scan_at]

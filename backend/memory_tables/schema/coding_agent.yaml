@@ -1,0 +1,101 @@
+table: memory_coding_work_orders
+description: |
+  Coding agent work orders tracking tasks, code diffs, test results,
+  reviewer notes, and deployment impact.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: work_order_id
+    type: string
+    required: true
+    unique: true
+
+  - name: title
+    type: string
+    required: true
+
+  - name: description
+    type: text
+
+  - name: task_type
+    type: string
+    allowed: [feature, bugfix, refactor, test, documentation, deployment]
+    default: feature
+
+  - name: status
+    type: string
+    allowed: [pending, in_progress, review, deployed, cancelled]
+    default: pending
+
+  - name: priority
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+
+  - name: affected_files
+    type: json
+    default: []
+    description: List of file paths modified
+
+  - name: code_diff_path
+    type: string
+    nullable: true
+    description: Path to stored diff file
+
+  - name: test_results
+    type: json
+    nullable: true
+    description: Test execution results
+
+  - name: reviewer_notes
+    type: text
+    nullable: true
+
+  - name: deployment_impact
+    type: json
+    nullable: true
+    description: Services affected, downtime, rollback plan
+
+  - name: lines_added
+    type: integer
+    default: 0
+
+  - name: lines_removed
+    type: integer
+    default: 0
+
+  - name: complexity_score
+    type: float
+    default: 0.0
+
+  - name: trust_score
+    type: float
+    default: 0.0
+
+  - name: created_at
+    type: datetime
+    required: true
+
+  - name: completed_at
+    type: datetime
+    nullable: true
+
+  - name: assigned_to
+    type: string
+    default: grace
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [priority]
+  - fields: [created_at]
+  - fields: [trust_score]

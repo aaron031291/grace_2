@@ -1,0 +1,98 @@
+table: memory_trigger_mesh
+description: |
+  Event trigger definitions with publishers, subscribers, routing rules,
+  and execution history. Maps the event-driven architecture.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: trigger_id
+    type: string
+    required: true
+    unique: true
+
+  - name: trigger_name
+    type: string
+    required: true
+
+  - name: event_type
+    type: string
+    required: true
+    description: Type of event that triggers this
+
+  - name: publishers
+    type: json
+    default: []
+    description: Components that can publish this event
+
+  - name: subscribers
+    type: json
+    default: []
+    description: Components that subscribe to this event
+
+  - name: routing_rules
+    type: json
+    default: {}
+    description: Conditional routing logic
+
+  - name: filter_conditions
+    type: json
+    nullable: true
+    description: Event filtering rules
+
+  - name: enabled
+    type: boolean
+    default: true
+
+  - name: priority
+    type: integer
+    default: 5
+    description: Execution priority 1-10
+
+  - name: retry_policy
+    type: json
+    default: {}
+    description: Retry attempts, backoff strategy
+
+  - name: timeout_ms
+    type: integer
+    default: 30000
+
+  - name: total_triggers
+    type: integer
+    default: 0
+
+  - name: successful_triggers
+    type: integer
+    default: 0
+
+  - name: failed_triggers
+    type: integer
+    default: 0
+
+  - name: last_triggered_at
+    type: datetime
+    nullable: true
+
+  - name: avg_execution_time_ms
+    type: integer
+    default: 0
+
+  - name: trust_score
+    type: float
+    default: 0.5
+
+  - name: governance_stamp
+    type: json
+    nullable: true
+
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [event_type]
+  - fields: [enabled]
+  - fields: [priority]
+  - fields: [trust_score]
