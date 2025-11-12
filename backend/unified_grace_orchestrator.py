@@ -695,11 +695,16 @@ async def get_learning_status():
         }
 
 # Chat API Endpoint
+from pydantic import BaseModel
+
+class ChatRequest(BaseModel):
+    message: str
+
 @app.post("/api/chat")
-async def chat_endpoint(message: str):
+async def chat_endpoint(req: ChatRequest):
     """Basic chat endpoint"""
     return {
-        "response": f"Received: {message}",
+        "response": f"Echo: {req.message}",
         "status": "processed",
         "clarity_enabled": True
     }
