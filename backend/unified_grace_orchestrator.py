@@ -163,6 +163,11 @@ memory_tables_router = None
 if (routes_path / "memory_tables_api.py").exists():
     memory_tables_router = safe_import('router', 'backend.routes.memory_tables_api', optional=True)
 
+# Auto-Ingestion Routes
+auto_ingestion_router = None
+if (routes_path / "auto_ingestion_api.py").exists():
+    auto_ingestion_router = safe_import('router', 'backend.routes.auto_ingestion_api', optional=True)
+
 # CLI Systems - check if cli directory exists (OPTIONAL - not required for orchestrator)
 cli_path = Path("cli")
 EnhancedGraceCLI = StubComponent
@@ -562,6 +567,10 @@ if ingestion_router:
 if memory_tables_router:
     app.include_router(memory_tables_router)
     logger.info("✅ Memory Tables API router included")
+
+if auto_ingestion_router:
+    app.include_router(auto_ingestion_router)
+    logger.info("✅ Auto-Ingestion API router included")
 
 @app.get("/")
 async def root():
