@@ -46,37 +46,62 @@ class SchemaApprovalRequest(BaseModel):
 
 
 @router.get("/files")
-async def get_file_tree():
-    """Get file tree of grace_training directory"""
+async def get_file_tree(path: str = "/"):
+    """Get folders and files for a specific path"""
     try:
-        def build_tree(path: Path, base: Path) -> Dict[str, Any]:
-            relative = path.relative_to(base)
-            name = path.name if path != base else "grace_training"
-            
-            node = {
-                "name": name,
-                "path": f"/{relative}".replace("\\", "/") if relative != Path(".") else "/",
-                "type": "directory" if path.is_dir() else "file",
-            }
-            
-            if path.is_file():
-                node["size"] = path.stat().st_size
-                node["modified"] = datetime.fromtimestamp(path.stat().st_mtime).isoformat()
-            
-            if path.is_dir():
-                children = []
-                try:
-                    for item in sorted(path.iterdir(), key=lambda x: (not x.is_dir(), x.name)):
-                        children.append(build_tree(item, base))
-                    node["children"] = children
-                except PermissionError:
-                    node["children"] = []
-            
-            return node
+        # Clean and normalize path
+        clean_path = path.lstrip("/").replace("/", os.sep) if path != "/" else ""
+        target_path = TRAINING_BASE / clean_path if clean_path else TRAINING_BASE
         
-        tree = build_tree(TRAINING_BASE, TRAINING_BASE)
-        return tree
+        # Security check
+        if not target_path.resolve().is_relative_to(TRAINING_BASE.resolve()):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+        
+        folders = []
+        files = []
+        
+        try:
+            for item in sorted(target_path.iterdir(), key=lambda x: x.name.lower()):
+                relative_path = f"/{item.relative_to(TRAINING_BASE)}".replace("\\", "/")
+                
+                if item.is_dir():
+                    # Check for .meta.json
+                    meta_file = item / ".meta.json"
+                    meta_data = {}
+                    if meta_file.exists():
+                        try:
+                            meta_data = json.loads(meta_file.read_text())
+                        except:
+                            pass
+                    
+                    folders.append({
+                        "name": item.name,
+                        "path": relative_path,
+                        "type": "folder",
+                        "metadata": meta_data
+                    })
+                else:
+                    files.append({
+                        "name": item.name,
+                        "path": relative_path,
+                        "type": "file",
+                        "size": item.stat().st_size,
+                        "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat()
+                    })
+        except PermissionError:
+            pass
+        
+        return {
+            "path": path,
+            "folders": folders,
+            "files": files
+        }
     
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load file tree: {str(e)}")
 
@@ -206,6 +231,46 @@ async def create_file(path: str, is_directory: bool = False):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create: {str(e)}")
+
+
+@router.patch("/files/rename")
+async def rename_file(old_path: str, new_path: str):
+    """Rename or move file/folder"""
+    try:
+        old_clean = old_path.lstrip("/").replace("/", os.sep)
+        new_clean = new_path.lstrip("/").replace("/", os.sep)
+        
+        old_full = TRAINING_BASE / old_clean
+        new_full = TRAINING_BASE / new_clean
+        
+        # Security checks
+        if not old_full.resolve().is_relative_to(TRAINING_BASE.resolve()):
+            raise HTTPException(status_code=403, detail="Access denied")
+        if not new_full.resolve().parent.is_relative_to(TRAINING_BASE.resolve()):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        if not old_full.exists():
+            raise HTTPException(status_code=404, detail="Source not found")
+        
+        if new_full.exists():
+            raise HTTPException(status_code=400, detail="Target already exists")
+        
+        # Create parent if needed
+        new_full.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Rename/move
+        old_full.rename(new_full)
+        
+        return {
+            "success": True,
+            "old_path": old_path,
+            "new_path": new_path
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to rename: {str(e)}")
 
 
 @router.delete("/files/delete")

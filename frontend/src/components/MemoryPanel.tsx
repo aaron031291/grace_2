@@ -10,6 +10,7 @@ import axios from 'axios';
 import './MemoryPanel.css';
 import { GraceCopilotSidebar } from './GraceCopilotSidebar';
 import { CollaborationDashboard } from './CollaborationDashboard';
+import { FileTreeWorking } from './FileTreeWorking';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -536,11 +537,16 @@ export const MemoryPanel: React.FC<MemoryPanelProps> = ({ token, userId }) => {
               </div>
 
               <div className="tree">
-                {fileTree ? (
-                  fileTree.children?.map(node => renderFileTree(node)) || renderFileTree(fileTree)
-                ) : (
-                  <div className="empty">Loading...</div>
-                )}
+                <FileTreeWorking
+                  token={token}
+                  onSelect={(node) => {
+                    if (node.type === 'file') {
+                      handleFileSelect(node.path);
+                    }
+                    setSelectedFile(node.path);
+                  }}
+                  selectedPath={selectedFile || undefined}
+                />
               </div>
 
               {status && (
