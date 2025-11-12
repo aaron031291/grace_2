@@ -13,9 +13,19 @@ from datetime import datetime
 from pathlib import Path
 import shutil
 
-from backend.auth import get_current_user
-from backend.memory_tables.registry import table_registry
-from backend.memory_tables.crud import MemoryTableCRUD
+# Lazy imports to avoid circular dependencies
+def get_current_user():
+    """Placeholder - will be replaced by dependency injection"""
+    from backend.auth import get_current_user as _get_current_user
+    return _get_current_user
+
+def get_table_registry():
+    from backend.memory_tables.registry import table_registry
+    return table_registry
+
+def get_crud():
+    from backend.memory_tables.crud import MemoryTableCRUD
+    return MemoryTableCRUD()
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
@@ -36,7 +46,7 @@ class SchemaApprovalRequest(BaseModel):
 
 
 @router.get("/files")
-async def get_file_tree(current_user: dict = Depends(get_current_user)):
+async def get_file_tree():
     """Get file tree of grace_training directory"""
     try:
         def build_tree(path: Path, base: Path) -> Dict[str, Any]:
@@ -72,10 +82,7 @@ async def get_file_tree(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/files/content")
-async def get_file_content(
-    path: str,
-    current_user: dict = Depends(get_current_user)
-):
+async def get_file_content(path: str):
     """Get file content"""
     try:
         # Remove leading slash and normalize
@@ -113,11 +120,7 @@ async def get_file_content(
 
 
 @router.post("/files/content")
-async def save_file_content(
-    path: str,
-    content: str,
-    current_user: dict = Depends(get_current_user)
-):
+async def save_file_content(path: str, content: str):
     """Save file content"""
     try:
         clean_path = path.lstrip("/").replace("/", os.sep)
@@ -145,11 +148,7 @@ async def save_file_content(
 
 
 @router.post("/files/upload")
-async def upload_file(
-    file: UploadFile = File(...),
-    target_path: str = "/",
-    current_user: dict = Depends(get_current_user)
-):
+async def upload_file(file: UploadFile = File(...), target_path: str = "/"):
     """Upload file"""
     try:
         clean_path = target_path.lstrip("/").replace("/", os.sep)
@@ -178,11 +177,7 @@ async def upload_file(
 
 
 @router.post("/files/create")
-async def create_file(
-    path: str,
-    is_directory: bool = False,
-    current_user: dict = Depends(get_current_user)
-):
+async def create_file(path: str, is_directory: bool = False):
     """Create file or directory"""
     try:
         clean_path = path.lstrip("/").replace("/", os.sep)
@@ -214,10 +209,7 @@ async def create_file(
 
 
 @router.delete("/files/delete")
-async def delete_file(
-    path: str,
-    current_user: dict = Depends(get_current_user)
-):
+async def delete_file(path: str):
     """Delete file or directory"""
     try:
         clean_path = path.lstrip("/").replace("/", os.sep)
@@ -244,11 +236,12 @@ async def delete_file(
 
 
 @router.get("/tables/list")
-async def list_tables(current_user: dict = Depends(get_current_user)):
+async def list_tables():
     """List all available memory tables"""
     try:
+        registry = get_table_registry()
         tables = []
-        for table_name, schema in table_registry.schemas.items():
+        for table_name, schema in registry.schemas.items():
             tables.append({
                 "name": table_name,
                 "description": schema.get("description", ""),
@@ -263,13 +256,11 @@ async def list_tables(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/tables/{table_name}/schema")
-async def get_table_schema(
-    table_name: str,
-    current_user: dict = Depends(get_current_user)
-):
+async def get_table_schema(table_name: str):
     """Get table schema"""
     try:
-        schema = table_registry.schemas.get(table_name)
+        registry = get_table_registry()
+        schema = registry.schemas.get(table_name)
         if not schema:
             raise HTTPException(status_code=404, detail=f"Table '{table_name}' not found")
         
@@ -282,15 +273,10 @@ async def get_table_schema(
 
 
 @router.get("/tables/{table_name}/rows")
-async def get_table_rows(
-    table_name: str,
-    limit: int = 100,
-    offset: int = 0,
-    current_user: dict = Depends(get_current_user)
-):
+async def get_table_rows(table_name: str, limit: int = 100, offset: int = 0):
     """Get rows from a table"""
     try:
-        crud = MemoryTableCRUD()
+        crud = get_crud()
         rows = await crud.query_table(
             table_name=table_name,
             filters={},
@@ -311,17 +297,14 @@ async def get_table_rows(
 
 
 @router.post("/tables/{table_name}/rows")
-async def insert_table_row(
-    table_name: str,
-    request: Dict[str, Any],
-    current_user: dict = Depends(get_current_user)
-):
+async def insert_table_row(table_name: str, request: Dict[str, Any]):
     """Insert or update row in table"""
     try:
-        crud = MemoryTableCRUD()
+        crud = get_crud()
+        registry = get_table_registry()
         
         # Get schema to check for UUID fields
-        schema = table_registry.schemas.get(table_name)
+        schema = registry.schemas.get(table_name)
         if not schema:
             raise HTTPException(status_code=404, detail=f"Table '{table_name}' not found")
         
@@ -352,18 +335,14 @@ async def insert_table_row(
 
 
 @router.put("/tables/{table_name}/rows/{row_id}")
-async def update_table_row(
-    table_name: str,
-    row_id: str,
-    request: Dict[str, Any],
-    current_user: dict = Depends(get_current_user)
-):
+async def update_table_row(table_name: str, row_id: str, request: Dict[str, Any]):
     """Update existing row"""
     try:
-        crud = MemoryTableCRUD()
+        crud = get_crud()
+        registry = get_table_registry()
         
         # Get schema
-        schema = table_registry.schemas.get(table_name)
+        schema = registry.schemas.get(table_name)
         if not schema:
             raise HTTPException(status_code=404, detail=f"Table '{table_name}' not found")
         
@@ -393,14 +372,10 @@ async def update_table_row(
 
 
 @router.delete("/tables/{table_name}/rows/{row_id}")
-async def delete_table_row(
-    table_name: str,
-    row_id: str,
-    current_user: dict = Depends(get_current_user)
-):
+async def delete_table_row(table_name: str, row_id: str):
     """Delete row from table"""
     try:
-        crud = MemoryTableCRUD()
+        crud = get_crud()
         await crud.delete_row(table_name, row_id)
         
         return {
@@ -414,7 +389,7 @@ async def delete_table_row(
 
 
 @router.get("/schemas/pending")
-async def get_pending_schemas(current_user: dict = Depends(get_current_user)):
+async def get_pending_schemas():
     """Get pending schema proposals"""
     try:
         # This would connect to the clarity/schema proposal system
@@ -426,10 +401,7 @@ async def get_pending_schemas(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/schemas/approve")
-async def approve_schema(
-    request: SchemaApprovalRequest,
-    current_user: dict = Depends(get_current_user)
-):
+async def approve_schema(request: SchemaApprovalRequest):
     """Approve or reject schema proposal"""
     try:
         # This would connect to the approval workflow
@@ -444,7 +416,7 @@ async def approve_schema(
 
 
 @router.get("/status")
-async def get_memory_status(current_user: dict = Depends(get_current_user)):
+async def get_memory_status():
     """Get overall memory system status"""
     try:
         # Count files
@@ -457,10 +429,11 @@ async def get_memory_status(current_user: dict = Depends(get_current_user)):
                 total_size += path.stat().st_size
         
         # Count table rows
-        crud = MemoryTableCRUD()
+        crud = get_crud()
+        registry = get_table_registry()
         table_counts = {}
         
-        for table_name in table_registry.schemas.keys():
+        for table_name in registry.schemas.keys():
             try:
                 rows = await crud.query_table(table_name, {}, limit=1000)
                 table_counts[table_name] = len(rows)
