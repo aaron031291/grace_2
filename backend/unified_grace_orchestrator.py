@@ -29,11 +29,18 @@ from fastapi.responses import JSONResponse
 # Grace system imports - COMPLETE INTEGRATION (ALL SUBSYSTEMS)
 IMPORTS_SUCCESSFUL = True
 import_errors = []
+optional_import_errors = []
 
 # Defensive imports with detailed error tracking
-def safe_import(module_name: str, from_module: str = None):
-    """Safely import modules with error tracking"""
-    global IMPORTS_SUCCESSFUL, import_errors
+def safe_import(module_name: str, from_module: str = None, optional: bool = False):
+    """
+    Safely import modules with error tracking
+    Args:
+        module_name: Name of the module or attribute to import
+        from_module: Parent module to import from
+        optional: If True, failures don't mark IMPORTS_SUCCESSFUL as False
+    """
+    global IMPORTS_SUCCESSFUL, import_errors, optional_import_errors
     try:
         if from_module:
             module = __import__(from_module, fromlist=[module_name])
@@ -41,8 +48,12 @@ def safe_import(module_name: str, from_module: str = None):
         else:
             return __import__(module_name)
     except ImportError as e:
-        import_errors.append(f"{from_module}.{module_name}" if from_module else module_name)
-        IMPORTS_SUCCESSFUL = False
+        error_msg = f"{from_module}.{module_name}" if from_module else module_name
+        if optional:
+            optional_import_errors.append(error_msg)
+        else:
+            import_errors.append(error_msg)
+            IMPORTS_SUCCESSFUL = False
         return None
 
 # Create stub for missing components
@@ -70,14 +81,14 @@ class StubComponent:
     def is_running(self):
         return self._started
 
-# Core Infrastructure - using absolute imports
-process_registry = safe_import('process_registry', 'backend.grace_process_registry') or StubComponent('process_registry')
-ProcessInfo = safe_import('ProcessInfo', 'backend.grace_process_registry') or dict
-unified_logic_hub = safe_import('unified_logic_hub', 'backend.unified_logic_hub') or StubComponent('unified_logic_hub')
-activate_grace_autonomy = safe_import('activate_grace_autonomy', 'backend.grace_spine_integration') or StubComponent('activate_grace_autonomy')
-IntegrationOrchestrator = safe_import('IntegrationOrchestrator', 'backend.integration_orchestrator') or StubComponent
-BootPipeline = safe_import('BootPipeline', 'backend.boot_pipeline') or StubComponent
-GraceCore = safe_import('GraceCore', 'backend.grace_core') or StubComponent
+# Core Infrastructure - using absolute imports (optional with fallbacks)
+process_registry = safe_import('process_registry', 'backend.grace_process_registry', optional=True) or StubComponent('process_registry')
+ProcessInfo = safe_import('ProcessInfo', 'backend.grace_process_registry', optional=True) or dict
+unified_logic_hub = safe_import('unified_logic_hub', 'backend.unified_logic_hub', optional=True) or StubComponent('unified_logic_hub')
+activate_grace_autonomy = safe_import('activate_grace_autonomy', 'backend.grace_spine_integration', optional=True) or StubComponent('activate_grace_autonomy')
+IntegrationOrchestrator = safe_import('IntegrationOrchestrator', 'backend.integration_orchestrator', optional=True) or StubComponent
+BootPipeline = safe_import('BootPipeline', 'backend.boot_pipeline', optional=True) or StubComponent
+GraceCore = safe_import('GraceCore', 'backend.grace_core', optional=True) or StubComponent
 
 # Memory Systems - check if files exist before importing
 memory_fusion = None
@@ -92,9 +103,9 @@ if Path("backend/lightning_memory.py").exists():
 else:
     lightning_memory = StubComponent('lightning_memory')
 
-agentic_memory = safe_import('agentic_memory', 'backend.agentic_memory') or StubComponent('agentic_memory')
-PersistentMemory = safe_import('PersistentMemory', 'backend.memory') or StubComponent
-code_memory = safe_import('code_memory', 'backend.code_memory') or StubComponent('code_memory')
+agentic_memory = safe_import('agentic_memory', 'backend.agentic_memory', optional=True) or StubComponent('agentic_memory')
+PersistentMemory = safe_import('PersistentMemory', 'backend.memory', optional=True) or StubComponent
+code_memory = safe_import('code_memory', 'backend.code_memory', optional=True) or StubComponent('code_memory')
 
 multi_modal_memory = None
 if Path("backend/multi_modal_memory.py").exists():
@@ -102,43 +113,43 @@ if Path("backend/multi_modal_memory.py").exists():
 else:
     multi_modal_memory = StubComponent('multi_modal_memory')
 
-# LLM & Cognition
-get_grace_llm = safe_import('get_grace_llm', 'backend.grace_llm') or (lambda: StubComponent('grace_llm'))
-GraceLLM = safe_import('GraceLLM', 'backend.grace_llm') or StubComponent
-CognitionIntent = safe_import('CognitionIntent', 'backend.cognition_intent') or StubComponent('cognition_intent')
+# LLM & Cognition (optional with fallbacks)
+get_grace_llm = safe_import('get_grace_llm', 'backend.grace_llm', optional=True) or (lambda: StubComponent('grace_llm'))
+GraceLLM = safe_import('GraceLLM', 'backend.grace_llm', optional=True) or StubComponent
+CognitionIntent = safe_import('CognitionIntent', 'backend.cognition_intent', optional=True) or StubComponent('cognition_intent')
 cognition_intent = None  # Will be initialized during boot
 
-# Domain Kernels - check if kernel directory exists
+# Domain Kernels - check if kernel directory exists (optional with fallbacks)
 kernel_path = Path("backend/kernels")
 if kernel_path.exists():
-    MemoryKernel = safe_import('MemoryKernel', 'backend.kernels.memory_kernel') or StubComponent
-    CoreKernel = safe_import('CoreKernel', 'backend.kernels.core_kernel') or StubComponent
-    CodeKernel = safe_import('CodeKernel', 'backend.kernels.code_kernel') or StubComponent
-    GovernanceKernel = safe_import('GovernanceKernel', 'backend.kernels.governance_kernel') or StubComponent
-    VerificationKernel = safe_import('VerificationKernel', 'backend.kernels.verification_kernel') or StubComponent
-    IntelligenceKernel = safe_import('IntelligenceKernel', 'backend.kernels.intelligence_kernel') or StubComponent
-    InfrastructureKernel = safe_import('InfrastructureKernel', 'backend.kernels.infrastructure_kernel') or StubComponent
-    FederationKernel = safe_import('FederationKernel', 'backend.kernels.federation_kernel') or StubComponent
+    MemoryKernel = safe_import('MemoryKernel', 'backend.kernels.memory_kernel', optional=True) or StubComponent
+    CoreKernel = safe_import('CoreKernel', 'backend.kernels.core_kernel', optional=True) or StubComponent
+    CodeKernel = safe_import('CodeKernel', 'backend.kernels.code_kernel', optional=True) or StubComponent
+    GovernanceKernel = safe_import('GovernanceKernel', 'backend.kernels.governance_kernel', optional=True) or StubComponent
+    VerificationKernel = safe_import('VerificationKernel', 'backend.kernels.verification_kernel', optional=True) or StubComponent
+    IntelligenceKernel = safe_import('IntelligenceKernel', 'backend.kernels.intelligence_kernel', optional=True) or StubComponent
+    InfrastructureKernel = safe_import('InfrastructureKernel', 'backend.kernels.infrastructure_kernel', optional=True) or StubComponent
+    FederationKernel = safe_import('FederationKernel', 'backend.kernels.federation_kernel', optional=True) or StubComponent
 else:
     # Create stub kernels if directory doesn't exist
     MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = StubComponent
     VerificationKernel = IntelligenceKernel = InfrastructureKernel = FederationKernel = StubComponent
 
-# API Routes - check if routes exist
+# API Routes - check if routes exist (OPTIONAL - have fallbacks)
 routes_path = Path("backend/routes")
 chat_router = None
 if (routes_path / "chat.py").exists():
-    chat_router = safe_import('router', 'backend.routes.chat')
+    chat_router = safe_import('router', 'backend.routes.chat', optional=True)
 
 multimodal_router = None
 if (routes_path / "multimodal_api.py").exists():
-    multimodal_router = safe_import('router', 'backend.routes.multimodal_api')
+    multimodal_router = safe_import('router', 'backend.routes.multimodal_api', optional=True)
 
-# CLI Systems - check if cli directory exists
+# CLI Systems - check if cli directory exists (OPTIONAL - not required for orchestrator)
 cli_path = Path("cli")
 EnhancedGraceCLI = StubComponent
 if cli_path.exists() and (cli_path / "enhanced_grace_cli.py").exists():
-    EnhancedGraceCLI = safe_import('EnhancedGraceCLI', 'cli.enhanced_grace_cli') or StubComponent
+    EnhancedGraceCLI = safe_import('EnhancedGraceCLI', 'cli.enhanced_grace_cli', optional=True) or StubComponent
 
 # Multi-OS Detection and Configuration
 CURRENT_OS = platform.system().lower()
@@ -261,9 +272,14 @@ class GraceUnifiedOrchestrator:
         logger.info(f"Grace Orchestrator initialized - {self.boot_id}")
         logger.info(f"Platform: {platform.platform()}")
         logger.info(f"Imports successful: {IMPORTS_SUCCESSFUL}")
+        
+        # Log critical import errors
         if import_errors:
-            logger.debug(f"Optional components unavailable: {', '.join(import_errors[:5])}{'...' if len(import_errors) > 5 else ''}")
-            import_errors.clear()
+            logger.error(f"Critical import errors: {', '.join(import_errors)}")
+        
+        # Log optional import errors at debug level
+        if optional_import_errors:
+            logger.debug(f"Optional components unavailable: {', '.join(optional_import_errors[:5])}{'...' if len(optional_import_errors) > 5 else ''}")
         
         self._initialized = True
     
