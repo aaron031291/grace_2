@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { FileTree } from './FileTree';
-import { Save, FilePlus, FolderPlus, Trash2, Edit } from 'lucide-react';
+import { Save, FilePlus, FolderPlus, Trash2, Edit, File, Folder } from 'lucide-react';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
 
