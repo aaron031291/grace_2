@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { listApprovals, decideApproval, ApprovalItem, ApprovalStatus } from '../../api/approvals';
+import { listApprovals, decideApproval, type ApprovalItem, type ApprovalStatus } from '../../api/approvals';
 
 const s = {
   bg: '#0f0f1e',
