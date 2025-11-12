@@ -28,7 +28,9 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
           # Use fallback values if secrets are not set
-          export DATABASE_URL="${DATABASE_URL:-sqlite+aiosqlite:///./grace.db}"
+          if [ -z "$DATABASE_URL" ]; then
+            export DATABASE_URL="sqlite+aiosqlite:///./grace.db"
+          fi
           python scripts/backup_database.py --out-dir backups
       - name: Upload artifact
         uses: actions/upload-artifact@v4

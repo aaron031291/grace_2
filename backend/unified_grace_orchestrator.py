@@ -628,13 +628,33 @@ def main():
     
     args = parser.parse_args()
     
-    # Update singleton configuration
+    # Handle --serve separately (no async needed)
+    if args.serve:
+        import uvicorn
+        print("Starting Grace API server...")
+        print("Backend: http://localhost:8000")
+        print("API Docs: http://localhost:8000/docs")
+        
+        uvicorn_config = {
+            "app": "backend.unified_grace_orchestrator:app",
+            "host": "0.0.0.0",
+            "port": 8000,
+            "log_level": "info"
+        }
+        
+        if IS_WINDOWS:
+            uvicorn_config["loop"] = "asyncio"
+        
+        uvicorn.run(**uvicorn_config)
+        return
+    
+    # Update singleton configuration for other commands
     orchestrator.update_config(args.env, args.profile, args.safe_mode, args.dry_run, args.timeout)
     
     async def run_command():
         if args.stop:
             success = await orchestrator.stop()
-            print("✅ Grace stopped" if success else "❌ Stop failed")
+            print("Grace stopped" if success else "Stop failed")
             return
         
         if args.status:
@@ -647,33 +667,13 @@ def main():
             print("Grace booted successfully" if success else "Boot failed")
             return
         
-        if args.serve:
-            # Start uvicorn server (lifespan will handle boot/stop)
-            import uvicorn
-            print("🌐 Starting Grace API server...")
-            print("🔗 Backend: http://localhost:8000")
-            print("📚 API Docs: http://localhost:8000/docs")
-            
-            uvicorn_config = {
-                "app": "backend.unified_grace_orchestrator:app",
-                "host": "0.0.0.0",
-                "port": 8000,
-                "log_level": "info"
-            }
-            
-            if IS_WINDOWS:
-                uvicorn_config["loop"] = "asyncio"
-            
-            uvicorn.run(**uvicorn_config)
-            return
-        
         # Default: show help
         parser.print_help()
     
     try:
         asyncio.run(run_command())
     except KeyboardInterrupt:
-        print("\n🛑 Interrupted")
+        print("\nInterrupted")
         asyncio.run(orchestrator.stop())
     except Exception as e:
         print(f"Command failed: {e}")
