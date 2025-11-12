@@ -95,7 +95,13 @@ class SchemaProposalEngine:
                 created_by="schema_proposal_engine"
             )
             
-            proposal_id = result.get('update_id', f'proposal_{len(self.pending_proposals)}')
+            # Handle result - might be dict or string
+            if isinstance(result, dict):
+                proposal_id = result.get('update_id', f'proposal_{len(self.pending_proposals)}')
+            else:
+                # If result is string or other, generate proposal ID
+                proposal_id = f'proposal_{len(self.pending_proposals)}_{int(datetime.utcnow().timestamp())}'
+            
             self.pending_proposals[proposal_id] = proposal
             
             return {
@@ -143,7 +149,12 @@ class SchemaProposalEngine:
                 created_by="schema_proposal_engine"
             )
             
-            proposal_id = result.get('update_id')
+            # Handle result - might be dict or string
+            if isinstance(result, dict):
+                proposal_id = result.get('update_id', f'schema_{len(self.pending_proposals)}_{int(datetime.utcnow().timestamp())}')
+            else:
+                proposal_id = f'schema_{len(self.pending_proposals)}_{int(datetime.utcnow().timestamp())}'
+            
             self.pending_proposals[proposal_id] = proposal
             
             return {
