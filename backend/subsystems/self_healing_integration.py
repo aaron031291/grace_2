@@ -29,7 +29,9 @@ class SelfHealingIntegration:
         from backend.memory_tables.registry import table_registry
         self.registry = table_registry
         
-        if not self.registry.tables:
+        # Ensure schemas are loaded
+        tables = self.registry.list_tables()
+        if not tables:
             self.registry.load_all_schemas()
             self.registry.initialize_database()
         
