@@ -9,8 +9,12 @@ import { setAuthToken } from './api/client';
 import { ApprovalsAdmin } from './components/Governance/ApprovalsAdmin';
 import { AgenticDashboard } from './components/AgenticDashboard';
 import { ClarityDashboard } from './components/ClarityDashboard';
+import { LLMDashboard } from './components/LLMDashboard';
+import { IntelligenceDashboard } from './components/IntelligenceDashboard';
+import { IngestionDashboard } from './components/IngestionDashboard';
+import { LearningDashboard } from './components/LearningDashboard';
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals' | 'agentic' | 'clarity'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals' | 'agentic' | 'clarity' | 'llm' | 'intelligence' | 'ingestion' | 'learning'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -127,6 +131,22 @@ export default function App() {
     return <ClarityDashboard />;
   }
 
+  if (page === 'llm') {
+    return <LLMDashboard />;
+  }
+
+  if (page === 'intelligence') {
+    return <IntelligenceDashboard />;
+  }
+
+  if (page === 'ingestion') {
+    return <IngestionDashboard />;
+  }
+
+  if (page === 'learning') {
+    return <LearningDashboard />;
+  }
+
   if (page === 'dash') {
     return (
       <div style={{ background: s.bg, minHeight: '100vh', padding: '2rem', color: s.fg }}>
@@ -236,16 +256,20 @@ export default function App() {
     <div style={{ background: s.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
         <h1 style={{ color: s.ac2, margin: 0 }}>Grace</h1>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => setPage('ide')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💻 IDE</button>
-          <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dashboard</button>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dash</button>
           <button onClick={() => setPage('clarity')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🔍 Clarity</button>
+          <button onClick={() => setPage('llm')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🧠 LLM</button>
+          <button onClick={() => setPage('intelligence')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💡 Intel</button>
+          <button onClick={() => setPage('ingestion')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📥 Ingest</button>
+          <button onClick={() => setPage('learning')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🎓 Learn</button>
           <button onClick={() => setPage('memory')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📁 Memory</button>
           <button onClick={() => setPage('hunter')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🛡️ Hunter</button>
-          <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
-          <button onClick={() => setPage('metaloop')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🧠 Meta-Loop</button>
-          <button onClick={() => setPage('approvals')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>✅ Approvals</button>
-          <button onClick={() => setPage('agentic')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🤖 Agentic</button>
+          <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Know</button>
+          <button onClick={() => setPage('metaloop')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🔮 Meta</button>
+          <button onClick={() => setPage('approvals')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>✅ Approve</button>
+          <button onClick={() => setPage('agentic')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🤖 Agent</button>
+          <button onClick={() => setPage('ide')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💻 IDE</button>
           <button onClick={() => { setToken(''); localStorage.clear(); setAuthToken(null); }} style={{ background: '#333', color: s.fg, border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </div>
       </div>
