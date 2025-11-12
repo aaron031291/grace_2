@@ -1,98 +1,160 @@
 /**
- * Memory File System API Client
- * Handles all file operations for Grace's training corpus
+ * Memory API Helper Functions
  */
 
-import axios from 'axios';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-export interface FileNode {
+export interface FileTreeNode {
   name: string;
   path: string;
-  type: 'file' | 'folder';
+  type: 'file' | 'directory';
   size?: number;
   modified?: string;
-  extension?: string;
-  children?: FileNode[];
+  children?: FileTreeNode[];
 }
 
-export interface FileContent {
-  path: string;
-  content: string;
-  size: number;
-  modified: string;
-  extension: string;
+export interface TableRow {
+  id: string;
+  [key: string]: any;
 }
 
-export interface FileSystemStatus {
-  component_id: string;
+export interface SchemaProposal {
+  proposal_id: string;
+  file_path: string;
+  recommended_table: string;
+  confidence: number;
+  table_exists: boolean;
+  extracted_fields: Record<string, any>;
+  reasoning: string;
+  timestamp: string;
+}
+
+export interface AgentStatus {
+  agent_id: string;
+  agent_name: string;
   status: string;
-  root_path: string;
-  total_files: number;
-  total_size_bytes: number;
-  total_size_mb: number;
+  trust_score: number;
+  current_task?: string;
+  jobs_completed: number;
+  jobs_failed: number;
 }
 
-/**
- * List files and folders in a directory
- */
-export async function listFiles(path: string = ''): Promise<FileNode> {
-  const response = await axios.get(`${API_BASE}/api/memory/files`, {
-    params: { path }
+export async function fetchFileTree(): Promise<FileTreeNode[]> {
+  const res = await fetch(`${API_BASE}/api/memory/files`);
+  if (!res.ok) throw new Error('Failed to fetch file tree');
+  return res.json();
+}
+
+export async function fetchTableRows(pathOrTable: string, limit: number = 100): Promise<TableRow[]> {
+  const res = await fetch(
+    `${API_BASE}/api/memory/tables/rows?path=${encodeURIComponent(pathOrTable)}&limit=${limit}`
+  );
+  if (!res.ok) throw new Error('Failed to fetch table rows');
+  const data = await res.json();
+  return data.rows || [];
+}
+
+export async function fetchTableList(): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/api/memory/tables/`);
+  if (!res.ok) throw new Error('Failed to fetch table list');
+  const data = await res.json();
+  return data.tables || [];
+}
+
+export async function fetchTableSchema(tableName: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/memory/tables/${tableName}/schema`);
+  if (!res.ok) throw new Error('Failed to fetch table schema');
+  return res.json();
+}
+
+export async function fetchPendingSchemas(): Promise<SchemaProposal[]> {
+  const res = await fetch(`${API_BASE}/api/memory/tables/proposals/pending`);
+  if (!res.ok) throw new Error('Failed to fetch pending schemas');
+  const data = await res.json();
+  return data.proposals || [];
+}
+
+export async function approveSchema(proposalId: string): Promise<any> {
+  const res = await fetch(
+    `${API_BASE}/api/memory/tables/proposals/${proposalId}/approve`,
+    { method: 'POST' }
+  );
+  if (!res.ok) throw new Error('Failed to approve schema');
+  return res.json();
+}
+
+export async function rejectSchema(proposalId: string, reason: string = ''): Promise<any> {
+  const res = await fetch(
+    `${API_BASE}/api/memory/tables/proposals/${proposalId}/reject`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason })
+    }
+  );
+  if (!res.ok) throw new Error('Failed to reject schema');
+  return res.json();
+}
+
+export async function uploadFile(file: File, targetPath?: string): Promise<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (targetPath) {
+    formData.append('target_path', targetPath);
+  }
+  
+  const res = await fetch(`${API_BASE}/api/memory/files/upload`, {
+    method: 'POST',
+    body: formData
   });
-  return response.data;
+  
+  if (!res.ok) throw new Error('Failed to upload file');
+  return res.json();
 }
 
-/**
- * Read a file's content
- */
-export async function readFile(path: string): Promise<FileContent> {
-  const response = await axios.get(`${API_BASE}/api/memory/file`, {
-    params: { path }
-  });
-  return response.data;
+export async function updateTableRow(
+  tableName: string,
+  rowId: string,
+  updates: Record<string, any>
+): Promise<any> {
+  const res = await fetch(
+    `${API_BASE}/api/memory/tables/${tableName}/rows/${rowId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates })
+    }
+  );
+  
+  if (!res.ok) throw new Error('Failed to update row');
+  return res.json();
 }
 
-/**
- * Save or create a file
- */
-export async function saveFile(path: string, content: string): Promise<void> {
-  await axios.post(`${API_BASE}/api/memory/file`, null, {
-    params: { path, content }
-  });
+export async function deleteTableRow(tableName: string, rowId: string): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/api/memory/tables/${tableName}/rows/${rowId}`,
+    { method: 'DELETE' }
+  );
+  
+  if (!res.ok) throw new Error('Failed to delete row');
 }
 
-/**
- * Delete a file or folder
- */
-export async function deleteFile(path: string, recursive: boolean = false): Promise<void> {
-  await axios.delete(`${API_BASE}/api/memory/file`, {
-    params: { path, recursive }
-  });
+export async function fetchActiveAgents(): Promise<AgentStatus[]> {
+  const res = await fetch(`${API_BASE}/api/agent-lifecycle/agents`);
+  if (!res.ok) throw new Error('Failed to fetch active agents');
+  const data = await res.json();
+  return data.agents || [];
 }
 
-/**
- * Create a new folder
- */
-export async function createFolder(path: string): Promise<void> {
-  await axios.post(`${API_BASE}/api/memory/folder`, null, {
-    params: { path }
-  });
+export async function fetchAlerts(): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/api/alerts/active`);
+  if (!res.ok) throw new Error('Failed to fetch alerts');
+  const data = await res.json();
+  return data.alerts || [];
 }
 
-/**
- * Get filesystem status (file count, storage size)
- */
-export async function getStatus(): Promise<FileSystemStatus> {
-  const response = await axios.get(`${API_BASE}/api/memory/status`);
-  return response.data;
-}
-
-/**
- * Upload a file
- */
-export async function uploadFile(path: string, file: File): Promise<void> {
-  const content = await file.text();
-  await saveFile(path, content);
+export async function fetchTrustReport(): Promise<any> {
+  const res = await fetch(`${API_BASE}/api/memory/tables/trust/report`);
+  if (!res.ok) throw new Error('Failed to fetch trust report');
+  return res.json();
 }

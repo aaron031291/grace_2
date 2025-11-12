@@ -1,30 +1,39 @@
 /**
- * File Tree Component - Hierarchical file browser
+ * File Tree Component
+ * Collapsible tree view with select, drag/drop upload
  */
 
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from 'lucide-react';
+import {
+  ChevronRight,
+  ChevronDown,
+  File,
+  Folder,
+  FolderOpen,
+  Upload
+} from 'lucide-react';
 
-interface FileNode {
+export interface FileTreeNode {
   name: string;
   path: string;
-  type: 'file' | 'folder';
+  type: 'file' | 'directory';
   size?: number;
   modified?: string;
-  extension?: string;
-  children?: FileNode[];
+  children?: FileTreeNode[];
 }
 
 interface FileTreeProps {
-  tree: FileNode;
-  selectedPath: string | null;
-  onSelect: (path: string, node: FileNode) => void;
+  data: FileTreeNode[];
+  onSelect: (path: string) => void;
+  selectedPath?: string;
+  onUpload?: (file: File, targetPath: string) => void;
 }
 
-export function FileTree({ tree, selectedPath, onSelect }: FileTreeProps) {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(['']));
+export function FileTree({ data, onSelect, selectedPath, onUpload }: FileTreeProps) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [dragOver, setDragOver] = useState<string | null>(null);
 
-  function toggleExpand(path: string) {
+  const toggleExpand = (path: string) => {
     const newExpanded = new Set(expanded);
     if (newExpanded.has(path)) {
       newExpanded.delete(path);
@@ -32,78 +41,104 @@ export function FileTree({ tree, selectedPath, onSelect }: FileTreeProps) {
       newExpanded.add(path);
     }
     setExpanded(newExpanded);
-  }
+  };
 
-  function renderNode(node: FileNode, level: number = 0) {
+  const handleDragOver = (e: React.DragEvent, path: string) => {
+    e.preventDefault();
+    setDragOver(path);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, path: string) => {
+    e.preventDefault();
+    setDragOver(null);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0 && onUpload) {
+      files.forEach(file => onUpload(file, path));
+    }
+  };
+
+  const renderNode = (node: FileTreeNode, depth: number = 0) => {
     const isExpanded = expanded.has(node.path);
     const isSelected = selectedPath === node.path;
-    const isFolder = node.type === 'folder';
+    const isDragOver = dragOver === node.path;
+    const isDirectory = node.type === 'directory';
 
     return (
       <div key={node.path}>
         <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '6px 8px',
-            paddingLeft: `${level * 16 + 8}px`,
-            cursor: 'pointer',
-            background: isSelected ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
-            borderRadius: '4px',
-            marginBottom: '2px',
-            transition: 'background 0.15s',
-          }}
+          className={`
+            flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-800 rounded
+            ${isSelected ? 'bg-blue-900 bg-opacity-40' : ''}
+            ${isDragOver ? 'bg-blue-700 bg-opacity-30 border border-blue-500' : ''}
+          `}
+          style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={() => {
-            if (isFolder) {
+            if (isDirectory) {
               toggleExpand(node.path);
             }
-            onSelect(node.path, node);
+            onSelect(node.path);
           }}
-          onMouseEnter={(e) => {
-            if (!isSelected) e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            if (!isSelected) e.currentTarget.style.background = 'transparent';
-          }}
+          onDragOver={isDirectory ? (e) => handleDragOver(e, node.path) : undefined}
+          onDragLeave={handleDragLeave}
+          onDrop={isDirectory ? (e) => handleDrop(e, node.path) : undefined}
         >
-          {isFolder && (
-            <span style={{ marginRight: '4px', display: 'flex', alignItems: 'center' }}>
-              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          {isDirectory && (
+            <span className="w-4 flex-shrink-0">
+              {isExpanded ? (
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              )}
             </span>
           )}
-          {!isFolder && <span style={{ width: '20px' }}></span>}
           
-          <span style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>
-            {isFolder ? (
-              isExpanded ? <FolderOpen size={16} color="#8b5cf6" /> : <Folder size={16} color="#6b7280" />
+          {!isDirectory && <span className="w-4" />}
+          
+          <span className="w-4 flex-shrink-0">
+            {isDirectory ? (
+              isExpanded ? (
+                <FolderOpen className="w-4 h-4 text-blue-400" />
+              ) : (
+                <Folder className="w-4 h-4 text-blue-400" />
+              )
             ) : (
-              <File size={14} color="#9ca3af" />
+              <File className="w-4 h-4 text-gray-400" />
             )}
           </span>
           
-          <span style={{ fontSize: '0.875rem', flex: 1, color: '#e5e7ff' }}>{node.name}</span>
+          <span className="flex-1 text-sm truncate">{node.name}</span>
           
-          {!isFolder && node.size !== undefined && (
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', marginLeft: '8px' }}>
+          {node.size !== undefined && (
+            <span className="text-xs text-gray-500">
               {formatSize(node.size)}
             </span>
           )}
         </div>
 
-        {isFolder && isExpanded && node.children && (
+        {isDirectory && isExpanded && node.children && (
           <div>
-            {node.children.map((child) => renderNode(child, level + 1))}
+            {node.children.map(child => renderNode(child, depth + 1))}
           </div>
         )}
       </div>
     );
-  }
+  };
 
-  return <div style={{ fontSize: '0.875rem' }}>{renderNode(tree)}</div>;
+  return (
+    <div className="h-full flex flex-col bg-gray-900 text-white">
+      {data.map(node => renderNode(node))}
+    </div>
+  );
 }
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}GB`;
 }

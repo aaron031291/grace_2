@@ -126,7 +126,7 @@ class SelfHealingIntegration:
                     }
                 }
                 
-                result = self.registry.insert_row(self.table_name, row_data)
+                result = self.registry.insert_row(self.table_name, row_data, upsert=True)
                 logger.info(f"📝 Created new playbook entry: {playbook_name}")
                 return result
         

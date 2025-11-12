@@ -188,8 +188,18 @@ class SchemaRegistry:
             self.create_model_class(table_name)
         return self.models.get(table_name)
     
-    def insert_row(self, table_name: str, data: Dict[str, Any]) -> Optional[Any]:
-        """Insert a row into a table"""
+    def insert_row(self, table_name: str, data: Dict[str, Any], upsert: bool = False) -> Optional[Any]:
+        """
+        Insert a row into a table.
+        
+        Args:
+            table_name: Table to insert into
+            data: Row data
+            upsert: If True, update existing row if unique constraint violated
+        
+        Returns:
+            Inserted or updated instance
+        """
         model = self.get_model(table_name)
         if not model or not self.engine:
             return None
@@ -202,7 +212,47 @@ class SchemaRegistry:
                 session.refresh(instance)
                 return instance
         except Exception as e:
+            error_str = str(e)
+            
+            # Check if it's a UNIQUE constraint violation
+            if upsert and 'UNIQUE constraint failed' in error_str:
+                # Extract field name from error if possible
+                # Try to find and update existing row
+                return self._handle_upsert(session, model, data, error_str)
+            
             logger.error(f"Failed to insert row into {table_name}: {e}")
+            return None
+    
+    def _handle_upsert(self, session, model, data: Dict[str, Any], error_str: str) -> Optional[Any]:
+        """Handle upsert for UNIQUE constraint violations"""
+        try:
+            # Try common unique fields
+            unique_fields = ['file_path', 'agent_id', 'work_order_id', 'playbook_name', 'repo_url']
+            
+            for field in unique_fields:
+                if field in data:
+                    # Try to find existing row
+                    stmt = select(model).where(getattr(model, field) == data[field])
+                    existing = session.exec(stmt).first()
+                    
+                    if existing:
+                        # Update existing row
+                        logger.info(f"Updating existing row with {field}={data[field]}")
+                        
+                        for key, value in data.items():
+                            if hasattr(existing, key) and key not in ['id', 'created_at']:
+                                setattr(existing, key, value)
+                        
+                        session.add(existing)
+                        session.commit()
+                        session.refresh(existing)
+                        return existing
+            
+            logger.warning(f"Could not handle upsert: {error_str}")
+            return None
+        
+        except Exception as e:
+            logger.error(f"Upsert failed: {e}")
             return None
     
     def query_rows(self, table_name: str, filters: Dict[str, Any] = None, limit: int = 100) -> List[Any]:

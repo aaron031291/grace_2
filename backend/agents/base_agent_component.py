@@ -112,18 +112,26 @@ class BaseAgentComponent(ABC):
         """Create entry in memory_sub_agents table"""
         from backend.subsystems.sub_agents_integration import sub_agents_integration
         
-        result = await sub_agents_integration.register_agent(
-            agent_id=self.agent_id,
-            agent_name=self.agent_name,
-            agent_type=self.agent_type,
-            mission=self.mission,
-            capabilities=self.capabilities,
-            constraints=self.constraints
-        )
+        try:
+            result = await sub_agents_integration.register_agent(
+                agent_id=self.agent_id,
+                agent_name=self.agent_name,
+                agent_type=self.agent_type,
+                mission=self.mission,
+                capabilities=self.capabilities,
+                constraints=self.constraints
+            )
+            
+            if result:
+                self.schema_entry = result
+                logger.debug(f"Schema entry created for {self.agent_id}")
+            else:
+                logger.warning(f"Schema entry creation returned None for {self.agent_id}")
         
-        if result:
-            self.schema_entry = result
-            logger.debug(f"Schema entry created for {self.agent_id}")
+        except Exception as e:
+            logger.error(f"Failed to create schema entry for {self.agent_id}: {e}")
+            # Don't fail initialization - agent can still work without schema entry
+            self.schema_entry = None
     
     async def _compute_initial_trust(self):
         """Compute initial trust score based on constraints and capabilities"""
@@ -344,11 +352,16 @@ class SchemaInferenceAgent(BaseAgentComponent):
     
     async def _execute_job_impl(self, job: Dict[str, Any]) -> Dict[str, Any]:
         """Execute schema inference job"""
+        from pathlib import Path
         from backend.memory_tables.content_pipeline import content_pipeline
         from backend.memory_tables.schema_agent import SchemaInferenceAgent as LLMSchemaAgent
         from backend.memory_tables.registry import table_registry
         
         file_path = job.get('file_path')
+        
+        # Ensure file_path is a Path object
+        if isinstance(file_path, str):
+            file_path = Path(file_path)
         
         # Analyze file
         analysis = await content_pipeline.analyze(file_path)
@@ -401,8 +414,8 @@ class IngestionAgent(BaseAgentComponent):
         table_name = job.get('table_name')
         row_data = job.get('row_data')
         
-        # Insert row
-        result = table_registry.insert_row(table_name, row_data)
+        # Insert row (with upsert to handle duplicates)
+        result = table_registry.insert_row(table_name, row_data, upsert=True)
         
         if result:
             # Compute trust score
@@ -457,6 +470,11 @@ class CrossDomainLearningAgent(BaseAgentComponent):
     async def _execute_job_impl(self, job: Dict[str, Any]) -> Dict[str, Any]:
         """Execute cross-domain learning job"""
         from backend.memory_tables.learning_integration import learning_bridge
+        from backend.memory_tables.registry import table_registry
+        
+        # Ensure registry is initialized
+        if not learning_bridge.registry:
+            learning_bridge.registry = table_registry
         
         query_spec = job.get('query_spec', {})
         
