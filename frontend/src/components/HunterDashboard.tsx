@@ -220,7 +220,8 @@ export function HunterDashboard() {
                             </div>
                         </div>
                     )}
-      )}
-                </div>
-            );
+                </>
+            )}
+        </div>
+    );
 }

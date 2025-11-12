@@ -168,7 +168,7 @@ export function IngestionDashboard() {
         {tasks.length > 0 && (
           <div style={{ background: s.bg2, padding: '2rem', borderRadius: '12px' }}>
             <h2 style={{ color: s.ac, marginBottom: '1.5rem' }}>Ingestion Tasks</h2>
-            <div style={{ space: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {tasks.map((task) => (
                 <div
                   key={task.task_id}

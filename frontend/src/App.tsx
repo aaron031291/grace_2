@@ -93,12 +93,6 @@ export default function App() {
     );
   }
 
-=======
-  if (page === 'gpt') {
-    return <GraceGPT />;
-  }
-
->>>>>>> origin/main
   if (page === 'ide') {
     return <TranscendenceIDE />;
   }
