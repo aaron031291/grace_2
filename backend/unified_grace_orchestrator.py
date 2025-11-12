@@ -540,6 +540,55 @@ async def health_check():
         "version": "2.0.0"
     }
 
+# Clarity Framework API Endpoints
+@app.get("/api/clarity/status")
+async def get_clarity_status():
+    """Get clarity framework status"""
+    try:
+        from backend.clarity.orchestrator_integration import get_clarity_integration
+        integration = get_clarity_integration()
+        return integration.get_clarity_status()
+    except Exception as e:
+        return {"error": str(e), "clarity_available": False}
+
+@app.get("/api/clarity/components")
+async def get_clarity_components():
+    """Get registered components from manifest"""
+    try:
+        from backend.clarity import get_manifest
+        manifest = get_manifest()
+        return manifest.to_dict()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/clarity/events")
+async def get_clarity_events(limit: int = 100):
+    """Get recent events from event bus"""
+    try:
+        from backend.clarity import get_event_bus
+        bus = get_event_bus()
+        history = bus.get_history(limit=limit)
+        return {
+            "events": [e.to_dict() for e in history],
+            "total": len(history)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/clarity/mesh")
+async def get_clarity_mesh():
+    """Get trigger mesh configuration"""
+    try:
+        from backend.clarity import get_mesh_loader
+        loader = get_mesh_loader()
+        return {
+            "events": loader.get_events(),
+            "routing_rules": loader.get_routing_rules(),
+            "subscriber_groups": loader.get_subscriber_groups()
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 # CLI entry point - separate from uvicorn serving
 def main():
     """CLI entry point - handles boot/status/stop commands"""
