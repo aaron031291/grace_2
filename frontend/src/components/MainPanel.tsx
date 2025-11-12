@@ -11,6 +11,7 @@ import IntelligenceTab from '../tabs/IntelligenceTab';
 import IngestionTab from '../tabs/IngestionTab';
 import LearningTab from '../tabs/LearningTab';
 import { MemoryBrowser } from './MemoryBrowser';
+import { MemoryWorkspace } from './MemoryWorkspace';
 import { HunterDashboard } from './HunterDashboard';
 import { AgenticDashboard } from './AgenticDashboard';
 
@@ -59,7 +60,7 @@ export default function MainPanel({ item }: MainPanelProps) {
     case 'learning':
       return <LearningTab />;
     case 'memory':
-      return <MemoryBrowser />;
+      return <MemoryWorkspace />;
     case 'hunter':
       return <HunterDashboard />;
     case 'agentic':
