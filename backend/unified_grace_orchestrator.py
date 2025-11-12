@@ -612,6 +612,50 @@ async def get_clarity_mesh():
     except Exception as e:
         return {"error": str(e)}
 
+# Ingestion API Endpoints
+@app.get("/api/ingestion/status")
+async def get_ingestion_status():
+    """Get ingestion orchestrator status"""
+    try:
+        from backend.clarity.ingestion_orchestrator import get_ingestion_orchestrator
+        orchestrator = await get_ingestion_orchestrator()
+        return orchestrator.get_status()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/ingestion/tasks")
+async def get_ingestion_tasks(status: str = None):
+    """Get all ingestion tasks"""
+    try:
+        from backend.clarity.ingestion_orchestrator import get_ingestion_orchestrator
+        orchestrator = await get_ingestion_orchestrator()
+        return {"tasks": orchestrator.get_tasks(status)}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/api/ingestion/start")
+async def start_ingestion(task_type: str, source: str):
+    """Start a new ingestion task"""
+    try:
+        from backend.clarity.ingestion_orchestrator import get_ingestion_orchestrator
+        orchestrator = await get_ingestion_orchestrator()
+        task = await orchestrator.create_task(task_type, source)
+        success = await orchestrator.start_task(task.task_id)
+        return {"success": success, "task": task.to_dict()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ingestion/stop/{task_id}")
+async def stop_ingestion(task_id: str):
+    """Stop an active ingestion task"""
+    try:
+        from backend.clarity.ingestion_orchestrator import get_ingestion_orchestrator
+        orchestrator = await get_ingestion_orchestrator()
+        success = await orchestrator.stop_task(task_id)
+        return {"success": success}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # CLI entry point - separate from uvicorn serving
 def main():
     """CLI entry point - handles boot/status/stop commands"""

@@ -8,8 +8,9 @@ import { KnowledgeManager } from './components/Knowledge/KnowledgeManager';
 import { setAuthToken } from './api/client';
 import { ApprovalsAdmin } from './components/Governance/ApprovalsAdmin';
 import { AgenticDashboard } from './components/AgenticDashboard';
+import { ClarityDashboard } from './components/ClarityDashboard';
 export default function App() {
-  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals' | 'agentic'>('chat');
+  const [page, setPage] = useState<'chat' | 'dash' | 'memory' | 'ide' | 'hunter' | 'knowledge' | 'metaloop' | 'approvals' | 'agentic' | 'clarity'>('chat');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [user, setUser] = useState('admin');
   const [pass, setPass] = useState('admin123');
@@ -122,6 +123,10 @@ export default function App() {
     return <AgenticDashboard />;
   }
 
+  if (page === 'clarity') {
+    return <ClarityDashboard />;
+  }
+
   if (page === 'dash') {
     return (
       <div style={{ background: s.bg, minHeight: '100vh', padding: '2rem', color: s.fg }}>
@@ -232,9 +237,9 @@ export default function App() {
       <div style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between' }}>
         <h1 style={{ color: s.ac2, margin: 0 }}>Grace</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
-<<<<<<< HEAD
           <button onClick={() => setPage('ide')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>💻 IDE</button>
           <button onClick={() => setPage('dash')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📊 Dashboard</button>
+          <button onClick={() => setPage('clarity')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🔍 Clarity</button>
           <button onClick={() => setPage('memory')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📁 Memory</button>
           <button onClick={() => setPage('hunter')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>🛡️ Hunter</button>
           <button onClick={() => setPage('knowledge')} style={{ background: 'none', color: s.ac, border: 'none', cursor: 'pointer' }}>📚 Knowledge</button>
