@@ -694,6 +694,16 @@ async def get_learning_status():
             "error": "Learning loop module not found"
         }
 
+# Chat API Endpoint
+@app.post("/api/chat")
+async def chat_endpoint(message: str):
+    """Basic chat endpoint"""
+    return {
+        "response": f"Received: {message}",
+        "status": "processed",
+        "clarity_enabled": True
+    }
+
 # Domain Kernels API
 @app.get("/api/kernels")
 async def list_all_kernels():
