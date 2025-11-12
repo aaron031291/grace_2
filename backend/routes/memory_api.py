@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
@@ -14,6 +14,13 @@ from ..schemas import (
 )
 
 router = APIRouter(prefix="/api/memory", tags=["memory"])
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint for real-time Memory Studio updates"""
+    from ..memory_websocket import memory_websocket_handler
+    await memory_websocket_handler(websocket)
 
 class CreateArtifact(BaseModel):
     path: str
@@ -33,30 +40,37 @@ async def get_tree(
     category: str = None,
     current_user: str = Depends(get_current_user)
 ):
-    """File-explorer style memory browser"""
-    artifacts = await memory_service.list_artifacts(domain, category)
-    
-    tree = {}
-    for artifact in artifacts:
-        parts = artifact["path"].split("/")
-        current = tree
-        for i, part in enumerate(parts[:-1]):
-            if part not in current:
-                current[part] = {}
-            current = current[part]
+    """File-explorer style memory browser (for memory artifacts, not files)"""
+    try:
+        artifacts = await memory_service.list_artifacts(domain, category)
         
-        current[parts[-1]] = {
-            "id": artifact["id"],
-            "type": "artifact",
-            "domain": artifact["domain"],
-            "category": artifact["category"],
-            "status": artifact["status"],
-            "version": artifact["version"],
-            "size": artifact["size"],
-            "updated_at": str(artifact["updated_at"])
-        }
-    
-    return {"tree": tree, "flat_list": artifacts}
+        tree = {}
+        for artifact in artifacts:
+            parts = artifact["path"].split("/")
+            current = tree
+            for i, part in enumerate(parts[:-1]):
+                if part not in current:
+                    current[part] = {}
+                current = current[part]
+            
+            current[parts[-1]] = {
+                "id": artifact["id"],
+                "type": "artifact",
+                "domain": artifact["domain"],
+                "category": artifact["category"],
+                "status": artifact["status"],
+                "version": artifact["version"],
+                "size": artifact["size"],
+                "updated_at": str(artifact["updated_at"])
+            }
+        
+        return {"tree": tree, "flat_list": artifacts}
+    except Exception as e:
+        # If memory_service not available, return file tree instead
+        from ..memory_file_service import get_memory_service
+        service = await get_memory_service()
+        file_tree = service.list_files()
+        return {"tree": {}, "flat_list": [], "file_tree": file_tree}
 
 @router.get("/item/{path:path}")
 async def get_item(
@@ -241,6 +255,99 @@ async def get_status(current_user: str = Depends(get_current_user)):
     from ..memory_file_service import get_memory_service
     service = await get_memory_service()
     return service.get_status()
+
+@router.get("/search")
+async def search_memory(
+    query: str,
+    search_type: str = "text",
+    category: Optional[str] = None,
+    domain: Optional[str] = None,
+    tags: Optional[str] = None,
+    min_quality: Optional[int] = None,
+    limit: int = 50,
+    current_user: str = Depends(get_current_user)
+):
+    """
+    Search across memory files
+    
+    Args:
+        query: Search query string
+        search_type: text, metadata, semantic, or all
+        category: Filter by category
+        domain: Filter by domain
+        tags: Comma-separated tags to filter
+        min_quality: Minimum quality score
+        limit: Max results
+    """
+    from ..memory_search import get_search_engine
+    
+    search_engine = await get_search_engine()
+    
+    # Build filters
+    filters = {}
+    if category:
+        filters["category"] = category
+    if domain:
+        filters["domain"] = domain
+    if tags:
+        filters["tags"] = tags.split(',')
+    if min_quality is not None:
+        filters["min_quality"] = min_quality
+    
+    # Execute search
+    results = await search_engine.search(
+        query=query,
+        search_type=search_type,
+        filters=filters,
+        limit=limit
+    )
+    
+    return {
+        "query": query,
+        "search_type": search_type,
+        "filters": filters,
+        "results": [r.to_dict() for r in results],
+        "count": len(results)
+    }
+
+@router.post("/index/{path:path}")
+async def index_file(
+    path: str,
+    current_user: str = Depends(get_current_user)
+):
+    """Index a file for searching"""
+    from ..memory_file_service import get_memory_service
+    from ..memory_search import get_search_engine
+    
+    # Read file
+    service = await get_memory_service()
+    file_data = service.read_file(path)
+    
+    # Read metadata if exists
+    metadata = None
+    try:
+        meta_data = service.read_file(f"{path}.meta.json")
+        metadata = json.loads(meta_data["content"])
+    except:
+        pass
+    
+    # Index the file
+    search_engine = await get_search_engine()
+    await search_engine.index_file(path, file_data["content"], metadata)
+    
+    return {
+        "status": "indexed",
+        "path": path,
+        "size": file_data["size"]
+    }
+
+@router.get("/search/stats")
+async def get_search_stats(current_user: str = Depends(get_current_user)):
+    """Get search index statistics"""
+    from ..memory_search import get_search_engine
+    
+    search_engine = await get_search_engine()
+    return search_engine.get_index_stats()
 
 @router.post("/upload")
 async def upload_file_chunked(
