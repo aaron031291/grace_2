@@ -47,9 +47,13 @@ def safe_import(module_name: str, from_module: str = None):
 
 # Create stub for missing components
 class StubComponent:
-    def __init__(self, name: str):
+    def __init__(self, name: str = "stub"):
         self.name = name
         self._started = False
+    
+    def __call__(self, *args, **kwargs):
+        """Allow StubComponent to be called as a constructor"""
+        return StubComponent(self.name)
     
     async def start(self):
         self._started = True
@@ -329,7 +333,10 @@ class GraceUnifiedOrchestrator:
         
         for name, memory_class in memory_classes.items():
             try:
-                if memory_class and not isinstance(memory_class, StubComponent):
+                # Skip if it's the StubComponent class or an instance of it
+                if memory_class is StubComponent or isinstance(memory_class, StubComponent):
+                    continue
+                if memory_class:
                     if hasattr(memory_class, 'start'):
                         await memory_class.start()
                     elif hasattr(memory_class, 'initialize'):
@@ -621,7 +628,7 @@ def main():
         
         if args.boot:
             success = await orchestrator.start()
-            print("✅ Grace booted" if success else "❌ Boot failed")
+            print("Grace booted successfully" if success else "Boot failed")
             return
         
         if args.serve:
@@ -653,7 +660,7 @@ def main():
         print("\n🛑 Interrupted")
         asyncio.run(orchestrator.stop())
     except Exception as e:
-        print(f"❌ Command failed: {e}")
+        print(f"Command failed: {e}")
         sys.exit(1)
 
 # Signal handlers
