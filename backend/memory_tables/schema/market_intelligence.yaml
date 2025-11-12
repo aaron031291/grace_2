@@ -1,0 +1,46 @@
+table: memory_market_intelligence
+description: Market and competitor insights with trust and risk markers.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: source_name
+    type: string
+    required: true
+  - name: file_path
+    type: string
+    required: true
+    unique: true
+  - name: report_date
+    type: datetime
+    nullable: true
+  - name: competitor
+    type: string
+    nullable: true
+  - name: opportunity_area
+    type: string
+    nullable: true
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+  - name: summary
+    type: text
+    nullable: true
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: tags
+    type: json
+    default: []
+  - name: ingestion_pipeline_id
+    type: string
+    nullable: true
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [competitor]
+  - fields: [risk_level]
+  - fields: [report_date]

@@ -1,0 +1,42 @@
+table: memory_finance_treasury
+description: Budgets, forecasts, invoices, cash flow notes.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: record_type
+    type: string
+    allowed: [budget, forecast, invoice, cash_flow, other]
+    default: other
+  - name: title
+    type: string
+    required: true
+  - name: file_path
+    type: string
+    nullable: true
+  - name: amount
+    type: float
+    nullable: true
+  - name: currency
+    type: string
+    default: USD
+  - name: period_start
+    type: datetime
+    nullable: true
+  - name: period_end
+    type: datetime
+    nullable: true
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: risk_level
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [record_type]
+  - fields: [period_start]

@@ -1,0 +1,35 @@
+table: memory_partner_relations
+description: Partner/investor contacts, interactions, contracts.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: partner_name
+    type: string
+    required: true
+  - name: contact_person
+    type: string
+    nullable: true
+  - name: relationship_type
+    type: string
+    allowed: [investor, partner, vendor, advisor]
+    default: partner
+  - name: last_interaction_at
+    type: datetime
+    nullable: true
+  - name: contract_path
+    type: string
+    nullable: true
+  - name: compliance_flags
+    type: json
+    default: []
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [relationship_type]
+  - fields: [partner_name]

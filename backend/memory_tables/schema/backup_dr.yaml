@@ -1,0 +1,34 @@
+table: memory_backup_dr_plans
+description: Backup jobs, DR exercises, recovery targets.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: plan_name
+    type: string
+    required: true
+  - name: backup_job_ids
+    type: json
+    default: []
+  - name: last_backup_at
+    type: datetime
+    nullable: true
+  - name: last_dr_test_at
+    type: datetime
+    nullable: true
+  - name: rto_target_minutes
+    type: integer
+    default: 60
+  - name: rpo_target_minutes
+    type: integer
+    default: 15
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [last_backup_at]
+  - fields: [last_dr_test_at]

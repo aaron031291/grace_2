@@ -1,0 +1,40 @@
+table: memory_sales_assets
+description: Sales collateral, conversations, and funnel metrics.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: asset_name
+    type: string
+    required: true
+  - name: file_path
+    type: string
+    required: true
+  - name: asset_type
+    type: string
+    allowed: [deck, pricing, script, conversation, other]
+    default: other
+  - name: customer_segment
+    type: string
+    nullable: true
+  - name: stage
+    type: string
+    allowed: [top, mid, bottom, closed]
+    nullable: true
+  - name: conversion_rate
+    type: float
+    nullable: true
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+  - name: last_used_at
+    type: datetime
+    nullable: true
+indexes:
+  - fields: [asset_type]
+  - fields: [stage]
+  - fields: [customer_segment]

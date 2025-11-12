@@ -1,0 +1,35 @@
+table: memory_security_runbooks
+description: Security playbooks, vulnerability tracking, patch status.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: runbook_name
+    type: string
+    required: true
+  - name: vulnerability_id
+    type: string
+    nullable: true
+  - name: severity
+    type: string
+    allowed: [low, medium, high, critical]
+    default: high
+  - name: mitigation_steps
+    type: json
+    default: []
+  - name: last_tested_at
+    type: datetime
+    nullable: true
+  - name: sla_days
+    type: integer
+    default: 30
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [severity]
+  - fields: [vulnerability_id]

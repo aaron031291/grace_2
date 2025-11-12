@@ -1,0 +1,40 @@
+table: memory_ai_safety_reviews
+description: AI safety/bias audits, tests, mitigations.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: review_name
+    type: string
+    required: true
+  - name: model_reference
+    type: string
+    nullable: true
+  - name: review_date
+    type: datetime
+    nullable: true
+  - name: audit_type
+    type: string
+    allowed: [bias, robustness, ethics, privacy, other]
+    default: bias
+  - name: findings
+    type: json
+    default: []
+  - name: mitigation_actions
+    type: json
+    default: []
+  - name: residual_risk
+    type: string
+    allowed: [low, medium, high, critical]
+    default: medium
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [audit_type]
+  - fields: [residual_risk]
+  - fields: [review_date]

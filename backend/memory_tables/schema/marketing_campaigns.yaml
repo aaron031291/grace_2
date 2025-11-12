@@ -1,0 +1,41 @@
+table: memory_marketing_campaigns
+description: Campaign plans, channels, metrics, and experiments.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+  - name: campaign_name
+    type: string
+    required: true
+  - name: start_date
+    type: datetime
+    nullable: true
+  - name: end_date
+    type: datetime
+    nullable: true
+  - name: channels
+    type: json
+    default: []
+  - name: spend
+    type: float
+    default: 0.0
+  - name: metrics
+    type: json
+    default: []
+  - name: experiment_notes
+    type: text
+    nullable: true
+  - name: status
+    type: string
+    allowed: [planned, live, paused, completed]
+    default: planned
+  - name: trust_score
+    type: float
+    default: 0.0
+  - name: notes
+    type: text
+    nullable: true
+indexes:
+  - fields: [status]
+  - fields: [start_date]
