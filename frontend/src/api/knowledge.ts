@@ -1,4 +1,4 @@
-import { http } from './client';
+﻿import { http } from './client';
 
 // Types for Knowledge API
 export interface IngestTextBody {
@@ -97,3 +97,4 @@ export const KnowledgeApi = {
     );
   },
 };
+
