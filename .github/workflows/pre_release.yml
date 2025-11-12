@@ -20,7 +20,10 @@ jobs:
           pip install -r txt/requirements.txt
       - name: Run pre-release checks
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL || 'sqlite+aiosqlite:///./grace.db' }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY || 'ci-secret-key-for-testing' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
+          # Use fallback values if secrets are not set
+          export DATABASE_URL="${DATABASE_URL:-sqlite+aiosqlite:///./grace.db}"
+          export SECRET_KEY="${SECRET_KEY:-ci-secret-key-for-testing}"
           bash scripts/pre_release_check.sh
