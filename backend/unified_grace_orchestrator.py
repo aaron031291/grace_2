@@ -656,6 +656,44 @@ async def stop_ingestion(task_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# LLM API Endpoints
+@app.get("/api/llm/status")
+async def get_llm_status():
+    """Get LLM system status"""
+    return {
+        "status": "operational" if get_grace_llm else "stub",
+        "model": "grace_llm",
+        "is_stub": get_grace_llm is None or isinstance(get_grace_llm, type),
+        "available": get_grace_llm is not None
+    }
+
+# Intelligence Kernel API
+@app.get("/api/intelligence/status")
+async def get_intelligence_status():
+    """Get intelligence kernel status"""
+    return {
+        "status": "operational" if IntelligenceKernel and IntelligenceKernel is not StubComponent else "stub",
+        "kernel_type": "intelligence",
+        "is_stub": IntelligenceKernel is StubComponent
+    }
+
+# Learning System API
+@app.get("/api/learning/status")
+async def get_learning_status():
+    """Get continuous learning loop status"""
+    try:
+        from backend.continuous_learning_loop import ContinuousLearningLoop
+        # Check if learning loop exists
+        return {
+            "status": "available",
+            "component": "continuous_learning_loop"
+        }
+    except ImportError:
+        return {
+            "status": "not_available",
+            "error": "Learning loop module not found"
+        }
+
 # CLI entry point - separate from uvicorn serving
 def main():
     """CLI entry point - handles boot/status/stop commands"""
