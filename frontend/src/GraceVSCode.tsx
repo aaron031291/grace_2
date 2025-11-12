@@ -9,6 +9,8 @@ import {
   GitBranch, Terminal, X, Menu, ChevronRight, Layers
 } from 'lucide-react';
 import { GraceChat } from './GraceChat';
+import { MemoryWorkspace } from './components/MemoryWorkspace';
+import { MemoryBrowser } from './components/MemoryBrowser';
 
 type View = 'chat' | 'memory' | 'tasks' | 'verification' | 'metrics' | 'settings';
 
@@ -170,10 +172,40 @@ function ChatSidebar() {
 
 function MemorySidebar() {
   return (
-    <div className="text-sm">
-      <div className="text-xs text-gray-500 mb-2">Memory Domains</div>
-      <div className="space-y-1">
-        <div className="px-2 py-1 text-xs">Loading...</div>
+    <div className="h-full flex flex-col">
+      <div className="text-xs text-gray-500 mb-2 px-2">Memory Workspace</div>
+      <div className="flex-1 overflow-hidden">
+        <MemoryWorkspaceIntegrated />
+      </div>
+    </div>
+  );
+}
+
+function MemoryWorkspaceIntegrated() {
+  const [view, setView] = useState<'browser' | 'workspace'>('workspace');
+  
+  return (
+    <div className="h-full flex flex-col bg-[#1e1e1e]">
+      <div className="flex gap-2 p-2 border-b border-gray-700">
+        <button
+          onClick={() => setView('workspace')}
+          className={`px-3 py-1 text-xs rounded ${
+            view === 'workspace' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+          }`}
+        >
+          Files
+        </button>
+        <button
+          onClick={() => setView('browser')}
+          className={`px-3 py-1 text-xs rounded ${
+            view === 'browser' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'
+          }`}
+        >
+          Artifacts
+        </button>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        {view === 'workspace' ? <MemoryWorkspace /> : <MemoryBrowser />}
       </div>
     </div>
   );
