@@ -6,9 +6,10 @@
 import { useState, useEffect } from 'react';
 import { 
   Activity, BarChart3, Zap, Play, Pause, CheckCircle, XCircle,
-  Clock, TrendingUp, Database, FileText, Layers
+  Clock, TrendingUp, Database, FileText, Layers, Brain
 } from 'lucide-react';
 import { MemoryHubPanel } from './MemoryHubPanel';
+import { GraceActivityFeed } from '../components/GraceActivityFeed';
 
 interface Pipeline {
   id: string;
@@ -41,7 +42,7 @@ interface Metrics {
 }
 
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard'>('workspace');
+  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace'>('workspace');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -176,6 +177,17 @@ export function MemoryStudioPanel() {
           <BarChart3 size={16} />
           <span>Dashboard</span>
         </button>
+        <button
+          onClick={() => setView('grace')}
+          style={{
+            ...tabStyle,
+            background: view === 'grace' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: view === 'grace' ? '#a78bfa' : '#9ca3af'
+          }}
+        >
+          <Brain size={16} />
+          <span>Grace Activity</span>
+        </button>
       </div>
 
       {/* Content Area */}
@@ -183,6 +195,11 @@ export function MemoryStudioPanel() {
         {view === 'workspace' && <MemoryHubPanel />}
         {view === 'pipelines' && <PipelinesView pipelines={pipelines} jobs={jobs} onStart={startPipeline} />}
         {view === 'dashboard' && <DashboardView metrics={metrics} jobs={jobs} />}
+        {view === 'grace' && (
+          <div style={{ padding: '24px', height: '100%', overflow: 'auto' }}>
+            <GraceActivityFeed />
+          </div>
+        )}
       </div>
     </div>
   );
