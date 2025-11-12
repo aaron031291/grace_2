@@ -220,6 +220,81 @@ class MemoryFileService(BaseComponent):
         
         return {"status": "created", "path": path}
 
+    async def get_file_tree(self, path: str = "") -> Dict[str, Any]:
+        """Get hierarchical file tree structure"""
+        target = self.root_path / path if path else self.root_path
+        
+        if not target.exists():
+            return {"name": "root", "type": "folder", "children": []}
+        
+        def build_tree_node(p: Path) -> Dict[str, Any]:
+            relative = p.relative_to(self.root_path)
+            node = {
+                "name": p.name,
+                "path": str(relative) if str(relative) != "." else "",
+                "type": "folder" if p.is_dir() else "file",
+                "id": str(hash(str(relative)))
+            }
+            
+            if p.is_file():
+                stat = p.stat()
+                node.update({
+                    "size": stat.st_size,
+                    "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    "extension": p.suffix.lower()
+                })
+            else:
+                try:
+                    children = sorted(p.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
+                    node["children"] = [build_tree_node(child) for child in children]
+                except PermissionError:
+                    node["children"] = []
+            
+            return node
+        
+        return build_tree_node(target)
+
+    async def search_files(self, query: str, file_types: List[str] = None) -> List[Dict[str, Any]]:
+        """Search files by name or content"""
+        results = []
+        
+        for file_path in self.root_path.rglob("*"):
+            if file_path.is_file():
+                # Filter by file type if specified
+                if file_types and file_path.suffix.lower() not in file_types:
+                    continue
+                
+                # Search by filename
+                if query.lower() in file_path.name.lower():
+                    relative = file_path.relative_to(self.root_path)
+                    stat = file_path.stat()
+                    results.append({
+                        "path": str(relative),
+                        "name": file_path.name,
+                        "size": stat.st_size,
+                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        "match_type": "filename"
+                    })
+                
+                # Search by content for text files
+                elif file_path.suffix.lower() in ['.txt', '.md', '.py', '.js', '.json', '.yaml', '.yml']:
+                    try:
+                        content = file_path.read_text(encoding='utf-8', errors='ignore')
+                        if query.lower() in content.lower():
+                            relative = file_path.relative_to(self.root_path)
+                            stat = file_path.stat()
+                            results.append({
+                                "path": str(relative),
+                                "name": file_path.name,
+                                "size": stat.st_size,
+                                "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                                "match_type": "content"
+                            })
+                    except:
+                        continue
+        
+        return results[:50]  # Limit results
+
 
 # Global instance
 _memory_service: Optional[MemoryFileService] = None
@@ -232,3 +307,4 @@ async def get_memory_service() -> MemoryFileService:
         _memory_service = MemoryFileService()
         await _memory_service.activate()
     return _memory_service
+

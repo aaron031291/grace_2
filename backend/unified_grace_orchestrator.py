@@ -145,6 +145,19 @@ multimodal_router = None
 if (routes_path / "multimodal_api.py").exists():
     multimodal_router = safe_import('router', 'backend.routes.multimodal_api', optional=True)
 
+# Memory Studio Routes
+memory_api_router = None
+if (routes_path / "memory_api.py").exists():
+    memory_api_router = safe_import('router', 'backend.routes.memory_api', optional=True)
+
+grace_memory_router = None
+if (routes_path / "grace_memory_api.py").exists():
+    grace_memory_router = safe_import('router', 'backend.routes.grace_memory_api', optional=True)
+
+ingestion_router = None
+if (routes_path / "ingestion_api.py").exists():
+    ingestion_router = safe_import('router', 'backend.routes.ingestion_api', optional=True)
+
 # CLI Systems - check if cli directory exists (OPTIONAL - not required for orchestrator)
 cli_path = Path("cli")
 EnhancedGraceCLI = StubComponent
@@ -517,6 +530,19 @@ if chat_router:
 if multimodal_router:
     app.include_router(multimodal_router, prefix="/api")
     logger.info("✅ Multimodal router included")
+
+# Memory Studio Routes
+if memory_api_router:
+    app.include_router(memory_api_router)
+    logger.info("✅ Memory API router included")
+
+if grace_memory_router:
+    app.include_router(grace_memory_router)
+    logger.info("✅ Grace Memory API router included")
+
+if ingestion_router:
+    app.include_router(ingestion_router)
+    logger.info("✅ Ingestion API router included")
 
 @app.get("/")
 async def root():
