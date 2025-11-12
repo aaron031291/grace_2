@@ -1,0 +1,399 @@
+"""
+Ingestion Pipeline System - Orchestrates content processing for Grace's Memory
+Handles: chunking, embedding, metadata extraction, learning jobs
+"""
+
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+from enum import Enum
+import json
+import asyncio
+from pathlib import Path
+
+from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event, TrustLevel
+
+
+class PipelineStage(str, Enum):
+    UPLOADED = "uploaded"
+    VALIDATING = "validating"
+    EXTRACTING = "extracting"
+    CHUNKING = "chunking"
+    EMBEDDING = "embedding"
+    INDEXING = "indexing"
+    SYNCING = "syncing"
+    COMPLETE = "complete"
+    FAILED = "failed"
+
+
+class IngestionPipeline(BaseComponent):
+    """
+    Manages the full ingestion pipeline for memory content
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.component_type = "ingestion_pipeline"
+        self.event_bus = get_event_bus()
+        self.active_jobs: Dict[str, Dict] = {}
+        self.pipeline_configs: Dict[str, Dict] = {}
+        
+        # Register default pipelines
+        self._register_default_pipelines()
+    
+    async def activate(self) -> bool:
+        """Activate the ingestion pipeline"""
+        self.set_status(ComponentStatus.ACTIVE)
+        self.activated_at = datetime.utcnow()
+        
+        await self.event_bus.publish(Event(
+            event_type="ingestion.pipeline.activated",
+            source=self.component_id,
+            payload={"pipelines": list(self.pipeline_configs.keys())}
+        ))
+        
+        return True
+    
+    def _register_default_pipelines(self):
+        """Register built-in ingestion pipelines"""
+        
+        # Text Document Pipeline
+        self.pipeline_configs['text_to_embeddings'] = {
+            "name": "Text to Embeddings",
+            "description": "Convert text documents to embeddings for semantic search",
+            "file_types": [".txt", ".md", ".rst"],
+            "stages": [
+                {"name": "validate", "processor": "validate_text"},
+                {"name": "clean", "processor": "clean_text"},
+                {"name": "chunk", "processor": "chunk_text", "config": {"chunk_size": 512, "overlap": 50}},
+                {"name": "embed", "processor": "generate_embeddings"},
+                {"name": "index", "processor": "index_vectors"},
+                {"name": "sync", "processor": "sync_memory_fusion"}
+            ],
+            "output": "vector_store"
+        }
+        
+        # PDF Extraction Pipeline
+        self.pipeline_configs['pdf_extraction'] = {
+            "name": "PDF Text Extraction",
+            "description": "Extract and process text from PDF documents",
+            "file_types": [".pdf"],
+            "stages": [
+                {"name": "extract", "processor": "extract_pdf_text"},
+                {"name": "clean", "processor": "clean_text"},
+                {"name": "chunk", "processor": "chunk_text", "config": {"chunk_size": 512}},
+                {"name": "embed", "processor": "generate_embeddings"},
+                {"name": "sync", "processor": "sync_memory_fusion"}
+            ],
+            "output": "vector_store"
+        }
+        
+        # Code Analysis Pipeline
+        self.pipeline_configs['code_analysis'] = {
+            "name": "Code Analysis & Indexing",
+            "description": "Analyze source code and create searchable index",
+            "file_types": [".py", ".js", ".ts", ".tsx", ".jsx", ".java", ".cpp"],
+            "stages": [
+                {"name": "parse", "processor": "parse_code"},
+                {"name": "extract", "processor": "extract_functions"},
+                {"name": "document", "processor": "generate_docs"},
+                {"name": "embed", "processor": "generate_embeddings"},
+                {"name": "index", "processor": "index_code"}
+            ],
+            "output": "code_index"
+        }
+        
+        # Audio Transcription Pipeline
+        self.pipeline_configs['audio_transcription'] = {
+            "name": "Audio Transcription",
+            "description": "Transcribe audio to text using Whisper",
+            "file_types": [".mp3", ".wav", ".m4a", ".ogg"],
+            "stages": [
+                {"name": "validate", "processor": "validate_audio"},
+                {"name": "transcribe", "processor": "whisper_transcribe"},
+                {"name": "clean", "processor": "clean_text"},
+                {"name": "chunk", "processor": "chunk_text"},
+                {"name": "embed", "processor": "generate_embeddings"}
+            ],
+            "output": "transcript + embeddings"
+        }
+        
+        # Image Vision Pipeline
+        self.pipeline_configs['image_vision'] = {
+            "name": "Image Vision Analysis",
+            "description": "Extract visual features and generate descriptions",
+            "file_types": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+            "stages": [
+                {"name": "validate", "processor": "validate_image"},
+                {"name": "ocr", "processor": "extract_text_ocr"},
+                {"name": "vision", "processor": "vision_analysis"},
+                {"name": "caption", "processor": "generate_caption"},
+                {"name": "embed", "processor": "generate_embeddings"}
+            ],
+            "output": "vision_features + captions"
+        }
+        
+        # Batch Training Pipeline
+        self.pipeline_configs['batch_training'] = {
+            "name": "Batch Training Data Prep",
+            "description": "Prepare multiple files for model training",
+            "file_types": ["*"],
+            "stages": [
+                {"name": "collect", "processor": "collect_files"},
+                {"name": "validate", "processor": "validate_training_data"},
+                {"name": "format", "processor": "format_for_training"},
+                {"name": "split", "processor": "train_val_split"},
+                {"name": "export", "processor": "export_training_set"}
+            ],
+            "output": "training_dataset"
+        }
+    
+    async def start_pipeline(
+        self, 
+        pipeline_id: str, 
+        file_path: str, 
+        config: Optional[Dict] = None
+    ) -> str:
+        """
+        Start a pipeline for a file
+        Returns job_id for tracking
+        """
+        if pipeline_id not in self.pipeline_configs:
+            raise ValueError(f"Pipeline {pipeline_id} not found")
+        
+        job_id = f"{pipeline_id}_{file_path}_{datetime.utcnow().timestamp()}"
+        
+        pipeline = self.pipeline_configs[pipeline_id]
+        
+        job = {
+            "job_id": job_id,
+            "pipeline_id": pipeline_id,
+            "file_path": file_path,
+            "status": "started",
+            "current_stage": 0,
+            "stages": pipeline["stages"],
+            "started_at": datetime.utcnow().isoformat(),
+            "progress": 0,
+            "config": config or {},
+            "results": {}
+        }
+        
+        self.active_jobs[job_id] = job
+        
+        # Publish event
+        await self.event_bus.publish(Event(
+            event_type="ingestion.job.started",
+            source=self.component_id,
+            payload={
+                "job_id": job_id,
+                "pipeline": pipeline_id,
+                "file": file_path
+            }
+        ))
+        
+        # Start async processing
+        asyncio.create_task(self._execute_pipeline(job_id))
+        
+        return job_id
+    
+    async def _execute_pipeline(self, job_id: str):
+        """Execute all stages of a pipeline"""
+        job = self.active_jobs.get(job_id)
+        if not job:
+            return
+        
+        try:
+            total_stages = len(job["stages"])
+            
+            for idx, stage in enumerate(job["stages"]):
+                job["current_stage"] = idx
+                job["status"] = f"running_{stage['name']}"
+                
+                # Execute stage processor
+                result = await self._execute_stage(
+                    stage["processor"], 
+                    job["file_path"],
+                    stage.get("config", {}),
+                    job["results"]
+                )
+                
+                job["results"][stage["name"]] = result
+                job["progress"] = int(((idx + 1) / total_stages) * 100)
+                
+                # Publish progress event
+                await self.event_bus.publish(Event(
+                    event_type="ingestion.stage.completed",
+                    source=self.component_id,
+                    payload={
+                        "job_id": job_id,
+                        "stage": stage["name"],
+                        "progress": job["progress"]
+                    }
+                ))
+            
+            job["status"] = "complete"
+            job["completed_at"] = datetime.utcnow().isoformat()
+            
+            await self.event_bus.publish(Event(
+                event_type="ingestion.job.completed",
+                source=self.component_id,
+                payload={
+                    "job_id": job_id,
+                    "results": job["results"]
+                }
+            ))
+            
+        except Exception as e:
+            job["status"] = "failed"
+            job["error"] = str(e)
+            job["failed_at"] = datetime.utcnow().isoformat()
+            
+            await self.event_bus.publish(Event(
+                event_type="ingestion.job.failed",
+                source=self.component_id,
+                payload={
+                    "job_id": job_id,
+                    "error": str(e)
+                }
+            ))
+    
+    async def _execute_stage(
+        self, 
+        processor_name: str, 
+        file_path: str, 
+        config: Dict,
+        previous_results: Dict
+    ) -> Dict[str, Any]:
+        """Execute a single pipeline stage"""
+        
+        # Stub implementations - would be replaced with actual processors
+        if processor_name == "validate_text":
+            return {"valid": True, "encoding": "utf-8"}
+        
+        elif processor_name == "clean_text":
+            return {"cleaned": True, "changes": 5}
+        
+        elif processor_name == "chunk_text":
+            chunk_size = config.get("chunk_size", 512)
+            return {
+                "chunks": 10,
+                "chunk_size": chunk_size,
+                "total_tokens": 5000
+            }
+        
+        elif processor_name == "generate_embeddings":
+            return {
+                "embeddings_generated": 10,
+                "model": "text-embedding-ada-002",
+                "dimensions": 1536
+            }
+        
+        elif processor_name == "index_vectors":
+            return {
+                "indexed": 10,
+                "index_id": "memory_vectors_001"
+            }
+        
+        elif processor_name == "sync_memory_fusion":
+            return {
+                "synced": True,
+                "trust_level": "verified",
+                "memory_id": "mem_" + file_path
+            }
+        
+        # Default: simulate processing
+        await asyncio.sleep(1)  # Simulate work
+        return {"status": "completed", "processor": processor_name}
+    
+    def get_job_status(self, job_id: str) -> Optional[Dict]:
+        """Get status of a running or completed job"""
+        return self.active_jobs.get(job_id)
+    
+    def list_pipelines(self) -> List[Dict]:
+        """List all available pipelines"""
+        return [
+            {
+                "id": pid,
+                "name": config["name"],
+                "description": config["description"],
+                "file_types": config["file_types"],
+                "stages": len(config["stages"]),
+                "output": config["output"]
+            }
+            for pid, config in self.pipeline_configs.items()
+        ]
+    
+    def list_jobs(self, status: Optional[str] = None) -> List[Dict]:
+        """List all jobs, optionally filtered by status"""
+        jobs = list(self.active_jobs.values())
+        if status:
+            jobs = [j for j in jobs if j["status"] == status]
+        return jobs
+    
+    async def cancel_job(self, job_id: str) -> bool:
+        """Cancel a running job"""
+        job = self.active_jobs.get(job_id)
+        if not job:
+            return False
+        
+        if job["status"] not in ["complete", "failed", "cancelled"]:
+            job["status"] = "cancelled"
+            job["cancelled_at"] = datetime.utcnow().isoformat()
+            
+            await self.event_bus.publish(Event(
+                event_type="ingestion.job.cancelled",
+                source=self.component_id,
+                payload={"job_id": job_id}
+            ))
+            
+            return True
+        return False
+
+
+# Global instance
+_ingestion_pipeline: Optional[IngestionPipeline] = None
+
+
+async def get_ingestion_pipeline() -> IngestionPipeline:
+    """Get or create global ingestion pipeline"""
+    global _ingestion_pipeline
+    if _ingestion_pipeline is None:
+        _ingestion_pipeline = IngestionPipeline()
+        await _ingestion_pipeline.activate()
+    return _ingestion_pipeline
+
+
+# Metrics and Analytics
+class IngestionMetrics:
+    """Track ingestion pipeline metrics"""
+    
+    @staticmethod
+    async def get_metrics(pipeline: IngestionPipeline) -> Dict[str, Any]:
+        """Compute ingestion metrics"""
+        all_jobs = pipeline.list_jobs()
+        
+        total = len(all_jobs)
+        complete = len([j for j in all_jobs if j["status"] == "complete"])
+        failed = len([j for j in all_jobs if j["status"] == "failed"])
+        running = len([j for j in all_jobs if "running" in j.get("status", "")])
+        
+        # Compute average progress
+        avg_progress = sum(j.get("progress", 0) for j in all_jobs) / max(total, 1)
+        
+        # Pipeline usage
+        pipeline_usage = {}
+        for job in all_jobs:
+            pid = job["pipeline_id"]
+            if pid not in pipeline_usage:
+                pipeline_usage[pid] = 0
+            pipeline_usage[pid] += 1
+        
+        return {
+            "total_jobs": total,
+            "complete": complete,
+            "failed": failed,
+            "running": running,
+            "average_progress": round(avg_progress, 2),
+            "success_rate": round((complete / max(total, 1)) * 100, 2),
+            "pipeline_usage": pipeline_usage,
+            "active_pipelines": len(pipeline.pipeline_configs)
+        }
