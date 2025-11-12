@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { KnowledgeApi, ArtifactSummary, RevisionEntry } from '../../api/knowledge';
+import { KnowledgeApi, type ArtifactSummary, type RevisionEntry } from '../../api/knowledge';
 
 export function KnowledgeList() {
   const [items, setItems] = useState<ArtifactSummary[]>([]);
