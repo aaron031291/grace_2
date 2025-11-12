@@ -37,7 +37,7 @@ fields:
   - name: speakers
     type: json
     default: []
-    description: [{"name": "...", "role": "..."}]
+    description: Array of speaker objects with name and role
 
   - name: embeddings_path
     type: string

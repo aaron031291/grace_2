@@ -20,7 +20,7 @@ fields:
   - name: languages
     type: json
     default: []
-    description: Language distribution (e.g., [{"python": 0.7}, {"ts": 0.3}])
+    description: Language distribution (e.g. python, typescript)
 
   - name: entry_points
     type: json

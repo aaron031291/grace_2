@@ -27,7 +27,7 @@ fields:
   - name: column_schema
     type: json
     default: []
-    description: [{"name": "timestamp", "type": "datetime"}, ...]
+    description: Array of column definitions with name and type
 
   - name: source_url
     type: string
