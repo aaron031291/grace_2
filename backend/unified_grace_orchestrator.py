@@ -257,7 +257,8 @@ class GraceUnifiedOrchestrator:
         logger.info(f"Platform: {platform.platform()}")
         logger.info(f"Imports successful: {IMPORTS_SUCCESSFUL}")
         if import_errors:
-            logger.warning(f"Import errors: {', '.join(import_errors[:5])}{'...' if len(import_errors) > 5 else ''}")
+            logger.debug(f"Optional components unavailable: {', '.join(import_errors[:5])}{'...' if len(import_errors) > 5 else ''}")
+            import_errors.clear()
         
         self._initialized = True
     
