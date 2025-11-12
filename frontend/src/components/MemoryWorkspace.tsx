@@ -13,11 +13,25 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 interface FileNode {
   name: string;
   path: string;
-  type: 'file' | 'folder';
+  type: 'file' | 'directory' | 'folder';
   size?: number;
   modified?: string;
   extension?: string;
   children?: FileNode[];
+}
+
+function findNodeByPath(tree: FileNode | null, path: string): FileNode | null {
+  if (!tree) return null;
+  if (tree.path === path) return tree;
+  
+  if (tree.children) {
+    for (const child of tree.children) {
+      const found = findNodeByPath(child, path);
+      if (found) return found;
+    }
+  }
+  
+  return null;
 }
 
 export function MemoryWorkspace() {
@@ -179,7 +193,14 @@ export function MemoryWorkspace() {
         
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
           {tree ? (
-            <FileTree tree={tree} selectedPath={selectedPath} onSelect={handleSelect} />
+            <FileTree 
+              data={tree.children || []} 
+              selectedPath={selectedPath || undefined} 
+              onSelect={(path) => {
+                const node = findNodeByPath(tree, path);
+                if (node) handleSelect(path, node);
+              }} 
+            />
           ) : (
             <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
           )}
