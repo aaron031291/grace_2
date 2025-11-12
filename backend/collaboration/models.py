@@ -19,7 +19,7 @@ class UserPresence(Base):
     current_table = Column(String(128))
     current_row_id = Column(String(128))
     
-    metadata = Column(JSON, default={})
+    user_metadata = Column(JSON, default={})
     
     is_active = Column(Boolean, default=True)
     last_heartbeat = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -50,7 +50,7 @@ class CollaborationWorkflow(Base):
     rejections = Column(JSON, default={})
     comments = Column(JSON, default=[])
     
-    metadata = Column(JSON, default={})
+    workflow_metadata = Column(JSON, default={})
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True))
@@ -76,7 +76,7 @@ class Notification(Base):
     is_read = Column(Boolean, default=False)
     is_dismissed = Column(Boolean, default=False)
     
-    metadata = Column(JSON, default={})
+    notification_metadata = Column(JSON, default={})
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     read_at = Column(DateTime(timezone=True))

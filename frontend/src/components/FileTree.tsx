@@ -29,7 +29,7 @@ interface FileTreeProps {
   onUpload?: (file: File, targetPath: string) => void;
 }
 
-export function FileTree({ data, onSelect, selectedPath, onUpload }: FileTreeProps) {
+export function FileTree({ data = [], onSelect, selectedPath, onUpload }: FileTreeProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState<string | null>(null);
 
@@ -131,7 +131,14 @@ export function FileTree({ data, onSelect, selectedPath, onUpload }: FileTreePro
 
   return (
     <div className="h-full flex flex-col bg-gray-900 text-white">
-      {data.map(node => renderNode(node))}
+      {data && data.length > 0 ? (
+        data.map(node => renderNode(node))
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <Folder className="w-12 h-12 mb-4 opacity-50" />
+          <p className="text-sm">No files available</p>
+        </div>
+      )}
     </div>
   );
 }
