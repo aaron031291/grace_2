@@ -100,7 +100,8 @@ else:
 # LLM & Cognition
 get_grace_llm = safe_import('get_grace_llm', 'backend.grace_llm') or (lambda: StubComponent('grace_llm'))
 GraceLLM = safe_import('GraceLLM', 'backend.grace_llm') or StubComponent
-cognition_intent = safe_import('cognition_intent', 'backend.cognition_intent') or StubComponent('cognition_intent')
+CognitionIntent = safe_import('CognitionIntent', 'backend.cognition_intent') or StubComponent('cognition_intent')
+cognition_intent = None  # Will be initialized during boot
 
 # Domain Kernels - check if kernel directory exists
 kernel_path = Path("backend/kernels")
@@ -126,7 +127,7 @@ if (routes_path / "chat.py").exists():
 
 multimodal_router = None
 if (routes_path / "multimodal_api.py").exists():
-    multimodal_router = safe_import('multimodal_router', 'backend.routes.multimodal_api')
+    multimodal_router = safe_import('router', 'backend.routes.multimodal_api')
 
 # CLI Systems - check if cli directory exists
 cli_path = Path("cli")
