@@ -199,3 +199,45 @@ async def list_domains(current_user: str = Depends(get_current_user)):
             for k, v in domains.items()
         }
     }
+
+@router.get("/files")
+async def list_files(path: str = "", current_user: str = Depends(get_current_user)):
+    """List files in memory file system"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return service.list_files(path)
+
+@router.get("/file")
+async def get_file(path: str, current_user: str = Depends(get_current_user)):
+    """Read a file from memory file system"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return service.read_file(path)
+
+@router.post("/file")
+async def save_file(path: str, content: str, current_user: str = Depends(get_current_user)):
+    """Save a file to memory file system"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return await service.save_file(path, content)
+
+@router.delete("/file")
+async def delete_file(path: str, recursive: bool = False, current_user: str = Depends(get_current_user)):
+    """Delete a file or folder from memory file system"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return await service.delete_file(path, recursive)
+
+@router.post("/folder")
+async def create_folder(path: str, current_user: str = Depends(get_current_user)):
+    """Create a new folder in memory file system"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return await service.create_folder(path)
+
+@router.get("/status")
+async def get_status(current_user: str = Depends(get_current_user)):
+    """Get memory file system status"""
+    from ..memory_file_service import get_memory_service
+    service = await get_memory_service()
+    return service.get_status()
