@@ -2,40 +2,153 @@
 Setup initial self-healing data for testing
 """
 import asyncio
+import sys
+import os
 from datetime import datetime, timezone
-from backend.memory_tables.registry import table_registry
+
+# Add backend to path for imports
+sys.path.insert(0, os.path.dirname(__file__))
+
+from memory_tables.registry import table_registry
 
 async def setup_self_healing_data():
     """Add sample self-healing data"""
-    
-    # Sample playbooks
+
+    # Initialize memory tables first
+    from memory_tables.initialization import initialize_memory_tables
+    tables_initialized = await initialize_memory_tables()
+    if not tables_initialized:
+        print("Failed to initialize memory tables")
+        return
+
+    # Sample playbooks with proper structure
     playbooks = [
         {
             "playbook_name": "Restart Failed Service",
             "description": "Automatically restart a failed service component",
+            "trigger_conditions": [
+                {"type": "event_type", "value": "service.crashed"},
+                {"type": "component", "value": "reflection_service"},
+                {"type": "component", "value": "task_executor"}
+            ],
+            "actions": [
+                {
+                    "name": "Stop service",
+                    "action": "restart_service",
+                    "args": {"service_name": "{{component}}"},
+                    "success_criteria": {"result_contains": "restarted"}
+                },
+                {
+                    "name": "Verify service health",
+                    "action": "run_verification",
+                    "args": {"check_type": "service_health"},
+                    "success_criteria": {"result_equals": True}
+                }
+            ],
             "target_components": ["reflection_service", "task_executor"],
             "risk_level": "low",
-            "status": "active",
-            "created_at": datetime.now().isoformat(),
-            "execution_stats": {"total_runs": 15, "successful_runs": 14, "last_run": "2024-01-15T10:30:00Z"}
+            "requires_approval": False,
+            "total_runs": 15,
+            "successful_runs": 14,
+            "success_rate": 0.93,
+            "trust_score": 0.85,
+            "last_used_at": "2024-01-15T10:30:00Z"
         },
         {
             "playbook_name": "Database Connection Recovery",
             "description": "Recover from database connection failures",
+            "trigger_conditions": [
+                {"type": "event_type", "value": "database.connection_failed"},
+                {"type": "error_type", "value": "ConnectionError"}
+            ],
+            "actions": [
+                {
+                    "name": "Test connection",
+                    "action": "run_verification",
+                    "args": {"check_type": "database_connection"},
+                    "success_criteria": {"result_equals": True}
+                },
+                {
+                    "name": "Switch to read-only mode",
+                    "action": "update_config",
+                    "args": {"key": "database_mode", "value": "read_only"},
+                    "success_criteria": {"result_contains": "updated"}
+                }
+            ],
             "target_components": ["database"],
             "risk_level": "medium",
-            "status": "active",
-            "created_at": datetime.now().isoformat(),
-            "execution_stats": {"total_runs": 8, "successful_runs": 7, "last_run": "2024-01-15T09:15:00Z"}
+            "requires_approval": False,
+            "total_runs": 8,
+            "successful_runs": 7,
+            "success_rate": 0.88,
+            "trust_score": 0.82,
+            "last_used_at": "2024-01-15T09:15:00Z"
         },
         {
-            "playbook_name": "Memory Cleanup",
-            "description": "Clean up memory when usage exceeds threshold",
-            "target_components": ["system"],
+            "playbook_name": "Ingestion Failure Recovery",
+            "description": "Recover from ingestion pipeline failures",
+            "trigger_conditions": [
+                {"type": "event_type", "value": "ingestion.failed"},
+                {"type": "event_type", "value": "pipeline.timeout"}
+            ],
+            "actions": [
+                {
+                    "name": "Clear ingestion cache",
+                    "action": "clear_cache",
+                    "args": {"cache_type": "ingestion"},
+                    "success_criteria": {"result_contains": "cleared"}
+                },
+                {
+                    "name": "Rerun ingestion",
+                    "action": "rerun_ingestion",
+                    "args": {"source": "{{source}}"},
+                    "success_criteria": {"result_equals": True}
+                },
+                {
+                    "name": "Run verification",
+                    "action": "run_verification",
+                    "args": {"check_type": "ingestion_verification"},
+                    "success_criteria": {"result_equals": True}
+                }
+            ],
+            "target_components": ["ingestion_pipeline"],
+            "risk_level": "medium",
+            "requires_approval": False,
+            "total_runs": 5,
+            "successful_runs": 4,
+            "success_rate": 0.8,
+            "trust_score": 0.75,
+            "last_used_at": "2024-01-15T11:00:00Z"
+        },
+        {
+            "playbook_name": "Schema Validation Recovery",
+            "description": "Recover from schema validation failures",
+            "trigger_conditions": [
+                {"type": "event_type", "value": "schema.invalid"},
+                {"type": "event_type", "value": "verification.failed"}
+            ],
+            "actions": [
+                {
+                    "name": "Validate schema",
+                    "action": "run_verification",
+                    "args": {"check_type": "schema_validation"},
+                    "success_criteria": {"result_equals": True}
+                },
+                {
+                    "name": "Send notification",
+                    "action": "send_notification",
+                    "args": {"message": "Schema validation failed - manual intervention required"},
+                    "success_criteria": {"result_contains": "sent"}
+                }
+            ],
+            "target_components": ["schema_validator"],
             "risk_level": "high",
-            "status": "pending_approval",
-            "created_at": datetime.now().isoformat(),
-            "execution_stats": {"total_runs": 0, "successful_runs": 0}
+            "requires_approval": True,
+            "total_runs": 2,
+            "successful_runs": 1,
+            "success_rate": 0.5,
+            "trust_score": 0.45,
+            "last_used_at": "2024-01-15T12:00:00Z"
         }
     ]
     
@@ -115,30 +228,30 @@ async def setup_self_healing_data():
         }
     ]
     
-    print("🔧 Setting up self-healing data...")
+    print("Setting up self-healing data...")
     
     # Insert data
     for playbook in playbooks:
         await table_registry.insert_row("memory_self_healing_playbooks", playbook)
-    print(f"✅ Added {len(playbooks)} playbooks")
-    
+    print(f"Added {len(playbooks)} playbooks")
+
     for log in execution_logs:
         await table_registry.insert_row("memory_execution_logs", log)
-    print(f"✅ Added {len(execution_logs)} execution logs")
-    
+    print(f"Added {len(execution_logs)} execution logs")
+
     for incident in incidents:
         await table_registry.insert_row("memory_incidents", incident)
-    print(f"✅ Added {len(incidents)} incidents")
-    
+    print(f"Added {len(incidents)} incidents")
+
     for agent in agents:
         await table_registry.insert_row("memory_sub_agents", agent)
-    print(f"✅ Added {len(agents)} agents")
-    
+    print(f"Added {len(agents)} agents")
+
     for insight in insights:
         await table_registry.insert_row("memory_insights", insight)
-    print(f"✅ Added {len(insights)} insights")
-    
-    print("🚀 Self-healing data setup complete!")
+    print(f"Added {len(insights)} insights")
+
+    print("Self-healing data setup complete!")
 
 if __name__ == "__main__":
     asyncio.run(setup_self_healing_data())
