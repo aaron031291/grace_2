@@ -8,19 +8,20 @@ from typing import Dict, Any, List
 
 router = APIRouter()
 
-# List of all domain kernels
+# List of all 12 domain kernels
 KERNEL_NAMES = [
-    'memory',
-    'core', 
-    'code',
-    'governance',
-    'verification',
-    'intelligence',
-    'infrastructure',
-    'federation',
-    'ml_dl',
-    'self_healing',
-    'librarian'
+    'memory',           # Memory storage & retrieval
+    'core',             # Core functionality
+    'code',             # Code analysis & generation
+    'governance',       # Policy & compliance
+    'verification',     # Trust & validation
+    'intelligence',     # AI reasoning & learning
+    'infrastructure',   # System management
+    'federation',       # Multi-system coordination
+    'ml_dl',           # Machine learning operations
+    'self_healing',    # Autonomous recovery
+    'librarian',       # File watching & organization
+    'ingestion'        # Content ingestion pipelines (if exists)
 ]
 
 @router.get("/kernels")
