@@ -545,7 +545,14 @@ async def verification_failed(
 app.include_router(auth_routes.router)
 
 # COMPREHENSIVE API - Register FIRST to avoid route shadowing
-app.include_router(comprehensive_api.router, prefix="/api")  # Must be early to override default routes
+try:
+    print(f"[DEBUG] Registering comprehensive_api with {len(comprehensive_api.router.routes)} routes")
+    app.include_router(comprehensive_api.router, prefix="/api")  # Must be early to override default routes
+    print("[DEBUG] Comprehensive API registered successfully!")
+except Exception as e:
+    print(f"[ERROR] Failed to register comprehensive_api: {e}")
+    import traceback
+    traceback.print_exc()
 
 app.include_router(chat.router)
 app.include_router(metrics.router)
