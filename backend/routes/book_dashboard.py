@@ -69,27 +69,26 @@ async def get_book_stats() -> Dict[str, Any]:
 async def get_recent_books(limit: int = 10) -> List[Dict[str, Any]]:
     """Get recently ingested books"""
 
-    db = await get_db()
+    # Get books sorted by last_synced_at descending
+    books = table_registry.query_rows('memory_documents', filters={'source_type': 'book'}, limit=1000)
 
-    books = await db.fetch_all(
-        """SELECT id, title, authors, trust_score, last_synced_at, notes
-           FROM memory_documents
-           WHERE source_type = 'book'
-           ORDER BY last_synced_at DESC
-           LIMIT ?""",
-        (limit,)
-    )
+    # Sort by last_synced_at in descending order and limit
+    sorted_books = sorted(
+        books,
+        key=lambda x: getattr(x, 'last_synced_at', datetime.min),
+        reverse=True
+    )[:limit]
 
     return [
         {
-            "document_id": book["id"],
-            "title": book["title"],
-            "author": book["authors"] if book["authors"] else "Unknown",
-            "trust_score": book["trust_score"],
-            "created_at": book["last_synced_at"],
-            "metadata": {"notes": book["notes"]} if book["notes"] else {}
+            "document_id": getattr(book, 'id', None),
+            "title": getattr(book, 'title', 'Unknown'),
+            "author": getattr(book, 'authors', 'Unknown') or "Unknown",
+            "trust_score": getattr(book, 'trust_score', 0.0),
+            "created_at": getattr(book, 'last_synced_at', None),
+            "metadata": {"notes": getattr(book, 'notes', None)} if getattr(book, 'notes', None) else {}
         }
-        for book in books
+        for book in sorted_books
     ]
 
 
@@ -97,24 +96,24 @@ async def get_recent_books(limit: int = 10) -> List[Dict[str, Any]]:
 async def get_flagged_books() -> List[Dict[str, Any]]:
     """Get books flagged for manual review (trust score < 0.7)"""
 
-    db = await get_db()
+    # Get all books
+    all_books = table_registry.query_rows('memory_documents', filters={'source_type': 'book'})
 
-    flagged = await db.fetch_all(
-        """SELECT id, title, authors, trust_score, risk_level
-           FROM memory_documents
-           WHERE source_type = 'book' AND trust_score < 0.7
-           ORDER BY trust_score ASC"""
-    )
+    # Filter books with trust_score < 0.7
+    flagged = [book for book in all_books if getattr(book, 'trust_score', 0) < 0.7]
+
+    # Sort by trust_score ascending
+    flagged_sorted = sorted(flagged, key=lambda x: getattr(x, 'trust_score', 0))
 
     return [
         {
-            "document_id": book["id"],
-            "title": book["title"],
-            "author": book["authors"] if book["authors"] else "Unknown",
-            "trust_score": book["trust_score"],
-            "verification_results": {"risk_level": book["risk_level"]} if book["risk_level"] else {}
+            "document_id": getattr(book, 'id', None),
+            "title": getattr(book, 'title', 'Unknown'),
+            "author": getattr(book, 'authors', 'Unknown') or "Unknown",
+            "trust_score": getattr(book, 'trust_score', 0.0),
+            "verification_results": {"risk_level": getattr(book, 'risk_level', None)} if getattr(book, 'risk_level', None) else {}
         }
-        for book in flagged
+        for book in flagged_sorted
     ]
 
 
@@ -122,72 +121,71 @@ async def get_flagged_books() -> List[Dict[str, Any]]:
 async def get_book_details(document_id: str) -> Dict[str, Any]:
     """Get detailed information about a specific book"""
 
-    db = await get_db()
+    # Get the specific book
+    books = table_registry.query_rows('memory_documents', filters={'id': document_id})
 
-    # Get document
-    book = await db.fetch_one(
-        "SELECT * FROM memory_documents WHERE id = ?",
-        (document_id,)
-    )
-
-    if not book:
+    if not books:
         raise HTTPException(status_code=404, detail="Book not found")
+
+    book = books[0]
 
     # Get chunks - check if table exists
     try:
-        chunks = await db.fetch_all(
-            "SELECT chunk_index, content FROM memory_document_chunks WHERE document_id = ? ORDER BY chunk_index",
-            (document_id,)
-        )
+        chunks = table_registry.query_rows('memory_document_chunks', filters={'document_id': document_id})
     except:
         chunks = []
 
     # Get insights
-    insights = await db.fetch_all(
-        "SELECT insight_type, content, confidence FROM memory_insights WHERE document_id = ?",
-        (document_id,)
-    )
+    try:
+        insights = table_registry.query_rows('memory_insights', filters={'document_id': document_id})
+    except:
+        insights = []
 
     # Get verification results
-    verifications = await db.fetch_all(
-        "SELECT verification_type, results, trust_score, timestamp FROM memory_verification_suites WHERE document_id = ? ORDER BY timestamp DESC",
-        (document_id,)
-    )
+    try:
+        verifications = table_registry.query_rows('memory_verification_suites', filters={'document_id': document_id})
+        # Sort by timestamp descending
+        verifications_sorted = sorted(verifications, key=lambda x: getattr(x, 'timestamp', datetime.min), reverse=True)
+    except:
+        verifications_sorted = []
 
     return {
-        "document_id": book["id"],
-        "title": book["title"],
-        "author": book["authors"] if book["authors"] else "Unknown",
-        "source_type": book["source_type"],
-        "file_path": book["file_path"],
-        "trust_score": book["trust_score"],
-        "created_at": book["last_synced_at"],
-        "updated_at": book["last_synced_at"],
-        "metadata": {"summary": book["summary"], "notes": book["notes"]} if book["summary"] or book["notes"] else {},
-        "verification_results": {"risk_level": book["risk_level"]} if book["risk_level"] else {},
+        "document_id": getattr(book, 'id', None),
+        "title": getattr(book, 'title', 'Unknown'),
+        "author": getattr(book, 'authors', 'Unknown') or "Unknown",
+        "source_type": getattr(book, 'source_type', 'unknown'),
+        "file_path": getattr(book, 'file_path', ''),
+        "trust_score": getattr(book, 'trust_score', 0.0),
+        "created_at": getattr(book, 'last_synced_at', None),
+        "updated_at": getattr(book, 'last_synced_at', None),
+        "metadata": {
+            "summary": getattr(book, 'summary', None),
+            "notes": getattr(book, 'notes', None)
+        } if getattr(book, 'summary', None) or getattr(book, 'notes', None) else {},
+        "verification_results": {"risk_level": getattr(book, 'risk_level', None)} if getattr(book, 'risk_level', None) else {},
         "chunks": {
             "total": len(chunks),
             "sample": [
-                {"index": c["chunk_index"], "content": c["content"][:200] + "..."}
+                {"index": getattr(c, 'chunk_index', 0), "content": (getattr(c, 'content', '')[:200] + "...")}
                 for c in chunks[:3]
             ]
         },
         "insights": [
             {
-                "type": i["insight_type"],
-                "content": i["content"],
-                "confidence": i["confidence"]
+                "type": getattr(i, 'insight_type', 'unknown'),
+                "content": getattr(i, 'content', ''),
+                "confidence": getattr(i, 'confidence', 0.0)
             }
             for i in insights
         ],
         "verification_history": [
             {
-                "type": v["verification_type"],
-                "trust_score": v["trust_score"],
-                "timestamp": v["timestamp"],
-                "results": json.loads(v["results"]) if v["results"] else {}
+                "type": getattr(v, 'verification_type', 'unknown'),
+                "trust_score": getattr(v, 'trust_score', 0.0),
+                "timestamp": getattr(v, 'timestamp', None),
+                "results": getattr(v, 'results', {}) if getattr(v, 'results', None) else {}
             }
-            for v in verifications
+            for v in verifications_sorted
         ]
     }
 
@@ -196,29 +194,43 @@ async def get_book_details(document_id: str) -> Dict[str, Any]:
 async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
     """Search books by title, author, or content"""
 
-    db = await get_db()
+    # Get all books
+    all_books = table_registry.query_rows('memory_documents', filters={'source_type': 'book'})
 
-    search_term = f"%{q}%"
+    # Filter books that match search term
+    search_term_lower = q.lower()
+    matching_books = []
+    for book in all_books:
+        title = getattr(book, 'title', '').lower()
+        authors = getattr(book, 'authors', '').lower()
+        summary = getattr(book, 'summary', '').lower()
+        notes = getattr(book, 'notes', '').lower()
 
-    books = await db.fetch_all(
-        """SELECT id, title, authors, trust_score, summary, notes
-           FROM memory_documents
-           WHERE source_type = 'book'
-           AND (title LIKE ? OR authors LIKE ? OR summary LIKE ? OR notes LIKE ?)
-           ORDER BY trust_score DESC
-           LIMIT ?""",
-        (search_term, search_term, search_term, search_term, limit)
-    )
+        if (search_term_lower in title or
+            search_term_lower in authors or
+            search_term_lower in summary or
+            search_term_lower in notes):
+            matching_books.append(book)
+
+    # Sort by trust_score descending and limit
+    sorted_books = sorted(
+        matching_books,
+        key=lambda x: getattr(x, 'trust_score', 0),
+        reverse=True
+    )[:limit]
 
     return [
         {
-            "document_id": book["id"],
-            "title": book["title"],
-            "author": book["authors"] if book["authors"] else "Unknown",
-            "trust_score": book["trust_score"],
-            "metadata": {"summary": book["summary"], "notes": book["notes"]} if book["summary"] or book["notes"] else {}
+            "document_id": getattr(book, 'id', None),
+            "title": getattr(book, 'title', 'Unknown'),
+            "author": getattr(book, 'authors', 'Unknown') or "Unknown",
+            "trust_score": getattr(book, 'trust_score', 0.0),
+            "metadata": {
+                "summary": getattr(book, 'summary', None),
+                "notes": getattr(book, 'notes', None)
+            } if getattr(book, 'summary', None) or getattr(book, 'notes', None) else {}
         }
-        for book in books
+        for book in sorted_books
     ]
 
 
@@ -226,26 +238,31 @@ async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
 async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
     """Get recent book-related activity from execution logs"""
 
-    db = await get_db()
+    # Get execution logs related to books
+    activity = table_registry.query_rows('memory_execution_logs', limit=1000)
 
-    # Use execution logs instead of librarian_log
-    activity = await db.fetch_all(
-        """SELECT agent_type, task_type, status, executed_at, result
-           FROM memory_execution_logs
-           WHERE agent_type LIKE '%book%' OR task_type LIKE '%book%'
-           ORDER BY executed_at DESC
-           LIMIT ?""",
-        (limit,)
-    )
+    # Filter for book-related activity
+    book_activity = [
+        log for log in activity
+        if ('book' in getattr(log, 'agent_type', '').lower() or
+            'book' in getattr(log, 'task_type', '').lower())
+    ]
+
+    # Sort by executed_at descending and limit
+    sorted_activity = sorted(
+        book_activity,
+        key=lambda x: getattr(x, 'executed_at', datetime.min),
+        reverse=True
+    )[:limit]
 
     return [
         {
-            "action": a["task_type"],
-            "target": f"{a['agent_type']}:{a['status']}",
-            "details": json.loads(a["result"]) if a["result"] else {},
-            "timestamp": a["executed_at"]
+            "action": getattr(log, 'task_type', 'unknown'),
+            "target": f"{getattr(log, 'agent_type', 'unknown')}:{getattr(log, 'status', 'unknown')}",
+            "details": getattr(log, 'result', {}) if getattr(log, 'result', None) else {},
+            "timestamp": getattr(log, 'executed_at', None)
         }
-        for a in activity
+        for log in sorted_activity
     ]
 
 
@@ -253,28 +270,39 @@ async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
 async def get_daily_metrics(days: int = 30) -> List[Dict[str, Any]]:
     """Get daily ingestion metrics"""
 
-    db = await get_db()
+    # Get all books
+    all_books = table_registry.query_rows('memory_documents', filters={'source_type': 'book'})
 
-    metrics = await db.fetch_all(
-        """SELECT
-               DATE(last_synced_at) as date,
-               COUNT(*) as books_added,
-               AVG(trust_score) as avg_trust
-           FROM memory_documents
-           WHERE source_type = 'book' AND last_synced_at >= datetime('now', ? || ' days')
-           GROUP BY DATE(last_synced_at)
-           ORDER BY date DESC""",
-        (f"-{days}",)
-    )
+    # Calculate date range
+    from datetime import datetime, timedelta
+    cutoff_date = datetime.now() - timedelta(days=days)
 
-    return [
-        {
-            "date": m["date"],
-            "books_added": m["books_added"],
-            "avg_trust_score": round(m["avg_trust"], 3) if m["avg_trust"] else 0.0
-        }
-        for m in metrics
-    ]
+    # Group by date
+    date_groups = {}
+    for book in all_books:
+        synced_at = getattr(book, 'last_synced_at', None)
+        if synced_at and synced_at >= cutoff_date:
+            date_str = synced_at.date().isoformat()
+            if date_str not in date_groups:
+                date_groups[date_str] = []
+            date_groups[date_str].append(book)
+
+    # Calculate metrics per date
+    metrics = []
+    for date_str, books in date_groups.items():
+        trust_scores = [getattr(book, 'trust_score', 0) for book in books if getattr(book, 'trust_score', None) is not None]
+        avg_trust = sum(trust_scores) / len(trust_scores) if trust_scores else 0.0
+
+        metrics.append({
+            "date": date_str,
+            "books_added": len(books),
+            "avg_trust_score": round(avg_trust, 3)
+        })
+
+    # Sort by date descending
+    metrics_sorted = sorted(metrics, key=lambda x: x["date"], reverse=True)
+
+    return metrics_sorted
 
 
 @router.post("/{document_id}/reverify")
@@ -306,34 +334,32 @@ async def reverify_book(document_id: str) -> Dict[str, Any]:
 async def delete_book(document_id: str) -> Dict[str, Any]:
     """Delete a book and all associated data"""
 
-    db = await get_db()
-
-    # Delete in order: verifications, insights, chunks, document
-    await db.execute(
-        "DELETE FROM memory_verification_suites WHERE document_id = ?",
-        (document_id,)
-    )
-
-    await db.execute(
-        "DELETE FROM memory_insights WHERE document_id = ?",
-        (document_id,)
-    )
-
-    # Check if chunks table exists before deleting
+    # Delete verifications
     try:
-        await db.execute(
-            "DELETE FROM memory_document_chunks WHERE document_id = ?",
-            (document_id,)
-        )
+        verifications = table_registry.query_rows('memory_verification_suites', filters={'document_id': document_id})
+        for v in verifications:
+            table_registry.update_row('memory_verification_suites', getattr(v, 'id', None), {'deleted': True})
+    except:
+        pass
+
+    # Delete insights
+    try:
+        insights = table_registry.query_rows('memory_insights', filters={'document_id': document_id})
+        for i in insights:
+            table_registry.update_row('memory_insights', getattr(i, 'id', None), {'deleted': True})
+    except:
+        pass
+
+    # Delete chunks if table exists
+    try:
+        chunks = table_registry.query_rows('memory_document_chunks', filters={'document_id': document_id})
+        for c in chunks:
+            table_registry.update_row('memory_document_chunks', getattr(c, 'id', None), {'deleted': True})
     except:
         pass  # Table might not exist
 
-    await db.execute(
-        "DELETE FROM memory_documents WHERE id = ?",
-        (document_id,)
-    )
-
-    await db.commit()
+    # Mark document as deleted (soft delete)
+    table_registry.update_row('memory_documents', document_id, {'deleted': True})
 
     return {
         "status": "deleted",
