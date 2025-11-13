@@ -478,10 +478,18 @@ class GraceUnifiedOrchestrator:
                 
                 # Initialize and start
                 await self.librarian_adapter.initialize()
-                
+
+                # Set the global kernel instance for API routes
+                try:
+                    from backend.routes import librarian_api
+                    librarian_api._librarian_kernel = self.librarian_kernel
+                    logger.info("✅ Librarian kernel instance set for API routes")
+                except Exception as e:
+                    logger.warning(f"Could not set librarian kernel for API: {e}")
+
                 self.domain_kernels['librarian'] = self.librarian_adapter
                 counts["kernels"] += 1
-                
+
                 logger.info("✅ Librarian Data Orchestrator started")
                 logger.info(f"   📁 Watching: {[str(p) for p in self.librarian_kernel.watch_paths]}")
                 logger.info(f"   🤖 Sub-agents ready: 4 types")

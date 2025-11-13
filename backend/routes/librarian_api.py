@@ -15,6 +15,24 @@ router = APIRouter(prefix="/api/librarian", tags=["librarian-kernel"])
 # Global kernel instance (will be initialized on startup)
 _librarian_kernel = None
 
+def get_librarian_kernel():
+    """Get the librarian kernel instance, trying multiple sources"""
+    global _librarian_kernel
+
+    if _librarian_kernel:
+        return _librarian_kernel
+
+    # Try to get from orchestrator
+    try:
+        from backend.unified_grace_orchestrator import orchestrator
+        if hasattr(orchestrator, 'librarian_kernel') and orchestrator.librarian_kernel:
+            _librarian_kernel = orchestrator.librarian_kernel
+            return _librarian_kernel
+    except Exception:
+        pass
+
+    return None
+
 
 class SpawnAgentRequest(BaseModel):
     agent_type: str
