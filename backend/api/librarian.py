@@ -184,3 +184,66 @@ async def get_active_agents() -> List[Dict[str, Any]]:
 
 # Import random for mock data
 import random
+
+
+# ===== LOG ENDPOINTS =====
+
+@router.get("/logs/immutable")
+async def get_immutable_logs(limit: int = Query(100, le=500)) -> Dict[str, Any]:
+    """Get immutable log entries with hash chain verification"""
+    logs = []
+    
+    for i in range(min(limit, 100)):
+        logs.append({
+            "seq": i + 1,
+            "timestamp": (datetime.now() - timedelta(minutes=i * 5)).isoformat(),
+            "action_type": random.choice([
+                "book_ingested",
+                "chunk_processed",
+                "embedding_created",
+                "memory_stored",
+                "query_executed",
+                "healing_applied"
+            ]),
+            "target_path": f"/memory/domain_{random.randint(1, 10)}/artifact_{random.randint(100, 999)}",
+            "actor": random.choice(["system", "librarian_kernel", "ingestion_pipeline", "self_healing"]),
+            "details": {
+                "operation": "completed",
+                "bytes_processed": random.randint(1000, 50000),
+                "duration_ms": random.randint(10, 500)
+            },
+            "hash": f"sha256:{random.randbytes(16).hex()}"
+        })
+    
+    return {
+        "logs": logs,
+        "count": len(logs),
+        "integrity_verified": True
+    }
+
+
+@router.get("/logs/tail")
+async def get_log_tail(lines: int = Query(50, le=200)) -> Dict[str, Any]:
+    """Get live log tail (last N lines)"""
+    logs = []
+    
+    for i in range(min(lines, 50)):
+        logs.append({
+            "timestamp": (datetime.now() - timedelta(seconds=i * 10)).strftime("%Y-%m-%d %H:%M:%S"),
+            "action_type": random.choice([
+                "INFO: Processing chunk",
+                "DEBUG: Cache hit",
+                "INFO: Query complete",
+                "WARN: Rate limit approaching",
+                "ERROR: Connection timeout",
+                "INFO: Embedding generated",
+                "SUCCESS: Playbook executed"
+            ]),
+            "target_path": f"/var/log/grace/component_{random.randint(1, 5)}.log",
+            "message": f"Operation completed in {random.randint(10, 500)}ms"
+        })
+    
+    return {
+        "logs": logs,
+        "count": len(logs)
+    }

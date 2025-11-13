@@ -3,6 +3,8 @@
  * Type-safe API helpers for all panels
  */
 
+// DEPRECATED: Use api/factory.ts instead for the new clean architecture
+// This file maintained for backwards compatibility
 const API_BASE = 'http://localhost:8000/api';
 
 // ===== TYPES =====

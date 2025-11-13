@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertTriangle, CheckCircle, Zap, Clock, TrendingUp, PlayCircle, Pause } from 'lucide-react';
-import { api, type SelfHealingStats, type Incident, type Playbook, type HealingAction, type ImmutableLog, type LogTailEntry } from '../api/comprehensive';
+import { api } from '../api/factory';  // New clean factory API - no circular imports
 
 interface IncidentStats {
   total_incidents: number;
@@ -45,18 +45,18 @@ interface HealingAction {
 }
 
 export function SelfHealingPanel() {
-  const [stats, setStats] = useState<SelfHealingStats>({
+  const [stats, setStats] = useState<any>({
     total_incidents: 0,
     active_incidents: 0,
     resolved_today: 0,
     average_resolution_time: 0,
     success_rate: 0
   });
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
-  const [recentActions, setRecentActions] = useState<HealingAction[]>([]);
-  const [immutableLogs, setImmutableLogs] = useState<ImmutableLog[]>([]);
-  const [tailedLogs, setTailedLogs] = useState<LogTailEntry[]>([]);
+  const [incidents, setIncidents] = useState<any[]>([]);
+  const [playbooks, setPlaybooks] = useState<any[]>([]);
+  const [recentActions, setRecentActions] = useState<any[]>([]);
+  const [immutableLogs, setImmutableLogs] = useState<any[]>([]);
+  const [tailedLogs, setTailedLogs] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'incidents' | 'playbooks' | 'actions' | 'logs'>('overview');
   const [isEnabled, setIsEnabled] = useState(true);
 
