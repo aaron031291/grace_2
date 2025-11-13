@@ -732,6 +732,14 @@ try:
     except Exception as e:
         logger.warning(f"File organizer routes not loaded: {e}")
     
+    # Unified Kernels API (access all 11 domain kernels)
+    try:
+        from backend.routes.kernels_api import router as kernels_router
+        app.include_router(kernels_router, prefix="/api", tags=["kernels"])
+        logger.info("Unified kernels API registered: /api/kernels")
+    except Exception as e:
+        logger.warning(f"Kernels API not loaded: {e}")
+    
     logger.info("Book system routes loaded (stubs ensure no JSON errors)")
 except Exception as e:
     logger.error(f"Failed to load book system routes: {e}")
