@@ -53,7 +53,7 @@ class MemoryFileService:
             node = {
                 "name": p.name,
                 "path": str(relative) if str(relative) != "." else "",
-                "type": "folder" if p.is_dir() else "file",
+                "type": "directory" if p.is_dir() else "file",
                 "id": str(hash(str(relative)))
             }
             
@@ -150,6 +150,65 @@ class MemoryFileService:
             "path": path,
             "created_at": datetime.now().isoformat()
         }
+    
+    def list_files(self, path: str = "") -> List[Dict[str, Any]]:
+        """List files and folders (returns array for compatibility)"""
+        tree = asyncio.run(self.get_file_tree(path)) if asyncio.get_event_loop().is_running() else asyncio.run(self.get_file_tree(path))
+        
+        # If this is the root, return the children array
+        if not path or path == "" or path == "/":
+            children = tree.get("children", [])
+            # Also check for other root folders
+            root_folders = [
+                Path("grace_training"),
+                Path("storage"),
+                Path("docs"),
+                Path("exports")
+            ]
+            result = []
+            for folder in root_folders:
+                if folder.exists() and folder != self.root_path:
+                    result.append({
+                        "name": folder.name,
+                        "path": str(folder),
+                        "type": "directory",
+                        "children": self._build_children(folder)
+                    })
+            # Add grace_training children
+            if children:
+                result.extend(children)
+            elif self.root_path.exists():
+                result.append(tree)
+            return result
+        
+        return tree.get("children", [tree])
+    
+    def _build_children(self, folder: Path) -> List[Dict[str, Any]]:
+        """Build children array for a folder"""
+        if not folder.is_dir():
+            return []
+        try:
+            children = []
+            for child in sorted(folder.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
+                if child.name.startswith('.') or child.name == '__pycache__':
+                    continue
+                node = {
+                    "name": child.name,
+                    "path": str(child),
+                    "type": "directory" if child.is_dir() else "file"
+                }
+                if child.is_file():
+                    stat = child.stat()
+                    node.update({
+                        "size": stat.st_size,
+                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
+                    })
+                elif child.is_dir():
+                    node["children"] = self._build_children(child)
+                children.append(node)
+            return children
+        except PermissionError:
+            return []
     
     async def search_files(self, query: str, file_types: List[str] = None) -> List[Dict[str, Any]]:
         """Search files by name or content"""

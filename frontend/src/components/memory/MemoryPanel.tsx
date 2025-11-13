@@ -10,7 +10,7 @@ import {
   renameFile,
   uploadFile,
   getLinkedRows,
-  TableRow,
+  type TableRow,
   getPendingSchemas,
 } from '../../api/memory';
 import './MemoryPanel.css';
