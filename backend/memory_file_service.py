@@ -153,35 +153,23 @@ class MemoryFileService:
     
     def list_files(self, path: str = "") -> List[Dict[str, Any]]:
         """List files and folders (returns array for compatibility)"""
-        tree = asyncio.run(self.get_file_tree(path)) if asyncio.get_event_loop().is_running() else asyncio.run(self.get_file_tree(path))
-        
-        # If this is the root, return the children array
-        if not path or path == "" or path == "/":
-            children = tree.get("children", [])
-            # Also check for other root folders
-            root_folders = [
-                Path("grace_training"),
-                Path("storage"),
-                Path("docs"),
-                Path("exports")
-            ]
-            result = []
-            for folder in root_folders:
-                if folder.exists() and folder != self.root_path:
-                    result.append({
-                        "name": folder.name,
-                        "path": str(folder),
-                        "type": "directory",
-                        "children": self._build_children(folder)
-                    })
-            # Add grace_training children
-            if children:
-                result.extend(children)
-            elif self.root_path.exists():
-                result.append(tree)
-            return result
-        
-        return tree.get("children", [tree])
+        # Check for other root folders
+        root_folders = [
+            Path("grace_training"),
+            Path("storage"),
+            Path("docs"),
+            Path("exports")
+        ]
+        result = []
+        for folder in root_folders:
+            if folder.exists():
+                result.append({
+                    "name": folder.name,
+                    "path": str(folder).replace('\\', '/'),
+                    "type": "directory",
+                    "children": self._build_children(folder)
+                })
+        return result
     
     def _build_children(self, folder: Path) -> List[Dict[str, Any]]:
         """Build children array for a folder"""
@@ -194,7 +182,7 @@ class MemoryFileService:
                     continue
                 node = {
                     "name": child.name,
-                    "path": str(child),
+                    "path": str(child).replace('\\', '/'),
                     "type": "directory" if child.is_dir() else "file"
                 }
                 if child.is_file():
