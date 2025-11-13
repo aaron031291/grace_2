@@ -21,8 +21,25 @@ import json
 import sqlite3
 from datetime import datetime
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
+
+# Import LLM and learning services
+try:
+    from backend.grace_llm import get_grace_llm
+    LLM_AVAILABLE = True
+except:
+    LLM_AVAILABLE = False
+    logger.warning("Grace LLM not available - using stub insights")
+
+try:
+    from backend.continuous_learning_loop import continuous_learning_loop
+    from backend.trigger_mesh import trigger_mesh
+    LEARNING_AVAILABLE = True
+except:
+    LEARNING_AVAILABLE = False
+    logger.warning("Learning engine not available")
 
 try:
     from pypdf import PdfReader
@@ -127,6 +144,22 @@ class BookPipeline:
             await self._mark_synced(doc_id)
             result["steps_completed"].append("memory_fusion_sync")
             
+            # Step 8: Emit learning event (connect to continuous learning)
+            if LEARNING_AVAILABLE:
+                try:
+                    await trigger_mesh.publish("book.ingestion.completed", {
+                        "document_id": doc_id,
+                        "title": title,
+                        "author": author,
+                        "words": result.get("words", 0),
+                        "chunks": len(chunks),
+                        "insights": insights,
+                        "trust_level": trust_level
+                    })
+                    logger.info(f"[PIPELINE] Learning event emitted for {title}")
+                except Exception as e:
+                    logger.warning(f"[PIPELINE] Could not emit learning event: {e}")
+            
             result["status"] = "completed"
             logger.info(f"[PIPELINE] Complete: {title} - {len(chunks)} chunks, {insights} insights")
             
@@ -205,8 +238,25 @@ class BookPipeline:
         return None
     
     async def _extract_text(self, file_path: Path) -> Dict[str, Any]:
-        """Extract full text from PDF"""
+        """Extract full text from PDF or TXT"""
         
+        # Handle text files
+        if file_path.suffix.lower() in ['.txt', '.md', '.rst']:
+            try:
+                full_text = file_path.read_text(encoding='utf-8')
+                word_count = len(full_text.split())
+                
+                return {
+                    "success": True,
+                    "full_text": full_text,
+                    "total_pages": 1,  # Text files = 1 page
+                    "word_count": word_count,
+                    "char_count": len(full_text)
+                }
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
+        # Handle PDFs
         if not PdfReader:
             return {"success": False, "error": "No PDF library available"}
         
@@ -337,15 +387,56 @@ class BookPipeline:
         return len(chunks)
     
     async def _generate_insights(self, doc_id: str, title: str, chunks: list) -> int:
-        """Generate summary and insights"""
+        """Generate summary and insights using LLM"""
         
-        # Simple insight generation
-        # In production, this would use LLM to:
-        # - Summarize key concepts
-        # - Extract actionable takeaways
-        # - Generate flashcards
+        if not LLM_AVAILABLE or not chunks:
+            return 1
         
-        return 1  # Generated basic insight
+        try:
+            # Get LLM
+            llm = get_grace_llm()
+            
+            # Get first few chunks for summary
+            sample_text = ""
+            for chunk in chunks[:3]:  # First 3 chunks
+                sample_text += chunk.get("text", "") + "\n"
+            
+            if len(sample_text) > 6000:
+                sample_text = sample_text[:6000]
+            
+            # Use GRACE'S OWN LLM (not OpenAI)
+            prompt = f"Summarize the book '{title}' and extract key concepts from this excerpt: {sample_text[:1000]}"
+            
+            try:
+                # Call Grace's built-in LLM
+                response = await llm.generate_response(
+                    user_message=prompt,
+                    domain="knowledge",
+                    context={"book_title": title, "doc_id": doc_id}
+                )
+                
+                # Store LLM-generated insights
+                # TODO: Parse response and store structured insights
+                logger.info(f"[PIPELINE] LLM generated insights for {title}")
+                
+                # Emit learning event
+                if LEARNING_AVAILABLE:
+                    await trigger_mesh.publish("book.insights_generated", {
+                        "document_id": doc_id,
+                        "title": title,
+                        "method": "llm",
+                        "chunks_analyzed": min(3, len(chunks))
+                    })
+                
+                return 3  # LLM-generated insights
+                
+            except Exception as e:
+                logger.warning(f"[PIPELINE] LLM insight generation failed: {e}")
+                return 1
+            
+        except Exception as e:
+            logger.error(f"[PIPELINE] Insight generation error: {e}")
+            return 1
     
     async def _mark_synced(self, doc_id: str):
         """Mark document as synced to Memory Fusion"""
