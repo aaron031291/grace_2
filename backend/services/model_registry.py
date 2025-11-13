@@ -608,7 +608,7 @@ class ModelRegistry:
         # Generate markdown content
         content = self._generate_model_card_content(entry)
         
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             f.write(content)
         
         # Update registry with model card path
@@ -620,6 +620,14 @@ class ModelRegistry:
     
     def _generate_model_card_content(self, entry: ModelRegistryEntry) -> str:
         """Generate model card markdown content"""
+        # Safely format all fields
+        training_duration = f"{entry.training_duration_minutes:.1f}" if entry.training_duration_minutes is not None else "N/A"
+        latency_p50 = f"{entry.expected_latency_p50_ms:.1f}" if entry.expected_latency_p50_ms is not None else "N/A"
+        latency_p95 = f"{entry.expected_latency_p95_ms:.1f}" if entry.expected_latency_p95_ms is not None else "N/A"
+        throughput = f"{entry.expected_throughput_rps:.0f}" if entry.expected_throughput_rps is not None else "N/A"
+        calibration = f"{entry.calibration_error:.4f}" if entry.calibration_error is not None else "N/A"
+        canary_pct = entry.canary_percentage if entry.canary_percentage is not None else 0.0
+        
         return f"""# Model Card: {entry.name}
 
 ## Model Details
@@ -640,20 +648,20 @@ class ModelRegistry:
 - **Dataset Hash**: `{entry.training_data_hash}`
 - **Dataset Size**: {entry.training_dataset_size:,} samples
 - **Trained**: {entry.training_timestamp.isoformat()}
-- **Training Duration**: {entry.training_duration_minutes:.1f} minutes
+- **Training Duration**: {training_duration} minutes
 - **Git Commit**: {entry.git_commit_hash or "N/A"}
 
 ## Evaluation Metrics
 
 {self._format_metrics(entry.evaluation_metrics)}
 
-- **Calibration Error (ECE)**: {entry.calibration_error:.4f if entry.calibration_error else "N/A"}
+- **Calibration Error (ECE)**: {calibration}
 
 ## Performance Characteristics
 
-- **Expected Latency (p50)**: {entry.expected_latency_p50_ms:.1f} ms
-- **Expected Latency (p95)**: {entry.expected_latency_p95_ms:.1f} ms
-- **Expected Throughput**: {entry.expected_throughput_rps:.0f} req/s
+- **Expected Latency (p50)**: {latency_p50} ms
+- **Expected Latency (p95)**: {latency_p95} ms
+- **Expected Throughput**: {throughput} req/s
 
 ## Governance
 
@@ -664,11 +672,11 @@ class ModelRegistry:
 ## Deployment
 
 - **Deployed At**: {entry.deployed_at.isoformat() if entry.deployed_at else "Not deployed"}
-- **Canary Percentage**: {entry.canary_percentage}%
+- **Canary Percentage**: {canary_pct}%
 
 ## Tags
 
-{', '.join(f"`{tag}`" for tag in entry.tags)}
+{', '.join(f"`{tag}`" for tag in entry.tags) if entry.tags else "No tags"}
 
 ## Artifacts
 
