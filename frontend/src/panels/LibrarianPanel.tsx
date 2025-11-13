@@ -20,8 +20,12 @@ import {
   Shield,
   AlertCircle,
   Check,
-  X
+  X,
+  Calendar,
+  List
 } from 'lucide-react';
+import { LibrarianActivityFeed } from '../components/LibrarianActivityFeed';
+import { LibrarianManifest } from '../components/LibrarianManifest';
 
 interface KernelStatus {
   kernel_id: string;
@@ -63,6 +67,7 @@ interface SchemaProposal {
 }
 
 export function LibrarianPanel() {
+  const [view, setView] = useState<'overview' | 'activity' | 'manifest'>('overview');
   const [kernelStatus, setKernelStatus] = useState<KernelStatus | null>(null);
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   const [activeAgents, setActiveAgents] = useState<Agent[]>([]);
@@ -214,6 +219,30 @@ export function LibrarianPanel() {
             </div>
           </div>
 
+          {/* View Tabs */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setView('overview')}
+              className={`px-3 py-1 rounded text-sm ${view === 'overview' ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'}`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setView('activity')}
+              className={`px-3 py-1 rounded text-sm ${view === 'activity' ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'}`}
+            >
+              <List className="w-4 h-4 inline mr-1" />
+              Activity
+            </button>
+            <button
+              onClick={() => setView('manifest')}
+              className={`px-3 py-1 rounded text-sm ${view === 'manifest' ? 'bg-purple-600' : 'bg-gray-800 hover:bg-gray-700'}`}
+            >
+              <Calendar className="w-4 h-4 inline mr-1" />
+              Daily
+            </button>
+          </div>
+
           {/* Kernel Controls */}
           {kernelStatus && (
             <div className="flex gap-2">
@@ -287,6 +316,11 @@ export function LibrarianPanel() {
         )}
       </div>
 
+      {/* Content based on view */}
+      {view === 'activity' && <LibrarianActivityFeed />}
+      {view === 'manifest' && <LibrarianManifest />}
+      
+      {view === 'overview' && (
       <div className="flex-1 overflow-auto p-4 space-y-4">
         {/* Work Queues */}
         <div className="bg-gray-800 rounded-lg p-4">
@@ -481,6 +515,7 @@ export function LibrarianPanel() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
