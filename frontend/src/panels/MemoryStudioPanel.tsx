@@ -47,9 +47,10 @@ interface Metrics {
 import GraceOverview from '../components/GraceOverview';
 import CommandPalette from '../components/CommandPalette';
 import OnboardingWalkthrough from '../components/OnboardingWalkthrough';
+import SelfHealingPanel from '../components/SelfHealingPanel';
 
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'overview' | 'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books' | 'organizer'>('overview');
+  const [view, setView] = useState<'overview' | 'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books' | 'organizer' | 'healing'>('overview');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -254,6 +255,17 @@ export function MemoryStudioPanel() {
           <FolderTree size={16} />
           <span>🗂️ Organizer</span>
         </button>
+        <button
+          onClick={() => setView('healing')}
+          style={{
+            ...tabStyle,
+            background: view === 'healing' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: view === 'healing' ? '#a78bfa' : '#9ca3af'
+          }}
+        >
+          <Zap size={16} />
+          <span>⚡ Self-Healing</span>
+        </button>
       </div>
 
       {/* Content Area */}
@@ -270,6 +282,7 @@ export function MemoryStudioPanel() {
         {view === 'librarian' && <LibrarianPanel />}
         {view === 'books' && <BookLibraryPanel />}
         {view === 'organizer' && <FileOrganizerPanel />}
+        {view === 'healing' && <SelfHealingPanel />}
       </div>
       </div>
     </>
