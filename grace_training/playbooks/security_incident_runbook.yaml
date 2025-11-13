@@ -1,0 +1,266 @@
+version: "2.0"
+runbook_name: "Security Incident Response"
+description: "Step-by-step procedures for handling security incidents"
+owner: "security-team"
+last_updated: "2025-01-10"
+
+incident_classification:
+  p0_critical:
+    description: "Active data breach, system compromise, ransom ware"
+    response_time: "immediate"
+    escalation: ["CISO", "CEO", "Legal"]
+  p1_high:
+    description: "Unauthorized access attempt, DDoS attack, vulnerability exploitation"
+    response_time: "15 minutes"
+    escalation: ["Security Lead", "VP Engineering"]
+  p2_medium:
+    description: "Suspicious activity, failed intrusion attempt, policy violation"
+    response_time: "1 hour"
+    escalation: ["Security Team"]
+  p3_low:
+    description: "Security scan findings, minor policy violations"
+    response_time: "24 hours"
+    escalation: ["Security Analyst"]
+
+response_phases:
+  phase_1_detection:
+    name: "Detection & Identification"
+    steps:
+      - id: "D1"
+        action: "Receive and log alert"
+        responsible: "On-call Security Analyst"
+        tools: ["PagerDuty", "SIEM", "IDS/IPS"]
+      - id: "D2"
+        action: "Initial assessment and classification"
+        responsible: "On-call Security Analyst"
+        tasks:
+          - "Determine incident type"
+          - "Assess severity level"
+          - "Identify affected systems"
+      - id: "D3"
+        action: "Escalate if necessary"
+        responsible: "On-call Security Analyst"
+        conditions:
+          - "severity >= P1"
+          - "customer data potentially exposed"
+          - "production systems affected"
+
+  phase_2_containment:
+    name: "Containment"
+    steps:
+      - id: "C1"
+        action: "Isolate affected systems"
+        responsible: "Security Team + SRE"
+        procedures:
+          - "Disconnect compromised hosts from network"
+          - "Disable compromised user accounts"
+          - "Block malicious IP addresses"
+          - "Revoke exposed credentials"
+      - id: "C2"
+        action: "Preserve evidence"
+        responsible: "Security Team"
+        procedures:
+          - "Create disk images of affected systems"
+          - "Capture memory dumps"
+          - "Export relevant logs"
+          - "Document timeline of events"
+      - id: "C3"
+        action: "Implement temporary controls"
+        responsible: "Security Team"
+        procedures:
+          - "Enable additional monitoring"
+          - "Restrict access to critical systems"
+          - "Deploy emergency patches if available"
+
+  phase_3_eradication:
+    name: "Eradication"
+    steps:
+      - id: "E1"
+        action: "Identify root cause"
+        responsible: "Security Team + Engineering"
+        tasks:
+          - "Analyze attack vectors"
+          - "Identify vulnerabilities exploited"
+          - "Determine scope of compromise"
+      - id: "E2"
+        action: "Remove threat"
+        responsible: "Security Team + SRE"
+        procedures:
+          - "Remove malware/backdoors"
+          - "Close vulnerability"
+          - "Reset compromised credentials"
+          - "Rebuild compromised systems"
+      - id: "E3"
+        action: "Verify eradication"
+        responsible: "Security Team"
+        tasks:
+          - "Scan for remaining threats"
+          - "Verify vulnerability closure"
+          - "Review access logs"
+
+  phase_4_recovery:
+    name: "Recovery"
+    steps:
+      - id: "R1"
+        action: "Restore services"
+        responsible: "SRE + Engineering"
+        procedures:
+          - "Restore from clean backups if needed"
+          - "Bring systems back online gradually"
+          - "Monitor for re-infection"
+      - id: "R2"
+        action: "Validate system integrity"
+        responsible: "Security Team + SRE"
+        checks:
+          - "File integrity verification"
+          - "Configuration validation"
+          - "Access control verification"
+          - "Functionality testing"
+      - id: "R3"
+        action: "Resume normal operations"
+        responsible: "Incident Commander"
+        conditions:
+          - "All threats eradicated"
+          - "Systems verified clean"
+          - "Monitoring in place"
+
+  phase_5_post_incident:
+    name: "Post-Incident Activities"
+    steps:
+      - id: "P1"
+        action: "Conduct post-mortem"
+        responsible: "Incident Commander"
+        timeline: "within 3 days"
+        deliverables:
+          - "Incident timeline"
+          - "Root cause analysis"
+          - "Lessons learned"
+          - "Action items"
+      - id: "P2"
+        action: "Notify stakeholders"
+        responsible: "CISO + Legal"
+        tasks:
+          - "Notify affected customers (if applicable)"
+          - "Regulatory notification (if required)"
+          - "Internal communication"
+      - id: "P3"
+        action: "Implement improvements"
+        responsible: "Security Team + Engineering"
+        tasks:
+          - "Deploy permanent fixes"
+          - "Update security controls"
+          - "Enhance monitoring"
+          - "Update documentation"
+
+incident_specific_procedures:
+  data_breach:
+    steps:
+      - "Immediately isolate affected databases"
+      - "Identify scope of data exposure"
+      - "Notify Legal and Compliance within 1 hour"
+      - "Prepare customer notification"
+      - "Prepare regulatory notification (GDPR: 72 hours)"
+    checklist:
+      - "Preserve forensic evidence"
+      - "Document all affected records"
+      - "Coordinate with Legal on disclosure"
+      - "Prepare FAQ for customer support"
+
+  ransomware:
+    steps:
+      - "DO NOT pay ransom without executive approval"
+      - "Immediately isolate all potentially affected systems"
+      - "Disable network shares and backup connections"
+      - "Identify patient zero"
+      - "Restore from clean offline backups"
+    checklist:
+      - "Contact law enforcement (FBI)"
+      - "Engage cyber insurance provider"
+      - "Engage forensics firm if needed"
+      - "Document ransom note and communications"
+
+  ddos_attack:
+    steps:
+      - "Activate DDoS mitigation (CloudFlare/AWS Shield)"
+      - "Analyze traffic patterns"
+      - "Implement rate limiting"
+      - "Block attacking IPs/regions"
+      - "Scale infrastructure if needed"
+    checklist:
+      - "Monitor application performance"
+      - "Communicate with customers about potential delays"
+      - "Document attack characteristics"
+      - "Report to ISP/hosting provider"
+
+  insider_threat:
+    steps:
+      - "Involve HR and Legal immediately"
+      - "Disable user accounts discreetly"
+      - "Preserve evidence (logs, files, emails)"
+      - "Review access logs for data exfiltration"
+      - "Coordinate with HR on employee communication"
+    checklist:
+      - "Document all evidence"
+      - "Maintain chain of custody"
+      - "Coordinate with Legal on potential legal action"
+      - "Review and revoke all access"
+
+communication_templates:
+  internal_notification:
+    subject: "[P{severity}] Security Incident - {incident_type}"
+    recipients: ["security-team@grace-platform.com", "exec-team@grace-platform.com"]
+    content: |
+      Incident ID: {incident_id}
+      Severity: P{severity}
+      Type: {incident_type}
+      Status: {status}
+      Affected Systems: {systems}
+      Next Update: {next_update_time}
+
+  customer_notification:
+    subject: "Important Security Notice - {company_name}"
+    content: |
+      Dear {customer_name},
+      
+      We are writing to inform you of a security incident that occurred on {incident_date}.
+      
+      What happened: {incident_summary}
+      What data was affected: {affected_data}
+      What we're doing: {remediation_actions}
+      What you should do: {customer_actions}
+      
+      For questions, contact: security@grace-platform.com
+
+contacts:
+  security_team:
+    email: "security@grace-platform.com"
+    slack: "#security-incidents"
+    phone: "+1-555-GRACE-SEC"
+  
+  legal:
+    email: "legal@grace-platform.com"
+    phone: "+1-555-555-0100"
+  
+  pr_team:
+    email: "pr@grace-platform.com"
+  
+  cyber_insurance:
+    provider: "Acme Cyber Insurance"
+    policy_number: "CYB-12345"
+    phone: "+1-800-CYBER-HELP"
+
+tools:
+  - name: "SIEM"
+    url: "https://siem.grace-platform.com"
+    purpose: "Log analysis and correlation"
+  
+  - name: "IDS/IPS"
+    url: "https://ids.grace-platform.com"
+    purpose: "Intrusion detection"
+  
+  - name: "Forensics Tools"
+    tools: ["FTK Imager", "Volatility", "Wireshark"]
+  
+  - name: "Incident Tracking"
+    url: "https://jira.grace-platform.com/projects/SEC"
+    purpose: "Track incident response tasks"

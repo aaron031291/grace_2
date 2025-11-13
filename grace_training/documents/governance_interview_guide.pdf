@@ -1,0 +1,148 @@
+# GRACE Governance Interview Guide
+
+## Purpose
+This guide provides structured interview questions and evaluation criteria for assessing governance-related roles and understanding governance requirements from stakeholders.
+
+## Interview Categories
+
+### 1. Technical Governance Roles
+
+#### For Governance Engineer Candidates
+
+**Technical Competency Questions:**
+
+Q1: "Explain how you would design an immutable audit log system."
+- Looking for: Understanding of append-only data structures, cryptographic hashing, distributed systems
+- Red flags: Suggesting mutable databases, no mention of integrity verification
+
+Q2: "How would you ensure compliance with GDPR's right to erasure while maintaining audit trail integrity?"
+- Looking for: Pseudonymization, data separation, reference tables
+- Red flags: Suggesting deletion from audit logs, lack of understanding of legal requirements
+
+Q3: "Describe your approach to implementing role-based access control (RBAC) at scale."
+- Looking for: Hierarchical roles, permission inheritance, caching strategies
+- Red flags: Over-complicated solutions, performance issues ignored
+
+**Problem-Solving Scenarios:**
+
+Scenario 1: "A customer requests a compliance report showing all AI decisions made in the last quarter. Walk me through your solution."
+- Expected approach: Query audit logs, aggregate by decision type, generate formatted report, include metadata
+- Evaluation: Completeness, performance consideration, data privacy
+
+Scenario 2: "We need to implement a policy that prevents any deployment to production without two approvals. How would you implement this?"
+- Expected approach: Approval workflow, policy enforcement, audit trail, rollback mechanism
+- Evaluation: Security, usability, error handling
+
+#### For Compliance/Policy Roles
+
+Q1: "What experience do you have with SOC 2, GDPR, or other compliance frameworks?"
+Q2: "How do you stay current with changing regulatory requirements?"
+Q3: "Describe a time you identified and mitigated a compliance risk."
+
+### 2. Customer Governance Interviews
+
+#### Understanding Requirements
+
+**Opening Questions:**
+- "What governance challenges are you currently facing?"
+- "What regulatory frameworks do you need to comply with?"
+- "Who are the stakeholders that need visibility into AI decisions?"
+
+**Deep Dive Questions:**
+
+Audit & Traceability:
+- "How long do you need to retain audit records?"
+- "What level of detail do you need in audit logs?"
+- "How quickly do you need to generate compliance reports?"
+
+Access Control:
+- "How many user roles do you have in your organization?"
+- "What approval workflows are currently in place?"
+- "How do you handle privileged access?"
+
+Risk Management:
+- "What are your highest risk AI use cases?"
+- "How do you currently assess model risk?"
+- "What's your process for incident response?"
+
+#### Evaluation Rubric
+
+| Criteria | Score 1-5 | Notes |
+|----------|-----------|-------|
+| Complexity of governance needs | | |
+| Regulatory requirements | | |
+| Scale (users, transactions) | | |
+| Technical sophistication | | |
+| Budget/timeline constraints | | |
+
+## Sample Interview Flow
+
+### Part 1: Introduction (10 mins)
+- Interviewer introduction
+- Candidate/stakeholder background
+- Overview of GRACE platform
+- Agenda review
+
+### Part 2: Technical Deep Dive (30 mins)
+- Technical questions based on role
+- Problem-solving scenarios
+- System design discussions
+
+### Part 3: Behavioral/Situational (15 mins)
+- Past experience with governance
+- Handling conflicts or challenges
+- Communication skills assessment
+
+### Part 4: Q&A (5 mins)
+- Candidate questions
+- Next steps
+- Timeline
+
+## Evaluation Criteria
+
+### Technical Skills (40%)
+- Understanding of governance concepts
+- System design capabilities
+- Security knowledge
+- Compliance framework familiarity
+
+### Problem-Solving (30%)
+- Analytical thinking
+- Creativity in solutions
+- Practical approach
+- Trade-off awareness
+
+### Communication (20%)
+- Clarity of explanations
+- Active listening
+- Stakeholder management
+- Documentation skills
+
+### Cultural Fit (10%)
+- Alignment with company values
+- Collaboration approach
+- Growth mindset
+- Ownership mentality
+
+## Red Flags to Watch For
+
+❌ Lack of security awareness
+❌ No experience with compliance frameworks
+❌ Poor communication skills
+❌ Over-engineering simple solutions
+❌ Inability to explain trade-offs
+❌ No questions about the role/company
+
+## Follow-up Actions
+
+After interview:
+1. Debrief with interview panel within 24 hours
+2. Complete scorecard and submit feedback
+3. Check references for top candidates
+4. Extend offer or provide feedback to recruiter
+
+## Contact
+
+For questions about this guide:
+- **Hiring Manager**: governance-lead@grace-platform.com
+- **Recruiting**: talent@grace-platform.com
