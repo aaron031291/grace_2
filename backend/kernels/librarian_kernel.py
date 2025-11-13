@@ -27,12 +27,18 @@ class FileSystemWatcher(FileSystemEventHandler):
     
     def on_created(self, event: FileSystemEvent):
         if not event.is_directory and self.loop:
+            # Check if it's a book file
+            file_path = Path(event.src_path)
+            is_book = 'books' in str(file_path) and file_path.suffix.lower() in ['.pdf', '.epub']
+            
             # Schedule coroutine on the main event loop (thread-safe)
             asyncio.run_coroutine_threadsafe(
                 self.queue.put({
                     'type': 'file_created',
                     'path': event.src_path,
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.utcnow().isoformat(),
+                    'is_book': is_book,
+                    'file_type': file_path.suffix.lower()
                 }),
                 self.loop
             )
@@ -312,20 +318,37 @@ class LibrarianKernel(BaseDomainKernel):
         """Handle a filesystem event"""
         event_type = event.get('type')
         file_path = event.get('path')
+        is_book = event.get('is_book', False)
+        file_type = event.get('file_type', '')
         
-        logger.info(f"Filesystem event: {event_type} - {file_path}")
+        logger.info(f"Filesystem event: {event_type} - {file_path} (book={is_book})")
         
         if event_type == 'file_created':
             # Queue for schema inference
             await self.schema_queue.put({
                 'type': 'new_file',
                 'path': file_path,
-                'timestamp': event.get('timestamp')
+                'timestamp': event.get('timestamp'),
+                'is_book': is_book,
+                'file_type': file_type
             })
+            
+            # If it's a book, prioritize it for book ingestion pipeline
+            if is_book:
+                await self.ingestion_queue.put({
+                    'type': 'book_ingestion',
+                    'path': file_path,
+                    'pipeline': 'book_ingestion',
+                    'priority': 'high',
+                    'timestamp': event.get('timestamp')
+                })
+                
+                logger.info(f"Book detected, queued for specialized ingestion: {file_path}")
             
             await self._emit_event('file.created', {
                 'path': file_path,
-                'queued_for_processing': True
+                'queued_for_processing': True,
+                'is_book': is_book
             })
         
         elif event_type == 'file_modified':

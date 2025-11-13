@@ -87,6 +87,28 @@ class IngestionPipeline(BaseComponent):
             "output": "vector_store"
         }
         
+        # Book Ingestion Pipeline
+        self.pipeline_configs['book_ingestion'] = {
+            "name": "Book Processing & Learning",
+            "description": "Extract, chunk, summarize, and learn from books (PDF/EPUB)",
+            "file_types": [".pdf", ".epub"],
+            "target_paths": ["grace_training/documents/books/"],
+            "stages": [
+                {"name": "metadata", "processor": "extract_book_metadata"},
+                {"name": "extract", "processor": "extract_book_text"},
+                {"name": "chapters", "processor": "detect_chapters"},
+                {"name": "chunk", "processor": "chunk_by_chapter", "config": {"chunk_size": 1024, "overlap": 128}},
+                {"name": "embed", "processor": "generate_embeddings"},
+                {"name": "summarize", "processor": "generate_chapter_summaries"},
+                {"name": "flashcards", "processor": "create_flashcards"},
+                {"name": "sync", "processor": "sync_memory_fusion"},
+                {"name": "verify", "processor": "queue_verification"}
+            ],
+            "output": "memory_documents",
+            "trust_scoring": True,
+            "verification_required": True
+        }
+        
         # Code Analysis Pipeline
         self.pipeline_configs['code_analysis'] = {
             "name": "Code Analysis & Indexing",

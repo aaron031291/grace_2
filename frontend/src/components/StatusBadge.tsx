@@ -15,7 +15,7 @@ export type BadgeStatus =
   | 'untrusted'
   | 'synced';
 
-interface StatusBadgeProps {
+export interface StatusBadgeProps {
   status: BadgeStatus;
   size?: 'sm' | 'md';
 }
