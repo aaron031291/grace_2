@@ -1,6 +1,6 @@
 """
 Simple Database Helper for Grace
-Provides async database access using aiosqlite
+Provides async database access using aiosqlite with helper methods
 """
 
 import aiosqlite
@@ -12,10 +12,44 @@ from typing import Optional, List, Dict, Any
 DB_PATH = "databases/memory_fusion.db"
 
 # Global connection (singleton)
-_db_connection: Optional[aiosqlite.Connection] = None
+_db_connection: Optional['DatabaseConnection'] = None
 
 
-async def get_db() -> aiosqlite.Connection:
+class DatabaseConnection:
+    """Wrapper around aiosqlite.Connection with helper methods"""
+    
+    def __init__(self, conn: aiosqlite.Connection):
+        self.conn = conn
+        self.conn.row_factory = aiosqlite.Row
+    
+    async def execute(self, sql: str, parameters: tuple = None):
+        """Execute SQL statement"""
+        if parameters:
+            return await self.conn.execute(sql, parameters)
+        return await self.conn.execute(sql)
+    
+    async def commit(self):
+        """Commit transaction"""
+        await self.conn.commit()
+    
+    async def fetch_one(self, sql: str, parameters: tuple = None):
+        """Fetch single row"""
+        cursor = await self.execute(sql, parameters)
+        row = await cursor.fetchone()
+        return dict(row) if row else None
+    
+    async def fetch_all(self, sql: str, parameters: tuple = None):
+        """Fetch all rows"""
+        cursor = await self.execute(sql, parameters)
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+    
+    async def close(self):
+        """Close connection"""
+        await self.conn.close()
+
+
+async def get_db() -> DatabaseConnection:
     """Get database connection (singleton)"""
     global _db_connection
     
@@ -25,8 +59,8 @@ async def get_db() -> aiosqlite.Connection:
         db_path.parent.mkdir(parents=True, exist_ok=True)
         
         # Create connection
-        _db_connection = await aiosqlite.connect(str(db_path))
-        _db_connection.row_factory = aiosqlite.Row
+        conn = await aiosqlite.connect(str(db_path))
+        _db_connection = DatabaseConnection(conn)
         
     return _db_connection
 
