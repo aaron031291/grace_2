@@ -12,7 +12,7 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 interface FileEntry {
   name: string;
   path: string;
-  type: 'file' | 'directory';
+  type: 'file' | 'directory' | 'folder';
   size?: number;
   modified?: string;
 }
@@ -59,8 +59,8 @@ export function MemoryWorkspace() {
         items = response.data.children;
       }
       
-      // Separate folders and files
-      const folders = items.filter(item => item.type === 'directory');
+      // Separate folders and files (handle both 'directory' and 'folder' types)
+      const folders = items.filter(item => item.type === 'directory' || item.type === 'folder');
       const files = items.filter(item => item.type === 'file');
       
       setFolderData({ path, folders, files });
