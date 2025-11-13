@@ -149,7 +149,7 @@ export const memory = {
 
 export const ingestion = {
   async getStatus() {
-    return fetchJSON('/ingestion/status');
+    return fetchJSON('/api/ingestion/status');
   },
   
   async listJobs(status?: string, limit = 20) {

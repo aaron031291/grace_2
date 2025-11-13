@@ -623,6 +623,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Log watcher not started: {e}")
     
+    try:
+        from backend.services.model_rollback_monitor import model_rollback_monitor
+        await model_rollback_monitor.start()
+        logger.info("✅ Model Rollback Monitor started (checking model health)")
+    except Exception as e:
+        logger.warning(f"Model rollback monitor not started: {e}")
+    
     yield
     
     # Shutdown - stop Grace when uvicorn stops
@@ -720,13 +727,14 @@ except Exception as e:
 # FACTORY PATTERN API - New clean modular routers
 try:
     logger.info("Loading factory pattern API routers...")
-    from backend.api import events, automation, patches, monitoring
+    from backend.api import events, automation, patches, monitoring, model_registry
     
-    app.include_router(events.router)
-    app.include_router(automation.router)
-    app.include_router(patches.router)
-    app.include_router(monitoring.router)
-    logger.info("✅ Factory API routers registered (events, automation, patches, monitoring)")
+    app.include_router(events.router, prefix="/api")
+    app.include_router(automation.router, prefix="/api")
+    app.include_router(patches.router, prefix="/api")
+    app.include_router(monitoring.router, prefix="/api")
+    app.include_router(model_registry.router, prefix="/api")
+    logger.info("✅ Factory API routers registered (events, automation, patches, monitoring, model_registry)")
 except Exception as e:
     logger.error(f"Failed to register factory API routers: {e}")
 

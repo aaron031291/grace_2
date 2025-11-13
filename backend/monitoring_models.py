@@ -85,6 +85,61 @@ class SelfHealingExecution(Base):
         }
 
 
+class ModelPerformanceLog(Base):
+    """
+    Tracks model performance metrics over time
+    For drift detection and rollback triggers
+    """
+    __tablename__ = "memory_model_performance"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    model_id = Column(String, nullable=False, index=True)
+    version = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=func.now(), nullable=False)
+    
+    # Latency metrics
+    latency_p50_ms = Column(Float)
+    latency_p95_ms = Column(Float)
+    latency_p99_ms = Column(Float)
+    
+    # Throughput
+    requests_per_second = Column(Float)
+    
+    # Quality metrics
+    accuracy = Column(Float)
+    calibration_error = Column(Float)
+    
+    # Operational
+    error_rate = Column(Float, default=0.0)
+    timeout_rate = Column(Float, default=0.0)
+    
+    # Drift scores
+    input_drift_score = Column(Float)
+    output_drift_score = Column(Float)
+    
+    # OOD detection
+    ood_rate = Column(Float, default=0.0)
+    
+    # Sample size
+    num_requests = Column(Integer, default=0)
+    
+    # GPU metrics
+    gpu_memory_mb = Column(Float)
+    gpu_utilization_percent = Column(Float)
+    device = Column(String)
+    
+    def to_dict(self):
+        return {
+            "model_id": self.model_id,
+            "version": self.version,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
+            "latency_p95_ms": self.latency_p95_ms,
+            "error_rate": self.error_rate,
+            "ood_rate": self.ood_rate,
+            "num_requests": self.num_requests,
+        }
+
+
 class ActiveAgent(Base):
     """
     Tracks active sub-agents working on incidents
