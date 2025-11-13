@@ -41,6 +41,19 @@ class BookIngestionAgent(BaseComponent):
         self.activated_at = datetime.utcnow()
         return True
     
+    async def deactivate(self) -> bool:
+        """Deactivate the agent"""
+        self.set_status(ComponentStatus.INACTIVE)
+        return True
+    
+    async def get_status(self) -> Dict[str, Any]:
+        """Get agent status"""
+        return {
+            "component_id": self.component_id,
+            "status": self.status.value if hasattr(self, 'status') else "unknown",
+            "activated_at": self.activated_at.isoformat() if hasattr(self, 'activated_at') and self.activated_at else None
+        }
+    
     async def process_book(self, file_path: Path, metadata: Optional[Dict] = None) -> Dict[str, Any]:
         """
         Main entry point for book ingestion
