@@ -778,6 +778,22 @@ try:
     except Exception as e:
         logger.warning(f"Real book upload not loaded: {e}")
     
+    # Business Intelligence API (Data + Books → Opportunities)
+    try:
+        from backend.api.business_intelligence import router as business_router
+        app.include_router(business_router, prefix="/api", tags=["business"])
+        logger.info("✅ Business Intelligence API connected: Data + 26 Books → Opportunity Finder")
+    except Exception as e:
+        logger.warning(f"Business Intelligence API not loaded: {e}")
+    
+    # Integrations API (Hunter Bridge + Verification Charter)
+    try:
+        from backend.api.integrations import router as integrations_router
+        app.include_router(integrations_router, prefix="/api", tags=["integrations"])
+        logger.info("✅ Integrations API: Hunter Bridge + Verification Charter → Safe External Connections")
+    except Exception as e:
+        logger.warning(f"Integrations API not loaded: {e}")
+    
     # File organizer (may override stubs)
     try:
         from backend.routes.file_organizer_api import router as organizer_router
