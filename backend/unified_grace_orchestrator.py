@@ -615,10 +615,27 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"❌ Grace boot failed: {e}")
     
+    # Start new factory services
+    try:
+        from backend.services.log_watcher import log_watcher
+        await log_watcher.start()
+        logger.info("✅ Log Watcher service started (monitoring errors)")
+    except Exception as e:
+        logger.warning(f"Log watcher not started: {e}")
+    
     yield
     
     # Shutdown - stop Grace when uvicorn stops
     logger.info("🛑 FastAPI shutdown - stopping Grace...")
+    
+    # Stop new services
+    try:
+        from backend.services.log_watcher import log_watcher
+        await log_watcher.stop()
+        logger.info("✅ Log Watcher stopped")
+    except Exception:
+        pass
+    
     try:
         await orchestrator.stop()
         logger.info("✅ Grace stopped successfully")
@@ -699,6 +716,18 @@ try:
     logger.info("✅ Comprehensive API registered FIRST (mock data for all systems)")
 except Exception as e:
     logger.error(f"Failed to register comprehensive_api: {e}")
+
+# FACTORY PATTERN API - New clean modular routers
+try:
+    logger.info("Loading factory pattern API routers...")
+    from backend.api import events, automation, patches
+    
+    app.include_router(events.router)
+    app.include_router(automation.router)
+    app.include_router(patches.router)
+    logger.info("✅ Factory API routers registered (events, automation, patches)")
+except Exception as e:
+    logger.error(f"Failed to register factory API routers: {e}")
 
 # Self-Healing API Routes (NEW) - Will be shadowed by comprehensive_api where overlapping
 if self_healing_api_router:
