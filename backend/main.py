@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
+from .routes import ml_coding_api, integrations_api
 from .routes.agentic import router as agentic_router
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -274,6 +275,35 @@ async def on_startup():
 
     print("=" * 80)
     print("✅ AUTONOMOUS MISSION CREATOR OPERATIONAL")
+    print("=" * 80 + "\n")
+
+    # ========== ML/AI INTEGRATION SYSTEMS AUTO-BOOT ==========
+    print("\n" + "=" * 80)
+    print("ML/AI INTEGRATION SYSTEMS - AUTO-BOOT")
+    print("=" * 80)
+
+    # Start ML API Integrator
+    try:
+        from .transcendence.ml_api_integrator import ml_api_integrator
+        await ml_api_integrator.start()
+        print("✅ ML API Integrator started")
+        print("   External APIs for: Research, Datasets, Pre-trained models")
+    except Exception as e:
+        print(f"⚠️ ML API Integrator failed to start: {e}")
+
+    # Start ML Coding Agent
+    try:
+        from .kernels.agents.ml_coding_agent import ml_coding_agent
+        await ml_coding_agent.initialize()
+        print("✅ ML Coding Agent started")
+        print("   Using Grace's Internal LLM (100% internal)")
+        print("   Capabilities: Code gen, analysis, bugs, refactoring, docs, tests")
+    except Exception as e:
+        print(f"⚠️ ML Coding Agent failed to start: {e}")
+
+    print("=" * 80)
+    print("✅ ML/AI INTEGRATION SYSTEMS OPERATIONAL")
+    print("   Grace uses HER OWN LLM, not external APIs!")
     print("=" * 80 + "\n")
 
     # ========== GRACE'S WISHLIST - FINAL ITEMS AUTO-BOOT ==========
@@ -621,6 +651,8 @@ app.include_router(agentic_router)  # Agentic Dashboard API
 app.include_router(ingestion_api.router)  # Ingestion Pipeline System
 # app.include_router(grace_memory_api.router)  # Grace Autonomous Memory Management - TEMPORARILY DISABLED (circular import)
 # comprehensive_api already registered at top to avoid route shadowing
+app.include_router(ml_coding_api.router)  # ML Coding Agent (Grace's Internal LLM)
+app.include_router(integrations_api.router)  # ML/AI API Integrations
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os

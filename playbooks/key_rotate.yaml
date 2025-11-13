@@ -1,0 +1,100 @@
+# API Key Rotation Playbook
+# Automate key rotation from secrets vault
+
+name: API Key Rotation
+version: 1.0.0
+category: security
+
+trigger:
+  - schedule: "0 2 * * 0"  # Every Sunday at 2 AM
+  - event: key_expiring
+  - manual: true
+
+steps:
+  - name: Check Key Expiry
+    action: vault_query
+    params:
+      integration: "{{ integration_name }}"
+      check: expiry_date
+    output: key_info
+
+  - name: Skip if Not Expiring
+    when: key_info.days_until_expiry > 7
+    action: log_and_exit
+    params:
+      message: "Key for {{ integration_name }} not expiring soon ({{ key_info.days_until_expiry }} days)"
+
+  - name: Generate New Key
+    when: key_info.days_until_expiry <= 7
+    action: api_call
+    params:
+      url: "{{ integration_config.key_rotation_endpoint }}"
+      method: POST
+      auth: current_key
+      body:
+        action: rotate
+    output: new_key_response
+
+  - name: Validate New Key
+    action: test_key
+    params:
+      integration: "{{ integration_name }}"
+      key: "{{ new_key_response.new_key }}"
+      test_endpoint: "{{ integration_config.url }}/auth/verify"
+    output: validation_result
+
+  - name: Store New Key in Vault
+    when: validation_result.valid == true
+    action: vault_store
+    params:
+      integration: "{{ integration_name }}"
+      key: "{{ new_key_response.new_key }}"
+      expiry: "{{ new_key_response.expires_at }}"
+      metadata:
+        rotated_at: "{{ now() }}"
+        previous_key_revoked: true
+
+  - name: Update Integration Config
+    action: update_verification_matrix
+    params:
+      integration: "{{ integration_name }}"
+      vault_managed: true
+      notes: "Key rotated on {{ now() }}"
+
+  - name: Revoke Old Key
+    action: api_call
+    params:
+      url: "{{ integration_config.key_revocation_endpoint }}"
+      method: POST
+      auth: new_key
+      body:
+        key_to_revoke: "{{ key_info.current_key }}"
+
+  - name: Log Rotation
+    action: log_event
+    params:
+      event_type: key_rotated
+      integration: "{{ integration_name }}"
+      metadata:
+        rotated_at: "{{ now() }}"
+        next_rotation: "{{ add_days(now(), 90) }}"
+
+  - name: Notify on Failure
+    when: validation_result.valid == false
+    action: send_alert
+    params:
+      severity: critical
+      message: "Key rotation failed for {{ integration_name }}"
+      channels:
+        - unified_logic_queue
+        - security_team
+
+metadata:
+  owner: grace_security
+  tags:
+    - security
+    - key-management
+    - vault
+  rotation_policy:
+    interval: 90 days
+    warning_threshold: 7 days
