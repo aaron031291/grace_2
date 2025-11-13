@@ -3,6 +3,7 @@ import { MemoryBrowser } from './components/MemoryBrowser';
 import { MemoryPanel } from './panels/MemoryPanel';
 import { MemoryHubPanel } from './panels/MemoryHubPanel';
 import { MemoryStudioPanel } from './panels/MemoryStudioPanel';
+import MemoryPanelNew from './components/memory/MemoryPanelNew';
 import { TranscendenceIDE } from './components/TranscendenceIDE';
 import { HunterDashboard } from './components/HunterDashboard';
 import { KnowledgeIngestion } from './components/KnowledgeIngestion';
@@ -105,7 +106,7 @@ export default function App() {
   }
 
   if (page === 'memory') {
-    return <MemoryStudioPanel />;
+    return <MemoryPanelNew />;
   }
 
   if (page === 'knowledge') {
