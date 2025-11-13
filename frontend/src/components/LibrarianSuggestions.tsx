@@ -40,11 +40,21 @@ export function LibrarianSuggestions() {
     try {
       const response = await fetch('/api/librarian/suggestions');
       if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data.suggestions || []);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          setSuggestions(data.suggestions || []);
+        } else {
+          // Endpoint exists but not returning JSON (maybe not initialized)
+          setSuggestions([]);
+        }
+      } else {
+        // Endpoint doesn't exist or error
+        setSuggestions([]);
       }
     } catch (err) {
-      console.error('Failed to load suggestions:', err);
+      // Silently fail - endpoint might not be available yet
+      setSuggestions([]);
     } finally {
       setLoading(false);
     }

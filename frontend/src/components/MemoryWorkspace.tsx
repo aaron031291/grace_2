@@ -10,7 +10,7 @@ import TrustedSourcesPanel from '../panels/TrustedSourcesPanel';
 import LibrarianPanel from '../panels/LibrarianPanel';
 import { LibrarianChat } from './LibrarianChat';
 import { LibrarianSuggestions } from './LibrarianSuggestions';
-import { StatusBadge, BadgeStatus } from './StatusBadge';
+import { StatusBadge } from './StatusBadge';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -39,6 +39,8 @@ export function MemoryWorkspace() {
   const [loading, setLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
+  const [dragOverArea, setDragOverArea] = useState(false);
 
   useEffect(() => {
     loadFolder(currentPath);
@@ -51,25 +53,15 @@ export function MemoryWorkspace() {
   async function loadFolder(path: string) {
     try {
       const response = await axios.get(`${API_BASE}/api/memory/files`, {
-        params: { path }
+        params: { path: path || '/' }
       });
       
       console.log('Loaded folder:', path, response.data);
       
-      // Parse response - handle both array and object formats
-      let items: FileEntry[] = [];
-      
-      if (Array.isArray(response.data)) {
-        items = response.data;
-      } else if (response.data.folders) {
-        items = response.data.folders;
-      } else if (response.data.children) {
-        items = response.data.children;
-      }
-      
-      // Separate folders and files (handle both 'directory' and 'folder' types)
-      const folders = items.filter(item => item.type === 'directory' || item.type === 'folder');
-      const files = items.filter(item => item.type === 'file');
+      // Parse response - the API returns {path, folders, files}
+      const data = response.data;
+      const folders = data.folders || [];
+      const files = data.files || [];
       
       setFolderData({ path, folders, files });
     } catch (error) {
@@ -118,17 +110,21 @@ export function MemoryWorkspace() {
     const name = prompt('Enter file name:');
     if (!name) return;
     
-    const newPath = currentPath ? `${currentPath}/${name}` : name;
+    // Build path correctly
+    const newPath = currentPath ? `/${currentPath}/${name}`.replace(/\/+/g, '/') : `/${name}`;
+    
+    console.log('Creating file at:', newPath, 'Current path:', currentPath);
     
     try {
-      await axios.post(`${API_BASE}/api/memory/files/content`, null, {
-        params: { path: newPath, content: '' }
+      const response = await axios.post(`${API_BASE}/api/memory/files/create`, null, {
+        params: { path: newPath, is_directory: false }
       });
-      loadFolder(currentPath);
-      alert(`Created ${name}`);
-    } catch (error) {
-      console.error('Create file error:', error);
-      alert('Failed to create file');
+      console.log('Create file response:', response.data);
+      await loadFolder(currentPath);
+      alert(`✅ Created ${name} in ${currentPath || 'root'}`);
+    } catch (error: any) {
+      console.error('Create file error:', error.response?.data || error);
+      alert(`Failed to create file: ${error.response?.data?.detail || error.message}`);
     }
   }
 
@@ -136,17 +132,54 @@ export function MemoryWorkspace() {
     const name = prompt('Enter folder name:');
     if (!name) return;
     
-    const newPath = currentPath ? `${currentPath}/${name}` : name;
+    // Build path correctly
+    const newPath = currentPath ? `/${currentPath}/${name}`.replace(/\/+/g, '/') : `/${name}`;
+    
+    console.log('Creating folder at:', newPath, 'Current path:', currentPath);
     
     try {
-      await axios.post(`${API_BASE}/api/memory/files/create`, null, {
-        params: { path: newPath, is_folder: true }
+      const response = await axios.post(`${API_BASE}/api/memory/files/create`, null, {
+        params: { path: newPath, is_directory: true }
       });
-      loadFolder(currentPath);
-      alert(`Created folder ${name}`);
-    } catch (error) {
-      console.error('Create folder error:', error);
-      alert('Failed to create folder');
+      console.log('Create folder response:', response.data);
+      await loadFolder(currentPath);
+      alert(`✅ Created folder ${name} in ${currentPath || 'root'}`);
+    } catch (error: any) {
+      console.error('Create folder error:', error.response?.data || error);
+      alert(`Failed to create folder: ${error.response?.data?.detail || error.message}`);
+    }
+  }
+
+  async function uploadFileToPath(file: File, targetPath: string) {
+    const normalizedPath = targetPath ? `/${targetPath}`.replace(/\/+/g, '/') : '/';
+    
+    console.log('Upload starting...');
+    console.log('  File:', file.name, 'Size:', file.size);
+    console.log('  Target path:', normalizedPath);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await axios.post(
+        `${API_BASE}/api/memory/files/upload?target_path=${encodeURIComponent(normalizedPath)}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      
+      console.log('Upload success:', response.data);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error('Upload error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
     }
   }
 
@@ -154,20 +187,34 @@ export function MemoryWorkspace() {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', currentPath || '');
-    
     try {
-      await axios.post(`${API_BASE}/api/memory/files/upload`, formData);
-      alert(`Uploaded ${file.name} to ${currentPath || 'root'}`);
-      loadFolder(currentPath);
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed');
+      await uploadFileToPath(file, currentPath);
+      alert(`✅ Uploaded ${file.name} to ${currentPath || 'root'}`);
+      await loadFolder(currentPath);
+    } catch (error: any) {
+      alert(`Upload failed: ${error.response?.data?.detail || error.message}`);
     }
     
     e.target.value = '';
+  }
+
+  async function handleDragDropOnFolder(files: FileList, folderPath: string) {
+    const fileArray = Array.from(files);
+    console.log(`Dropping ${fileArray.length} file(s) into:`, folderPath);
+    
+    for (const file of fileArray) {
+      try {
+        // Extract just the folder name from the path if needed
+        const targetFolder = folderPath.replace(/^\/+/, '');
+        await uploadFileToPath(file, targetFolder);
+        console.log(`✅ Uploaded ${file.name} to ${targetFolder}`);
+      } catch (error) {
+        console.error(`Failed to upload ${file.name}:`, error);
+      }
+    }
+    
+    alert(`✅ Uploaded ${fileArray.length} file(s)`);
+    await loadFolder(currentPath);
   }
 
   async function handleRename(entry: FileEntry) {
@@ -214,7 +261,10 @@ export function MemoryWorkspace() {
   }
 
   function navigateToFolder(path: string) {
-    setCurrentPath(path);
+    // Normalize path - remove leading slash for consistency
+    const normalizedPath = path.replace(/^\/+/, '');
+    console.log('Navigating to:', normalizedPath, 'from:', currentPath);
+    setCurrentPath(normalizedPath);
     setSelectedFile(null);
     setFileContent('');
     setOriginalContent('');
@@ -291,7 +341,7 @@ export function MemoryWorkspace() {
             fontWeight: activeTab === 'trusted-sources' ? '600' : '400'
           }}
         >
-          🛡️ Trusted Sources
+          🛡️ Trusted Data Sources
         </button>
         <button
           onClick={() => setActiveTab('librarian')}
@@ -321,7 +371,7 @@ export function MemoryWorkspace() {
       }}>
         <h2 style={{ margin: 0, color: '#a78bfa', fontSize: '1.2rem' }}>
           {activeTab === 'files' && 'Files'}
-          {activeTab === 'trusted-sources' && 'Trusted Sources'}
+          {activeTab === 'trusted-sources' && 'Trusted Data Sources'}
           {activeTab === 'librarian' && 'Librarian Orchestrator'}
         </h2>
         
@@ -456,7 +506,8 @@ export function MemoryWorkspace() {
           borderRight: '1px solid rgba(255,255,255,0.1)',
           display: 'flex',
           flexDirection: 'column',
-          background: 'rgba(10,12,23,0.6)'
+          background: 'rgba(10,12,23,0.6)',
+          position: 'relative'
         }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ fontSize: '0.875rem', color: '#a78bfa', fontWeight: 500 }}>
@@ -464,7 +515,41 @@ export function MemoryWorkspace() {
             </div>
           </div>
           
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+          <div 
+            style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              padding: '8px',
+              background: dragOverArea ? 'rgba(59,130,246,0.1)' : 'transparent',
+              border: dragOverArea ? '2px dashed #3b82f6' : 'none',
+              borderRadius: '8px',
+              transition: 'all 0.2s'
+            }}
+            onDragEnter={(e) => {
+              if (e.dataTransfer.types.includes('Files')) {
+                setDragOverArea(true);
+                console.log('Drag enter area');
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'copy';
+            }}
+            onDragLeave={(e) => {
+              if (e.currentTarget === e.target) {
+                setDragOverArea(false);
+                console.log('Drag leave area');
+              }
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverArea(false);
+              console.log('Drop on folder area, uploading to current folder:', currentPath);
+              if (e.dataTransfer.files.length > 0) {
+                handleDragDropOnFolder(e.dataTransfer.files, currentPath);
+              }
+            }}
+          >
             {!folderData ? (
               <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
             ) : (
@@ -474,23 +559,60 @@ export function MemoryWorkspace() {
                   <div
                     key={folder.path}
                     onDoubleClick={() => navigateToFolder(folder.path)}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Drag enter folder:', folder.name);
+                      setDragOverFolder(folder.path);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      e.dataTransfer.dropEffect = 'copy';
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Drag leave folder:', folder.name);
+                      setDragOverFolder(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Drop on folder:', folder.name, 'Files:', e.dataTransfer.files.length);
+                      setDragOverFolder(null);
+                      if (e.dataTransfer.files.length > 0) {
+                        handleDragDropOnFolder(e.dataTransfer.files, folder.path);
+                      }
+                    }}
                     style={{
                       padding: '8px 12px',
                       margin: '4px 0',
                       borderRadius: '6px',
                       cursor: 'pointer',
-                      background: 'rgba(139,92,246,0.1)',
-                      border: '1px solid rgba(139,92,246,0.2)',
+                      background: dragOverFolder === folder.path ? 'rgba(59,130,246,0.3)' : 'rgba(139,92,246,0.1)',
+                      border: dragOverFolder === folder.path ? '2px dashed #3b82f6' : '1px solid rgba(139,92,246,0.2)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                       transition: 'all 0.2s'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139,92,246,0.2)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(139,92,246,0.1)'}
+                    onMouseEnter={(e) => {
+                      if (dragOverFolder !== folder.path) {
+                        e.currentTarget.style.background = 'rgba(139,92,246,0.2)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (dragOverFolder !== folder.path) {
+                        e.currentTarget.style.background = 'rgba(139,92,246,0.1)';
+                      }
+                    }}
                   >
-                    <Folder size={18} color="#8b5cf6" />
-                    <span style={{ flex: 1, fontSize: '14px' }}>{folder.name}</span>
+                    <Folder size={18} color={dragOverFolder === folder.path ? "#3b82f6" : "#8b5cf6"} />
+                    <span style={{ flex: 1, fontSize: '14px' }}>
+                      {folder.name}
+                      {dragOverFolder === folder.path && <span style={{ color: '#3b82f6', marginLeft: '8px' }}>📥 Drop here</span>}
+                    </span>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleRename(folder); }}
@@ -584,7 +706,32 @@ export function MemoryWorkspace() {
                 
                 {folderData.folders.length === 0 && folderData.files.length === 0 && (
                   <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-                    Empty folder
+                    <Folder size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+                    <div>Empty folder</div>
+                    <div style={{ fontSize: '12px', marginTop: '8px', color: '#4b5563' }}>
+                      Drag & drop files here to upload
+                    </div>
+                  </div>
+                )}
+                
+                {/* Drag over hint */}
+                {dragOverArea && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    pointerEvents: 'none',
+                    background: 'rgba(59,130,246,0.9)',
+                    padding: '24px 48px',
+                    borderRadius: '12px',
+                    border: '2px solid #3b82f6',
+                    textAlign: 'center'
+                  }}>
+                    <Upload size={48} style={{ margin: '0 auto 12px' }} />
+                    <div style={{ fontSize: '18px', fontWeight: 600 }}>
+                      Drop files to upload to {currentPath || 'root'}
+                    </div>
                   </div>
                 )}
               </>
