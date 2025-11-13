@@ -5,6 +5,7 @@ import asyncio
 import sys
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 
 # Add backend to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
@@ -15,7 +16,12 @@ async def setup_self_healing_data():
     """Add sample self-healing data"""
 
     # Initialize memory tables first
+    from memory_tables.registry import table_registry
     from memory_tables.initialization import initialize_memory_tables
+
+    # Fix schema directory path since we're running from backend/
+    table_registry.schema_dir = Path("memory_tables/schema")
+
     tables_initialized = await initialize_memory_tables()
     if not tables_initialized:
         print("Failed to initialize memory tables")
@@ -230,25 +236,25 @@ async def setup_self_healing_data():
     
     print("Setting up self-healing data...")
     
-    # Insert data
+    # Insert data (use synchronous insert_row)
     for playbook in playbooks:
-        await table_registry.insert_row("memory_self_healing_playbooks", playbook)
+        table_registry.insert_row("memory_self_healing_playbooks", playbook)
     print(f"Added {len(playbooks)} playbooks")
 
     for log in execution_logs:
-        await table_registry.insert_row("memory_execution_logs", log)
+        table_registry.insert_row("memory_execution_logs", log)
     print(f"Added {len(execution_logs)} execution logs")
 
     for incident in incidents:
-        await table_registry.insert_row("memory_incidents", incident)
+        table_registry.insert_row("memory_incidents", incident)
     print(f"Added {len(incidents)} incidents")
 
     for agent in agents:
-        await table_registry.insert_row("memory_sub_agents", agent)
+        table_registry.insert_row("memory_sub_agents", agent)
     print(f"Added {len(agents)} agents")
 
     for insight in insights:
-        await table_registry.insert_row("memory_insights", insight)
+        table_registry.insert_row("memory_insights", insight)
     print(f"Added {len(insights)} insights")
 
     print("Self-healing data setup complete!")
