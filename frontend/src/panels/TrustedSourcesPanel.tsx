@@ -65,10 +65,27 @@ export function TrustedSourcesPanel({ onSourceApprove, onSourceReject }: Trusted
     setLoading(true);
     try {
       const response = await fetch('/api/memory/tables/memory_trusted_sources/rows?limit=1000');
+      
+      // Check if response is OK
+      if (!response.ok) {
+        console.warn('Trusted sources endpoint not available:', response.status);
+        setSources([]);
+        return;
+      }
+      
+      // Check content type to avoid JSON parse errors
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Trusted sources endpoint returned non-JSON response');
+        setSources([]);
+        return;
+      }
+      
       const data = await response.json();
       setSources(data.rows || []);
     } catch (err) {
       console.error('Failed to load trusted sources:', err);
+      setSources([]); // Set empty array on error to prevent crashes
     } finally {
       setLoading(false);
     }
