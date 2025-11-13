@@ -732,13 +732,21 @@ try:
     except Exception as e:
         logger.warning(f"File organizer routes not loaded: {e}")
     
-    # Unified Kernels API (access all 11 domain kernels)
+    # Unified Kernels API (access all 12 domain kernels)
     try:
         from backend.routes.kernels_api import router as kernels_router
         app.include_router(kernels_router, prefix="/api", tags=["kernels"])
         logger.info("Unified kernels API registered: /api/kernels")
     except Exception as e:
         logger.warning(f"Kernels API not loaded: {e}")
+    
+    # Complete Librarian API (overrides stubs with full implementation)
+    try:
+        from backend.routes.librarian_complete_api import router as librarian_full_router
+        app.include_router(librarian_full_router, prefix="/api/librarian", tags=["librarian-full"])
+        logger.info("Complete Librarian API registered (with logs, proposals, trusted sources)")
+    except Exception as e:
+        logger.warning(f"Complete Librarian API not loaded: {e}")
     
     logger.info("Book system routes loaded (stubs ensure no JSON errors)")
 except Exception as e:
