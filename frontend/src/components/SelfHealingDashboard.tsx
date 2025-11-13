@@ -1,9 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Play, AlertTriangle, CheckCircle, Clock, Users, BookOpen } from 'lucide-react';
 
 interface DashboardData {
   summary: {
@@ -22,7 +17,7 @@ interface DashboardData {
 export default function SelfHealingDashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedPlaybook, setSelectedPlaybook] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('playbooks');
 
   useEffect(() => {
     fetchDashboardData();
@@ -32,9 +27,37 @@ export default function SelfHealingDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/self_healing/dashboard');
-      const data = await response.json();
-      setDashboardData(data);
+      // Fetch data from multiple endpoints
+      const [statusRes, playbooksRes, activeRunsRes, metricsRes] = await Promise.all([
+        fetch('/api/self-healing/status'),
+        fetch('/api/self-healing/playbooks'),
+        fetch('/api/self-healing/active-runs'),
+        fetch('/api/self-healing/metrics')
+      ]);
+
+      const [statusData, playbooksData, activeRunsData, metricsData] = await Promise.all([
+        statusRes.json(),
+        playbooksRes.json(),
+        activeRunsRes.json(),
+        metricsRes.json()
+      ]);
+
+      // Combine data into expected format
+      const combinedData = {
+        summary: {
+          total_playbooks: playbooksData.count || 0,
+          success_rate: metricsData.performance?.average_success_rate ? Math.round(metricsData.performance.average_success_rate * 100) : 0,
+          open_incidents: 0, // TODO: Add incidents endpoint
+          active_agents: activeRunsData.count || 0
+        },
+        playbooks: playbooksData,
+        recent_runs: [], // TODO: Add execution logs endpoint
+        open_incidents: [], // TODO: Add incidents endpoint
+        active_agents: [], // TODO: Add agents endpoint
+        recent_insights: [] // TODO: Add insights endpoint
+      };
+
+      setDashboardData(combinedData);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -44,297 +67,234 @@ export default function SelfHealingDashboard() {
 
   const runPlaybook = async (playbookId: string) => {
     try {
-      const response = await fetch(`/api/self_healing/playbooks/${playbookId}/run`, {
+      const response = await fetch(`/api/self-healing/trigger-manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+        body: JSON.stringify({ component: 'manual_trigger', error_details: { playbook_id: playbookId } })
       });
       const result = await response.json();
-      
-      if (result.status === 'started') {
-        alert(`Playbook execution started: ${result.execution_id}`);
+
+      if (result.status === 'triggered') {
+        alert(`Self-healing triggered for playbook`);
         fetchDashboardData(); // Refresh data
       }
     } catch (error) {
-      console.error('Failed to run playbook:', error);
-      alert('Failed to run playbook');
+      console.error('Failed to trigger self-healing:', error);
+      alert('Failed to trigger self-healing');
     }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64">Loading self-healing dashboard...</div>;
+    return (
+      <div style={{ background: '#0f0f1e', minHeight: '100vh', padding: '2rem', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        Loading self-healing dashboard...
+      </div>
+    );
   }
 
   if (!dashboardData) {
-    return <div className="text-red-500">Failed to load dashboard data</div>;
+    return (
+      <div style={{ background: '#0f0f1e', minHeight: '100vh', padding: '2rem', color: '#ff6b6b' }}>
+        Failed to load dashboard data
+      </div>
+    );
   }
 
-  const { summary, playbooks, recent_runs, open_incidents, active_agents, recent_insights } = dashboardData;
+  const { summary, playbooks } = dashboardData;
 
   return (
-    <div className="space-y-6">
+    <div style={{ background: '#0f0f1e', minHeight: '100vh', padding: '2rem', color: '#fff' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
-          <h1 className="text-3xl font-bold">Self-Healing Co-pilot</h1>
-          <p className="text-muted-foreground">Collaborative autonomous remediation</p>
+          <h1 style={{ color: '#00d4ff', marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 'bold' }}>
+            Self-Healing Co-pilot
+          </h1>
+          <p style={{ color: '#888' }}>Collaborative autonomous remediation</p>
         </div>
-        <Button onClick={fetchDashboardData}>Refresh</Button>
+        <button
+          onClick={fetchDashboardData}
+          style={{
+            background: '#7b2cbf',
+            color: '#fff',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Refresh
+        </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Playbooks</p>
-                <p className="text-2xl font-bold">{summary.total_playbooks}</p>
-              </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem' }}>📚</div>
+            <div>
+              <p style={{ color: '#7b2cbf', marginBottom: '0.25rem', fontSize: '0.875rem' }}>PLAYBOOKS</p>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>{summary.total_playbooks}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Success Rate</p>
-                <p className="text-2xl font-bold">{summary.success_rate}%</p>
-              </div>
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem' }}>✅</div>
+            <div>
+              <p style={{ color: '#7b2cbf', marginBottom: '0.25rem', fontSize: '0.875rem' }}>SUCCESS RATE</p>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>{summary.success_rate}%</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Open Incidents</p>
-                <p className="text-2xl font-bold">{summary.open_incidents}</p>
-              </div>
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem' }}>🚨</div>
+            <div>
+              <p style={{ color: '#7b2cbf', marginBottom: '0.25rem', fontSize: '0.875rem' }}>OPEN INCIDENTS</p>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>{summary.open_incidents}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-purple-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Active Agents</p>
-                <p className="text-2xl font-bold">{summary.active_agents}</p>
-              </div>
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem' }}>🤖</div>
+            <div>
+              <p style={{ color: '#7b2cbf', marginBottom: '0.25rem', fontSize: '0.875rem' }}>ACTIVE AGENTS</p>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#00d4ff' }}>{summary.active_agents}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="playbooks" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
-          <TabsTrigger value="runs">Recent Runs</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
-          <TabsTrigger value="insights">Grace's Insights</TabsTrigger>
-        </TabsList>
+      {/* Tab Navigation */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', borderBottom: '1px solid #333' }}>
+          {['playbooks', 'runs', 'incidents', 'agents', 'insights'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: activeTab === tab ? '#7b2cbf' : 'transparent',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer',
+                textTransform: 'capitalize'
+              }}
+            >
+              {tab.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        <TabsContent value="playbooks" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {playbooks.rows?.map((playbook: any) => (
-              <Card key={playbook.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{playbook.playbook_name}</CardTitle>
-                    <Button
-                      size="sm"
-                      onClick={() => runPlaybook(playbook.id)}
-                      className="flex items-center space-x-1"
-                    >
-                      <Play className="h-4 w-4" />
-                      <span>Run</span>
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{playbook.description}</p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {playbook.target_components?.map((component: string, idx: number) => (
-                      <Badge key={idx} variant="secondary">{component}</Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Risk: <Badge variant={playbook.risk_level === 'high' ? 'destructive' : 'default'}>{playbook.risk_level}</Badge></span>
-                    <span>Success: {playbook.execution_stats?.successful_runs || 0}/{playbook.execution_stats?.total_runs || 0}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+      {/* Tab Content */}
+      {activeTab === 'playbooks' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1.5rem' }}>
+          {playbooks.playbooks?.map((playbook: any) => (
+            <div
+              key={playbook.id}
+              style={{
+                background: '#1a1a2e',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border: '1px solid #333',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h3 style={{ color: '#00d4ff', fontSize: '1.25rem', fontWeight: 'bold' }}>
+                  {playbook.playbook_name}
+                </h3>
+                <button
+                  onClick={() => runPlaybook(playbook.id)}
+                  style={{
+                    background: '#00d4ff',
+                    color: '#000',
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  ▶️ Run
+                </button>
+              </div>
 
-        <TabsContent value="runs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Executions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recent_runs.rows?.map((run: any) => (
-                  <div key={run.id} className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        run.status === 'success' ? 'bg-green-500' :
-                        run.status === 'failed' ? 'bg-red-500' :
-                        run.status === 'running' ? 'bg-blue-500' : 'bg-gray-500'
-                      }`} />
-                      <div>
-                        <p className="font-medium">{run.playbook_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {run.triggered_by} • {new Date(run.started_at).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant={run.status === 'success' ? 'default' : run.status === 'failed' ? 'destructive' : 'secondary'}>
-                        {run.status}
-                      </Badge>
-                      {run.duration_ms && (
-                        <p className="text-sm text-muted-foreground mt-1">{run.duration_ms}ms</p>
-                      )}
-                    </div>
-                  </div>
+              <p style={{ color: '#ccc', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                {playbook.description}
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                {playbook.target_components?.map((component: string, idx: number) => (
+                  <span
+                    key={idx}
+                    style={{
+                      background: '#7b2cbf',
+                      color: '#fff',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    {component}
+                  </span>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="incidents" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {open_incidents.rows?.map((incident: any) => (
-              <Card key={incident.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{incident.title}</CardTitle>
-                    <Badge variant={
-                      incident.severity === 'critical' ? 'destructive' :
-                      incident.severity === 'high' ? 'destructive' :
-                      incident.severity === 'medium' ? 'default' : 'secondary'
-                    }>
-                      {incident.severity}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{incident.description}</p>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Status: <Badge variant="outline">{incident.status}</Badge></span>
-                    <span>{new Date(incident.created_at).toLocaleDateString()}</span>
-                  </div>
-                  
-                  {incident.affected_services?.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-sm font-medium mb-1">Affected Services:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {incident.affected_services.map((service: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs">{service}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.875rem' }}>
+                <span>
+                  Risk: <span style={{
+                    color: playbook.risk_level === 'high' ? '#ff6b6b' :
+                           playbook.risk_level === 'medium' ? '#ffa500' : '#4ade80'
+                  }}>
+                    {playbook.risk_level}
+                  </span>
+                </span>
+                <span>
+                  Success: {playbook.successful_runs || 0}/{playbook.total_runs || 0}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <TabsContent value="agents" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {active_agents.rows?.map((agent: any) => (
-              <Card key={agent.id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{agent.agent_name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{agent.mission}</p>
-                  
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Status:</span>
-                      <Badge variant={agent.status === 'active' ? 'default' : 'secondary'}>
-                        {agent.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Trust Score:</span>
-                      <span className="font-medium">{agent.trust_score || 'N/A'}</span>
-                    </div>
-                    
-                    {agent.capabilities && (
-                      <div>
-                        <p className="text-sm font-medium mb-1">Capabilities:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {agent.capabilities.map((cap: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs">{cap}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+      {activeTab === 'runs' && (
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <h3 style={{ color: '#00d4ff', marginBottom: '1rem' }}>Recent Executions</h3>
+          <p style={{ color: '#888' }}>Execution logs will appear here...</p>
+        </div>
+      )}
 
-        <TabsContent value="insights" className="space-y-4">
-          <div className="space-y-4">
-            {recent_insights.rows?.map((insight: any) => (
-              <Card key={insight.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{insight.title}</CardTitle>
-                    <Badge variant="outline">
-                      {Math.round(insight.confidence * 100)}% confidence
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm mb-3">{insight.description}</p>
-                  
-                  {insight.recommendations && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Grace's Recommendations:</p>
-                      <ul className="text-sm space-y-1">
-                        {insight.recommendations.map((rec: string, idx: number) => (
-                          <li key={idx} className="flex items-start space-x-2">
-                            <span className="text-blue-500">•</span>
-                            <span>{rec}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-                    <span>Generated: {new Date(insight.created_at).toLocaleString()}</span>
-                    <span>Status: {insight.status || 'pending'}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+      {activeTab === 'incidents' && (
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <h3 style={{ color: '#00d4ff', marginBottom: '1rem' }}>Open Incidents</h3>
+          <p style={{ color: '#888' }}>Active incidents will appear here...</p>
+        </div>
+      )}
+
+      {activeTab === 'agents' && (
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <h3 style={{ color: '#00d4ff', marginBottom: '1rem' }}>Active Agents</h3>
+          <p style={{ color: '#888' }}>Running self-healing agents will appear here...</p>
+        </div>
+      )}
+
+      {activeTab === 'insights' && (
+        <div style={{ background: '#1a1a2e', padding: '1.5rem', borderRadius: '12px', border: '1px solid #333' }}>
+          <h3 style={{ color: '#00d4ff', marginBottom: '1rem' }}>Grace's Insights</h3>
+          <p style={{ color: '#888' }}>AI-generated insights will appear here...</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -138,11 +138,6 @@ if kernel_path.exists():
 
     # Self-Healing Kernel (NEW)
     SelfHealingKernel = safe_import('SelfHealingKernel', 'backend.kernels.self_healing_kernel', optional=True) or StubComponent
-    
-    # Self-Healing API Routes (NEW)
-    self_healing_api_router = None
-    if (routes_path / "self_healing_api.py").exists():
-        self_healing_api_router = safe_import('router', 'backend.routes.self_healing_api', optional=True)
 else:
     # Create stub kernels if directory doesn't exist
     MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = StubComponent
@@ -152,6 +147,12 @@ else:
 
 # API Routes - check if routes exist (OPTIONAL - have fallbacks)
 routes_path = Path("backend/routes")
+
+# Self-Healing API Routes (NEW)
+self_healing_api_router = None
+if (routes_path / "self_healing_api.py").exists():
+    self_healing_api_router = safe_import('router', 'backend.routes.self_healing_api', optional=True)
+
 chat_router = None
 if (routes_path / "chat.py").exists():
     chat_router = safe_import('router', 'backend.routes.chat', optional=True)
