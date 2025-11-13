@@ -1,0 +1,40 @@
+{
+  "chunk_id": 1,
+  "total_chunks": 3,
+  "apis_in_chunk": 3,
+  "apis": [
+    {
+      "name": "OpenAI API",
+      "description": "AI/ML capabilities for learning enhancement",
+      "url": "https://api.openai.com",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Code understanding, learning assistance",
+      "can_download": true
+    },
+    {
+      "name": "Hugging Face API",
+      "description": "Machine learning models and datasets",
+      "url": "https://huggingface.co/api",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Pre-trained models, NLP tasks",
+      "can_download": true
+    },
+    {
+      "name": "TensorFlow Hub",
+      "description": "Reusable ML model components",
+      "url": "https://tfhub.dev",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Transfer learning, pre-trained models",
+      "can_download": true
+    }
+  ]
+}
