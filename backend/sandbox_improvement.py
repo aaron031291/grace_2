@@ -13,6 +13,7 @@ from pathlib import Path
 import logging
 
 from .unified_logger import unified_logger
+from .activity_monitor import activity_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,13 @@ class SandboxImprovement:
         experiment_id = f"{experiment_name}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
         
         logger.info(f"[SANDBOX] Starting experiment: {experiment_id}")
+        
+        # Log activity - what Grace is doing
+        await activity_monitor.log_activity(
+            activity_type='sandbox_experiment',
+            description=f'Testing: {experiment_name}',
+            details={'file': code_file, 'experiment_id': experiment_id}
+        )
         
         # Log decision
         await unified_logger.log_agentic_spine_decision(
@@ -149,11 +157,13 @@ class SandboxImprovement:
             # Linux: use resource limits
             # Windows: monitor with psutil
             
+            # Fix: Use parent directory, not sandbox_dir
+            # code_file is already "sandbox/test.py", so run from project root
             process = await asyncio.create_subprocess_exec(
                 'python', code_file,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                cwd=str(self.sandbox_dir)
+                cwd=str(Path.cwd())
             )
             
             # Monitor resources

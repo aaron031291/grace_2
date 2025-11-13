@@ -19,6 +19,7 @@ from datetime import datetime
 from ...transcendence.ml_api_integrator import ml_api_integrator
 from ...transcendence.llm_provider_router import llm_router, grace_llm
 from ...unified_logger import unified_logger
+from ...activity_monitor import activity_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,13 @@ Requirements:
         
         if context:
             prompt += f"\n\nContext:\n{context}"
+        
+        # Log activity - what Grace is thinking
+        await activity_monitor.log_activity(
+            activity_type='thinking',
+            description=f'Generating {language} code',
+            details={'task': description[:100], 'language': language}
+        )
         
         # Use Grace's internal LLM (NOT external APIs)
         logger.info(f"[ML-CODING-AGENT] Generating code via Grace's internal LLM (request #{self.request_count})")

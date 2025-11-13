@@ -5,6 +5,10 @@ from .models import Base, engine
 from .metrics_models import Base as MetricsBase
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
 from .routes import ml_coding_api, integrations_api
+from .routes import control_api
+from .routes import remote_access_api
+from .routes import pc_access_api
+from .routes import activity_stream
 from .routes.agentic import router as agentic_router
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -29,10 +33,11 @@ app = FastAPI(title="Grace API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "ws://localhost:8000", "ws://127.0.0.1:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 # Inject/propagate X-Request-ID for log correlation
 app.add_middleware(RequestIDMiddleware)
@@ -653,6 +658,23 @@ app.include_router(ingestion_api.router)  # Ingestion Pipeline System
 # comprehensive_api already registered at top to avoid route shadowing
 app.include_router(ml_coding_api.router)  # ML Coding Agent (Grace's Internal LLM)
 app.include_router(integrations_api.router)  # ML/AI API Integrations
+app.include_router(control_api.router)  # Grace Control Center (Pause/Resume/Stop)
+
+# Remote Access (feature-gated, disabled by default)
+import os as _remote_os
+if _remote_os.getenv("ENABLE_REMOTE_ACCESS", "false").lower() == "true":
+    app.include_router(remote_access_api.router)  # Remote Access (Zero-Trust + RBAC)
+    print("⚠️  Remote Access enabled - use with caution")
+
+# PC Access + Firefox (feature-gated, disabled by default)
+import os as _pc_os
+if _pc_os.getenv("ENABLE_PC_ACCESS", "false").lower() == "true" or \
+   _pc_os.getenv("ENABLE_FIREFOX_ACCESS", "false").lower() == "true":
+    app.include_router(pc_access_api.router)  # PC Access + Firefox Agent
+    print("⚠️  PC/Firefox Access enabled - Grace can access local system and internet")
+
+# Activity Stream (always enabled - shows what Grace is doing)
+app.include_router(activity_stream.router)  # Real-time activity monitoring
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
