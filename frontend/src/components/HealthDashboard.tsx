@@ -38,7 +38,7 @@ export function HealthDashboard() {
       // Try real monitoring API first
       let incidents;
       try {
-        const res = await fetch('http://localhost:8000/monitoring/incidents?limit=20');
+        const res = await fetch('http://localhost:8000/api/monitoring/incidents?limit=20');
         if (res.ok) {
           incidents = await res.json();
         } else {
