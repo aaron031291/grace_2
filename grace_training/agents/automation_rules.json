@@ -1,0 +1,536 @@
+{
+  "automation_rules": [
+    {
+      "rule_id": "AUTO-001",
+      "name": "High CPU Auto-Remediation",
+      "description": "Automatically remediate high CPU usage incidents",
+      "enabled": true,
+      "priority": "high",
+      "created_date": "2024-06-15",
+      "last_modified": "2025-01-10",
+      
+      "trigger": {
+        "type": "metric_threshold",
+        "metric": "cpu_usage_percent",
+        "condition": "> 90",
+        "duration": "5m",
+        "evaluation_interval": "30s"
+      },
+      
+      "conditions": [
+        {
+          "type": "time_window",
+          "allowed_hours": "00:00-23:59",
+          "allowed_days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        },
+        {
+          "type": "change_freeze",
+          "check": "not_in_freeze"
+        },
+        {
+          "type": "confidence",
+          "min_confidence": 0.85
+        }
+      ],
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "collect_diagnostics",
+          "type": "diagnostic",
+          "timeout_seconds": 30
+        },
+        {
+          "step": 2,
+          "name": "scale_horizontally",
+          "type": "scaling",
+          "parameters": {
+            "scale_type": "horizontal",
+            "increment": 2,
+            "max_instances": 10
+          },
+          "timeout_seconds": 120
+        },
+        {
+          "step": 3,
+          "name": "verify_resolution",
+          "type": "verification",
+          "success_criteria": "cpu_usage_percent < 70",
+          "wait_time": "2m"
+        }
+      ],
+      
+      "rollback": {
+        "enabled": true,
+        "conditions": ["verification_failed", "error_rate_increased"],
+        "action": "scale_back_to_original"
+      },
+      
+      "notifications": {
+        "on_trigger": ["slack:#platform-alerts"],
+        "on_success": ["slack:#platform-alerts"],
+        "on_failure": ["slack:#platform-alerts", "pagerduty:oncall"]
+      },
+      
+      "metrics": {
+        "triggered_count": 142,
+        "success_count": 127,
+        "failure_count": 15,
+        "success_rate": 0.894,
+        "avg_resolution_time_seconds": 187
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-002",
+      "name": "Database Connection Pool Recovery",
+      "description": "Auto-recover from database connection pool exhaustion",
+      "enabled": true,
+      "priority": "critical",
+      "created_date": "2024-07-20",
+      "last_modified": "2025-01-14",
+      
+      "trigger": {
+        "type": "metric_threshold",
+        "metric": "db_connection_pool_utilization",
+        "condition": "> 0.95",
+        "duration": "1m"
+      },
+      
+      "conditions": [
+        {
+          "type": "rate_limit",
+          "max_triggers_per_hour": 3
+        },
+        {
+          "type": "cooldown",
+          "cooldown_minutes": 15
+        }
+      ],
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "identify_long_queries",
+          "type": "diagnostic",
+          "query": "SELECT * FROM pg_stat_activity WHERE state = 'active' AND query_start < now() - interval '30 seconds'"
+        },
+        {
+          "step": 2,
+          "name": "kill_long_queries",
+          "type": "remediation",
+          "parameters": {
+            "query_duration_threshold": "30s",
+            "max_queries_to_kill": 10
+          }
+        },
+        {
+          "step": 3,
+          "name": "increase_pool_size",
+          "type": "scaling",
+          "parameters": {
+            "increase_by": 50,
+            "max_pool_size": 200
+          }
+        }
+      ],
+      
+      "rollback": {
+        "enabled": false
+      },
+      
+      "notifications": {
+        "on_trigger": ["slack:#database-alerts", "pagerduty:dba"],
+        "on_success": ["slack:#database-alerts"],
+        "on_failure": ["slack:#database-alerts", "pagerduty:oncall"]
+      },
+      
+      "metrics": {
+        "triggered_count": 23,
+        "success_count": 21,
+        "failure_count": 2,
+        "success_rate": 0.913,
+        "avg_resolution_time_seconds": 45
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-003",
+      "name": "Memory Leak Detection and Restart",
+      "description": "Detect memory leaks and restart affected services",
+      "enabled": true,
+      "priority": "high",
+      "created_date": "2024-08-10",
+      "last_modified": "2024-12-05",
+      
+      "trigger": {
+        "type": "metric_trend",
+        "metric": "memory_usage_percent",
+        "trend": "increasing",
+        "rate": "> 5% per minute",
+        "duration": "10m"
+      },
+      
+      "conditions": [
+        {
+          "type": "business_hours_only",
+          "enabled": false
+        }
+      ],
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "heap_dump",
+          "type": "diagnostic",
+          "command": "jmap -dump:live,format=b,file=/tmp/heapdump.hprof $PID",
+          "optional": true
+        },
+        {
+          "step": 2,
+          "name": "rolling_restart",
+          "type": "restart",
+          "parameters": {
+            "strategy": "rolling",
+            "max_unavailable": 1,
+            "health_check_delay": "30s"
+          }
+        }
+      ],
+      
+      "rollback": {
+        "enabled": true,
+        "conditions": ["service_unavailable"],
+        "action": "cancel_restart"
+      },
+      
+      "metrics": {
+        "triggered_count": 34,
+        "success_count": 31,
+        "failure_count": 3,
+        "success_rate": 0.912,
+        "avg_resolution_time_seconds": 245
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-004",
+      "name": "Auto-Rollback Failed Deployments",
+      "description": "Automatically rollback deployments with high error rates",
+      "enabled": true,
+      "priority": "critical",
+      "created_date": "2024-09-01",
+      "last_modified": "2024-11-15",
+      
+      "trigger": {
+        "type": "composite",
+        "conditions": [
+          {
+            "metric": "error_rate_percent",
+            "condition": "> 5",
+            "duration": "2m"
+          },
+          {
+            "metric": "deployment_age_minutes",
+            "condition": "< 30"
+          }
+        ],
+        "operator": "AND"
+      },
+      
+      "conditions": [
+        {
+          "type": "deployment_in_progress",
+          "check": "recent_deployment"
+        }
+      ],
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "collect_error_logs",
+          "type": "diagnostic"
+        },
+        {
+          "step": 2,
+          "name": "rollback_deployment",
+          "type": "rollback",
+          "parameters": {
+            "versions_back": 1,
+            "strategy": "immediate"
+          }
+        },
+        {
+          "step": 3,
+          "name": "verify_rollback",
+          "type": "verification",
+          "success_criteria": "error_rate_percent < 2"
+        }
+      ],
+      
+      "rollback": {
+        "enabled": false,
+        "reason": "This rule itself performs rollback"
+      },
+      
+      "notifications": {
+        "on_trigger": ["slack:#deployments", "pagerduty:oncall"],
+        "on_success": ["slack:#deployments"],
+        "on_failure": ["slack:#deployments", "pagerduty:oncall", "email:engineering-leads"]
+      },
+      
+      "metrics": {
+        "triggered_count": 8,
+        "success_count": 7,
+        "failure_count": 1,
+        "success_rate": 0.875,
+        "avg_resolution_time_seconds": 95
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-005",
+      "name": "Disk Space Auto-Cleanup",
+      "description": "Automatically clean up disk space when threshold exceeded",
+      "enabled": true,
+      "priority": "medium",
+      "created_date": "2024-10-01",
+      "last_modified": "2024-12-20",
+      
+      "trigger": {
+        "type": "metric_threshold",
+        "metric": "disk_usage_percent",
+        "condition": "> 85",
+        "duration": "5m"
+      },
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "analyze_disk_usage",
+          "type": "diagnostic",
+          "commands": [
+            "du -sh /* | sort -hr | head -20",
+            "df -h"
+          ]
+        },
+        {
+          "step": 2,
+          "name": "clean_old_logs",
+          "type": "cleanup",
+          "commands": [
+            "find /var/log -name '*.log' -mtime +7 -delete",
+            "find /tmp -mtime +3 -delete"
+          ]
+        },
+        {
+          "step": 3,
+          "name": "rotate_logs",
+          "type": "maintenance",
+          "command": "logrotate -f /etc/logrotate.conf"
+        }
+      ],
+      
+      "rollback": {
+        "enabled": false,
+        "reason": "Cleanup actions are generally safe and irreversible"
+      },
+      
+      "metrics": {
+        "triggered_count": 67,
+        "success_count": 65,
+        "failure_count": 2,
+        "success_rate": 0.970,
+        "avg_space_freed_gb": 12.4
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-006",
+      "name": "API Rate Limit Auto-Adjustment",
+      "description": "Automatically adjust rate limits during traffic spikes",
+      "enabled": true,
+      "priority": "medium",
+      "created_date": "2024-11-10",
+      "last_modified": "2025-01-05",
+      
+      "trigger": {
+        "type": "metric_threshold",
+        "metric": "api_rate_limit_rejections_per_minute",
+        "condition": "> 100",
+        "duration": "1m"
+      },
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "identify_top_consumers",
+          "type": "diagnostic"
+        },
+        {
+          "step": 2,
+          "name": "increase_rate_limits",
+          "type": "configuration",
+          "parameters": {
+            "increase_percent": 50,
+            "duration_minutes": 30,
+            "max_rate_limit": 10000
+          }
+        },
+        {
+          "step": 3,
+          "name": "notify_customer_success",
+          "type": "notification",
+          "notify": ["customer-success-team"]
+        }
+      ],
+      
+      "rollback": {
+        "enabled": true,
+        "conditions": ["abuse_detected"],
+        "action": "revert_rate_limits"
+      },
+      
+      "metrics": {
+        "triggered_count": 45,
+        "success_count": 42,
+        "failure_count": 3,
+        "success_rate": 0.933
+      }
+    },
+    
+    {
+      "rule_id": "AUTO-007",
+      "name": "Certificate Expiry Auto-Renewal",
+      "description": "Automatically renew SSL certificates before expiry",
+      "enabled": true,
+      "priority": "high",
+      "created_date": "2024-05-15",
+      "last_modified": "2024-10-20",
+      
+      "trigger": {
+        "type": "scheduled",
+        "schedule": "0 0 * * *",
+        "additional_check": {
+          "metric": "certificate_days_until_expiry",
+          "condition": "< 30"
+        }
+      },
+      
+      "actions": [
+        {
+          "step": 1,
+          "name": "request_new_certificate",
+          "type": "provisioning",
+          "provider": "letsencrypt"
+        },
+        {
+          "step": 2,
+          "name": "validate_certificate",
+          "type": "verification"
+        },
+        {
+          "step": 3,
+          "name": "update_load_balancers",
+          "type": "deployment"
+        },
+        {
+          "step": 4,
+          "name": "verify_https_working",
+          "type": "verification",
+          "test": "https_health_check"
+        }
+      ],
+      
+      "rollback": {
+        "enabled": true,
+        "conditions": ["certificate_invalid", "https_failing"],
+        "action": "revert_to_old_certificate"
+      },
+      
+      "metrics": {
+        "triggered_count": 12,
+        "success_count": 12,
+        "failure_count": 0,
+        "success_rate": 1.0
+      }
+    }
+  ],
+  
+  "global_settings": {
+    "max_concurrent_automations": 10,
+    "default_timeout_seconds": 300,
+    "enable_dry_run": false,
+    "audit_all_actions": true,
+    "require_approval_for_production": false
+  },
+  
+  "safety_guardrails": {
+    "rate_limiting": {
+      "max_automations_per_minute": 20,
+      "cooldown_after_failure_minutes": 10
+    },
+    
+    "change_freeze": {
+      "enabled": true,
+      "windows": [
+        {
+          "name": "End of Quarter Freeze",
+          "start": "2025-03-28",
+          "end": "2025-04-01",
+          "allow_critical_only": true
+        }
+      ]
+    },
+    
+    "business_hours": {
+      "timezone": "America/Los_Angeles",
+      "hours": "09:00-17:00",
+      "days": ["mon", "tue", "wed", "thu", "fri"]
+    }
+  },
+  
+  "monitoring": {
+    "dashboard_url": "https://grafana.grace-platform.com/d/automation-rules",
+    
+    "metrics": {
+      "total_rules": 7,
+      "enabled_rules": 7,
+      "total_triggers_last_24h": 134,
+      "successful_automations_last_24h": 121,
+      "failed_automations_last_24h": 13,
+      "overall_success_rate": 0.903
+    },
+    
+    "alerts": [
+      {
+        "name": "AutomationHighFailureRate",
+        "condition": "automation_failure_rate > 0.2",
+        "severity": "warning"
+      },
+      {
+        "name": "AutomationDisabled",
+        "condition": "critical_rule_disabled == 1",
+        "severity": "critical"
+      }
+    ]
+  },
+  
+  "version_history": [
+    {
+      "version": "1.0",
+      "date": "2024-05-15",
+      "changes": "Initial automation rules"
+    },
+    {
+      "version": "1.1",
+      "date": "2024-09-01",
+      "changes": "Added auto-rollback rule"
+    },
+    {
+      "version": "1.2",
+      "date": "2025-01-14",
+      "changes": "Updated database connection pool rule based on INC-2025-0023"
+    }
+  ]
+}

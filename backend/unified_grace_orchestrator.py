@@ -173,6 +173,11 @@ ingestion_bridge_router = None
 if (routes_path / "ingestion_bridge_api.py").exists():
     ingestion_bridge_router = safe_import('router', 'backend.routes.ingestion_bridge_api', optional=True)
 
+# Memory Files Routes (for Memory Panel UI)
+memory_files_router = None
+if (routes_path / "memory_files_api.py").exists():
+    memory_files_router = safe_import('router', 'backend.routes.memory_files_api', optional=True)
+
 # Collaboration Routes
 collaboration_router = None
 if (routes_path / "collaboration_api.py").exists():
@@ -585,6 +590,10 @@ if auto_ingestion_router:
 if ingestion_bridge_router:
     app.include_router(ingestion_bridge_router)
     logger.info("✅ Ingestion Bridge API router included")
+
+if memory_files_router:
+    app.include_router(memory_files_router)
+    logger.info("✅ Memory Files API router included")
 
 if collaboration_router:
     app.include_router(collaboration_router)

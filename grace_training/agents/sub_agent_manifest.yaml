@@ -1,0 +1,466 @@
+version: "1.0"
+manifest_type: "sub_agent_registry"
+last_updated: "2025-01-15T10:30:00Z"
+
+registry:
+  description: "Master registry of all GRACE sub-agents with capabilities and status"
+  total_agents: 12
+  active_agents: 11
+  deprecated_agents: 1
+
+agents:
+  - agent_id: "schema-inference-agent-001"
+    name: "Schema Inference Agent"
+    type: "data_analysis"
+    version: "1.2.0"
+    status: "active"
+    deployment_date: "2025-01-10"
+    
+    capabilities:
+      - "infer_database_schemas"
+      - "detect_data_types"
+      - "find_relationships"
+      - "suggest_constraints"
+    
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+      concurrency: 5
+    
+    trigger:
+      type: "scheduled"
+      schedule: "0 2 * * *"
+    
+    dependencies:
+      - "metadata-database"
+      - "schema-registry-service"
+    
+    metrics:
+      runs_last_24h: 1
+      success_rate: 1.0
+      avg_duration_seconds: 847
+  
+  - agent_id: "log-ingestion-agent-001"
+    name: "Log Ingestion Agent"
+    type: "data_ingestion"
+    version: "3.2.1"
+    status: "active"
+    deployment_date: "2024-11-05"
+    
+    capabilities:
+      - "ingest_kafka_streams"
+      - "parse_log_formats"
+      - "normalize_timestamps"
+      - "detect_pii"
+      - "enrich_metadata"
+    
+    resources:
+      cpu: "4"
+      memory: "8Gi"
+      concurrency: 20
+      auto_scaling:
+        min: 2
+        max: 10
+    
+    trigger:
+      type: "continuous"
+    
+    dependencies:
+      - "kafka-cluster"
+      - "timescaledb"
+      - "elasticsearch"
+    
+    metrics:
+      logs_ingested_last_hour: 2847293
+      throughput_logs_per_second: 9842
+      parse_success_rate: 0.964
+      lag_seconds: 8
+  
+  - agent_id: "api-client-generator-001"
+    name: "API Client Generator"
+    type: "code_generation"
+    version: "2.0.5"
+    status: "active"
+    deployment_date: "2024-12-15"
+    
+    capabilities:
+      - "generate_typescript_clients"
+      - "generate_python_clients"
+      - "generate_tests"
+      - "validate_openapi_specs"
+    
+    resources:
+      cpu: "1"
+      memory: "2Gi"
+      concurrency: 3
+    
+    trigger:
+      type: "event"
+      events: ["openapi_spec_updated", "manual_trigger"]
+    
+    dependencies:
+      - "openapi-generator"
+      - "github-api"
+    
+    metrics:
+      clients_generated_total: 47
+      pr_approval_rate: 0.91
+      avg_generation_time_seconds: 127
+  
+  - agent_id: "refactoring-agent-001"
+    name: "Refactoring Agent"
+    type: "code_refactoring"
+    version: "1.5.2"
+    status: "active"
+    deployment_date: "2024-10-20"
+    
+    capabilities:
+      - "convert_callbacks_to_async"
+      - "extract_duplicates"
+      - "improve_error_handling"
+      - "add_logging"
+      - "optimize_performance"
+    
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+      concurrency: 2
+    
+    trigger:
+      type: "manual"
+    
+    dependencies:
+      - "ast-parser"
+      - "static-analysis-tools"
+    
+    metrics:
+      refactorings_total: 124
+      test_pass_rate_after: 0.98
+      code_quality_improvement: 0.15
+  
+  - agent_id: "test-generation-agent-001"
+    name: "Test Generation Agent"
+    type: "code_generation"
+    version: "1.8.0"
+    status: "active"
+    deployment_date: "2024-09-10"
+    
+    capabilities:
+      - "generate_unit_tests"
+      - "generate_integration_tests"
+      - "generate_test_fixtures"
+      - "calculate_coverage"
+    
+    resources:
+      cpu: "1"
+      memory: "2Gi"
+      concurrency: 5
+    
+    trigger:
+      type: "event"
+      events: ["code_merged_without_tests", "manual_trigger"]
+    
+    metrics:
+      tests_generated_total: 1247
+      avg_coverage_achieved: 0.89
+      test_quality_score: 0.87
+  
+  - agent_id: "security-fix-agent-001"
+    name: "Security Fix Agent"
+    type: "security"
+    version: "2.1.0"
+    status: "active"
+    deployment_date: "2024-08-15"
+    
+    capabilities:
+      - "scan_vulnerabilities"
+      - "update_dependencies"
+      - "apply_security_patches"
+      - "run_security_tests"
+    
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+      concurrency: 1
+    
+    trigger:
+      type: "event"
+      events: ["vulnerability_detected", "scheduled_scan"]
+    
+    dependencies:
+      - "security-scanner"
+      - "package-managers"
+    
+    metrics:
+      vulnerabilities_fixed_total: 89
+      auto_fix_success_rate: 0.94
+      avg_fix_time_hours: 0.8
+  
+  - agent_id: "anomaly-detector-agent-001"
+    name: "Anomaly Detection Agent"
+    type: "monitoring"
+    version: "3.0.1"
+    status: "active"
+    deployment_date: "2024-07-01"
+    
+    capabilities:
+      - "detect_metric_anomalies"
+      - "classify_anomaly_types"
+      - "predict_incidents"
+      - "calculate_confidence"
+    
+    resources:
+      cpu: "4"
+      memory: "8Gi"
+      gpu: true
+      concurrency: 10
+    
+    trigger:
+      type: "continuous"
+    
+    dependencies:
+      - "prometheus"
+      - "ml-model-server"
+    
+    metrics:
+      anomalies_detected_last_hour: 23
+      false_positive_rate: 0.021
+      detection_latency_ms: 847
+      model_accuracy: 0.942
+  
+  - agent_id: "self-healing-executor-001"
+    name: "Self-Healing Executor"
+    type: "remediation"
+    version: "2.5.0"
+    status: "active"
+    deployment_date: "2024-06-15"
+    
+    capabilities:
+      - "execute_remediation_playbooks"
+      - "restart_services"
+      - "scale_resources"
+      - "rollback_deployments"
+      - "verify_healing"
+    
+    resources:
+      cpu: "2"
+      memory: "4Gi"
+      concurrency: 5
+    
+    trigger:
+      type: "event"
+      events: ["anomaly_confirmed", "incident_detected"]
+    
+    dependencies:
+      - "kubernetes-api"
+      - "deployment-controller"
+      - "playbook-engine"
+    
+    metrics:
+      healing_attempts_last_24h: 47
+      success_rate: 0.87
+      avg_resolution_time_seconds: 142
+      rollback_rate: 0.11
+  
+  - agent_id: "compliance-auditor-001"
+    name: "Compliance Auditor Agent"
+    type: "governance"
+    version: "1.3.0"
+    status: "active"
+    deployment_date: "2024-11-20"
+    
+    capabilities:
+      - "audit_data_access"
+      - "check_policy_compliance"
+      - "generate_audit_reports"
+      - "detect_violations"
+    
+    resources:
+      cpu: "1"
+      memory: "2Gi"
+      concurrency: 3
+    
+    trigger:
+      type: "scheduled"
+      schedule: "0 */6 * * *"  # Every 6 hours
+    
+    dependencies:
+      - "audit-log-database"
+      - "policy-engine"
+    
+    metrics:
+      audits_completed_last_week: 28
+      violations_detected: 2
+      report_generation_time_seconds: 45
+  
+  - agent_id: "data-quality-checker-001"
+    name: "Data Quality Checker"
+    type: "data_quality"
+    version: "1.7.0"
+    status: "active"
+    deployment_date: "2024-10-05"
+    
+    capabilities:
+      - "check_null_rates"
+      - "detect_data_drift"
+      - "validate_schemas"
+      - "calculate_statistics"
+      - "flag_anomalies"
+    
+    resources:
+      cpu: "3"
+      memory: "6Gi"
+      concurrency: 8
+    
+    trigger:
+      type: "scheduled"
+      schedule: "0 1 * * *"  # Daily at 1 AM
+    
+    dependencies:
+      - "data-warehouse"
+      - "statistics-engine"
+    
+    metrics:
+      checks_run_last_24h: 847
+      issues_detected: 23
+      drift_alerts: 3
+      avg_check_duration_seconds: 34
+  
+  - agent_id: "migration-generator-001"
+    name: "Database Migration Generator"
+    type: "code_generation"
+    version: "1.4.0"
+    status: "active"
+    deployment_date: "2024-12-01"
+    
+    capabilities:
+      - "generate_alembic_migrations"
+      - "generate_rollback_scripts"
+      - "validate_migrations"
+      - "dry_run_testing"
+    
+    resources:
+      cpu: "1"
+      memory: "2Gi"
+      concurrency: 2
+    
+    trigger:
+      type: "event"
+      events: ["schema_change_detected", "manual_trigger"]
+    
+    dependencies:
+      - "alembic"
+      - "database-connection-pool"
+    
+    metrics:
+      migrations_generated_total: 34
+      dry_run_success_rate: 1.0
+      production_success_rate: 0.97
+  
+  - agent_id: "legacy-log-parser-001"
+    name: "Legacy Log Parser"
+    type: "data_ingestion"
+    version: "0.9.0"
+    status: "deprecated"
+    deployment_date: "2024-03-15"
+    deprecation_date: "2024-11-01"
+    replacement: "log-ingestion-agent-001"
+    
+    capabilities:
+      - "parse_legacy_syslog"
+      - "convert_old_formats"
+    
+    resources:
+      cpu: "1"
+      memory: "1Gi"
+    
+    trigger:
+      type: "manual"
+    
+    metrics:
+      runs_since_deprecation: 0
+
+agent_communication:
+  protocols:
+    - "grpc"
+    - "rest_api"
+    - "message_queue"
+  
+  message_bus:
+    type: "rabbitmq"
+    exchanges:
+      - name: "agent.events"
+        type: "topic"
+      - name: "agent.commands"
+        type: "direct"
+  
+  discovery:
+    method: "service_registry"
+    registry_url: "http://consul:8500"
+
+agent_orchestration:
+  workflows:
+    - name: "full_pipeline"
+      description: "Complete data pipeline from ingestion to analysis"
+      agents:
+        - log-ingestion-agent-001
+        - data-quality-checker-001
+        - anomaly-detector-agent-001
+        - self-healing-executor-001
+      trigger: "continuous"
+    
+    - name: "code_quality"
+      description: "Code generation and quality assurance"
+      agents:
+        - test-generation-agent-001
+        - refactoring-agent-001
+        - security-fix-agent-001
+      trigger: "on_pr"
+    
+    - name: "compliance_audit"
+      description: "Comprehensive compliance check"
+      agents:
+        - compliance-auditor-001
+        - data-quality-checker-001
+      trigger: "weekly"
+
+monitoring:
+  dashboard_url: "https://grafana.grace-platform.com/d/agents"
+  
+  health_checks:
+    endpoint: "/health"
+    interval_seconds: 30
+    timeout_seconds: 5
+  
+  alerts:
+    - name: "AgentDown"
+      condition: "agent_health == 0"
+      severity: "critical"
+    
+    - name: "AgentHighErrorRate"
+      condition: "agent_error_rate > 0.1"
+      severity: "warning"
+    
+    - name: "AgentSlowExecution"
+      condition: "agent_duration_p95 > threshold * 2"
+      severity: "warning"
+
+governance:
+  registration_required: true
+  approval_required_for_production: true
+  
+  approval_workflow:
+    - stage: "development"
+      auto_approve: true
+    - stage: "staging"
+      approver: "team_lead"
+    - stage: "production"
+      approvers: ["security_team", "platform_lead"]
+  
+  audit_logging: true
+  retention_days: 365
+
+tags:
+  environment: "production"
+  managed_by: "grace-platform"
+  version: "1.0"
