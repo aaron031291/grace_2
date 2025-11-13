@@ -50,7 +50,9 @@ async def get_kernel_status():
     """
     Get current kernel status, queue depths, and active agents.
     """
-    if not _librarian_kernel:
+    kernel = get_librarian_kernel()
+
+    if not kernel:
         return {
             'kernel': {
                 'kernel_id': 'librarian_kernel',
@@ -70,14 +72,14 @@ async def get_kernel_status():
             },
             'agents': []
         }
-    
+
     try:
-        kernel_status = _librarian_kernel.get_status()
-        queue_status = _librarian_kernel.get_queue_status()
-        
+        kernel_status = kernel.get_status()
+        queue_status = kernel.get_queue_status()
+
         # Get active agent details
         active_agents = []
-        for agent_id, agent in _librarian_kernel._sub_agents.items():
+        for agent_id, agent in kernel._sub_agents.items():
             active_agents.append({
                 'agent_id': agent_id,
                 'agent_type': agent.agent_type if hasattr(agent, 'agent_type') else 'unknown',
@@ -85,13 +87,13 @@ async def get_kernel_status():
                 'started_at': agent.task_data.get('started_at', '') if hasattr(agent, 'task_data') else '',
                 'task_type': agent.task_data.get('type', '') if hasattr(agent, 'task_data') else ''
             })
-        
+
         return {
             'kernel': kernel_status,
             'queues': queue_status,
             'agents': active_agents
         }
-        
+
     except Exception as e:
         logger.error(f"Failed to get kernel status: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -135,11 +135,19 @@ if kernel_path.exists():
     LibrarianKernel = safe_import('LibrarianKernel', 'backend.kernels.librarian_kernel', optional=True) or StubComponent
     LibrarianClarityAdapter = safe_import('LibrarianClarityAdapter', 'backend.kernels.librarian_clarity_adapter', optional=True) or StubComponent
     get_event_bus = safe_import('get_event_bus', 'backend.kernels.event_bus', optional=True) or (lambda *args, **kwargs: StubComponent('event_bus'))
+
+    # Self-Healing Kernel (NEW)
+    SelfHealingKernel = safe_import('SelfHealingKernel', 'backend.kernels.self_healing_kernel', optional=True) or StubComponent
+    
+    # Self-Healing API Routes (NEW)
+    self_healing_api_router = None
+    if (routes_path / "self_healing_api.py").exists():
+        self_healing_api_router = safe_import('router', 'backend.routes.self_healing_api', optional=True)
 else:
     # Create stub kernels if directory doesn't exist
     MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = StubComponent
     VerificationKernel = IntelligenceKernel = InfrastructureKernel = FederationKernel = StubComponent
-    LibrarianKernel = LibrarianClarityAdapter = StubComponent
+    LibrarianKernel = LibrarianClarityAdapter = SelfHealingKernel = StubComponent
     get_event_bus = lambda *args, **kwargs: StubComponent('event_bus')
 
 # API Routes - check if routes exist (OPTIONAL - have fallbacks)
@@ -431,7 +439,8 @@ class GraceUnifiedOrchestrator:
             'verification': VerificationKernel,
             'intelligence': IntelligenceKernel,
             'infrastructure': InfrastructureKernel,
-            'federation': FederationKernel
+            'federation': FederationKernel,
+            'self_healing': SelfHealingKernel
         }
         
         for name, kernel_class in kernel_classes.items():
@@ -681,6 +690,11 @@ if librarian_api_router:
 if chunked_upload_router:
     app.include_router(chunked_upload_router)
     logger.info("✅ Chunked Upload API router included")
+
+# Self-Healing API Routes (NEW)
+if self_healing_api_router:
+    app.include_router(self_healing_api_router)
+    logger.info("✅ Self-Healing API router included")
 
 # Book System Routes (NEW)
 try:
