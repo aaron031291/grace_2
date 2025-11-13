@@ -45,6 +45,7 @@ def create_app() -> FastAPI:
         ingestion,
         events,
         automation,
+        patches,
     )
     
     # Register API routers (order matters for route precedence)
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
     app.include_router(ingestion.router)
     app.include_router(events.router)
     app.include_router(automation.router)
+    app.include_router(patches.router)
     
     # Startup event
     @app.on_event("startup")

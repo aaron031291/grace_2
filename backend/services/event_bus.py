@@ -116,20 +116,47 @@ async def log_to_immutable_on_event(event: Dict[str, Any]):
 async def trigger_healing_on_failure(event: Dict[str, Any]):
     """
     Handler that triggers self-healing on failure events
+    Executes playbooks which may escalate to coding agent
     """
     event_type = event.get('type')
     payload = event.get('payload', {})
     
     if event_type == 'ingestion.failed':
         print(f"[Self-Healing] Ingestion failure detected: {payload.get('file_path')}")
-        print(f"[Self-Healing] Queueing replay playbook...")
-        # TODO: Trigger actual playbook
-        # from backend.api.self_healing import trigger_playbook
-        # await trigger_playbook('ingestion_replay')
+        
+        from backend.services.playbook_engine import playbook_engine
+        
+        context = {
+            "error_type": "ingestion_failed",
+            "file_path": payload.get('file_path'),
+            "error_details": payload.get('error'),
+            "triggered_by": "event_bus"
+        }
+        
+        result = await playbook_engine.execute_playbook('ingestion_replay', context)
+        print(f"[Self-Healing] Playbook executed: {result.get('status')}")
+        
+        if result.get('coding_work_order_id'):
+            print(f"[Self-Healing] Escalated to coding agent: {result.get('coding_work_order_id')}")
     
     elif event_type == 'log_pattern.critical':
         print(f"[Self-Healing] Critical pattern detected: {payload.get('pattern')}")
-        print(f"[Self-Healing] Triggering appropriate playbook...")
+        
+        from backend.services.playbook_engine import playbook_engine
+        
+        context = {
+            "error_type": "critical_pattern",
+            "pattern": payload.get('pattern'),
+            "log_line": payload.get('line'),
+            "source": payload.get('source'),
+            "triggered_by": "log_watcher"
+        }
+        
+        # Select appropriate playbook
+        playbook_id = "pipeline_timeout_fix" if "timeout" in payload.get('line', '').lower() else "verification_fix"
+        
+        result = await playbook_engine.execute_playbook(playbook_id, context)
+        print(f"[Self-Healing] Playbook {playbook_id} executed: {result.get('status')}")
 
 
 # Register default handlers
