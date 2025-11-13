@@ -67,25 +67,47 @@ async def upload_book(
             "job_id": job_id
         }
         
-        # Trigger book ingestion agent
-        from backend.kernels.agents.book_ingestion_agent import get_book_ingestion_agent
+        # Trigger automatic pipeline
+        from backend.services.book_pipeline import get_pipeline
         
-        agent = get_book_ingestion_agent()
+        pipeline = get_pipeline()
         
-        # Process in background (async)
+        # Process immediately (runs full pipeline automatically)
         import asyncio
-        asyncio.create_task(_process_book_async(agent, file_path, metadata, job_id))
+        pipeline_result = await pipeline.process_upload(
+            file_path=file_path,
+            title=metadata["title"],
+            author=metadata["author"],
+            trust_level=trust_level
+        )
+        
+        # Check if duplicate
+        if pipeline_result.get("is_duplicate"):
+            return {
+                "success": False,
+                "status": "duplicate",
+                "message": f"Duplicate book detected: '{pipeline_result['duplicate_title']}'",
+                "duplicate_id": pipeline_result["duplicate_id"],
+                "match_type": "Already in library"
+            }
+        
+        # Update response with pipeline results
+        metadata["pipeline_result"] = pipeline_result
         
         return {
             "success": True,
-            "status": "processing",
+            "status": pipeline_result["status"],
             "job_id": job_id,
-            "document_id": f"book_{job_id}",
+            "document_id": pipeline_result["document_id"],
             "title": metadata["title"],
             "author": metadata["author"],
             "file_path": str(file_path),
-            "message": "Book uploaded successfully. Processing in background.",
-            "estimated_time_minutes": _estimate_processing_time(file_path)
+            "message": "Book uploaded and processed successfully!",
+            "pages_extracted": pipeline_result.get("pages", 0),
+            "words_extracted": pipeline_result.get("words", 0),
+            "chunks_created": pipeline_result.get("chunks_created", 0),
+            "embeddings_created": pipeline_result.get("embeddings_created", 0),
+            "steps_completed": pipeline_result.get("steps_completed", [])
         }
         
     except Exception as e:
