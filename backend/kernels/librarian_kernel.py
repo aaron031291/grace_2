@@ -214,27 +214,43 @@ class LibrarianKernel(BaseDomainKernel):
                 
                 # Check agent capacity
                 active_count = len(self._sub_agents)
-                if active_count >= self.config['max_concurrent_agents']:
-                    await asyncio.sleep(1)
-                    continue
+                max_agents = self.config.get('max_concurrent_agents', 5)
                 
-                # Process schema queue (highest priority)
-                if not self.schema_queue.empty():
+                # Calculate available slots per queue type
+                max_schema_agents = self.config.get('max_schema_agents', 2)
+                max_ingestion_agents = self.config.get('max_ingestion_agents', 3)
+                max_trust_agents = self.config.get('max_trust_agents', 2)
+                
+                schema_agents = sum(1 for a in self._sub_agents.values() if a.get('type') == 'schema_scout')
+                ingestion_agents = sum(1 for a in self._sub_agents.values() if a.get('type') == 'ingestion_runner')
+                trust_agents = sum(1 for a in self._sub_agents.values() if a.get('type') == 'trust_auditor')
+                
+                # Process schema queue (highest priority) - spawn multiple if available
+                while (not self.schema_queue.empty() and 
+                       schema_agents < max_schema_agents and 
+                       active_count < max_agents):
                     item = await self.schema_queue.get()
                     await self.spawn_agent('schema_scout', item, priority='high')
-                    continue
+                    schema_agents += 1
+                    active_count += 1
                 
-                # Process ingestion queue
-                if not self.ingestion_queue.empty():
+                # Process ingestion queue - spawn multiple concurrently
+                while (not self.ingestion_queue.empty() and 
+                       ingestion_agents < max_ingestion_agents and 
+                       active_count < max_agents):
                     item = await self.ingestion_queue.get()
                     await self.spawn_agent('ingestion_runner', item, priority='normal')
-                    continue
+                    ingestion_agents += 1
+                    active_count += 1
                 
                 # Process trust audit queue
-                if not self.trust_audit_queue.empty():
+                while (not self.trust_audit_queue.empty() and 
+                       trust_agents < max_trust_agents and 
+                       active_count < max_agents):
                     item = await self.trust_audit_queue.get()
                     await self.spawn_agent('trust_auditor', item, priority='normal')
-                    continue
+                    trust_agents += 1
+                    active_count += 1
                 
                 # Periodic trust audit
                 if await self._should_run_trust_audit():

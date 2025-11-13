@@ -199,17 +199,30 @@ class BaseDomainKernel(ABC):
             agent = await self._create_agent(agent_type, agent_id, task_data)
             
             if agent:
-                self._sub_agents[agent_id] = agent
+                # Store agent metadata for tracking
+                self._sub_agents[agent_id] = {
+                    'instance': agent,
+                    'type': agent_type,
+                    'started_at': datetime.utcnow(),
+                    'priority': priority,
+                    'task_data': task_data,
+                    'status': 'starting'
+                }
+                
                 self.metrics['agents_spawned'] += 1
+                
+                # Log to memory_sub_agents table
+                await self._log_agent_spawn(agent_id, agent_type, task_data, priority)
                 
                 await self._emit_event('agent.spawned', {
                     'agent_id': agent_id,
                     'agent_type': agent_type,
                     'kernel_id': self.kernel_id,
-                    'priority': priority
+                    'priority': priority,
+                    'task': task_data.get('type', 'unknown')
                 })
                 
-                # Start agent task
+                # Start agent task in background (fire and forget)
                 asyncio.create_task(self._run_agent(agent_id, agent))
                 
                 return agent_id
@@ -224,8 +237,13 @@ class BaseDomainKernel(ABC):
         """Terminate a specific sub-agent"""
         if agent_id in self._sub_agents:
             try:
-                agent = self._sub_agents[agent_id]
+                agent_meta = self._sub_agents[agent_id]
+                agent = agent_meta['instance'] if isinstance(agent_meta, dict) else agent_meta
                 await self._stop_agent(agent)
+                
+                # Log termination
+                await self._log_agent_termination(agent_id, "manual")
+                
                 del self._sub_agents[agent_id]
                 
                 await self._emit_event('agent.terminated', {
@@ -301,15 +319,30 @@ class BaseDomainKernel(ABC):
             await self.terminate_agent(agent_id)
     
     async def _run_agent(self, agent_id: str, agent: Any):
-        """Run an agent's task and handle completion"""
+        """Run an agent's task and handle completion (background task)"""
+        start_time = datetime.utcnow()
+        success = False
+        result = None
+        
         try:
+            # Update status to running
+            if agent_id in self._sub_agents:
+                self._sub_agents[agent_id]['status'] = 'running'
+            
             result = await agent.execute()
+            success = True
             
             self.metrics['jobs_completed'] += 1
+            
+            # Log completion to memory_sub_agents
+            await self._log_agent_completion(agent_id, True, result)
+            
             await self._emit_event('agent.completed', {
                 'agent_id': agent_id,
                 'kernel_id': self.kernel_id,
-                'result': result
+                'success': True,
+                'execution_time': (datetime.utcnow() - start_time).total_seconds(),
+                'result': str(result)[:200] if result else None
             })
             
             # Auto-cleanup completed agent
@@ -320,15 +353,22 @@ class BaseDomainKernel(ABC):
             logger.error(f"Agent {agent_id} failed: {e}")
             self.metrics['errors'] += 1
             
+            # Log failure to memory_sub_agents
+            await self._log_agent_completion(agent_id, False, str(e))
+            
             await self._emit_event('agent.failed', {
                 'agent_id': agent_id,
                 'kernel_id': self.kernel_id,
-                'error': str(e)
+                'error': str(e),
+                'execution_time': (datetime.utcnow() - start_time).total_seconds()
             })
             
             # Cleanup failed agent
             if agent_id in self._sub_agents:
                 del self._sub_agents[agent_id]
+        
+        finally:
+            logger.debug(f"Agent {agent_id} complete (success={success})")
     
     async def _stop_agent(self, agent: Any):
         """Stop a specific agent"""
@@ -336,6 +376,74 @@ class BaseDomainKernel(ABC):
             await agent.stop()
         elif hasattr(agent, 'cancel'):
             agent.cancel()
+    
+    async def _log_agent_spawn(self, agent_id: str, agent_type: str, task_data: Dict, priority: str):
+        """Log agent spawn to memory_sub_agents table"""
+        if not self.registry:
+            return
+        
+        try:
+            from backend.subsystems.sub_agents_integration import sub_agents_integration
+            await sub_agents_integration.initialize()
+            
+            await sub_agents_integration.register_agent(
+                agent_id=agent_id,
+                agent_name=f"{agent_type}_{agent_id.split('_')[-1][:8]}",
+                agent_type=agent_type,
+                mission=f"Process {task_data.get('type', 'task')}",
+                capabilities=[agent_type, task_data.get('type', 'unknown')],
+                constraints={
+                    'priority': priority,
+                    'spawned_by': self.kernel_id,
+                    'task_data': task_data
+                }
+            )
+            
+            await sub_agents_integration.update_agent_status(
+                agent_id=agent_id,
+                status='active',
+                current_task=task_data.get('type', 'processing')
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to log agent spawn: {e}")
+    
+    async def _log_agent_completion(self, agent_id: str, success: bool, result: Any):
+        """Log agent completion to memory_sub_agents table"""
+        try:
+            from backend.subsystems.sub_agents_integration import sub_agents_integration
+            await sub_agents_integration.initialize()
+            
+            await sub_agents_integration.log_task_completion(
+                agent_id=agent_id,
+                task_name=f"Task for {agent_id}",
+                success=success,
+                execution_time_sec=1.0,
+                result_summary=str(result)[:500] if result else "completed"
+            )
+            
+            await sub_agents_integration.update_agent_status(
+                agent_id=agent_id,
+                status='idle' if success else 'error'
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to log agent completion: {e}")
+    
+    async def _log_agent_termination(self, agent_id: str, reason: str):
+        """Log agent termination"""
+        try:
+            from backend.subsystems.sub_agents_integration import sub_agents_integration
+            await sub_agents_integration.initialize()
+            
+            await sub_agents_integration.update_agent_status(
+                agent_id=agent_id,
+                status='terminated',
+                current_task=f"Terminated: {reason}"
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to log agent termination: {e}")
     
     async def _emit_event(self, event_type: str, data: Dict[str, Any]):
         """Emit an event to the event bus"""
