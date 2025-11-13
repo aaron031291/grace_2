@@ -26,10 +26,12 @@ interface FileTreeProps {
   data: FileTreeNode[];
   onSelect: (path: string) => void;
   selectedPath?: string;
+  currentPath?: string;
   onUpload?: (file: File, targetPath: string) => void;
+  onNavigate?: (path: string) => void;
 }
 
-export function FileTree({ data = [], onSelect, selectedPath, onUpload }: FileTreeProps) {
+export function FileTree({ data = [], onSelect, selectedPath, currentPath = '', onUpload, onNavigate }: FileTreeProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState<string | null>(null);
 

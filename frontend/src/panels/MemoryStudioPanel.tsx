@@ -6,10 +6,11 @@
 import { useState, useEffect } from 'react';
 import { 
   Activity, BarChart3, Zap, Play, Pause, CheckCircle, XCircle,
-  Clock, TrendingUp, Database, FileText, Layers, Brain
+  Clock, TrendingUp, Database, FileText, Layers, Brain, BookOpen
 } from 'lucide-react';
 import { MemoryHubPanel } from './MemoryHubPanel';
 import { GraceActivityFeed } from '../components/GraceActivityFeed';
+import LibrarianPanel from './LibrarianPanel';
 
 interface Pipeline {
   id: string;
@@ -42,7 +43,7 @@ interface Metrics {
 }
 
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace'>('workspace');
+  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian'>('workspace');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -188,6 +189,17 @@ export function MemoryStudioPanel() {
           <Brain size={16} />
           <span>Grace Activity</span>
         </button>
+        <button
+          onClick={() => setView('librarian')}
+          style={{
+            ...tabStyle,
+            background: view === 'librarian' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: view === 'librarian' ? '#a78bfa' : '#9ca3af'
+          }}
+        >
+          <BookOpen size={16} />
+          <span>Librarian</span>
+        </button>
       </div>
 
       {/* Content Area */}
@@ -200,6 +212,7 @@ export function MemoryStudioPanel() {
             <GraceActivityFeed />
           </div>
         )}
+        {view === 'librarian' && <LibrarianPanel />}
       </div>
     </div>
   );

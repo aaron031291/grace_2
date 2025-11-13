@@ -17,6 +17,9 @@ import {
 import { FileTree, FileTreeNode } from '../components/FileTree';
 import { SchemaReviewModal } from '../components/SchemaReviewModal';
 import { TableGrid } from '../components/TableGrid';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { FolderList } from '../components/FolderList';
+import { FileEditor } from '../components/FileEditor';
 
 import {
   fetchFileTree,
@@ -38,6 +41,8 @@ import {
 export function MemoryPanel() {
   const [view, setView] = useState<'files' | 'tables' | 'agents'>('tables');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [currentPath, setCurrentPath] = useState<string>('storage/uploads');
+  const [contentView, setContentView] = useState<'folder' | 'file'>('folder');
   const [selectedTable, setSelectedTable] = useState<string>('');
   
   const [fileTree, setFileTree] = useState<FileTreeNode[]>([]);
@@ -160,14 +165,97 @@ export function MemoryPanel() {
 
   async function handleFileUpload(file: File, targetPath: string) {
     try {
-      await uploadFile(file, targetPath);
+      await uploadFile(file, targetPath || currentPath);
       alert('File uploaded successfully');
       await loadFileTree();
       await loadPendingSchemas();
+      await loadTableData(); // Refresh table data after upload
     } catch (err) {
       console.error('Upload failed:', err);
       alert('Upload failed');
     }
+  }
+
+  async function handleFileSelect(path: string) {
+    setSelectedPath(path);
+    
+    const node = findNodeByPath(fileTree, path);
+    if (node) {
+      if (node.type === 'file') {
+        setContentView('file');
+      } else if (node.type === 'directory') {
+        setCurrentPath(path);
+        setContentView('folder');
+      }
+    }
+  }
+
+  function handleFolderSelect(path: string) {
+    setCurrentPath(path);
+    setSelectedPath(null);
+    setContentView('folder');
+  }
+
+  function handleNavigateUp() {
+    const segments = currentPath.split('/').filter(s => s);
+    if (segments.length > 1) {
+      const parentPath = segments.slice(0, -1).join('/');
+      handleFolderSelect(parentPath);
+    } else {
+      handleFolderSelect('storage/uploads');
+    }
+  }
+
+  function handleCloseFile() {
+    setSelectedPath(null);
+    setContentView('folder');
+  }
+
+  async function handleSaveFile(content: string) {
+    if (!selectedPath) return;
+    
+    try {
+      const response = await fetch('/api/memory/files/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          path: selectedPath,
+          content: content
+        })
+      });
+      
+      if (response.ok) {
+        alert('File saved successfully');
+      }
+    } catch (err) {
+      console.error('Failed to save file:', err);
+      throw err;
+    }
+  }
+
+  function findNodeByPath(nodes: FileTreeNode[], path: string): FileTreeNode | null {
+    for (const node of nodes) {
+      if (node.path === path) return node;
+      if (node.children) {
+        const found = findNodeByPath(node.children, path);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  function getCurrentFolderFiles(): FileTreeNode[] {
+    const node = findNodeByPath(fileTree, currentPath);
+    if (node && node.type === 'directory' && node.children) {
+      return node.children;
+    }
+    return fileTree;
+  }
+
+  function handleNavigate(path: string) {
+    setCurrentPath(path);
+    setSelectedPath(null);
+    setContentView('folder');
   }
 
   async function handleApproveSchema(proposalId: string) {
@@ -283,28 +371,50 @@ export function MemoryPanel() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {view === 'files' && (
-          <>
-            <aside className="w-80 border-r border-gray-700 overflow-y-auto">
-              <FileTree
-                data={fileTree}
-                onSelect={setSelectedPath}
-                selectedPath={selectedPath || undefined}
-                onUpload={handleFileUpload}
-              />
+          <div className="flex-1 flex overflow-hidden">
+            {/* Sidebar: File Tree */}
+            <aside className="w-80 border-r border-gray-700 flex flex-col">
+              {/* Breadcrumb Navigation */}
+              <div className="p-3 border-b border-gray-700 bg-gray-800">
+                <Breadcrumbs
+                  currentPath={currentPath}
+                  onNavigate={handleNavigate}
+                />
+              </div>
+              
+              {/* File Tree */}
+              <div className="flex-1 overflow-y-auto">
+                <FileTree
+                  data={fileTree}
+                  onSelect={handleFileSelect}
+                  selectedPath={selectedPath || undefined}
+                  currentPath={currentPath}
+                  onUpload={handleFileUpload}
+                  onNavigate={handleNavigate}
+                />
+              </div>
             </aside>
-            <main className="flex-1">
-              {selectedPath ? (
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-2">File Details</h3>
-                  <p className="text-sm text-gray-400">{selectedPath}</p>
-                </div>
+
+            {/* Main Content Area: Folder or File */}
+            <main className="flex-1 overflow-hidden">
+              {contentView === 'file' && selectedPath ? (
+                <FileEditor
+                  filePath={selectedPath}
+                  onClose={handleCloseFile}
+                  onSave={handleSaveFile}
+                />
               ) : (
-                <div className="h-full flex items-center justify-center text-gray-400">
-                  Select a file to view details
-                </div>
+                <FolderList
+                  folderPath={currentPath}
+                  files={getCurrentFolderFiles()}
+                  onFileSelect={handleFileSelect}
+                  onFolderSelect={handleFolderSelect}
+                  onNavigateUp={handleNavigateUp}
+                  onUpload={(file) => handleFileUpload(file, currentPath)}
+                />
               )}
             </main>
-          </>
+          </div>
         )}
 
         {view === 'tables' && (

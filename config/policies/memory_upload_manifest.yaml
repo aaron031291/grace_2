@@ -1,0 +1,113 @@
+table: memory_upload_manifest
+description: Tracks chunked file uploads for resumable TB-scale transfers
+fields:
+  - name: upload_id
+    type: uuid
+    primary_key: true
+    generated: true
+    description: Unique upload session identifier
+
+  - name: filename
+    type: string
+    required: true
+    description: Original filename
+
+  - name: file_size
+    type: bigint
+    required: true
+    description: Total file size in bytes
+
+  - name: checksum
+    type: string
+    required: true
+    description: SHA-256 checksum of complete file
+
+  - name: target_folder
+    type: string
+    required: true
+    description: Destination folder path
+
+  - name: chunk_size
+    type: integer
+    default: 33554432
+    description: Size of each chunk in bytes (default 32MB)
+
+  - name: total_chunks
+    type: integer
+    required: true
+    description: Total number of chunks
+
+  - name: completed_chunks
+    type: json
+    default: []
+    description: Array of completed chunk indices
+
+  - name: status
+    type: string
+    allowed: [uploading, assembling, completed, failed, cancelled]
+    default: uploading
+    description: Upload session status
+
+  - name: user_id
+    type: string
+    nullable: true
+    description: User who initiated upload
+
+  - name: session_id
+    type: string
+    nullable: true
+    description: Authenticated session ID
+
+  - name: metadata
+    type: json
+    default: {}
+    description: Additional metadata (content-type, source, etc.)
+
+  - name: malware_scan_status
+    type: string
+    allowed: [pending, scanning, clean, infected, skipped]
+    default: pending
+    description: Malware scan result
+
+  - name: malware_scan_result
+    type: json
+    nullable: true
+    description: Detailed scan results
+
+  - name: error_message
+    type: text
+    nullable: true
+    description: Error details if upload failed
+
+  - name: assembled_path
+    type: string
+    nullable: true
+    description: Path to assembled complete file
+
+  - name: created_at
+    type: datetime
+    generated: true
+    description: Upload session start time
+
+  - name: updated_at
+    type: datetime
+    generated: true
+    description: Last update timestamp
+
+  - name: completed_at
+    type: datetime
+    nullable: true
+    description: Upload completion timestamp
+
+  - name: expires_at
+    type: datetime
+    nullable: true
+    description: Session expiration (for cleanup)
+
+indexes:
+  - fields: [status]
+  - fields: [user_id, status]
+  - fields: [created_at]
+
+constraints:
+  - valid_status: "status IN ('uploading', 'assembling', 'completed', 'failed', 'cancelled')"
