@@ -720,12 +720,13 @@ except Exception as e:
 # FACTORY PATTERN API - New clean modular routers
 try:
     logger.info("Loading factory pattern API routers...")
-    from backend.api import events, automation, patches
+    from backend.api import events, automation, patches, monitoring
     
     app.include_router(events.router)
     app.include_router(automation.router)
     app.include_router(patches.router)
-    logger.info("✅ Factory API routers registered (events, automation, patches)")
+    app.include_router(monitoring.router)
+    logger.info("✅ Factory API routers registered (events, automation, patches, monitoring)")
 except Exception as e:
     logger.error(f"Failed to register factory API routers: {e}")
 

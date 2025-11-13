@@ -28,11 +28,11 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 
 export const system = {
   async getHealth() {
-    return fetchJSON('/system/health');
+    return fetchJSON('/api/system/health');
   },
   
   async getMetrics() {
-    return fetchJSON('/system/metrics');
+    return fetchJSON('/api/metrics/comprehensive');
   },
 };
 
@@ -40,31 +40,31 @@ export const system = {
 
 export const selfHealing = {
   async getStats() {
-    return fetchJSON('/self-healing/stats');
+    return fetchJSON('/api/self-healing/stats');
   },
   
   async getIncidents(limit = 20) {
-    return fetchJSON(`/self-healing/incidents?limit=${limit}`);
+    return fetchJSON(`/api/self-healing/incidents?limit=${limit}`);
   },
   
   async getPlaybooks() {
-    return fetchJSON('/self-healing/playbooks');
+    return fetchJSON('/api/self-healing/playbooks');
   },
   
   async getRecentActions(limit = 15) {
-    return fetchJSON(`/self-healing/actions/recent?limit=${limit}`);
+    return fetchJSON(`/api/self-healing/actions/recent?limit=${limit}`);
   },
   
   async enable() {
-    return fetchJSON('/self-healing/enable', { method: 'POST' });
+    return fetchJSON('/api/self-healing/enable', { method: 'POST' });
   },
   
   async disable() {
-    return fetchJSON('/self-healing/disable', { method: 'POST' });
+    return fetchJSON('/api/self-healing/disable', { method: 'POST' });
   },
   
   async triggerPlaybook(playbookId: string) {
-    return fetchJSON(`/self-healing/playbooks/${playbookId}/trigger`, { method: 'POST' });
+    return fetchJSON(`/api/self-healing/playbooks/${playbookId}/trigger`, { method: 'POST' });
   },
 };
 
@@ -72,39 +72,39 @@ export const selfHealing = {
 
 export const librarian = {
   async getStatus() {
-    return fetchJSON('/librarian/status');
+    return fetchJSON('/api/librarian/status');
   },
   
   async getSchemaProposals() {
-    return fetchJSON('/librarian/schema-proposals');
+    return fetchJSON('/api/librarian/schema-proposals');
   },
   
   async approveSchema(proposalId: number) {
-    return fetchJSON(`/librarian/schema-proposals/${proposalId}/approve`, { method: 'POST' });
+    return fetchJSON(`/api/librarian/schema-proposals/${proposalId}/approve`, { method: 'POST' });
   },
   
   async rejectSchema(proposalId: number) {
-    return fetchJSON(`/librarian/schema-proposals/${proposalId}/reject`, { method: 'POST' });
+    return fetchJSON(`/api/librarian/schema-proposals/${proposalId}/reject`, { method: 'POST' });
   },
   
   async getFileOperations(limit = 20) {
-    return fetchJSON(`/librarian/file-operations?limit=${limit}`);
+    return fetchJSON(`/api/librarian/file-operations?limit=${limit}`);
   },
   
   async getOrganizationSuggestions() {
-    return fetchJSON('/librarian/organization-suggestions');
+    return fetchJSON('/api/librarian/organization-suggestions');
   },
   
   async getActiveAgents() {
-    return fetchJSON('/librarian/agents');
+    return fetchJSON('/api/librarian/agents');
   },
   
   async getImmutableLogs(limit = 100) {
-    return fetchJSON(`/librarian/logs/immutable?limit=${limit}`);
+    return fetchJSON(`/api/librarian/logs/immutable?limit=${limit}`);
   },
   
   async getLogTail(lines = 50) {
-    return fetchJSON(`/librarian/logs/tail?lines=${lines}`);
+    return fetchJSON(`/api/librarian/logs/tail?lines=${lines}`);
   },
 };
 
