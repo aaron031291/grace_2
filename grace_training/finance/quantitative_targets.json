@@ -1,0 +1,264 @@
+{
+  "company_targets": {
+    "fiscal_year": 2025,
+    "reporting_period": "Q1-Q4 2025",
+    "last_updated": "2025-01-15"
+  },
+  
+  "revenue_targets": {
+    "annual_revenue": {
+      "target": 22000000,
+      "stretch": 25000000,
+      "minimum": 20000000,
+      "currency": "USD"
+    },
+    "quarterly_breakdown": {
+      "Q1": {
+        "target": 4800000,
+        "actual": 4800000,
+        "variance_percent": 0,
+        "status": "achieved"
+      },
+      "Q2": {
+        "target": 5500000,
+        "forecast": 5600000,
+        "status": "on_track"
+      },
+      "Q3": {
+        "target": 5800000,
+        "forecast": 5750000,
+        "status": "on_track"
+      },
+      "Q4": {
+        "target": 5900000,
+        "forecast": null,
+        "status": "pending"
+      }
+    },
+    "arr_target": {
+      "end_of_year": 25000000,
+      "Q1_actual": 18200000,
+      "growth_rate_target": 0.42
+    },
+    "revenue_mix_targets": {
+      "subscription_revenue_percent": 92,
+      "professional_services_percent": 8
+    }
+  },
+  
+  "customer_targets": {
+    "total_customers_eoy": 220,
+    "Q1_actual": 149,
+    "new_customer_acquisition": {
+      "annual_target": 95,
+      "Q1_actual": 31,
+      "Q2_target": 35,
+      "Q3_target": 40,
+      "Q4_target": 45
+    },
+    "customer_tier_distribution_target": {
+      "enterprise_percent": 25,
+      "professional_percent": 45,
+      "starter_percent": 30
+    },
+    "logo_retention_target": 0.95,
+    "net_revenue_retention_target": 1.20
+  },
+  
+  "sales_efficiency_metrics": {
+    "customer_acquisition_cost": {
+      "target": 40000,
+      "Q1_actual": 42000,
+      "max_acceptable": 50000
+    },
+    "lifetime_value": {
+      "target": 900000,
+      "Q1_actual": 890000
+    },
+    "ltv_cac_ratio": {
+      "target": 22,
+      "minimum": 15,
+      "Q1_actual": 21
+    },
+    "months_to_recover_cac": {
+      "target": 8,
+      "Q1_actual": 9,
+      "maximum_acceptable": 12
+    },
+    "win_rate_targets": {
+      "overall": 0.35,
+      "enterprise": 0.30,
+      "professional": 0.40,
+      "starter": 0.50
+    },
+    "sales_cycle_days": {
+      "enterprise_target": 80,
+      "enterprise_actual": 87,
+      "professional_target": 30,
+      "professional_actual": 34
+    }
+  },
+  
+  "product_metrics": {
+    "platform_uptime_target": 0.999,
+    "Q1_actual": 0.9997,
+    "self_healing": {
+      "auto_resolution_rate_target": 0.90,
+      "Q1_actual": 0.87,
+      "mean_time_to_detect_seconds": 30,
+      "mean_time_to_resolve_seconds": 180,
+      "Q1_actual_mttd": 8.3,
+      "Q1_actual_mttr": 192
+    },
+    "api_performance": {
+      "p95_latency_ms_target": 150,
+      "p99_latency_ms_target": 300,
+      "Q1_p95_actual": 145,
+      "Q1_p99_actual": 287
+    },
+    "feature_adoption": {
+      "ai_governance_module_adoption_target": 0.30,
+      "Q1_actual": 0.12,
+      "analytics_dashboard_adoption_target": 0.50,
+      "Q1_actual": 0.42
+    }
+  },
+  
+  "operational_efficiency": {
+    "gross_margin_target": 0.80,
+    "Q1_actual": 0.78,
+    "operating_expenses": {
+      "rd_percent_of_revenue": 45,
+      "sales_marketing_percent_of_revenue": 35,
+      "ga_percent_of_revenue": 15,
+      "infrastructure_percent_of_revenue": 5
+    },
+    "cash_burn": {
+      "monthly_target": 900000,
+      "Q1_actual": 950000,
+      "path_to_profitability_quarter": "Q4_2025"
+    },
+    "runway_months_minimum": 12
+  },
+  
+  "team_targets": {
+    "total_headcount_eoy": 85,
+    "Q1_actual": 60,
+    "department_headcount_targets": {
+      "engineering": 38,
+      "sales": 16,
+      "customer_success": 12,
+      "marketing": 7,
+      "ga": 12
+    },
+    "employee_satisfaction_target": 4.2,
+    "employee_retention_rate_target": 0.90,
+    "time_to_hire_days_target": 45,
+    "offer_acceptance_rate_target": 0.80
+  },
+  
+  "customer_success_metrics": {
+    "net_promoter_score_target": 70,
+    "Q1_actual": 68,
+    "customer_satisfaction_target": 4.5,
+    "Q1_actual": 4.6,
+    "support_response_time_hours": 2,
+    "Q1_actual": 2.1,
+    "support_resolution_time_hours": 8,
+    "Q1_actual": 8.3,
+    "first_contact_resolution_rate": 0.70,
+    "Q1_actual": 0.67
+  },
+  
+  "marketing_metrics": {
+    "website_monthly_visitors_target": 50000,
+    "marketing_qualified_leads_monthly": 300,
+    "Q1_monthly_avg": 282,
+    "mql_to_sql_conversion_rate": 0.30,
+    "Q1_actual": 0.28,
+    "cost_per_lead_target": 150,
+    "content_production": {
+      "blog_posts_monthly": 4,
+      "whitepapers_quarterly": 2,
+      "case_studies_quarterly": 2,
+      "webinars_quarterly": 4
+    },
+    "social_media_followers_eoy": 12000
+  },
+  
+  "compliance_security_targets": {
+    "audit_log_retention_days": 2555,
+    "security_incident_response_time_minutes": 15,
+    "data_breach_count_target": 0,
+    "compliance_violations_target": 0,
+    "security_training_completion_rate": 1.0,
+    "phishing_simulation_pass_rate": 0.95,
+    "vulnerability_patching_sla": {
+      "critical_hours": 24,
+      "high_days": 7,
+      "medium_days": 30
+    }
+  },
+  
+  "strategic_initiatives": {
+    "vertical_expansion": {
+      "financial_services_arr_target": 8000000,
+      "healthcare_arr_target": 5000000,
+      "manufacturing_arr_target": 3000000
+    },
+    "geographic_expansion": {
+      "north_america_percent": 65,
+      "europe_percent": 25,
+      "apac_percent": 10
+    },
+    "partnerships": {
+      "technology_partners_target": 10,
+      "channel_partners_target": 8,
+      "Q1_actual_tech": 5,
+      "Q1_actual_channel": 3
+    },
+    "certifications": {
+      "soc2_type2": true,
+      "iso27001": true,
+      "hipaa": false,
+      "fedramp": false
+    }
+  },
+  
+  "investor_metrics": {
+    "burn_multiple": {
+      "target": 1.5,
+      "Q1_actual": 1.98,
+      "acceptable_range": [1.0, 2.0]
+    },
+    "magic_number": {
+      "target": 1.2,
+      "description": "net_new_arr / sales_marketing_spend"
+    },
+    "rule_of_40": {
+      "target": 40,
+      "calculation": "growth_rate_percent + profit_margin_percent",
+      "Q1_implied_annual": 38
+    }
+  },
+  
+  "risk_indicators": {
+    "customer_concentration": {
+      "top_customer_percent_max": 0.15,
+      "top_5_customers_percent_max": 0.40,
+      "Q1_top_customer": 0.08,
+      "Q1_top_5": 0.32
+    },
+    "payment_health": {
+      "days_sales_outstanding_target": 45,
+      "Q1_actual": 42,
+      "past_due_percent_max": 0.05,
+      "Q1_actual": 0.02
+    },
+    "churn_early_warning": {
+      "engagement_score_threshold": 60,
+      "support_tickets_spike_threshold": 3.0,
+      "usage_decline_threshold": -0.30
+    }
+  }
+}

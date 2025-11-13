@@ -1,0 +1,431 @@
+{
+  "assessment_metadata": {
+    "assessment_id": "BIAS-2025-Q1",
+    "assessment_date": "2025-01-15",
+    "assessment_period": "2024-10-01 to 2024-12-31",
+    "conducted_by": "AI Ethics Team",
+    "review_status": "approved"
+  },
+  
+  "models_assessed": [
+    {
+      "model_name": "anomaly_detector_v2",
+      "model_version": "2.3.1",
+      "deployment_date": "2024-09-15",
+      "risk_level": "medium",
+      "assessment_date": "2025-01-10"
+    },
+    {
+      "model_name": "classification_engine_v3",
+      "model_version": "3.1.0",
+      "deployment_date": "2024-08-01",
+      "risk_level": "low",
+      "assessment_date": "2025-01-10"
+    },
+    {
+      "model_name": "risk_assessment_model_v1",
+      "model_version": "1.2.0",
+      "deployment_date": "2024-11-01",
+      "risk_level": "high",
+      "assessment_date": "2025-01-12"
+    }
+  ],
+  
+  "bias_tests_conducted": [
+    {
+      "test_name": "demographic_parity",
+      "description": "Equal positive prediction rate across protected groups",
+      "applied_to": ["anomaly_detector_v2", "classification_engine_v3", "risk_assessment_model_v1"]
+    },
+    {
+      "test_name": "equal_opportunity",
+      "description": "Equal true positive rate across protected groups",
+      "applied_to": ["anomaly_detector_v2", "risk_assessment_model_v1"]
+    },
+    {
+      "test_name": "calibration",
+      "description": "Predicted probabilities match actual outcomes across groups",
+      "applied_to": ["all_models"]
+    },
+    {
+      "test_name": "individual_fairness",
+      "description": "Similar individuals receive similar predictions",
+      "applied_to": ["risk_assessment_model_v1"]
+    }
+  ],
+  
+  "protected_attributes_analyzed": [
+    {
+      "attribute": "industry_vertical",
+      "categories": ["technology", "financial_services", "healthcare", "ecommerce", "manufacturing", "other"],
+      "rationale": "Ensure model performs equally across different industry types"
+    },
+    {
+      "attribute": "company_size",
+      "categories": ["small_<200", "medium_200-1000", "large_1000-5000", "enterprise_>5000"],
+      "rationale": "Prevent bias against smaller or larger organizations"
+    },
+    {
+      "attribute": "geographic_region",
+      "categories": ["north_america", "europe", "asia_pacific", "other"],
+      "rationale": "Ensure consistent performance across regions"
+    },
+    {
+      "attribute": "infrastructure_complexity",
+      "categories": ["simple", "moderate", "complex", "very_complex"],
+      "rationale": "Avoid bias based on customer technical sophistication"
+    }
+  ],
+  
+  "anomaly_detector_results": {
+    "model": "anomaly_detector_v2",
+    "overall_status": "pass_with_mitigation",
+    
+    "industry_vertical_bias": {
+      "test": "demographic_parity",
+      "result": "pass",
+      "metrics": {
+        "technology": {
+          "detection_rate": 0.923,
+          "false_positive_rate": 0.018,
+          "precision": 0.945
+        },
+        "financial_services": {
+          "detection_rate": 0.917,
+          "false_positive_rate": 0.021,
+          "precision": 0.938
+        },
+        "healthcare": {
+          "detection_rate": 0.928,
+          "false_positive_rate": 0.016,
+          "precision": 0.951
+        },
+        "ecommerce": {
+          "detection_rate": 0.920,
+          "false_positive_rate": 0.019,
+          "precision": 0.942
+        },
+        "manufacturing": {
+          "detection_rate": 0.915,
+          "false_positive_rate": 0.022,
+          "precision": 0.935
+        }
+      },
+      "max_disparity": 0.013,
+      "threshold": 0.05,
+      "status": "pass"
+    },
+    
+    "company_size_bias": {
+      "test": "equal_opportunity",
+      "result": "mitigated",
+      "pre_mitigation_metrics": {
+        "small_<200": {
+          "detection_rate": 0.823,
+          "false_positive_rate": 0.027,
+          "precision": 0.898
+        },
+        "medium_200-1000": {
+          "detection_rate": 0.904,
+          "false_positive_rate": 0.019,
+          "precision": 0.936
+        },
+        "large_1000-5000": {
+          "detection_rate": 0.912,
+          "false_positive_rate": 0.018,
+          "precision": 0.943
+        },
+        "enterprise_>5000": {
+          "detection_rate": 0.915,
+          "false_positive_rate": 0.017,
+          "precision": 0.947
+        }
+      },
+      "pre_mitigation_max_disparity": 0.092,
+      "post_mitigation_metrics": {
+        "small_<200": {
+          "detection_rate": 0.894,
+          "false_positive_rate": 0.022,
+          "precision": 0.925
+        },
+        "medium_200-1000": {
+          "detection_rate": 0.907,
+          "false_positive_rate": 0.019,
+          "precision": 0.938
+        },
+        "large_1000-5000": {
+          "detection_rate": 0.913,
+          "false_positive_rate": 0.018,
+          "precision": 0.944
+        },
+        "enterprise_>5000": {
+          "detection_rate": 0.917,
+          "false_positive_rate": 0.017,
+          "precision": 0.948
+        }
+      },
+      "post_mitigation_max_disparity": 0.023,
+      "threshold": 0.05,
+      "status": "pass_after_mitigation",
+      "mitigation_applied": [
+        "Training data rebalancing (upsampled small companies)",
+        "Segment-specific detection thresholds",
+        "Weekly monitoring by segment"
+      ]
+    },
+    
+    "geographic_region_bias": {
+      "test": "demographic_parity",
+      "result": "pass",
+      "metrics": {
+        "north_america": {
+          "detection_rate": 0.921,
+          "false_positive_rate": 0.019,
+          "precision": 0.942
+        },
+        "europe": {
+          "detection_rate": 0.918,
+          "false_positive_rate": 0.020,
+          "precision": 0.939
+        },
+        "asia_pacific": {
+          "detection_rate": 0.914,
+          "false_positive_rate": 0.021,
+          "precision": 0.936
+        }
+      },
+      "max_disparity": 0.007,
+      "threshold": 0.05,
+      "status": "pass"
+    },
+    
+    "calibration_assessment": {
+      "overall_calibration_error": 0.031,
+      "threshold": 0.10,
+      "status": "well_calibrated",
+      "by_segment": {
+        "small_companies": 0.042,
+        "medium_companies": 0.028,
+        "large_companies": 0.025,
+        "enterprise": 0.023
+      }
+    }
+  },
+  
+  "risk_assessment_model_results": {
+    "model": "risk_assessment_model_v1",
+    "overall_status": "pass_with_justification",
+    
+    "industry_vertical_bias": {
+      "test": "intentional_discrimination_analysis",
+      "result": "justified",
+      "metrics": {
+        "financial_services": {
+          "avg_risk_score": 67.3,
+          "high_risk_rate": 0.42
+        },
+        "healthcare": {
+          "avg_risk_score": 64.1,
+          "high_risk_rate": 0.38
+        },
+        "technology": {
+          "avg_risk_score": 52.7,
+          "high_risk_rate": 0.24
+        },
+        "ecommerce": {
+          "avg_risk_score": 48.2,
+          "high_risk_rate": 0.19
+        }
+      },
+      "justification": "Higher risk scores for financial services and healthcare are intentional and justified due to stricter regulatory requirements (SOX, PCI-DSS, HIPAA). This is business-appropriate discrimination based on legitimate compliance needs.",
+      "business_documentation": "RISK-POLICY-001: Industry-Specific Risk Weighting",
+      "status": "pass_intentional"
+    },
+    
+    "individual_fairness": {
+      "test": "lipschitz_continuity",
+      "description": "Similar risk profiles should receive similar risk scores",
+      "lipschitz_constant": 1.23,
+      "threshold": 2.0,
+      "status": "pass",
+      "spot_check_examples": [
+        {
+          "company_a": {
+            "profile": "Mid-size tech company, 500 employees, AWS infrastructure",
+            "risk_score": 45
+          },
+          "company_b": {
+            "profile": "Mid-size tech company, 520 employees, AWS infrastructure",
+            "risk_score": 46
+          },
+          "similarity": 0.98,
+          "score_difference": 1,
+          "status": "consistent"
+        }
+      ]
+    }
+  },
+  
+  "classification_engine_results": {
+    "model": "classification_engine_v3",
+    "overall_status": "pass",
+    
+    "all_bias_tests": {
+      "demographic_parity": "pass",
+      "equal_opportunity": "pass",
+      "calibration": "pass"
+    },
+    
+    "max_disparities": {
+      "industry": 0.008,
+      "company_size": 0.012,
+      "region": 0.006
+    },
+    
+    "performance_metrics": {
+      "overall_accuracy": 0.967,
+      "min_accuracy_by_segment": 0.961,
+      "max_accuracy_by_segment": 0.972,
+      "variance": 0.011
+    }
+  },
+  
+  "fairness_metrics_summary": {
+    "demographic_parity_difference": {
+      "anomaly_detector": 0.023,
+      "classification_engine": 0.012,
+      "risk_assessment": "N/A_intentional",
+      "threshold": 0.05,
+      "status": "all_pass"
+    },
+    
+    "equal_opportunity_difference": {
+      "anomaly_detector": 0.023,
+      "risk_assessment": 0.034,
+      "threshold": 0.05,
+      "status": "all_pass"
+    },
+    
+    "average_odds_difference": {
+      "anomaly_detector": 0.019,
+      "classification_engine": 0.010,
+      "risk_assessment": 0.041,
+      "threshold": 0.05,
+      "status": "all_pass"
+    }
+  },
+  
+  "intersectional_bias_analysis": {
+    "description": "Analysis of bias across intersections of protected attributes",
+    "combinations_tested": [
+      "industry + company_size",
+      "region + company_size",
+      "industry + region"
+    ],
+    
+    "findings": {
+      "max_disparity_found": 0.037,
+      "combination": "small_healthcare_companies_in_asia_pacific",
+      "threshold": 0.08,
+      "status": "acceptable",
+      "note": "Slightly higher false positive rate (3.7%) but within acceptable range. Flagged for monitoring."
+    }
+  },
+  
+  "temporal_bias_analysis": {
+    "description": "Check if bias metrics change over time",
+    "analysis_period": "Q4 2024",
+    
+    "trend": {
+      "october": {
+        "max_disparity": 0.041
+      },
+      "november": {
+        "max_disparity": 0.032
+      },
+      "december": {
+        "max_disparity": 0.023
+      },
+      "trend_direction": "improving",
+      "reason": "Company size mitigation deployed mid-November"
+    }
+  },
+  
+  "recommendations": [
+    {
+      "priority": "high",
+      "recommendation": "Implement continuous bias monitoring",
+      "rationale": "Current quarterly assessment may miss emerging bias",
+      "status": "planned_Q1_2025"
+    },
+    {
+      "priority": "medium",
+      "recommendation": "Expand training dataset for small companies",
+      "rationale": "Further reduce company size disparity from 2.3% to <1%",
+      "status": "in_progress"
+    },
+    {
+      "priority": "medium",
+      "recommendation": "Monitor intersectional bias (small healthcare companies in APAC)",
+      "rationale": "Slightly elevated false positive rate detected",
+      "status": "added_to_monitoring"
+    },
+    {
+      "priority": "low",
+      "recommendation": "Document all intentional discrimination with business justification",
+      "rationale": "Ensure clear audit trail for regulatory compliance",
+      "status": "ongoing"
+    }
+  ],
+  
+  "remediation_actions": [
+    {
+      "action_id": "BIAS-2024-001",
+      "issue": "Company size bias in anomaly detection",
+      "severity": "medium",
+      "status": "completed",
+      "date_identified": "2024-10-15",
+      "date_resolved": "2024-11-18",
+      "mitigation": "Training data rebalancing + segment-specific thresholds",
+      "verification": "Post-mitigation testing shows disparity reduced from 9.2% to 2.3%"
+    }
+  ],
+  
+  "compliance_attestation": {
+    "gdpr_article_22": {
+      "requirement": "Right to explanation for automated decisions",
+      "status": "compliant",
+      "evidence": "All models provide explanations via SHAP/LIME"
+    },
+    
+    "eu_ai_act_anticipated": {
+      "risk_classification": "limited_risk",
+      "transparency_obligations": "compliant",
+      "evidence": "Model cards, bias assessments, explainability implemented"
+    },
+    
+    "ieee_7000_series": {
+      "standard": "IEEE 7000-2021 (Systems Design - Ethical Concerns)",
+      "status": "aligned",
+      "gap_analysis": "Minor gaps in stakeholder engagement documentation"
+    }
+  },
+  
+  "next_assessment": {
+    "scheduled_date": "2025-04-15",
+    "scope": "All production models",
+    "focus_areas": [
+      "Continuous monitoring implementation",
+      "Intersectional bias deep dive",
+      "New model launches (federated learning)"
+    ]
+  },
+  
+  "approval": {
+    "assessed_by": "Dr. Sarah Chen, AI Ethics Lead",
+    "reviewed_by": "AI Ethics Board",
+    "approved_by": "Chief Technology Officer",
+    "approval_date": "2025-01-15",
+    "next_review": "2025-04-15"
+  }
+}
