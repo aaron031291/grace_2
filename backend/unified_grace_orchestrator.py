@@ -807,7 +807,7 @@ async def read_memory_file(path: str):
     try:
         from backend.memory_file_service import get_memory_service
         service = await get_memory_service()
-        return service.read_file(path)
+        return await service.get_file(path)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -827,7 +827,7 @@ async def delete_memory_file(path: str, recursive: bool = False):
     try:
         from backend.memory_file_service import get_memory_service
         service = await get_memory_service()
-        return await service.delete_file(path, recursive)
+        return await service.delete_file(path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
