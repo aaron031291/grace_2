@@ -1,0 +1,207 @@
+version: "1.0"
+policy_change_request:
+  request_id: "PCR-2025-001"
+  submitted_date: "2025-01-15"
+  submitted_by:
+    name: "Jane Smith"
+    role: "Senior Security Engineer"
+    email: "jane.smith@grace-platform.com"
+  
+  change_details:
+    policy_name: "Data Retention Policy"
+    policy_id: "POL-DATA-001"
+    current_version: "2.1"
+    proposed_version: "2.2"
+    
+    change_type: "modification"  # Options: new, modification, deprecation
+    urgency: "medium"  # Options: low, medium, high, critical
+    
+    change_summary: |
+      Extend audit log retention from 7 years to 10 years to comply with 
+      new regulatory requirements in the financial services sector.
+    
+    detailed_description: |
+      Current Policy:
+      - Operational data: 90 days
+      - Audit logs: 7 years
+      - Backups: 30 days rolling
+      
+      Proposed Policy:
+      - Operational data: 90 days (no change)
+      - Audit logs: 10 years (extended from 7)
+      - Backups: 30 days rolling (no change)
+      
+      Rationale:
+      Recent regulatory updates in the EU and US financial sectors require
+      audit trail retention for up to 10 years. To serve financial services
+      customers, we need to extend our retention capabilities.
+    
+    business_justification: |
+      - Compliance with EU MiFID II (10 year requirement)
+      - Alignment with US SEC Rule 17a-4 (6-10 years)
+      - Competitive requirement for financial services segment
+      - Currently blocking 3 enterprise deals worth $850K ARR
+    
+    impact_analysis:
+      systems_affected:
+        - "audit-log-service"
+        - "storage-management"
+        - "compliance-reporting"
+      
+      cost_impact:
+        estimated_storage_increase: "2.5 TB per year"
+        estimated_annual_cost: "$15,000"
+        one_time_migration_cost: "$5,000"
+      
+      resource_impact:
+        engineering_effort: "3 days"
+        testing_effort: "2 days"
+        documentation_effort: "1 day"
+      
+      risk_assessment:
+        compliance_risk_if_not_implemented: "high"
+        operational_risk_if_implemented: "low"
+        security_risk: "low"
+        data_privacy_considerations: "must ensure PII handling compliance"
+  
+  stakeholder_review:
+    required_approvals:
+      - role: "Chief Compliance Officer"
+        name: "Robert Johnson"
+        status: "pending"
+        deadline: "2025-01-22"
+      
+      - role: "Chief Information Security Officer"
+        name: "Maria Garcia"
+        status: "pending"
+        deadline: "2025-01-22"
+      
+      - role: "VP Engineering"
+        name: "David Chen"
+        status: "pending"
+        deadline: "2025-01-25"
+      
+      - role: "Chief Financial Officer"
+        name: "Sarah Williams"
+        status: "pending"
+        deadline: "2025-01-25"
+    
+    optional_review:
+      - role: "Legal Counsel"
+        name: "Thomas Anderson"
+      - role: "VP Sales"
+        name: "Emily Brown"
+  
+  implementation_plan:
+    phases:
+      - phase: 1
+        name: "Storage Infrastructure Update"
+        duration: "2 days"
+        tasks:
+          - "Provision additional storage capacity"
+          - "Update storage lifecycle policies"
+          - "Configure backup retention rules"
+      
+      - phase: 2
+        name: "Application Configuration"
+        duration: "1 day"
+        tasks:
+          - "Update audit-log-service configuration"
+          - "Modify archival workflows"
+          - "Update compliance reporting queries"
+      
+      - phase: 3
+        name: "Testing & Validation"
+        duration: "2 days"
+        tasks:
+          - "Test retention policy enforcement"
+          - "Validate archival and retrieval"
+          - "Verify compliance report accuracy"
+      
+      - phase: 4
+        name: "Documentation & Communication"
+        duration: "1 day"
+        tasks:
+          - "Update policy documentation"
+          - "Communicate changes to customers"
+          - "Train support team"
+    
+    rollout_strategy: "phased"
+    target_completion_date: "2025-02-15"
+  
+  rollback_plan:
+    rollback_possible: true
+    rollback_steps:
+      - "Revert configuration changes"
+      - "Restore previous retention schedules"
+      - "No data loss as only extending retention"
+    rollback_time_estimate: "1 hour"
+  
+  compliance_checklist:
+    - item: "GDPR compliance reviewed"
+      status: "completed"
+      notes: "10-year retention acceptable for audit logs under legal obligation"
+    
+    - item: "CCPA compliance reviewed"
+      status: "completed"
+      notes: "Covered under business purpose exception"
+    
+    - item: "Data classification verified"
+      status: "completed"
+      notes: "Audit logs do not contain direct PII"
+    
+    - item: "Security controls validated"
+      status: "pending"
+      notes: "Encryption at rest and in transit"
+  
+  communication_plan:
+    internal:
+      - audience: "Engineering Team"
+        method: "Slack + Email"
+        timeline: "Before implementation"
+      
+      - audience: "Support Team"
+        method: "Training session"
+        timeline: "After implementation"
+    
+    external:
+      - audience: "Existing Customers"
+        method: "Email notification"
+        timeline: "1 week before change"
+      
+      - audience: "Prospects (Financial Services)"
+        method: "Updated compliance documentation"
+        timeline: "Upon approval"
+  
+  approval_workflow:
+    step_1:
+      action: "Initial review by Compliance"
+      approver: "Chief Compliance Officer"
+      sla: "3 business days"
+    
+    step_2:
+      action: "Security review"
+      approver: "CISO"
+      sla: "2 business days"
+    
+    step_3:
+      action: "Technical feasibility review"
+      approver: "VP Engineering"
+      sla: "3 business days"
+    
+    step_4:
+      action: "Budget approval"
+      approver: "CFO"
+      sla: "2 business days"
+    
+    step_5:
+      action: "Final approval"
+      approver: "CEO"
+      sla: "1 business day"
+  
+  status: "pending_review"
+  version_history:
+    - version: "1.0"
+      date: "2025-01-15"
+      author: "Jane Smith"
+      changes: "Initial request"
