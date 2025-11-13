@@ -1,7 +1,7 @@
 {
-  "boot_id": "grace-20251112-234235",
+  "boot_id": "grace-20251113-070419",
   "environment": "dev",
-  "started_at": "2025-11-12T23:42:35.308705",
+  "started_at": "2025-11-13T07:04:19.789129",
   "subsystem_counts": {
     "core": 1,
     "memory": 1,
