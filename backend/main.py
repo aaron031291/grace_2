@@ -543,6 +543,10 @@ async def verification_failed(
     return {"failed_verifications": failures, "count": len(failures)}
 
 app.include_router(auth_routes.router)
+
+# COMPREHENSIVE API - Register FIRST to avoid route shadowing
+app.include_router(comprehensive_api.router, prefix="/api")  # Must be early to override default routes
+
 app.include_router(chat.router)
 app.include_router(metrics.router)
 app.include_router(reflections.router)
@@ -609,7 +613,7 @@ app.include_router(integration_api.crypto_router)  # Crypto Key Management
 app.include_router(agentic_router)  # Agentic Dashboard API
 app.include_router(ingestion_api.router)  # Ingestion Pipeline System
 # app.include_router(grace_memory_api.router)  # Grace Autonomous Memory Management - TEMPORARILY DISABLED (circular import)
-app.include_router(comprehensive_api.router, prefix="/api")  # Comprehensive API for all panels
+# comprehensive_api already registered at top to avoid route shadowing
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
