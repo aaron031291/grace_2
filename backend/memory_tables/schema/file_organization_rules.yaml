@@ -2,7 +2,9 @@ table: memory_file_organization_rules
 description: Learned rules for file organization (ML-powered over time)
 columns:
   - name: rule_id
-    type: INTEGER PRIMARY KEY AUTOINCREMENT
+    type: INTEGER
+    primary_key: true
+    autoincrement: true
     description: Unique rule identifier
 
   - name: file_pattern
