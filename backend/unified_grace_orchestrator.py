@@ -770,6 +770,14 @@ try:
     except Exception as e:
         logger.warning(f"Book dashboard routes not loaded: {e}")
     
+    # Real book upload (connects to BookIngestionAgent → Memory Fusion)
+    try:
+        from backend.api.book_upload import router as book_upload_router
+        app.include_router(book_upload_router, prefix="/api", tags=["books"])
+        logger.info("✅ Real book upload connected: /api/books/upload → BookIngestionAgent → Memory Fusion")
+    except Exception as e:
+        logger.warning(f"Real book upload not loaded: {e}")
+    
     # File organizer (may override stubs)
     try:
         from backend.routes.file_organizer_api import router as organizer_router
