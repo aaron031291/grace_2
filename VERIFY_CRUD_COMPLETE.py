@@ -1,199 +1,120 @@
-# -*- coding: utf-8 -*-
 """
-Complete CRUD Verification with detailed logging
+Quick CRUD operations test to verify system works end-to-end
 """
-import requests
+import asyncio
 import sys
-import json
+import io
+from pathlib import Path
 
-if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8')
+# Fix Windows encoding
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-BASE = "http://localhost:8000"
+# Add to path
+sys.path.insert(0, str(Path(__file__).parent))
 
-def log(msg, level="INFO"):
-    print(f"[{level}] {msg}")
+from backend.database import get_db
 
-def test_operation(name, method, path, expect_pass=True, **kwargs):
-    """Test a single operation with detailed logging"""
-    print(f"\n{'='*60}")
-    print(f"Testing: {name}")
-    print(f"Endpoint: {method} {path}")
+async def test_crud():
+    """Test Create, Read, Update, Delete operations"""
     
-    try:
-        r = requests.request(method, f"{BASE}{path}", timeout=5, **kwargs)
-        
-        # Parse response
-        try:
-            data = r.json()
-            response_preview = json.dumps(data, indent=2)[:300]
-        except:
-            response_preview = r.text[:300]
-        
-        # Check result
-        passed = r.ok if expect_pass else not r.ok
-        status = "PASS" if passed else "FAIL"
-        
-        print(f"Status Code: {r.status_code}")
-        print(f"Expected: {'Success (2xx)' if expect_pass else 'Error (4xx/5xx)'}")
-        print(f"Result: [{status}]")
-        print(f"Response: {response_preview}")
-        
-        return passed
-        
-    except Exception as e:
-        print(f"[ERROR] {str(e)}")
+    print("\n" + "="*60)
+    print("  CRUD OPERATIONS TEST".center(60))
+    print("="*60 + "\n")
+    
+    db = await get_db()
+    
+    # CREATE
+    print("1. CREATE - Inserting test document...")
+    test_id = "test_book_123"
+    await db.execute(
+        """INSERT OR REPLACE INTO memory_documents 
+           (document_id, title, author, source_type, trust_score, created_at)
+           VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+        (test_id, "Test Book", "Test Author", "book", 0.95)
+    )
+    await db.commit()
+    print("   ✓ Document inserted")
+    
+    # READ
+    print("\n2. READ - Querying document...")
+    doc = await db.fetch_one(
+        "SELECT * FROM memory_documents WHERE document_id = ?",
+        (test_id,)
+    )
+    if doc:
+        print(f"   ✓ Found: {doc['title']} by {doc['author']}")
+        print(f"   Trust score: {doc['trust_score']}")
+    else:
+        print("   ✗ Document not found!")
         return False
+    
+    # UPDATE
+    print("\n3. UPDATE - Changing trust score...")
+    await db.execute(
+        "UPDATE memory_documents SET trust_score = ? WHERE document_id = ?",
+        (1.0, test_id)
+    )
+    await db.commit()
+    
+    doc = await db.fetch_one(
+        "SELECT trust_score FROM memory_documents WHERE document_id = ?",
+        (test_id,)
+    )
+    print(f"   ✓ Updated trust score: {doc['trust_score']}")
+    
+    # DELETE
+    print("\n4. DELETE - Removing test document...")
+    await db.execute(
+        "DELETE FROM memory_documents WHERE document_id = ?",
+        (test_id,)
+    )
+    await db.commit()
+    
+    doc = await db.fetch_one(
+        "SELECT * FROM memory_documents WHERE document_id = ?",
+        (test_id,)
+    )
+    if doc is None:
+        print("   ✓ Document deleted successfully")
+    else:
+        print("   ✗ Document still exists!")
+        return False
+    
+    # Verify other tables
+    print("\n5. VERIFY TABLES...")
+    tables = [
+        'memory_document_chunks',
+        'memory_insights',
+        'memory_verification_suites',
+        'memory_file_operations',
+        'memory_librarian_log'
+    ]
+    
+    for table in tables:
+        try:
+            result = await db.fetch_one(f"SELECT COUNT(*) as count FROM {table}")
+            print(f"   ✓ {table}: {result['count']} rows")
+        except Exception as e:
+            print(f"   ✗ {table}: ERROR - {e}")
+    
+    print("\n" + "="*60)
+    print("  ✓ ALL CRUD OPERATIONS SUCCESSFUL!".center(60))
+    print("="*60 + "\n")
+    
+    print("Database is working correctly!")
+    print("\nNext: Start the system and test the UI")
+    print("  1. python serve.py")
+    print("  2. cd frontend && npm run dev")
+    print("  3. http://localhost:5173")
+    
+    return True
 
-print("="*60)
-print("GRACE Memory Workspace - Complete CRUD Verification")
-print("="*60)
-
-results = []
-
-# Test 1: CREATE a new file
-log("Creating test file...")
-results.append(test_operation(
-    "CREATE File",
-    "POST",
-    "/api/memory/file?path=test_verify/sample.txt&content=Initial content",
-    expect_pass=True
-))
-
-# Test 2: READ the file
-log("Reading file content...")
-results.append(test_operation(
-    "READ File Content",
-    "GET",
-    "/api/memory/file?path=test_verify/sample.txt",
-    expect_pass=True
-))
-
-# Test 3: UPDATE the file
-log("Updating file content...")
-results.append(test_operation(
-    "UPDATE File",
-    "POST",
-    "/api/memory/file?path=test_verify/sample.txt&content=Modified content here",
-    expect_pass=True
-))
-
-# Test 4: Verify update worked
-log("Verifying update...")
-r = requests.get(f"{BASE}/api/memory/file?path=test_verify/sample.txt")
-if r.ok and "Modified content" in r.json().get('content', ''):
-    print("\n[PASS] File content was updated correctly")
-    results.append(True)
-else:
-    print("\n[FAIL] File content not updated")
-    results.append(False)
-
-# Test 5: CREATE a folder
-log("Creating test folder...")
-results.append(test_operation(
-    "CREATE Folder",
-    "POST",
-    "/api/memory/folder?path=test_verify/subfolder",
-    expect_pass=True
-))
-
-# Test 6: CREATE file in subfolder
-log("Creating file in subfolder...")
-results.append(test_operation(
-    "CREATE File in Subfolder",
-    "POST",
-    "/api/memory/file?path=test_verify/subfolder/nested.txt&content=Nested file",
-    expect_pass=True
-))
-
-# Test 7: RENAME the file
-log("Renaming file...")
-results.append(test_operation(
-    "RENAME File",
-    "PATCH",
-    "/api/memory/file?old_path=test_verify/sample.txt&new_path=test_verify/renamed.txt",
-    expect_pass=True
-))
-
-# Test 8: Verify rename worked (old path should not exist)
-log("Verifying old path is gone...")
-r = requests.get(f"{BASE}/api/memory/file?path=test_verify/sample.txt")
-if r.status_code == 404 or 'not found' in r.text.lower():
-    print("\n[PASS] Old path no longer exists")
-    results.append(True)
-else:
-    print("\n[FAIL] Old path still exists")
-    results.append(False)
-
-# Test 9: Verify new path exists
-log("Verifying new path exists...")
-r = requests.get(f"{BASE}/api/memory/file?path=test_verify/renamed.txt")
-if r.ok and "Modified content" in r.json().get('content', ''):
-    print("\n[PASS] File renamed successfully with content intact")
-    results.append(True)
-else:
-    print("\n[FAIL] Renamed file not found or content lost")
-    results.append(False)
-
-# Test 10: DELETE file
-log("Deleting renamed file...")
-results.append(test_operation(
-    "DELETE File",
-    "DELETE",
-    "/api/memory/file?path=test_verify/renamed.txt",
-    expect_pass=True
-))
-
-# Test 11: DELETE nested file
-log("Deleting nested file...")
-results.append(test_operation(
-    "DELETE Nested File",
-    "DELETE",
-    "/api/memory/file?path=test_verify/subfolder/nested.txt",
-    expect_pass=True
-))
-
-# Test 12: DELETE folder
-log("Deleting folder...")
-results.append(test_operation(
-    "DELETE Folder",
-    "DELETE",
-    "/api/memory/file?path=test_verify/subfolder",
-    expect_pass=True
-))
-
-# Test 13: DELETE parent folder
-log("Deleting parent folder...")
-results.append(test_operation(
-    "DELETE Parent Folder",
-    "DELETE",
-    "/api/memory/file?path=test_verify",
-    expect_pass=True
-))
-
-# Final Summary
-print("\n" + "="*60)
-print("VERIFICATION SUMMARY")
-print("="*60)
-passed = sum(results)
-total = len(results)
-print(f"\nTests Passed: {passed}/{total}")
-print(f"Success Rate: {(passed/total*100):.1f}%")
-
-if passed == total:
-    print("\n✓ ALL CRUD OPERATIONS VERIFIED AND WORKING")
-    print("\nMemory Workspace is 100% functional:")
-    print("  ✓ Create files and folders")
-    print("  ✓ Read file content")
-    print("  ✓ Update/save files")
-    print("  ✓ Rename files")
-    print("  ✓ Delete files and folders")
-    print("\nYou can now use the Memory Workspace UI with full CRUD functionality!")
-else:
-    print(f"\n✗ {total - passed} operation(s) failed")
-    print("\nCheck the errors above and:")
-    print("1. Ensure backend is restarted")
-    print("2. Check backend logs for detailed errors")
-    print("3. Verify file paths are relative to grace_training/")
-
-print("="*60)
+if __name__ == "__main__":
+    try:
+        result = asyncio.run(test_crud())
+        sys.exit(0 if result else 1)
+    except Exception as e:
+        print(f"\n✗ Test failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)

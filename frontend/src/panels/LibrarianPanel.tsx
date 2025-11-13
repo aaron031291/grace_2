@@ -89,14 +89,31 @@ export function LibrarianPanel() {
   async function loadKernelStatus() {
     try {
       const response = await fetch('/api/librarian/status');
-      if (response.ok) {
-        const data = await response.json();
-        setKernelStatus(data.kernel);
-        setQueueStatus(data.queues);
-        setActiveAgents(data.agents || []);
+      
+      if (!response.ok) {
+        setKernelStatus({ status: 'unavailable' });
+        setQueueStatus({});
+        setActiveAgents([]);
+        return;
       }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        setKernelStatus({ status: 'starting' });
+        setQueueStatus({});
+        setActiveAgents([]);
+        return;
+      }
+      
+      const data = await response.json();
+      setKernelStatus(data.kernel || data);
+      setQueueStatus(data.queues || {});
+      setActiveAgents(data.agents || []);
     } catch (err) {
       console.error('Failed to load kernel status:', err);
+      setKernelStatus({ status: 'error' });
+      setQueueStatus({});
+      setActiveAgents([]);
     } finally {
       setLoading(false);
     }
