@@ -13,17 +13,17 @@ from backend.clarity import get_event_bus
 router = APIRouter()
 
 
-@router.get("/books/stats")
+@router.get("/stats")
 async def get_book_stats() -> Dict[str, Any]:
     """Get overall book ingestion statistics"""
-    
+
     db = await get_db()
-    
+
     # Total books
     total_books = await db.fetch_one(
         "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book'"
     )
-    
+
     # Books by trust level
     high_trust = await db.fetch_one(
         "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND trust_score >= 0.9"
@@ -34,27 +34,30 @@ async def get_book_stats() -> Dict[str, Any]:
     low_trust = await db.fetch_one(
         "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND trust_score < 0.7"
     )
-    
-    # Recent ingestions (last 7 days)
+
+    # Recent ingestions (last 7 days) - use last_synced_at instead of created_at
     recent_books = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND created_at >= datetime('now', '-7 days')"
+        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND last_synced_at >= datetime('now', '-7 days')"
     )
-    
-    # Total chunks
-    total_chunks = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_document_chunks"
-    )
-    
+
+    # Total chunks - check if table exists
+    try:
+        total_chunks = await db.fetch_one(
+            "SELECT COUNT(*) as count FROM memory_document_chunks"
+        )
+    except:
+        total_chunks = {"count": 0}
+
     # Total insights
     total_insights = await db.fetch_one(
         "SELECT COUNT(*) as count FROM memory_insights"
     )
-    
+
     # Average trust score
     avg_trust = await db.fetch_one(
         "SELECT AVG(trust_score) as avg FROM memory_documents WHERE source_type = 'book'"
     )
-    
+
     return {
         "total_books": total_books["count"] if total_books else 0,
         "trust_levels": {
@@ -69,29 +72,29 @@ async def get_book_stats() -> Dict[str, Any]:
     }
 
 
-@router.get("/books/recent")
+@router.get("/recent")
 async def get_recent_books(limit: int = 10) -> List[Dict[str, Any]]:
     """Get recently ingested books"""
-    
+
     db = await get_db()
-    
+
     books = await db.fetch_all(
-        """SELECT document_id, title, author, trust_score, created_at, metadata
+        """SELECT id, title, authors, trust_score, last_synced_at, notes
            FROM memory_documents
            WHERE source_type = 'book'
-           ORDER BY created_at DESC
+           ORDER BY last_synced_at DESC
            LIMIT ?""",
         (limit,)
     )
-    
+
     return [
         {
-            "document_id": book["document_id"],
+            "document_id": book["id"],
             "title": book["title"],
-            "author": book["author"],
+            "author": book["authors"] if book["authors"] else "Unknown",
             "trust_score": book["trust_score"],
-            "created_at": book["created_at"],
-            "metadata": json.loads(book["metadata"]) if book["metadata"] else {}
+            "created_at": book["last_synced_at"],
+            "metadata": {"notes": book["notes"]} if book["notes"] else {}
         }
         for book in books
     ]
@@ -100,23 +103,23 @@ async def get_recent_books(limit: int = 10) -> List[Dict[str, Any]]:
 @router.get("/books/flagged")
 async def get_flagged_books() -> List[Dict[str, Any]]:
     """Get books flagged for manual review (trust score < 0.7)"""
-    
+
     db = await get_db()
-    
+
     flagged = await db.fetch_all(
-        """SELECT document_id, title, author, trust_score, verification_results
+        """SELECT id, title, authors, trust_score, risk_level
            FROM memory_documents
            WHERE source_type = 'book' AND trust_score < 0.7
            ORDER BY trust_score ASC"""
     )
-    
+
     return [
         {
-            "document_id": book["document_id"],
+            "document_id": book["id"],
             "title": book["title"],
-            "author": book["author"],
+            "author": book["authors"] if book["authors"] else "Unknown",
             "trust_score": book["trust_score"],
-            "verification_results": json.loads(book["verification_results"]) if book["verification_results"] else {}
+            "verification_results": {"risk_level": book["risk_level"]} if book["risk_level"] else {}
         }
         for book in flagged
     ]
@@ -125,47 +128,50 @@ async def get_flagged_books() -> List[Dict[str, Any]]:
 @router.get("/books/{document_id}")
 async def get_book_details(document_id: str) -> Dict[str, Any]:
     """Get detailed information about a specific book"""
-    
+
     db = await get_db()
-    
+
     # Get document
     book = await db.fetch_one(
-        "SELECT * FROM memory_documents WHERE document_id = ?",
+        "SELECT * FROM memory_documents WHERE id = ?",
         (document_id,)
     )
-    
+
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
-    # Get chunks
-    chunks = await db.fetch_all(
-        "SELECT chunk_index, content FROM memory_document_chunks WHERE document_id = ? ORDER BY chunk_index",
-        (document_id,)
-    )
-    
+
+    # Get chunks - check if table exists
+    try:
+        chunks = await db.fetch_all(
+            "SELECT chunk_index, content FROM memory_document_chunks WHERE document_id = ? ORDER BY chunk_index",
+            (document_id,)
+        )
+    except:
+        chunks = []
+
     # Get insights
     insights = await db.fetch_all(
         "SELECT insight_type, content, confidence FROM memory_insights WHERE document_id = ?",
         (document_id,)
     )
-    
+
     # Get verification results
     verifications = await db.fetch_all(
         "SELECT verification_type, results, trust_score, timestamp FROM memory_verification_suites WHERE document_id = ? ORDER BY timestamp DESC",
         (document_id,)
     )
-    
+
     return {
-        "document_id": book["document_id"],
+        "document_id": book["id"],
         "title": book["title"],
-        "author": book["author"],
+        "author": book["authors"] if book["authors"] else "Unknown",
         "source_type": book["source_type"],
         "file_path": book["file_path"],
         "trust_score": book["trust_score"],
-        "created_at": book["created_at"],
-        "updated_at": book["updated_at"],
-        "metadata": json.loads(book["metadata"]) if book["metadata"] else {},
-        "verification_results": json.loads(book["verification_results"]) if book["verification_results"] else {},
+        "created_at": book["last_synced_at"],
+        "updated_at": book["last_synced_at"],
+        "metadata": {"summary": book["summary"], "notes": book["notes"]} if book["summary"] or book["notes"] else {},
+        "verification_results": {"risk_level": book["risk_level"]} if book["risk_level"] else {},
         "chunks": {
             "total": len(chunks),
             "sample": [
@@ -196,28 +202,28 @@ async def get_book_details(document_id: str) -> Dict[str, Any]:
 @router.get("/books/search")
 async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
     """Search books by title, author, or content"""
-    
+
     db = await get_db()
-    
+
     search_term = f"%{q}%"
-    
+
     books = await db.fetch_all(
-        """SELECT document_id, title, author, trust_score, metadata
+        """SELECT id, title, authors, trust_score, summary, notes
            FROM memory_documents
-           WHERE source_type = 'book' 
-           AND (title LIKE ? OR author LIKE ? OR metadata LIKE ?)
+           WHERE source_type = 'book'
+           AND (title LIKE ? OR authors LIKE ? OR summary LIKE ? OR notes LIKE ?)
            ORDER BY trust_score DESC
            LIMIT ?""",
-        (search_term, search_term, search_term, limit)
+        (search_term, search_term, search_term, search_term, limit)
     )
-    
+
     return [
         {
-            "document_id": book["document_id"],
+            "document_id": book["id"],
             "title": book["title"],
-            "author": book["author"],
+            "author": book["authors"] if book["authors"] else "Unknown",
             "trust_score": book["trust_score"],
-            "metadata": json.loads(book["metadata"]) if book["metadata"] else {}
+            "metadata": {"summary": book["summary"], "notes": book["notes"]} if book["summary"] or book["notes"] else {}
         }
         for book in books
     ]
@@ -225,25 +231,26 @@ async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
 
 @router.get("/books/activity")
 async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
-    """Get recent book-related activity from Librarian logs"""
-    
+    """Get recent book-related activity from execution logs"""
+
     db = await get_db()
-    
+
+    # Use execution logs instead of librarian_log
     activity = await db.fetch_all(
-        """SELECT action_type, target_path, details, timestamp
-           FROM memory_librarian_log
-           WHERE action_type IN ('schema_proposal', 'ingestion_launch', 'trust_update', 'automation_rule_executed')
-           ORDER BY timestamp DESC
+        """SELECT agent_type, task_type, status, executed_at, result
+           FROM memory_execution_logs
+           WHERE agent_type LIKE '%book%' OR task_type LIKE '%book%'
+           ORDER BY executed_at DESC
            LIMIT ?""",
         (limit,)
     )
-    
+
     return [
         {
-            "action": a["action_type"],
-            "target": a["target_path"],
-            "details": json.loads(a["details"]) if a["details"] else {},
-            "timestamp": a["timestamp"]
+            "action": a["task_type"],
+            "target": f"{a['agent_type']}:{a['status']}",
+            "details": json.loads(a["result"]) if a["result"] else {},
+            "timestamp": a["executed_at"]
         }
         for a in activity
     ]
@@ -252,21 +259,21 @@ async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
 @router.get("/books/metrics/daily")
 async def get_daily_metrics(days: int = 30) -> List[Dict[str, Any]]:
     """Get daily ingestion metrics"""
-    
+
     db = await get_db()
-    
+
     metrics = await db.fetch_all(
-        """SELECT 
-               DATE(created_at) as date,
+        """SELECT
+               DATE(last_synced_at) as date,
                COUNT(*) as books_added,
                AVG(trust_score) as avg_trust
            FROM memory_documents
-           WHERE source_type = 'book' AND created_at >= datetime('now', ? || ' days')
-           GROUP BY DATE(created_at)
+           WHERE source_type = 'book' AND last_synced_at >= datetime('now', ? || ' days')
+           GROUP BY DATE(last_synced_at)
            ORDER BY date DESC""",
         (f"-{days}",)
     )
-    
+
     return [
         {
             "date": m["date"],
@@ -305,32 +312,36 @@ async def reverify_book(document_id: str) -> Dict[str, Any]:
 @router.delete("/books/{document_id}")
 async def delete_book(document_id: str) -> Dict[str, Any]:
     """Delete a book and all associated data"""
-    
+
     db = await get_db()
-    
+
     # Delete in order: verifications, insights, chunks, document
     await db.execute(
         "DELETE FROM memory_verification_suites WHERE document_id = ?",
         (document_id,)
     )
-    
+
     await db.execute(
         "DELETE FROM memory_insights WHERE document_id = ?",
         (document_id,)
     )
-    
+
+    # Check if chunks table exists before deleting
+    try:
+        await db.execute(
+            "DELETE FROM memory_document_chunks WHERE document_id = ?",
+            (document_id,)
+        )
+    except:
+        pass  # Table might not exist
+
     await db.execute(
-        "DELETE FROM memory_document_chunks WHERE document_id = ?",
+        "DELETE FROM memory_documents WHERE id = ?",
         (document_id,)
     )
-    
-    await db.execute(
-        "DELETE FROM memory_documents WHERE document_id = ?",
-        (document_id,)
-    )
-    
+
     await db.commit()
-    
+
     return {
         "status": "deleted",
         "document_id": document_id,
