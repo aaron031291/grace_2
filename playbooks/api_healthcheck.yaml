@@ -1,0 +1,87 @@
+# API Health Check Playbook
+# Periodic health monitoring for ML/AI API integrations
+
+name: API Health Check
+version: 1.0.0
+category: monitoring
+
+trigger:
+  - schedule: "*/5 * * * *"  # Every 5 minutes
+  - event: integration_deployed
+  - manual: true
+
+steps:
+  - name: Load Integration Config
+    action: load_from_verification_matrix
+    params:
+      integration: "{{ integration_name }}"
+    output: integration_config
+
+  - name: Ping Health Endpoint
+    action: http_request
+    params:
+      url: "{{ integration_config.url }}/health"
+      method: GET
+      timeout: 5s
+      headers:
+        User-Agent: "Grace-HealthCheck/1.0"
+    output: health_response
+    on_error: check_alternative_endpoints
+
+  - name: Check Alternative Endpoints
+    when: health_response.status != 200
+    action: http_request
+    params:
+      urls:
+        - "{{ integration_config.url }}/status"
+        - "{{ integration_config.url }}/api/health"
+        - "{{ integration_config.url }}"
+      method: GET
+      timeout: 5s
+    output: alternative_response
+
+  - name: Measure Latency
+    action: calculate_metrics
+    params:
+      response_time: "{{ health_response.elapsed_ms }}"
+      threshold: 400
+    output: latency_metrics
+
+  - name: Update Verification Matrix
+    action: update_health_status
+    params:
+      integration: "{{ integration_name }}"
+      status: "{{ health_response.status_text }}"
+      metrics:
+        latency_ms: "{{ health_response.elapsed_ms }}"
+        last_check: "{{ now() }}"
+        consecutive_failures: "{{ consecutive_failures }}"
+
+  - name: Trigger Alert
+    when: consecutive_failures > 3
+    action: send_alert
+    params:
+      severity: high
+      message: "API {{ integration_name }} unhealthy for 15+ minutes"
+      channels:
+        - unified_logic_queue
+        - monitoring_dashboard
+
+  - name: Auto-Quarantine
+    when: consecutive_failures > 5
+    action: quarantine_integration
+    params:
+      integration: "{{ integration_name }}"
+      reason: "Failed health checks ({{ consecutive_failures }} consecutive)"
+      notify: true
+
+metadata:
+  owner: grace_system
+  tags:
+    - health-monitoring
+    - api-integration
+    - self-healing
+  sla:
+    check_interval: 5m
+    failure_threshold: 3
+    quarantine_threshold: 5

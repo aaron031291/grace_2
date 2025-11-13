@@ -1,0 +1,96 @@
+# Rate Limit Backoff Playbook
+# Handle HTTP 429 gracefully with exponential backoff
+
+name: Rate Limit Backoff
+version: 1.0.0
+category: resilience
+
+trigger:
+  - event: http_429_received
+  - event: rate_limit_detected
+
+steps:
+  - name: Parse Rate Limit Headers
+    action: extract_headers
+    params:
+      response: "{{ event.response }}"
+      headers:
+        - X-RateLimit-Limit
+        - X-RateLimit-Remaining
+        - X-RateLimit-Reset
+        - Retry-After
+    output: rate_limit_info
+
+  - name: Calculate Backoff
+    action: exponential_backoff
+    params:
+      attempt: "{{ event.retry_count }}"
+      base_delay: 1s
+      max_delay: 60s
+      jitter: true
+      retry_after: "{{ rate_limit_info.Retry-After }}"
+    output: backoff_delay
+
+  - name: Log Rate Limit Event
+    action: log_event
+    params:
+      event_type: rate_limit_hit
+      integration: "{{ event.integration }}"
+      metadata:
+        limit: "{{ rate_limit_info.X-RateLimit-Limit }}"
+        remaining: "{{ rate_limit_info.X-RateLimit-Remaining }}"
+        reset_at: "{{ rate_limit_info.X-RateLimit-Reset }}"
+        backoff_delay: "{{ backoff_delay }}"
+
+  - name: Wait Before Retry
+    action: sleep
+    params:
+      duration: "{{ backoff_delay }}"
+
+  - name: Retry Request
+    when: event.retry_count < 5
+    action: http_request
+    params:
+      url: "{{ event.original_request.url }}"
+      method: "{{ event.original_request.method }}"
+      headers: "{{ event.original_request.headers }}"
+      body: "{{ event.original_request.body }}"
+      retry_count: "{{ event.retry_count + 1 }}"
+    output: retry_response
+
+  - name: Circuit Breaker
+    when: event.retry_count >= 5
+    action: open_circuit_breaker
+    params:
+      integration: "{{ event.integration }}"
+      duration: 5m
+      reason: "Exceeded retry limit after rate limiting"
+
+  - name: Update Metrics
+    action: record_metrics
+    params:
+      integration: "{{ event.integration }}"
+      metric: rate_limit_backoff
+      value:
+        retry_count: "{{ event.retry_count }}"
+        total_delay: "{{ backoff_delay }}"
+        success: "{{ retry_response.status == 200 }}"
+
+  - name: Alert on Excessive Rate Limiting
+    when: rate_limit_events_last_hour > 10
+    action: send_alert
+    params:
+      severity: medium
+      message: "{{ event.integration }} hitting rate limits frequently"
+      recommendation: "Consider request throttling or quota increase"
+
+metadata:
+  owner: grace_resilience
+  tags:
+    - rate-limiting
+    - backoff
+    - resilience
+  thresholds:
+    max_retries: 5
+    circuit_breaker_threshold: 5
+    alert_threshold: 10/hour

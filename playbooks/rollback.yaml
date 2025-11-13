@@ -1,0 +1,131 @@
+# Integration Rollback Playbook
+# Disable integration if KPIs fail or governance revokes
+
+name: Integration Rollback
+version: 1.0.0
+category: incident_response
+
+trigger:
+  - event: kpi_threshold_breach
+  - event: governance_revoked
+  - event: security_incident
+  - manual: true
+
+steps:
+  - name: Assess Situation
+    action: evaluate_incident
+    params:
+      integration: "{{ integration_name }}"
+      trigger_event: "{{ event.type }}"
+    output: assessment
+
+  - name: Determine Rollback Strategy
+    action: decision_tree
+    params:
+      conditions:
+        - if: event.type == 'governance_revoked'
+          then: immediate_shutdown
+        - if: event.type == 'security_incident'
+          then: immediate_quarantine
+        - if: event.type == 'kpi_threshold_breach'
+          then: graceful_degradation
+    output: rollback_strategy
+
+  - name: Immediate Shutdown
+    when: rollback_strategy == 'immediate_shutdown'
+    action: disable_integration
+    params:
+      integration: "{{ integration_name }}"
+      mode: immediate
+      reason: "{{ event.reason }}"
+
+  - name: Immediate Quarantine
+    when: rollback_strategy == 'immediate_quarantine'
+    action: quarantine_integration
+    params:
+      integration: "{{ integration_name }}"
+      isolation_level: complete
+      reason: "Security incident: {{ event.details }}"
+
+  - name: Graceful Degradation
+    when: rollback_strategy == 'graceful_degradation'
+    steps:
+      - name: Reduce Traffic
+        action: traffic_shift
+        params:
+          integration: "{{ integration_name }}"
+          percentage: 50
+      
+      - name: Monitor Recovery
+        action: watch_metrics
+        params:
+          duration: 5m
+          metrics:
+            - error_rate
+            - latency
+        output: recovery_metrics
+      
+      - name: Full Rollback if Not Recovering
+        when: recovery_metrics.improving == false
+        action: disable_integration
+        params:
+          integration: "{{ integration_name }}"
+          mode: graceful
+
+  - name: Update Verification Matrix
+    action: update_status
+    params:
+      integration: "{{ integration_name }}"
+      status: quarantined
+      notes: "Rolled back due to: {{ event.reason }}"
+      timestamp: "{{ now() }}"
+
+  - name: Preserve State
+    action: backup_config
+    params:
+      integration: "{{ integration_name }}"
+      destination: "backups/{{ integration_name }}_{{ now() }}.json"
+
+  - name: Notify Stakeholders
+    action: send_notifications
+    params:
+      recipients:
+        - unified_logic_queue
+        - monitoring_dashboard
+        - admin_team
+      message: |
+        Integration {{ integration_name }} rolled back
+        Reason: {{ event.reason }}
+        Strategy: {{ rollback_strategy }}
+        Timestamp: {{ now() }}
+
+  - name: Create Incident Report
+    action: generate_report
+    params:
+      template: incident_report
+      data:
+        integration: "{{ integration_name }}"
+        trigger: "{{ event.type }}"
+        rollback_strategy: "{{ rollback_strategy }}"
+        assessment: "{{ assessment }}"
+        timestamp: "{{ now() }}"
+      output_path: "reports/incidents/{{ integration_name }}_{{ now() }}.pdf"
+
+  - name: Queue Postmortem
+    action: create_task
+    params:
+      task_type: postmortem
+      integration: "{{ integration_name }}"
+      incident_id: "{{ event.id }}"
+      due_date: "{{ add_days(now(), 2) }}"
+
+metadata:
+  owner: grace_incident_response
+  tags:
+    - rollback
+    - incident-response
+    - reliability
+  sla:
+    immediate_shutdown: < 30s
+    graceful_degradation: < 5m
+    notification: < 1m
