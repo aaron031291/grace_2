@@ -54,7 +54,9 @@ export function SelfHealingPanel() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [recentActions, setRecentActions] = useState<HealingAction[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'incidents' | 'playbooks' | 'actions'>('overview');
+  const [immutableLogs, setImmutableLogs] = useState<any[]>([]);
+  const [tailedLogs, setTailedLogs] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'incidents' | 'playbooks' | 'actions' | 'logs'>('overview');
   const [isEnabled, setIsEnabled] = useState(true);
 
   useEffect(() => {
@@ -62,15 +64,19 @@ export function SelfHealingPanel() {
     loadIncidents();
     loadPlaybooks();
     loadRecentActions();
+    loadLogs();
 
     const interval = setInterval(() => {
       loadStats();
       loadIncidents();
       loadRecentActions();
+      if (activeTab === 'logs') {
+        loadLogs();
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [activeTab]);
 
   const loadStats = async () => {
     try {
@@ -120,6 +126,26 @@ export function SelfHealingPanel() {
     } catch (error) {
       console.error('Failed to load recent actions:', error);
       setRecentActions([]);
+    }
+  };
+
+  const loadLogs = async () => {
+    try {
+      // Load immutable logs
+      const logsRes = await fetch('http://localhost:8000/api/librarian/logs/immutable?limit=100');
+      if (logsRes.ok && logsRes.headers.get('content-type')?.includes('json')) {
+        const data = await logsRes.json();
+        setImmutableLogs(data.logs || []);
+      }
+
+      // Load tailed logs
+      const tailRes = await fetch('http://localhost:8000/api/librarian/logs/tail?lines=50');
+      if (tailRes.ok && tailRes.headers.get('content-type')?.includes('json')) {
+        const data = await tailRes.json();
+        setTailedLogs(data.logs || []);
+      }
+    } catch (error) {
+      console.error('Failed to load logs:', error);
     }
   };
 
@@ -223,7 +249,7 @@ export function SelfHealingPanel() {
 
         {/* Tab Navigation */}
         <div className="flex gap-2 mt-4">
-          {(['overview', 'incidents', 'playbooks', 'actions'] as const).map(tab => (
+          {(['overview', 'incidents', 'playbooks', 'actions', 'logs'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -426,6 +452,71 @@ export function SelfHealingPanel() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'logs' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Immutable Logs & Tail</h3>
+              <button
+                onClick={loadLogs}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+              >
+                Refresh Logs
+              </button>
+            </div>
+
+            {/* Log Tail (Live) */}
+            <div className="mb-6">
+              <h4 className="text-sm font-semibold text-blue-400 mb-2">📜 Live Log Tail (Last 50 lines)</h4>
+              <div className="bg-black/50 rounded-lg p-4 border border-gray-700 font-mono text-xs max-h-96 overflow-y-auto">
+                {tailedLogs.map((log, idx) => (
+                  <div key={idx} className="py-1 border-b border-gray-800 hover:bg-gray-800/30">
+                    <span className="text-gray-500">{log.timestamp}</span>
+                    {' '}
+                    <span className={`px-2 py-0.5 rounded ${
+                      log.action_type.includes('error') || log.action_type.includes('fail') ? 'bg-red-900/30 text-red-300' :
+                      log.action_type.includes('complete') || log.action_type.includes('success') ? 'bg-green-900/30 text-green-300' :
+                      'bg-blue-900/30 text-blue-300'
+                    }`}>
+                      {log.action_type}
+                    </span>
+                    {' '}
+                    <span className="text-gray-400">{log.target_path}</span>
+                  </div>
+                ))}
+                {tailedLogs.length === 0 && (
+                  <div className="text-gray-500 text-center py-4">No logs available</div>
+                )}
+              </div>
+            </div>
+
+            {/* Immutable Log Archive */}
+            <div>
+              <h4 className="text-sm font-semibold text-purple-400 mb-2">🔒 Immutable Log Archive (Last 100 entries)</h4>
+              <div className="bg-gray-900/50 rounded-lg border border-gray-700 max-h-96 overflow-y-auto">
+                {immutableLogs.map((log, idx) => (
+                  <div key={idx} className="p-3 border-b border-gray-800 hover:bg-gray-800/50 cursor-pointer">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs px-2 py-1 rounded bg-purple-900/30 text-purple-300">
+                        {log.action_type}
+                      </span>
+                      <span className="text-xs text-gray-500">{new Date(log.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div className="text-sm text-gray-300">{log.target_path}</div>
+                    {log.details && (
+                      <div className="text-xs text-gray-500 mt-1 font-mono bg-black/30 rounded p-2">
+                        {typeof log.details === 'string' ? log.details.substring(0, 150) : JSON.stringify(log.details).substring(0, 150)}...
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {immutableLogs.length === 0 && (
+                  <div className="text-gray-500 text-center py-8">No immutable logs found</div>
+                )}
+              </div>
             </div>
           </div>
         )}
