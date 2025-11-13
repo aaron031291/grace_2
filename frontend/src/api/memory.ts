@@ -1,117 +1,179 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+// API helpers for memory management endpoints
 
-export type MemoryTreeNode = {
-  name: string;
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export interface FileNode {
   path: string;
-  type: "file" | "folder";
+  name: string;
+  type: 'file' | 'folder';
+  children?: FileNode[];
   size?: number;
   modified?: string;
-};
-
-export async function fetchFileTree(path = "/") {
-  const url = `${API_BASE}/api/memory/files?path=${encodeURIComponent(path)}`;
-  console.log('Fetching tree from:', url);
-  const res = await fetch(url);
-  if (!res.ok) {
-    const error = await res.text();
-    console.error('API error:', error);
-    throw new Error("Failed to load file tree");
-  }
-  const data = await res.json();
-  console.log('Tree data received:', data);
-  return data as {
-    path: string;
-    folders: MemoryTreeNode[];
-    files: MemoryTreeNode[];
-  };
 }
 
-export async function fetchFileContent(path: string) {
-  const res = await fetch(`${API_BASE}/api/memory/files/content?path=${encodeURIComponent(path)}`);
-  if (!res.ok) throw new Error("Failed to load file content");
-  const data = await res.json();
-  return data.content as string;
+export interface FileContent {
+  path: string;
+  content: string;
+  encoding: string;
+  size: number;
+  modified: string;
 }
 
-export async function fetchRowsByPath(path: string) {
-  const res = await fetch(`${API_BASE}/api/memory/tables/by-path?path=${encodeURIComponent(path)}`);
-  if (!res.ok) throw new Error("Failed to load table rows");
-  return res.json() as Promise<{
-    table: string;
-    rows: Record<string, unknown>[];
-  }>;
+export interface TableRow {
+  id: string;
+  [key: string]: any;
 }
 
-export async function fetchPendingSchemas() {
-  const res = await fetch(`${API_BASE}/api/memory/schemas/pending`);
-  if (!res.ok) throw new Error("Failed to load schema proposals");
-  return res.json() as Promise<
-    Array<{ proposal_id: string; table: string; summary: string; diff: Record<string, unknown> }>
-  >;
+export interface SchemaProposal {
+  proposal_id: string;
+  table_name: string;
+  proposed_schema: Record<string, any>;
+  confidence: number;
+  sample_rows: any[];
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
 }
 
-export async function approveSchema(proposalId: string, approved: boolean, notes?: string) {
-  const res = await fetch(`${API_BASE}/api/memory/schemas/approve`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ proposal_id: proposalId, approved, notes }),
+// File Operations
+export async function listFiles(path: string = ''): Promise<FileNode[]> {
+  const response = await fetch(`${API_BASE}/api/memory/files/list?path=${encodeURIComponent(path)}`);
+  if (!response.ok) throw new Error('Failed to list files');
+  return response.json();
+}
+
+export async function getFileContent(path: string): Promise<FileContent> {
+  const response = await fetch(`${API_BASE}/api/memory/files/content?path=${encodeURIComponent(path)}`);
+  if (!response.ok) throw new Error('Failed to get file content');
+  return response.json();
+}
+
+export async function saveFileContent(path: string, content: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/files/content`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path, content }),
   });
-  if (!res.ok) throw new Error("Failed to submit approval");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to save file');
 }
 
-export async function saveFile(path: string, content: string) {
-  const res = await fetch(`${API_BASE}/api/memory/files/content?path=${encodeURIComponent(path)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content }),
+export async function createFile(path: string, content: string = ''): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/files/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path, content }),
   });
-  if (!res.ok) throw new Error("Failed to save file");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to create file');
 }
 
-export async function createFolder(parentPath: string, folderName: string) {
-  const fullPath = `${parentPath}/${folderName}`.replace(/\/+/g, '/');
-  const res = await fetch(`${API_BASE}/api/memory/files/create?path=${encodeURIComponent(fullPath)}&is_directory=true`, {
-    method: "POST",
+export async function createFolder(path: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/files/folder`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path }),
   });
-  if (!res.ok) throw new Error("Failed to create folder");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to create folder');
 }
 
-export async function createFile(parentPath: string, fileName: string) {
-  const fullPath = `${parentPath}/${fileName}`.replace(/\/+/g, '/');
-  const res = await fetch(`${API_BASE}/api/memory/files/create?path=${encodeURIComponent(fullPath)}&is_directory=false`, {
-    method: "POST",
+export async function deleteFile(path: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/files/delete`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path }),
   });
-  if (!res.ok) throw new Error("Failed to create file");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to delete file');
 }
 
-export async function renamePath(oldPath: string, newPath: string) {
-  const res = await fetch(`${API_BASE}/api/memory/files/rename?old_path=${encodeURIComponent(oldPath)}&new_path=${encodeURIComponent(newPath)}`, {
-    method: "PATCH",
+export async function renameFile(oldPath: string, newPath: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/files/rename`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ old_path: oldPath, new_path: newPath }),
   });
-  if (!res.ok) throw new Error("Failed to rename path");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to rename file');
 }
 
-export async function deletePath(path: string) {
-  const res = await fetch(`${API_BASE}/api/memory/files/delete?path=${encodeURIComponent(path)}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) throw new Error("Failed to delete path");
-  return res.json();
-}
-
-export async function uploadFile(file: File, targetPath: string) {
+export async function uploadFile(path: string, file: File): Promise<void> {
   const formData = new FormData();
   formData.append('file', file);
-  
-  const res = await fetch(`${API_BASE}/api/memory/files/upload?target_path=${encodeURIComponent(targetPath)}`, {
-    method: "POST",
+  formData.append('path', path);
+
+  const response = await fetch(`${API_BASE}/api/memory/files/upload`, {
+    method: 'POST',
     body: formData,
   });
-  if (!res.ok) throw new Error("Failed to upload file");
-  return res.json();
+  if (!response.ok) throw new Error('Failed to upload file');
+}
+
+// Table Operations
+export async function listTables(): Promise<string[]> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/list`);
+  if (!response.ok) throw new Error('Failed to list tables');
+  return response.json();
+}
+
+export async function getTableData(tableName: string, limit: number = 100): Promise<TableRow[]> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/${tableName}?limit=${limit}`);
+  if (!response.ok) throw new Error('Failed to get table data');
+  return response.json();
+}
+
+export async function getLinkedRows(filePath: string): Promise<TableRow[]> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/linked?file_path=${encodeURIComponent(filePath)}`);
+  if (!response.ok) throw new Error('Failed to get linked rows');
+  return response.json();
+}
+
+export async function insertTableRow(tableName: string, data: Record<string, any>): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/${tableName}/insert`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to insert row');
+}
+
+export async function updateTableRow(tableName: string, id: string, data: Record<string, any>): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/${tableName}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to update row');
+}
+
+export async function deleteTableRow(tableName: string, id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/tables/${tableName}/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete row');
+}
+
+// Schema Proposals
+export async function getPendingSchemas(): Promise<SchemaProposal[]> {
+  const response = await fetch(`${API_BASE}/api/memory/schemas/pending`);
+  if (!response.ok) throw new Error('Failed to get pending schemas');
+  return response.json();
+}
+
+export async function approveSchema(proposalId: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/schemas/${proposalId}/approve`, {
+    method: 'POST',
+  });
+  if (!response.ok) throw new Error('Failed to approve schema');
+}
+
+export async function rejectSchema(proposalId: string, reason?: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/memory/schemas/${proposalId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason }),
+  });
+  if (!response.ok) throw new Error('Failed to reject schema');
+}
+
+// Search
+export async function searchMemory(query: string): Promise<any[]> {
+  const response = await fetch(`${API_BASE}/api/memory/search?q=${encodeURIComponent(query)}`);
+  if (!response.ok) throw new Error('Failed to search');
+  return response.json();
 }

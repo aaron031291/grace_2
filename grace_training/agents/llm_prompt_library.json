@@ -1,0 +1,301 @@
+{
+  "prompt_library": {
+    "version": "2.0",
+    "last_updated": "2025-01-15",
+    "total_prompts": 24,
+    "categories": [
+      "code_generation",
+      "analysis",
+      "debugging",
+      "documentation",
+      "testing",
+      "security"
+    ]
+  },
+  
+  "prompts": {
+    "code_generation": [
+      {
+        "prompt_id": "CODEGEN-001",
+        "name": "Generate API Endpoint",
+        "description": "Generate a REST API endpoint from specification",
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "max_tokens": 2000,
+        
+        "template": "Generate a {language} REST API endpoint with the following specification:\n\nEndpoint: {method} {path}\nDescription: {description}\nRequest Body: {request_schema}\nResponse: {response_schema}\nAuth Required: {auth_required}\n\nRequirements:\n- Include input validation\n- Add error handling\n- Include logging\n- Follow {framework} best practices\n- Add type hints/annotations\n- Include docstring/comments\n\nGenerate the complete, production-ready code.",
+        
+        "example_variables": {
+          "language": "Python",
+          "method": "POST",
+          "path": "/api/users",
+          "description": "Create a new user",
+          "request_schema": "{\"username\": \"string\", \"email\": \"string\", \"role\": \"string\"}",
+          "response_schema": "{\"id\": \"uuid\", \"username\": \"string\", \"created_at\": \"datetime\"}",
+          "auth_required": "true",
+          "framework": "FastAPI"
+        },
+        
+        "usage_count": 247,
+        "success_rate": 0.92,
+        "avg_response_quality": 4.3
+      },
+      
+      {
+        "prompt_id": "CODEGEN-002",
+        "name": "Generate Test Cases",
+        "description": "Generate comprehensive test cases for a function",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 1500,
+        
+        "template": "Generate comprehensive test cases for the following {language} function:\n\n```{language}\n{function_code}\n```\n\nGenerate tests for:\n1. Happy path scenarios\n2. Edge cases (empty inputs, null values, boundary values)\n3. Error scenarios (invalid inputs, exceptions)\n4. Performance/load testing considerations\n\nUse {test_framework} framework.\nTarget coverage: >90%\nInclude test fixtures if needed.\nFollow AAA pattern (Arrange, Act, Assert).",
+        
+        "example_variables": {
+          "language": "TypeScript",
+          "function_code": "function validateEmail(email: string): boolean { return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email); }",
+          "test_framework": "Jest"
+        },
+        
+        "usage_count": 389,
+        "success_rate": 0.89,
+        "avg_response_quality": 4.1
+      },
+      
+      {
+        "prompt_id": "CODEGEN-003",
+        "name": "Database Migration Generator",
+        "description": "Generate database migration script",
+        "model": "gpt-4",
+        "temperature": 0.1,
+        "max_tokens": 1000,
+        
+        "template": "Generate a {migration_tool} migration script for {database_type}:\n\nChange Description: {description}\nChanges:\n{changes}\n\nRequirements:\n- Include both upgrade and downgrade functions\n- Add safety checks (e.g., check if table exists)\n- Include indexes for foreign keys\n- Add comments explaining each step\n- Consider data migration if needed\n- Ensure zero-downtime deployment compatibility",
+        
+        "example_variables": {
+          "migration_tool": "Alembic",
+          "database_type": "PostgreSQL",
+          "description": "Add user_preferences table",
+          "changes": "- Create user_preferences table\n- Add foreign key to users table\n- Add unique constraint on (user_id, preference_key)"
+        },
+        
+        "usage_count": 78,
+        "success_rate": 0.95,
+        "avg_response_quality": 4.5
+      }
+    ],
+    
+    "analysis": [
+      {
+        "prompt_id": "ANALYZE-001",
+        "name": "Root Cause Analysis",
+        "description": "Analyze incident data to identify root cause",
+        "model": "gpt-4",
+        "temperature": 0.4,
+        "max_tokens": 1500,
+        
+        "template": "Analyze the following production incident and identify the root cause:\n\nIncident Summary:\n{incident_summary}\n\nMetrics During Incident:\n{metrics}\n\nError Logs:\n{error_logs}\n\nRecent Changes:\n{recent_changes}\n\nProvide:\n1. Most likely root cause (with confidence score)\n2. Supporting evidence\n3. Alternative explanations\n4. Recommended remediation steps\n5. Preventive measures for the future",
+        
+        "example_variables": {
+          "incident_summary": "API response times increased from 200ms to 8s at 14:23 UTC",
+          "metrics": "CPU: normal, Memory: normal, DB connections: 98/100, Slow queries: 23",
+          "error_logs": "TimeoutError: Database query exceeded 30s limit",
+          "recent_changes": "Deployed v3.4.7 at 12:15 UTC (added new analytics query)"
+        },
+        
+        "usage_count": 156,
+        "success_rate": 0.87,
+        "avg_response_quality": 4.4
+      },
+      
+      {
+        "prompt_id": "ANALYZE-002",
+        "name": "Log Pattern Analysis",
+        "description": "Analyze logs to identify patterns and anomalies",
+        "model": "gpt-4-turbo",
+        "temperature": 0.3,
+        "max_tokens": 2000,
+        
+        "template": "Analyze the following log excerpt and identify:\n\n```\n{log_excerpt}\n```\n\n1. Common patterns or repeated messages\n2. Anomalies or unusual events\n3. Error sequences or cascading failures\n4. Performance issues\n5. Security concerns\n6. Recommended actions\n\nFocus on actionable insights.",
+        
+        "usage_count": 234,
+        "success_rate": 0.91
+      },
+      
+      {
+        "prompt_id": "ANALYZE-003",
+        "name": "Code Quality Analysis",
+        "description": "Analyze code for quality, security, and best practices",
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "max_tokens": 1500,
+        
+        "template": "Review the following code for quality, security, and best practices:\n\n```{language}\n{code}\n```\n\nAnalyze:\n1. Code quality (readability, maintainability)\n2. Security vulnerabilities\n3. Performance issues\n4. Best practice violations\n5. Potential bugs\n6. Suggested improvements with code examples\n\nPrioritize findings by severity (Critical, High, Medium, Low).",
+        
+        "usage_count": 412,
+        "success_rate": 0.88
+      }
+    ],
+    
+    "debugging": [
+      {
+        "prompt_id": "DEBUG-001",
+        "name": "Stack Trace Analysis",
+        "description": "Analyze stack trace and suggest fixes",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 1200,
+        
+        "template": "Analyze this {language} stack trace and provide debugging guidance:\n\n```\n{stack_trace}\n```\n\nContext:\n- Framework: {framework}\n- Recent changes: {recent_changes}\n- Environment: {environment}\n\nProvide:\n1. Root cause of the error\n2. Line/function where the error originated\n3. Likely reason for the error\n4. Step-by-step debugging approach\n5. Suggested fix with code example\n6. How to prevent similar errors",
+        
+        "usage_count": 892,
+        "success_rate": 0.84,
+        "avg_response_quality": 4.2
+      },
+      
+      {
+        "prompt_id": "DEBUG-002",
+        "name": "Performance Bottleneck Identification",
+        "description": "Identify performance bottlenecks from profiling data",
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "max_tokens": 1500,
+        
+        "template": "Analyze the following performance profiling data:\n\n{profiling_data}\n\nIdentify:\n1. Top 3 performance bottlenecks\n2. Functions consuming most CPU/memory\n3. Slow database queries\n4. Network latency issues\n5. Recommended optimizations with expected impact\n6. Quick wins vs. long-term improvements",
+        
+        "usage_count": 167,
+        "success_rate": 0.90
+      }
+    ],
+    
+    "documentation": [
+      {
+        "prompt_id": "DOC-001",
+        "name": "Generate API Documentation",
+        "description": "Generate API documentation from code",
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "max_tokens": 2000,
+        
+        "template": "Generate comprehensive API documentation for:\n\n```{language}\n{code}\n```\n\nInclude:\n1. Endpoint description\n2. HTTP method and path\n3. Request parameters (path, query, body)\n4. Request/response examples (JSON)\n5. Status codes and error responses\n6. Authentication requirements\n7. Rate limiting information\n8. Usage examples (curl, JavaScript, Python)\n\nFormat: {format}",
+        
+        "example_variables": {
+          "language": "Python",
+          "code": "@app.post('/api/users')\nasync def create_user(user: UserCreate): ...",
+          "format": "Markdown"
+        },
+        
+        "usage_count": 234,
+        "success_rate": 0.93
+      },
+      
+      {
+        "prompt_id": "DOC-002",
+        "name": "Generate Incident Post-Mortem",
+        "description": "Generate incident post-mortem document",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 2500,
+        
+        "template": "Generate a post-mortem document for the following incident:\n\nIncident ID: {incident_id}\nTitle: {title}\nDuration: {duration}\nImpact: {impact}\nRoot Cause: {root_cause}\nTimeline: {timeline}\nResolution: {resolution}\n\nStructure:\n1. Executive Summary\n2. Timeline of Events\n3. Root Cause Analysis\n4. Impact Assessment\n5. What Went Well\n6. What Could Be Improved\n7. Action Items with Owners and Due Dates\n8. Lessons Learned\n\nTone: Professional, blame-free, focus on learning",
+        
+        "usage_count": 89,
+        "success_rate": 0.96,
+        "avg_response_quality": 4.6
+      }
+    ],
+    
+    "testing": [
+      {
+        "prompt_id": "TEST-001",
+        "name": "Generate Integration Tests",
+        "description": "Generate integration tests for API endpoints",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 2000,
+        
+        "template": "Generate integration tests for the following API:\n\nEndpoints:\n{endpoints}\n\nTest scenarios:\n1. Happy path for each endpoint\n2. Authentication/authorization checks\n3. Input validation (invalid data)\n4. Error handling (404, 400, 500)\n5. Idempotency where applicable\n6. Rate limiting\n7. Data consistency across endpoints\n\nFramework: {test_framework}\nInclude setup/teardown for test data.",
+        
+        "usage_count": 145,
+        "success_rate": 0.87
+      },
+      
+      {
+        "prompt_id": "TEST-002",
+        "name": "Generate Load Test Scenarios",
+        "description": "Generate load testing scenarios",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 1500,
+        
+        "template": "Generate load test scenarios for:\n\nApplication: {app_name}\nExpected Load: {expected_load}\nCritical Paths: {critical_paths}\n\nGenerate:\n1. Load test script for {tool}\n2. Ramp-up strategy (users over time)\n3. Test scenarios (read-heavy, write-heavy, mixed)\n4. Success criteria (response time, error rate)\n5. Breakpoint test (find maximum capacity)\n6. Monitoring points\n\nTool: {tool} (e.g., k6, Locust, JMeter)",
+        
+        "usage_count": 67,
+        "success_rate": 0.91
+      }
+    ],
+    
+    "security": [
+      {
+        "prompt_id": "SEC-001",
+        "name": "Security Vulnerability Analysis",
+        "description": "Analyze code for security vulnerabilities",
+        "model": "gpt-4",
+        "temperature": 0.2,
+        "max_tokens": 1500,
+        
+        "template": "Perform a security review of this code:\n\n```{language}\n{code}\n```\n\nCheck for:\n1. SQL injection vulnerabilities\n2. XSS vulnerabilities\n3. CSRF issues\n4. Authentication/authorization flaws\n5. Sensitive data exposure\n6. Insecure dependencies\n7. Input validation issues\n8. Hardcoded secrets\n9. OWASP Top 10 vulnerabilities\n\nFor each issue found:\n- Severity (Critical/High/Medium/Low)\n- Explanation\n- Proof of concept (if applicable)\n- Remediation with code example",
+        
+        "usage_count": 456,
+        "success_rate": 0.89,
+        "avg_response_quality": 4.5
+      },
+      
+      {
+        "prompt_id": "SEC-002",
+        "name": "Generate Security Test Cases",
+        "description": "Generate security-focused test cases",
+        "model": "gpt-4",
+        "temperature": 0.3,
+        "max_tokens": 1500,
+        
+        "template": "Generate security test cases for:\n\n{target_description}\n\nGenerate tests for:\n1. Authentication bypass attempts\n2. Authorization escalation\n3. Input injection (SQL, XSS, command)\n4. Session management\n5. CSRF protection\n6. Rate limiting/DoS protection\n7. Sensitive data exposure\n8. API security (authentication, encryption)\n\nFormat: {test_framework}\nInclude expected results and assertions.",
+        
+        "usage_count": 123,
+        "success_rate": 0.92
+      }
+    ]
+  },
+  
+  "prompt_templates": {
+    "system_prompts": {
+      "coding_assistant": "You are an expert software engineer specializing in {language}. You write clean, well-documented, production-ready code following best practices and design patterns. You prioritize code quality, security, and maintainability.",
+      
+      "debugging_assistant": "You are an expert debugger with deep knowledge of {technology_stack}. You excel at analyzing errors, stack traces, and logs to quickly identify root causes. You provide clear, actionable debugging steps.",
+      
+      "security_expert": "You are a security expert specializing in application security. You identify vulnerabilities based on OWASP guidelines and provide concrete remediation steps. You prioritize findings by severity and exploitability."
+    }
+  },
+  
+  "usage_statistics": {
+    "total_prompts_executed_last_30_days": 8492,
+    "most_used_category": "code_generation",
+    "avg_response_time_seconds": 4.2,
+    "avg_quality_rating": 4.3,
+    "cost_last_30_days_usd": 247.83
+  },
+  
+  "optimization_notes": {
+    "temperature_guidance": {
+      "code_generation": "0.1-0.3 for deterministic output",
+      "creative_writing": "0.7-0.9 for variety",
+      "analysis": "0.3-0.5 for balanced responses"
+    },
+    
+    "model_selection": {
+      "simple_tasks": "gpt-3.5-turbo (fast, cheap)",
+      "complex_reasoning": "gpt-4 (more accurate)",
+      "code_generation": "gpt-4 or codex"
+    }
+  }
+}
