@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import './GraceAgentic.css';
 import { setAuthToken } from './api/client';
 
@@ -14,6 +14,92 @@ const DOMAINS = [
   { id: 'resource', name: 'Resources', icon: '📊', color: '#ff9500' },
   { id: 'core', name: 'Core', icon: '⚡', color: '#667eea' },
 ];
+
+interface CapabilityStep {
+  action?: string;
+  tier?: string;
+  [key: string]: any;
+}
+
+interface CapabilityDefinition {
+  intent_type: string;
+  description?: string;
+  parameters_schema?: Record<string, any>;
+  steps?: CapabilityStep[];
+  requires_approval?: boolean;
+  tier?: string;
+  risk_level?: string;
+  estimated_duration?: number;
+}
+
+const TIER_LABELS: Record<string, string> = {
+  tier_1: 'Tier 1 - Operational',
+  tier_2: 'Tier 2 - Code Touching',
+  tier_3: 'Tier 3 - Governance',
+};
+
+const RISK_LABELS: Record<string, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+};
+
+const FALLBACK_CAPABILITIES: CapabilityDefinition[] = [
+  {
+    intent_type: 'task.list',
+    description: 'List user tasks with optional filtering',
+    tier: 'tier_1',
+    risk_level: 'low',
+    requires_approval: false,
+    estimated_duration: 0.5,
+    steps: [{ action: 'task.list', tier: 'tier_1' }],
+  },
+  {
+    intent_type: 'task.create',
+    description: 'Create a new task',
+    tier: 'tier_1',
+    risk_level: 'low',
+    requires_approval: false,
+    estimated_duration: 0.7,
+    steps: [{ action: 'task.create', tier: 'tier_1' }],
+  },
+  {
+    intent_type: 'knowledge.search',
+    description: 'Search knowledge base',
+    tier: 'tier_1',
+    risk_level: 'low',
+    requires_approval: false,
+    estimated_duration: 0.6,
+    steps: [{ action: 'knowledge.search', tier: 'tier_1' }],
+  },
+  {
+    intent_type: 'verification.status',
+    description: 'Check verification system status',
+    tier: 'tier_1',
+    risk_level: 'medium',
+    requires_approval: false,
+    estimated_duration: 0.4,
+    steps: [{ action: 'verification.status', tier: 'tier_1' }],
+  },
+];
+
+const formatTierLabel = (tier: string) => {
+  if (!tier) {
+    return 'Tier 1';
+  }
+  return TIER_LABELS[tier] ?? tier.replace('_', ' ').toUpperCase();
+};
+
+const formatRiskLabel = (risk?: string) => {
+  if (!risk) {
+    return 'Unknown';
+  }
+  const match = RISK_LABELS[risk.toLowerCase()];
+  if (match) {
+    return match;
+  }
+  return risk.charAt(0).toUpperCase() + risk.slice(1);
+};
 
 interface Message {
   id: string;
@@ -34,9 +120,17 @@ export default function GraceAgentic() {
   const [password, setPassword] = useState('admin123');
   const [showOperationsFeed, setShowOperationsFeed] = useState(true);
   const [showContextViewer, setShowContextViewer] = useState(false);
+  const [showCapabilitiesPanel, setShowCapabilitiesPanel] = useState(true);
   const [ws, setWs] = useState<WebSocket | null>(null);
-  const [autonomyLevel, setAutonomyLevel] = useState(75);
+  const autonomyLevel = 75;
   const [guardrailsActive, setGuardrailsActive] = useState(true);
+  const [capabilities, setCapabilities] = useState<CapabilityDefinition[]>([]);
+  const [capabilitiesLoading, setCapabilitiesLoading] = useState(false);
+  const [capabilitiesError, setCapabilitiesError] = useState<string | null>(null);
+  const [capabilitiesFallbackActive, setCapabilitiesFallbackActive] = useState(false);
+  const [capabilitySearch, setCapabilitySearch] = useState('');
+  const [selectedTier, setSelectedTier] = useState<string>('all');
+  const [lastCapabilitiesRefresh, setLastCapabilitiesRefresh] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,6 +145,55 @@ export default function GraceAgentic() {
       initializeWebSocket(token);
     }
   }, []);
+
+  const loadCapabilities = useCallback(async () => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    const token = localStorage.getItem('grace_token');
+    setCapabilitiesLoading(true);
+    setCapabilitiesError(null);
+    try {
+      const response = await fetch('http://localhost:8000/api/cognition/capabilities', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const list = Array.isArray(data?.capabilities) ? data.capabilities : [];
+      setCapabilities(list as CapabilityDefinition[]);
+      setCapabilitiesFallbackActive(false);
+      setLastCapabilitiesRefresh(new Date().toISOString());
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      setCapabilitiesError(message);
+      let fallbackApplied = false;
+      setCapabilities(prev => {
+        if (prev.length > 0) {
+          return prev;
+        }
+        fallbackApplied = true;
+        return FALLBACK_CAPABILITIES;
+      });
+      setCapabilitiesFallbackActive(fallbackApplied);
+      setLastCapabilitiesRefresh(new Date().toISOString());
+    } finally {
+      setCapabilitiesLoading(false);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadCapabilities();
+    }
+  }, [isLoggedIn, loadCapabilities]);
 
   const initializeWebSocket = (token: string) => {
     const websocket = new WebSocket(`ws://localhost:8000/ws/cognition?token=${token}`);
@@ -251,6 +394,28 @@ export default function GraceAgentic() {
     ? messages 
     : messages.filter(m => m.domain === activeDomain);
 
+  const tierSummary = useMemo(() => {
+    return capabilities.reduce<Record<string, number>>((acc, cap) => {
+      const key = cap.tier || 'tier_1';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+  }, [capabilities]);
+
+  const tierOptions = useMemo(() => {
+    return Object.keys(tierSummary).sort();
+  }, [tierSummary]);
+
+  const filteredCapabilities = useMemo(() => {
+    const query = capabilitySearch.trim().toLowerCase();
+    return capabilities.filter(cap => {
+      const tierMatch = selectedTier === 'all' || (cap.tier || 'tier_1') === selectedTier;
+      const text = `${cap.intent_type} ${cap.description || ''}`.toLowerCase();
+      const queryMatch = query === '' || text.includes(query);
+      return tierMatch && queryMatch;
+    });
+  }, [capabilities, capabilitySearch, selectedTier]);
+
   if (!isLoggedIn) {
     return (
       <div className="grace-agentic login-screen">
@@ -316,7 +481,22 @@ export default function GraceAgentic() {
           <button className="btn-secondary" onClick={() => setShowOperationsFeed(!showOperationsFeed)}>
             📡 {showOperationsFeed ? 'Hide' : 'Show'} Feed
           </button>
-          <button className="btn-logout" onClick={() => { localStorage.clear(); setIsLoggedIn(false); }}>
+          <button className="btn-secondary" onClick={() => setShowCapabilitiesPanel(!showCapabilitiesPanel)}>
+            🛠️ {showCapabilitiesPanel ? 'Hide' : 'Show'} Capabilities
+          </button>
+          <button
+            className="btn-logout"
+            onClick={() => {
+              localStorage.clear();
+              setIsLoggedIn(false);
+              setCapabilities([]);
+              setCapabilitiesError(null);
+              setCapabilitiesFallbackActive(false);
+              setCapabilitySearch('');
+              setSelectedTier('all');
+              setLastCapabilitiesRefresh(null);
+            }}
+          >
             🚪 Logout
           </button>
         </div>
@@ -409,7 +589,7 @@ export default function GraceAgentic() {
       </main>
 
       {/* Right Sidebar - Operations Feed & Context */}
-      {(showOperationsFeed || showContextViewer) && (
+        {(showOperationsFeed || showContextViewer || showCapabilitiesPanel) && (
         <aside className="operations-sidebar">
           {showContextViewer && (
             <div className="context-viewer">
@@ -481,6 +661,128 @@ export default function GraceAgentic() {
               </div>
             </div>
           )}
+
+            {showCapabilitiesPanel && (
+              <div className="capabilities-panel">
+                <div className="capabilities-header">
+                  <h3>🛠️ Capabilities</h3>
+                  <div className="capabilities-header-actions">
+                    {capabilitiesFallbackActive && (
+                      <span className="capabilities-fallback-badge" title="Showing fallback sample data">
+                        Demo Data
+                      </span>
+                    )}
+                    <button
+                      className="capabilities-refresh"
+                      type="button"
+                      onClick={loadCapabilities}
+                      disabled={capabilitiesLoading}
+                    >
+                      {capabilitiesLoading ? 'Loading...' : 'Reload'}
+                    </button>
+                  </div>
+                </div>
+
+                {capabilitiesError && !capabilitiesFallbackActive && (
+                  <div className="capabilities-error">
+                    Failed to load capabilities: {capabilitiesError}
+                  </div>
+                )}
+
+                <div className="capabilities-summary">
+                  <span className="capabilities-count-badge">Total {capabilities.length}</span>
+                  {tierOptions.map(tier => (
+                    <span key={tier} className={`capability-tier-chip ${tier}`}>
+                      {formatTierLabel(tier)} - {tierSummary[tier]}
+                    </span>
+                  ))}
+                  {lastCapabilitiesRefresh && (
+                    <span className="capabilities-timestamp">
+                      Updated {new Date(lastCapabilitiesRefresh).toLocaleTimeString()}
+                    </span>
+                  )}
+                </div>
+
+                <div className="capabilities-search">
+                  <input
+                    type="text"
+                    value={capabilitySearch}
+                    onChange={(e) => setCapabilitySearch(e.target.value)}
+                    placeholder="Search capabilities..."
+                    aria-label="Search capabilities"
+                  />
+                  <select
+                    value={selectedTier}
+                    onChange={(e) => setSelectedTier(e.target.value)}
+                    aria-label="Filter capabilities by tier"
+                  >
+                    <option value="all">All tiers</option>
+                    {tierOptions.map(tier => (
+                      <option key={tier} value={tier}>{formatTierLabel(tier)}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="capabilities-list">
+                  {capabilitiesLoading && capabilities.length === 0 && (
+                    <div className="capabilities-empty">Loading capabilities...</div>
+                  )}
+
+                  {!capabilitiesLoading && filteredCapabilities.length === 0 && (
+                    <div className="capabilities-empty">
+                      No capabilities match the current filters.
+                    </div>
+                  )}
+
+                  {filteredCapabilities.map(cap => (
+                    <div key={cap.intent_type} className="capability-card">
+                      <div className="capability-title">
+                        <span className="capability-name">{cap.intent_type}</span>
+                        <span className={`capability-tier-badge ${(cap.tier || 'tier_1')}`}>
+                          {formatTierLabel(cap.tier || 'tier_1')}
+                        </span>
+                      </div>
+
+                      {cap.description && (
+                        <p className="capability-description">{cap.description}</p>
+                      )}
+
+                      <div className="capability-meta">
+                        <span className={`capability-risk risk-${(cap.risk_level || 'low').toLowerCase()}`}>
+                          Risk: {formatRiskLabel(cap.risk_level)}
+                        </span>
+                        <span className="capability-approval">
+                          {cap.requires_approval ? 'Approval required' : 'Auto-executable'}
+                        </span>
+                        {typeof cap.estimated_duration === 'number' && (
+                          <span className="capability-duration">
+                            Approx. {cap.estimated_duration.toFixed(1)} steps
+                          </span>
+                        )}
+                      </div>
+
+                      {cap.steps && cap.steps.length > 0 && (
+                        <div className="capability-steps">
+                          {cap.steps.map((step, index) => (
+                            <div key={`${cap.intent_type}-step-${index}`} className="capability-step">
+                              <span className="capability-step-index">{index + 1}</span>
+                              <div>
+                                <div className="capability-step-action">{step.action || 'Action'}</div>
+                                {step.tier && (
+                                  <div className="capability-step-tier">
+                                    {formatTierLabel(step.tier)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
         </aside>
       )}
     </div>
