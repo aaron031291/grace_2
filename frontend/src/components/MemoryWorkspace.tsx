@@ -59,17 +59,27 @@ export function MemoryWorkspace() {
     try {
       const response = await axios.get(`${API_BASE}/api/memory/files`);
       console.log('Memory files response:', response.data);
-      console.log('Is array?', Array.isArray(response.data));
-      console.log('Length:', Array.isArray(response.data) ? response.data.length : 'N/A');
       
-      // Backend returns an array of root folders, wrap it in a root node
+      // Handle different response formats
+      let children: FileNode[] = [];
+      if (Array.isArray(response.data)) {
+        children = response.data;
+      } else if (response.data.folders) {
+        // Backend returns {path: "/", folders: [...]}
+        children = response.data.folders;
+      } else if (response.data.children) {
+        children = response.data.children;
+      }
+      
+      console.log('Parsed children count:', children.length);
+      
+      // Wrap in root node
       const rootNode: FileNode = {
         name: 'root',
         path: '/',
         type: 'folder',
-        children: Array.isArray(response.data) ? response.data : []
+        children: children
       };
-      console.log('Root node children count:', rootNode.children?.length);
       setTree(rootNode);
     } catch (error) {
       console.error('Failed to load file tree:', error);
