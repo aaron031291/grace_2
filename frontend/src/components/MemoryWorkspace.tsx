@@ -1,133 +1,103 @@
 /**
- * Memory Workspace - File explorer and editor for Grace's training corpus
+ * Memory Workspace - Proper File Explorer with Folder Navigation
  */
 
 import { useState, useEffect } from 'react';
-import { FileTree } from './FileTree';
-import { Save, FilePlus, FolderPlus, Trash2, Edit, File, Folder } from 'lucide-react';
+import { Save, FilePlus, FolderPlus, Trash2, Edit, File, Folder, ChevronRight, Home, Upload } from 'lucide-react';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-interface FileNode {
+interface FileEntry {
   name: string;
   path: string;
-  type: 'file' | 'directory' | 'folder';
+  type: 'file' | 'directory';
   size?: number;
   modified?: string;
-  extension?: string;
-  children?: FileNode[];
 }
 
-function findNodeByPath(tree: FileNode | null, path: string): FileNode | null {
-  if (!tree) return null;
-  if (tree.path === path) return tree;
-  
-  if (tree.children) {
-    for (const child of tree.children) {
-      const found = findNodeByPath(child, path);
-      if (found) return found;
-    }
-  }
-  
-  return null;
+interface FolderData {
+  path: string;
+  folders: FileEntry[];
+  files: FileEntry[];
 }
 
 export function MemoryWorkspace() {
-  const [tree, setTree] = useState<FileNode | null>(null);
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
+  const [currentPath, setCurrentPath] = useState<string>('');
+  const [folderData, setFolderData] = useState<FolderData | null>(null);
+  const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [originalContent, setOriginalContent] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadTree();
-    loadStatus();
-    const interval = setInterval(loadStatus, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    loadFolder(currentPath);
+  }, [currentPath]);
 
   useEffect(() => {
     setIsDirty(fileContent !== originalContent);
   }, [fileContent, originalContent]);
 
-  async function loadTree() {
+  async function loadFolder(path: string) {
     try {
-      const response = await axios.get(`${API_BASE}/api/memory/files`);
-      console.log('Memory files response:', response.data);
+      const response = await axios.get(`${API_BASE}/api/memory/files`, {
+        params: { path }
+      });
       
-      // Handle different response formats
-      let children: FileNode[] = [];
+      console.log('Loaded folder:', path, response.data);
+      
+      // Parse response - handle both array and object formats
+      let items: FileEntry[] = [];
+      
       if (Array.isArray(response.data)) {
-        children = response.data;
+        items = response.data;
       } else if (response.data.folders) {
-        // Backend returns {path: "/", folders: [...]}
-        children = response.data.folders;
+        items = response.data.folders;
       } else if (response.data.children) {
-        children = response.data.children;
+        items = response.data.children;
       }
       
-      console.log('Parsed children count:', children.length);
+      // Separate folders and files
+      const folders = items.filter(item => item.type === 'directory');
+      const files = items.filter(item => item.type === 'file');
       
-      // Wrap in root node
-      const rootNode: FileNode = {
-        name: 'root',
-        path: '/',
-        type: 'folder',
-        children: children
-      };
-      setTree(rootNode);
+      setFolderData({ path, folders, files });
     } catch (error) {
-      console.error('Failed to load file tree:', error);
+      console.error('Failed to load folder:', error);
+      setFolderData({ path, folders: [], files: [] });
     }
   }
 
-  async function loadStatus() {
+  async function loadFileContent(file: FileEntry) {
+    setLoading(true);
+    setSelectedFile(file);
     try {
-      const response = await axios.get(`${API_BASE}/api/memory/status`);
-      setStatus(response.data);
+      const response = await axios.get(`${API_BASE}/api/memory/file`, {
+        params: { path: file.path }
+      });
+      setFileContent(response.data.content || '');
+      setOriginalContent(response.data.content || '');
     } catch (error) {
-      console.error('Failed to load status:', error);
-    }
-  }
-
-  async function handleSelect(path: string, node: FileNode) {
-    if (node.type === 'file') {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE}/api/memory/file`, {
-          params: { path }
-        });
-        setFileContent(response.data.content);
-        setOriginalContent(response.data.content);
-        setSelectedPath(path);
-        setSelectedNode(node);
-      } catch (error) {
-        alert('Failed to load file');
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setSelectedPath(path);
-      setSelectedNode(node);
+      console.error('Failed to load file:', error);
+      alert('Failed to load file');
+    } finally {
+      setLoading(false);
     }
   }
 
   async function handleSave() {
-    if (!selectedPath) return;
+    if (!selectedFile) return;
     
     setLoading(true);
     try {
       await axios.post(`${API_BASE}/api/memory/file`, null, {
-        params: { path: selectedPath, content: fileContent }
+        params: { path: selectedFile.path, content: fileContent }
       });
       setOriginalContent(fileContent);
-      await loadTree();
       alert('File saved successfully');
+      loadFolder(currentPath);
     } catch (error) {
       alert('Failed to save file');
     } finally {
@@ -135,189 +105,412 @@ export function MemoryWorkspace() {
     }
   }
 
-  async function handleNewFile() {
-    const fileName = prompt('Enter file name:');
-    if (!fileName) return;
+  async function handleCreateFile() {
+    const name = prompt('Enter file name:');
+    if (!name) return;
     
-    const basePath = selectedNode?.type === 'folder' ? selectedPath || '' : '';
-    const newPath = basePath ? `${basePath}/${fileName}` : fileName;
+    const newPath = currentPath ? `${currentPath}/${name}` : name;
     
     try {
       await axios.post(`${API_BASE}/api/memory/file`, null, {
         params: { path: newPath, content: '' }
       });
-      await loadTree();
-      setSelectedPath(newPath);
-      setFileContent('');
-      setOriginalContent('');
+      loadFolder(currentPath);
     } catch (error) {
       alert('Failed to create file');
     }
   }
 
-  async function handleNewFolder() {
-    const folderName = prompt('Enter folder name:');
-    if (!folderName) return;
+  async function handleCreateFolder() {
+    const name = prompt('Enter folder name:');
+    if (!name) return;
     
-    const basePath = selectedNode?.type === 'folder' ? selectedPath || '' : '';
-    const newPath = basePath ? `${basePath}/${folderName}` : folderName;
+    const newPath = currentPath ? `${currentPath}/${name}` : name;
     
     try {
       await axios.post(`${API_BASE}/api/memory/folder`, null, {
         params: { path: newPath }
       });
-      await loadTree();
+      loadFolder(currentPath);
     } catch (error) {
       alert('Failed to create folder');
     }
   }
 
-  async function handleDelete() {
-    if (!selectedPath) return;
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
     
-    const confirm = window.confirm(`Delete ${selectedPath}?`);
-    if (!confirm) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('path', currentPath);
+    
+    try {
+      await axios.post(`${API_BASE}/api/memory/files/upload`, formData);
+      alert(`Uploaded ${file.name}`);
+      loadFolder(currentPath);
+    } catch (error) {
+      alert('Upload failed');
+    }
+    
+    e.target.value = '';
+  }
+
+  async function handleRename(entry: FileEntry) {
+    const newName = prompt('Rename to:', entry.name);
+    if (!newName || newName === entry.name) return;
+    
+    const pathParts = entry.path.split('/');
+    pathParts[pathParts.length - 1] = newName;
+    const newPath = pathParts.join('/');
+    
+    try {
+      await axios.patch(`${API_BASE}/api/memory/file`, null, {
+        params: { old_path: entry.path, new_path: newPath }
+      });
+      loadFolder(currentPath);
+      if (selectedFile?.path === entry.path) {
+        setSelectedFile({ ...entry, path: newPath, name: newName });
+      }
+    } catch (error) {
+      alert('Failed to rename');
+    }
+  }
+
+  async function handleDelete(entry: FileEntry) {
+    if (!confirm(`Delete ${entry.name}?`)) return;
     
     try {
       await axios.delete(`${API_BASE}/api/memory/file`, {
-        params: { path: selectedPath, recursive: selectedNode?.type === 'folder' }
+        params: { path: entry.path, recursive: true }
       });
-      await loadTree();
-      setSelectedPath(null);
-      setFileContent('');
-      setOriginalContent('');
+      loadFolder(currentPath);
+      if (selectedFile?.path === entry.path) {
+        setSelectedFile(null);
+        setFileContent('');
+        setOriginalContent('');
+      }
     } catch (error) {
       alert('Failed to delete');
     }
   }
 
+  function navigateToFolder(path: string) {
+    setCurrentPath(path);
+    setSelectedFile(null);
+    setFileContent('');
+    setOriginalContent('');
+  }
+
+  function getBreadcrumbs() {
+    if (!currentPath) return [{ name: 'Root', path: '' }];
+    
+    const parts = currentPath.split('/').filter(Boolean);
+    const breadcrumbs = [{ name: 'Root', path: '' }];
+    
+    let accPath = '';
+    for (const part of parts) {
+      accPath = accPath ? `${accPath}/${part}` : part;
+      breadcrumbs.push({ name: part, path: accPath });
+    }
+    
+    return breadcrumbs;
+  }
+
+  function getLanguage(extension: string): string {
+    const langMap: Record<string, string> = {
+      '.js': 'javascript',
+      '.ts': 'typescript',
+      '.tsx': 'typescript',
+      '.jsx': 'javascript',
+      '.json': 'json',
+      '.md': 'markdown',
+      '.py': 'python',
+      '.yaml': 'yaml',
+      '.yml': 'yaml',
+      '.css': 'css',
+      '.html': 'html',
+    };
+    return langMap[extension] || 'plaintext';
+  }
+
   return (
-    <div style={{ display: 'flex', height: '100%', background: '#0a0a0a', color: '#e5e7ff' }}>
-      {/* Left: File Tree */}
+    <div style={{ display: 'flex', height: '100%', background: '#0a0a0a', color: '#e5e7ff', flexDirection: 'column' }}>
+      
+      {/* Top Toolbar */}
       <div style={{
-        width: '300px',
-        borderRight: '1px solid rgba(255,255,255,0.1)',
+        padding: '12px 16px',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
         display: 'flex',
-        flexDirection: 'column',
-        background: 'rgba(10,12,23,0.6)'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: 'rgba(10,12,23,0.8)'
       }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '1rem', color: '#a78bfa' }}>Memory Workspace</h3>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-            {status && (
-              <>
-                <div>{status.total_files} files</div>
-                <div>{status.total_size_mb} MB</div>
-              </>
-            )}
-          </div>
-        </div>
+        <h2 style={{ margin: 0, color: '#a78bfa', fontSize: '1.2rem' }}>Memory Workspace</h2>
         
-        <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-          {tree ? (
-            <FileTree 
-              data={tree.children || []} 
-              selectedPath={selectedPath || undefined} 
-              onSelect={(path) => {
-                const node = findNodeByPath(tree, path);
-                if (node) handleSelect(path, node);
-              }} 
-            />
-          ) : (
-            <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
-          )}
-        </div>
-        
-        <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
-            onClick={handleNewFile}
+            onClick={handleCreateFile}
             title="New File"
             style={{
               background: '#8b5cf6',
               color: '#fff',
               border: 'none',
-              padding: '8px',
+              padding: '8px 12px',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px'
             }}
           >
             <FilePlus size={16} />
+            New File
           </button>
+          
           <button
-            onClick={handleNewFolder}
+            onClick={handleCreateFolder}
             title="New Folder"
             style={{
               background: '#6b7280',
               color: '#fff',
               border: 'none',
-              padding: '8px',
+              padding: '8px 12px',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px'
             }}
           >
             <FolderPlus size={16} />
+            New Folder
           </button>
+          
           <label
             title="Upload File"
             style={{
               background: '#3b82f6',
               color: '#fff',
               border: 'none',
-              padding: '8px',
+              padding: '8px 12px',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px'
             }}
           >
-            <File size={16} />
+            <Upload size={16} />
+            Upload
             <input
               type="file"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('path', selectedPath || '');
-                try {
-                  await axios.post(`${API_BASE}/api/memory/files/upload`, formData);
-                  loadTree();
-                  alert(`Uploaded ${file.name}`);
-                } catch {
-                  alert('Upload failed');
-                }
-              }}
+              onChange={handleUpload}
               style={{ display: 'none' }}
             />
           </label>
         </div>
       </div>
 
-      {/* Right: Editor */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {selectedNode && selectedNode.type === 'file' ? (
-          <>
-            <div style={{
-              padding: '12px 16px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              background: 'rgba(10,12,23,0.6)'
-            }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>{selectedNode.name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                  {selectedNode.modified && new Date(selectedNode.modified).toLocaleString()}
-                  {isDirty && <span style={{ color: '#f59e0b', marginLeft: '8px' }}>● Modified</span>}
+      {/* Breadcrumb Navigation */}
+      <div style={{
+        padding: '8px 16px',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontSize: '14px',
+        background: 'rgba(10,12,23,0.6)'
+      }}>
+        <Home 
+          size={16} 
+          onClick={() => navigateToFolder('')}
+          style={{ cursor: 'pointer', color: '#8b5cf6' }}
+        />
+        {getBreadcrumbs().map((crumb, idx) => (
+          <div key={crumb.path} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {idx > 0 && <ChevronRight size={14} style={{ color: '#6b7280' }} />}
+            <span
+              onClick={() => navigateToFolder(crumb.path)}
+              style={{
+                cursor: 'pointer',
+                color: idx === getBreadcrumbs().length - 1 ? '#a78bfa' : '#6b7280',
+                fontWeight: idx === getBreadcrumbs().length - 1 ? 600 : 400
+              }}
+            >
+              {crumb.name}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        
+        {/* Left: Folder Contents */}
+        <div style={{
+          width: '350px',
+          borderRight: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'rgba(10,12,23,0.6)'
+        }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ fontSize: '0.875rem', color: '#a78bfa', fontWeight: 500 }}>
+              {currentPath || 'Root'} ({(folderData?.folders.length || 0) + (folderData?.files.length || 0)} items)
+            </div>
+          </div>
+          
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+            {!folderData ? (
+              <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
+            ) : (
+              <>
+                {/* Folders */}
+                {folderData.folders.map((folder) => (
+                  <div
+                    key={folder.path}
+                    onDoubleClick={() => navigateToFolder(folder.path)}
+                    style={{
+                      padding: '8px 12px',
+                      margin: '4px 0',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      background: 'rgba(139,92,246,0.1)',
+                      border: '1px solid rgba(139,92,246,0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139,92,246,0.2)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(139,92,246,0.1)'}
+                  >
+                    <Folder size={18} color="#8b5cf6" />
+                    <span style={{ flex: 1, fontSize: '14px' }}>{folder.name}</span>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRename(folder); }}
+                        title="Rename"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          padding: '4px',
+                          cursor: 'pointer',
+                          color: '#6b7280'
+                        }}
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(folder); }}
+                        title="Delete"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          padding: '4px',
+                          cursor: 'pointer',
+                          color: '#ef4444'
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Files */}
+                {folderData.files.map((file) => (
+                  <div
+                    key={file.path}
+                    onClick={() => loadFileContent(file)}
+                    style={{
+                      padding: '8px 12px',
+                      margin: '4px 0',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      background: selectedFile?.path === file.path ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
+                      border: selectedFile?.path === file.path ? '1px solid rgba(59,130,246,0.4)' : '1px solid transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = selectedFile?.path === file.path ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = selectedFile?.path === file.path ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)'}
+                  >
+                    <File size={18} color="#3b82f6" />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '14px' }}>{file.name}</div>
+                      {file.size && (
+                        <div style={{ fontSize: '11px', color: '#6b7280' }}>
+                          {(file.size / 1024).toFixed(1)} KB
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRename(file); }}
+                        title="Rename"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          padding: '4px',
+                          cursor: 'pointer',
+                          color: '#6b7280'
+                        }}
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(file); }}
+                        title="Delete"
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          padding: '4px',
+                          cursor: 'pointer',
+                          color: '#ef4444'
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                {folderData.folders.length === 0 && folderData.files.length === 0 && (
+                  <div style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
+                    Empty folder
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Right: File Editor */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {selectedFile ? (
+            <>
+              <div style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(10,12,23,0.6)'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '16px' }}>{selectedFile.name}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    {selectedFile.modified && new Date(selectedFile.modified).toLocaleString()}
+                    {isDirty && <span style={{ color: '#f59e0b', marginLeft: '12px' }}>● Unsaved changes</span>}
+                  </div>
                 </div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '8px' }}>
+                
                 <button
                   onClick={handleSave}
                   disabled={!isDirty || loading}
@@ -325,178 +518,58 @@ export function MemoryWorkspace() {
                     background: isDirty ? '#10b981' : '#374151',
                     color: '#fff',
                     border: 'none',
-                    padding: '8px 16px',
+                    padding: '10px 20px',
                     borderRadius: '6px',
                     cursor: isDirty && !loading ? 'pointer' : 'not-allowed',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    fontWeight: 500
+                    gap: '8px',
+                    fontWeight: 500,
+                    fontSize: '14px'
                   }}
                 >
                   <Save size={16} />
-                  Save
-                </button>
-                <button
-                  onClick={() => {
-                    const newName = prompt('Rename to:', selectedNode.name);
-                    if (newName && newName !== selectedNode.name) {
-                      const newPath = selectedPath!.split('/').slice(0, -1).concat(newName).join('/');
-                      axios.patch(`${API_BASE}/api/memory/file?old_path=${selectedPath}&new_path=${newPath}`)
-                        .then(() => { loadTree(); setSelectedPath(newPath); })
-                        .catch(() => alert('Failed to rename'));
-                    }
-                  }}
-                  title="Rename File"
-                  style={{
-                    background: '#6b7280',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Edit size={16} />
-                </button>
-                <button
-                  onClick={handleDelete}
-                  title="Delete File"
-                  style={{
-                    background: '#ef4444',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Trash2 size={16} />
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
-            </div>
 
-            <div style={{ flex: 1, background: '#1e1e1e' }}>
-              <Editor
-                height="100%"
-                defaultLanguage="markdown"
-                language={getLanguage(selectedNode.extension || '')}
-                value={fileContent}
-                onChange={(value) => setFileContent(value || '')}
-                theme="vs-dark"
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  wordWrap: 'on',
-                }}
-              />
-            </div>
-          </>
-        ) : selectedNode && selectedNode.type === 'directory' ? (
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#6b7280',
-            gap: '16px'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <Folder size={48} style={{ marginBottom: '12px', opacity: 0.5 }} />
-              <div style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}>{selectedNode.name}</div>
-              <div style={{ fontSize: '14px', opacity: 0.7 }}>Folder selected</div>
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => {
-                  const newName = prompt('Rename folder to:', selectedNode.name);
-                  if (newName && newName !== selectedNode.name) {
-                    const newPath = selectedPath!.split('/').slice(0, -1).concat(newName).join('/');
-                    axios.patch(`${API_BASE}/api/memory/file?old_path=${selectedPath}&new_path=${newPath}`)
-                      .then(() => { loadTree(); setSelectedPath(newPath); alert('Folder renamed'); })
-                      .catch(() => alert('Failed to rename folder'));
-                  }
-                }}
-                style={{
-                  background: '#6b7280',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <Edit size={16} />
-                Rename Folder
-              </button>
-              <button
-                onClick={handleDelete}
-                style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <Trash2 size={16} />
-                Delete Folder
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#6b7280'
-          }}>
-            {selectedNode ? (
-              <div style={{ textAlign: 'center' }}>
-                <Folder size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                <div>Folder: {selectedNode.name}</div>
-                <div style={{ fontSize: '0.875rem', marginTop: '8px' }}>
-                  {selectedNode.children?.length || 0} items
-                </div>
+              <div style={{ flex: 1, background: '#1e1e1e' }}>
+                <Editor
+                  height="100%"
+                  defaultLanguage="markdown"
+                  language={getLanguage(selectedFile.name.substring(selectedFile.name.lastIndexOf('.')))}
+                  value={fileContent}
+                  onChange={(value) => setFileContent(value || '')}
+                  theme="vs-dark"
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    wordWrap: 'on',
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                  }}
+                />
               </div>
-            ) : (
-              <div style={{ textAlign: 'center' }}>
-                <File size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                <div>Select a file to edit</div>
+            </>
+          ) : (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#6b7280',
+              gap: '16px'
+            }}>
+              <File size={64} style={{ opacity: 0.3 }} />
+              <div style={{ fontSize: '16px' }}>Select a file to edit</div>
+              <div style={{ fontSize: '14px', opacity: 0.7 }}>
+                Double-click folders to navigate • Click files to open
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
-}
-
-function getLanguage(extension: string): string {
-  const map: Record<string, string> = {
-    '.md': 'markdown',
-    '.py': 'python',
-    '.ts': 'typescript',
-    '.tsx': 'typescript',
-    '.js': 'javascript',
-    '.jsx': 'javascript',
-    '.json': 'json',
-    '.yaml': 'yaml',
-    '.yml': 'yaml',
-    '.txt': 'plaintext',
-  };
-  return map[extension] || 'plaintext';
 }
