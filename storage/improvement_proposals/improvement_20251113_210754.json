@@ -1,0 +1,27 @@
+{
+  "proposal_id": "improvement_20251113_210754",
+  "type": "self_improvement",
+  "experiment_id": "optimize_queries_20251113_210754",
+  "description": "Use learned query patterns to optimize slow queries",
+  "rationale": "Confidence: 78%. Expected: 20% query speed increase",
+  "confidence": 100,
+  "kpis_met": {
+    "execution_time_sec": true,
+    "memory_used_mb": true,
+    "exit_code": true
+  },
+  "metrics": {
+    "execution_time_sec": 0.042137,
+    "memory_used_mb": 0,
+    "exit_code": 0,
+    "timeout_exceeded": false
+  },
+  "risk_assessment": {
+    "level": "low",
+    "sandboxed": true,
+    "tested": true,
+    "reversible": true
+  },
+  "created_at": "2025-11-13T21:07:54.988405",
+  "status": "pending_review"
+}

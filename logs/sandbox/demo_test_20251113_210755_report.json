@@ -1,0 +1,27 @@
+{
+  "experiment_id": "demo_test_20251113_210755",
+  "experiment_name": "demo_test",
+  "code_file": "sandbox/optimization_test.py",
+  "started_at": "2025-11-13T21:07:55.390364",
+  "status": "success",
+  "kpi_thresholds": {
+    "execution_time_sec": "<5",
+    "memory_used_mb": "<100",
+    "exit_code": "==0"
+  },
+  "kpis_met": {
+    "execution_time_sec": true,
+    "memory_used_mb": true,
+    "exit_code": true
+  },
+  "metrics": {
+    "execution_time_sec": 0.044577,
+    "memory_used_mb": 0,
+    "exit_code": 0,
+    "timeout_exceeded": false
+  },
+  "output": "Testing optimization improvement...\r\nProcessing completed in 0.0000s\r\nResult: 999000\r\nSUCCESS: Execution time = 0.0000s\r\n\n",
+  "errors": [],
+  "security_checks": {},
+  "trust_score": 100
+}
