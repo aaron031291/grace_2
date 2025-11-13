@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, Book, FolderTree, Zap, Settings, FileText } from 'lucide-react';
+import { Search, Book, FolderTree, Zap, Settings, FileText, CheckCircle } from 'lucide-react';
 
 interface Command {
   id: string;
@@ -17,9 +17,10 @@ interface Command {
 
 interface CommandPaletteProps {
   onClose: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export function CommandPalette({ onClose }: CommandPaletteProps) {
+export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -92,6 +93,64 @@ export function CommandPalette({ onClose }: CommandPaletteProps) {
       keywords: ['logs', 'activity', 'librarian', 'history'],
       action: () => {
         window.open('http://localhost:8000/api/books/activity', '_blank');
+        onClose();
+      }
+    },
+    {
+      id: 'self-healing-dashboard',
+      title: 'Self-Healing Dashboard',
+      description: 'View self-healing status and run playbooks',
+      icon: <Zap className="w-5 h-5" />,
+      keywords: ['self-healing', 'dashboard', 'playbooks', 'remediation'],
+      action: () => {
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { view: 'self-healing' } }));
+        onClose();
+      }
+    },
+    {
+      id: 'trigger-self-healing',
+      title: 'Trigger Self-Healing',
+      description: 'Manually trigger self-healing for a component',
+      icon: <Zap className="w-5 h-5" />,
+      keywords: ['trigger', 'self-healing', 'manual', 'remediate'],
+      action: () => {
+        const component = prompt('Enter component name to heal:');
+        if (component) {
+          fetch('/api/self-healing/trigger-manual', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ component, error_details: { manual: true } })
+          }).then(() => alert('Self-healing triggered'));
+        }
+        onClose();
+      }
+    },
+    {
+      id: 'approve-schema',
+      title: 'Approve Schema',
+      description: 'Approve pending schema proposals',
+      icon: <CheckCircle className="w-5 h-5" />,
+      keywords: ['approve', 'schema', 'governance', 'review'],
+      action: () => {
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { view: 'schema-review' } }));
+        onClose();
+      }
+    },
+    {
+      id: 'spawn-ingestion-agent',
+      title: 'Spawn Ingestion Agent',
+      description: 'Create a new ingestion agent for processing',
+      icon: <Zap className="w-5 h-5" />,
+      keywords: ['spawn', 'agent', 'ingestion', 'processing'],
+      action: () => {
+        const source = prompt('Enter source path or URL:');
+        if (source) {
+          fetch('/api/ingestion/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task_type: 'ingest_file', source })
+          }).then(() => alert('Ingestion agent spawned'));
+        }
         onClose();
       }
     }
