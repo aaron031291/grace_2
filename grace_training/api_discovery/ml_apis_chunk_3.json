@@ -1,0 +1,29 @@
+{
+  "chunk_id": 3,
+  "total_chunks": 3,
+  "apis_in_chunk": 2,
+  "apis": [
+    {
+      "name": "Kaggle API",
+      "description": "Machine learning datasets and competitions",
+      "url": "https://www.kaggle.com/api/v1",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Datasets, trained models",
+      "can_download": true
+    },
+    {
+      "name": "Google AI Platform",
+      "description": "ML model training and deployment",
+      "url": "https://ai.googleapis.com",
+      "category": "AI/ML",
+      "auth": "OAuth",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Scalable ML training",
+      "can_download": true
+    }
+  ]
+}

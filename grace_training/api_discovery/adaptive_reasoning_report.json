@@ -1,0 +1,97 @@
+{
+  "timestamp": "2025-11-13T19:50:37.435300",
+  "learning_goal": "Learn ML techniques for code understanding and generation",
+  "relevance_evaluations": [
+    {
+      "api_name": "OpenAI API",
+      "learning_goal": "Learn ML techniques for code understanding and generation",
+      "relevance_score": 0.7000000000000001,
+      "reasons": [
+        "Contains ML/AI keywords",
+        "Useful for code learning",
+        "Supports HTTPS (secure)"
+      ],
+      "decision": "HIGHLY_RELEVANT",
+      "alternative_use": null
+    },
+    {
+      "api_name": "Hugging Face API",
+      "learning_goal": "Learn ML techniques for code understanding and generation",
+      "relevance_score": 0.44999999999999996,
+      "reasons": [
+        "Contains ML/AI keywords",
+        "Supports HTTPS (secure)"
+      ],
+      "decision": "MODERATELY_RELEVANT",
+      "alternative_use": "Could be useful for specific tasks"
+    },
+    {
+      "api_name": "TensorFlow Hub",
+      "learning_goal": "Learn ML techniques for code understanding and generation",
+      "relevance_score": 1.0,
+      "reasons": [
+        "Contains ML/AI keywords",
+        "Useful for code learning",
+        "No authentication required (free)",
+        "Supports HTTPS (secure)",
+        "No auth barrier"
+      ],
+      "decision": "HIGHLY_RELEVANT",
+      "alternative_use": null
+    },
+    {
+      "api_name": "Replicate API",
+      "learning_goal": "Learn ML techniques for code understanding and generation",
+      "relevance_score": 0.44999999999999996,
+      "reasons": [
+        "Contains ML/AI keywords",
+        "Supports HTTPS (secure)"
+      ],
+      "decision": "MODERATELY_RELEVANT",
+      "alternative_use": "Could be useful for specific tasks"
+    }
+  ],
+  "adaptive_gathering_result": {
+    "api": "Papers With Code API",
+    "goal": "Gather ML/AI learning data",
+    "methods_attempted": [
+      {
+        "name": "Direct API Access",
+        "url": "https://paperswithcode.com/api/v1",
+        "timestamp": "2025-11-13T19:50:36.869717",
+        "success": true,
+        "data": null,
+        "error": "200, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url='https://huggingface.co/papers/trending'"
+      }
+    ],
+    "successful_method": "Direct API Access",
+    "data_acquired": true,
+    "fallback_used": false,
+    "legal_compliance": true,
+    "reasoning": [
+      "Direct API access successful"
+    ]
+  },
+  "governance_report": {
+    "timestamp": "2025-11-13T19:50:37.435300",
+    "total_decisions": 4,
+    "methods_attempted": 1,
+    "successful_methods": 0,
+    "legal_compliance": true,
+    "ethical_standards": {
+      "respects_terms_of_service": true,
+      "no_unauthorized_access": true,
+      "public_data_only": true,
+      "proper_attribution": true
+    },
+    "constitutional_compliance": {
+      "hunter_bridge_active": true,
+      "verification_charter_enforced": true,
+      "transparency_maintained": true
+    }
+  },
+  "methods_attempted": [
+    "Direct API Access"
+  ],
+  "successful_methods": []
+}

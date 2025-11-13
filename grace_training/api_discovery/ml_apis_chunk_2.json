@@ -1,0 +1,40 @@
+{
+  "chunk_id": 2,
+  "total_chunks": 3,
+  "apis_in_chunk": 3,
+  "apis": [
+    {
+      "name": "Replicate API",
+      "description": "Run ML models in the cloud",
+      "url": "https://api.replicate.com",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Image generation, ML inference",
+      "can_download": true
+    },
+    {
+      "name": "ML Model Zoo",
+      "description": "Collection of pre-trained models",
+      "url": "https://modelzoo.co",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Computer vision, NLP models",
+      "can_download": true
+    },
+    {
+      "name": "Papers With Code API",
+      "description": "ML research papers and implementations",
+      "url": "https://paperswithcode.com/api/v1",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Latest research, code implementations",
+      "can_download": true
+    }
+  ]
+}

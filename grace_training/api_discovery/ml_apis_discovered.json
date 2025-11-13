@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-11-13T19:47:52.871508",
+  "total_apis": 8,
+  "ml_ai_apis": [
+    {
+      "name": "OpenAI API",
+      "description": "AI/ML capabilities for learning enhancement",
+      "url": "https://api.openai.com",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Code understanding, learning assistance",
+      "can_download": true
+    },
+    {
+      "name": "Hugging Face API",
+      "description": "Machine learning models and datasets",
+      "url": "https://huggingface.co/api",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Pre-trained models, NLP tasks",
+      "can_download": true
+    },
+    {
+      "name": "TensorFlow Hub",
+      "description": "Reusable ML model components",
+      "url": "https://tfhub.dev",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Transfer learning, pre-trained models",
+      "can_download": true
+    },
+    {
+      "name": "Replicate API",
+      "description": "Run ML models in the cloud",
+      "url": "https://api.replicate.com",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Image generation, ML inference",
+      "can_download": true
+    },
+    {
+      "name": "ML Model Zoo",
+      "description": "Collection of pre-trained models",
+      "url": "https://modelzoo.co",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Computer vision, NLP models",
+      "can_download": true
+    },
+    {
+      "name": "Papers With Code API",
+      "description": "ML research papers and implementations",
+      "url": "https://paperswithcode.com/api/v1",
+      "category": "AI/ML",
+      "auth": "No",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Latest research, code implementations",
+      "can_download": true
+    },
+    {
+      "name": "Kaggle API",
+      "description": "Machine learning datasets and competitions",
+      "url": "https://www.kaggle.com/api/v1",
+      "category": "AI/ML",
+      "auth": "apiKey",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Datasets, trained models",
+      "can_download": true
+    },
+    {
+      "name": "Google AI Platform",
+      "description": "ML model training and deployment",
+      "url": "https://ai.googleapis.com",
+      "category": "AI/ML",
+      "auth": "OAuth",
+      "https": true,
+      "cors": "yes",
+      "useful_for": "Scalable ML training",
+      "can_download": true
+    }
+  ],
+  "download_capability": "verified",
+  "security": "Hunter Bridge protected",
+  "governance": "Verification Charter enforced",
+  "chunks": 3
+}
