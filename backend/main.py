@@ -550,6 +550,11 @@ app.include_router(tasks.router)
 app.include_router(history.router)
 app.include_router(causal.router)
 app.include_router(goals.router)
+
+# Book system routes
+from backend.routes import book_dashboard, file_organizer_api
+app.include_router(book_dashboard.router, prefix="/api/books", tags=["books"])
+app.include_router(file_organizer_api.router, prefix="/api/librarian", tags=["librarian"])
 app.include_router(knowledge.router)
 app.include_router(evaluation.router)
 app.include_router(summaries.router)

@@ -1,52 +1,70 @@
 table: memory_file_operations
 description: Tracks all file operations for undo/redo functionality
-columns:
-  - name: operation_id
-    type: TEXT PRIMARY KEY
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
     description: Unique operation identifier
 
-  - name: operation_type
-    type: TEXT NOT NULL
+  - name: path
+    type: string
+    required: true
+    description: File path being operated on
+
+  - name: operation
+    type: string
+    required: true
     description: Type of operation (move, delete, rename, copy)
 
   - name: source_path
-    type: TEXT
-    description: Original file path
+    type: string
+    nullable: true
+    description: Original file path (for move/rename)
 
   - name: target_path
-    type: TEXT
-    description: Destination file path
+    type: string
+    nullable: true
+    description: Destination file path (for move/rename)
 
   - name: backup_path
-    type: TEXT
+    type: string
+    nullable: true
     description: Path to backup for undo
 
+  - name: user
+    type: string
+    nullable: true
+    description: User who performed operation
+
   - name: can_undo
-    type: BOOLEAN DEFAULT TRUE
+    type: boolean
+    default: true
     description: Whether operation can be undone
 
   - name: undone
-    type: BOOLEAN DEFAULT FALSE
+    type: boolean
+    default: false
     description: Whether operation has been undone
 
   - name: undone_at
-    type: TIMESTAMP
+    type: datetime
+    nullable: true
     description: When operation was undone
 
-  - name: timestamp
-    type: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  - name: created_at
+    type: datetime
+    required: true
     description: When operation was performed
 
-  - name: details
-    type: JSON
+  - name: metadata_json
+    type: json
+    default: {}
     description: Full operation details including reasoning
 
 indexes:
-  - columns: [timestamp]
-    name: idx_operations_timestamp
-  - columns: [operation_type]
-    name: idx_operations_type
-  - columns: [undone]
-    name: idx_operations_undone
+  - fields: [path]
+  - fields: [operation, created_at]
+  - fields: [undone]
 
 version: 1

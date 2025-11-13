@@ -6,12 +6,13 @@
 import { useState, useEffect } from 'react';
 import { 
   Activity, BarChart3, Zap, Play, Pause, CheckCircle, XCircle,
-  Clock, TrendingUp, Database, FileText, Layers, Brain, BookOpen
+  Clock, TrendingUp, Database, FileText, Layers, Brain, BookOpen, FolderTree
 } from 'lucide-react';
 import { MemoryHubPanel } from './MemoryHubPanel';
 import { GraceActivityFeed } from '../components/GraceActivityFeed';
 import LibrarianPanel from './LibrarianPanel';
 import BookLibraryPanel from '../components/BookLibraryPanel';
+import FileOrganizerPanel from '../components/FileOrganizerPanel';
 
 interface Pipeline {
   id: string;
@@ -43,12 +44,18 @@ interface Metrics {
   active_pipelines: number;
 }
 
+import GraceOverview from '../components/GraceOverview';
+import CommandPalette from '../components/CommandPalette';
+import OnboardingWalkthrough from '../components/OnboardingWalkthrough';
+
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books'>('workspace');
+  const [view, setView] = useState<'overview' | 'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books' | 'organizer'>('overview');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [selectedPipeline, setSelectedPipeline] = useState<string | null>(null);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('grace_onboarding_complete'));
 
   useEffect(() => {
     if (view === 'pipelines' || view === 'dashboard') {
@@ -56,6 +63,30 @@ export function MemoryStudioPanel() {
       loadJobs();
       loadMetrics();
     }
+
+    // Listen for navigation events from command palette
+    const handleNavigate = (e: CustomEvent) => {
+      if (e.detail?.view) {
+        setView(e.detail.view);
+      }
+    };
+
+    window.addEventListener('navigate', handleNavigate as EventListener);
+    
+    // Ctrl+K for command palette
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('navigate', handleNavigate as EventListener);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [view]);
 
   useEffect(() => {
@@ -212,10 +243,22 @@ export function MemoryStudioPanel() {
           <BookOpen size={16} />
           <span>📚 Books</span>
         </button>
+        <button
+          onClick={() => setView('organizer')}
+          style={{
+            ...tabStyle,
+            background: view === 'organizer' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: view === 'organizer' ? '#a78bfa' : '#9ca3af'
+          }}
+        >
+          <FolderTree size={16} />
+          <span>🗂️ Organizer</span>
+        </button>
       </div>
 
       {/* Content Area */}
       <div style={{ flex: 1, overflow: 'hidden' }}>
+        {view === 'overview' && <GraceOverview />}
         {view === 'workspace' && <MemoryHubPanel />}
         {view === 'pipelines' && <PipelinesView pipelines={pipelines} jobs={jobs} onStart={startPipeline} />}
         {view === 'dashboard' && <DashboardView metrics={metrics} jobs={jobs} />}
@@ -226,8 +269,10 @@ export function MemoryStudioPanel() {
         )}
         {view === 'librarian' && <LibrarianPanel />}
         {view === 'books' && <BookLibraryPanel />}
+        {view === 'organizer' && <FileOrganizerPanel />}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
