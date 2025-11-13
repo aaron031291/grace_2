@@ -27,10 +27,11 @@ class FileSystemWatcher(FileSystemEventHandler):
     
     def on_created(self, event: FileSystemEvent):
         if not event.is_directory and self.loop:
-            # Check if it's a book file
+            # Check if it's a book file - expanded file types
             file_path = Path(event.src_path)
-            is_book = 'books' in str(file_path) and file_path.suffix.lower() in ['.pdf', '.epub']
-            
+            book_extensions = ['.pdf', '.epub', '.txt', '.md', '.docx', '.doc', '.rtf']
+            is_book = 'books' in str(file_path) and file_path.suffix.lower() in book_extensions
+
             # Schedule coroutine on the main event loop (thread-safe)
             asyncio.run_coroutine_threadsafe(
                 self.queue.put({
