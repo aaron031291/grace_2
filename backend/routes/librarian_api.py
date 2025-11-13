@@ -390,6 +390,139 @@ async def get_suggestions():
         return {'suggestions': []}
 
 
+@router.get("/activity")
+async def get_activity(filter: str = 'all', limit: int = 50):
+    """
+    Get Librarian activity log.
+    Shows all actions taken by the kernel and sub-agents.
+    """
+    try:
+        from backend.memory_tables.registry import table_registry
+        
+        filters_dict = {}
+        if filter != 'all':
+            # Map filter to action types
+            type_map = {
+                'schema': 'schema_proposal',
+                'ingestion': 'ingestion_launch',
+                'trust': 'trust_update',
+                'governance': 'governance_request'
+            }
+            if filter in type_map:
+                filters_dict['action_type'] = type_map[filter]
+        
+        actions = table_registry.query_rows(
+            'memory_librarian_log',
+            filters=filters_dict,
+            limit=limit,
+            order_by='timestamp DESC'
+        )
+        
+        return {
+            'actions': [a.dict() if hasattr(a, 'dict') else dict(a) for a in actions]
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get activity: {e}")
+        return {'actions': []}
+
+
+@router.get("/daily-summary")
+async def get_daily_summary():
+    """
+    Get summary of Librarian activity for today.
+    """
+    try:
+        from backend.memory_tables.registry import table_registry
+        from datetime import datetime, timedelta
+        
+        today = datetime.utcnow().date()
+        start_of_day = datetime.combine(today, datetime.min.time()).isoformat()
+        
+        # Count actions by type
+        all_actions = table_registry.query_rows(
+            'memory_librarian_log',
+            filters={'timestamp__gte': start_of_day},
+            limit=10000
+        )
+        
+        actions_list = [a.dict() if hasattr(a, 'dict') else dict(a) for a in all_actions]
+        
+        summary = {
+            'date': today.isoformat(),
+            'new_files': sum(1 for a in actions_list if 'file' in a.get('target_resource', '').lower()),
+            'tables_updated': len(set(a.get('target_resource') for a in actions_list if 'memory_' in a.get('target_resource', ''))),
+            'schemas_proposed': sum(1 for a in actions_list if a.get('action_type') == 'schema_proposal'),
+            'schemas_approved': sum(1 for a in actions_list if a.get('action_type') == 'schema_proposal' and a.get('status') == 'succeeded'),
+            'ingestion_jobs': sum(1 for a in actions_list if a.get('action_type') == 'ingestion_launch'),
+            'trust_audits': sum(1 for a in actions_list if a.get('action_type') == 'trust_update'),
+            'agents_spawned': sum(1 for a in actions_list if a.get('action_type') == 'agent_spawn'),
+            'approvals_pending': 0  # Will be calculated below
+        }
+        
+        # Count pending approvals
+        try:
+            pending = table_registry.query_rows(
+                'memory_schema_proposals',
+                filters={'status': 'pending'},
+                limit=1000
+            )
+            summary['approvals_pending'] = len(pending)
+        except:
+            pass
+        
+        return summary
+        
+    except Exception as e:
+        logger.error(f"Failed to get daily summary: {e}")
+        return {
+            'date': datetime.utcnow().date().isoformat(),
+            'new_files': 0,
+            'tables_updated': 0,
+            'schemas_proposed': 0,
+            'schemas_approved': 0,
+            'ingestion_jobs': 0,
+            'trust_audits': 0,
+            'agents_spawned': 0,
+            'approvals_pending': 0
+        }
+
+
+@router.get("/pending-approvals")
+async def get_pending_approvals():
+    """
+    Get list of items pending approval.
+    """
+    try:
+        from backend.memory_tables.registry import table_registry
+        
+        approvals = []
+        
+        # Get schema proposals
+        schemas = table_registry.query_rows(
+            'memory_schema_proposals',
+            filters={'status': 'pending'},
+            limit=20
+        )
+        
+        for schema in schemas:
+            schema_dict = schema.dict() if hasattr(schema, 'dict') else dict(schema)
+            approvals.append({
+                'id': schema_dict.get('id'),
+                'type': 'schema',
+                'title': f"Schema: {schema_dict.get('table_name')}",
+                'description': schema_dict.get('reasoning', ''),
+                'confidence': schema_dict.get('confidence', 0.0),
+                'submitted_at': schema_dict.get('submitted_at', '')
+            })
+        
+        return {'approvals': approvals}
+        
+    except Exception as e:
+        logger.error(f"Failed to get pending approvals: {e}")
+        return {'approvals': []}
+
+
 def get_kernel_instance():
     """Get the global kernel instance (for use in other modules)"""
     return _librarian_kernel
