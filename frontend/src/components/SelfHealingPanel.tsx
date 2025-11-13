@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, AlertTriangle, CheckCircle, Zap, Clock, TrendingUp, PlayCircle, Pause } from 'lucide-react';
+import { api, type SelfHealingStats, type Incident, type Playbook, type HealingAction, type ImmutableLog, type LogTailEntry } from '../api/comprehensive';
 
 interface IncidentStats {
   total_incidents: number;
@@ -44,7 +45,7 @@ interface HealingAction {
 }
 
 export function SelfHealingPanel() {
-  const [stats, setStats] = useState<IncidentStats>({
+  const [stats, setStats] = useState<SelfHealingStats>({
     total_incidents: 0,
     active_incidents: 0,
     resolved_today: 0,
@@ -54,8 +55,8 @@ export function SelfHealingPanel() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [recentActions, setRecentActions] = useState<HealingAction[]>([]);
-  const [immutableLogs, setImmutableLogs] = useState<any[]>([]);
-  const [tailedLogs, setTailedLogs] = useState<any[]>([]);
+  const [immutableLogs, setImmutableLogs] = useState<ImmutableLog[]>([]);
+  const [tailedLogs, setTailedLogs] = useState<LogTailEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'incidents' | 'playbooks' | 'actions' | 'logs'>('overview');
   const [isEnabled, setIsEnabled] = useState(true);
 
@@ -80,11 +81,8 @@ export function SelfHealingPanel() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/self-healing/stats');
-      if (response.ok && response.headers.get('content-type')?.includes('json')) {
-        const data = await response.json();
-        setStats(data);
-      }
+      const data = await api.selfHealing.getStats();
+      setStats(data);
     } catch (error) {
       console.error('Failed to load self-healing stats:', error);
     }
@@ -92,11 +90,8 @@ export function SelfHealingPanel() {
 
   const loadIncidents = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/self-healing/incidents?limit=20');
-      if (response.ok && response.headers.get('content-type')?.includes('json')) {
-        const data = await response.json();
-        setIncidents(data.incidents || []);
-      }
+      const data = await api.selfHealing.getIncidents(20);
+      setIncidents(data.incidents);
     } catch (error) {
       console.error('Failed to load incidents:', error);
       setIncidents([]);
@@ -105,11 +100,8 @@ export function SelfHealingPanel() {
 
   const loadPlaybooks = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/self-healing/playbooks');
-      if (response.ok && response.headers.get('content-type')?.includes('json')) {
-        const data = await response.json();
-        setPlaybooks(data.playbooks || []);
-      }
+      const data = await api.selfHealing.getPlaybooks();
+      setPlaybooks(data.playbooks);
     } catch (error) {
       console.error('Failed to load playbooks:', error);
       setPlaybooks([]);
@@ -118,11 +110,8 @@ export function SelfHealingPanel() {
 
   const loadRecentActions = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/self-healing/actions/recent?limit=15');
-      if (response.ok && response.headers.get('content-type')?.includes('json')) {
-        const data = await response.json();
-        setRecentActions(data.actions || []);
-      }
+      const data = await api.selfHealing.getRecentActions(15);
+      setRecentActions(data.actions);
     } catch (error) {
       console.error('Failed to load recent actions:', error);
       setRecentActions([]);
@@ -132,18 +121,12 @@ export function SelfHealingPanel() {
   const loadLogs = async () => {
     try {
       // Load immutable logs
-      const logsRes = await fetch('http://localhost:8000/api/librarian/logs/immutable?limit=100');
-      if (logsRes.ok && logsRes.headers.get('content-type')?.includes('json')) {
-        const data = await logsRes.json();
-        setImmutableLogs(data.logs || []);
-      }
+      const immutableData = await api.logs.getImmutable(100);
+      setImmutableLogs(immutableData.logs);
 
       // Load tailed logs
-      const tailRes = await fetch('http://localhost:8000/api/librarian/logs/tail?lines=50');
-      if (tailRes.ok && tailRes.headers.get('content-type')?.includes('json')) {
-        const data = await tailRes.json();
-        setTailedLogs(data.logs || []);
-      }
+      const tailData = await api.logs.getTail(50);
+      setTailedLogs(tailData.logs);
     } catch (error) {
       console.error('Failed to load logs:', error);
     }
@@ -151,13 +134,12 @@ export function SelfHealingPanel() {
 
   const toggleSelfHealing = async () => {
     try {
-      const action = isEnabled ? 'disable' : 'enable';
-      const response = await fetch(`http://localhost:8000/api/self-healing/${action}`, {
-        method: 'POST'
-      });
-      if (response.ok) {
-        setIsEnabled(!isEnabled);
+      if (isEnabled) {
+        await api.selfHealing.disable();
+      } else {
+        await api.selfHealing.enable();
       }
+      setIsEnabled(!isEnabled);
     } catch (error) {
       console.error('Failed to toggle self-healing:', error);
     }
@@ -165,13 +147,9 @@ export function SelfHealingPanel() {
 
   const triggerPlaybook = async (playbookId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/self-healing/playbooks/${playbookId}/trigger`, {
-        method: 'POST'
-      });
-      if (response.ok) {
-        alert('Playbook triggered successfully!');
-        loadRecentActions();
-      }
+      const result = await api.selfHealing.triggerPlaybook(playbookId);
+      alert(`Playbook triggered successfully! Execution ID: ${result.execution_id}`);
+      loadRecentActions();
     } catch (error) {
       console.error('Failed to trigger playbook:', error);
     }
