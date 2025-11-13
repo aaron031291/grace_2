@@ -1,0 +1,46 @@
+table: memory_file_organization_rules
+description: Learned rules for file organization (ML-powered over time)
+columns:
+  - name: rule_id
+    type: INTEGER PRIMARY KEY AUTOINCREMENT
+    description: Unique rule identifier
+
+  - name: file_pattern
+    type: TEXT NOT NULL
+    description: File pattern to match (regex or glob)
+
+  - name: target_folder
+    type: TEXT NOT NULL
+    description: Folder to move matching files to
+
+  - name: confidence
+    type: REAL DEFAULT 0.5
+    description: Confidence score (0.0 - 1.0)
+
+  - name: learned_from_user
+    type: BOOLEAN DEFAULT FALSE
+    description: Whether rule was learned from user correction
+
+  - name: times_applied
+    type: INTEGER DEFAULT 0
+    description: How many times this rule was applied
+
+  - name: success_rate
+    type: REAL DEFAULT 0.0
+    description: Percent of times user didn't correct this rule
+
+  - name: created_at
+    type: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    description: When rule was created
+
+  - name: updated_at
+    type: TIMESTAMP
+    description: Last time rule was updated
+
+indexes:
+  - columns: [file_pattern]
+    name: idx_org_rules_pattern
+  - columns: [confidence]
+    name: idx_org_rules_confidence
+
+version: 1

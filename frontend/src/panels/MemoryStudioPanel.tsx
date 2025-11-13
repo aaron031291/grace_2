@@ -11,6 +11,7 @@ import {
 import { MemoryHubPanel } from './MemoryHubPanel';
 import { GraceActivityFeed } from '../components/GraceActivityFeed';
 import LibrarianPanel from './LibrarianPanel';
+import BookLibraryPanel from '../components/BookLibraryPanel';
 
 interface Pipeline {
   id: string;
@@ -43,7 +44,7 @@ interface Metrics {
 }
 
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian'>('workspace');
+  const [view, setView] = useState<'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books'>('workspace');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -200,6 +201,17 @@ export function MemoryStudioPanel() {
           <BookOpen size={16} />
           <span>Librarian</span>
         </button>
+        <button
+          onClick={() => setView('books')}
+          style={{
+            ...tabStyle,
+            background: view === 'books' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+            color: view === 'books' ? '#a78bfa' : '#9ca3af'
+          }}
+        >
+          <BookOpen size={16} />
+          <span>📚 Books</span>
+        </button>
       </div>
 
       {/* Content Area */}
@@ -213,6 +225,7 @@ export function MemoryStudioPanel() {
           </div>
         )}
         {view === 'librarian' && <LibrarianPanel />}
+        {view === 'books' && <BookLibraryPanel />}
       </div>
     </div>
   );
