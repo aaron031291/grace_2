@@ -1,0 +1,309 @@
+version: "1.0"
+agent_type: "data_ingestion"
+agent_name: "log-ingestion-agent"
+description: "Ingest application logs from multiple sources and normalize for analysis"
+
+metadata:
+  created_date: "2024-11-05"
+  last_modified: "2025-01-12"
+  version: "3.2.1"
+  owner: "platform-team"
+  status: "production"
+
+runtime:
+  language: "python"
+  version: "3.11"
+  framework: "grace-agent-sdk"
+  execution_mode: "continuous"  # Runs continuously, processes streams
+
+resources:
+  cpu: "4"
+  memory: "8Gi"
+  gpu: false
+  timeout_seconds: null  # No timeout for continuous agents
+  max_concurrent_tasks: 20
+  auto_scaling:
+    enabled: true
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu_utilization: 70
+
+sources:
+  - name: "application-logs-kafka"
+    type: "kafka"
+    config:
+      bootstrap_servers: ["kafka-1:9092", "kafka-2:9092", "kafka-3:9092"]
+      topics: ["app-logs", "error-logs", "audit-logs"]
+      consumer_group: "grace-log-ingestion"
+      auto_offset_reset: "latest"
+      enable_auto_commit: false  # Manual commit for exactly-once semantics
+      max_poll_records: 500
+    authentication:
+      mechanism: "SASL_SSL"
+      credentials_source: "vault"
+      vault_path: "secret/kafka/ingestion-agent"
+  
+  - name: "cloudwatch-logs"
+    type: "aws_cloudwatch"
+    config:
+      log_groups:
+        - "/aws/lambda/grace-functions"
+        - "/aws/ecs/grace-services"
+      regions: ["us-west-2", "us-east-1"]
+      filter_pattern: ""  # Ingest all
+    authentication:
+      method: "iam_role"
+      role_arn: "arn:aws:iam::123456789:role/GraceLogIngestion"
+  
+  - name: "file-system-logs"
+    type: "file"
+    config:
+      paths:
+        - "/var/log/app/*.log"
+        - "/var/log/nginx/*.log"
+      watch_mode: "tail"  # Follow files like `tail -f`
+      glob_enabled: true
+
+processing:
+  pipeline:
+    - stage: "extract"
+      description: "Read raw log entries from sources"
+      parallel: true
+      batch_size: 1000
+    
+    - stage: "parse"
+      description: "Parse log format and extract fields"
+      parser:
+        type: "adaptive"  # Auto-detect format
+        formats:
+          - "json"
+          - "syslog"
+          - "common_log_format"
+          - "custom_regex"
+        custom_patterns:
+          - name: "nginx_combined"
+            pattern: '(?P<remote_addr>\S+) - - \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]+)" (?P<status>\d+) (?P<body_bytes_sent>\d+) "(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)"'
+      
+      on_parse_failure:
+        action: "quarantine"  # Send to quarantine queue for manual review
+        preserve_raw: true
+    
+    - stage: "transform"
+      description: "Normalize and enrich log data"
+      transformations:
+        - type: "normalize_timestamp"
+          target_timezone: "UTC"
+          formats: ["ISO8601", "RFC3339", "UNIX_TIMESTAMP"]
+        
+        - type: "normalize_log_level"
+          mapping:
+            "DEBUG": "debug"
+            "INFO": "info"
+            "WARN": "warning"
+            "ERROR": "error"
+            "FATAL": "critical"
+        
+        - type: "enrich"
+          enrichments:
+            - field: "service_name"
+              source: "metadata_lookup"
+              lookup_key: "hostname"
+            - field: "environment"
+              source: "tag_extraction"
+              pattern: "env:(\w+)"
+            - field: "geo_location"
+              source: "ip_lookup"
+              ip_field: "remote_addr"
+        
+        - type: "pii_redaction"
+          enabled: true
+          fields_to_redact:
+            - "email"
+            - "ssn"
+            - "credit_card"
+          redaction_method: "hash"  # Options: hash, mask, remove
+    
+    - stage: "validate"
+      description: "Validate normalized logs"
+      validation_rules:
+        - field: "timestamp"
+          required: true
+          type: "datetime"
+        - field: "log_level"
+          required: true
+          allowed_values: ["debug", "info", "warning", "error", "critical"]
+        - field: "message"
+          required: true
+          min_length: 1
+      
+      on_validation_failure:
+        action: "drop"  # or "quarantine"
+        log_error: true
+    
+    - stage: "load"
+      description: "Write to destination systems"
+      destinations:
+        - name: "timeseries_db"
+          type: "timescaledb"
+          connection: "logs-db"
+          table: "application_logs"
+          batch_size: 500
+          flush_interval_seconds: 5
+        
+        - name: "elasticsearch"
+          type: "elasticsearch"
+          cluster: "logs-cluster"
+          index_pattern: "logs-{yyyy.MM.dd}"
+          bulk_size: 1000
+        
+        - name: "s3_archive"
+          type: "s3"
+          bucket: "grace-logs-archive"
+          prefix: "raw-logs/{yyyy}/{MM}/{dd}/"
+          compression: "gzip"
+          rotation: "hourly"
+
+data_quality:
+  sampling:
+    enabled: true
+    sample_rate: 0.01  # Sample 1% for quality checks
+  
+  quality_checks:
+    - name: "completeness"
+      check: "required_fields_present"
+      fields: ["timestamp", "log_level", "message"]
+      threshold: 0.98  # 98% of logs must have required fields
+    
+    - name: "timeliness"
+      check: "processing_lag"
+      max_lag_seconds: 60  # Logs should be processed within 60 seconds
+    
+    - name: "format_consistency"
+      check: "parse_success_rate"
+      threshold: 0.95  # 95% parse success rate
+  
+  alerts:
+    - condition: "completeness < 0.98"
+      severity: "warning"
+      notify: ["data-quality-team"]
+    - condition: "processing_lag > 300"
+      severity: "critical"
+      notify: ["oncall-engineer"]
+
+error_handling:
+  retry_policy:
+    max_attempts: 3
+    backoff: "exponential"
+    initial_delay_seconds: 1
+    max_delay_seconds: 60
+    retryable_errors:
+      - "network_timeout"
+      - "connection_refused"
+      - "temporary_failure"
+  
+  dead_letter_queue:
+    enabled: true
+    destination:
+      type: "kafka"
+      topic: "log-ingestion-dlq"
+    retention_days: 7
+  
+  quarantine:
+    enabled: true
+    destination:
+      type: "s3"
+      bucket: "grace-data-quarantine"
+      prefix: "logs/unparseable/"
+    review_workflow: true
+
+monitoring:
+  metrics:
+    - name: "logs_ingested_total"
+      type: "counter"
+      labels: ["source", "log_level"]
+    
+    - name: "ingestion_lag_seconds"
+      type: "histogram"
+      buckets: [1, 5, 10, 30, 60, 300, 600]
+    
+    - name: "parse_success_rate"
+      type: "gauge"
+      labels: ["source", "parser_type"]
+    
+    - name: "bytes_processed"
+      type: "counter"
+      labels: ["source"]
+    
+    - name: "error_rate"
+      type: "gauge"
+      labels: ["error_type"]
+  
+  alerts:
+    - name: "high_ingestion_lag"
+      condition: "histogram_quantile(0.95, ingestion_lag_seconds) > 60"
+      duration: "5m"
+      severity: "warning"
+    
+    - name: "low_parse_success_rate"
+      condition: "parse_success_rate < 0.90"
+      duration: "10m"
+      severity: "critical"
+    
+    - name: "ingestion_stopped"
+      condition: "rate(logs_ingested_total[5m]) == 0"
+      duration: "5m"
+      severity: "critical"
+
+performance:
+  throughput:
+    target_logs_per_second: 10000
+    max_logs_per_second: 50000
+  
+  batching:
+    enabled: true
+    batch_size: 1000
+    max_wait_milliseconds: 1000
+  
+  concurrency:
+    worker_threads: 10
+    io_threads: 4
+  
+  memory_management:
+    max_buffer_size_mb: 512
+    gc_frequency: "auto"
+
+security:
+  authentication:
+    method: "service_account"
+    credentials_source: "vault"
+  
+  encryption:
+    in_transit: true
+    tls_version: "1.3"
+  
+  data_privacy:
+    pii_detection: true
+    pii_redaction: true
+    retention_policy:
+      raw_logs: "30_days"
+      processed_logs: "90_days"
+      archived_logs: "365_days"
+
+logging:
+  level: "INFO"
+  format: "json"
+  include_agent_metrics: true
+  
+  destinations:
+    - type: "stdout"
+    - type: "file"
+      path: "/var/log/grace/agents/log-ingestion.log"
+      rotation: "size"
+      max_size_mb: 100
+      max_files: 10
+
+tags:
+  environment: "production"
+  team: "platform"
+  criticality: "high"
+  cost_center: "infrastructure"

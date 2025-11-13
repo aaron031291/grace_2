@@ -1,0 +1,258 @@
+version: "1.0"
+agent_type: "schema_inference"
+agent_name: "schema-inference-agent"
+description: "Automatically infer database and API schemas from data sources"
+
+metadata:
+  created_date: "2025-01-10"
+  last_modified: "2025-01-15"
+  version: "1.2.0"
+  owner: "data-engineering-team"
+  status: "production"
+
+runtime:
+  language: "python"
+  version: "3.11"
+  framework: "grace-agent-sdk"
+  execution_mode: "scheduled"  # Options: scheduled, event-driven, continuous
+
+resources:
+  cpu: "2"
+  memory: "4Gi"
+  gpu: false
+  timeout_seconds: 3600
+  max_concurrent_executions: 5
+
+schedule:
+  type: "cron"
+  expression: "0 2 * * *"  # Daily at 2 AM
+  timezone: "America/Los_Angeles"
+  enabled: true
+
+inputs:
+  - name: "data_sources"
+    type: "array"
+    description: "List of data sources to analyze"
+    required: true
+    validation:
+      min_items: 1
+      max_items: 50
+    example: |
+      [
+        {"type": "postgresql", "connection": "prod-db-1"},
+        {"type": "api", "endpoint": "https://api.example.com/v1"},
+        {"type": "s3", "bucket": "data-lake", "prefix": "raw/"}
+      ]
+  
+  - name: "inference_mode"
+    type: "string"
+    description: "Mode of schema inference"
+    required: false
+    default: "adaptive"
+    allowed_values: ["strict", "adaptive", "permissive"]
+  
+  - name: "sample_size"
+    type: "integer"
+    description: "Number of records to sample for inference"
+    required: false
+    default: 1000
+    validation:
+      min: 100
+      max: 100000
+
+outputs:
+  - name: "inferred_schemas"
+    type: "object"
+    description: "Inferred schema definitions"
+    format: "json_schema"
+  
+  - name: "confidence_scores"
+    type: "object"
+    description: "Confidence scores for each field"
+  
+  - name: "recommendations"
+    type: "array"
+    description: "Schema improvement recommendations"
+
+configuration:
+  inference_settings:
+    # Field type detection
+    type_detection:
+      enabled: true
+      methods: ["statistical", "pattern_matching", "ml_based"]
+      confidence_threshold: 0.85
+    
+    # Relationship detection
+    relationship_detection:
+      enabled: true
+      detect_foreign_keys: true
+      detect_one_to_many: true
+      detect_many_to_many: true
+      confidence_threshold: 0.75
+    
+    # Constraint inference
+    constraint_inference:
+      detect_not_null: true
+      detect_unique: true
+      detect_primary_keys: true
+      detect_value_ranges: true
+      detect_patterns: true  # regex patterns for validation
+    
+    # Data quality checks
+    quality_checks:
+      check_completeness: true
+      check_consistency: true
+      check_format_adherence: true
+      flag_anomalies: true
+  
+  ml_model:
+    model_name: "schema-inference-v2"
+    model_version: "2.1.0"
+    model_path: "s3://grace-ml-models/schema-inference/v2.1.0/"
+    fallback_to_rule_based: true
+  
+  sampling_strategy:
+    method: "stratified"  # Options: random, stratified, time-based
+    ensure_representativeness: true
+    min_null_samples: 50
+    min_unique_values: 10
+  
+  output_formats:
+    - "json_schema"
+    - "sql_ddl"
+    - "avro"
+    - "protobuf"
+
+processing:
+  steps:
+    - step: 1
+      name: "connect_to_sources"
+      action: "establish_connections"
+      retry_on_failure: true
+      max_retries: 3
+    
+    - step: 2
+      name: "sample_data"
+      action: "extract_samples"
+      parallel: true
+    
+    - step: 3
+      name: "infer_types"
+      action: "analyze_field_types"
+      ml_enabled: true
+    
+    - step: 4
+      name: "detect_relationships"
+      action: "find_relationships"
+      confidence_threshold: 0.75
+    
+    - step: 5
+      name: "infer_constraints"
+      action: "derive_constraints"
+    
+    - step: 6
+      name: "generate_schemas"
+      action: "create_schema_definitions"
+      formats: ["json_schema", "sql_ddl"]
+    
+    - step: 7
+      name: "validate_schemas"
+      action: "validate_against_samples"
+      validation_percentage: 0.2  # Validate against 20% of samples
+    
+    - step: 8
+      name: "store_results"
+      action: "persist_schemas"
+      destinations: ["schema_registry", "database"]
+
+integrations:
+  schema_registry:
+    enabled: true
+    endpoint: "https://schema-registry.grace-platform.com"
+    auto_register: true
+    compatibility_mode: "backward"
+  
+  database:
+    type: "postgresql"
+    connection: "metadata-db"
+    table: "inferred_schemas"
+  
+  notifications:
+    slack:
+      enabled: true
+      channel: "#data-engineering"
+      notify_on: ["completion", "errors", "schema_changes"]
+    
+    email:
+      enabled: true
+      recipients: ["data-team@grace-platform.com"]
+      notify_on: ["errors", "significant_schema_changes"]
+
+error_handling:
+  on_connection_failure:
+    action: "retry"
+    max_retries: 3
+    backoff: "exponential"
+    fallback: "skip_source"
+  
+  on_inference_failure:
+    action: "use_rule_based_fallback"
+    log_error: true
+    notify: true
+  
+  on_validation_failure:
+    action: "flag_for_review"
+    auto_correct: false
+
+monitoring:
+  metrics:
+    - name: "schemas_inferred"
+      type: "counter"
+    - name: "inference_accuracy"
+      type: "gauge"
+    - name: "processing_duration"
+      type: "histogram"
+    - name: "error_rate"
+      type: "gauge"
+  
+  alerts:
+    - name: "high_error_rate"
+      condition: "error_rate > 0.1"
+      severity: "warning"
+    - name: "low_confidence"
+      condition: "avg_confidence < 0.7"
+      severity: "info"
+
+security:
+  authentication:
+    method: "service_account"
+    credentials_source: "vault"
+    vault_path: "secret/agents/schema-inference"
+  
+  authorization:
+    required_permissions:
+      - "read:data_sources"
+      - "write:schema_registry"
+      - "write:metadata_db"
+  
+  data_handling:
+    encrypt_samples: true
+    anonymize_pii: true
+    retention_days: 7  # Delete samples after inference
+
+logging:
+  level: "INFO"
+  format: "json"
+  destinations:
+    - type: "stdout"
+    - type: "file"
+      path: "/var/log/grace/agents/schema-inference.log"
+      rotation: "daily"
+    - type: "elasticsearch"
+      index: "grace-agent-logs"
+
+tags:
+  environment: "production"
+  team: "data-engineering"
+  cost_center: "engineering"
+  criticality: "high"
