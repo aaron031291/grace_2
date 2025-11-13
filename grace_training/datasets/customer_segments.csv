@@ -1,0 +1,11 @@
+segment_id,segment_name,customer_count,avg_revenue,churn_rate,health_score,primary_use_case,deployment_type
+SEG001,Enterprise Tech,147,125000,0.08,92,self_healing,cloud
+SEG002,Financial Services,89,285000,0.05,95,governance,hybrid
+SEG003,Healthcare,63,175000,0.12,87,compliance,on-premise
+SEG004,E-commerce,124,65000,0.15,83,automation,cloud
+SEG005,Manufacturing,52,95000,0.10,88,predictive_maintenance,hybrid
+SEG006,Retail,98,55000,0.18,79,inventory_optimization,cloud
+SEG007,Telecom,34,220000,0.06,94,network_monitoring,cloud
+SEG008,Media,41,85000,0.14,81,content_moderation,cloud
+SEG009,Education,76,35000,0.20,75,student_analytics,cloud
+SEG010,Government,28,195000,0.04,96,security_compliance,on-premise

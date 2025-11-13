@@ -1,0 +1,9 @@
+# Parquet file placeholder - In reality this would be binary parquet format
+# This CSV-like representation shows the schema and sample data
+
+run_id,model_name,framework,started_at,completed_at,duration_minutes,training_samples,validation_samples,best_accuracy,best_loss,hyperparameters,gpu_type,epochs_completed,early_stopped
+run_20250101_001,anomaly_detector_v1,pytorch,2025-01-01 08:00:00,2025-01-01 09:23:00,83,500000,50000,0.942,0.085,"{\"lr\": 0.001, \"batch_size\": 256, \"hidden_dim\": 128}",T4,45,false
+run_20250102_001,classification_v2,tensorflow,2025-01-02 10:15:00,2025-01-02 12:47:00,152,750000,75000,0.967,0.042,"{\"lr\": 0.0005, \"batch_size\": 512, \"layers\": 5}",V100,78,true
+run_20250103_001,predictor_v3,sklearn,2025-01-03 14:30:00,2025-01-03 15:12:00,42,250000,25000,0.914,0.121,"{\"n_estimators\": 200, \"max_depth\": 20}",CPU,100,false
+run_20250104_001,anomaly_detector_v2,pytorch,2025-01-04 07:00:00,2025-01-04 08:45:00,105,600000,60000,0.951,0.071,"{\"lr\": 0.0008, \"batch_size\": 512, \"hidden_dim\": 256}",A100,52,false
+run_20250105_001,nlp_classifier_v1,transformers,2025-01-05 09:30:00,2025-01-05 13:15:00,225,1000000,100000,0.923,0.094,"{\"lr\": 0.00003, \"batch_size\": 32, \"model\": \"bert-base\"}",A100,12,true

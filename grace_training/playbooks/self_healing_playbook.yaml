@@ -1,0 +1,209 @@
+version: "3.0"
+playbook_name: "Self-Healing Automation Playbook"
+description: "Automated remediation playbook for GRACE self-healing system"
+owner: "platform-team"
+last_updated: "2025-01-15"
+
+policies:
+  - name: "high_cpu_usage"
+    description: "Remediate high CPU usage on services"
+    trigger:
+      metric: "cpu_usage_percent"
+      condition: "> 90"
+      duration: "5m"
+      evaluation_interval: "30s"
+    actions:
+      - step: 1
+        name: "collect_diagnostics"
+        type: "diagnostic"
+        commands:
+          - "ps aux --sort=-%cpu | head -20"
+          - "top -b -n 1"
+          - "vmstat 1 5"
+      - step: 2
+        name: "attempt_graceful_scale"
+        type: "scale"
+        params:
+          scale_type: "horizontal"
+          increment: 2
+          max_replicas: 10
+      - step: 3
+        name: "restart_if_persistent"
+        type: "restart"
+        conditions:
+          - "cpu_usage_percent > 95 for 10m"
+        params:
+          restart_strategy: "rolling"
+          max_unavailable: 1
+    rollback:
+      enabled: true
+      conditions:
+        - "error_rate > 5%"
+        - "p95_latency > 1000ms"
+    notifications:
+      slack_channel: "#platform-alerts"
+      pagerduty_escalation: true
+
+  - name: "memory_leak_detection"
+    description: "Detect and remediate memory leaks"
+    trigger:
+      metric: "memory_usage_percent"
+      condition: "increasing"
+      rate: "> 5% per minute"
+      duration: "10m"
+    actions:
+      - step: 1
+        name: "heap_dump"
+        type: "diagnostic"
+        commands:
+          - "jmap -dump:live,format=b,file=/tmp/heapdump.hprof $PID"
+      - step: 2
+        name: "log_top_memory_consumers"
+        type: "diagnostic"
+        commands:
+          - "ps aux --sort=-%mem | head -10"
+      - step: 3
+        name: "restart_service"
+        type: "restart"
+        params:
+          delay_seconds: 30
+          restart_strategy: "rolling"
+    notifications:
+      slack_channel: "#memory-alerts"
+      email: "oncall@grace-platform.com"
+
+  - name: "error_spike_rollback"
+    description: "Rollback deployment on error spike"
+    trigger:
+      metric: "error_rate_percent"
+      condition: "> 5.0"
+      duration: "2m"
+    actions:
+      - step: 1
+        name: "collect_error_logs"
+        type: "diagnostic"
+        commands:
+          - "grep ERROR /var/log/app/*.log | tail -100"
+      - step: 2
+        name: "rollback_deployment"
+        type: "rollback"
+        params:
+          versions_back: 1
+          strategy: "immediate"
+      - step: 3
+        name: "verify_rollback"
+        type: "verification"
+        commands:
+          - "curl -f http://localhost:8080/health"
+        retry:
+          attempts: 5
+          interval_seconds: 10
+    notifications:
+      slack_channel: "#critical-alerts"
+      pagerduty_escalation: true
+      severity: "high"
+
+  - name: "disk_space_cleanup"
+    description: "Free up disk space when threshold exceeded"
+    trigger:
+      metric: "disk_usage_percent"
+      condition: "> 85"
+      duration: "1m"
+    actions:
+      - step: 1
+        name: "analyze_disk_usage"
+        type: "diagnostic"
+        commands:
+          - "du -sh /* | sort -hr | head -20"
+          - "df -h"
+      - step: 2
+        name: "clean_old_logs"
+        type: "cleanup"
+        commands:
+          - "find /var/log -name '*.log' -mtime +7 -delete"
+          - "find /tmp -mtime +3 -delete"
+      - step: 3
+        name: "rotate_logs"
+        type: "maintenance"
+        commands:
+          - "logrotate -f /etc/logrotate.conf"
+      - step: 4
+        name: "alert_if_still_high"
+        type: "alert"
+        conditions:
+          - "disk_usage_percent > 90"
+        notifications:
+          slack_channel: "#infra-alerts"
+          severity: "critical"
+
+  - name: "database_connection_pool_exhausted"
+    description: "Handle database connection pool exhaustion"
+    trigger:
+      metric: "db_connection_pool_active"
+      condition: ">= max_pool_size * 0.95"
+      duration: "1m"
+    actions:
+      - step: 1
+        name: "analyze_connections"
+        type: "diagnostic"
+        commands:
+          - "SELECT * FROM pg_stat_activity WHERE state = 'active'"
+      - step: 2
+        name: "kill_long_running_queries"
+        type: "remediation"
+        commands:
+          - "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'active' AND query_start < now() - interval '5 minutes'"
+      - step: 3
+        name: "increase_pool_size"
+        type: "scale"
+        params:
+          pool_size_increment: 10
+          max_pool_size: 100
+    notifications:
+      slack_channel: "#database-alerts"
+
+  - name: "api_rate_limit_exceeded"
+    description: "Handle API rate limit exceeded scenarios"
+    trigger:
+      metric: "api_rate_limit_rejections"
+      condition: "> 100"
+      duration: "1m"
+    actions:
+      - step: 1
+        name: "identify_top_consumers"
+        type: "diagnostic"
+        commands:
+          - "zgrep 'rate_limit_exceeded' /var/log/api/*.log | awk '{print $5}' | sort | uniq -c | sort -rn | head -10"
+      - step: 2
+        name: "temporarily_increase_limits"
+        type: "configuration"
+        params:
+          rate_limit_increase_percent: 50
+          duration_minutes: 30
+      - step: 3
+        name: "notify_customer_success"
+        type: "notification"
+        params:
+          notify_cs_team: true
+          include_top_consumers: true
+
+global_settings:
+  max_concurrent_healing_actions: 5
+  action_timeout_seconds: 300
+  enable_dry_run: false
+  audit_all_actions: true
+  require_approval_for_production: false
+
+safety_checks:
+  - name: "rate_limiting"
+    description: "Prevent healing action storms"
+    max_actions_per_minute: 10
+  - name: "business_hours_only"
+    description: "Restrict certain actions to business hours"
+    enabled: false
+    hours: "09:00-17:00"
+    timezone: "America/Los_Angeles"
+  - name: "change_freeze"
+    description: "Honor change freeze windows"
+    enabled: true
+    check_calendar: true

@@ -1,0 +1,16 @@
+ticket_id,created_date,resolved_date,category,priority,customer_segment,assigned_to,resolution_time_hours,satisfaction_score,issue_type
+TKT-2025-0001,2025-01-02 09:15:00,2025-01-02 11:30:00,technical,high,Enterprise Tech,agent_1,2.25,5,api_error
+TKT-2025-0002,2025-01-02 10:45:00,2025-01-02 14:20:00,feature_request,medium,Financial Services,agent_2,3.58,4,dashboard_enhancement
+TKT-2025-0003,2025-01-02 13:20:00,2025-01-03 09:15:00,technical,critical,Healthcare,agent_3,19.92,3,data_sync_failure
+TKT-2025-0004,2025-01-03 08:30:00,2025-01-03 09:45:00,documentation,low,E-commerce,agent_4,1.25,5,api_docs_clarification
+TKT-2025-0005,2025-01-03 11:00:00,2025-01-03 15:30:00,billing,medium,Retail,agent_5,4.50,4,invoice_discrepancy
+TKT-2025-0006,2025-01-04 07:45:00,2025-01-04 12:20:00,technical,high,Telecom,agent_1,4.58,5,authentication_issue
+TKT-2025-0007,2025-01-04 14:30:00,2025-01-05 10:15:00,feature_request,low,Media,agent_2,19.75,4,export_functionality
+TKT-2025-0008,2025-01-05 09:00:00,2025-01-05 10:30:00,technical,medium,Education,agent_3,1.50,5,slow_query_performance
+TKT-2025-0009,2025-01-05 16:20:00,2025-01-06 08:45:00,technical,high,Government,agent_4,16.42,4,security_audit_findings
+TKT-2025-0010,2025-01-06 10:15:00,2025-01-06 11:00:00,documentation,low,Enterprise Tech,agent_5,0.75,5,integration_guide
+TKT-2025-0011,2025-01-06 13:45:00,2025-01-07 09:20:00,technical,critical,Financial Services,agent_1,19.58,2,system_downtime
+TKT-2025-0012,2025-01-07 08:00:00,2025-01-07 14:30:00,feature_request,medium,Healthcare,agent_2,6.50,4,custom_report_builder
+TKT-2025-0013,2025-01-07 15:10:00,2025-01-07 16:45:00,billing,low,E-commerce,agent_3,1.58,5,payment_method_update
+TKT-2025-0014,2025-01-08 09:30:00,2025-01-08 18:15:00,technical,high,Manufacturing,agent_4,8.75,3,model_deployment_failure
+TKT-2025-0015,2025-01-08 11:20:00,2025-01-08 12:50:00,documentation,low,Retail,agent_5,1.50,5,webhook_examples

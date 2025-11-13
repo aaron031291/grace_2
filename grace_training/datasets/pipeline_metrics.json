@@ -1,0 +1,71 @@
+{
+  "pipeline_runs": [
+    {
+      "run_id": "RUN-2025-001",
+      "pipeline": "data_ingestion",
+      "start_time": "2025-01-15T08:30:00Z",
+      "end_time": "2025-01-15T08:45:23Z",
+      "status": "success",
+      "records_processed": 1847293,
+      "duration_seconds": 923,
+      "throughput_records_per_sec": 2001,
+      "errors": 12,
+      "warnings": 47
+    },
+    {
+      "run_id": "RUN-2025-002",
+      "pipeline": "model_training",
+      "start_time": "2025-01-15T10:00:00Z",
+      "end_time": "2025-01-15T11:23:47Z",
+      "status": "success",
+      "training_samples": 500000,
+      "validation_samples": 75000,
+      "test_samples": 25000,
+      "duration_seconds": 5027,
+      "final_accuracy": 0.947,
+      "final_loss": 0.082
+    },
+    {
+      "run_id": "RUN-2025-003",
+      "pipeline": "self_healing_execution",
+      "start_time": "2025-01-15T14:22:10Z",
+      "end_time": "2025-01-15T14:27:33Z",
+      "status": "success",
+      "incidents_detected": 23,
+      "auto_resolved": 19,
+      "manual_intervention": 4,
+      "duration_seconds": 323,
+      "avg_resolution_time_seconds": 142
+    },
+    {
+      "run_id": "RUN-2025-004",
+      "pipeline": "data_quality_check",
+      "start_time": "2025-01-15T16:00:00Z",
+      "end_time": "2025-01-15T16:08:15Z",
+      "status": "warning",
+      "records_checked": 2500000,
+      "quality_score": 0.973,
+      "issues_found": 67,
+      "critical_issues": 3,
+      "duration_seconds": 495
+    },
+    {
+      "run_id": "RUN-2025-005",
+      "pipeline": "reporting_generation",
+      "start_time": "2025-01-15T18:00:00Z",
+      "end_time": "2025-01-15T18:12:44Z",
+      "status": "success",
+      "reports_generated": 45,
+      "total_pages": 1247,
+      "duration_seconds": 764,
+      "output_size_mb": 127.3
+    }
+  ],
+  "aggregate_metrics": {
+    "total_runs_today": 847,
+    "success_rate": 0.952,
+    "avg_duration_seconds": 423,
+    "total_data_processed_gb": 14723,
+    "peak_throughput_mbps": 2847
+  }
+}

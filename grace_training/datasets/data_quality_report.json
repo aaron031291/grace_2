@@ -1,0 +1,116 @@
+{
+  "report_metadata": {
+    "report_id": "DQ-2025-Q1-001",
+    "generated_at": "2025-03-31T23:59:59Z",
+    "reporting_period": "Q1 2025",
+    "datasets_analyzed": 47,
+    "total_records_checked": 184729384
+  },
+  "overall_quality_score": 0.947,
+  "quality_dimensions": {
+    "completeness": {
+      "score": 0.973,
+      "missing_values_rate": 0.027,
+      "critical_fields_complete": 0.998,
+      "status": "good"
+    },
+    "accuracy": {
+      "score": 0.952,
+      "validation_pass_rate": 0.952,
+      "format_errors": 0.012,
+      "range_violations": 0.036,
+      "status": "good"
+    },
+    "consistency": {
+      "score": 0.938,
+      "cross_table_matches": 0.965,
+      "duplicate_rate": 0.008,
+      "referential_integrity": 0.994,
+      "status": "acceptable"
+    },
+    "timeliness": {
+      "score": 0.961,
+      "on_time_delivery": 0.987,
+      "data_freshness": 0.935,
+      "status": "good"
+    },
+    "validity": {
+      "score": 0.984,
+      "schema_compliance": 0.997,
+      "constraint_violations": 0.003,
+      "status": "excellent"
+    }
+  },
+  "dataset_quality": [
+    {
+      "dataset_name": "customer_transactions",
+      "record_count": 45729384,
+      "quality_score": 0.965,
+      "issues": {
+        "missing_values": 127384,
+        "duplicates": 3847,
+        "format_errors": 9238
+      },
+      "recommendations": [
+        "Implement upstream validation for transaction_id field",
+        "Add deduplication step in ETL pipeline"
+      ]
+    },
+    {
+      "dataset_name": "system_metrics",
+      "record_count": 98475839,
+      "quality_score": 0.942,
+      "issues": {
+        "missing_values": 847293,
+        "out_of_range": 12847,
+        "late_arrivals": 184729
+      },
+      "recommendations": [
+        "Review sensor configuration for missing data",
+        "Adjust collection intervals"
+      ]
+    },
+    {
+      "dataset_name": "user_actions",
+      "record_count": 28474839,
+      "quality_score": 0.978,
+      "issues": {
+        "missing_values": 23847,
+        "format_errors": 1847
+      },
+      "recommendations": [
+        "Add client-side validation"
+      ]
+    }
+  ],
+  "critical_issues": [
+    {
+      "severity": "high",
+      "dataset": "financial_records",
+      "issue": "referential_integrity_violation",
+      "affected_records": 12847,
+      "description": "Foreign key violations in transaction-customer linkage",
+      "recommended_action": "Run data reconciliation job"
+    },
+    {
+      "severity": "medium",
+      "dataset": "audit_logs",
+      "issue": "late_data_arrival",
+      "affected_records": 84729,
+      "description": "Logs arriving > 1 hour late",
+      "recommended_action": "Investigate network latency issues"
+    }
+  ],
+  "trend_analysis": {
+    "quality_score_trend": "improving",
+    "previous_quarter_score": 0.932,
+    "improvement": 0.015,
+    "prediction_next_quarter": 0.958
+  },
+  "remediation_summary": {
+    "issues_identified": 847,
+    "issues_auto_fixed": 623,
+    "issues_requiring_manual_review": 224,
+    "estimated_cleanup_time_hours": 184
+  }
+}

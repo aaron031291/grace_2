@@ -1,0 +1,378 @@
+version: "1.0"
+playbook_name: "Hunter Engine - Anomaly Detection & Investigation"
+description: "Playbook for GRACE Hunter Engine - proactive threat and anomaly hunting"
+owner: "security-team"
+last_updated: "2025-01-15"
+
+hunter_modes:
+  passive_monitoring:
+    description: "Continuous passive monitoring for anomalies"
+    enabled: true
+    interval: "5m"
+    data_sources:
+      - "system_metrics"
+      - "application_logs"
+      - "network_traffic"
+      - "user_behavior"
+    
+  active_hunting:
+    description: "Proactive investigation based on hypotheses"
+    trigger: "manual or scheduled"
+    frequency: "weekly"
+    
+  incident_response:
+    description: "Deep investigation mode triggered by alerts"
+    trigger: "security_alert"
+    priority: "high"
+
+hunt_workflows:
+  - name: "unusual_login_patterns"
+    description: "Detect unusual login patterns and potential account compromise"
+    trigger:
+      type: "schedule"
+      cron: "0 */4 * * *"  # Every 4 hours
+    
+    investigation_steps:
+      - step: 1
+        name: "collect_login_events"
+        query: |
+          SELECT user_id, ip_address, timestamp, user_agent, location
+          FROM auth_logs
+          WHERE timestamp > NOW() - INTERVAL '4 hours'
+          AND event_type = 'login'
+      
+      - step: 2
+        name: "detect_anomalies"
+        ml_model: "login_anomaly_detector"
+        features:
+          - "login_time_of_day"
+          - "geographic_location"
+          - "device_fingerprint"
+          - "login_frequency"
+        anomaly_threshold: 0.8
+      
+      - step: 3
+        name: "investigate_anomalies"
+        conditions:
+          - "anomaly_score > 0.8"
+        actions:
+          - "fetch_user_history"
+          - "check_concurrent_sessions"
+          - "analyze_recent_actions"
+      
+      - step: 4
+        name: "assess_risk"
+        risk_factors:
+          - name: "impossible_travel"
+            weight: 0.9
+          - name: "new_device"
+            weight: 0.6
+          - name: "unusual_time"
+            weight: 0.4
+          - name: "multiple_failed_attempts"
+            weight: 0.8
+        risk_threshold: 0.7
+      
+      - step: 5
+        name: "take_action"
+        actions:
+          - condition: "risk_score > 0.9"
+            action: "lock_account"
+            notify: ["security_team", "user"]
+          - condition: "risk_score > 0.7"
+            action: "require_mfa"
+            notify: ["security_team"]
+          - condition: "risk_score > 0.5"
+            action: "log_for_review"
+            notify: ["security_team"]
+
+  - name: "data_exfiltration_detection"
+    description: "Detect potential data exfiltration attempts"
+    trigger:
+      type: "continuous"
+      interval: "1m"
+    
+    investigation_steps:
+      - step: 1
+        name: "monitor_data_transfers"
+        metrics:
+          - "bytes_transferred_per_user"
+          - "file_download_count"
+          - "api_data_retrieval_volume"
+        baseline_period: "30d"
+      
+      - step: 2
+        name: "detect_unusual_transfers"
+        conditions:
+          - "current_transfer_volume > baseline_mean + (3 * baseline_std_dev)"
+          - "transfer_volume > 1GB in 1 hour"
+          - "transfer_to_personal_cloud_storage"
+      
+      - step: 3
+        name: "deep_inspection"
+        actions:
+          - "identify_files_transferred"
+          - "check_data_classification"
+          - "review_user_access_level"
+          - "check_for_bulk_operations"
+      
+      - step: 4
+        name: "correlation_analysis"
+        check:
+          - "recent_access_to_sensitive_data"
+          - "employee_termination_notice"
+          - "performance_review_issues"
+          - "concurrent_suspicious_activities"
+      
+      - step: 5
+        name: "respond"
+        actions:
+          - condition: "sensitive_data_transferred AND (termination_pending OR external_destination)"
+            action: "immediate_lockout"
+            notify: ["CISO", "HR", "Legal"]
+          - condition: "unusual_volume AND unclassified_data"
+            action: "flag_for_review"
+            notify: ["security_team", "data_governance"]
+
+  - name: "privilege_escalation_hunt"
+    description: "Hunt for unauthorized privilege escalation attempts"
+    trigger:
+      type: "event"
+      events: ["permission_change", "role_assignment", "sudo_usage"]
+    
+    investigation_steps:
+      - step: 1
+        name: "capture_event_context"
+        data:
+          - "user_id"
+          - "target_user/resource"
+          - "old_permissions"
+          - "new_permissions"
+          - "requesting_ip"
+          - "timestamp"
+      
+      - step: 2
+        name: "validate_authorization"
+        checks:
+          - "is_authorized_admin"
+          - "has_approval_ticket"
+          - "within_business_hours"
+          - "follows_change_management"
+      
+      - step: 3
+        name: "assess_suspicion"
+        red_flags:
+          - "escalation_without_approval"
+          - "escalation_to_admin_from_low_privilege"
+          - "escalation_outside_business_hours"
+          - "multiple_escalations_short_timeframe"
+      
+      - step: 4
+        name: "investigate_user"
+        actions:
+          - "review_user_activity_history"
+          - "check_for_compromised_credentials"
+          - "analyze_recent_commands_executed"
+      
+      - step: 5
+        name: "respond"
+        actions:
+          - condition: "unauthorized_escalation"
+            action: "revoke_privileges_immediately"
+            notify: ["security_team", "user_manager"]
+          - condition: "suspicious_but_authorized"
+            action: "enhanced_monitoring"
+            duration: "7d"
+
+  - name: "lateral_movement_detection"
+    description: "Detect lateral movement within the infrastructure"
+    trigger:
+      type: "continuous"
+      interval: "2m"
+    
+    investigation_steps:
+      - step: 1
+        name: "monitor_internal_connections"
+        data_sources:
+          - "network_flow_logs"
+          - "ssh_logs"
+          - "rdp_logs"
+          - "service_account_usage"
+      
+      - step: 2
+        name: "build_connection_graph"
+        timeframe: "1h"
+        create:
+          - "source_to_destination_map"
+          - "user_to_host_relationships"
+          - "service_account_activity_graph"
+      
+      - step: 3
+        name: "detect_anomalies"
+        patterns:
+          - name: "unusual_host_connections"
+            description: "Host connecting to hosts it normally doesn't"
+          - name: "rapid_propagation"
+            description: "Single source connecting to many hosts quickly"
+          - name: "credential_reuse_pattern"
+            description: "Same credentials used across many hosts"
+      
+      - step: 4
+        name: "trace_movement_path"
+        actions:
+          - "identify_patient_zero"
+          - "map_propagation_path"
+          - "identify_affected_hosts"
+      
+      - step: 5
+        name: "contain_and_alert"
+        actions:
+          - condition: "confirmed_lateral_movement"
+            action: "isolate_affected_hosts"
+            notify: ["security_team", "incident_response"]
+
+  - name: "cryptomining_detection"
+    description: "Detect unauthorized cryptocurrency mining"
+    trigger:
+      type: "continuous"
+      interval: "5m"
+    
+    investigation_steps:
+      - step: 1
+        name: "monitor_resource_usage"
+        metrics:
+          - "cpu_usage_per_process"
+          - "network_connections"
+          - "process_command_lines"
+      
+      - step: 2
+        name: "identify_suspicious_processes"
+        indicators:
+          - "high_cpu_usage > 80% sustained"
+          - "unknown_process_names"
+          - "connections_to_mining_pools"
+          - "gpu_usage_spikes"
+      
+      - step: 3
+        name: "analyze_process"
+        checks:
+          - "process_hash_reputation"
+          - "parent_process_legitimacy"
+          - "file_location_suspicious"
+          - "network_destination_mining_pool"
+      
+      - step: 4
+        name: "determine_infection_vector"
+        investigate:
+          - "recent_downloads"
+          - "email_attachments"
+          - "compromised_credentials"
+          - "vulnerable_services"
+      
+      - step: 5
+        name: "remediate"
+        actions:
+          - "kill_suspicious_processes"
+          - "quarantine_infected_hosts"
+          - "remove_persistence_mechanisms"
+          - "patch_vulnerabilities"
+        notify: ["security_team", "infrastructure_team"]
+
+ml_models:
+  - name: "login_anomaly_detector"
+    type: "isolation_forest"
+    features: ["login_time", "location", "device", "frequency"]
+    training_data: "auth_logs_30d"
+    retrain_frequency: "weekly"
+  
+  - name: "data_transfer_baseline"
+    type: "statistical"
+    method: "moving_average"
+    window: "30d"
+    sensitivity: "high"
+  
+  - name: "behavior_profile"
+    type: "unsupervised_clustering"
+    features: ["access_patterns", "resource_usage", "time_patterns"]
+    update_frequency: "daily"
+
+hunting_queries:
+  - name: "find_unusual_sudo_usage"
+    query: |
+      SELECT user, command, timestamp, host
+      FROM sudo_logs
+      WHERE timestamp > NOW() - INTERVAL '24 hours'
+      GROUP BY user, command
+      HAVING COUNT(*) > (
+        SELECT AVG(daily_count) * 3
+        FROM sudo_usage_baseline
+        WHERE user = sudo_logs.user
+      )
+  
+  - name: "detect_off_hours_database_access"
+    query: |
+      SELECT user, database, query, timestamp
+      FROM database_audit_logs
+      WHERE EXTRACT(HOUR FROM timestamp) NOT BETWEEN 8 AND 18
+      AND user NOT IN (SELECT user FROM automated_jobs)
+      AND query ILIKE '%sensitive_table%'
+  
+  - name: "find_failed_auth_then_success"
+    query: |
+      WITH failed AS (
+        SELECT user, ip_address, COUNT(*) as fail_count
+        FROM auth_logs
+        WHERE event = 'login_failed'
+        AND timestamp > NOW() - INTERVAL '1 hour'
+        GROUP BY user, ip_address
+        HAVING COUNT(*) > 5
+      )
+      SELECT f.user, f.ip_address, a.timestamp
+      FROM failed f
+      JOIN auth_logs a ON f.user = a.user AND f.ip_address = a.ip_address
+      WHERE a.event = 'login_success'
+      AND a.timestamp > NOW() - INTERVAL '1 hour'
+
+response_actions:
+  lock_account:
+    action: "disable_user_account"
+    duration: "until_reviewed"
+    notify: ["security_team", "user", "user_manager"]
+  
+  isolate_host:
+    action: "network_isolation"
+    method: "firewall_rule"
+    preserve_forensics: true
+  
+  require_mfa:
+    action: "force_mfa_enrollment"
+    notify: ["user"]
+  
+  enhanced_monitoring:
+    action: "increase_log_verbosity"
+    duration: "7d"
+    notify: ["security_team"]
+
+reporting:
+  hunt_summary:
+    frequency: "weekly"
+    recipients: ["security_team", "CISO"]
+    include:
+      - "hunts_executed"
+      - "anomalies_detected"
+      - "actions_taken"
+      - "false_positive_rate"
+  
+  threat_intelligence:
+    frequency: "monthly"
+    recipients: ["exec_team", "security_team"]
+    include:
+      - "threat_trends"
+      - "attack_patterns"
+      - "recommendations"
+
+integration:
+  siem: "splunk"
+  ticketing: "jira"
+  notification: "slack"
+  threat_intel: "threatconnect"
