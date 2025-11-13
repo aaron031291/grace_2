@@ -228,7 +228,7 @@ export function MemoryWorkspace() {
           )}
         </div>
         
-        <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '8px' }}>
+        <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={handleNewFile}
             title="New File"
@@ -261,6 +261,39 @@ export function MemoryWorkspace() {
           >
             <FolderPlus size={16} />
           </button>
+          <label
+            title="Upload File"
+            style={{
+              background: '#3b82f6',
+              color: '#fff',
+              border: 'none',
+              padding: '8px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <File size={16} />
+            <input
+              type="file"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', selectedPath || '');
+                try {
+                  await axios.post(`${API_BASE}/api/memory/files/upload`, formData);
+                  loadTree();
+                  alert(`Uploaded ${file.name}`);
+                } catch {
+                  alert('Upload failed');
+                }
+              }}
+              style={{ display: 'none' }}
+            />
+          </label>
         </div>
       </div>
 
@@ -305,7 +338,32 @@ export function MemoryWorkspace() {
                   Save
                 </button>
                 <button
+                  onClick={() => {
+                    const newName = prompt('Rename to:', selectedNode.name);
+                    if (newName && newName !== selectedNode.name) {
+                      const newPath = selectedPath!.split('/').slice(0, -1).concat(newName).join('/');
+                      axios.patch(`${API_BASE}/api/memory/file?old_path=${selectedPath}&new_path=${newPath}`)
+                        .then(() => { loadTree(); setSelectedPath(newPath); })
+                        .catch(() => alert('Failed to rename'));
+                    }
+                  }}
+                  title="Rename File"
+                  style={{
+                    background: '#6b7280',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Edit size={16} />
+                </button>
+                <button
                   onClick={handleDelete}
+                  title="Delete File"
                   style={{
                     background: '#ef4444',
                     color: '#fff',
@@ -338,6 +396,66 @@ export function MemoryWorkspace() {
               />
             </div>
           </>
+        ) : selectedNode && selectedNode.type === 'directory' ? (
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#6b7280',
+            gap: '16px'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <Folder size={48} style={{ marginBottom: '12px', opacity: 0.5 }} />
+              <div style={{ fontSize: '18px', fontWeight: 500, marginBottom: '8px' }}>{selectedNode.name}</div>
+              <div style={{ fontSize: '14px', opacity: 0.7 }}>Folder selected</div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  const newName = prompt('Rename folder to:', selectedNode.name);
+                  if (newName && newName !== selectedNode.name) {
+                    const newPath = selectedPath!.split('/').slice(0, -1).concat(newName).join('/');
+                    axios.patch(`${API_BASE}/api/memory/file?old_path=${selectedPath}&new_path=${newPath}`)
+                      .then(() => { loadTree(); setSelectedPath(newPath); alert('Folder renamed'); })
+                      .catch(() => alert('Failed to rename folder'));
+                  }
+                }}
+                style={{
+                  background: '#6b7280',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Edit size={16} />
+                Rename Folder
+              </button>
+              <button
+                onClick={handleDelete}
+                style={{
+                  background: '#ef4444',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Trash2 size={16} />
+                Delete Folder
+              </button>
+            </div>
+          </div>
         ) : (
           <div style={{
             flex: 1,
