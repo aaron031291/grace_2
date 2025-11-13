@@ -1,0 +1,52 @@
+table: memory_file_operations
+description: Tracks all file operations for undo/redo functionality
+columns:
+  - name: operation_id
+    type: TEXT PRIMARY KEY
+    description: Unique operation identifier
+
+  - name: operation_type
+    type: TEXT NOT NULL
+    description: Type of operation (move, delete, rename, copy)
+
+  - name: source_path
+    type: TEXT
+    description: Original file path
+
+  - name: target_path
+    type: TEXT
+    description: Destination file path
+
+  - name: backup_path
+    type: TEXT
+    description: Path to backup for undo
+
+  - name: can_undo
+    type: BOOLEAN DEFAULT TRUE
+    description: Whether operation can be undone
+
+  - name: undone
+    type: BOOLEAN DEFAULT FALSE
+    description: Whether operation has been undone
+
+  - name: undone_at
+    type: TIMESTAMP
+    description: When operation was undone
+
+  - name: timestamp
+    type: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    description: When operation was performed
+
+  - name: details
+    type: JSON
+    description: Full operation details including reasoning
+
+indexes:
+  - columns: [timestamp]
+    name: idx_operations_timestamp
+  - columns: [operation_type]
+    name: idx_operations_type
+  - columns: [undone]
+    name: idx_operations_undone
+
+version: 1
