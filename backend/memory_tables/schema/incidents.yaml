@@ -1,0 +1,87 @@
+table: memory_incidents
+description: |
+  Incident reports and timeline for self-healing system.
+  Tracks detection, mitigation, resolution steps with full audit trail.
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+
+  - name: title
+    type: string
+    required: true
+    description: Brief incident description
+
+  - name: description
+    type: text
+    description: Detailed incident description
+
+  - name: severity
+    type: string
+    enum: ["low", "medium", "high", "critical"]
+    default: "medium"
+
+  - name: status
+    type: string
+    enum: ["open", "investigating", "mitigating", "resolved", "closed"]
+    default: "open"
+
+  - name: affected_services
+    type: json
+    default: []
+    description: List of affected services/components
+
+  - name: detection_method
+    type: string
+    description: How the incident was detected
+
+  - name: timeline
+    type: json
+    default: []
+    description: Chronological list of events and actions
+
+  - name: root_cause
+    type: text
+    description: Identified root cause
+
+  - name: resolution_summary
+    type: text
+    description: How the incident was resolved
+
+  - name: playbooks_used
+    type: json
+    default: []
+    description: Self-healing playbooks that were executed
+
+  - name: assigned_to
+    type: string
+    description: Person or agent assigned to incident
+
+  - name: tags
+    type: json
+    default: []
+    description: Categorization tags
+
+  - name: created_at
+    type: timestamp
+    required: true
+
+  - name: resolved_at
+    type: timestamp
+    description: When incident was resolved
+
+  - name: created_by
+    type: string
+    default: "system"
+
+indexes:
+  - fields: ["status", "severity"]
+  - fields: ["created_at"]
+  - fields: ["affected_services"]
+
+relationships:
+  - table: memory_execution_logs
+    type: one_to_many
+    foreign_key: incident_id
+    description: Execution logs related to this incident

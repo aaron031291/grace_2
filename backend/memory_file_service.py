@@ -75,6 +75,43 @@ class MemoryFileService:
         
         return build_tree_node(target)
     
+    def read_file(self, path: str) -> Dict[str, Any]:
+        """Read file (sync wrapper for get_file)"""
+        # If running in async context, use await, otherwise create event loop
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # Already in async context, can't use asyncio.run
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(lambda: asyncio.run(self.get_file(path)))
+                    return future.result()
+            else:
+                return asyncio.run(self.get_file(path))
+        except:
+            # Fallback: just call get_file directly (it's async but we'll make it sync)
+            file_path = self.root_path / path
+            if not file_path.exists():
+                raise FileNotFoundError(f"File not found: {path}")
+            if file_path.is_dir():
+                raise IsADirectoryError(f"Path is a directory: {path}")
+            
+            try:
+                content = file_path.read_text(encoding='utf-8')
+                is_binary = False
+            except UnicodeDecodeError:
+                content = base64.b64encode(file_path.read_bytes()).decode('utf-8')
+                is_binary = True
+            
+            stat = file_path.stat()
+            return {
+                "path": path,
+                "content": content,
+                "encoding": "base64" if is_binary else "utf-8",
+                "size": stat.st_size,
+                "modified": datetime.fromtimestamp(stat.st_mtime).isoformat()
+            }
+    
     async def get_file(self, path: str) -> Dict[str, Any]:
         """Get file content"""
         file_path = self.root_path / path
@@ -149,6 +186,28 @@ class MemoryFileService:
         return {
             "path": path,
             "created_at": datetime.now().isoformat()
+        }
+    
+    async def rename_file(self, old_path: str, new_path: str) -> Dict[str, Any]:
+        """Rename or move a file/folder"""
+        old_file = self.root_path / old_path
+        new_file = self.root_path / new_path
+        
+        if not old_file.exists():
+            raise FileNotFoundError(f"Source path not found: {old_path}")
+        
+        if new_file.exists():
+            raise FileExistsError(f"Target path already exists: {new_path}")
+        
+        # Ensure parent directory exists
+        new_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        old_file.rename(new_file)
+        
+        return {
+            "old_path": old_path,
+            "new_path": new_path,
+            "renamed_at": datetime.now().isoformat()
         }
     
     def list_files(self, path: str = "") -> List[Dict[str, Any]]:
