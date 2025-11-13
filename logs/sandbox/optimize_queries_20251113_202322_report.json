@@ -1,0 +1,27 @@
+{
+  "experiment_id": "optimize_queries_20251113_202322",
+  "experiment_name": "optimize_queries",
+  "code_file": "sandbox\\optimize_queries_test.py",
+  "started_at": "2025-11-13T20:23:22.814051",
+  "status": "failed",
+  "kpi_thresholds": {
+    "execution_time_sec": "<5",
+    "memory_used_mb": "<100",
+    "exit_code": "==0"
+  },
+  "kpis_met": {
+    "execution_time_sec": true,
+    "memory_used_mb": true,
+    "exit_code": false
+  },
+  "metrics": {
+    "execution_time_sec": 0.043281,
+    "memory_used_mb": 0,
+    "exit_code": 2,
+    "timeout_exceeded": false
+  },
+  "output": "\npython: can't open file 'c:\\\\Users\\\\aaron\\\\grace_2\\\\sandbox\\\\sandbox\\\\optimize_queries_test.py': [Errno 2] No such file or directory\r\n",
+  "errors": [],
+  "security_checks": {},
+  "trust_score": 66
+}
