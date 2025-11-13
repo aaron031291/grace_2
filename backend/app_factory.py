@@ -41,6 +41,8 @@ def create_app() -> FastAPI:
         librarian,
         self_healing,
         system,
+        memory,
+        ingestion,
     )
     
     # Register API routers (order matters for route precedence)
@@ -48,6 +50,8 @@ def create_app() -> FastAPI:
     app.include_router(self_healing.router)
     app.include_router(librarian.router)
     app.include_router(trusted_sources.router)
+    app.include_router(memory.router)
+    app.include_router(ingestion.router)
     
     # Health check endpoint
     @app.get("/health")
