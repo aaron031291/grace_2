@@ -15,6 +15,8 @@ import { MemoryWorkspace } from './MemoryWorkspace';
 import { HunterDashboard } from './HunterDashboard';
 import { AgenticDashboard } from './AgenticDashboard';
 import { SelfHealingPanel } from './SelfHealingPanel';
+import { IncidentPanel } from './IncidentPanel';
+import { HealthDashboard } from './HealthDashboard';
 
 interface MainPanelProps {
   item: NavItem;
@@ -67,7 +69,7 @@ export default function MainPanel({ item }: MainPanelProps) {
     case 'agentic':
       return <AgenticDashboard />;
     case 'healing':
-      return <SelfHealingPanel />;
+      return <HealthDashboard />;
     default:
       return <OverviewTab />;
   }
