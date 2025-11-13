@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, grace_memory_api, comprehensive_api
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
 from .routes.agentic import router as agentic_router
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -608,8 +608,8 @@ app.include_router(integration_api.router)  # Integration Orchestration
 app.include_router(integration_api.crypto_router)  # Crypto Key Management
 app.include_router(agentic_router)  # Agentic Dashboard API
 app.include_router(ingestion_api.router)  # Ingestion Pipeline System
-app.include_router(grace_memory_api.router)  # Grace Autonomous Memory Management
-app.include_router(comprehensive_api.router)  # Comprehensive API for all panels
+# app.include_router(grace_memory_api.router)  # Grace Autonomous Memory Management - TEMPORARILY DISABLED (circular import)
+app.include_router(comprehensive_api.router, prefix="/api")  # Comprehensive API for all panels
 # Grace IDE WebSocket (optional)
 # Enabled only when ENABLE_IDE_WS is truthy; safely gated to avoid import-time failure
 import os as _os
