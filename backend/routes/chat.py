@@ -16,7 +16,7 @@ class ChatResponse(BaseModel):
     response: str
 
 memory = PersistentMemory()
-grace = GraceAutonomous(memory=memory)
+grace = GraceAutonomous()
 
 @router.post("/", response_model=ChatResponse)
 async def chat_endpoint(

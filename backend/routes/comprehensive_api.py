@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import random
 
-router = APIRouter(prefix="/api", tags=["Comprehensive"])
+router = APIRouter(tags=["Comprehensive"])
 
 
 # ===== SELF-HEALING API =====
