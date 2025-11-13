@@ -697,14 +697,18 @@ if self_healing_api_router:
     app.include_router(self_healing_api_router)
     logger.info("✅ Self-Healing API router included")
 
-# Book System Routes (NEW)
+# Enhanced System Routes (NEW)
 try:
-    logger.info("Attempting to load book system routes...")
+    logger.info("Loading enhanced system routes...")
     
-    # Load stub routes first (always work, prevent JSON errors)
+    # Load stub routes first (prevent JSON errors)
     from backend.routes.librarian_stubs import router as stub_router
     app.include_router(stub_router, prefix="/api/librarian", tags=["librarian-stubs"])
-    logger.info("Librarian stub routes registered (prevents frontend errors)")
+    
+    from backend.routes.self_healing_stubs import router as healing_stub_router
+    app.include_router(healing_stub_router, prefix="/api/self-healing", tags=["self-healing-stubs"])
+    
+    logger.info("Stub routes registered (librarian + self-healing)")
     
     # Test endpoint
     from backend.routes.test_endpoint import router as test_router
