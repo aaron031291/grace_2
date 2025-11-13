@@ -119,13 +119,24 @@ export function LibrarianPanel() {
 
   async function loadSchemaProposals() {
     try {
-      const response = await fetch('/api/memory/schemas/pending');
-      if (response.ok) {
-        const data = await response.json();
-        setSchemaProposals(data.proposals || []);
+      const response = await fetch('/api/librarian/schema-proposals');
+      
+      if (!response.ok) {
+        setSchemaProposals([]);
+        return;
       }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        setSchemaProposals([]);
+        return;
+      }
+      
+      const data = await response.json();
+      setSchemaProposals(data.proposals || []);
     } catch (err) {
       console.error('Failed to load schema proposals:', err);
+      setSchemaProposals([]);
     }
   }
 

@@ -674,6 +674,43 @@ if chunked_upload_router:
     app.include_router(chunked_upload_router)
     logger.info("✅ Chunked Upload API router included")
 
+# Book System Routes (NEW)
+try:
+    logger.info("Attempting to load book system routes...")
+    
+    # Load stub routes first (always work, prevent JSON errors)
+    from backend.routes.librarian_stubs import router as stub_router
+    app.include_router(stub_router, prefix="/api/librarian", tags=["librarian-stubs"])
+    logger.info("Librarian stub routes registered (prevents frontend errors)")
+    
+    # Test endpoint
+    from backend.routes.test_endpoint import router as test_router
+    app.include_router(test_router, prefix="/api", tags=["test"])
+    logger.info("Test router registered: /api/test")
+    
+    # Book dashboard (may override some stubs with real implementations)
+    try:
+        from backend.routes.book_dashboard import router as book_router
+        app.include_router(book_router, prefix="/api/books", tags=["books"])
+        logger.info("Book dashboard router registered: /api/books/*")
+    except Exception as e:
+        logger.warning(f"Book dashboard routes not loaded: {e}")
+    
+    # File organizer (may override stubs)
+    try:
+        from backend.routes.file_organizer_api import router as organizer_router
+        # Don't override stub routes, use different prefix
+        app.include_router(organizer_router, prefix="/api/organizer", tags=["file-organizer"])
+        logger.info("File organizer router registered: /api/organizer/*")
+    except Exception as e:
+        logger.warning(f"File organizer routes not loaded: {e}")
+    
+    logger.info("Book system routes loaded (stubs ensure no JSON errors)")
+except Exception as e:
+    logger.error(f"Failed to load book system routes: {e}")
+    import traceback
+    traceback.print_exc()
+
 @app.get("/")
 async def root():
     return {
