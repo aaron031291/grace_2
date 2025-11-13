@@ -1,7 +1,7 @@
 """
 Log Watcher Service
 Monitors log files and error directories for real-time event detection
-Uses Watchdog to tail logs and trigger self-healing
+Uses Clarity Framework BaseComponent pattern
 """
 
 import asyncio
@@ -11,14 +11,25 @@ from typing import Callable, Dict, Any, List
 from datetime import datetime
 import re
 
+try:
+    from backend.clarity import BaseComponent, ComponentStatus, get_event_bus
+    HAS_CLARITY = True
+except ImportError:
+    HAS_CLARITY = False
+    BaseComponent = object
 
-class LogWatcher:
+
+class LogWatcher(BaseComponent if HAS_CLARITY else object):
     """
     Watches log files and directories for changes
     Emits events when errors or patterns are detected
     """
     
     def __init__(self):
+        if HAS_CLARITY:
+            super().__init__()
+            self.component_type = "log_watcher"
+        
         self.watchers: List[Any] = []
         self.event_handlers: List[Callable] = []
         self.patterns: Dict[str, str] = {
@@ -89,7 +100,8 @@ class LogWatcher:
                 await self._emit_event(event)
     
     async def _emit_event(self, event: Dict[str, Any]):
-        """Emit event to all registered handlers"""
+        """Emit event to all registered handlers and Clarity event bus"""
+        # Emit to local handlers
         for handler in self.event_handlers:
             try:
                 if asyncio.iscoroutinefunction(handler):
@@ -98,6 +110,19 @@ class LogWatcher:
                     handler(event)
             except Exception as e:
                 print(f"[LogWatcher] Handler error: {e}")
+        
+        # Also emit to Clarity event bus if available
+        if HAS_CLARITY:
+            try:
+                bus = get_event_bus()
+                from backend.clarity.event_bus import Event
+                await bus.publish(Event(
+                    event_type=f"log_pattern.{event['pattern']}",
+                    source="log_watcher",
+                    payload=event
+                ))
+            except Exception:
+                pass  # Clarity bus not available
     
     def register_handler(self, handler: Callable):
         """Register an event handler"""
