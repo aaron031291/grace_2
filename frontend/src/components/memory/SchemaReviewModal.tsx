@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SchemaProposal, getPendingSchemas, approveSchema, rejectSchema } from '../../api/memory';
+import { type SchemaProposal, getPendingSchemas, approveSchema, rejectSchema } from '../../api/memory';
 
 interface SchemaReviewModalProps {
   isOpen: boolean;

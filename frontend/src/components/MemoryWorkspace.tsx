@@ -58,7 +58,14 @@ export function MemoryWorkspace() {
   async function loadTree() {
     try {
       const response = await axios.get(`${API_BASE}/api/memory/files`);
-      setTree(response.data);
+      // Backend returns an array of root folders, wrap it in a root node
+      const rootNode: FileNode = {
+        name: 'root',
+        path: '/',
+        type: 'folder',
+        children: Array.isArray(response.data) ? response.data : []
+      };
+      setTree(rootNode);
     } catch (error) {
       console.error('Failed to load file tree:', error);
     }

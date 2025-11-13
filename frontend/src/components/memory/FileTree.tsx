@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileNode, listFiles } from '../../api/memory';
+import { type FileNode, listFiles } from '../../api/memory';
 
 interface FileTreeProps {
   onFileSelect: (path: string) => void;
