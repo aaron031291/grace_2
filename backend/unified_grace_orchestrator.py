@@ -692,10 +692,18 @@ if chunked_upload_router:
     app.include_router(chunked_upload_router)
     logger.info("✅ Chunked Upload API router included")
 
-# Self-Healing API Routes (NEW)
+# COMPREHENSIVE API - Register FIRST to provide mock data for all endpoints
+try:
+    from backend.routes.comprehensive_api import router as comprehensive_router
+    app.include_router(comprehensive_router, prefix="/api", tags=["Comprehensive"])
+    logger.info("✅ Comprehensive API registered FIRST (mock data for all systems)")
+except Exception as e:
+    logger.error(f"Failed to register comprehensive_api: {e}")
+
+# Self-Healing API Routes (NEW) - Will be shadowed by comprehensive_api where overlapping
 if self_healing_api_router:
     app.include_router(self_healing_api_router)
-    logger.info("✅ Self-Healing API router included")
+    logger.info("✅ Self-Healing API router included (database-backed routes)")
 
 # Enhanced System Routes (NEW)
 try:
@@ -705,10 +713,11 @@ try:
     from backend.routes.librarian_stubs import router as stub_router
     app.include_router(stub_router, prefix="/api/librarian", tags=["librarian-stubs"])
     
-    from backend.routes.self_healing_stubs import router as healing_stub_router
-    app.include_router(healing_stub_router, prefix="/api/self-healing", tags=["self-healing-stubs"])
+    # DISABLED: Using comprehensive_api.py instead which has real mock data
+    # from backend.routes.self_healing_stubs import router as healing_stub_router
+    # app.include_router(healing_stub_router, prefix="/api/self-healing", tags=["self-healing-stubs"])
     
-    logger.info("Stub routes registered (librarian + self-healing)")
+    logger.info("Stub routes registered (librarian only, self-healing uses comprehensive_api)")
     
     # Test endpoint
     from backend.routes.test_endpoint import router as test_router
