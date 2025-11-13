@@ -43,6 +43,8 @@ def create_app() -> FastAPI:
         system,
         memory,
         ingestion,
+        events,
+        automation,
     )
     
     # Register API routers (order matters for route precedence)
@@ -52,14 +54,52 @@ def create_app() -> FastAPI:
     app.include_router(trusted_sources.router)
     app.include_router(memory.router)
     app.include_router(ingestion.router)
+    app.include_router(events.router)
+    app.include_router(automation.router)
+    
+    # Startup event
+    @app.on_event("startup")
+    async def startup():
+        print("\n[Factory] Starting Grace API services...")
+        
+        # Start log watcher
+        try:
+            from backend.services.log_watcher import log_watcher
+            await log_watcher.start()
+            print("[Factory] Log watcher started")
+        except Exception as e:
+            print(f"[Factory] Log watcher failed to start: {e}")
+        
+        print("[Factory] All services started successfully!\n")
+    
+    # Shutdown event
+    @app.on_event("shutdown")
+    async def shutdown():
+        print("\n[Factory] Shutting down Grace API services...")
+        
+        try:
+            from backend.services.log_watcher import log_watcher
+            await log_watcher.stop()
+            print("[Factory] Log watcher stopped")
+        except Exception:
+            pass
+        
+        print("[Factory] Shutdown complete\n")
     
     # Health check endpoint
     @app.get("/health")
     async def health_check():
+        from backend.services.log_watcher import log_watcher
+        from backend.services.event_bus import event_bus
+        
         return {
             "status": "healthy",
             "version": "2.0.0",
-            "api_type": "factory_pattern"
+            "api_type": "factory_pattern",
+            "services": {
+                "log_watcher": log_watcher.get_status(),
+                "event_bus": event_bus.get_stats()
+            }
         }
     
     # Root endpoint
