@@ -12,6 +12,10 @@ import IngestionTab from '../tabs/IngestionTab';
 import LearningTab from '../tabs/LearningTab';
 import { MemoryBrowser } from './MemoryBrowser';
 import { MemoryWorkspace } from './MemoryWorkspace';
+import SelfHealingPanel from './SelfHealingPanel';
+import AllKernelsPanel from './AllKernelsPanel';
+import LibrarianCopilot from './LibrarianCopilot';
+import NotificationToast from './NotificationToast';
 import { HunterDashboard } from './HunterDashboard';
 import { AgenticDashboard } from './AgenticDashboard';
 

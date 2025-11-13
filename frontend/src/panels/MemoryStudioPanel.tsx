@@ -48,9 +48,10 @@ import GraceOverview from '../components/GraceOverview';
 import CommandPalette from '../components/CommandPalette';
 import OnboardingWalkthrough from '../components/OnboardingWalkthrough';
 import SelfHealingPanel from '../components/SelfHealingPanel';
+import AllKernelsPanel from '../components/AllKernelsPanel';
 
 export function MemoryStudioPanel() {
-  const [view, setView] = useState<'overview' | 'workspace' | 'pipelines' | 'dashboard' | 'grace' | 'librarian' | 'books' | 'organizer' | 'healing'>('overview');
+  const [view, setView] = useState<'overview' | 'workspace' | 'pipelines' | 'dashboard' | 'kernels' | 'grace' | 'librarian' | 'books' | 'organizer' | 'healing'>('overview');
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
