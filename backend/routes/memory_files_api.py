@@ -2,13 +2,14 @@
 Memory Files API - Matches frontend expectations
 Provides file operations for the Memory Panel UI
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Body
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Body, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List
 from pathlib import Path
 import shutil
 import json
 from datetime import datetime
+import asyncio
 
 router = APIRouter(prefix="/api/memory", tags=["memory-files"])
 
@@ -264,10 +265,11 @@ async def rename_file_or_folder(request: RenameFileRequest):
 @router.post("/files/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    path: str = Form(...)
+    path: str = Form(...),
+    background_tasks: BackgroundTasks = None
 ):
     """
-    Upload a file to specified path.
+    Upload a file to specified path and trigger schema inference.
     """
     try:
         target_dir = Path(path)
@@ -278,11 +280,23 @@ async def upload_file(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
+        file_size = file_path.stat().st_size
+        
+        # Trigger schema inference in background
+        if background_tasks:
+            background_tasks.add_task(
+                _trigger_schema_inference,
+                str(file_path),
+                file.filename,
+                file_size
+            )
+        
         return {
             "success": True,
             "message": "File uploaded successfully",
             "path": str(file_path),
-            "size": file_path.stat().st_size
+            "size": file_size,
+            "schema_inference_queued": True
         }
     
     except Exception as e:
@@ -359,3 +373,53 @@ def build_file_node(path: Path) -> Optional[dict]:
     
     except Exception:
         return None
+
+
+async def _trigger_schema_inference(file_path: str, filename: str, file_size: int):
+    """
+    Background task to trigger schema inference and ingestion for uploaded file.
+    """
+    try:
+        from backend.memory_tables.registry import table_registry
+        from backend.memory_tables.schema_agent import SchemaInferenceAgent
+        
+        # Initialize schema agent
+        agent = SchemaInferenceAgent(registry=table_registry)
+        
+        # Infer schema from file
+        analysis = await asyncio.to_thread(agent.analyze_file, file_path)
+        
+        if analysis and 'suggested_table' in analysis:
+            # Log to memory_insights
+            try:
+                insight_data = {
+                    'insight_type': 'file_upload',
+                    'source': 'schema_inference',
+                    'content': f"File uploaded: {filename}",
+                    'metadata': {
+                        'file_path': file_path,
+                        'file_size': file_size,
+                        'suggested_table': analysis.get('suggested_table'),
+                        'confidence': analysis.get('confidence', 0.0),
+                        'analysis': analysis
+                    },
+                    'created_at': datetime.utcnow().isoformat()
+                }
+                
+                # Insert into memory_insights if table exists
+                if table_registry.has_table('memory_insights'):
+                    table_registry.insert_row('memory_insights', insight_data)
+            except Exception as e:
+                print(f"Failed to log insight: {e}")
+        
+        # Trigger ingestion pipeline if configured
+        try:
+            from backend.memory_tables.auto_ingestion import AutoIngestionEngine
+            
+            engine = AutoIngestionEngine(registry=table_registry)
+            await asyncio.to_thread(engine.ingest_file, file_path)
+        except Exception as e:
+            print(f"Auto-ingestion failed: {e}")
+            
+    except Exception as e:
+        print(f"Schema inference failed: {e}")

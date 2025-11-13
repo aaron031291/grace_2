@@ -130,10 +130,17 @@ if kernel_path.exists():
     IntelligenceKernel = safe_import('IntelligenceKernel', 'backend.kernels.intelligence_kernel', optional=True) or StubComponent
     InfrastructureKernel = safe_import('InfrastructureKernel', 'backend.kernels.infrastructure_kernel', optional=True) or StubComponent
     FederationKernel = safe_import('FederationKernel', 'backend.kernels.federation_kernel', optional=True) or StubComponent
+    
+    # Librarian Data Orchestrator (NEW)
+    LibrarianKernel = safe_import('LibrarianKernel', 'backend.kernels.librarian_kernel', optional=True) or StubComponent
+    LibrarianClarityAdapter = safe_import('LibrarianClarityAdapter', 'backend.kernels.librarian_clarity_adapter', optional=True) or StubComponent
+    get_event_bus = safe_import('get_event_bus', 'backend.kernels.event_bus', optional=True) or (lambda *args, **kwargs: StubComponent('event_bus'))
 else:
     # Create stub kernels if directory doesn't exist
     MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = StubComponent
     VerificationKernel = IntelligenceKernel = InfrastructureKernel = FederationKernel = StubComponent
+    LibrarianKernel = LibrarianClarityAdapter = StubComponent
+    get_event_bus = lambda *args, **kwargs: StubComponent('event_bus')
 
 # API Routes - check if routes exist (OPTIONAL - have fallbacks)
 routes_path = Path("backend/routes")
@@ -182,6 +189,15 @@ if (routes_path / "memory_files_api.py").exists():
 collaboration_router = None
 if (routes_path / "collaboration_api.py").exists():
     collaboration_router = safe_import('router', 'backend.routes.collaboration_api', optional=True)
+
+# Librarian Routes (NEW)
+librarian_api_router = None
+if (routes_path / "librarian_api.py").exists():
+    librarian_api_router = safe_import('router', 'backend.routes.librarian_api', optional=True)
+
+chunked_upload_router = None
+if (routes_path / "chunked_upload_api.py").exists():
+    chunked_upload_router = safe_import('router', 'backend.routes.chunked_upload_api', optional=True)
 
 # CLI Systems - check if cli directory exists (OPTIONAL - not required for orchestrator)
 cli_path = Path("cli")
@@ -279,6 +295,11 @@ class GraceUnifiedOrchestrator:
         self.cognition_system = None
         self.metrics_engine = None
         self.metrics_collector = None
+        
+        # Librarian Data Orchestrator (NEW)
+        self.librarian_kernel = None
+        self.librarian_adapter = None
+        self.event_bus = None
         
         # System collections
         self.memory_systems = {}
@@ -424,6 +445,51 @@ class GraceUnifiedOrchestrator:
                     logger.info(f"✅ Domain kernel: {name}")
             except Exception as e:
                 logger.error(f"❌ Domain kernel {name}: {e}")
+        
+        # Start Librarian Data Orchestrator (NEW)
+        try:
+            if LibrarianKernel and not isinstance(LibrarianKernel, type(StubComponent)):
+                logger.info("🔧 Initializing Librarian Data Orchestrator...")
+                
+                # Get/create memory tables registry
+                try:
+                    from backend.memory_tables.registry import table_registry
+                    registry = table_registry
+                except Exception:
+                    registry = None
+                    logger.warning("⚠️ Memory tables registry not available for Librarian")
+                
+                # Create event bus
+                self.event_bus = get_event_bus(registry=registry)
+                
+                # Create Librarian kernel
+                self.librarian_kernel = LibrarianKernel(
+                    registry=registry,
+                    event_bus=self.event_bus
+                )
+                
+                # Create clarity adapter
+                self.librarian_adapter = LibrarianClarityAdapter(
+                    librarian_kernel=self.librarian_kernel,
+                    registry=registry,
+                    event_mesh=self.event_bus,
+                    unified_logic=None  # Will be wired later
+                )
+                
+                # Initialize and start
+                await self.librarian_adapter.initialize()
+                
+                self.domain_kernels['librarian'] = self.librarian_adapter
+                counts["kernels"] += 1
+                
+                logger.info("✅ Librarian Data Orchestrator started")
+                logger.info(f"   📁 Watching: {[str(p) for p in self.librarian_kernel.watch_paths]}")
+                logger.info(f"   🤖 Sub-agents ready: 4 types")
+                logger.info(f"   📊 Queues: schema, ingestion, trust_audit")
+        except Exception as e:
+            logger.error(f"❌ Librarian Data Orchestrator failed: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
         
         # Initialize Memory Tables system
         try:
@@ -598,6 +664,15 @@ if memory_files_router:
 if collaboration_router:
     app.include_router(collaboration_router)
     logger.info("✅ Collaboration API router included")
+
+# Librarian Routes (NEW)
+if librarian_api_router:
+    app.include_router(librarian_api_router)
+    logger.info("✅ Librarian API router included")
+
+if chunked_upload_router:
+    app.include_router(chunked_upload_router)
+    logger.info("✅ Chunked Upload API router included")
 
 @app.get("/")
 async def root():

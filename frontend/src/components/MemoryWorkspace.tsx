@@ -3,9 +3,14 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Save, FilePlus, FolderPlus, Trash2, Edit, File, Folder, ChevronRight, Home, Upload } from 'lucide-react';
+import { Save, FilePlus, FolderPlus, Trash2, Edit, File, Folder, ChevronRight, Home, Upload, MessageSquare } from 'lucide-react';
 import axios from 'axios';
 import Editor from '@monaco-editor/react';
+import TrustedSourcesPanel from '../panels/TrustedSourcesPanel';
+import LibrarianPanel from '../panels/LibrarianPanel';
+import { LibrarianChat } from './LibrarianChat';
+import { LibrarianSuggestions } from './LibrarianSuggestions';
+import { StatusBadge, BadgeStatus } from './StatusBadge';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -24,6 +29,7 @@ interface FolderData {
 }
 
 export function MemoryWorkspace() {
+  const [activeTab, setActiveTab] = useState<'files' | 'trusted-sources' | 'librarian'>('files');
   const [currentPath, setCurrentPath] = useState<string>('');
   const [folderData, setFolderData] = useState<FolderData | null>(null);
   const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
@@ -31,6 +37,8 @@ export function MemoryWorkspace() {
   const [originalContent, setOriginalContent] = useState<string>('');
   const [isDirty, setIsDirty] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   useEffect(() => {
     loadFolder(currentPath);
@@ -74,7 +82,7 @@ export function MemoryWorkspace() {
     setLoading(true);
     setSelectedFile(file);
     try {
-      const response = await axios.get(`${API_BASE}/api/memory/file`, {
+      const response = await axios.get(`${API_BASE}/api/memory/files/content`, {
         params: { path: file.path }
       });
       setFileContent(response.data.content || '');
@@ -92,13 +100,14 @@ export function MemoryWorkspace() {
     
     setLoading(true);
     try {
-      await axios.post(`${API_BASE}/api/memory/file`, null, {
+      await axios.post(`${API_BASE}/api/memory/files/content`, null, {
         params: { path: selectedFile.path, content: fileContent }
       });
       setOriginalContent(fileContent);
       alert('File saved successfully');
       loadFolder(currentPath);
     } catch (error) {
+      console.error('Save error:', error);
       alert('Failed to save file');
     } finally {
       setLoading(false);
@@ -112,11 +121,13 @@ export function MemoryWorkspace() {
     const newPath = currentPath ? `${currentPath}/${name}` : name;
     
     try {
-      await axios.post(`${API_BASE}/api/memory/file`, null, {
+      await axios.post(`${API_BASE}/api/memory/files/content`, null, {
         params: { path: newPath, content: '' }
       });
       loadFolder(currentPath);
+      alert(`Created ${name}`);
     } catch (error) {
+      console.error('Create file error:', error);
       alert('Failed to create file');
     }
   }
@@ -128,11 +139,13 @@ export function MemoryWorkspace() {
     const newPath = currentPath ? `${currentPath}/${name}` : name;
     
     try {
-      await axios.post(`${API_BASE}/api/memory/folder`, null, {
-        params: { path: newPath }
+      await axios.post(`${API_BASE}/api/memory/files/create`, null, {
+        params: { path: newPath, is_folder: true }
       });
       loadFolder(currentPath);
+      alert(`Created folder ${name}`);
     } catch (error) {
+      console.error('Create folder error:', error);
       alert('Failed to create folder');
     }
   }
@@ -143,13 +156,14 @@ export function MemoryWorkspace() {
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('path', currentPath);
+    formData.append('path', currentPath || '');
     
     try {
       await axios.post(`${API_BASE}/api/memory/files/upload`, formData);
-      alert(`Uploaded ${file.name}`);
+      alert(`Uploaded ${file.name} to ${currentPath || 'root'}`);
       loadFolder(currentPath);
     } catch (error) {
+      console.error('Upload error:', error);
       alert('Upload failed');
     }
     
@@ -160,19 +174,21 @@ export function MemoryWorkspace() {
     const newName = prompt('Rename to:', entry.name);
     if (!newName || newName === entry.name) return;
     
-    const pathParts = entry.path.split('/');
+    const pathParts = entry.path.split('/').filter(Boolean);
     pathParts[pathParts.length - 1] = newName;
-    const newPath = pathParts.join('/');
+    const newPath = '/' + pathParts.join('/');
     
     try {
-      await axios.patch(`${API_BASE}/api/memory/file`, null, {
+      await axios.post(`${API_BASE}/api/memory/files/rename`, null, {
         params: { old_path: entry.path, new_path: newPath }
       });
       loadFolder(currentPath);
       if (selectedFile?.path === entry.path) {
         setSelectedFile({ ...entry, path: newPath, name: newName });
       }
+      alert(`Renamed to ${newName}`);
     } catch (error) {
+      console.error('Rename error:', error);
       alert('Failed to rename');
     }
   }
@@ -181,8 +197,8 @@ export function MemoryWorkspace() {
     if (!confirm(`Delete ${entry.name}?`)) return;
     
     try {
-      await axios.delete(`${API_BASE}/api/memory/file`, {
-        params: { path: entry.path, recursive: true }
+      await axios.delete(`${API_BASE}/api/memory/files/delete`, {
+        params: { path: entry.path }
       });
       loadFolder(currentPath);
       if (selectedFile?.path === entry.path) {
@@ -190,7 +206,9 @@ export function MemoryWorkspace() {
         setFileContent('');
         setOriginalContent('');
       }
+      alert(`Deleted ${entry.name}`);
     } catch (error) {
+      console.error('Delete error:', error);
       alert('Failed to delete');
     }
   }
@@ -237,6 +255,61 @@ export function MemoryWorkspace() {
   return (
     <div style={{ display: 'flex', height: '100%', background: '#0a0a0a', color: '#e5e7ff', flexDirection: 'column' }}>
       
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '4px',
+        padding: '8px 16px',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(10,12,23,0.9)'
+      }}>
+        <button
+          onClick={() => setActiveTab('files')}
+          style={{
+            padding: '8px 16px',
+            background: activeTab === 'files' ? '#8b5cf6' : 'transparent',
+            color: activeTab === 'files' ? '#fff' : '#9ca3af',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === 'files' ? '600' : '400'
+          }}
+        >
+          📁 Files
+        </button>
+        <button
+          onClick={() => setActiveTab('trusted-sources')}
+          style={{
+            padding: '8px 16px',
+            background: activeTab === 'trusted-sources' ? '#8b5cf6' : 'transparent',
+            color: activeTab === 'trusted-sources' ? '#fff' : '#9ca3af',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === 'trusted-sources' ? '600' : '400'
+          }}
+        >
+          🛡️ Trusted Sources
+        </button>
+        <button
+          onClick={() => setActiveTab('librarian')}
+          style={{
+            padding: '8px 16px',
+            background: activeTab === 'librarian' ? '#8b5cf6' : 'transparent',
+            color: activeTab === 'librarian' ? '#fff' : '#9ca3af',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: activeTab === 'librarian' ? '600' : '400'
+          }}
+        >
+          📖 Librarian
+        </button>
+      </div>
+      
       {/* Top Toolbar */}
       <div style={{
         padding: '12px 16px',
@@ -246,8 +319,13 @@ export function MemoryWorkspace() {
         alignItems: 'center',
         background: 'rgba(10,12,23,0.8)'
       }}>
-        <h2 style={{ margin: 0, color: '#a78bfa', fontSize: '1.2rem' }}>Memory Workspace</h2>
+        <h2 style={{ margin: 0, color: '#a78bfa', fontSize: '1.2rem' }}>
+          {activeTab === 'files' && 'Files'}
+          {activeTab === 'trusted-sources' && 'Trusted Sources'}
+          {activeTab === 'librarian' && 'Librarian Orchestrator'}
+        </h2>
         
+        {activeTab === 'files' && (
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={handleCreateFile}
@@ -312,9 +390,32 @@ export function MemoryWorkspace() {
               style={{ display: 'none' }}
             />
           </label>
+          
+          <button
+            onClick={() => setShowChat(!showChat)}
+            title="Librarian Chat"
+            style={{
+              background: showChat ? '#8b5cf6' : '#6b7280',
+              color: '#fff',
+              border: 'none',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '14px'
+            }}
+          >
+            <MessageSquare size={16} />
+            Chat
+          </button>
         </div>
+        )}
       </div>
 
+      {activeTab === 'files' && (
+      <>
       {/* Breadcrumb Navigation */}
       <div style={{
         padding: '8px 16px',
@@ -492,7 +593,7 @@ export function MemoryWorkspace() {
         </div>
 
         {/* Right: File Editor */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
           {selectedFile ? (
             <>
               <div style={{
@@ -503,12 +604,15 @@ export function MemoryWorkspace() {
                 alignItems: 'center',
                 background: 'rgba(10,12,23,0.6)'
               }}>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '16px' }}>{selectedFile.name}</div>
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
-                    {selectedFile.modified && new Date(selectedFile.modified).toLocaleString()}
-                    {isDirty && <span style={{ color: '#f59e0b', marginLeft: '12px' }}>● Unsaved changes</span>}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '16px' }}>{selectedFile.name}</div>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                      {selectedFile.modified && new Date(selectedFile.modified).toLocaleString()}
+                      {isDirty && <span style={{ color: '#f59e0b', marginLeft: '12px' }}>● Unsaved changes</span>}
+                    </div>
                   </div>
+                  <StatusBadge status="ingested" size="sm" />
                 </div>
                 
                 <button
@@ -569,7 +673,48 @@ export function MemoryWorkspace() {
             </div>
           )}
         </div>
+
+        {/* Chat Panel (Slide-in from right) */}
+        {showChat && (
+          <div style={{
+            width: '350px',
+            borderLeft: '1px solid rgba(255,255,255,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'rgba(10,12,23,0.95)'
+          }}>
+            <LibrarianChat
+              currentFile={selectedFile?.path}
+              currentFolder={currentPath}
+              onMinimize={() => setShowChat(false)}
+            />
+          </div>
+        )}
+
+        {/* Suggestions Sidebar (Bottom-right) */}
+        {showSuggestions && !showChat && (
+          <div style={{
+            position: 'absolute',
+            bottom: '16px',
+            right: '16px',
+            width: '320px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            background: 'rgba(17,24,39,0.98)',
+            border: '1px solid rgba(139,92,246,0.3)',
+            borderRadius: '8px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+          }}>
+            <LibrarianSuggestions />
+          </div>
+        )}
       </div>
+      </>
+      )}
+      
+      {/* Render tab content */}
+      {activeTab === 'trusted-sources' && <TrustedSourcesPanel />}
+      {activeTab === 'librarian' && <LibrarianPanel />}
     </div>
   );
 }
