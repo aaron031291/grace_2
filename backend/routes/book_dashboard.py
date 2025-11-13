@@ -7,7 +7,7 @@ from typing import Dict, Any, List
 from datetime import datetime, timedelta
 import json
 
-from backend.database import get_db
+from backend.memory_tables.registry import table_registry
 from backend.clarity import get_event_bus
 
 router = APIRouter()
@@ -17,58 +17,51 @@ router = APIRouter()
 async def get_book_stats() -> Dict[str, Any]:
     """Get overall book ingestion statistics"""
 
-    db = await get_db()
+    # Get all documents with source_type = 'book'
+    all_books = table_registry.query_rows('memory_documents', filters={'source_type': 'book'})
 
-    # Total books
-    total_books = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book'"
-    )
+    # Calculate statistics
+    total_books = len(all_books)
 
-    # Books by trust level
-    high_trust = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND trust_score >= 0.9"
-    )
-    medium_trust = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND trust_score >= 0.7 AND trust_score < 0.9"
-    )
-    low_trust = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND trust_score < 0.7"
-    )
+    high_trust = sum(1 for book in all_books if getattr(book, 'trust_score', 0) >= 0.9)
+    medium_trust = sum(1 for book in all_books if 0.7 <= getattr(book, 'trust_score', 0) < 0.9)
+    low_trust = sum(1 for book in all_books if getattr(book, 'trust_score', 0) < 0.7)
 
-    # Recent ingestions (last 7 days) - use last_synced_at instead of created_at
-    recent_books = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_documents WHERE source_type = 'book' AND last_synced_at >= datetime('now', '-7 days')"
-    )
+    # Recent ingestions (last 7 days) - use last_synced_at
+    from datetime import datetime, timedelta
+    seven_days_ago = datetime.now() - timedelta(days=7)
+    recent_books = sum(1 for book in all_books if getattr(book, 'last_synced_at', None) and
+                      getattr(book, 'last_synced_at', None) >= seven_days_ago)
 
     # Total chunks - check if table exists
     try:
-        total_chunks = await db.fetch_one(
-            "SELECT COUNT(*) as count FROM memory_document_chunks"
-        )
+        all_chunks = table_registry.query_rows('memory_document_chunks')
+        total_chunks = len(all_chunks)
     except:
-        total_chunks = {"count": 0}
+        total_chunks = 0
 
     # Total insights
-    total_insights = await db.fetch_one(
-        "SELECT COUNT(*) as count FROM memory_insights"
-    )
+    try:
+        all_insights = table_registry.query_rows('memory_insights')
+        total_insights = len(all_insights)
+    except:
+        total_insights = 0
 
     # Average trust score
-    avg_trust = await db.fetch_one(
-        "SELECT AVG(trust_score) as avg FROM memory_documents WHERE source_type = 'book'"
-    )
+    trust_scores = [getattr(book, 'trust_score', 0) for book in all_books if getattr(book, 'trust_score', None) is not None]
+    avg_trust_score = sum(trust_scores) / len(trust_scores) if trust_scores else 0.0
 
     return {
-        "total_books": total_books["count"] if total_books else 0,
+        "total_books": total_books,
         "trust_levels": {
-            "high": high_trust["count"] if high_trust else 0,
-            "medium": medium_trust["count"] if medium_trust else 0,
-            "low": low_trust["count"] if low_trust else 0
+            "high": high_trust,
+            "medium": medium_trust,
+            "low": low_trust
         },
-        "recent_ingestions_7d": recent_books["count"] if recent_books else 0,
-        "total_chunks": total_chunks["count"] if total_chunks else 0,
-        "total_insights": total_insights["count"] if total_insights else 0,
-        "average_trust_score": round(avg_trust["avg"], 3) if avg_trust and avg_trust["avg"] else 0.0
+        "recent_ingestions_7d": recent_books,
+        "total_chunks": total_chunks,
+        "total_insights": total_insights,
+        "average_trust_score": round(avg_trust_score, 3)
     }
 
 
@@ -100,7 +93,7 @@ async def get_recent_books(limit: int = 10) -> List[Dict[str, Any]]:
     ]
 
 
-@router.get("/books/flagged")
+@router.get("/flagged")
 async def get_flagged_books() -> List[Dict[str, Any]]:
     """Get books flagged for manual review (trust score < 0.7)"""
 
@@ -125,7 +118,7 @@ async def get_flagged_books() -> List[Dict[str, Any]]:
     ]
 
 
-@router.get("/books/{document_id}")
+@router.get("/{document_id}")
 async def get_book_details(document_id: str) -> Dict[str, Any]:
     """Get detailed information about a specific book"""
 
@@ -199,7 +192,7 @@ async def get_book_details(document_id: str) -> Dict[str, Any]:
     }
 
 
-@router.get("/books/search")
+@router.get("/search")
 async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
     """Search books by title, author, or content"""
 
@@ -229,7 +222,7 @@ async def search_books(q: str, limit: int = 20) -> List[Dict[str, Any]]:
     ]
 
 
-@router.get("/books/activity")
+@router.get("/activity")
 async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
     """Get recent book-related activity from execution logs"""
 
@@ -256,7 +249,7 @@ async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
     ]
 
 
-@router.get("/books/metrics/daily")
+@router.get("/metrics/daily")
 async def get_daily_metrics(days: int = 30) -> List[Dict[str, Any]]:
     """Get daily ingestion metrics"""
 
@@ -284,7 +277,7 @@ async def get_daily_metrics(days: int = 30) -> List[Dict[str, Any]]:
     ]
 
 
-@router.post("/books/{document_id}/reverify")
+@router.post("/{document_id}/reverify")
 async def reverify_book(document_id: str) -> Dict[str, Any]:
     """Trigger re-verification for a book"""
     
@@ -309,7 +302,7 @@ async def reverify_book(document_id: str) -> Dict[str, Any]:
     }
 
 
-@router.delete("/books/{document_id}")
+@router.delete("/{document_id}")
 async def delete_book(document_id: str) -> Dict[str, Any]:
     """Delete a book and all associated data"""
 
