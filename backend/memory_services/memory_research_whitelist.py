@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 import logging
 
-from .models import Base
+from backend.models.base_models import Base
 
 logger = logging.getLogger(__name__)
 
