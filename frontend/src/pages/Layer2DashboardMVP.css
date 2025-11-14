@@ -1,0 +1,210 @@
+.layer2-dashboard-mvp {
+  display: flex;
+  height: 100vh;
+  background: #0a0a0a;
+  color: #e0e0e0;
+}
+
+.dashboard-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  margin-right: 380px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #333;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #00aaff;
+}
+
+.header-actions button {
+  padding: 8px 16px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #00aaff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Queue Metrics */
+.queue-metrics-section {
+  margin-bottom: 30px;
+}
+
+.queue-metrics-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00ff88;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.metric-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.metric-card.success {
+  border-color: #00ff88;
+}
+
+.metric-card.warning {
+  border-color: #ffaa00;
+}
+
+.metric-card.error {
+  border-color: #ff4444;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* HTM Actions */
+.htm-actions-section {
+  margin-bottom: 30px;
+}
+
+.htm-actions-bar {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.htm-action-btn {
+  padding: 12px 20px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #00aaff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.htm-action-btn:hover {
+  background: #2a2a2a;
+  border-color: #00aaff;
+  transform: translateY(-2px);
+}
+
+/* Priority Controls */
+.priority-section {
+  margin-bottom: 30px;
+}
+
+.priority-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00ff88;
+}
+
+.priority-controls {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.priority-slider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.priority-slider label {
+  min-width: 120px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.priority-slider input[type="range"] {
+  flex: 1;
+  max-width: 300px;
+}
+
+.apply-btn {
+  padding: 10px 20px;
+  background: #00ff88;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.apply-btn:hover {
+  background: #00dd77;
+}
+
+/* Kernels Section */
+.kernels-section {
+  margin-bottom: 30px;
+}
+
+.kernels-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00aaff;
+}
+
+.kernels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 20px;
+  font-size: 18px;
+  color: #00aaff;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top: 4px solid #00aaff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
