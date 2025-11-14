@@ -1,0 +1,55 @@
+# Systemd Service for Grace (Linux)
+#
+# Installation:
+#   sudo cp grace.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable grace
+#   sudo systemctl start grace
+#
+# Commands:
+#   sudo systemctl start grace
+#   sudo systemctl stop grace
+#   sudo systemctl restart grace
+#   sudo systemctl status grace
+#   journalctl -u grace -f
+
+[Unit]
+Description=Grace Autonomous AI System
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aaron
+WorkingDirectory=/home/aaron/grace_2
+Environment="PATH=/home/aaron/grace_2/.venv/bin:/usr/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Start command
+ExecStart=/home/aaron/grace_2/.venv/bin/python serve.py
+
+# Restart policy
+Restart=always
+RestartSec=10s
+StartLimitInterval=200s
+StartLimitBurst=5
+
+# If killed manually, don't restart
+# (use systemctl stop grace for manual shutdown)
+# RestartPreventExitStatus=0 SIGTERM
+
+# Resource limits
+MemoryLimit=4G
+CPUQuota=200%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=grace
+
+# Security
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
