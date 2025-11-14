@@ -311,9 +311,113 @@ class RecordingService:
         
         return True
     
+    async def verify_consent(
+        self,
+        session_id: str,
+        required_consent_types: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Verify all required consents are granted
+        
+        Args:
+            session_id: Recording session
+            required_consent_types: List of required consent types
+            
+        Returns:
+            Dict with verification result
+        """
+        async with async_session() as session:
+            # Load all consent records for session
+            result = await session.execute(
+                select(ConsentRecord)
+                .where(ConsentRecord.session_id == session_id)
+                .where(ConsentRecord.consent_type.in_(required_consent_types))
+            )
+            consents = result.scalars().all()
+            
+            # Check if all required consents are granted
+            granted_types = {
+                c.consent_type for c in consents 
+                if c.consent_given and not c.revoked
+            }
+            
+            missing_types = set(required_consent_types) - granted_types
+            
+            return {
+                "all_consents_granted": len(missing_types) == 0,
+                "granted_types": list(granted_types),
+                "missing_types": list(missing_types),
+                "total_consents": len(consents)
+            }
+    
+    async def check_governance_approval(
+        self,
+        session_id: str,
+        action: str,
+        user_id: str
+    ) -> Dict[str, Any]:
+        """
+        Check governance approval for recording action
+        
+        Args:
+            session_id: Recording session
+            action: Action to perform (transcribe, ingest, learn)
+            user_id: User requesting action
+            
+        Returns:
+            Governance check result
+        """
+        try:
+            from backend.governance_system.governance import governance_engine
+            
+            # Determine risk level based on action
+            risk_level_map = {
+                "transcribe": "medium",
+                "ingest": "high",
+                "learn": "high",
+                "share": "critical"
+            }
+            risk_level = risk_level_map.get(action, "medium")
+            
+            # Check with governance
+            check_result = await governance_engine.check(
+                actor=user_id,
+                action=f"recording.{action}",
+                resource=session_id,
+                payload={
+                    "session_id": session_id,
+                    "action": action,
+                    "risk_level": risk_level
+                }
+            )
+            
+            # Log governance decision
+            log_event(
+                action=f"governance.recording.{action}",
+                actor=user_id,
+                resource=session_id,
+                outcome="approved" if check_result.get("approved") else "denied",
+                payload={
+                    "requires_approval": check_result.get("requires_approval"),
+                    "reason": check_result.get("reason")
+                }
+            )
+            
+            return check_result
+            
+        except Exception as e:
+            print(f"[RECORDING] Governance check error: {e}")
+            # Fail-safe: deny if governance check fails
+            return {
+                "approved": False,
+                "requires_approval": True,
+                "reason": f"Governance check failed: {e}"
+            }
+    
     async def transcribe_recording(
         self,
-        session_id: str
+        session_id: str,
+        user_id: Optional[str] = None
     ) -> bool:
         """
         Transcribe audio from recording using Whisper
@@ -331,9 +435,25 @@ class RecordingService:
             if not recording:
                 return False
             
-            # Check consent
-            if not recording.consent_given:
-                print(f"[RECORDING] Cannot transcribe {session_id}: no consent")
+            # Verify consent for transcription
+            consent_check = await self.verify_consent(
+                session_id=session_id,
+                required_consent_types=["recording", "transcription"]
+            )
+            
+            if not consent_check["all_consents_granted"]:
+                print(f"[RECORDING] Cannot transcribe {session_id}: missing consents {consent_check['missing_types']}")
+                return False
+            
+            # Check governance approval
+            governance_check = await self.check_governance_approval(
+                session_id=session_id,
+                action="transcribe",
+                user_id=user_id or recording.created_by
+            )
+            
+            if governance_check.get("requires_approval") and not governance_check.get("approved"):
+                print(f"[RECORDING] Transcription requires approval: {governance_check.get('reason')}")
                 return False
             
             # Find audio file
@@ -401,7 +521,8 @@ class RecordingService:
     
     async def ingest_to_knowledge_base(
         self,
-        session_id: str
+        session_id: str,
+        user_id: Optional[str] = None
     ) -> List[int]:
         """
         Ingest transcript into knowledge base
@@ -425,6 +546,27 @@ class RecordingService:
             recording = result.scalar_one_or_none()
             
             if not recording or not recording.transcript_text:
+                return []
+            
+            # Verify consent for learning/ingestion
+            consent_check = await self.verify_consent(
+                session_id=session_id,
+                required_consent_types=["recording", "transcription", "learning"]
+            )
+            
+            if not consent_check["all_consents_granted"]:
+                print(f"[RECORDING] Cannot ingest {session_id}: missing consents {consent_check['missing_types']}")
+                return []
+            
+            # Check governance approval for high-risk ingestion
+            governance_check = await self.check_governance_approval(
+                session_id=session_id,
+                action="ingest",
+                user_id=user_id or recording.created_by
+            )
+            
+            if governance_check.get("requires_approval") and not governance_check.get("approved"):
+                print(f"[RECORDING] Ingestion requires approval: {governance_check.get('reason')}")
                 return []
             
             # Ingest via ingestion service
@@ -472,6 +614,70 @@ class RecordingService:
                 return []
         
         return []
+    
+    async def feed_to_learning_loop(
+        self,
+        session_id: str,
+        usefulness_score: float
+    ) -> bool:
+        """
+        Feed recording outcome to learning loop
+        
+        Args:
+            session_id: Recording session
+            usefulness_score: User feedback on value (0.0-1.0)
+            
+        Returns:
+            Success boolean
+        """
+        async with async_session() as session:
+            result = await session.execute(
+                select(RecordingSession)
+                .where(RecordingSession.session_id == session_id)
+            )
+            recording = result.scalar_one_or_none()
+            
+            if not recording:
+                return False
+            
+            try:
+                from backend.learning_systems.learning_loop import learning_loop
+                
+                # Record outcome
+                await learning_loop.record_outcome(
+                    action_type=f"recording_{recording.session_type}",
+                    success=recording.ingestion_status == "completed",
+                    error_pattern=recording.purpose,
+                    playbook_id=f"recording_pipeline_{recording.session_type}",
+                    confidence_score=usefulness_score,
+                    execution_time=recording.duration_seconds,
+                    context={
+                        "session_id": session_id,
+                        "participants": len(recording.participants),
+                        "transcript_length": len(recording.transcript_text or ""),
+                        "chunks_created": recording.chunks_created
+                    }
+                )
+                
+                # Update session
+                from sqlalchemy import update
+                await session.execute(
+                    update(RecordingSession)
+                    .where(RecordingSession.session_id == session_id)
+                    .values(
+                        learned_from=True,
+                        usefulness_score=usefulness_score
+                    )
+                )
+                await session.commit()
+                
+                print(f"[RECORDING] Fed to learning loop: {session_id} (score: {usefulness_score})")
+                
+                return True
+                
+            except Exception as e:
+                print(f"[RECORDING] Learning loop error: {e}")
+                return False
 
 
 # Global instance

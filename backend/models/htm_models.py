@@ -55,6 +55,15 @@ class HTMTask(Base):
     execution_time_ms = Column(Float, nullable=True)  # started_at -> finished_at
     total_time_ms = Column(Float, nullable=True)  # created_at -> finished_at
     
+    # Data volume metrics
+    data_size_bytes = Column(Integer, nullable=True)  # Total payload size
+    input_count = Column(Integer, nullable=True)  # Number of items processed
+    output_size_bytes = Column(Integer, nullable=True)  # Result data size
+    
+    # Throughput metrics (calculated)
+    bytes_per_second = Column(Float, nullable=True)  # data_size_bytes / execution_time_ms * 1000
+    items_per_second = Column(Float, nullable=True)  # input_count / execution_time_ms * 1000
+    
     # SLA tracking
     sla_ms = Column(Integer, nullable=True)  # Expected completion time
     sla_deadline = Column(DateTime(timezone=True), nullable=True)
@@ -101,6 +110,10 @@ class HTMTaskAttempt(Base):
     assigned_worker = Column(String(128), nullable=True)
     status = Column(String(32), nullable=False)  # completed, failed, timeout
     success = Column(Boolean, nullable=False)
+    
+    # Data volume (per attempt)
+    data_size_bytes = Column(Integer, nullable=True)
+    input_count = Column(Integer, nullable=True)
     
     # Outcome
     result = Column(JSON, nullable=True)
@@ -158,6 +171,22 @@ class HTMMetrics(Base):
     # Quality metrics
     success_rate = Column(Float, default=0.0)
     avg_confidence = Column(Float, default=0.0)
+    
+    # Data volume metrics
+    total_data_bytes = Column(Integer, default=0)  # Sum of all data processed
+    total_input_count = Column(Integer, default=0)  # Sum of all items processed
+    avg_data_size_bytes = Column(Float, default=0.0)
+    avg_input_count = Column(Float, default=0.0)
+    
+    # Data volume percentiles
+    p50_data_size_bytes = Column(Integer, default=0)
+    p95_data_size_bytes = Column(Integer, default=0)
+    p99_data_size_bytes = Column(Integer, default=0)
+    
+    # Throughput metrics
+    avg_bytes_per_second = Column(Float, default=0.0)
+    avg_items_per_second = Column(Float, default=0.0)
+    p95_bytes_per_second = Column(Float, default=0.0)
     
     # Metadata
     updated_at = Column(DateTime(timezone=True), server_default=func.now())
