@@ -151,7 +151,7 @@ class PersistentCryptoManager:
             key_type,
             algorithm,
             encrypted,
-            datetime.utcnow().isoformat(),
+            datetime.now(timezone.utc).isoformat(),
             json.dumps(metadata or {})
         ))
         
@@ -195,7 +195,7 @@ class PersistentCryptoManager:
         signature = hashlib.sha256(f"{data_hash}{key['key_material']}".encode()).hexdigest()
         
         # Store signature
-        signature_id = f"sig_{datetime.utcnow().timestamp()}"
+        signature_id = f"sig_{datetime.now(timezone.utc).timestamp()}"
         
         conn = sqlite3.connect(str(self.db_path))
         cursor = conn.cursor()
@@ -209,7 +209,7 @@ class PersistentCryptoManager:
             data_hash,
             key_id,
             signature,
-            datetime.utcnow().isoformat()
+            datetime.now(timezone.utc).isoformat()
         ))
         
         conn.commit()
@@ -252,7 +252,7 @@ class PersistentCryptoManager:
             SET usage_count = usage_count + 1,
                 last_used = ?
             WHERE key_id = ?
-        """, (datetime.utcnow().isoformat(), key_id))
+        """, (datetime.now(timezone.utc).isoformat(), key_id))
         
         conn.commit()
         conn.close()
@@ -260,7 +260,7 @@ class PersistentCryptoManager:
     def _audit(self, operation: str, key_id: str, actor: str, details: Dict[str, Any]):
         """Record audit trail"""
         
-        audit_id = f"audit_{datetime.utcnow().timestamp()}"
+        audit_id = f"audit_{datetime.now(timezone.utc).timestamp()}"
         
         conn = sqlite3.connect(str(self.db_path))
         cursor = conn.cursor()
@@ -274,7 +274,7 @@ class PersistentCryptoManager:
             key_id,
             operation,
             actor,
-            datetime.utcnow().isoformat(),
+            datetime.now(timezone.utc).isoformat(),
             json.dumps(details)
         ))
         

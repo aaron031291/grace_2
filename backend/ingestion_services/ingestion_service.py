@@ -156,15 +156,34 @@ class IngestionService:
             print(f"[OK] Ingested: {title} ({artifact_type}, {len(content)} bytes)")
 
             from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
-            from datetime import datetime
+            from datetime import datetime, timezone as tz
             await trigger_mesh.publish(TriggerEvent(
                 event_type="knowledge.ingested",
                 source="ingestion",
                 actor=actor,
                 resource=title,
                 payload={"artifact_id": artifact.id, "type": artifact_type, "domain": domain},
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(tz.utc)
             ))
+            
+            # Publish for vector embedding (auto-embedding)
+            try:
+                from backend.core.message_bus import message_bus, MessagePriority
+                await message_bus.publish(
+                    source="ingestion_service",
+                    topic="knowledge.artifact.created",
+                    payload={
+                        "artifact_id": artifact.id,
+                        "content": content,
+                        "artifact_type": artifact_type,
+                        "title": title,
+                        "domain": domain,
+                        "created_at": datetime.now(tz.utc).isoformat()
+                    },
+                    priority=MessagePriority.NORMAL
+                )
+            except Exception as e:
+                print(f"[INGESTION] Failed to publish embedding event: {e}")
 
             # Publish ingestion metrics
             try:

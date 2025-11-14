@@ -155,7 +155,7 @@ class UniversalComponentCryptoInterface:
             "crypto_id": self.crypto_identity,
             "signature": signature,
             "constitutional_approved": constitutional_approved,
-            "signed_at": datetime.now().isoformat()
+            "signed_at": datetime.now(timezone.utc).isoformat()
         }
     
     async def validate_incoming_crypto_signature(
