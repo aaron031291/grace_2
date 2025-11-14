@@ -8,13 +8,14 @@ from datetime import datetime
 import asyncio
 import httpx
 
-from .base_kernel import BaseDomainKernel, KernelIntent, KernelPlan, KernelResponse
+from backend.core.kernel_sdk import KernelSDK
+from .base_kernel import KernelIntent, KernelPlan, KernelResponse
 from ..schemas import ExecutionStep, DataProvenance, ExecutionTrace
 from ..logging_utils import log_event
 from ..grace_llm import get_grace_llm
 
 
-class CoreKernel(BaseDomainKernel):
+class CoreKernel(KernelSDK):
     """
     Intelligent agent for core system operations & user interaction
     
@@ -34,7 +35,7 @@ class CoreKernel(BaseDomainKernel):
     """
     
     def __init__(self):
-        super().__init__("core")
+        super().__init__(kernel_name="core")
         self.base_url = "http://localhost:8000"
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:

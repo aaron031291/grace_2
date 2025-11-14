@@ -1,0 +1,1020 @@
+"""
+Infrastructure Manager Kernel - Multi-OS Fabric Manager
+Layer 1 first-class kernel - Grace's OS-neutral control tower
+
+The central hub managing all hosts across Windows, Linux, macOS, containers, and K8s.
+
+CAPABILITIES:
+1. Host Inventory       - Tracks OS, architecture, status, capabilities
+2. Dependency Manager   - Keeps pip/conda/npm/gems versions uniform
+3. Update Orchestration - Schedules OS/package updates with metrics
+4. OS-Specific Agents   - Local runners reporting to message bus
+5. Resource Manager     - GPU/CPU/RAM info, hardware awareness
+6. Secret Management    - Tokens/vault credentials per host
+7. Sandbox Support      - Isolated environments (WSL, containers, venv)
+
+LAYER 1 INTEGRATION:
+- Control Plane: Uses for kernel bootstrapping & health monitoring
+- Self-Healing: Responds to dependency drift events
+- Unified Logic: Approves update rollouts
+- Governance: Enforces OS-specific policies
+- Memory: Persists all host state
+- Clarity: Updates trust scores based on host behavior
+- Secret Manager: Rotates keys per host
+"""
+
+import asyncio
+import platform
+import psutil
+import socket
+import subprocess
+import json
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
+from enum import Enum
+from pathlib import Path
+
+from backend.core.kernel_sdk import KernelSDK
+from backend.core.message_bus import message_bus, MessagePriority
+# # from backend.logging_utils import log_event
+
+def log_event(*args, **kwargs):
+    """Simple no-op logger"""
+    pass
+
+
+
+
+def log_event(*args, **kwargs):
+    """Simple logging function - accepts any arguments"""
+    pass  # Silently ignore all logging for now
+
+class HostOS(str, Enum):
+    """Supported operating systems"""
+    WINDOWS = "windows"
+    LINUX = "linux"
+    MACOS = "macos"
+    DOCKER = "docker"
+    KUBERNETES = "kubernetes"
+    UNKNOWN = "unknown"
+
+
+class HostStatus(str, Enum):
+    """Host health status"""
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+    OFFLINE = "offline"
+    UNKNOWN = "unknown"
+
+
+class PackageManager(str, Enum):
+    """Supported package managers"""
+    PIP = "pip"
+    CONDA = "conda"
+    NPM = "npm"
+    YARN = "yarn"
+    GEM = "gem"
+    APT = "apt"
+    YUM = "yum"
+    BREW = "brew"
+    CHOCOLATEY = "choco"
+    UNKNOWN = "unknown"
+
+
+class EnvironmentType(str, Enum):
+    """Environment types"""
+    VENV = "venv"
+    CONDA = "conda"
+    DOCKER = "docker"
+    WSL = "wsl"
+    NATIVE = "native"
+
+
+class DependencyStatus(str, Enum):
+    """Dependency synchronization status"""
+    IN_SYNC = "in_sync"
+    DRIFT_DETECTED = "drift_detected"
+    UPDATING = "updating"
+    FAILED = "failed"
+
+
+class HostCapability:
+    """Capabilities a host can provide"""
+    def __init__(
+        self,
+        name: str,
+        available: bool = True,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        self.name = name
+        self.available = available
+        self.metadata = metadata or {}
+
+
+class Host:
+    """Represents a compute host in the infrastructure"""
+    
+    def __init__(
+        self,
+        host_id: str,
+        hostname: str,
+        os_type: HostOS,
+        ip_address: str,
+        capabilities: List[HostCapability] = None
+    ):
+        self.host_id = host_id
+        self.hostname = hostname
+        self.os_type = os_type
+        self.ip_address = ip_address
+        self.capabilities = capabilities or []
+        self.status = HostStatus.UNKNOWN
+        self.last_seen = datetime.utcnow()
+        self.metrics = {}
+        self.metadata = {}
+        
+        # Dependency & environment tracking
+        self.dependencies = {}  # {package_manager: {package: version}}
+        self.environments = {}  # {env_name: EnvironmentType}
+        self.dependency_status = DependencyStatus.UNKNOWN
+        self.architecture = platform.machine()
+        self.os_version = platform.version()
+        
+        # Resource tracking
+        self.gpu_info = []
+        self.secrets = {}  # Host-specific secrets/tokens
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            "host_id": self.host_id,
+            "hostname": self.hostname,
+            "os_type": self.os_type.value,
+            "ip_address": self.ip_address,
+            "status": self.status.value,
+            "last_seen": self.last_seen.isoformat(),
+            "architecture": self.architecture,
+            "os_version": self.os_version,
+            "capabilities": [
+                {
+                    "name": cap.name,
+                    "available": cap.available,
+                    "metadata": cap.metadata
+                }
+                for cap in self.capabilities
+            ],
+            "dependencies": self.dependencies,
+            "environments": {k: v.value if hasattr(v, 'value') else v for k, v in self.environments.items()},
+            "dependency_status": self.dependency_status.value,
+            "gpu_info": self.gpu_info,
+            "metrics": self.metrics,
+            "metadata": self.metadata
+        }
+
+
+class InfrastructureManagerKernel(KernelSDK):
+    """
+    First-class Layer 1 kernel - Multi-OS Fabric Manager
+    
+    Grace's OS-neutral control tower managing all compute infrastructure.
+    
+    INTEGRATIONS:
+    - Control Plane: Kernel bootstrapping & health monitoring
+    - Governance Kernel: Policy enforcement on hosts
+    - Memory Kernel: Host state persistence
+    - Self-Healing Kernel: Dependency drift auto-recovery
+    - Unified Logic: Update approval workflow
+    - Clarity Kernel: Trust scoring based on host behavior
+    - Secret Manager: Credential rotation per host
+    """
+    
+    def __init__(self):
+        super().__init__(kernel_name="infrastructure_manager")
+        
+        # Host registry
+        self.hosts: Dict[str, Host] = {}
+        
+        # Dependency baselines (desired state)
+        self.dependency_baselines = {
+            PackageManager.PIP: {},      # {package: version}
+            PackageManager.NPM: {},
+            PackageManager.CONDA: {},
+        }
+        
+        # Update queue
+        self.pending_updates = []
+        self.update_history = []
+        
+        # Sandbox templates
+        self.sandbox_templates = {
+            HostOS.WINDOWS: {"type": EnvironmentType.VENV, "wsl_enabled": False},
+            HostOS.LINUX: {"type": EnvironmentType.DOCKER, "docker_enabled": True},
+            HostOS.MACOS: {"type": EnvironmentType.VENV, "brew_enabled": True}
+        }
+        
+        # Configuration
+        self.health_check_interval = 30  # seconds
+        self.dependency_check_interval = 300  # 5 minutes
+        self.stale_threshold = 300  # 5 minutes
+        
+        # Monitoring tasks
+        self._monitor_task: Optional[asyncio.Task] = None
+        self._heartbeat_task: Optional[asyncio.Task] = None
+        self._dependency_monitor_task: Optional[asyncio.Task] = None
+        
+        try:
+            # log_event(
+                "kernel.infrastructure_manager.init",
+                {"kernel": "infrastructure_manager", "message": "Infrastructure Manager Kernel initialized"}
+            )
+        except:
+            pass  # Log event signature may vary
+    
+    async def initialize(self):
+        """Initialize kernel and register local host"""
+        
+        # Register with Clarity kernel
+        await self.register_component(
+            capabilities=[
+                'host_registration',
+                'health_monitoring',
+                'capability_tracking',
+                'metrics_collection',
+                'policy_enforcement',
+                'dependency_management',
+                'environment_management',
+                'update_orchestration',
+                'resource_management',
+                'sandbox_provisioning'
+            ],
+            contracts={
+                'health_check_interval_sec': self.health_check_interval,
+                'dependency_check_interval_sec': self.dependency_check_interval,
+                'stale_threshold_sec': self.stale_threshold,
+                'max_hosts': 1000,
+                'supported_os': ['windows', 'linux', 'macos', 'docker']
+            }
+        )
+        
+        # Load dependency baselines
+        await self._load_dependency_baselines()
+        
+        # Register local host
+        await self.register_local_host()
+        
+        # Detect local dependencies
+        await self._detect_local_dependencies()
+        
+        # Start monitoring
+        self._monitor_task = asyncio.create_task(self._monitor_hosts())
+        self._heartbeat_task = asyncio.create_task(self._send_heartbeats())
+        self._dependency_monitor_task = asyncio.create_task(self._monitor_dependencies())
+        
+        # log_event(
+            "kernel.infrastructure_manager.initialized",
+            "Infrastructure Manager Kernel ready",
+            {"hosts": len(self.hosts)}
+        )
+    
+    async def register_local_host(self) -> str:
+        """Register the local machine as a host"""
+        
+        # Detect OS
+        system = platform.system().lower()
+        if system == "windows":
+            os_type = HostOS.WINDOWS
+        elif system == "linux":
+            os_type = HostOS.LINUX
+        elif system == "darwin":
+            os_type = HostOS.MACOS
+        else:
+            os_type = HostOS.UNKNOWN
+        
+        # Get host info
+        hostname = socket.gethostname()
+        try:
+            ip_address = socket.gethostbyname(hostname)
+        except:
+            ip_address = "127.0.0.1"
+        
+        host_id = f"{hostname}_{os_type.value}"
+        
+        # Detect capabilities
+        capabilities = await self._detect_capabilities()
+        
+        # Create host
+        host = Host(
+            host_id=host_id,
+            hostname=hostname,
+            os_type=os_type,
+            ip_address=ip_address,
+            capabilities=capabilities
+        )
+        
+        # Get initial metrics
+        host.metrics = await self._collect_host_metrics()
+        host.status = HostStatus.HEALTHY
+        host.last_seen = datetime.utcnow()
+        
+        # Store in registry
+        self.hosts[host_id] = host
+        
+        # Publish registration event
+        await message_bus.publish(
+            source="infrastructure_manager",
+            topic="infrastructure.host.registered",
+            payload=host.to_dict(),
+            priority=MessagePriority.HIGH
+        )
+        
+        # log_event(
+            "infrastructure.host.registered",
+            f"Registered local host: {hostname}",
+            {"host_id": host_id, "os": os_type.value}
+        )
+        
+        return host_id
+    
+    async def register_remote_host(
+        self,
+        hostname: str,
+        os_type: str,
+        ip_address: str,
+        capabilities: List[Dict[str, Any]] = None
+    ) -> str:
+        """Register a remote host"""
+        
+        host_id = f"{hostname}_{os_type}"
+        
+        # Convert capabilities
+        caps = []
+        if capabilities:
+            for cap_dict in capabilities:
+                caps.append(HostCapability(
+                    name=cap_dict.get("name"),
+                    available=cap_dict.get("available", True),
+                    metadata=cap_dict.get("metadata", {})
+                ))
+        
+        host = Host(
+            host_id=host_id,
+            hostname=hostname,
+            os_type=HostOS(os_type),
+            ip_address=ip_address,
+            capabilities=caps
+        )
+        
+        host.status = HostStatus.HEALTHY
+        host.last_seen = datetime.utcnow()
+        
+        self.hosts[host_id] = host
+        
+        await message_bus.publish(
+            source="infrastructure_manager",
+            topic="infrastructure.host.registered",
+            payload=host.to_dict(),
+            priority=MessagePriority.NORMAL
+        )
+        
+        return host_id
+    
+    async def _detect_capabilities(self) -> List[HostCapability]:
+        """Detect what this host can do"""
+        
+        capabilities = []
+        
+        # CPU capabilities
+        cpu_count = psutil.cpu_count(logical=True)
+        capabilities.append(HostCapability(
+            name="compute",
+            available=True,
+            metadata={"cpu_count": cpu_count}
+        ))
+        
+        # Memory capabilities
+        mem = psutil.virtual_memory()
+        capabilities.append(HostCapability(
+            name="memory",
+            available=True,
+            metadata={"total_gb": mem.total / (1024**3)}
+        ))
+        
+        # Disk capabilities
+        disk = psutil.disk_usage('/')
+        capabilities.append(HostCapability(
+            name="storage",
+            available=True,
+            metadata={"total_gb": disk.total / (1024**3)}
+        ))
+        
+        # Network capabilities
+        capabilities.append(HostCapability(
+            name="network",
+            available=True,
+            metadata={"interfaces": len(psutil.net_if_addrs())}
+        ))
+        
+        # GPU detection (full info)
+        gpus = await self._detect_gpu_resources()
+        if gpus:
+            capabilities.append(HostCapability(
+                name="gpu",
+                available=True,
+                metadata={"count": len(gpus), "devices": gpus}
+            ))
+        
+        return capabilities
+    
+    async def _collect_host_metrics(self) -> Dict[str, Any]:
+        """Collect current host metrics"""
+        
+        metrics = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "cpu_percent": psutil.cpu_percent(interval=0.1),
+            "memory_percent": psutil.virtual_memory().percent,
+            "disk_percent": psutil.disk_usage('/').percent,
+            "load_average": psutil.getloadavg() if hasattr(psutil, 'getloadavg') else [0, 0, 0],
+        }
+        
+        # Network I/O
+        net_io = psutil.net_io_counters()
+        metrics["network"] = {
+            "bytes_sent": net_io.bytes_sent,
+            "bytes_recv": net_io.bytes_recv
+        }
+        
+        # Process count
+        metrics["process_count"] = len(psutil.pids())
+        
+        return metrics
+    
+    async def _monitor_hosts(self):
+        """Continuously monitor all hosts"""
+        
+        while True:
+            try:
+                await asyncio.sleep(self.health_check_interval)
+                
+                now = datetime.utcnow()
+                stale_cutoff = now - timedelta(seconds=self.stale_threshold)
+                
+                for host_id, host in self.hosts.items():
+                    # Check if host is stale
+                    if host.last_seen < stale_cutoff:
+                        old_status = host.status
+                        host.status = HostStatus.OFFLINE
+                        
+                        if old_status != HostStatus.OFFLINE:
+                            await self._publish_status_change(host, old_status)
+                    
+                    # Update local host metrics
+                    if host.hostname == socket.gethostname():
+                        host.metrics = await self._collect_host_metrics()
+                        host.last_seen = now
+                        
+                        # Determine health status
+                        cpu = host.metrics.get("cpu_percent", 0)
+                        mem = host.metrics.get("memory_percent", 0)
+                        
+                        old_status = host.status
+                        if cpu > 90 or mem > 90:
+                            host.status = HostStatus.UNHEALTHY
+                        elif cpu > 75 or mem > 75:
+                            host.status = HostStatus.DEGRADED
+                        else:
+                            host.status = HostStatus.HEALTHY
+                        
+                        if old_status != host.status:
+                            await self._publish_status_change(host, old_status)
+                
+                # Publish consolidated health
+                await self._publish_infrastructure_health()
+                
+            except Exception as e:
+                # log_event(
+                    "infrastructure.monitor.error",
+                    f"Error monitoring hosts: {e}",
+                    {"error": str(e)}
+                )
+    
+    async def _send_heartbeats(self):
+        """Send regular heartbeats"""
+        
+        while True:
+            try:
+                await asyncio.sleep(10)
+                await self.heartbeat()
+                
+                # Report kernel status
+                healthy_hosts = sum(
+                    1 for h in self.hosts.values()
+                    if h.status == HostStatus.HEALTHY
+                )
+                
+                await self.report_status(
+                    health="healthy" if healthy_hosts > 0 else "degraded",
+                    metrics={
+                        "total_hosts": len(self.hosts),
+                        "healthy_hosts": healthy_hosts,
+                        "last_check": datetime.utcnow().isoformat()
+                    }
+                )
+                
+            except Exception as e:
+                # log_event(
+                    "infrastructure.heartbeat.error",
+                    f"Heartbeat error: {e}",
+                    {"error": str(e)}
+                )
+    
+    async def _publish_status_change(self, host: Host, old_status: HostStatus):
+        """Publish host status change event"""
+        
+        await message_bus.publish(
+            source="infrastructure_manager",
+            topic="infrastructure.host.status_changed",
+            payload={
+                "host_id": host.host_id,
+                "hostname": host.hostname,
+                "old_status": old_status.value,
+                "new_status": host.status.value,
+                "metrics": host.metrics,
+                "timestamp": datetime.utcnow().isoformat()
+            },
+            priority=MessagePriority.HIGH
+        )
+        
+        # log_event(
+            "infrastructure.host.status_changed",
+            f"Host {host.hostname} status: {old_status.value} -> {host.status.value}",
+            {"host_id": host.host_id}
+        )
+    
+    async def _publish_infrastructure_health(self):
+        """Publish consolidated infrastructure health"""
+        
+        health_summary = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "total_hosts": len(self.hosts),
+            "by_status": {
+                "healthy": 0,
+                "degraded": 0,
+                "unhealthy": 0,
+                "offline": 0
+            },
+            "by_os": {},
+            "total_capabilities": 0
+        }
+        
+        for host in self.hosts.values():
+            health_summary["by_status"][host.status.value] += 1
+            
+            os_key = host.os_type.value
+            if os_key not in health_summary["by_os"]:
+                health_summary["by_os"][os_key] = 0
+            health_summary["by_os"][os_key] += 1
+            
+            health_summary["total_capabilities"] += len(host.capabilities)
+        
+        await message_bus.publish(
+            source="infrastructure_manager",
+            topic="infrastructure.health.summary",
+            payload=health_summary,
+            priority=MessagePriority.NORMAL
+        )
+    
+    async def get_host(self, host_id: str) -> Optional[Dict[str, Any]]:
+        """Get host information"""
+        host = self.hosts.get(host_id)
+        return host.to_dict() if host else None
+    
+    async def get_all_hosts(self) -> List[Dict[str, Any]]:
+        """Get all hosts"""
+        return [host.to_dict() for host in self.hosts.values()]
+    
+    async def get_hosts_by_capability(self, capability: str) -> List[Dict[str, Any]]:
+        """Get hosts with specific capability"""
+        matching = []
+        for host in self.hosts.values():
+            for cap in host.capabilities:
+                if cap.name == capability and cap.available:
+                    matching.append(host.to_dict())
+                    break
+        return matching
+    
+    async def shutdown(self):
+        """Graceful shutdown"""
+        
+        if self._monitor_task:
+            self._monitor_task.cancel()
+        if self._heartbeat_task:
+            self._heartbeat_task.cancel()
+        if self._dependency_monitor_task:
+            self._dependency_monitor_task.cancel()
+        
+        # log_event(
+            "kernel.infrastructure_manager.shutdown",
+            "Infrastructure Manager Kernel shutting down",
+            {"hosts": len(self.hosts)}
+        )
+    
+    # ==========================================
+    # DEPENDENCY & ENVIRONMENT MANAGEMENT
+    # ==========================================
+    
+    async def _load_dependency_baselines(self):
+        """Load dependency baselines from requirements files"""
+        try:
+            # Load Python dependencies
+            req_file = Path("backend/requirements.txt")
+            if req_file.exists():
+                with open(req_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            if '==' in line:
+                                pkg, ver = line.split('==')
+                                self.dependency_baselines[PackageManager.PIP][pkg.strip()] = ver.strip()
+            
+            # Load Node dependencies
+            pkg_file = Path("frontend/package.json")
+            if pkg_file.exists():
+                with open(pkg_file, 'r') as f:
+                    data = json.load(f)
+                    deps = data.get('dependencies', {})
+                    self.dependency_baselines[PackageManager.NPM].update(deps)
+            
+            # log_event(
+                "infrastructure.baselines.loaded",
+                f"Loaded dependency baselines",
+                {
+                    "pip_packages": len(self.dependency_baselines[PackageManager.PIP]),
+                    "npm_packages": len(self.dependency_baselines[PackageManager.NPM])
+                }
+            )
+        except Exception as e:
+            # log_event("infrastructure.baselines.error", {"error": str(e)})
+    
+    async def _detect_local_dependencies(self):
+        """Detect dependencies installed on local host"""
+        
+        hostname = socket.gethostname()
+        host_id = f"{hostname}_{platform.system().lower()}"
+        
+        if host_id not in self.hosts:
+            return
+        
+        host = self.hosts[host_id]
+        
+        try:
+            # Detect Python packages
+            result = subprocess.run(
+                ["pip", "list", "--format=json"],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            if result.returncode == 0:
+                packages = json.loads(result.stdout)
+                host.dependencies[PackageManager.PIP.value] = {
+                    pkg['name']: pkg['version'] for pkg in packages
+                }
+            
+            # Detect Node packages (if npm available)
+            try:
+                result = subprocess.run(
+                    ["npm", "list", "--json", "--depth=0"],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    cwd="frontend"
+                )
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    deps = data.get('dependencies', {})
+                    host.dependencies[PackageManager.NPM.value] = {
+                        name: info.get('version', 'unknown') 
+                        for name, info in deps.items()
+                    }
+            except:
+                pass
+            
+            # Check for dependency drift
+            await self._check_dependency_drift(host)
+            
+            # log_event(
+                "infrastructure.dependencies.detected",
+                f"Detected dependencies for {hostname}",
+                {
+                    "host_id": host_id,
+                    "pip_count": len(host.dependencies.get(PackageManager.PIP.value, {})),
+                    "npm_count": len(host.dependencies.get(PackageManager.NPM.value, {}))
+                }
+            )
+            
+        except Exception as e:
+            # log_event("infrastructure.dependencies.error", {"error": str(e)})
+    
+    async def _monitor_dependencies(self):
+        """Continuously monitor for dependency drift"""
+        
+        while True:
+            try:
+                await asyncio.sleep(self.dependency_check_interval)
+                
+                for host_id, host in self.hosts.items():
+                    if host.hostname == socket.gethostname():
+                        await self._detect_local_dependencies()
+                    
+                    await self._check_dependency_drift(host)
+                
+            except Exception as e:
+                # log_event("infrastructure.dependency_monitor.error", {"error": str(e)})
+    
+    async def _check_dependency_drift(self, host: Host):
+        """Check if host dependencies match baselines"""
+        
+        drift_detected = False
+        drift_details = []
+        
+        # Check Python dependencies
+        pip_installed = host.dependencies.get(PackageManager.PIP.value, {})
+        pip_baseline = self.dependency_baselines[PackageManager.PIP]
+        
+        for pkg, expected_ver in pip_baseline.items():
+            actual_ver = pip_installed.get(pkg)
+            if actual_ver != expected_ver:
+                drift_detected = True
+                drift_details.append({
+                    "manager": "pip",
+                    "package": pkg,
+                    "expected": expected_ver,
+                    "actual": actual_ver or "not_installed"
+                })
+        
+        # Check NPM dependencies
+        npm_installed = host.dependencies.get(PackageManager.NPM.value, {})
+        npm_baseline = self.dependency_baselines[PackageManager.NPM]
+        
+        for pkg, expected_ver in npm_baseline.items():
+            actual_ver = npm_installed.get(pkg)
+            # NPM versions have ^ or ~ prefixes, so just check if installed
+            if actual_ver is None:
+                drift_detected = True
+                drift_details.append({
+                    "manager": "npm",
+                    "package": pkg,
+                    "expected": expected_ver,
+                    "actual": "not_installed"
+                })
+        
+        # Update status
+        old_status = host.dependency_status
+        if drift_detected:
+            host.dependency_status = DependencyStatus.DRIFT_DETECTED
+        else:
+            host.dependency_status = DependencyStatus.IN_SYNC
+        
+        # Publish drift event if status changed
+        if old_status != host.dependency_status and drift_detected:
+            await message_bus.publish(
+                source="infrastructure_manager",
+                topic="infrastructure.dependency.drift",
+                payload={
+                    "host_id": host.host_id,
+                    "hostname": host.hostname,
+                    "os_type": host.os_type.value,
+                    "drift_details": drift_details,
+                    "timestamp": datetime.utcnow().isoformat()
+                },
+                priority=MessagePriority.HIGH
+            )
+            
+            # log_event(
+                "infrastructure.dependency.drift",
+                f"Dependency drift detected on {host.hostname}",
+                {
+                    "host_id": host.host_id,
+                    "drift_count": len(drift_details)
+                }
+            )
+    
+    # ==========================================
+    # UPDATE ORCHESTRATION
+    # ==========================================
+    
+    async def schedule_update(
+        self,
+        host_id: str,
+        update_type: str,
+        packages: List[str],
+        requires_approval: bool = True
+    ):
+        """Schedule an update for a host"""
+        
+        update = {
+            "update_id": f"update_{datetime.utcnow().timestamp()}",
+            "host_id": host_id,
+            "update_type": update_type,
+            "packages": packages,
+            "requires_approval": requires_approval,
+            "status": "pending_approval" if requires_approval else "scheduled",
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        self.pending_updates.append(update)
+        
+        # Publish for Unified Logic approval
+        await message_bus.publish(
+            source="infrastructure_manager",
+            topic="infrastructure.update.proposed",
+            payload=update,
+            priority=MessagePriority.NORMAL
+        )
+        
+        # log_event(
+            "infrastructure.update.scheduled",
+            f"Update scheduled for {host_id}",
+            {"update_id": update["update_id"]}
+        )
+        
+        return update["update_id"]
+    
+    async def apply_update(self, update_id: str):
+        """Apply an approved update"""
+        
+        update = next((u for u in self.pending_updates if u["update_id"] == update_id), None)
+        if not update:
+            return {"error": "Update not found"}
+        
+        host = self.hosts.get(update["host_id"])
+        if not host:
+            return {"error": "Host not found"}
+        
+        update["status"] = "applying"
+        host.dependency_status = DependencyStatus.UPDATING
+        
+        try:
+            # Apply update based on type
+            if update["update_type"] == "pip":
+                for pkg in update["packages"]:
+                    subprocess.run(
+                        ["pip", "install", "--upgrade", pkg],
+                        timeout=300
+                    )
+            elif update["update_type"] == "npm":
+                for pkg in update["packages"]:
+                    subprocess.run(
+                        ["npm", "install", pkg],
+                        cwd="frontend",
+                        timeout=300
+                    )
+            
+            update["status"] = "completed"
+            host.dependency_status = DependencyStatus.IN_SYNC
+            
+            # Move to history
+            update["completed_at"] = datetime.utcnow().isoformat()
+            self.update_history.append(update)
+            self.pending_updates.remove(update)
+            
+            # Publish success
+            await message_bus.publish(
+                source="infrastructure_manager",
+                topic="infrastructure.update.completed",
+                payload=update,
+                priority=MessagePriority.NORMAL
+            )
+            
+            # log_event(
+                "infrastructure.update.completed",
+                f"Update completed: {update_id}",
+                {"host_id": host.host_id}
+            )
+            
+            return {"status": "completed"}
+            
+        except Exception as e:
+            update["status"] = "failed"
+            update["error"] = str(e)
+            host.dependency_status = DependencyStatus.FAILED
+            
+            # log_event(
+                "infrastructure.update.failed",
+                f"Update failed: {update_id}",
+                {"error": str(e)}
+            )
+            
+            return {"status": "failed", "error": str(e)}
+    
+    # ==========================================
+    # RESOURCE & SECRET MANAGEMENT
+    # ==========================================
+    
+    async def _detect_gpu_resources(self) -> List[Dict[str, Any]]:
+        """Detect GPU resources on host"""
+        
+        gpus = []
+        
+        try:
+            import torch
+            if torch.cuda.is_available():
+                for i in range(torch.cuda.device_count()):
+                    gpus.append({
+                        "index": i,
+                        "name": torch.cuda.get_device_name(i),
+                        "memory_total": torch.cuda.get_device_properties(i).total_memory,
+                        "compute_capability": f"{torch.cuda.get_device_properties(i).major}.{torch.cuda.get_device_properties(i).minor}"
+                    })
+        except:
+            pass
+        
+        return gpus
+    
+    async def register_host_secret(self, host_id: str, secret_key: str, secret_value: str):
+        """Register a secret for a specific host"""
+        
+        host = self.hosts.get(host_id)
+        if not host:
+            return {"error": "Host not found"}
+        
+        # In production, encrypt and use proper secret vault
+        host.secrets[secret_key] = {
+            "value": secret_value,  # Should be encrypted
+            "created_at": datetime.utcnow().isoformat(),
+            "rotated_at": None
+        }
+        
+        # log_event(
+            "infrastructure.secret.registered",
+            f"Secret registered for {host_id}",
+            {"secret_key": secret_key}
+        )
+        
+        return {"status": "registered"}
+    
+    # ==========================================
+    # SANDBOX PROVISIONING
+    # ==========================================
+    
+    async def create_sandbox(
+        self,
+        host_id: str,
+        sandbox_name: str,
+        environment_type: Optional[EnvironmentType] = None
+    ) -> Dict[str, Any]:
+        """Create an isolated sandbox environment"""
+        
+        host = self.hosts.get(host_id)
+        if not host:
+            return {"error": "Host not found"}
+        
+        # Use OS-specific template if no type specified
+        if not environment_type:
+            template = self.sandbox_templates.get(host.os_type, {})
+            environment_type = template.get("type", EnvironmentType.VENV)
+        
+        sandbox_path = Path(f"sandboxes/{sandbox_name}")
+        
+        try:
+            if environment_type == EnvironmentType.VENV:
+                # Create Python virtual environment
+                subprocess.run(
+                    ["python", "-m", "venv", str(sandbox_path)],
+                    timeout=60
+                )
+            elif environment_type == EnvironmentType.DOCKER:
+                # Create Docker container (placeholder)
+                pass
+            elif environment_type == EnvironmentType.WSL:
+                # Create WSL instance (Windows only)
+                if host.os_type == HostOS.WINDOWS:
+                    pass
+            
+            # Track environment
+            host.environments[sandbox_name] = environment_type
+            
+            # log_event(
+                "infrastructure.sandbox.created",
+                f"Sandbox created: {sandbox_name}",
+                {"host_id": host_id, "type": environment_type.value}
+            )
+            
+            return {
+                "status": "created",
+                "sandbox_name": sandbox_name,
+                "type": environment_type.value,
+                "path": str(sandbox_path)
+            }
+            
+        except Exception as e:
+            # log_event(
+                "infrastructure.sandbox.error",
+                f"Failed to create sandbox: {sandbox_name}",
+                {"error": str(e)}
+            )
+            return {"error": str(e)}
+
+
+# Global instance
+infrastructure_manager = InfrastructureManagerKernel()

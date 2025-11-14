@@ -24,6 +24,9 @@ from .clarity_framework import clarity_framework
 from .verification_framework import verification_framework
 from .clarity_kernel import clarity_kernel
 from .unified_logic_integration import unified_logic_core
+from .self_healing_kernel import self_healing_kernel
+from .coding_agent_kernel import coding_agent_kernel
+from .librarian_kernel import librarian_kernel
 from .kernel_sdk import KernelSDK, create_kernel
 from .boot_layer import boot_layer
 
@@ -36,6 +39,9 @@ __all__ = [
     'verification_framework',
     'clarity_kernel',
     'unified_logic_core',
+    'self_healing_kernel',
+    'coding_agent_kernel',
+    'librarian_kernel',
     'KernelSDK',
     'create_kernel',
     'boot_layer'

@@ -8,28 +8,124 @@ from datetime import datetime
 import asyncio
 import httpx
 
-from .base_kernel import BaseDomainKernel, KernelIntent, KernelPlan, KernelResponse
+from backend.core.kernel_sdk import KernelSDK
+from backend.core.message_bus import message_bus, MessagePriority
+from .base_kernel import KernelIntent, KernelPlan, KernelResponse
 from ..schemas import ExecutionStep, DataProvenance, ExecutionTrace
 from ..logging_utils import log_event
 from ..grace_llm import get_grace_llm
 
 
-class GovernanceKernel(BaseDomainKernel):
+class GovernanceKernel(KernelSDK):
     """
-    Intelligent agent for governance, policy, and safety
+    Intelligent agent for governance, policy, and safety - Multi-OS Support
     
-    Manages 40 endpoints:
+    Manages 40 endpoints + Infrastructure Policies:
     - /api/governance/* - Policies, checks, approvals (9)
     - /api/constitutional/* - Constitutional principles (12)
     - /api/hunter/* - Threat detection (4)
     - /api/autonomy/* - Autonomy tiers, checks (8)
     - /api/parliament/* - Parliamentary governance (13)
     - /api/verification/* - Verification audit (4)
+    - Infrastructure host policies - OS-specific governance
     """
     
     def __init__(self):
-        super().__init__("governance")
+        super().__init__(kernel_name="governance")
+        
+        # Multi-OS governance policies
+        self.os_policies = {
+            "windows": {
+                "max_cpu_percent": 85,
+                "max_memory_percent": 80,
+                "required_capabilities": ["compute", "storage"]
+            },
+            "linux": {
+                "max_cpu_percent": 90,
+                "max_memory_percent": 85,
+                "required_capabilities": ["compute", "storage", "network"]
+            },
+            "macos": {
+                "max_cpu_percent": 85,
+                "max_memory_percent": 80,
+                "required_capabilities": ["compute", "storage"]
+            }
+        }
+        
+        # Subscribe to infrastructure events (deferred until async context)
+        self._subscription_task = None
         self.base_url = "http://localhost:8000"
+    
+    async def initialize(self):
+        """Initialize kernel - called from async context"""
+        if not self._subscription_task:
+            self._subscription_task = asyncio.create_task(self._subscribe_to_infrastructure_events())
+    
+    async def _subscribe_to_infrastructure_events(self):
+        """Subscribe to infrastructure host events for policy enforcement"""
+        try:
+            queue = await message_bus.subscribe(
+                subscriber="governance",
+                topic="infrastructure.host.status_changed"
+            )
+            
+            while True:
+                msg = await queue.get()
+                await self._enforce_host_policies(msg.payload)
+        except Exception as e:
+            log_event("governance.infrastructure.subscribe_error", {"error": str(e)})
+    
+    async def _enforce_host_policies(self, host_data: Dict[str, Any]):
+        """Enforce governance policies on infrastructure hosts"""
+        
+        os_type = host_data.get("os_type", "unknown")
+        metrics = host_data.get("metrics", {})
+        host_id = host_data.get("host_id")
+        
+        # Get OS-specific policies
+        policies = self.os_policies.get(os_type, {})
+        
+        violations = []
+        
+        # Check CPU policy
+        cpu_percent = metrics.get("cpu_percent", 0)
+        max_cpu = policies.get("max_cpu_percent", 90)
+        if cpu_percent > max_cpu:
+            violations.append({
+                "policy": "max_cpu_percent",
+                "current": cpu_percent,
+                "limit": max_cpu
+            })
+        
+        # Check memory policy
+        mem_percent = metrics.get("memory_percent", 0)
+        max_mem = policies.get("max_memory_percent", 85)
+        if mem_percent > max_mem:
+            violations.append({
+                "policy": "max_memory_percent",
+                "current": mem_percent,
+                "limit": max_mem
+            })
+        
+        # If violations, publish alert
+        if violations:
+            await message_bus.publish(
+                source="governance",
+                topic="governance.policy.violation",
+                payload={
+                    "host_id": host_id,
+                    "os_type": os_type,
+                    "violations": violations,
+                    "timestamp": datetime.utcnow().isoformat()
+                },
+                priority=MessagePriority.HIGH
+            )
+            
+            log_event(
+                "governance.policy.violation",
+                f"Host {host_id} violated {len(violations)} policies",
+                {"host_id": host_id, "violations": violations}
+            )
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
         """Parse what user wants from governance systems"""

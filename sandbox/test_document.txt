@@ -1,0 +1,5 @@
+This is a test document for Grace's Librarian kernel.
+The Librarian can extract text, create chunks, and generate summaries.
+This demonstrates real file processing capabilities.
+Grace's Librarian is fully functional in Layer 1.
+It processes documents and stores knowledge in Memory Fusion.

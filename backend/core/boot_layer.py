@@ -58,43 +58,55 @@ class BootLayer:
         
         try:
             # Step 1: Message Bus (Foundation)
-            print("[1/8] Starting Message Bus (nervous system)...")
+            print("[1/10] Starting Message Bus (nervous system)...")
             await message_bus.start()
             print("  [OK] Message Bus ACTIVE")
             
             # Step 2: Immutable Log (Audit trail)
-            print("\n[2/8] Starting Immutable Log (black box)...")
+            print("\n[2/10] Starting Immutable Log (black box)...")
             await immutable_log.start()
             stats = immutable_log.get_stats()
             print(f"  [OK] Immutable Log ACTIVE ({stats['total_entries']} entries)")
             
             # Step 3: Clarity Framework (Transparent decisions)
-            print("\n[3/8] Starting Clarity Framework (transparency)...")
+            print("\n[3/10] Starting Clarity Framework (transparency)...")
             await clarity_framework.start()
             print("  [OK] Clarity Framework ACTIVE")
             
             # Step 4: Verification Framework (Continuous validation)
-            print("\n[4/8] Starting Verification Framework (validation)...")
+            print("\n[4/10] Starting Verification Framework (validation)...")
             await verification_framework.start()
             print("  [OK] Verification Framework ACTIVE")
             
             # Step 5: Unified Logic (Governance)
-            print("\n[5/7] Starting Unified Logic (governance)...")
+            print("\n[5/10] Starting Unified Logic (governance)...")
             await unified_logic_core.start()
             print("  [OK] Unified Logic ACTIVE")
             
-            # Step 6: Control Plane (Orchestrator)
-            print("\n[6/7] Starting Control Plane (orchestrator)...")
+            # Step 6: Self-Healing Kernel (Auto-repair)
+            print("\n[6/8] Starting Self-Healing Kernel...")
+            await self_healing_kernel.start()
+            sh_stats = self_healing_kernel.get_stats()
+            print(f"  [OK] Self-Healing ACTIVE ({sh_stats['playbooks_loaded']} playbooks)")
+            
+            # Step 7: Coding Agent Kernel (Code generation)
+            print("\n[7/8] Starting Coding Agent Kernel...")
+            await coding_agent_kernel.start()
+            ca_stats = coding_agent_kernel.get_stats()
+            print(f"  [OK] Coding Agent ACTIVE ({ca_stats['code_patterns_available']} patterns)")
+            
+            # Step 8: Control Plane (Orchestrator)
+            print("\n[8/8] Starting Control Plane (orchestrator)...")
             await control_plane.start()
             print("  [OK] Control Plane ACTIVE")
             
-            # Step 7: Boot Pipeline (Structured startup)
-            print("\n[7/7] Initializing Boot Pipeline...")
+            # Step 9: Boot Pipeline (Structured startup)
+            print("\n[9/10] Initializing Boot Pipeline...")
             # Boot pipeline is used for structured boots (next restart will use it)
             print("  [OK] Boot Pipeline ready for next boot")
             
-            # Step 8: Log boot success
-            print("\n[8/8] Logging boot event...")
+            # Step 10: Log boot success
+            print("\n[10/10] Logging boot event...")
             await immutable_log.append(
                 actor='boot_layer',
                 action='system_boot',
