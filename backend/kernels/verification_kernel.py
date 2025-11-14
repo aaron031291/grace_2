@@ -24,7 +24,7 @@ class VerificationKernel(BaseDomainKernel):
     """
     
     def __init__(self):
-        super().__init__("verification")
+        super().__init__(kernel_id="verification_kernel", domain="verification")
         self.base_url = "http://localhost:8000"
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
@@ -193,6 +193,31 @@ Provide clear verification status and any issues found."""
             suggested_panels=[{"type": "verification_report", "title": "Verification Results"}],
             confidence=original_intent.confidence
         )
+    
+    # Implement abstract methods required by BaseDomainKernel
+    async def _initialize_watchers(self):
+        """Set up watchers for verification operations"""
+        pass
+    
+    async def _load_pending_work(self):
+        """Load pending verification tasks"""
+        pass
+    
+    async def _coordinator_loop(self):
+        """Main coordination loop for verification operations"""
+        while self._running:
+            try:
+                await asyncio.sleep(10)
+            except Exception as e:
+                pass
+    
+    async def _create_agent(self, agent_type: str, agent_id: str, task_data: Dict) -> Any:
+        """Create a sub-agent for verification tasks"""
+        return {"agent_id": agent_id, "type": agent_type, "task": task_data}
+    
+    async def _cleanup(self):
+        """Cleanup verification kernel resources"""
+        pass
 
 
 # Global instance

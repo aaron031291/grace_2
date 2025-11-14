@@ -29,7 +29,7 @@ class MemoryKernel(KernelSDK):
     """
     
     def __init__(self):
-        super().__init__(kernel_name="memory")
+        super().__init__(kernel_name="memory_kernel")
         self.memory = PersistentMemory()
         
         # Infrastructure state memory
@@ -417,6 +417,31 @@ Respond in JSON:
             })
         
         return panels
+    
+    # Implement abstract methods required by BaseDomainKernel
+    async def _initialize_watchers(self):
+        """Set up watchers for memory operations"""
+        pass
+    
+    async def _load_pending_work(self):
+        """Load pending memory operations"""
+        pass
+    
+    async def _coordinator_loop(self):
+        """Main coordination loop for memory operations"""
+        while self._running:
+            try:
+                await asyncio.sleep(10)
+            except Exception as e:
+                pass
+    
+    async def _create_agent(self, agent_type: str, agent_id: str, task_data: Dict) -> Any:
+        """Create a sub-agent for memory tasks"""
+        return {"agent_id": agent_id, "type": agent_type, "task": task_data}
+    
+    async def _cleanup(self):
+        """Cleanup memory kernel resources"""
+        pass
 
 
 # Global instance

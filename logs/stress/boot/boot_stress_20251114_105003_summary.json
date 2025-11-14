@@ -1,0 +1,192 @@
+{
+  "test_id": "boot_stress_20251114_105003",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:50:03.818661",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:50:03.819661",
+      "boot_duration_ms": 614.3882274627686,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "memory",
+          "error": "KernelSDK.__init__() got an unexpected keyword argument 'name'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:04.436115"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:50:05.439014",
+      "boot_duration_ms": 103.3332347869873,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "memory",
+          "error": "KernelSDK.__init__() got an unexpected keyword argument 'name'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:05.545394"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:50:06.547300",
+      "boot_duration_ms": 124.07660484313965,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "memory",
+          "error": "KernelSDK.__init__() got an unexpected keyword argument 'name'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:06.675131"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:50:07.687596",
+      "boot_duration_ms": 104.49075698852539,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "memory",
+          "error": "KernelSDK.__init__() got an unexpected keyword argument 'name'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:07.794597"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:50:08.794788",
+      "boot_duration_ms": 103.41167449951172,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "memory",
+          "error": "KernelSDK.__init__() got an unexpected keyword argument 'name'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:08.900852"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:50:09.902942",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:50:09.904540"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:50:09.904540",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:50:09.906540"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 209.94009971618652,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:50:09.906540"
+}

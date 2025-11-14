@@ -1,0 +1,172 @@
+{
+  "test_id": "boot_stress_20251114_105026",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:50:26.983415",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:50:26.983918",
+      "boot_duration_ms": 602.5667190551758,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:27.589485"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:50:28.594289",
+      "boot_duration_ms": 103.04903984069824,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:28.700007"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:50:29.702550",
+      "boot_duration_ms": 123.7795352935791,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:29.829403"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:50:30.840577",
+      "boot_duration_ms": 102.31637954711914,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:30.947402"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:50:31.948897",
+      "boot_duration_ms": 102.96487808227539,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T10:50:32.055469"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:50:33.063333",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:50:33.064723"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:50:33.064723",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:50:33.066727"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 206.93531036376953,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:50:33.066727"
+}
