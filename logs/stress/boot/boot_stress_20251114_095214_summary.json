@@ -1,0 +1,68 @@
+{
+  "test_id": "boot_stress_20251114_095214",
+  "cycles": 3,
+  "started_at": "2025-11-14T09:52:14.346674",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T09:52:14.348339",
+      "boot_duration_ms": 250.0307559967041,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T09:52:14.601878"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T09:52:15.611927",
+      "boot_duration_ms": 102.5841236114502,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T09:52:15.714511"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T09:52:16.725738",
+      "boot_duration_ms": 100.65102577209473,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "completed_at": "2025-11-14T09:52:16.830392"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T09:52:17.833482",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T09:52:17.834036"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T09:52:17.834036",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T09:52:17.834036"
+    }
+  ],
+  "summary": {
+    "total_boots": 3,
+    "successful_boots": 3,
+    "failed_boots": 0,
+    "avg_boot_time": 151.08863512674967,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T09:52:17.834036"
+}

@@ -1,0 +1,10 @@
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:14.346674", "event_type": "stress.run.started", "message": "Boot stress test started", "cycles": 3}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:14.348339", "event_type": "boot.cycle.started", "message": "Boot cycle 1 starting", "cycle": 1}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:14.598370", "event_type": "boot.cycle.completed", "message": "Boot cycle 1 completed", "cycle": 1, "duration_ms": 250.0307559967041, "kernels": 2}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:15.611927", "event_type": "boot.cycle.started", "message": "Boot cycle 2 starting", "cycle": 2}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:15.714511", "event_type": "boot.cycle.completed", "message": "Boot cycle 2 completed", "cycle": 2, "duration_ms": 102.5841236114502, "kernels": 2}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:16.725738", "event_type": "boot.cycle.started", "message": "Boot cycle 3 starting", "cycle": 3}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:16.828389", "event_type": "boot.cycle.completed", "message": "Boot cycle 3 completed", "cycle": 3, "duration_ms": 100.65102577209473, "kernels": 2}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:17.833482", "event_type": "stress.kill_process.test", "message": "Testing watchdog recovery from process kill"}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:17.834036", "event_type": "stress.config_corruption.test", "message": "Testing recovery from corrupted config"}
+{"test_id": "boot_stress_20251114_095214", "timestamp": "2025-11-14T09:52:17.834036", "event_type": "stress.run.completed", "message": "Boot stress test completed", "summary": {"total_boots": 3, "successful_boots": 3, "failed_boots": 0, "avg_boot_time": 151.08863512674967, "watchdog_triggers": 1, "self_heal_activations": 1}}
