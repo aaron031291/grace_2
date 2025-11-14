@@ -51,19 +51,19 @@ async def boot_grace_core():
         
         print("Core Infrastructure (7):")
         for k in kernels_list[0:7]:
-            print(f"  ✓ {k}")
+            print(f"  [OK] {k}")
         
         print("\nExecution Layer (5):")
         for k in kernels_list[7:12]:
-            print(f"  ✓ {k}")
+            print(f"  [OK] {k}")
         
         print("\nLayer 3 - Agentic Systems (3):")
         for k in kernels_list[12:15]:
-            print(f"  ✓ {k}")
+            print(f"  [OK] {k}")
         
         print("\nServices & API (4):")
         for k in kernels_list[15:19]:
-            print(f"  ✓ {k}")
+            print(f"  [OK] {k}")
         
         print()
         print("=" * 80)
