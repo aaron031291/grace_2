@@ -8,12 +8,21 @@
 
 ## 🚀 Quick Start
 
-### Start Grace
+### Start GRACE System
+
+**Backend (Terminal 1):**
 ```bash
+cd C:\Users\aaron\grace_2
 python serve.py
 ```
 
-Or with auto-restart protection:
+**Frontend (Terminal 2):**
+```bash
+cd C:\Users\aaron\grace_2\frontend
+npm run dev
+```
+
+**Alternative:** Auto-restart protection:
 ```bash
 scripts\startup\start_grace.cmd
 ```
@@ -254,13 +263,19 @@ npm install
 
 ### Run Development Server
 ```bash
-# Backend
+# Backend (Terminal 1)
+cd C:\Users\aaron\grace_2
 python serve.py
 
-# Frontend
-cd frontend
+# Frontend (Terminal 2)
+cd C:\Users\aaron\grace_2\frontend
 npm run dev
 ```
+
+**Access:**
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- Frontend UI: http://localhost:5173
 
 ### Run Tests
 ```bash
