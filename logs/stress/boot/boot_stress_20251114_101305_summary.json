@@ -1,0 +1,146 @@
+{
+  "test_id": "boot_stress_20251114_101305",
+  "cycles": 2,
+  "started_at": "2025-11-14T10:13:05.587701",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:13:05.587701",
+      "boot_duration_ms": 566.5266513824463,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory_services.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:13:06.157376"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:13:07.163276",
+      "boot_duration_ms": 110.98122596740723,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory_services.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:13:07.277294"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:13:08.289056",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:13:08.291327"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:13:08.291327",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:13:08.293331"
+    }
+  ],
+  "summary": {
+    "total_boots": 2,
+    "successful_boots": 2,
+    "failed_boots": 0,
+    "avg_boot_time": 338.75393867492676,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:13:08.293331"
+}

@@ -330,3 +330,6 @@ class SelfHealingKernel(BaseDomainKernel):
     def get_playbook_definitions(self) -> Dict[str, Dict]:
         """Get all loaded playbook definitions"""
         return self.playbook_definitions.copy()
+
+# Global instance
+self_healing_kernel = SelfHealingKernel()

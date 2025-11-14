@@ -1,0 +1,89 @@
+{
+  "test_id": "boot_stress_20251114_101344",
+  "cycles": 1,
+  "started_at": "2025-11-14T10:13:44.585953",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:13:44.586953",
+      "boot_duration_ms": 561.9440078735352,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory_services.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging_utils'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:13:45.154409"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:13:46.159521",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:13:46.159521"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:13:46.159521",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:13:46.161525"
+    }
+  ],
+  "summary": {
+    "total_boots": 1,
+    "successful_boots": 1,
+    "failed_boots": 0,
+    "avg_boot_time": 561.9440078735352,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:13:46.161525"
+}
