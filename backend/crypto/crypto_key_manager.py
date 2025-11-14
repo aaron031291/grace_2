@@ -443,7 +443,7 @@ class CryptoKeyManager:
                         
                         # Store in memory
                         self.keys[record.key_id] = crypto_key
-                        self.component_keys[record.component_id] = crypto_key
+                        self.component_keys[record.component_id] = record.key_id  # Store key_id, not object
                         
                         logger.info(f"[CRYPTO] Loaded key {record.key_id} for {record.component_id}")
                         
