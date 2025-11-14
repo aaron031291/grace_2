@@ -7,11 +7,11 @@ from .base_models import Base, engine, async_session
 
 from .sandbox_models import SandboxRun, SandboxFile
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
-from .task_executor import ExecutionTask
+from backend.execution.task_executor import ExecutionTask
 from .issue_models import IssueReport
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
-from .immutable_log import ImmutableLogEntry
-from .mldl import MLEvent
+from backend.logging.immutable_log import ImmutableLogEntry
+from backend.ml_training.mldl import MLEvent
 from .avn_avm import VerificationEvent
 from .meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
 from .knowledge_models import KnowledgeArtifact

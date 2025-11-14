@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Callable
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
-from .models import Base, async_session
+from backend.models.base_models import Base, async_session
 
 class ExecutionTask(Base):
     __tablename__ = "execution_tasks"

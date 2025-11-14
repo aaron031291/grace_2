@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_102321",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:23:21.895077",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:23:21.895077",
+      "boot_duration_ms": 628.9153099060059,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:22.526944"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:23:23.528306",
+      "boot_duration_ms": 118.09611320495605,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:23.649127"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:23:24.662500",
+      "boot_duration_ms": 117.15459823608398,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:24.780994"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:23:25.781608",
+      "boot_duration_ms": 121.07110023498535,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:25.903680"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:23:26.915049",
+      "boot_duration_ms": 116.80078506469727,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.logging.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.logging.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:27.032881"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:23:28.033967",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:23:28.033967"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:23:28.033967",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:23:28.033967"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 220.4075813293457,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:23:28.033967"
+}

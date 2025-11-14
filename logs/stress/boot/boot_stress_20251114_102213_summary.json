@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_102213",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:22:13.927339",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:22:13.927339",
+      "boot_duration_ms": 605.3817272186279,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.execution.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:22:14.537255"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:22:15.542236",
+      "boot_duration_ms": 115.66352844238281,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.execution.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:22:15.659722"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:22:16.659852",
+      "boot_duration_ms": 119.5073127746582,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.execution.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:22:16.782401"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:22:17.793852",
+      "boot_duration_ms": 111.89484596252441,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.execution.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:22:17.907342"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:22:18.911705",
+      "boot_duration_ms": 115.74316024780273,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.execution.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.execution.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:22:19.029535"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:22:20.029563",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:22:20.030859"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:22:20.030859",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:22:20.030859"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 213.63811492919922,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:22:20.030859"
+}

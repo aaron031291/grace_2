@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_101857",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:18:57.116408",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:18:57.116408",
+      "boot_duration_ms": 410.3741645812988,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.settings'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:18:57.526782"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:18:58.540767",
+      "boot_duration_ms": 101.88984870910645,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.settings'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:18:58.644014"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:18:59.658577",
+      "boot_duration_ms": 103.1656265258789,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.settings'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:18:59.762118"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:19:00.775572",
+      "boot_duration_ms": 105.53336143493652,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.settings'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:19:00.882325"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:19:01.892643",
+      "boot_duration_ms": 101.88555717468262,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.settings'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:19:01.996089"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:19:03.011436",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:19:03.012405"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:19:03.012405",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:19:03.012405"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 164.56971168518066,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:19:03.012405"
+}

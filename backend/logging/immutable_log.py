@@ -5,7 +5,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from .base_models import ImmutableLogEntry, async_session
+from backend.models.base_models import ImmutableLogEntry, async_session
 
 class ImmutableLog:
     """Append-only log with cryptographic chain"""
