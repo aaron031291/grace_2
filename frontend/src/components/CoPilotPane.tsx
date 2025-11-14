@@ -102,10 +102,10 @@ export const CoPilotPane: React.FC<CoPilotPaneProps> = ({ currentLayer, onAction
         { label: 'Export Queue Snapshot', action: 'export_queue', icon: '📊' },
       ],
       layer3: [
-        { label: 'Create New Intent', action: 'create_intent', icon: '🎯' },
-        { label: 'Review Pending Policies', action: 'review_policies', icon: '📜' },
-        { label: 'Generate Retrospective', action: 'generate_retro', icon: '🎓' },
-        { label: 'Export Learning Report', action: 'export_learning', icon: '📊' },
+        { label: '🤖 New Coding Build', action: 'new_build', icon: '🤖' },
+        { label: 'Create Intent', action: 'create_intent', icon: '🎯' },
+        { label: 'Review Policies', action: 'review_policies', icon: '📜' },
+        { label: 'Generate Retro', action: 'generate_retro', icon: '🎓' },
       ],
       layer4: [
         { label: 'Add New Secret', action: 'add_secret', icon: '🔐' },

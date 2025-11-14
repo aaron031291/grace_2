@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { KernelTerminal } from '../components/KernelTerminal';
 import { CoPilotPane } from '../components/CoPilotPane';
+import { AgenticBuilderForm } from '../components/AgenticBuilderForm';
 import './Layer3DashboardMVP.css';
 
 interface Intent {
@@ -30,8 +31,10 @@ const API_BASE = 'http://localhost:8000';
 export const Layer3DashboardMVP: React.FC = () => {
   const [kernels, setKernels] = useState([]);
   const [intents, setIntents] = useState<Intent[]>([]);
+  const [codingBuilds, setCodingBuilds] = useState<any[]>([]);
   const [retrospectives, setRetrospectives] = useState<Retrospective[]>([]);
   const [showIntentForm, setShowIntentForm] = useState(false);
+  const [showBuilderForm, setShowBuilderForm] = useState(true);
   const [newIntent, setNewIntent] = useState({
     goal: '',
     data_source: 'uploaded_files',
@@ -51,6 +54,7 @@ export const Layer3DashboardMVP: React.FC = () => {
       await Promise.all([
         fetchKernels(),
         fetchIntents(),
+        fetchCodingBuilds(),
         fetchRetrospectives()
       ]);
     } catch (error) {
@@ -74,6 +78,15 @@ export const Layer3DashboardMVP: React.FC = () => {
       setIntents(response.data.intents || []);
     } catch (error) {
       console.error('Failed to fetch intents:', error);
+    }
+  };
+
+  const fetchCodingBuilds = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/coding_agent/active`);
+      setCodingBuilds(response.data.builds || []);
+    } catch (error) {
+      console.error('Failed to fetch coding builds:', error);
     }
   };
 
@@ -114,9 +127,32 @@ export const Layer3DashboardMVP: React.FC = () => {
     }
   };
 
+  const handleDeployCodingBuild = async (intentId: string) => {
+    const confirm = window.confirm('Deploy this build to staging?');
+    if (!confirm) return;
+
+    try {
+      await axios.post(`${API_BASE}/api/coding_agent/${intentId}/deploy`, {
+        target_environment: 'staging',
+        deployment_config: {
+          docker_build: true,
+          run_tests: true,
+          auto_rollback: true
+        }
+      });
+      alert('Deployment initiated! Check Layer 4 for progress.');
+      await fetchCodingBuilds();
+    } catch (error) {
+      console.error('Deployment failed:', error);
+      alert('Deployment failed');
+    }
+  };
+
   const handleCoPilotAction = async (action: string) => {
     if (action === 'create_intent') {
       setShowIntentForm(true);
+    } else if (action === 'new_build') {
+      setShowBuilderForm(!showBuilderForm);
     } else if (action === 'review_policies') {
       alert('Policy review (feature coming soon)');
     } else if (action === 'generate_retro') {
@@ -145,6 +181,73 @@ export const Layer3DashboardMVP: React.FC = () => {
             <button onClick={loadData}>{loading ? '⟳ Refreshing...' : '↻ Refresh'}</button>
           </div>
         </div>
+
+        {/* Agentic Builder */}
+        {showBuilderForm && (
+          <section className="builder-section">
+            <AgenticBuilderForm onBuildCreated={() => fetchCodingBuilds()} />
+          </section>
+        )}
+
+        {/* Active Coding Projects */}
+        {codingBuilds.length > 0 && (
+          <section className="coding-builds-section">
+            <h2>🤖 Active Coding Projects</h2>
+            <div className="builds-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Intent ID</th>
+                    <th>Project</th>
+                    <th>Phase</th>
+                    <th>Progress</th>
+                    <th>Artifacts</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {codingBuilds.map((build) => (
+                    <tr key={build.intent_id}>
+                      <td className="build-id">{build.intent_id}</td>
+                      <td className="build-desc">{build.description.substring(0, 50)}...</td>
+                      <td>
+                        <span className="phase-badge">
+                          {build.current_phase || build.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="progress-bar">
+                          <div
+                            className="progress-fill"
+                            style={{ width: `${build.progress_percent}%` }}
+                          ></div>
+                          <span>{build.progress_percent}%</span>
+                        </div>
+                      </td>
+                      <td>{build.artifacts_generated?.length || 0} files</td>
+                      <td className="build-actions">
+                        <button
+                          className="btn-small"
+                          onClick={() => alert(`View details: ${build.intent_id}`)}
+                        >
+                          👁 View
+                        </button>
+                        {build.progress_percent >= 95 && (
+                          <button
+                            className="btn-small btn-deploy"
+                            onClick={() => handleDeployCodingBuild(build.intent_id)}
+                          >
+                            🚀 Deploy
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         {/* Active Intents */}
         <section className="intents-section">
