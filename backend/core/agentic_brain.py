@@ -204,7 +204,10 @@ class AgenticBrain:
     async def _subscribe_to_learning_insights(self):
         """Subscribe to learning insight events from learning loop"""
         try:
-            queue = await message_bus.subscribe("agentic.learning.insight")
+            queue = await message_bus.subscribe(
+                subscriber="agentic_brain",
+                topic="agentic.learning.insight"
+            )
             asyncio.create_task(self._process_learning_insights(queue))
             print("[BRAIN] Subscribed to learning insights")
         except Exception as e:

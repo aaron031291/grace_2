@@ -79,18 +79,28 @@ class MemoryKernel(KernelSDK):
                 host_data = msg.payload
                 host_id = host_data.get("host_id")
                 
-                # Cache in memory
+                # Cache in memory with timestamp
+                timestamp = datetime.utcnow().isoformat()
                 self.host_state_cache[host_id] = {
-                    "registered_at": datetime.utcnow().isoformat(),
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "registered_at": timestamp,
+                    "last_updated": timestamp,
                     "data": host_data
                 }
                 
-                # Store in persistent memory (ChatMessage format)
+                # Serialize host data as JSON blob and persist
+                import json
+                host_json = json.dumps({
+                    "host_id": host_id,
+                    "os_type": host_data.get('os_type'),
+                    "registered_at": timestamp,
+                    "capabilities": host_data.get('capabilities', {}),
+                    "metadata": host_data
+                }, indent=2)
+                
                 await self.memory.store(
                     user="infrastructure_manager",
                     role="system",
-                    content=f"Host registered: {host_id} ({host_data.get('os_type')})"
+                    content=host_json
                 )
                 
                 log_event(
@@ -117,12 +127,22 @@ class MemoryKernel(KernelSDK):
                 msg = await queue.get()
                 summary = msg.payload
                 
-                # Store health snapshot (ChatMessage format)
-                timestamp = summary.get("timestamp", "unknown")
+                # Serialize health summary as JSON blob and persist
+                import json
+                timestamp = summary.get("timestamp", datetime.utcnow().isoformat())
+                
+                health_json = json.dumps({
+                    "type": "health_snapshot",
+                    "timestamp": timestamp,
+                    "status": summary.get("status", "unknown"),
+                    "metrics": summary.get("metrics", {}),
+                    "summary": summary
+                }, indent=2)
+                
                 await self.memory.store(
                     user="infrastructure_manager",
                     role="system",
-                    content=f"Health snapshot at {timestamp}: {summary.get('status', 'unknown')}"
+                    content=health_json
                 )
                 
             except Exception as e:

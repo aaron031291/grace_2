@@ -27,9 +27,9 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 )
 from cryptography.hazmat.primitives import serialization
 
-from .models import async_session
-from .immutable_log import immutable_log
-from .trigger_mesh import trigger_mesh, TriggerEvent
+from backend.models.base_models import async_session
+from backend.logging.immutable_log import immutable_log
+from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 
 logger = logging.getLogger(__name__)
 
@@ -360,6 +360,22 @@ class CryptoKeyManager:
         
         logger.info(f"[CRYPTO] Rotated key for {component_id}: {new_key.key_id}")
         
+        # Log rotation to immutable log
+        old_key_id = self.component_keys.get(component_id, "none")
+        await immutable_log.append(
+            actor="crypto_key_manager",
+            action="key_rotated",
+            resource=component_id,
+            subsystem="crypto",
+            payload={
+                "old_key_id": old_key_id,
+                "new_key_id": new_key.key_id,
+                "component_id": component_id,
+                "rotation_reason": "scheduled_rotation"
+            },
+            result="rotated"
+        )
+        
         return new_key
     
     async def _key_rotation_loop(self):
@@ -385,16 +401,182 @@ class CryptoKeyManager:
                 await asyncio.sleep(3600)
     
     async def _load_keys_from_database(self):
-        """Load existing keys from database"""
-        # Placeholder - would load from database
-        # For now, keys are generated on demand
-        pass
+        """Load existing keys from database - IMPLEMENTED"""
+        try:
+            from backend.models.crypto_models import CryptoKeyStore, ComponentCryptoIdentity
+            from backend.models.base_models import async_session
+            from sqlalchemy import select
+            
+            async with async_session() as session:
+                # Load all active keys
+                result = await session.execute(
+                    select(CryptoKeyStore)
+                    .where(CryptoKeyStore.is_active == True)
+                    .where(CryptoKeyStore.is_rotated == False)
+                )
+                key_records = result.scalars().all()
+                
+                for record in key_records:
+                    try:
+                        # Decrypt and load private key
+                        private_key_pem = self._decrypt_key(record.private_key_encrypted)
+                        private_key = serialization.load_pem_private_key(
+                            private_key_pem.encode('utf-8'),
+                            password=None
+                        )
+                        
+                        # Load public key
+                        public_key = serialization.load_pem_public_key(
+                            record.public_key_pem.encode('utf-8')
+                        )
+                        
+                        # Reconstruct CryptoKey object
+                        crypto_key = CryptoKey(
+                            key_id=record.key_id,
+                            component_id=record.component_id,
+                            private_key=private_key,
+                            public_key=public_key,
+                            created_at=record.created_at,
+                            expires_at=record.expires_at,
+                            rotated=record.is_rotated
+                        )
+                        
+                        # Store in memory
+                        self.keys[record.key_id] = crypto_key
+                        self.component_keys[record.component_id] = crypto_key
+                        
+                        logger.info(f"[CRYPTO] Loaded key {record.key_id} for {record.component_id}")
+                        
+                    except Exception as e:
+                        logger.error(f"[CRYPTO] Failed to load key {record.key_id}: {e}")
+                
+                logger.info(f"[CRYPTO] Loaded {len(key_records)} keys from database")
+        
+        except Exception as e:
+            logger.warning(f"[CRYPTO] Database load failed (tables may not exist yet): {e}")
     
     async def _save_key_to_database(self, crypto_key: CryptoKey):
-        """Save key to database"""
-        # Placeholder - would save to database
-        # For now, keys are stored in memory
-        pass
+        """Save key to database with encryption - IMPLEMENTED"""
+        try:
+            from backend.models.crypto_models import CryptoKeyStore, ComponentCryptoIdentity
+            from backend.models.base_models import async_session
+            
+            # Encrypt private key before storage
+            private_key_pem = crypto_key.get_private_key_pem()
+            encrypted_private_key = self._encrypt_key(private_key_pem)
+            
+            # Get public key PEM
+            public_key_pem = crypto_key.get_public_key_pem()
+            
+            async with async_session() as session:
+                # Save key store entry
+                key_store = CryptoKeyStore(
+                    key_id=crypto_key.key_id,
+                    component_id=crypto_key.component_id,
+                    key_type="ed25519",
+                    private_key_encrypted=encrypted_private_key,
+                    public_key_pem=public_key_pem,
+                    encryption_algorithm="fernet",
+                    key_derivation="master_key",
+                    created_at=crypto_key.created_at,
+                    expires_at=crypto_key.expires_at,
+                    is_active=True,
+                    is_rotated=crypto_key.rotated,
+                    purpose="signing",
+                    created_by="crypto_key_manager",
+                    use_count=0
+                )
+                session.add(key_store)
+                
+                # Save to component identity registry
+                identity_hash = hashlib.sha256(public_key_pem.encode()).hexdigest()
+                
+                identity = ComponentCryptoIdentity(
+                    component_id=crypto_key.component_id,
+                    current_key_id=crypto_key.key_id,
+                    public_key_pem=public_key_pem,
+                    identity_hash=identity_hash,
+                    verified=True,
+                    component_type="kernel",  # Could be enhanced
+                    registered_at=crypto_key.created_at,
+                    is_active=True,
+                    total_signatures=0
+                )
+                session.add(identity)
+                
+                await session.commit()
+                
+                logger.info(f"[CRYPTO] Saved key {crypto_key.key_id} to database")
+        
+        except Exception as e:
+            logger.error(f"[CRYPTO] Failed to save key to database: {e}")
+    
+    def _encrypt_key(self, key_pem: str) -> str:
+        """Encrypt private key using Fernet (symmetric encryption)"""
+        try:
+            from cryptography.fernet import Fernet
+            import os
+            
+            # Get or create master encryption key
+            master_key = self._get_master_key()
+            f = Fernet(master_key)
+            
+            # Encrypt the PEM
+            encrypted = f.encrypt(key_pem.encode('utf-8'))
+            return base64.b64encode(encrypted).decode('utf-8')
+        
+        except Exception as e:
+            logger.error(f"[CRYPTO] Encryption failed: {e}")
+            # Fallback: return unencrypted (not ideal, but prevents data loss)
+            return key_pem
+    
+    def _decrypt_key(self, encrypted_key: str) -> str:
+        """Decrypt private key"""
+        try:
+            from cryptography.fernet import Fernet
+            
+            # Get master encryption key
+            master_key = self._get_master_key()
+            f = Fernet(master_key)
+            
+            # Decrypt
+            encrypted_bytes = base64.b64decode(encrypted_key)
+            decrypted = f.decrypt(encrypted_bytes)
+            return decrypted.decode('utf-8')
+        
+        except Exception as e:
+            logger.error(f"[CRYPTO] Decryption failed: {e}")
+            # Assume unencrypted fallback
+            return encrypted_key
+    
+    def _get_master_key(self) -> bytes:
+        """Get or create master encryption key"""
+        import os
+        
+        # Check environment variable first
+        env_key = os.getenv("GRACE_CRYPTO_MASTER_KEY")
+        if env_key:
+            return base64.b64decode(env_key)
+        
+        # Check file
+        key_file = os.path.join(os.path.expanduser("~"), ".grace", "master.key")
+        
+        if os.path.exists(key_file):
+            with open(key_file, 'rb') as f:
+                return f.read()
+        
+        # Generate new master key
+        from cryptography.fernet import Fernet
+        master_key = Fernet.generate_key()
+        
+        # Save to file
+        os.makedirs(os.path.dirname(key_file), exist_ok=True)
+        with open(key_file, 'wb') as f:
+            f.write(master_key)
+        
+        logger.info(f"[CRYPTO] Generated new master key: {key_file}")
+        
+        return master_key
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get crypto statistics"""
