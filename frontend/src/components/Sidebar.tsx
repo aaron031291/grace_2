@@ -6,6 +6,23 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import type { NavItem } from '../GraceShell';
 
+interface PriorityBadge {
+  kernel: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}
+
+// Listen for priority badge events
+const priorityBadges = new Map<string, string>();
+
+window.addEventListener('priority-badge-update', (e: any) => {
+  const { kernel, priority } = e.detail;
+  if (priority) {
+    priorityBadges.set(kernel, priority);
+  } else {
+    priorityBadges.delete(kernel);
+  }
+});
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface SidebarProps {
@@ -15,11 +32,21 @@ interface SidebarProps {
 
 export default function Sidebar({ selected, onSelect }: SidebarProps) {
   const [systemStatus, setSystemStatus] = useState<any>(null);
+  const [badges, setBadges] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     loadStatus();
     const interval = setInterval(loadStatus, 5000);
-    return () => clearInterval(interval);
+    
+    // Listen for priority badge updates
+    const badgeInterval = setInterval(() => {
+      setBadges(new Map(priorityBadges));
+    }, 1000);
+    
+    return () => {
+      clearInterval(interval);
+      clearInterval(badgeInterval);
+    };
   }, []);
 
   async function loadStatus() {
@@ -83,10 +110,29 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
               key={kernel.id}
               className={`nav-item ${selected.type === 'kernel' && selected.id === kernel.id ? 'active' : ''}`}
               onClick={() => onSelect({ type: 'kernel', id: kernel.id, label: kernel.label })}
+              style={{ position: 'relative' }}
             >
               <span className={`status-dot status-healthy`}></span>
               <span className="nav-icon">{kernel.icon}</span>
               <span className="nav-label">{kernel.label}</span>
+              
+              {/* Priority Badge */}
+              {badges.has(kernel.id) && (
+                <span style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: badges.get(kernel.id) === 'critical' ? '#ef4444' : 
+                              badges.get(kernel.id) === 'high' ? '#f59e0b' : 
+                              badges.get(kernel.id) === 'medium' ? '#3b82f6' : '#6b7280',
+                  boxShadow: `0 0 8px ${badges.get(kernel.id) === 'critical' ? '#ef4444' : '#3b82f6'}`,
+                  animation: badges.get(kernel.id) === 'critical' ? 'pulse 1s infinite' : 'none'
+                }} />
+              )}
             </div>
           ))}
         </section>

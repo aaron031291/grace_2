@@ -4,6 +4,7 @@
 
 import { useState, type FormEvent } from 'react';
 import axios from 'axios';
+import { ModelIndicator } from '../components/ModelIndicator';
 
 const s = {
   bg: '#0a0a0a',
@@ -46,6 +47,12 @@ export default function ChatTab() {
 
   return (
     <div style={{ background: s.bg, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Header with model indicator */}
+      <div style={{ padding: '1rem', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, color: s.fg }}>💻 Coding Agent</h2>
+        <ModelIndicator kernelId="coding_agent" />
+      </div>
+      
       <div style={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           {msgs.map((m, i) => (
