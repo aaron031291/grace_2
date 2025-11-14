@@ -498,14 +498,16 @@ class RecordingService:
                     
                     print(f"[RECORDING] Transcribed: {session_id} ({len(transcript)} chars)")
                     
-                    # Publish for ingestion
+                    # Publish for ingestion and embedding
                     await message_bus.publish(
                         source="recording_service",
                         topic="recording.transcribed",
                         payload={
                             "session_id": session_id,
                             "transcript_length": len(transcript),
-                            "ready_for_ingestion": True
+                            "transcript_text": transcript,
+                            "ready_for_ingestion": True,
+                            "ready_for_embedding": True
                         },
                         priority=MessagePriority.NORMAL
                     )
