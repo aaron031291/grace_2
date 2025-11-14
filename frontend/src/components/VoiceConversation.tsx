@@ -4,8 +4,9 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Pause, Play, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { ModelIndicator } from './ModelIndicator';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -33,10 +34,13 @@ export default function VoiceConversation() {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState('');
+  const [continuousMode, setContinuousMode] = useState(false); // Always-on mode
+  const [isOn, setIsOn] = useState(false); // Voice system on/off
   
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const audioElement = useRef<HTMLAudioElement | null>(null);
+  const silenceTimer = useRef<any>(null);
 
   // Initialize session
   useEffect(() => {
@@ -53,9 +57,74 @@ export default function VoiceConversation() {
     }
   }
 
+  // Toggle voice system on/off
+  async function toggleVoiceSystem() {
+    if (isOn) {
+      // Turn OFF
+      stopListening();
+      setIsOn(false);
+      setSessionState(prev => prev ? { ...prev, status: 'paused' } : null);
+    } else {
+      // Turn ON
+      setIsOn(true);
+      setError('');
+      if (continuousMode) {
+        await startContinuousListening();
+      }
+    }
+  }
+
+  // Continuous listening mode (always-on)
+  async function startContinuousListening() {
+    if (!isOn) return;
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      audioChunks.current = [];
+
+      mediaRecorder.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.current.onstop = async () => {
+        if (audioChunks.current.length > 0) {
+          const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+          await processAudio(audioBlob);
+        }
+        audioChunks.current = [];
+        
+        // Restart recording if continuous mode and still on
+        if (continuousMode && isOn && !isSpeaking) {
+          setTimeout(() => startContinuousListening(), 500);
+        }
+      };
+
+      // Record in chunks (5 seconds each for continuous processing)
+      mediaRecorder.current.start();
+      setIsListening(true);
+      
+      // Auto-stop after 5 seconds to process chunk
+      if (continuousMode) {
+        setTimeout(() => {
+          if (mediaRecorder.current?.state === 'recording') {
+            mediaRecorder.current.stop();
+          }
+        }, 5000);
+      }
+      
+    } catch (err) {
+      setError('Microphone access denied');
+      setIsOn(false);
+      console.error(err);
+    }
+  }
+
   // Push-to-talk: Start recording
   async function startListening() {
-    if (isPaused) return;
+    if (isPaused || !isOn) return;
     
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -189,12 +258,81 @@ export default function VoiceConversation() {
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-            🎙️ Voice Conversation
-          </h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: '2rem', margin: 0 }}>
+              🎙️ Voice Conversation
+            </h1>
+            <ModelIndicator kernelId="voice_conversation" />
+          </div>
           <p style={{ color: '#888' }}>
             Persistent voice loop with Grace's agentic spine
           </p>
+        </div>
+
+        {/* Who's Speaking Indicator */}
+        <div style={{
+          background: '#1a1a1a',
+          border: '2px solid #333',
+          borderRadius: '12px',
+          padding: '1.5rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+            {/* User Speaking */}
+            <div style={{
+              flex: 1,
+              textAlign: 'center',
+              padding: '1rem',
+              background: isListening && !isSpeaking ? '#3b82f620' : 'transparent',
+              border: isListening && !isSpeaking ? '2px solid #3b82f6' : '2px solid transparent',
+              borderRadius: '8px',
+              transition: 'all 0.3s'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+                {isListening && !isSpeaking ? '🎤' : '👤'}
+              </div>
+              <div style={{ 
+                fontSize: '1.1rem', 
+                fontWeight: 'bold',
+                color: isListening && !isSpeaking ? '#3b82f6' : '#888'
+              }}>
+                YOU
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+                {isListening && !isSpeaking ? 'Speaking now...' : 'Listening'}
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div style={{ fontSize: '2rem', color: '#666', padding: '0 1rem' }}>
+              ↔️
+            </div>
+
+            {/* Grace Speaking */}
+            <div style={{
+              flex: 1,
+              textAlign: 'center',
+              padding: '1rem',
+              background: isSpeaking ? '#10b98120' : 'transparent',
+              border: isSpeaking ? '2px solid #10b981' : '2px solid transparent',
+              borderRadius: '8px',
+              transition: 'all 0.3s'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+                {isSpeaking ? '🔊' : '🧠'}
+              </div>
+              <div style={{ 
+                fontSize: '1.1rem', 
+                fontWeight: 'bold',
+                color: isSpeaking ? '#10b981' : '#888'
+              }}>
+                GRACE
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+                {isSpeaking ? 'Speaking now...' : 'Thinking'}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Session Status */}
@@ -245,32 +383,105 @@ export default function VoiceConversation() {
           display: 'flex',
           gap: '1rem',
           justifyContent: 'center',
-          marginBottom: '2rem'
+          marginBottom: '2rem',
+          flexWrap: 'wrap'
         }}>
-          {/* Push-to-Talk Button */}
+          {/* Main ON/OFF Switch */}
           <button
-            onMouseDown={startListening}
-            onMouseUp={stopListening}
-            onTouchStart={startListening}
-            onTouchEnd={stopListening}
-            disabled={isPaused || isSpeaking}
+            onClick={toggleVoiceSystem}
             style={{
-              background: isListening ? '#ef4444' : '#8b5cf6',
+              background: isOn ? '#10b981' : '#6b7280',
               color: 'white',
               border: 'none',
               padding: '1rem 2rem',
               borderRadius: '12px',
-              fontSize: '1rem',
-              cursor: isPaused || isSpeaking ? 'not-allowed' : 'pointer',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              opacity: isPaused || isSpeaking ? 0.5 : 1
+              fontWeight: 'bold',
+              minWidth: '150px',
+              justifyContent: 'center'
             }}
           >
-            {isListening ? <Mic size={20} /> : <MicOff size={20} />}
-            {isListening ? 'Recording...' : 'Hold to Talk'}
+            {isOn ? '🟢 Voice ON' : '⚫ Voice OFF'}
           </button>
+
+          {/* Continuous/Push-to-Talk Toggle */}
+          <button
+            onClick={() => {
+              setContinuousMode(!continuousMode);
+              if (!continuousMode && isOn) {
+                startContinuousListening();
+              }
+            }}
+            disabled={!isOn}
+            style={{
+              background: continuousMode ? '#3b82f6' : '#1a1a1a',
+              color: continuousMode ? 'white' : '#888',
+              border: '1px solid #333',
+              padding: '1rem 1.5rem',
+              borderRadius: '12px',
+              cursor: isOn ? 'pointer' : 'not-allowed',
+              opacity: isOn ? 1 : 0.5
+            }}
+          >
+            {continuousMode ? '🔄 Continuous' : '👆 Push-to-Talk'}
+          </button>
+
+          {/* Push-to-Talk Button (only if not continuous) */}
+          {!continuousMode && (
+            <button
+              onMouseDown={startListening}
+              onMouseUp={stopListening}
+              onTouchStart={startListening}
+              onTouchEnd={stopListening}
+              disabled={!isOn || isPaused || isSpeaking}
+              style={{
+                background: isListening ? '#ef4444' : '#8b5cf6',
+                color: 'white',
+                border: 'none',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                cursor: !isOn || isPaused || isSpeaking ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                opacity: !isOn || isPaused || isSpeaking ? 0.5 : 1
+              }}
+            >
+              {isListening ? <Mic size={20} /> : <MicOff size={20} />}
+              {isListening ? 'Recording...' : 'Hold to Talk'}
+            </button>
+          )}
+          
+          {/* Status Indicator (continuous mode) */}
+          {continuousMode && isOn && (
+            <div style={{
+              padding: '1rem 1.5rem',
+              background: isListening ? '#ef444420' : '#10b98120',
+              border: `1px solid ${isListening ? '#ef4444' : '#10b981'}`,
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: isListening ? '#ef4444' : '#10b981'
+            }}>
+              {isListening ? (
+                <>
+                  <Mic size={20} />
+                  <span>Listening...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={20} />
+                  <span>Ready</span>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Pause/Resume */}
           <button
@@ -345,15 +556,33 @@ export default function VoiceConversation() {
                   }}
                 >
                   <div style={{
-                    background: msg.role === 'user' ? '#8b5cf6' : '#2a2a2a',
+                    background: msg.role === 'user' ? '#3b82f6' : '#10b981',
                     padding: '0.75rem 1rem',
                     borderRadius: '12px',
-                    maxWidth: '80%'
+                    maxWidth: '80%',
+                    border: `2px solid ${msg.role === 'user' ? '#3b82f6' : '#10b981'}`
                   }}>
-                    <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>
-                      {msg.role === 'user' ? 'You' : '🧠 Grace'}
+                    <div style={{ 
+                      fontSize: '0.85rem', 
+                      fontWeight: 'bold',
+                      marginBottom: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}>
+                      {msg.role === 'user' ? (
+                        <>
+                          <span style={{ fontSize: '1.2rem' }}>👤</span>
+                          <span>YOU</span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: '1.2rem' }}>🧠</span>
+                          <span>GRACE</span>
+                        </>
+                      )}
                     </div>
-                    <div>{msg.text}</div>
+                    <div style={{ color: 'white' }}>{msg.text}</div>
                     {msg.audio_url && audioEnabled && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <button
@@ -396,11 +625,12 @@ export default function VoiceConversation() {
             How to use:
           </div>
           <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-            <li>Hold "Hold to Talk" button and speak</li>
-            <li>Release when done - Grace will process and respond</li>
-            <li>Use pause button to temporarily stop listening</li>
-            <li>Toggle audio to disable/enable voice playback</li>
-            <li>Conversation context persists across exchanges</li>
+            <li><strong>Voice ON/OFF:</strong> Main power switch for voice system</li>
+            <li><strong>Continuous Mode:</strong> Grace listens continuously (5-sec chunks)</li>
+            <li><strong>Push-to-Talk Mode:</strong> Hold button to speak, release to send</li>
+            <li><strong>Pause:</strong> Temporarily stop without ending session</li>
+            <li><strong>Audio Toggle:</strong> Enable/disable voice playback (text only)</li>
+            <li><strong>Context:</strong> Full conversation history maintained across all exchanges</li>
           </ul>
         </div>
 
