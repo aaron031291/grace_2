@@ -51,6 +51,7 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
 
   const layer3Kernels = [
     { id: 'agentic_spine', label: 'Agentic Spine', icon: '🧠' },
+    { id: 'voice_conversation', label: 'Voice Loop', icon: '🎙️' },
     { id: 'meta_loop', label: 'Meta Loop', icon: '🔄' },
     { id: 'learning_integration', label: 'Learning', icon: '🎓' },
   ];
@@ -106,7 +107,7 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
         </section>
 
         <section className="nav-section">
-          <h3 className="section-title">Layer 3 - Agentic (3)</h3>
+          <h3 className="section-title">Layer 3 - Agentic (4)</h3>
           {layer3Kernels.map((kernel) => (
             <div
               key={kernel.id}
