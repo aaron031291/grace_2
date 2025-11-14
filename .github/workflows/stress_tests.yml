@@ -1,0 +1,192 @@
+name: Multi-Layer Stress Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      boot_cycles:
+        description: 'Number of boot cycles'
+        required: false
+        default: '5'
+      ingestion_docs:
+        description: 'Number of documents for ingestion test'
+        required: false
+        default: '10'
+      htm_tasks:
+        description: 'Number of HTM tasks'
+        required: false
+        default: '100'
+
+jobs:
+  layer1-boot-stress:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      
+      - name: Run Layer 1 boot stress test
+        run: |
+          python -m tests.stress.layer1_boot_runner --cycles ${{ github.event.inputs.boot_cycles || 5 }}
+      
+      - name: Upload boot stress logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: boot-stress-logs-${{ matrix.os }}
+          path: logs/stress/boot/
+      
+      - name: Check boot time threshold
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          
+          # Find latest summary
+          summaries = list(Path('logs/stress/boot').glob('*_summary.json'))
+          if summaries:
+              with open(sorted(summaries)[-1]) as f:
+                  data = json.load(f)
+                  avg_boot = data['summary']['avg_boot_time']
+                  
+                  # Alert if boot time > 500ms
+                  if avg_boot > 500:
+                      print(f'WARNING: Avg boot time {avg_boot:.0f}ms exceeds 500ms threshold!')
+                      exit(1)
+                  else:
+                      print(f'OK: Avg boot time {avg_boot:.0f}ms within threshold')
+          "
+  
+  ingestion-stress:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pypdf pdfminer.six python-docx
+      
+      - name: Run ingestion stress test
+        run: |
+          python -m tests.stress.ingestion_chunking --docs ${{ github.event.inputs.ingestion_docs || 10 }}
+      
+      - name: Upload ingestion logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ingestion-stress-logs
+          path: logs/stress/ingestion/
+      
+      - name: Check quality threshold
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          
+          summaries = list(Path('logs/stress/ingestion').glob('*.json'))
+          if summaries:
+              with open(sorted(summaries)[-1]) as f:
+                  data = json.load(f)
+                  avg_trust = data['summary'].get('avg_trust_score', 0)
+                  
+                  # Alert if trust score drops below 0.7
+                  if avg_trust < 0.7:
+                      print(f'WARNING: Avg trust score {avg_trust:.2f} below 0.7 threshold!')
+                      exit(1)
+          "
+  
+  htm-stress:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      
+      - name: Run HTM stress test
+        run: |
+          python -m tests.stress.htm_trigger_stress --tasks ${{ github.event.inputs.htm_tasks || 100 }}
+      
+      - name: Upload HTM logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: htm-stress-logs
+          path: logs/stress/htm/
+      
+      - name: Check SLA compliance
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          
+          summaries = list(Path('logs/stress/htm').glob('*_summary.json'))
+          if summaries:
+              with open(sorted(summaries)[-1]) as f:
+                  data = json.load(f)
+                  breaches = data['summary'].get('sla_breaches', 0)
+                  
+                  # Alert if any SLA breaches
+                  if breaches > 0:
+                      print(f'WARNING: {breaches} SLA breaches detected!')
+                      exit(1)
+          "
+  
+  stress-summary:
+    runs-on: ubuntu-latest
+    needs: [layer1-boot-stress, ingestion-stress, htm-stress]
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+      
+      - name: Generate stress test dashboard
+        run: |
+          python scripts/utilities/generate_stress_dashboard.py
+      
+      - name: Upload dashboard
+        uses: actions/upload-artifact@v3
+        with:
+          name: stress-test-dashboard
+          path: reports/stress_dashboard.html
+      
+      - name: Comment on PR (if applicable)
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Stress Test Results\n\nAll stress tests completed. Check artifacts for details.'
+            })

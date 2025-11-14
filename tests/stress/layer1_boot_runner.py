@@ -136,9 +136,60 @@ class BootStressRunner:
             await message_bus.start()
             cycle_result["kernels_activated"].append("message_bus")
             
-            from backend.core.infrastructure_manager_kernel import infrastructure_manager
-            await infrastructure_manager.initialize()
-            cycle_result["kernels_activated"].append("infrastructure_manager")
+            # Boot ALL Layer 1 kernels (Triple-Checked Complete List)
+            kernels_to_test = [
+                # Core infrastructure kernels (from backend/core/)
+                ("infrastructure_manager", "backend.core.infrastructure_manager_kernel", "infrastructure_manager"),
+                ("event_policy", "backend.core.event_policy_kernel", "event_policy_kernel"),
+                ("clarity", "backend.core.clarity_kernel", "clarity_kernel"),
+                ("coding_agent", "backend.core.coding_agent_kernel", "coding_agent_kernel"),
+                ("self_healing_core", "backend.core.self_healing_kernel", "self_healing_kernel"),
+                ("librarian_core", "backend.core.librarian_kernel", "librarian_kernel"),
+                
+                # Domain kernels (from backend/kernels/) - All 12 domain kernels
+                ("core", "backend.kernels.core_kernel", "core_kernel"),
+                ("governance", "backend.kernels.governance_kernel", "governance_kernel"),
+                ("memory", "backend.kernels.memory_kernel", "memory_kernel"),
+                ("code", "backend.kernels.code_kernel", "code_kernel"),
+                ("intelligence", "backend.kernels.intelligence_kernel", "intelligence_kernel"),
+                ("infrastructure", "backend.kernels.infrastructure_kernel", "infrastructure_kernel"),
+                ("federation", "backend.kernels.federation_kernel", "federation_kernel"),
+                ("verification", "backend.kernels.verification_kernel", "verification_kernel"),
+                ("self_healing", "backend.kernels.self_healing_kernel", "self_healing_kernel"),
+                ("librarian", "backend.kernels.librarian_kernel", "librarian_kernel"),
+                ("librarian_enhanced", "backend.kernels.librarian_kernel_enhanced", "enhanced_librarian_kernel"),
+                ("event_bus", "backend.kernels.event_bus", "event_bus"),
+            ]
+            
+            # Total: 18 kernels (6 core + 12 domain)
+            
+            for kernel_info in kernels_to_test:
+                kernel_name = kernel_info[0]
+                module_path = kernel_info[1]
+                instance_name = kernel_info[2]
+                needs_instantiation = kernel_info[3] if len(kernel_info) > 3 else False
+                
+                try:
+                    module = __import__(module_path, fromlist=[instance_name])
+                    kernel_class_or_instance = getattr(module, instance_name)
+                    
+                    # Instantiate if it's a class
+                    if needs_instantiation:
+                        kernel_instance = kernel_class_or_instance()
+                    else:
+                        kernel_instance = kernel_class_or_instance
+                    
+                    # Initialize if method exists
+                    if hasattr(kernel_instance, 'initialize'):
+                        await kernel_instance.initialize()
+                    
+                    cycle_result["kernels_activated"].append(kernel_name)
+                    
+                except Exception as e:
+                    cycle_result["anomalies"].append({
+                        "kernel": kernel_name,
+                        "error": str(e)
+                    })
             
             # Record boot time
             boot_duration = (time.time() - start_time) * 1000

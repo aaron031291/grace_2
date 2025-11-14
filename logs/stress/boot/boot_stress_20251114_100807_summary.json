@@ -1,0 +1,144 @@
+{
+  "test_id": "boot_stress_20251114_100807",
+  "cycles": 2,
+  "started_at": "2025-11-14T10:08:07.874172",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:08:07.874172",
+      "boot_duration_ms": 601.4745235443115,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "librarian_enhanced",
+        "self_healing",
+        "event_policy"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "librarian",
+          "error": "module 'backend.kernels.librarian_kernel' has no attribute 'librarian_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:08:08.475647"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:08:09.490956",
+      "boot_duration_ms": 109.59959030151367,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "librarian_enhanced",
+        "self_healing",
+        "event_policy"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "librarian",
+          "error": "module 'backend.kernels.librarian_kernel' has no attribute 'librarian_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:08:09.603214"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:08:10.609156",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:08:10.610584"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:08:10.610584",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:08:10.610584"
+    }
+  ],
+  "summary": {
+    "total_boots": 2,
+    "successful_boots": 2,
+    "failed_boots": 0,
+    "avg_boot_time": 355.5370569229126,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:08:10.610584"
+}

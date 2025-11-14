@@ -1,0 +1,95 @@
+{
+  "test_id": "boot_stress_20251114_101054",
+  "cycles": 1,
+  "started_at": "2025-11-14T10:10:54.720282",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:10:54.721287",
+      "boot_duration_ms": 598.7961292266846,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "self_healing",
+          "error": "module 'backend.kernels.self_healing_kernel' has no attribute 'self_healing_kernel'"
+        },
+        {
+          "kernel": "librarian",
+          "error": "module 'backend.kernels.librarian_kernel' has no attribute 'librarian_kernel'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:10:55.320083"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:10:56.329064",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:10:56.330012"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:10:56.330012",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:10:56.330012"
+    }
+  ],
+  "summary": {
+    "total_boots": 1,
+    "successful_boots": 1,
+    "failed_boots": 0,
+    "avg_boot_time": 598.7961292266846,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:10:56.330012"
+}
