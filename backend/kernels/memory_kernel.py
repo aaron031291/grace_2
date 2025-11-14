@@ -5,16 +5,19 @@ Manages all memory storage, retrieval, and knowledge operations
 
 from typing import Dict, Any, List
 from datetime import datetime
+import asyncio
 
-from .base_kernel import BaseDomainKernel, KernelIntent, KernelPlan, KernelResponse
+from backend.core.kernel_sdk import KernelSDK
+from backend.core.message_bus import message_bus, MessagePriority
+from .base_kernel import KernelIntent, KernelPlan, KernelResponse
 from ..memory import PersistentMemory
 from ..schemas import ExecutionStep, DataProvenance
 from ..logging_utils import log_event
 
 
-class MemoryKernel(BaseDomainKernel):
+class MemoryKernel(KernelSDK):
     """
-    Intelligent agent for all memory & knowledge operations
+    Intelligent agent for all memory & knowledge operations - Multi-OS Support
     
     Manages:
     - Memory tree (domains/categories)
@@ -22,11 +25,131 @@ class MemoryKernel(BaseDomainKernel):
     - Ingestion (text/file/URL)
     - Trust scoring
     - Context assembly
+    - Host state persistence (infrastructure memory)
     """
     
     def __init__(self):
-        super().__init__("memory")
+        super().__init__(kernel_name="memory")
         self.memory = PersistentMemory()
+        
+        # Infrastructure state memory
+        self.host_state_cache = {}
+        
+        # Subscribe to infrastructure events for state persistence (deferred)
+        self._infrastructure_subscription = None
+    
+    async def initialize(self):
+        """Initialize kernel - called from async context"""
+        if not self._infrastructure_subscription:
+            self._infrastructure_subscription = asyncio.create_task(self._subscribe_to_infrastructure_events())
+    
+    async def _subscribe_to_infrastructure_events(self):
+        """Subscribe to infrastructure events to persist host state"""
+        try:
+            # Subscribe to host registrations
+            reg_queue = await message_bus.subscribe(
+                subscriber="memory",
+                topic="infrastructure.host.registered"
+            )
+            
+            # Subscribe to health summaries
+            health_queue = await message_bus.subscribe(
+                subscriber="memory",
+                topic="infrastructure.health.summary"
+            )
+            
+            # Process events
+            asyncio.create_task(self._process_host_registrations(reg_queue))
+            asyncio.create_task(self._process_health_summaries(health_queue))
+            
+        except Exception as e:
+            log_event("memory.infrastructure.subscribe_error", {"error": str(e)})
+    
+    async def _process_host_registrations(self, queue):
+        """Process and persist host registration events"""
+        while True:
+            try:
+                msg = await queue.get()
+                host_data = msg.payload
+                host_id = host_data.get("host_id")
+                
+                # Cache in memory
+                self.host_state_cache[host_id] = {
+                    "registered_at": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.utcnow().isoformat(),
+                    "data": host_data
+                }
+                
+                # Store in persistent memory
+                await self.memory.store(
+                    domain="infrastructure",
+                    category=f"host_{host_data.get('os_type')}",
+                    key=host_id,
+                    value=host_data,
+                    metadata={
+                        "source": "infrastructure_manager",
+                        "type": "host_registration"
+                    }
+                )
+                
+                log_event(
+                    "memory.host.persisted",
+                    f"Persisted host state: {host_id}",
+                    {"host_id": host_id}
+                )
+                
+            except Exception as e:
+                log_event("memory.process_registration.error", {"error": str(e)})
+    
+    async def _process_health_summaries(self, queue):
+        """Process and persist infrastructure health summaries"""
+        while True:
+            try:
+                msg = await queue.get()
+                summary = msg.payload
+                
+                # Store health snapshot
+                timestamp = summary.get("timestamp")
+                await self.memory.store(
+                    domain="infrastructure",
+                    category="health_snapshots",
+                    key=f"snapshot_{timestamp}",
+                    value=summary,
+                    metadata={"type": "health_summary"}
+                )
+                
+            except Exception as e:
+                log_event("memory.process_health.error", {"error": str(e)})
+    
+    async def get_host_state(self, host_id: str) -> Dict[str, Any]:
+        """Retrieve host state from memory"""
+        
+        # Check cache first
+        if host_id in self.host_state_cache:
+            return self.host_state_cache[host_id]
+        
+        # Query persistent memory
+        try:
+            result = await self.memory.retrieve(
+                domain="infrastructure",
+                key=host_id
+            )
+            return result
+        except:
+            return {}
+    
+    async def get_infrastructure_history(self, hours: int = 24) -> List[Dict[str, Any]]:
+        """Get infrastructure health history"""
+        
+        try:
+            results = await self.memory.query(
+                domain="infrastructure",
+                category="health_snapshots",
+                limit=hours * 2  # Assuming ~2 snapshots per hour
+            )
+            return results
+        except:
+            return []
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
         """Parse what user wants from memory/knowledge"""

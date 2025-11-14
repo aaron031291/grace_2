@@ -24,6 +24,44 @@ class KernelStatus(Enum):
     ERROR = "error"
 
 
+# Helper classes for kernel operations
+class KernelIntent:
+    """Represents parsed user intent"""
+    def __init__(self, original_request, understood_intent, required_actions, data_needed, confidence=0.9):
+        self.original_request = original_request
+        self.understood_intent = understood_intent
+        self.required_actions = required_actions
+        self.data_needed = data_needed
+        self.confidence = confidence
+
+
+class KernelPlan:
+    """Represents execution plan"""
+    def __init__(self, plan_id, actions, sequence="sequential", estimated_duration_ms=100, risk_level="low"):
+        self.plan_id = plan_id
+        self.actions = actions
+        self.sequence = sequence
+        self.estimated_duration_ms = estimated_duration_ms
+        self.risk_level = risk_level
+
+
+class KernelResponse:
+    """Represents kernel response"""
+    def __init__(self, kernel_name, answer, data=None, apis_called=None, kernels_consulted=None, 
+                 execution_trace=None, data_provenance=None, trust_score=0.95, 
+                 suggested_panels=None, confidence=0.9):
+        self.kernel_name = kernel_name
+        self.answer = answer
+        self.data = data or {}
+        self.apis_called = apis_called or []
+        self.kernels_consulted = kernels_consulted or []
+        self.execution_trace = execution_trace or {}
+        self.data_provenance = data_provenance or []
+        self.trust_score = trust_score
+        self.suggested_panels = suggested_panels or []
+        self.confidence = confidence
+
+
 class BaseDomainKernel(ABC):
     """
     Abstract base kernel for domain orchestration.
