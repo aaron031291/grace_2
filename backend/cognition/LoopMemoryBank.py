@@ -13,7 +13,7 @@ from sqlalchemy import select, and_, or_, desc
 from .GraceLoopOutput import GraceLoopOutput, OutputType
 from .MemoryScoreModel import MemoryScoreModel, DecayCurve, TrustSignals
 from .memory_models import MemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
-from ..models import async_session
+from backend.models.base_models import async_session
 
 
 @dataclass

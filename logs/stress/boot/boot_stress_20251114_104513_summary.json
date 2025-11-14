@@ -1,0 +1,282 @@
+{
+  "test_id": "boot_stress_20251114_104513",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:45:13.390592",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:45:13.390592",
+      "boot_duration_ms": 640.0811672210693,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "Can't instantiate abstract class CoreKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "governance",
+          "error": "Can't instantiate abstract class GovernanceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "code",
+          "error": "Can't instantiate abstract class CodeKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "Can't instantiate abstract class IntelligenceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "Can't instantiate abstract class InfrastructureKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "federation",
+          "error": "Can't instantiate abstract class FederationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "verification",
+          "error": "Can't instantiate abstract class VerificationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:45:14.033677"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:45:15.038048",
+      "boot_duration_ms": 106.33301734924316,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "Can't instantiate abstract class CoreKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "governance",
+          "error": "Can't instantiate abstract class GovernanceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "code",
+          "error": "Can't instantiate abstract class CodeKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "Can't instantiate abstract class IntelligenceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "Can't instantiate abstract class InfrastructureKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "federation",
+          "error": "Can't instantiate abstract class FederationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "verification",
+          "error": "Can't instantiate abstract class VerificationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:45:15.147804"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:45:16.162047",
+      "boot_duration_ms": 130.24568557739258,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "Can't instantiate abstract class CoreKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "governance",
+          "error": "Can't instantiate abstract class GovernanceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "code",
+          "error": "Can't instantiate abstract class CodeKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "Can't instantiate abstract class IntelligenceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "Can't instantiate abstract class InfrastructureKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "federation",
+          "error": "Can't instantiate abstract class FederationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "verification",
+          "error": "Can't instantiate abstract class VerificationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:45:16.296410"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:45:17.308097",
+      "boot_duration_ms": 106.17756843566895,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "Can't instantiate abstract class CoreKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "governance",
+          "error": "Can't instantiate abstract class GovernanceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "code",
+          "error": "Can't instantiate abstract class CodeKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "Can't instantiate abstract class IntelligenceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "Can't instantiate abstract class InfrastructureKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "federation",
+          "error": "Can't instantiate abstract class FederationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "verification",
+          "error": "Can't instantiate abstract class VerificationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:45:17.416825"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:45:18.421910",
+      "boot_duration_ms": 106.18329048156738,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "Can't instantiate abstract class CoreKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "governance",
+          "error": "Can't instantiate abstract class GovernanceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "code",
+          "error": "Can't instantiate abstract class CodeKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "Can't instantiate abstract class IntelligenceKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "Can't instantiate abstract class InfrastructureKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "federation",
+          "error": "Can't instantiate abstract class FederationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        },
+        {
+          "kernel": "verification",
+          "error": "Can't instantiate abstract class VerificationKernel with abstract methods _cleanup, _coordinator_loop, _create_agent, _initialize_watchers, _load_pending_work"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:45:18.531093"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:45:19.534472",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:45:19.536801"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:45:19.536801",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:45:19.537822"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 217.80414581298828,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:45:19.537822"
+}

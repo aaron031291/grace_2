@@ -1,0 +1,282 @@
+{
+  "test_id": "boot_stress_20251114_104442",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:44:42.414589",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:44:42.415093",
+      "boot_duration_ms": 617.9423332214355,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.temporal.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:44:43.035619"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:44:44.043859",
+      "boot_duration_ms": 109.70473289489746,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.temporal.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:44:44.156136"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:44:45.165836",
+      "boot_duration_ms": 109.05599594116211,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.temporal.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:44:45.278891"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:44:46.289955",
+      "boot_duration_ms": 109.5728874206543,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.temporal.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:44:46.402534"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:44:47.413694",
+      "boot_duration_ms": 130.04040718078613,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.temporal.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.temporal.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:44:47.546739"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:44:48.552913",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:44:48.553460"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:44:48.553460",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:44:48.555980"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 215.2632713317871,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:44:48.555980"
+}

@@ -11,7 +11,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, Boolean
 from sqlalchemy.sql import func
 
-from ..models import Base, async_session
+from backend.models.base_models import Base, async_session
 from ..cognition.LoopMemoryBank import loop_memory_bank
 from ..cognition.FeedbackIntegrator import feedback_integrator
 from ..cognition.GraceLoopOutput import GraceLoopOutput, OutputType

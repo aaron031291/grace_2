@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103718",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:37:18.013719",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:37:18.013719",
+      "boot_duration_ms": 634.0553760528564,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.knowledge.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:18.650141"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:37:19.662777",
+      "boot_duration_ms": 113.93022537231445,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.knowledge.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:19.780707"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:37:20.793756",
+      "boot_duration_ms": 114.22038078308105,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.knowledge.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:20.910634"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:37:21.920263",
+      "boot_duration_ms": 115.1430606842041,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.knowledge.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:22.039407"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:37:23.050624",
+      "boot_duration_ms": 115.32449722290039,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.knowledge.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.knowledge.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:23.168486"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:37:24.172462",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:37:24.173465"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:37:24.173465",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:37:24.175611"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 218.5347080230713,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:37:24.175611"
+}

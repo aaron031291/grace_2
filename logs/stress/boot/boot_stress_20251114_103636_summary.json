@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103636",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:36:36.668165",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:36:36.669165",
+      "boot_duration_ms": 613.987922668457,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.trusted_sources'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:37.285243"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:36:38.299441",
+      "boot_duration_ms": 111.77968978881836,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.trusted_sources'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:38.414772"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:36:39.418922",
+      "boot_duration_ms": 112.21623420715332,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.trusted_sources'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:39.534411"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:36:40.541707",
+      "boot_duration_ms": 113.0833625793457,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.trusted_sources'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:40.657300"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:36:41.667252",
+      "boot_duration_ms": 111.46759986877441,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.trusted_sources'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.trusted_sources'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:41.782715"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:36:42.789378",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:36:42.791378"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:36:42.791378",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:36:42.792378"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 212.50696182250977,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:36:42.792378"
+}

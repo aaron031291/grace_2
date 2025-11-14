@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
 from sqlalchemy.sql import func
-from .base_models import Base
+from .base_models import Base, async_session
 import hashlib
 import json
 

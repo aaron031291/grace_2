@@ -1,0 +1,14 @@
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:55.681501", "event_type": "stress.run.started", "message": "Boot stress test started", "cycles": 5}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:55.682501", "event_type": "boot.cycle.started", "message": "Boot cycle 1 starting", "cycle": 1}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:56.279757", "event_type": "boot.cycle.completed", "message": "Boot cycle 1 completed", "cycle": 1, "duration_ms": 597.2561836242676, "kernels": 10}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:57.296963", "event_type": "boot.cycle.started", "message": "Boot cycle 2 starting", "cycle": 2}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:57.417872", "event_type": "boot.cycle.completed", "message": "Boot cycle 2 completed", "cycle": 2, "duration_ms": 119.37117576599121, "kernels": 10}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:58.428739", "event_type": "boot.cycle.started", "message": "Boot cycle 3 starting", "cycle": 3}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:58.547176", "event_type": "boot.cycle.completed", "message": "Boot cycle 3 completed", "cycle": 3, "duration_ms": 117.43044853210449, "kernels": 10}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:59.557474", "event_type": "boot.cycle.started", "message": "Boot cycle 4 starting", "cycle": 4}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:40:59.674298", "event_type": "boot.cycle.completed", "message": "Boot cycle 4 completed", "cycle": 4, "duration_ms": 115.23556709289551, "kernels": 10}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:41:00.676004", "event_type": "boot.cycle.started", "message": "Boot cycle 5 starting", "cycle": 5}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:41:00.796336", "event_type": "boot.cycle.completed", "message": "Boot cycle 5 completed", "cycle": 5, "duration_ms": 118.73006820678711, "kernels": 10}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:41:01.808867", "event_type": "stress.kill_process.test", "message": "Testing watchdog recovery from process kill"}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:41:01.811011", "event_type": "stress.config_corruption.test", "message": "Testing recovery from corrupted config"}
+{"test_id": "boot_stress_20251114_104055", "timestamp": "2025-11-14T10:41:01.814016", "event_type": "stress.run.completed", "message": "Boot stress test completed", "summary": {"total_boots": 5, "successful_boots": 5, "failed_boots": 0, "avg_boot_time": 213.60468864440918, "watchdog_triggers": 1, "self_heal_activations": 1}}

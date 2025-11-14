@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_104111",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:41:11.119036",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:41:11.119036",
+      "boot_duration_ms": 608.8433265686035,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:41:11.730386"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:41:12.736286",
+      "boot_duration_ms": 118.20578575134277,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:41:12.857495"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:41:13.875177",
+      "boot_duration_ms": 116.06025695800781,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:41:13.994614"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:41:14.999172",
+      "boot_duration_ms": 117.86580085754395,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:41:15.120078"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:41:16.122534",
+      "boot_duration_ms": 116.76573753356934,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'Base' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:41:16.243273"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:41:17.244841",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:41:17.246380"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:41:17.246380",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:41:17.248380"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 215.54818153381348,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:41:17.248380"
+}

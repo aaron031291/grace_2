@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
 from sqlalchemy.sql import func
-from .models import Base, async_session
+from backend.models.base_models import Base, async_session
 
 class MetaLoopConfig(Base):
     """Configurations for meta-loop behavior"""

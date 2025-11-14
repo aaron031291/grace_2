@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103408",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:34:08.486044",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:34:08.487046",
+      "boot_duration_ms": 668.6840057373047,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.avn_avm'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:34:09.158729"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:34:10.172435",
+      "boot_duration_ms": 114.37749862670898,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.avn_avm'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:34:10.290813"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:34:11.305509",
+      "boot_duration_ms": 113.9991283416748,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.avn_avm'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:34:11.423069"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:34:12.429531",
+      "boot_duration_ms": 114.95423316955566,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.avn_avm'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:34:12.548432"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:34:13.552685",
+      "boot_duration_ms": 114.98785018920898,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.avn_avm'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.avn_avm'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:34:13.671217"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:34:14.675504",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:34:14.677502"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:34:14.677502",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:34:14.679506"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 225.40054321289062,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:34:14.679506"
+}

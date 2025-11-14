@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103605",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:36:05.617152",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:36:05.618151",
+      "boot_duration_ms": 586.2443447113037,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.workflow_engines.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:06.207453"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:36:07.207585",
+      "boot_duration_ms": 114.6855354309082,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.workflow_engines.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:07.325799"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:36:08.330556",
+      "boot_duration_ms": 114.16387557983398,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.workflow_engines.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:08.449230"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:36:09.454587",
+      "boot_duration_ms": 112.4732494354248,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.workflow_engines.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:09.570615"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:36:10.575221",
+      "boot_duration_ms": 114.26520347595215,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.workflow_engines.models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.workflow_engines.models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:36:10.692487"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:36:11.696714",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:36:11.698773"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:36:11.698773",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:36:11.699776"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 208.36644172668457,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:36:11.699776"
+}

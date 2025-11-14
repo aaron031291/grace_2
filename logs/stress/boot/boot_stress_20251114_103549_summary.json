@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103549",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:35:49.557068",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:35:49.558068",
+      "boot_duration_ms": 605.2126884460449,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:50.165791"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:35:51.167946",
+      "boot_duration_ms": 112.15782165527344,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:51.283948"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:35:52.290509",
+      "boot_duration_ms": 112.31017112731934,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:52.406824"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:35:53.418040",
+      "boot_duration_ms": 112.68854141235352,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:53.534239"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:35:54.539845",
+      "boot_duration_ms": 113.17157745361328,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.meta_systems.meta_loop'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:54.655018"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:35:55.664054",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:35:55.665140"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:35:55.665140",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:35:55.667144"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 211.1081600189209,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:35:55.667144"
+}
