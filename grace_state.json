@@ -1,6 +1,14 @@
 {
-  "system_state": "running",
-  "updated_at": "2025-11-13T21:06:24.478131",
-  "pending_tasks": 0,
-  "active_workers": []
+  "boot_id": "grace-20251114-062618",
+  "environment": "dev",
+  "started_at": "2025-11-14T06:26:18.595558",
+  "subsystem_counts": {
+    "core": 1,
+    "memory": 3,
+    "kernels": 9,
+    "cognition": 0,
+    "memory_tables": 1
+  },
+  "platform": "windows",
+  "imports_successful": true
 }

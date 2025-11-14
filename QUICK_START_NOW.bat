@@ -1,41 +1,36 @@
 @echo off
-echo.
-echo ========================================
-echo  GRACE - Quick Start
-echo ========================================
+REM Quick Start - Everything Enabled
+
+echo ================================================================================
+echo GRACE QUICK START - ALL SYSTEMS ENABLED
+echo ================================================================================
 echo.
 
-echo Stopping any running processes...
-taskkill /F /IM python.exe >nul 2>&1
-taskkill /F /IM node.exe >nul 2>&1
+REM Set all features
+set ENABLE_PC_ACCESS=true
+set ENABLE_FIREFOX_ACCESS=true
+
+echo Starting Grace with:
+echo   - PC Access: ENABLED
+echo   - Firefox Access: ENABLED
+echo   - Activity Monitor: ENABLED
+echo   - Autonomous Learning: ENABLED
+echo.
+echo ================================================================================
 echo.
 
-echo Starting backend...
-echo (This will open in a new window)
-start "Grace Backend" cmd /k "cd /d c:\Users\aaron\grace_2 && python serve.py"
+REM Start backend
+echo Starting backend server...
+start "Grace Backend" cmd /k "cd backend && set ENABLE_PC_ACCESS=true && set ENABLE_FIREFOX_ACCESS=true && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
 
-timeout /t 5 /nobreak >nul
-
-echo.
-echo Starting frontend...
-echo (This will open in a new window)
-start "Grace Frontend" cmd /k "cd /d c:\Users\aaron\grace_2\frontend && npm run dev"
-
-timeout /t 3 /nobreak >nul
+echo Waiting for backend to start...
+timeout /t 8 /nobreak >nul
 
 echo.
-echo ========================================
-echo  System Starting...
-echo ========================================
+echo Starting activity monitor...
 echo.
-echo Backend will be ready in ~10 seconds
-echo Frontend will be ready in ~15 seconds
-echo.
-echo Then open: http://localhost:5173
-echo.
-echo Look for:
-echo   - Memory Studio tab
-echo   - Click it -^> See "Organizer" and "Books" tabs
-echo   - Bottom-right: Purple co-pilot button
-echo.
+
+REM Start watcher
+python watch_grace_live.py
+
 pause
