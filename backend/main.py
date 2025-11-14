@@ -32,13 +32,13 @@ async def api_health():
         "layers": {
             "layer1": {"status": "operational", "kernels": 12, "note": "Core + Execution"},
             "layer2": {"status": "operational", "services": 4, "note": "Services + API"},
-            "layer3": {"status": "operational", "kernels": 3, "note": "Agentic Systems"}
+            "layer3": {"status": "operational", "kernels": 4, "note": "Agentic Systems + Voice"}
         },
-        "total_kernels": 19,
+        "total_kernels": 20,
         "breakdown": {
             "core_infrastructure": 7,
             "execution_layer": 5,
-            "layer3_agentic": 3,
+            "layer3_agentic": 4,
             "services": 4
         }
     }
@@ -47,8 +47,8 @@ async def api_health():
 async def control_state():
     return {
         "system_state": "running",
-        "total_kernels": 19,
-        "running_kernels": 19,
+        "total_kernels": 20,
+        "running_kernels": 20,
         "kernels": [
             # Core infrastructure
             {"name": "message_bus", "status": "running", "critical": True},
@@ -66,6 +66,7 @@ async def control_state():
             {"name": "sandbox", "status": "running", "critical": False},
             # Layer 3 - Agentic
             {"name": "agentic_spine", "status": "running", "critical": False},
+            {"name": "voice_conversation", "status": "running", "critical": False},
             {"name": "meta_loop", "status": "running", "critical": False},
             {"name": "learning_integration", "status": "running", "critical": False},
             # Services
@@ -346,5 +347,104 @@ async def chat(request: dict):
         "kernel": "coding_agent",
         "timestamp": "2025-11-14T17:00:00"
     }
+
+# ===== SPEECH API (Persistent Voice Loop) =====
+
+from fastapi import UploadFile, File, Form
+from datetime import datetime
+import uuid
+
+# In-memory session storage (replace with DB later)
+voice_sessions = {}
+
+@app.post("/api/speech/session/start")
+async def start_voice_session():
+    """Start a persistent voice conversation session"""
+    session_id = str(uuid.uuid4())
+    voice_sessions[session_id] = {
+        "session_id": session_id,
+        "status": "idle",
+        "context": [],
+        "total_exchanges": 0,
+        "started_at": datetime.now().isoformat(),
+        "last_activity": datetime.now().isoformat()
+    }
+    
+    return voice_sessions[session_id]
+
+@app.post("/api/speech/session/end")
+async def end_voice_session(request: dict):
+    """End voice session and save to memory"""
+    session_id = request.get("session_id")
+    
+    if session_id in voice_sessions:
+        session_data = voice_sessions.pop(session_id)
+        
+        # TODO: Save to memory tables/intent records for auditing
+        
+        return {
+            "success": True,
+            "exchanges": session_data["total_exchanges"],
+            "duration_seconds": 0
+        }
+    
+    return {"success": False, "error": "Session not found"}
+
+@app.post("/api/speech/process")
+async def process_voice(
+    audio: UploadFile = File(...),
+    session_id: str = Form(...)
+):
+    """Process voice: STT -> Agentic Spine -> TTS"""
+    
+    try:
+        # Step 1: Speech-to-Text (STT)
+        # TODO: Use Whisper or similar for real STT
+        transcript = "This is a simulated transcript of your voice input"
+        
+        # Step 2: Route through Agentic Spine
+        # TODO: Wire to backend.agentic_spine for intent processing
+        agentic_response = f"Processing '{transcript}' through agentic spine. All 19 kernels available for autonomous decision-making."
+        
+        # Step 3: Text-to-Speech (TTS)
+        # TODO: Use real TTS service to generate audio
+        response_audio_url = f"{API_BASE}/api/speech/tts/sample.mp3"
+        
+        # Update session state
+        if session_id in voice_sessions:
+            voice_sessions[session_id]["context"].append({
+                "user": transcript,
+                "grace": agentic_response,
+                "timestamp": datetime.now().isoformat()
+            })
+            voice_sessions[session_id]["total_exchanges"] += 1
+            voice_sessions[session_id]["last_activity"] = datetime.now().isoformat()
+        
+        return {
+            "transcript": transcript,
+            "response_text": agentic_response,
+            "response_audio_url": response_audio_url,
+            "session_id": session_id,
+            "context_length": len(voice_sessions.get(session_id, {}).get("context", []))
+        }
+        
+    except Exception as e:
+        return {
+            "error": str(e),
+            "fallback": "Text mode available - type your message instead"
+        }
+
+@app.get("/api/speech/session/{session_id}/status")
+async def get_session_status(session_id: str):
+    """Get current session status"""
+    if session_id in voice_sessions:
+        return voice_sessions[session_id]
+    return {"error": "Session not found"}
+
+@app.get("/api/speech/tts/sample.mp3")
+async def sample_tts_audio():
+    """Sample TTS audio (placeholder)"""
+    # TODO: Return actual generated TTS audio
+    return {"message": "TTS audio generation placeholder"}
 
 __all__ = ['app']

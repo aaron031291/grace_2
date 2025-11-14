@@ -72,7 +72,7 @@ class ControlPlane:
         self.running = False
     
     def _define_kernels(self) -> Dict[str, Kernel]:
-        """Define all Grace kernels - 19 total"""
+        """Define all Grace kernels - 20 total (with voice loop)"""
         
         return {
             # Core infrastructure (boot first)
@@ -93,8 +93,9 @@ class ControlPlane:
             
             # Layer 3 - Agentic Systems
             'agentic_spine': Kernel('agentic_spine', boot_priority=15, critical=False),
-            'meta_loop': Kernel('meta_loop', boot_priority=16, critical=False),
-            'learning_integration': Kernel('learning_integration', boot_priority=17, critical=False),
+            'voice_conversation': Kernel('voice_conversation', boot_priority=16, critical=False),
+            'meta_loop': Kernel('meta_loop', boot_priority=17, critical=False),
+            'learning_integration': Kernel('learning_integration', boot_priority=18, critical=False),
             
             # Services
             'health_monitor': Kernel('health_monitor', boot_priority=20, critical=True),
