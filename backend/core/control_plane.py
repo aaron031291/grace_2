@@ -72,7 +72,7 @@ class ControlPlane:
         self.running = False
     
     def _define_kernels(self) -> Dict[str, Kernel]:
-        """Define all Grace kernels"""
+        """Define all Grace kernels - 19 total"""
         
         return {
             # Core infrastructure (boot first)
@@ -82,6 +82,7 @@ class ControlPlane:
             'verification_framework': Kernel('verification_framework', boot_priority=4, critical=True),
             'secret_manager': Kernel('secret_manager', boot_priority=5, critical=True),
             'governance': Kernel('governance', boot_priority=6, critical=True),
+            'infrastructure_manager': Kernel('infrastructure_manager', boot_priority=7, critical=True),
             
             # Execution layer
             'memory_fusion': Kernel('memory_fusion', boot_priority=10, critical=False),
@@ -90,14 +91,18 @@ class ControlPlane:
             'coding_agent': Kernel('coding_agent', boot_priority=13, critical=False),
             'sandbox': Kernel('sandbox', boot_priority=14, critical=False),
             
+            # Layer 3 - Agentic Systems
+            'agentic_spine': Kernel('agentic_spine', boot_priority=15, critical=False),
+            'meta_loop': Kernel('meta_loop', boot_priority=16, critical=False),
+            'learning_integration': Kernel('learning_integration', boot_priority=17, critical=False),
+            
             # Services
             'health_monitor': Kernel('health_monitor', boot_priority=20, critical=True),
             'trigger_mesh': Kernel('trigger_mesh', boot_priority=21, critical=False),
             'scheduler': Kernel('scheduler', boot_priority=22, critical=False),
             
             # API layer (boots last)
-            'api_server': Kernel('api_server', boot_priority=30, critical=False),
-            'websocket': Kernel('websocket', boot_priority=31, critical=False)
+            'api_server': Kernel('api_server', boot_priority=30, critical=False)
         }
     
     async def start(self):

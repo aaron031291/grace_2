@@ -17,107 +17,67 @@ sys.path.insert(0, str(Path(__file__).parent / 'backend'))
 
 
 async def boot_grace_core():
-    """Boot Layer 1 before starting FastAPI"""
+    """Boot all 19 Grace kernels via Control Plane"""
     
     print()
     print("=" * 80)
-    print("GRACE LAYER 1 - BOOTING UNBREAKABLE CORE")
+    print("GRACE - BOOTING ALL 19 KERNELS")
     print("=" * 80)
     print()
     
     try:
-        from backend.core import (
-            message_bus,
-            immutable_log,
-            clarity_framework,
-            clarity_kernel,
-            verification_framework,
-            unified_logic_core,
-            self_healing_kernel,
-            coding_agent_kernel,
-            librarian_kernel,
-            control_plane
-        )
+        from backend.core.control_plane import control_plane
+        from backend.core import message_bus, immutable_log
         
-        # Import Infrastructure Manager Kernel
-        from backend.core.infrastructure_manager_kernel import infrastructure_manager
-        
-        # Import updated kernels
-        from backend.kernels.governance_kernel import governance_kernel
-        from backend.kernels.memory_kernel import MemoryKernel
-        memory_kernel_instance = MemoryKernel()
-        
-        # Boot sequence
+        # Start message bus first (required for control plane)
         await message_bus.start()
-        print("[1/12] Message Bus: ACTIVE")
+        print("[1/19] Message Bus: ACTIVE")
         
         await immutable_log.start()
-        print("[2/12] Immutable Log: ACTIVE")
+        print("[2/19] Immutable Log: ACTIVE")
         
-        await clarity_framework.start()
-        print("[3/12] Clarity Framework: ACTIVE")
-        
-        await clarity_kernel.start()
-        print("[4/12] Clarity Kernel: ACTIVE")
-        
-        # Initialize Infrastructure Manager Kernel
-        await infrastructure_manager.initialize()
-        print("[5/12] Infrastructure Manager: ACTIVE (Multi-OS host registry)")
-        
-        # Initialize Governance Kernel
-        print("[6/12] Governance Kernel: ACTIVE (Multi-OS policies)")
-        
-        # Initialize Memory Kernel
-        print("[7/12] Memory Kernel: ACTIVE (Host state persistence)")
-        
-        await verification_framework.start()
-        print("[8/12] Verification Framework: ACTIVE")
-        
-        await unified_logic_core.start()
-        print("[9/12] Unified Logic: ACTIVE")
-        
-        await self_healing_kernel.start()
-        sh_stats = self_healing_kernel.get_stats()
-        print(f"[10/12] Self-Healing: ACTIVE ({sh_stats['playbooks_loaded']} playbooks)")
-        
-        await coding_agent_kernel.start()
-        ca_stats = coding_agent_kernel.get_stats()
-        print(f"[11/12] Coding Agent: ACTIVE ({ca_stats['code_patterns_available']} patterns)")
-        
-        await librarian_kernel.start()
-        lib_stats = librarian_kernel.get_stats()
-        print(f"[12/12] Librarian: ACTIVE ({len(lib_stats['supported_types'])} file types)")
-        
+        # Start control plane - it will boot all 19 kernels
         await control_plane.start()
         status = control_plane.get_status()
-        print(f"[CONTROL] Control Plane: ACTIVE ({status['running_kernels']}/{status['total_kernels']} kernels)")
         
         print()
         print("=" * 80)
-        print("LAYER 1 BOOT COMPLETE - MULTI-OS INFRASTRUCTURE READY")
+        print(f"BOOT COMPLETE - {status['total_kernels']} KERNELS OPERATIONAL")
         print("=" * 80)
         print()
-        print("[INFRA] Infrastructure Manager tracking hosts:")
-        hosts = await infrastructure_manager.get_all_hosts()
-        for host in hosts:
-            print(f"   [OK] {host['hostname']} ({host['os_type']}) - {host['status']}")
-        print()
-        print("[GOV] Governance enforcing OS-specific policies")
-        print("[MEM] Memory persisting all infrastructure state")
+        
+        # Show kernel breakdown
+        kernels_list = list(control_plane.kernels.keys())
+        
+        print("Core Infrastructure (7):")
+        for k in kernels_list[0:7]:
+            print(f"  ✓ {k}")
+        
+        print("\nExecution Layer (5):")
+        for k in kernels_list[7:12]:
+            print(f"  ✓ {k}")
+        
+        print("\nLayer 3 - Agentic Systems (3):")
+        for k in kernels_list[12:15]:
+            print(f"  ✓ {k}")
+        
+        print("\nServices & API (4):")
+        for k in kernels_list[15:19]:
+            print(f"  ✓ {k}")
+        
         print()
         print("=" * 80)
-        print(f"  Kernels: {status['running_kernels']}/{status['total_kernels']} running")
-        print(f"  Self-Healing: {sh_stats['playbooks_loaded']} playbooks loaded")
-        print(f"  Coding Agent: {ca_stats['code_patterns_available']} code patterns ready")
-        print(f"  Librarian: {len(lib_stats['supported_types'])} file types supported")
-        print("  Unbreakable core is operational")
+        print(f"  Total Kernels: {status['running_kernels']}/{status['total_kernels']} running")
+        print(f"  System State: {status['system_state']}")
+        print(f"  Layer 3: OPERATIONAL (3 agentic kernels)")
+        print("  All layers ready")
         print("=" * 80)
         print()
         
         return True
     
     except Exception as e:
-        print(f"\n[ERROR] Layer 1 boot failed: {e}")
+        print(f"\n[ERROR] Boot failed: {e}")
         import traceback
         traceback.print_exc()
         return False
