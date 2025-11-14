@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models.memory_models import ChatMessage, async_session
+from ..models.models import ChatMessage
+from ..models.memory_models import async_session
 
 class PersistentMemory:
     async def store(self, user: str, role: str, content: str):

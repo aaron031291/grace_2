@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_102040",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:20:40.829262",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:20:40.834920",
+      "boot_duration_ms": 662.4071598052979,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'ChatMessage' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:20:41.497327"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:20:42.497603",
+      "boot_duration_ms": 107.65361785888672,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'ChatMessage' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:20:42.609214"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:20:43.615078",
+      "boot_duration_ms": 106.09960556030273,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'ChatMessage' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:20:43.725119"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:20:44.731987",
+      "boot_duration_ms": 106.64129257202148,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'ChatMessage' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:20:44.839947"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:20:45.849997",
+      "boot_duration_ms": 103.35850715637207,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'ChatMessage' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:20:45.959970"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:20:46.967128",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:20:46.968765"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:20:46.968765",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:20:46.970331"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 217.23203659057617,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:20:46.970331"
+}

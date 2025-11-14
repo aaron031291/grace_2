@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from .settings import settings
+from backend.config.settings import settings
 
 # Database setup
 DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"

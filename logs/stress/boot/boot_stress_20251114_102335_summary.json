@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_102335",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:23:35.749357",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:23:35.757928",
+      "boot_duration_ms": 611.276388168335,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.mldl'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:36.369205"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:23:37.375283",
+      "boot_duration_ms": 115.97681045532227,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.mldl'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:37.493251"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:23:38.493348",
+      "boot_duration_ms": 115.69380760192871,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.mldl'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:38.611082"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:23:39.611124",
+      "boot_duration_ms": 116.94860458374023,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.mldl'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:39.729401"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:23:40.729437",
+      "boot_duration_ms": 115.1118278503418,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.mldl'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.mldl'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:23:40.846994"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:23:41.847008",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:23:41.848589"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:23:41.848589",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:23:41.849599"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 215.0014877319336,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:23:41.849599"
+}
