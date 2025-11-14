@@ -1,0 +1,134 @@
+{
+  "test_id": "boot_stress_20251114_100545",
+  "cycles": 3,
+  "started_at": "2025-11-14T10:05:45.677629",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:05:45.679631",
+      "boot_duration_ms": 411.61394119262695,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "self_healing",
+          "error": "module 'backend.kernels.self_healing_kernel' has no attribute 'self_healing_kernel'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:05:46.092394"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:05:47.095921",
+      "boot_duration_ms": 105.83686828613281,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "self_healing",
+          "error": "module 'backend.kernels.self_healing_kernel' has no attribute 'self_healing_kernel'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:05:47.204656"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:05:48.213532",
+      "boot_duration_ms": 103.41715812683105,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.schemas'"
+        },
+        {
+          "kernel": "self_healing",
+          "error": "module 'backend.kernels.self_healing_kernel' has no attribute 'self_healing_kernel'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.schemas'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:05:48.322171"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:05:49.330867",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:05:49.332946"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:05:49.332946",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:05:49.333950"
+    }
+  ],
+  "summary": {
+    "total_boots": 3,
+    "successful_boots": 3,
+    "failed_boots": 0,
+    "avg_boot_time": 206.95598920186362,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:05:49.333950"
+}

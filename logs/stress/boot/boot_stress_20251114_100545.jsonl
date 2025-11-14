@@ -1,0 +1,10 @@
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:45.677629", "event_type": "stress.run.started", "message": "Boot stress test started", "cycles": 3}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:45.679631", "event_type": "boot.cycle.started", "message": "Boot cycle 1 starting", "cycle": 1}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:46.091245", "event_type": "boot.cycle.completed", "message": "Boot cycle 1 completed", "cycle": 1, "duration_ms": 411.61394119262695, "kernels": 3}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:47.095921", "event_type": "boot.cycle.started", "message": "Boot cycle 2 starting", "cycle": 2}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:47.202653", "event_type": "boot.cycle.completed", "message": "Boot cycle 2 completed", "cycle": 2, "duration_ms": 105.83686828613281, "kernels": 3}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:48.213532", "event_type": "boot.cycle.started", "message": "Boot cycle 3 starting", "cycle": 3}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:48.318144", "event_type": "boot.cycle.completed", "message": "Boot cycle 3 completed", "cycle": 3, "duration_ms": 103.41715812683105, "kernels": 3}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:49.330867", "event_type": "stress.kill_process.test", "message": "Testing watchdog recovery from process kill"}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:49.332946", "event_type": "stress.config_corruption.test", "message": "Testing recovery from corrupted config"}
+{"test_id": "boot_stress_20251114_100545", "timestamp": "2025-11-14T10:05:49.335949", "event_type": "stress.run.completed", "message": "Boot stress test completed", "summary": {"total_boots": 3, "successful_boots": 3, "failed_boots": 0, "avg_boot_time": 206.95598920186362, "watchdog_triggers": 1, "self_heal_activations": 1}}
