@@ -431,7 +431,9 @@ class EliteCodingAgent:
                         for task in tasks_to_process
                     ], return_exceptions=True)
                 
-                await asyncio.sleep(2)
+                # Faster polling - 0.1s if tasks pending, 1s if idle
+                sleep_time = 0.1 if pending_tasks else 1.0
+                await asyncio.sleep(sleep_time)
                 
             except asyncio.CancelledError:
                 break
