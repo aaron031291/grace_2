@@ -611,6 +611,99 @@ async def dismiss_context(request: dict):
     
     return {"success": True}
 
+# ===== VISION & VIDEO API =====
+
+@app.post("/api/vision/analyze")
+async def analyze_image(file: UploadFile = File(...), quality: str = "balanced"):
+    """Analyze image using vision models"""
+    from backend.remote_vision_capture import vision_capture
+    
+    image_data = await file.read()
+    
+    result = await vision_capture.analyze_screenshot(
+        image_data=image_data,
+        source=file.filename or "upload",
+        quality=quality
+    )
+    
+    return result
+
+@app.post("/api/vision/video")
+async def analyze_video(file: UploadFile = File(...)):
+    """Analyze video using Video-LLaVA"""
+    from backend.remote_vision_capture import vision_capture
+    
+    # Save video temporarily
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp:
+        tmp.write(await file.read())
+        video_path = tmp.name
+    
+    result = await vision_capture.analyze_video(
+        video_path=video_path,
+        source=file.filename or "upload"
+    )
+    
+    return result
+
+@app.post("/api/remote-access/capture")
+async def remote_capture_screenshot(request: dict):
+    """Capture and analyze screenshot from remote host"""
+    from backend.remote_vision_capture import vision_capture
+    
+    host_id = request.get("host_id")
+    screenshot_b64 = request.get("screenshot")
+    
+    # Decode base64
+    import base64
+    image_data = base64.b64decode(screenshot_b64)
+    
+    # Fast analysis for remote captures
+    result = await vision_capture.analyze_screenshot(
+        image_data=image_data,
+        source=f"remote_host_{host_id}",
+        quality="fast",  # Use fast model for real-time
+        context={"remote_access": True, "host_id": host_id}
+    )
+    
+    return result
+
+@app.get("/api/vision/observations")
+async def get_visual_observations(limit: int = 50):
+    """Get stored visual observations"""
+    from backend.models.base_models import async_session
+    from sqlalchemy import text
+    
+    try:
+        async with async_session() as session:
+            result = await session.execute(text("""
+                SELECT * FROM visual_observations 
+                ORDER BY timestamp DESC 
+                LIMIT :limit
+            """), {"limit": limit})
+            
+            rows = result.fetchall()
+            
+            observations = []
+            for row in rows:
+                observations.append({
+                    "id": row[0],
+                    "source": row[1],
+                    "model_used": row[2],
+                    "description": row[3],
+                    "ui_elements": row[4],
+                    "detected_text": row[5],
+                    "timestamp": row[11]
+                })
+            
+            return {
+                "observations": observations,
+                "total": len(observations)
+            }
+            
+    except Exception as e:
+        return {"observations": [], "error": str(e)}
+
 # ===== SPEECH API (Persistent Voice Loop) =====
 
 from fastapi import UploadFile, File, Form
