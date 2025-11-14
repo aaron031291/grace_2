@@ -388,9 +388,17 @@ class CryptoKeyManager:
                     if crypto_key.rotated:
                         continue
                     
-                    if crypto_key.expires_at and crypto_key.expires_at <= now:
-                        logger.info(f"[CRYPTO] Key expired: {key_id}, rotating...")
-                        await self.rotate_key(crypto_key.component_id)
+                    # Fix: Ensure both datetimes are timezone-aware
+                    expires_at = crypto_key.expires_at
+                    if expires_at:
+                        # If expires_at is naive, make it UTC-aware
+                        if expires_at.tzinfo is None:
+                            from datetime import timezone as dt_timezone
+                            expires_at = expires_at.replace(tzinfo=dt_timezone.utc)
+                        
+                        if expires_at <= now:
+                            logger.info(f"[CRYPTO] Key expired: {key_id}, rotating...")
+                            await self.rotate_key(crypto_key.component_id)
                 
                 await asyncio.sleep(3600)  # Check every hour
                 
