@@ -1,0 +1,58 @@
+{
+  "test_id": "layer1_e2e_20251114_091503",
+  "environment": "local",
+  "started_at": "2025-11-14T09:15:03.178090",
+  "scenarios": {
+    "chunking_pipeline": {
+      "name": "chunking_pipeline",
+      "started_at": "2025-11-14T09:15:03.185065",
+      "status": "skipped",
+      "completed_at": "2025-11-14T09:15:06.115459"
+    },
+    "event_propagation": {
+      "name": "event_propagation",
+      "started_at": "2025-11-14T09:15:06.115459",
+      "status": "passed",
+      "latency_ms": 0.0,
+      "bus_healthy": true,
+      "completed_at": "2025-11-14T09:15:06.115459"
+    },
+    "diagnostics": {
+      "name": "diagnostics",
+      "started_at": "2025-11-14T09:15:06.115459",
+      "kernels_checked": [],
+      "status": "skipped",
+      "completed_at": "2025-11-14T09:15:08.935622"
+    },
+    "self_healing": {
+      "name": "self_healing",
+      "started_at": "2025-11-14T09:15:08.935622",
+      "status": "passed",
+      "watchdog_triggered": true,
+      "completed_at": "2025-11-14T09:15:09.950443"
+    },
+    "latency_validation": {
+      "name": "latency_validation",
+      "started_at": "2025-11-14T09:15:09.950443",
+      "measurements": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "average_latency_ms": 0.0,
+      "max_latency_ms": 0.0,
+      "status": "passed",
+      "completed_at": "2025-11-14T09:15:10.520021"
+    }
+  },
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "completed_at": "2025-11-14T09:15:10.526528",
+  "duration_seconds": 7.348438
+}
