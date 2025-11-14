@@ -8,7 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 
-from ..models import get_db
+# from ..models import get_db  # Not available, use direct session
+
+# Dummy get_db for now
+async def get_db():
+    from ..database import async_session
+    async with async_session() as session:
+        yield session
 from ..memory_verification_matrix import MemoryVerificationMatrix
 
 router = APIRouter(prefix="/api/integrations", tags=["Integrations"])
