@@ -28,6 +28,109 @@
 }
 
 /* Intents Section */
+.builder-section {
+  margin-bottom: 30px;
+}
+
+.coding-builds-section {
+  margin-bottom: 30px;
+}
+
+.coding-builds-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00ff88;
+}
+
+.builds-table {
+  background: #1a1a1a;
+  border: 2px solid #00aaff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.builds-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.builds-table thead {
+  background: #2a2a2a;
+}
+
+.builds-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #00aaff;
+  font-weight: 600;
+}
+
+.builds-table td {
+  padding: 12px;
+  border-top: 1px solid #333;
+  font-size: 13px;
+}
+
+.builds-table tr:hover {
+  background: #1a2a2a;
+}
+
+.build-id {
+  font-family: monospace;
+  color: #00aaff;
+  font-weight: 600;
+}
+
+.build-desc {
+  max-width: 250px;
+  color: #fff;
+}
+
+.phase-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #00aaff;
+  color: #000;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.build-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #00aaff;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background: #3a3a3a;
+  border-color: #00aaff;
+}
+
+.btn-deploy {
+  background: #00ff88;
+  color: #000;
+  border-color: #00ff88;
+  font-weight: 600;
+}
+
+.btn-deploy:hover {
+  background: #00dd77;
+}
+
 .intents-section {
   margin-bottom: 30px;
 }

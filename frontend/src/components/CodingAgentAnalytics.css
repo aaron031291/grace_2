@@ -1,0 +1,414 @@
+.coding-agent-analytics {
+  background: #0a0a0a;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #333;
+}
+
+.analytics-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #00ff88;
+}
+
+.refresh-btn {
+  padding: 8px 16px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #00ff88;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #2a2a2a;
+  border-color: #00ff88;
+}
+
+/* Summary Section */
+.summary-section {
+  margin-bottom: 30px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.summary-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.summary-card.success {
+  border-color: #00ff88;
+}
+
+.card-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.card-subtext {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Trends Section */
+.trends-section {
+  margin-bottom: 30px;
+}
+
+.trends-section h3 {
+  font-size: 18px;
+  color: #00aaff;
+  margin-bottom: 15px;
+}
+
+.trends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.trend-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.trend-label {
+  font-size: 13px;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.trend-indicator {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trend-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.trend-change {
+  font-size: 12px;
+  color: #00ff88;
+}
+
+/* Domain Section */
+.domain-section {
+  margin-bottom: 30px;
+}
+
+.domain-section h3 {
+  font-size: 18px;
+  color: #00aaff;
+  margin-bottom: 15px;
+}
+
+.domain-table {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  border-collapse: collapse;
+}
+
+.domain-table thead {
+  background: #2a2a2a;
+}
+
+.domain-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #00ff88;
+  font-weight: 600;
+}
+
+.domain-table td {
+  padding: 12px;
+  border-top: 1px solid #333;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.domain-table tr:hover {
+  background: #252525;
+}
+
+.domain-name {
+  color: #fff;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.rate-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.rate-badge.perfect {
+  background: #00ff88;
+  color: #000;
+}
+
+.rate-badge.good {
+  background: #ffaa00;
+  color: #000;
+}
+
+/* Recommendations */
+.recommendations-section {
+  margin-bottom: 30px;
+}
+
+.recommendations-section h3 {
+  font-size: 18px;
+  color: #00aaff;
+  margin-bottom: 15px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.recommendation-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-left: 4px solid #00aaff;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.recommendation-card.priority-high {
+  border-left-color: #ff4444;
+}
+
+.recommendation-card.priority-medium {
+  border-left-color: #ffaa00;
+}
+
+.recommendation-card.priority-low {
+  border-left-color: #00aaff;
+}
+
+.rec-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.priority-badge {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.priority-badge.high {
+  background: #ff4444;
+  color: #fff;
+}
+
+.priority-badge.medium {
+  background: #ffaa00;
+  color: #000;
+}
+
+.priority-badge.low {
+  background: #00aaff;
+  color: #000;
+}
+
+.rec-category {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.rec-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.rec-reasoning,
+.rec-impact {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.rec-reasoning strong,
+.rec-impact strong {
+  color: #00aaff;
+}
+
+.rec-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.btn-approve {
+  padding: 8px 16px;
+  background: #00ff88;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-approve:hover {
+  background: #00dd77;
+}
+
+.btn-defer,
+.btn-reject {
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #888;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-defer:hover {
+  border-color: #ffaa00;
+  color: #ffaa00;
+}
+
+.btn-reject:hover {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+/* Capabilities */
+.capabilities-section {
+  margin-bottom: 30px;
+}
+
+.capabilities-section h3 {
+  font-size: 18px;
+  color: #00aaff;
+  margin-bottom: 15px;
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.capability-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.cap-header {
+  font-size: 15px;
+  font-weight: 600;
+  color: #00ff88;
+  margin-bottom: 12px;
+  text-transform: capitalize;
+}
+
+.cap-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.cap-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.cap-stat span {
+  color: #888;
+}
+
+.cap-stat strong {
+  color: #fff;
+}
+
+.cap-examples strong {
+  font-size: 12px;
+  color: #00aaff;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cap-examples ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.cap-examples li {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+
+.analytics-loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-size: 16px;
+}
