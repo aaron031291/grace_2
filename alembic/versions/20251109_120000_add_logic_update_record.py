@@ -19,8 +19,13 @@ depends_on = None
 def upgrade():
     """Create logic_updates table for Unified Logic Hub"""
     
-    op.create_table(
-        'logic_updates',
+    # Check if table exists before creating
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    
+    if 'logic_updates' not in inspector.get_table_names():
+        op.create_table(
+            'logic_updates',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('update_id', sa.String(64), nullable=False),
         sa.Column('update_type', sa.String(32), nullable=False),
@@ -62,14 +67,14 @@ def upgrade():
         sa.Column('failed_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('rolled_back_at', sa.DateTime(timezone=True), nullable=True),
         
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('update_id')
-    )
-    
-    # Create indexes for common queries
-    op.create_index('ix_logic_updates_update_id', 'logic_updates', ['update_id'])
-    op.create_index('ix_logic_updates_created_at', 'logic_updates', ['created_at'])
-    op.create_index('ix_logic_updates_status', 'logic_updates', ['status'])
+            sa.PrimaryKeyConstraint('id'),
+            sa.UniqueConstraint('update_id')
+        )
+        
+        # Create indexes for common queries
+        op.create_index('ix_logic_updates_update_id', 'logic_updates', ['update_id'])
+        op.create_index('ix_logic_updates_created_at', 'logic_updates', ['created_at'])
+        op.create_index('ix_logic_updates_status', 'logic_updates', ['status'])
 
 
 def downgrade():
