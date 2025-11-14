@@ -17,6 +17,7 @@ from enum import Enum
 import logging
 
 from .message_bus import message_bus, MessagePriority
+from .schemas import MessageType, create_kernel_message, KernelStatusPayload, TrustLevel
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +78,10 @@ class ControlPlane:
             # Core infrastructure (boot first)
             'message_bus': Kernel('message_bus', boot_priority=1, critical=True),
             'immutable_log': Kernel('immutable_log', boot_priority=2, critical=True),
-            'secret_manager': Kernel('secret_manager', boot_priority=3, critical=True),
-            'governance': Kernel('governance', boot_priority=4, critical=True),
+            'clarity_framework': Kernel('clarity_framework', boot_priority=3, critical=True),
+            'verification_framework': Kernel('verification_framework', boot_priority=4, critical=True),
+            'secret_manager': Kernel('secret_manager', boot_priority=5, critical=True),
+            'governance': Kernel('governance', boot_priority=6, critical=True),
             
             # Execution layer
             'memory_fusion': Kernel('memory_fusion', boot_priority=10, critical=False),
@@ -256,7 +259,10 @@ class ControlPlane:
             logger.error(f"[CONTROL-PLANE] Error stopping {kernel.name}: {e}")
     
     async def _health_monitor_loop(self):
-        """Monitor kernel health via heartbeats"""
+        """
+        TRIGGER LOOP: Health monitoring
+        Runs continuously, checks kernel heartbeats, restarts failures
+        """
         
         while self.running:
             try:
