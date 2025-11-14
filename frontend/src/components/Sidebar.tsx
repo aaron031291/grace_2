@@ -31,29 +31,31 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
     }
   }
 
-  const kernels = [
-    { id: 'memory', label: 'Memory', icon: '💾' },
-    { id: 'core', label: 'Core', icon: '⚙️' },
-    { id: 'code', label: 'Code', icon: '💻' },
+  const coreKernels = [
+    { id: 'message_bus', label: 'Message Bus', icon: '📡' },
+    { id: 'immutable_log', label: 'Immutable Log', icon: '📝' },
+    { id: 'clarity_framework', label: 'Clarity', icon: '🔍' },
+    { id: 'verification_framework', label: 'Verification', icon: '✓' },
+    { id: 'secret_manager', label: 'Secrets', icon: '🔐' },
     { id: 'governance', label: 'Governance', icon: '⚖️' },
-    { id: 'verification', label: 'Verification', icon: '✓' },
-    { id: 'intelligence', label: 'Intelligence', icon: '🧠' },
-    { id: 'infrastructure', label: 'Infrastructure', icon: '🏗️' },
-    { id: 'federation', label: 'Federation', icon: '🌐' },
-    { id: 'ml', label: 'ML & AI', icon: '🤖' },
+    { id: 'infrastructure_manager', label: 'Infrastructure', icon: '🏗️' },
   ];
 
-  const functions = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'chat', label: 'Chat', icon: '💬' },
-    { id: 'clarity', label: 'Clarity', icon: '🔍' },
-    { id: 'ingestion', label: 'Ingestion', icon: '📥' },
-    { id: 'learning', label: 'Learning', icon: '🎓' },
-    { id: 'memory', label: 'Memory Fusion', icon: '🧩' },
-    { id: 'hunter', label: 'Security', icon: '🛡️' },
-    { id: 'agentic', label: 'Agents', icon: '🤖' },
-    { id: 'healing', label: 'Self-Healing', icon: '🔧' },
+  const executionKernels = [
+    { id: 'memory_fusion', label: 'Memory Fusion', icon: '💾' },
+    { id: 'librarian', label: 'Librarian', icon: '📚' },
+    { id: 'self_healing', label: 'Self-Healing', icon: '🔧' },
+    { id: 'coding_agent', label: 'Coding Agent', icon: '💻' },
+    { id: 'sandbox', label: 'Sandbox', icon: '🔒' },
   ];
+
+  const layer3Kernels = [
+    { id: 'agentic_spine', label: 'Agentic Spine', icon: '🧠' },
+    { id: 'meta_loop', label: 'Meta Loop', icon: '🔄' },
+    { id: 'learning_integration', label: 'Learning', icon: '🎓' },
+  ];
+
+
 
   const getStatus = (id: string, type: string) => {
     if (type === 'kernel') {
@@ -67,21 +69,21 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
       <header className="sidebar-header">
         <div className="logo">Grace</div>
         <div className="system-status">
-          <span className={`status-dot status-${systemStatus?.is_running ? 'healthy' : 'warning'}`}></span>
-          <span className="status-text">{systemStatus?.is_running ? 'Online' : 'Offline'}</span>
+          <span className={`status-dot status-healthy`}></span>
+          <span className="status-text">19/19 Kernels</span>
         </div>
       </header>
 
       <div className="sidebar-content">
         <section className="nav-section">
-          <h3 className="section-title">Domain Kernels</h3>
-          {kernels.map((kernel) => (
+          <h3 className="section-title">Core Infrastructure (7)</h3>
+          {coreKernels.map((kernel) => (
             <div
               key={kernel.id}
               className={`nav-item ${selected.type === 'kernel' && selected.id === kernel.id ? 'active' : ''}`}
               onClick={() => onSelect({ type: 'kernel', id: kernel.id, label: kernel.label })}
             >
-              <span className={`status-dot status-${getStatus(kernel.id, 'kernel')}`}></span>
+              <span className={`status-dot status-healthy`}></span>
               <span className="nav-icon">{kernel.icon}</span>
               <span className="nav-label">{kernel.label}</span>
             </div>
@@ -89,16 +91,31 @@ export default function Sidebar({ selected, onSelect }: SidebarProps) {
         </section>
 
         <section className="nav-section">
-          <h3 className="section-title">Functions</h3>
-          {functions.map((func) => (
+          <h3 className="section-title">Execution Layer (5)</h3>
+          {executionKernels.map((kernel) => (
             <div
-              key={func.id}
-              className={`nav-item ${selected.type === 'function' && selected.id === func.id ? 'active' : ''}`}
-              onClick={() => onSelect({ type: 'function', id: func.id, label: func.label })}
+              key={kernel.id}
+              className={`nav-item ${selected.type === 'kernel' && selected.id === kernel.id ? 'active' : ''}`}
+              onClick={() => onSelect({ type: 'kernel', id: kernel.id, label: kernel.label })}
             >
-              <span className={`status-dot status-${getStatus(func.id, 'function')}`}></span>
-              <span className="nav-icon">{func.icon}</span>
-              <span className="nav-label">{func.label}</span>
+              <span className={`status-dot status-healthy`}></span>
+              <span className="nav-icon">{kernel.icon}</span>
+              <span className="nav-label">{kernel.label}</span>
+            </div>
+          ))}
+        </section>
+
+        <section className="nav-section">
+          <h3 className="section-title">Layer 3 - Agentic (3)</h3>
+          {layer3Kernels.map((kernel) => (
+            <div
+              key={kernel.id}
+              className={`nav-item ${selected.type === 'kernel' && selected.id === kernel.id ? 'active' : ''}`}
+              onClick={() => onSelect({ type: 'kernel', id: kernel.id, label: kernel.label })}
+            >
+              <span className={`status-dot status-healthy`}></span>
+              <span className="nav-icon">{kernel.icon}</span>
+              <span className="nav-label">{kernel.label}</span>
             </div>
           ))}
         </section>

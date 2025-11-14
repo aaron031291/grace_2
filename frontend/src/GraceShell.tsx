@@ -15,7 +15,7 @@ export interface NavItem {
 }
 
 export default function GraceShell() {
-  const [selected, setSelected] = useState<NavItem>({ type: 'function', id: 'overview' });
+  const [selected, setSelected] = useState<NavItem>({ type: 'kernel', id: 'memory_fusion' });
 
   return (
     <div className="grace-shell">
