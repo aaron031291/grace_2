@@ -1,0 +1,1 @@
+{"entry_id": "log_1_20251114064926259597", "timestamp": "2025-11-14T06:49:26.259597", "actor": "test", "action": "test_boot", "resource": "core_system", "decision": {"status": "testing"}, "metadata": {"test": true}}
