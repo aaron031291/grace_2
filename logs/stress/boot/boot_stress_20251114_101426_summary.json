@@ -1,0 +1,89 @@
+{
+  "test_id": "boot_stress_20251114_101426",
+  "cycles": 1,
+  "started_at": "2025-11-14T10:14:26.828842",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:14:26.829652",
+      "boot_duration_ms": 430.7711124420166,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "module 'backend.kernels.core_kernel' has no attribute 'core_kernel'"
+        },
+        {
+          "kernel": "governance",
+          "error": "module 'backend.kernels.governance_kernel' has no attribute 'governance_kernel'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.memory_services.models'"
+        },
+        {
+          "kernel": "code",
+          "error": "module 'backend.kernels.code_kernel' has no attribute 'code_kernel'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "module 'backend.kernels.intelligence_kernel' has no attribute 'intelligence_kernel'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "module 'backend.kernels.infrastructure_kernel' has no attribute 'infrastructure_kernel'"
+        },
+        {
+          "kernel": "federation",
+          "error": "module 'backend.kernels.federation_kernel' has no attribute 'federation_kernel'"
+        },
+        {
+          "kernel": "verification",
+          "error": "module 'backend.kernels.verification_kernel' has no attribute 'verification_kernel'"
+        },
+        {
+          "kernel": "event_bus",
+          "error": "module 'backend.kernels.event_bus' has no attribute 'event_bus'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:14:27.261938"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:14:28.263836",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:14:28.265638"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:14:28.265638",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:14:28.265638"
+    }
+  ],
+  "summary": {
+    "total_boots": 1,
+    "successful_boots": 1,
+    "failed_boots": 0,
+    "avg_boot_time": 430.7711124420166,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:14:28.265638"
+}

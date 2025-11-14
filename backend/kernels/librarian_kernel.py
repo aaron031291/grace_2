@@ -462,3 +462,7 @@ class SimpleAgent:
     async def stop(self):
         """Stop the agent"""
         logger.info(f"Stopping agent {self.agent_id}")
+
+
+# Global instance
+librarian_kernel = LibrarianKernel()

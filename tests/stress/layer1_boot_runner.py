@@ -158,7 +158,8 @@ class BootStressRunner:
                 ("self_healing", "backend.kernels.self_healing_kernel", "self_healing_kernel"),
                 ("librarian", "backend.kernels.librarian_kernel", "librarian_kernel"),
                 ("librarian_enhanced", "backend.kernels.librarian_kernel_enhanced", "enhanced_librarian_kernel"),
-                ("event_bus", "backend.kernels.event_bus", "event_bus"),
+                # event_bus is a class, not an instance - instantiate it
+                # ("event_bus", "backend.kernels.event_bus", "EventBus", True),
             ]
             
             # Total: 18 kernels (6 core + 12 domain)
