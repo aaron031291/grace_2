@@ -125,7 +125,31 @@ class IntentHTMBridge:
         self.active_mappings[intent_id] = task_id
         self.task_to_intent[task_id] = intent_id
         
-        # Create HTM task with intent context
+        # Calculate payload size
+        from backend.core.htm_size_tracker import PayloadSizeCalculator
+        payload_dict = {
+            **intent.context,
+            "goal": intent.goal,
+            "expected_outcome": intent.expected_outcome,
+            "confidence": intent.confidence,
+            "risk_level": intent.risk_level,
+            "created_by": intent.created_by,
+            "origin": "intent"  # Tag origin
+        }
+        data_size_bytes = PayloadSizeCalculator.for_json(payload_dict)
+        
+        # Route task
+        from backend.core.htm_advanced_routing import htm_router
+        routing_decision = await htm_router.route_task(
+            task_id=task_id,
+            task_type=intent.domain,
+            priority=intent.priority.value,
+            payload=payload_dict,
+            created_by=intent.created_by,
+            data_size_bytes=data_size_bytes
+        )
+        
+        # Create HTM task with intent context + routing metadata
         async with async_session() as session:
             htm_task = HTMTask(
                 task_id=task_id,
@@ -133,14 +157,8 @@ class IntentHTMBridge:
                 domain=intent.domain,
                 priority=intent.priority.value,
                 intent_id=intent_id,  # Link to intent
-                payload={
-                    **intent.context,  # Propagate full context
-                    "goal": intent.goal,
-                    "expected_outcome": intent.expected_outcome,
-                    "confidence": intent.confidence,
-                    "risk_level": intent.risk_level,
-                    "created_by": intent.created_by
-                },
+                payload=payload_dict,
+                data_size_bytes=data_size_bytes,  # Add size
                 sla_ms=intent.sla_ms,
                 sla_deadline=datetime.now(timezone.utc).timestamp() + (intent.sla_ms / 1000),
                 created_by=intent.created_by

@@ -1,0 +1,415 @@
+.layer3-intent-learning {
+  padding: 20px;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+}
+
+.console-header h1 {
+  font-size: 28px;
+  margin: 0;
+  color: #ff00ff;
+}
+
+.header-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.header-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.header-controls button {
+  padding: 8px 16px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #ff00ff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.header-controls button:hover {
+  background: #2a2a2a;
+  border-color: #ff00ff;
+}
+
+section h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #00ff88;
+}
+
+/* Active Intents */
+.intents-section {
+  margin-bottom: 40px;
+}
+
+.intents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.intent-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.intent-card:hover {
+  border-color: #00aaff;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 170, 255, 0.2);
+}
+
+.intent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.intent-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.intent-id {
+  font-family: monospace;
+  color: #888;
+  font-size: 12px;
+}
+
+.intent-goal {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.intent-progress {
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00aaff, #00ff88);
+  transition: width 0.5s;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #888;
+}
+
+.intent-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.meta-item {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-item span {
+  color: #888;
+}
+
+.meta-item strong {
+  color: #fff;
+}
+
+/* Playbooks Section */
+.playbooks-section {
+  margin-bottom: 40px;
+}
+
+.playbooks-table-container {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.playbooks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.playbooks-table thead {
+  background: #2a2a2a;
+}
+
+.playbooks-table th {
+  padding: 12px 15px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #00ff88;
+  font-weight: 600;
+}
+
+.playbooks-table td {
+  padding: 12px 15px;
+  border-top: 1px solid #333;
+  font-size: 14px;
+}
+
+.playbooks-table tr:hover {
+  background: #252525;
+}
+
+.playbook-name {
+  font-weight: 500;
+  color: #00aaff;
+}
+
+.success-rate {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.success-bar {
+  width: 200px;
+  height: 20px;
+  background: #0a0a0a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.success-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+/* Retrospectives */
+.retrospectives-section {
+  margin-bottom: 40px;
+}
+
+.retrospectives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.retrospective-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.retro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.retro-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #00aaff;
+}
+
+.retro-timestamp {
+  font-size: 12px;
+  color: #888;
+}
+
+.retro-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.retro-section h4 {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  color: #00ff88;
+}
+
+.retro-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.retro-section li {
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+/* Policy Suggestions */
+.policy-section {
+  margin-bottom: 40px;
+}
+
+.policy-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.policy-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.policy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.policy-area {
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #00aaff;
+}
+
+.confidence-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #000;
+}
+
+.policy-suggestion {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.policy-evidence {
+  margin-bottom: 15px;
+}
+
+.policy-evidence h5 {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 8px 0;
+}
+
+.policy-evidence ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.policy-evidence li {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.policy-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+}
+
+.policy-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.btn-accept {
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-accept:hover {
+  background: #00dd77;
+}
+
+.btn-review {
+  background: #2a2a2a;
+  color: #00aaff;
+  border-color: #444;
+}
+
+.btn-review:hover {
+  border-color: #00aaff;
+}
+
+.btn-reject {
+  background: transparent;
+  color: #ff4444;
+  border-color: #444;
+}
+
+.btn-reject:hover {
+  border-color: #ff4444;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 14px;
+}
+
+.learning-console-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 24px;
+  color: #ff00ff;
+}

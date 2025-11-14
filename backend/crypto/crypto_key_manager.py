@@ -438,14 +438,23 @@ class CryptoKeyManager:
                             record.public_key_pem.encode('utf-8')
                         )
                         
+                        # Ensure datetimes are timezone-aware
+                        created_at = record.created_at
+                        if created_at and created_at.tzinfo is None:
+                            created_at = created_at.replace(tzinfo=timezone.utc)
+                        
+                        expires_at = record.expires_at
+                        if expires_at and expires_at.tzinfo is None:
+                            expires_at = expires_at.replace(tzinfo=timezone.utc)
+                        
                         # Reconstruct CryptoKey object
                         crypto_key = CryptoKey(
                             key_id=record.key_id,
                             component_id=record.component_id,
                             private_key=private_key,
                             public_key=public_key,
-                            created_at=record.created_at,
-                            expires_at=record.expires_at,
+                            created_at=created_at,
+                            expires_at=expires_at,
                             rotated=record.is_rotated
                         )
                         

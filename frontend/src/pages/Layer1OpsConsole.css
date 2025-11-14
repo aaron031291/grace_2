@@ -1,0 +1,386 @@
+.layer1-ops-console {
+  padding: 20px;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+}
+
+.console-header h1 {
+  font-size: 28px;
+  margin: 0;
+  color: #00ff88;
+}
+
+.header-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.header-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.header-controls button {
+  padding: 8px 16px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #00ff88;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.header-controls button:hover {
+  background: #2a2a2a;
+  border-color: #00ff88;
+}
+
+/* Metrics Section */
+.metrics-section {
+  margin-bottom: 30px;
+}
+
+.metrics-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00aaff;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.metric-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.metric-card:hover {
+  border-color: #555;
+  transform: translateY(-2px);
+}
+
+.metric-card.success {
+  border-color: #00ff88;
+}
+
+.metric-card.warning {
+  border-color: #ffaa00;
+}
+
+.metric-card.error {
+  border-color: #ff4444;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Kernels Table */
+.kernels-section {
+  margin-bottom: 30px;
+}
+
+.kernels-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00aaff;
+}
+
+.kernels-table {
+  width: 100%;
+  background: #1a1a1a;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.kernels-table thead {
+  background: #2a2a2a;
+}
+
+.kernels-table th {
+  padding: 12px;
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #00ff88;
+  font-weight: 600;
+}
+
+.kernels-table td {
+  padding: 12px;
+  border-top: 1px solid #333;
+  font-size: 14px;
+}
+
+.kernels-table tr:hover {
+  background: #252525;
+}
+
+.kernel-id {
+  font-family: monospace;
+  color: #00aaff;
+}
+
+.status-badge, .health-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.error-count {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.stress-bar {
+  position: relative;
+  width: 100px;
+  height: 20px;
+  background: #0a0a0a;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88 0%, #ffaa00 50%, #ff4444 100%);
+  transition: width 0.3s;
+}
+
+.stress-bar span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  line-height: 20px;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
+}
+
+.kernel-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #00ff88;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background: #3a3a3a;
+  border-color: #00ff88;
+}
+
+.btn-danger {
+  color: #ff4444;
+}
+
+.btn-danger:hover {
+  border-color: #ff4444;
+}
+
+/* Crypto Section */
+.crypto-section {
+  margin-bottom: 30px;
+}
+
+.crypto-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00aaff;
+}
+
+.crypto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.crypto-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.crypto-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.crypto-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.crypto-value.error {
+  color: #ff4444;
+}
+
+/* Ingestion Section */
+.ingestion-section {
+  margin-bottom: 30px;
+}
+
+.ingestion-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #00aaff;
+}
+
+.ingestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.ingestion-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.ingestion-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.ingestion-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Logs Modal */
+.logs-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.logs-modal-content {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #333;
+}
+
+.logs-header h3 {
+  margin: 0;
+  color: #00ff88;
+}
+
+.close-btn {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid #444;
+  color: #ff4444;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #2a2a2a;
+  border-color: #ff4444;
+}
+
+.logs-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.logs-body pre {
+  background: #0a0a0a;
+  padding: 15px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #00ff88;
+  margin: 0;
+}
+
+.ops-console-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 24px;
+  color: #00ff88;
+}

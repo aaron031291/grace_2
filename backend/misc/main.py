@@ -132,6 +132,46 @@ async def on_startup():
     await auto_retrain_engine.start()
     await start_benchmark_scheduler()
     print("✓ Benchmark scheduler started (evaluates every hour)")
+    
+    # Vector/embedding integration services
+    try:
+        from backend.services.embedding_service import embedding_service
+        from backend.services.vector_store import vector_store
+        from backend.services.vector_integration import vector_integration
+        
+        await embedding_service.initialize()
+        await vector_store.initialize()
+        await vector_integration.start()
+        print("✓ Vector/embedding services started")
+    except Exception as e:
+        print(f"⚠ Vector services not available: {e}")
+    
+    # HTM integration services
+    try:
+        from backend.core.htm_sla_enforcer import htm_sla_enforcer
+        from backend.core.htm_size_metrics import htm_size_metrics
+        
+        await htm_sla_enforcer.start()
+        await htm_size_metrics.start()
+        print("✓ HTM monitoring services started")
+    except Exception as e:
+        print(f"⚠ HTM services not available: {e}")
+    
+    # Intent-HTM bridge
+    try:
+        from backend.core.intent_htm_bridge import intent_htm_bridge
+        await intent_htm_bridge.start()
+        print("✓ Intent-HTM bridge started")
+    except Exception as e:
+        print(f"⚠ Intent bridge not available: {e}")
+    
+    # Secrets consent flow
+    try:
+        from backend.security.secrets_consent_flow import secrets_consent_flow
+        await secrets_consent_flow.start()
+        print("✓ Secrets consent flow started")
+    except Exception as e:
+        print(f"⚠ Secrets consent not available: {e}")
 
     # Self-heal observe-only scheduler (feature-gated)
     try:
