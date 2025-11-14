@@ -16,8 +16,8 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy import Column, String, JSON, DateTime, Float, Boolean, Integer, select, func
 from sqlalchemy.orm import declarative_base
 
-from .models import Base, async_session
-from .immutable_log import immutable_log
+from backend.models.base_models import Base, async_session
+from backend.logging.immutable_log import immutable_log
 
 
 class OutcomeRecord(Base):
@@ -133,6 +133,9 @@ class LearningLoop:
             # Update playbook statistics if applicable
             if playbook_id:
                 await self._update_playbook_stats(playbook_id, success, confidence_score, execution_time, rolled_back)
+                
+                # NEW: Notify brain of learning insights
+                await self._notify_brain_of_insights(playbook_id)
             
             # Log to immutable ledger
             await immutable_log.append(
@@ -238,6 +241,64 @@ class LearningLoop:
                 "last_success_at": stats.last_success_at.isoformat() if stats.last_success_at else None,
                 "last_failure_at": stats.last_failure_at.isoformat() if stats.last_failure_at else None
             }
+    
+    async def _notify_brain_of_insights(self, playbook_id: str):
+        """
+        NEW: Feed learning insights back to agentic brain
+        Called after updating playbook stats to close the learning loop
+        """
+        try:
+            # Get current stats
+            async with async_session() as session:
+                result = await session.execute(
+                    select(PlaybookStatistics)
+                    .where(PlaybookStatistics.playbook_id == playbook_id)
+                )
+                stats = result.scalar_one_or_none()
+                
+                if not stats:
+                    return
+                
+                # Emit insight event if success rate drops below threshold
+                if stats.success_rate < 0.6 and stats.total_executions >= 3:
+                    from backend.core.message_bus import message_bus, MessagePriority
+                    
+                    await message_bus.publish(
+                        source="learning_loop",
+                        topic="agentic.learning.insight",
+                        payload={
+                            "insight_type": "low_success_rate",
+                            "playbook_id": playbook_id,
+                            "success_rate": stats.success_rate,
+                            "total_executions": stats.total_executions,
+                            "recommendation": "consider_alternative_playbook",
+                            "reason": f"Success rate {stats.success_rate:.1%} below 60% threshold",
+                            "severity": "high" if stats.success_rate < 0.4 else "medium"
+                        },
+                        priority=MessagePriority.HIGH
+                    )
+                    
+                    print(f"[LEARNING] Insight emitted: {playbook_id} success rate at {stats.success_rate:.1%}")
+                
+                # Emit positive insight for high performers
+                elif stats.success_rate > 0.9 and stats.total_executions >= 5:
+                    from backend.core.message_bus import message_bus, MessagePriority
+                    
+                    await message_bus.publish(
+                        source="learning_loop",
+                        topic="agentic.learning.insight",
+                        payload={
+                            "insight_type": "high_success_rate",
+                            "playbook_id": playbook_id,
+                            "success_rate": stats.success_rate,
+                            "total_executions": stats.total_executions,
+                            "recommendation": "prioritize_this_playbook",
+                            "reason": f"Success rate {stats.success_rate:.1%} exceeds 90%"
+                        },
+                        priority=MessagePriority.NORMAL
+                    )
+        except Exception as e:
+            print(f"[LEARNING] Failed to notify brain: {e}")
     
     async def get_top_playbooks(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get top-performing playbooks by success rate"""

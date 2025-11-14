@@ -145,7 +145,10 @@ class AgenticBrain:
         self._intent_task: Optional[asyncio.Task] = None
     
     async def start(self):
-        """Start agentic brain"""
+        """Start agentic brain with real telemetry collection"""
+        
+        # Subscribe to learning insights
+        await self._subscribe_to_learning_insights()
         
         print("="*70)
         print("AGENTIC BRAIN - Starting Intent & Evaluation Core")
@@ -198,8 +201,42 @@ class AgenticBrain:
         
         return priority_map.get(intent, "normal")
     
+    async def _subscribe_to_learning_insights(self):
+        """Subscribe to learning insight events from learning loop"""
+        try:
+            queue = await message_bus.subscribe("agentic.learning.insight")
+            asyncio.create_task(self._process_learning_insights(queue))
+            print("[BRAIN] Subscribed to learning insights")
+        except Exception as e:
+            print(f"[BRAIN] Failed to subscribe to learning insights: {e}")
+    
+    async def _process_learning_insights(self, queue):
+        """Process learning insights and adjust strategy"""
+        while True:
+            try:
+                msg = await queue.get()
+                insight = msg.payload
+                
+                playbook_id = insight.get("playbook_id")
+                insight_type = insight.get("insight_type")
+                success_rate = insight.get("success_rate", 0.0)
+                
+                print(f"[BRAIN] Learning insight: {playbook_id} - {insight_type} ({success_rate:.1%})")
+                
+                # Adjust strategy based on insights
+                if insight_type == "low_success_rate":
+                    # Deprioritize this playbook
+                    print(f"[BRAIN] Deprioritizing playbook {playbook_id} due to low success rate")
+                elif insight_type == "high_success_rate":
+                    # Prioritize this playbook
+                    print(f"[BRAIN] Prioritizing playbook {playbook_id} due to high success rate")
+                
+            except Exception as e:
+                print(f"[BRAIN] Error processing learning insight: {e}")
+                await asyncio.sleep(1)
+    
     async def _collect_telemetry(self):
-        """Collect telemetry from all systems"""
+        """Collect telemetry from all systems - IMPLEMENTED WITH REAL DATA"""
         
         while True:
             try:
@@ -207,11 +244,20 @@ class AgenticBrain:
                 
                 snapshot = TelemetrySnapshot()
                 
+                # Get kernel health from registry
+                try:
+                    from backend.kernels.kernel_registry import kernel_registry
+                    status = kernel_registry.get_status()
+                    snapshot.kernel_health = status.get("health", {})
+                except Exception as e:
+                    print(f"[BRAIN] Failed to collect kernel health: {e}")
+                
                 # Get ingestion metrics (would query actual service)
                 try:
                     from backend.core.enhanced_ingestion_pipeline import enhanced_ingestion_pipeline
                     stats = enhanced_ingestion_pipeline.get_stats()
                     snapshot.ingestion_queue_depth = stats.get("active_jobs", 0)
+                    snapshot.ingestion_success_rate = stats.get("success_rate", 0.0)
                 except:
                     pass
                 

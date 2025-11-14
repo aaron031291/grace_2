@@ -1,0 +1,227 @@
+{
+  "test_id": "boot_stress_20251114_105454",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:54:54.422675",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:54:54.422675",
+      "boot_duration_ms": 653.2027721405029,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced",
+        "kernel_registry"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "registry_status": {
+        "initialized": true,
+        "total_kernels": 20,
+        "domain_kernels": 11,
+        "clarity_kernels": 9
+      },
+      "routing_test": {
+        "kernel_used": "clarity_memory",
+        "framework": "clarity"
+      },
+      "completed_at": "2025-11-14T10:54:55.078882"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:54:56.085409",
+      "boot_duration_ms": 102.5538444519043,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced",
+        "kernel_registry"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "registry_status": {
+        "initialized": true,
+        "total_kernels": 20,
+        "domain_kernels": 11,
+        "clarity_kernels": 9
+      },
+      "routing_test": {
+        "kernel_used": "clarity_memory",
+        "framework": "clarity"
+      },
+      "completed_at": "2025-11-14T10:54:56.191967"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:54:57.206598",
+      "boot_duration_ms": 102.89359092712402,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced",
+        "kernel_registry"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "registry_status": {
+        "initialized": true,
+        "total_kernels": 20,
+        "domain_kernels": 11,
+        "clarity_kernels": 9
+      },
+      "routing_test": {
+        "kernel_used": "clarity_memory",
+        "framework": "clarity"
+      },
+      "completed_at": "2025-11-14T10:54:57.313162"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:54:58.328362",
+      "boot_duration_ms": 103.52706909179688,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced",
+        "kernel_registry"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "registry_status": {
+        "initialized": true,
+        "total_kernels": 20,
+        "domain_kernels": 11,
+        "clarity_kernels": 9
+      },
+      "routing_test": {
+        "kernel_used": "clarity_memory",
+        "framework": "clarity"
+      },
+      "completed_at": "2025-11-14T10:54:58.433891"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:54:59.433891",
+      "boot_duration_ms": 102.8289794921875,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "core",
+        "governance",
+        "memory",
+        "code",
+        "intelligence",
+        "infrastructure",
+        "federation",
+        "verification",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced",
+        "kernel_registry"
+      ],
+      "anomalies": [],
+      "status": "success",
+      "registry_status": {
+        "initialized": true,
+        "total_kernels": 20,
+        "domain_kernels": 11,
+        "clarity_kernels": 9
+      },
+      "routing_test": {
+        "kernel_used": "clarity_memory",
+        "framework": "clarity"
+      },
+      "completed_at": "2025-11-14T10:54:59.540116"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:55:00.541788",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:55:00.543788"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:55:00.543788",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:55:00.544843"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 213.00125122070312,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:55:00.544843"
+}
