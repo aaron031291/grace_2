@@ -166,7 +166,7 @@ class IngestionService:
                 timestamp=datetime.now(tz.utc)
             ))
             
-            # Publish for vector embedding (auto-embedding)
+            # Publish for vector embedding (auto-embedding) with payload metadata
             try:
                 from backend.core.message_bus import message_bus, MessagePriority
                 await message_bus.publish(
@@ -178,7 +178,9 @@ class IngestionService:
                         "artifact_type": artifact_type,
                         "title": title,
                         "domain": domain,
-                        "created_at": datetime.now(tz.utc).isoformat()
+                        "created_at": datetime.now(tz.utc).isoformat(),
+                        "data_size_bytes": len(content),  # Add size
+                        "origin": metadata.get("origin", "user_request") if metadata else "user_request"  # Add origin
                     },
                     priority=MessagePriority.NORMAL
                 )
