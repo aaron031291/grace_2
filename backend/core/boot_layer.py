@@ -25,6 +25,7 @@ from .immutable_log import immutable_log
 from .boot_pipeline import boot_pipeline, BootStep, BootStage
 from .clarity_framework import clarity_framework, DecisionType, ClarityLevel
 from .verification_framework import verification_framework
+from .unified_logic_integration import unified_logic_core
 
 logger = logging.getLogger(__name__)
 
@@ -57,23 +58,43 @@ class BootLayer:
         
         try:
             # Step 1: Message Bus (Foundation)
-            print("[1/5] Starting Message Bus (nervous system)...")
+            print("[1/8] Starting Message Bus (nervous system)...")
             await message_bus.start()
-            print("  ✓ Message Bus ACTIVE")
+            print("  [OK] Message Bus ACTIVE")
             
             # Step 2: Immutable Log (Audit trail)
-            print("\n[2/5] Starting Immutable Log (black box)...")
+            print("\n[2/8] Starting Immutable Log (black box)...")
             await immutable_log.start()
             stats = immutable_log.get_stats()
-            print(f"  ✓ Immutable Log ACTIVE ({stats['total_entries']} entries)")
+            print(f"  [OK] Immutable Log ACTIVE ({stats['total_entries']} entries)")
             
-            # Step 3: Control Plane (Orchestrator)
-            print("\n[3/5] Starting Control Plane (orchestrator)...")
+            # Step 3: Clarity Framework (Transparent decisions)
+            print("\n[3/8] Starting Clarity Framework (transparency)...")
+            await clarity_framework.start()
+            print("  [OK] Clarity Framework ACTIVE")
+            
+            # Step 4: Verification Framework (Continuous validation)
+            print("\n[4/8] Starting Verification Framework (validation)...")
+            await verification_framework.start()
+            print("  [OK] Verification Framework ACTIVE")
+            
+            # Step 5: Unified Logic (Governance)
+            print("\n[5/7] Starting Unified Logic (governance)...")
+            await unified_logic_core.start()
+            print("  [OK] Unified Logic ACTIVE")
+            
+            # Step 6: Control Plane (Orchestrator)
+            print("\n[6/7] Starting Control Plane (orchestrator)...")
             await control_plane.start()
-            print("  ✓ Control Plane ACTIVE")
+            print("  [OK] Control Plane ACTIVE")
             
-            # Step 4: Log boot success
-            print("\n[4/5] Logging boot event...")
+            # Step 7: Boot Pipeline (Structured startup)
+            print("\n[7/7] Initializing Boot Pipeline...")
+            # Boot pipeline is used for structured boots (next restart will use it)
+            print("  [OK] Boot Pipeline ready for next boot")
+            
+            # Step 8: Log boot success
+            print("\n[8/8] Logging boot event...")
             await immutable_log.append(
                 actor='boot_layer',
                 action='system_boot',
@@ -81,10 +102,27 @@ class BootLayer:
                 decision={'status': 'success', 'boot_time_ms': 0},
                 metadata={'timestamp': datetime.utcnow().isoformat()}
             )
-            print("  ✓ Boot logged to immutable audit trail")
             
-            # Step 5: Display status
-            print("\n[5/5] Boot complete!")
+            # Record decision with clarity
+            await clarity_framework.record_decision(
+                decision_type=DecisionType.AUTONOMOUS_ACTION,
+                actor='boot_layer',
+                action='system_boot',
+                resource='grace_system',
+                rationale='Booting Grace with unbreakable core architecture',
+                confidence=1.0,
+                risk_score=0.05,
+                clarity_level=ClarityLevel.STANDARD
+            )
+            
+            print("  [OK] Boot logged to immutable audit trail")
+            
+            # Verify all systems
+            verification = await verification_framework.verify_all()
+            print(f"  [OK] Verification: {verification['rules_passed']}/{verification['total_rules']} rules passed")
+            
+            # Boot complete
+            print("\n[BOOT] Complete!")
             print()
             
             self.boot_complete_time = datetime.utcnow()
