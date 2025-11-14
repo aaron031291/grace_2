@@ -14,10 +14,11 @@ async def watch_grace_activity():
     """Connect to Grace's activity stream and display in real-time"""
     
     print("=" * 80)
-    print("👁️  WATCHING GRACE - LIVE ACTIVITY FEED")
+    print("WATCHING GRACE - LIVE ACTIVITY FEED")
     print("=" * 80)
     print()
     print("Connecting to Grace's activity stream...")
+    print("Backend: ws://localhost:8000/api/activity/stream")
     print("Press Ctrl+C to stop watching")
     print()
     print("-" * 80)
@@ -26,7 +27,7 @@ async def watch_grace_activity():
     uri = "ws://localhost:8000/api/activity/stream"
     
     try:
-        async with websockets.connect(uri) as websocket:
+        async with websockets.connect(uri, ping_interval=None) as websocket:
             print("✓ Connected to Grace's activity stream!")
             print()
             print("=" * 80)
@@ -71,11 +72,28 @@ async def watch_grace_activity():
         print("Stopped watching Grace")
         print("=" * 80)
     
+    except ConnectionRefusedError:
+        print()
+        print("=" * 80)
+        print("ERROR: Cannot connect to Grace backend")
+        print("=" * 80)
+        print()
+        print("Grace backend is not running!")
+        print()
+        print("To start Grace:")
+        print("  1. Run: START_GRACE_AND_WATCH.bat")
+        print("  OR")
+        print("  2. In another terminal: python serve.py")
+        print("     Then run this script again")
+        print()
+    
     except Exception as e:
         print(f"Error: {e}")
         print()
         print("Make sure Grace backend is running:")
         print("  python serve.py")
+        print()
+        print("Or use: START_GRACE_AND_WATCH.bat")
 
 
 def display_event(event: dict, highlight: bool = False, realtime: bool = False):
