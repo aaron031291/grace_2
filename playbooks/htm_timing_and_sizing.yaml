@@ -1,0 +1,80 @@
+name: HTM Timing and Sizing Monitoring
+version: "1.0"
+domain: htm_operations
+risk_level: low
+description: |
+  Monitor HTM task timing and data volume metrics.
+  Enforce SLAs, detect bottlenecks, optimize scheduling.
+
+triggers:
+  - event: htm.task.completed
+  - schedule: "*/5 * * * *"  # Every 5 minutes
+  - manual: true
+
+steps:
+  - name: check_sla_compliance
+    description: Check current SLA compliance rate
+    action: query_database
+    params:
+      query: "SELECT COUNT(*) as total, SUM(CASE WHEN sla_met = 1 THEN 1 ELSE 0 END) as met FROM htm_tasks WHERE sla_met IS NOT NULL"
+      threshold: 0.90  # Alert if below 90%
+    
+  - name: analyze_slow_tasks
+    description: Identify tasks exceeding expected duration
+    action: query_api
+    params:
+      endpoint: /api/htm/dashboard/tasks/slow
+      limit: 20
+    
+  - name: check_size_distribution
+    description: Analyze task size distribution
+    action: query_api
+    params:
+      endpoint: /api/htm/dashboard/size/distribution
+    
+  - name: detect_bottlenecks
+    description: Check for throughput bottlenecks
+    conditions:
+      - avg_throughput_bytes_per_sec < 1048576  # < 1 MB/s
+    action: create_alert
+    params:
+      severity: warning
+      message: "Low throughput detected - investigate processing pipeline"
+  
+  - name: check_for_starvation
+    description: Detect if any task origin is being starved
+    action: query_api
+    params:
+      endpoint: /api/htm/routing/stats
+    conditions:
+      - any_origin.tasks_starved > 10
+    action: create_htm_task
+    params:
+      task_type: investigate_starvation
+      priority: high
+  
+  - name: optimize_worker_allocation
+    description: Suggest worker allocation based on queue depths
+    action: analyze_queues
+    params:
+      min_queue_depth: 10  # Alert if queue > 10
+    output: worker_recommendations
+
+outcomes:
+  success:
+    - log_metrics
+    - update_dashboard
+  
+  degraded:
+    - create_investigation_task
+    - alert_operators
+  
+  critical:
+    - escalate_to_oncall
+    - trigger_remediation
+
+metadata:
+  owner: htm_team
+  sla_hours: 1
+  auto_remediation: true
+  documentation: docs/HTM_SIZE_TRACKING_COMPLETE.md

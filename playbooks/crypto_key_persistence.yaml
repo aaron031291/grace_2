@@ -1,0 +1,146 @@
+name: Crypto Key Persistence and Rotation
+version: "1.1"
+domain: crypto
+risk_level: critical
+description: |
+  Manage cryptographic key lifecycle with persistent storage.
+  
+  Flow:
+  1. Generate keys → Store encrypted
+  2. Rotate on schedule → Old key archived
+  3. Distribute to components → Verify signatures
+  4. Monitor expiration → Auto-rotate before expiry
+  5. Audit all operations → Immutable log
+  
+  FIXED: Timezone bug - all datetimes now use timezone.utc
+
+triggers:
+  - schedule: "0 2 * * 0"  # Weekly Sunday 2 AM UTC
+  - event: crypto.key.expiring
+  - event: crypto.rotation.required
+  - manual: true
+
+steps:
+  - name: check_key_expiration
+    description: Find keys expiring within 7 days
+    action: query_database
+    params:
+      query: |
+        SELECT key_id, expires_at
+        FROM crypto_keys
+        WHERE expires_at IS NOT NULL
+        AND expires_at < datetime('now', '+7 days')
+        AND active = 1
+    output: expiring_keys
+  
+  - name: generate_new_keys
+    description: Generate fresh keys for rotation
+    action: call_service
+    params:
+      service: crypto_key_manager
+      method: generate_key
+      algorithm: fernet
+      key_size: 256
+    verification:
+      - key_material is not null
+      - key_id is unique
+  
+  - name: encrypt_and_persist
+    description: Store keys with encryption at rest
+    action: call_service
+    params:
+      service: persistent_crypto_manager
+      method: store_key
+      encryption_method: fernet
+    verification:
+      - encrypted_value != plain_value
+      - created_at uses timezone.utc  # BUG FIX
+  
+  - name: distribute_to_components
+    description: Securely distribute keys to components
+    action: publish_event
+    params:
+      topic: crypto.key.rotated
+      payload:
+        key_id: new_key_id
+        component_targets: all_components
+    
+  - name: verify_component_signatures
+    description: Verify all components signed operations with new key
+    action: call_service
+    params:
+      service: component_crypto_registry
+      method: verify_signatures
+      timeout_seconds: 300
+  
+  - name: archive_old_keys
+    description: Mark old keys as inactive (don't delete for audit)
+    action: update_database
+    params:
+      table: crypto_keys
+      set:
+        active: false
+        archived_at: datetime.now(timezone.utc)  # TIMEZONE AWARE
+      where:
+        key_id: old_key_ids
+  
+  - name: audit_rotation
+    description: Log rotation to immutable audit trail
+    action: write_audit
+    params:
+      operation: key_rotated
+      old_key_id: old_key
+      new_key_id: new_key
+      timestamp: datetime.now(timezone.utc)  # TIMEZONE AWARE
+      components_updated: component_count
+  
+  - name: verify_persistence
+    description: Verify keys survive restart
+    action: restart_test
+    params:
+      restart_component: crypto_manager
+      verify_keys_loaded: true
+  
+  - name: monitor_rotation_lag
+    description: Alert if rotation takes too long
+    metrics:
+      - rotation_duration_ms
+    thresholds:
+      warning: 60000  # 1 minute
+      critical: 300000  # 5 minutes
+
+outcomes:
+  success:
+    - keys_rotated
+    - persistence_verified
+    - all_components_updated
+  
+  partial_success:
+    - some_components_failed
+    - action: retry_failed_components
+  
+  failure:
+    - rollback_to_old_keys
+    - alert_security_team
+    - manual_intervention_required
+
+rollback:
+  - reactivate_old_keys
+  - redistribute_old_keys
+  - verify_rollback_signatures
+  - log_rollback_event
+
+metadata:
+  owner: security_team
+  compliance: SOC2, PCI-DSS
+  sla_minutes: 30
+  auto_retry: false  # Manual approval for crypto ops
+  documentation: backend/crypto/README.md
+  
+bug_fixes:
+  - issue: Timezone drift in rotation schedule
+    fix: Replaced datetime.utcnow() with datetime.now(timezone.utc)
+    files_fixed:
+      - backend/crypto/persistent_crypto_manager.py
+      - backend/crypto/component_crypto_registry.py
+    verified: 2025-11-14

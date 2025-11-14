@@ -1,0 +1,175 @@
+name: Recording to Learning Pipeline
+version: "1.0"
+domain: learning
+risk_level: medium
+description: |
+  Complete pipeline for capturing recordings (voice, video, screen)
+  and converting them into searchable knowledge.
+  
+  Flow:
+  1. Start recording → Request consent
+  2. Upload file → Encrypted storage
+  3. Transcribe audio → Whisper
+  4. Chunk transcript → Embed vectors
+  5. Index embeddings → Enable search
+  6. Ingest to KB → Learning loop
+  
+  Specialized for voice notes initially, expandable to screen/video.
+
+triggers:
+  - event: recording.started
+  - event: recording.uploaded
+  - manual: true
+
+steps:
+  - name: start_recording_session
+    description: Initialize recording with metadata
+    action: call_service
+    params:
+      service: recording_service
+      method: start_recording
+      session_type: voice_note  # Start with voice
+      title: Auto-generated from context
+      purpose: learning
+  
+  - name: request_multi_consent
+    description: Request consent for recording, transcription, and learning
+    action: request_consent
+    params:
+      consent_types:
+        - recording
+        - transcription
+        - learning
+      timeout_seconds: 300
+      single_use: false
+      retention_days: 90
+    wait_for: consent_granted
+  
+  - name: upload_to_encrypted_storage
+    description: Store recording file with encryption
+    action: call_service
+    params:
+      service: recording_service
+      method: upload_recording
+      encryption: true
+      storage_path: storage/recordings/{session_id}/
+    verification:
+      - file_size_bytes > 0
+      - encrypted == true
+  
+  - name: verify_consent_before_processing
+    description: Double-check all required consents granted
+    action: call_service
+    params:
+      service: recording_service
+      method: verify_consent
+      required_consent_types:
+        - recording
+        - transcription
+        - learning
+    failure_mode: halt_and_alert
+  
+  - name: transcribe_audio
+    description: Use Whisper to transcribe audio to text
+    conditions:
+      - consent_verified == true
+    action: call_service
+    params:
+      service: recording_service
+      method: transcribe_recording
+      model: whisper-1
+    metrics:
+      - transcript_length
+      - transcription_confidence
+      - duration_seconds
+  
+  - name: chunk_transcript
+    description: Split transcript into searchable chunks
+    action: call_service
+    params:
+      service: embedding_service
+      method: embed_chunks
+      chunk_size: 500  # Smaller for recordings
+      chunk_overlap: 100
+      source_type: recording
+    output: chunks
+  
+  - name: generate_embeddings
+    description: Create vector embeddings for each chunk
+    action: batch_embed
+    params:
+      model: text-embedding-3-small
+      batch_size: 100
+    metrics:
+      - total_tokens
+      - total_cost
+      - embeddings_created
+  
+  - name: index_vectors
+    description: Index embeddings in vector store
+    action: call_service
+    params:
+      service: vector_store
+      method: index_embeddings
+    verification:
+      - indexed_count == len(embedding_ids)
+  
+  - name: ingest_to_knowledge_base
+    description: Create knowledge artifact from transcript
+    conditions:
+      - consent_types includes learning
+    action: call_service
+    params:
+      service: recording_service
+      method: ingest_to_knowledge_base
+    output: artifact_ids
+  
+  - name: enable_semantic_search
+    description: Make recording searchable by meaning
+    action: verify_searchable
+    params:
+      test_query: "What did we discuss?"
+      min_results: 1
+  
+  - name: feed_to_learning_loop
+    description: Record outcome for continuous improvement
+    action: call_service
+    params:
+      service: recording_service
+      method: feed_to_learning_loop
+      usefulness_score: 0.85  # Default, can be updated by user
+
+outcomes:
+  success:
+    - recording_indexed: true
+    - searchable: true
+    - learned_from: true
+    - notify: "Recording processed and searchable"
+  
+  partial_success:
+    - transcription_failed: true
+    - action: retry_with_different_model
+  
+  failure:
+    - log_error
+    - preserve_recording
+    - manual_review_required
+
+rollback:
+  - delete_embeddings
+  - remove_knowledge_artifact
+  - preserve_transcript
+  - notify_user
+
+metadata:
+  owner: learning_team
+  sla_minutes: 15
+  auto_retry: true
+  max_retries: 2
+  documentation: docs/RECORDING_PIPELINE_COMPLETE.md
+  
+expansion_plan:
+  phase_1: voice_notes  # Current
+  phase_2: screen_recordings
+  phase_3: video_calls
+  phase_4: live_meetings
