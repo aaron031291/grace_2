@@ -1,9 +1,13 @@
 """
-Layer 1 Boot Stress Test
+Layer 1 E2E Boot Stress Test
 Repeatedly boots kernels, forces failures, validates self-heal and restart
+NOW WITH FULL KERNEL REGISTRY + CLARITY FRAMEWORK INTEGRATION
 
 Tests:
 - Boot duration and kernel activation order
+- Kernel Registry initialization
+- Clarity Framework integration
+- Request routing across all kernels
 - Forced failures (kill process, corrupt config)
 - Watchdog reactions
 - Self-healing responses
@@ -76,7 +80,8 @@ class BootStressRunner:
         """Run complete stress test suite"""
         
         print("="*70)
-        print("LAYER 1 BOOT STRESS TEST")
+        print("LAYER 1 E2E BOOT STRESS TEST")
+        print("WITH KERNEL REGISTRY + CLARITY FRAMEWORK INTEGRATION")
         print("="*70)
         print(f"Test ID: {self.test_id}")
         print(f"Cycles: {self.cycles}")
@@ -191,6 +196,36 @@ class BootStressRunner:
                         "kernel": kernel_name,
                         "error": str(e)
                     })
+            
+            # Initialize Kernel Registry (E2E Integration Test)
+            try:
+                from backend.kernels.kernel_registry import kernel_registry
+                await kernel_registry.initialize()
+                
+                registry_status = kernel_registry.get_status()
+                cycle_result["registry_status"] = {
+                    "initialized": registry_status["initialized"],
+                    "total_kernels": registry_status["total_kernels"],
+                    "domain_kernels": registry_status["domain_kernels"],
+                    "clarity_kernels": registry_status["clarity_kernels"]
+                }
+                cycle_result["kernels_activated"].append("kernel_registry")
+                
+                # Test request routing
+                test_result = await kernel_registry.route_request(
+                    "Remember this test data",
+                    {"test_cycle": cycle}
+                )
+                cycle_result["routing_test"] = {
+                    "kernel_used": test_result.get("kernel_used"),
+                    "framework": test_result.get("framework")
+                }
+                
+            except Exception as e:
+                cycle_result["anomalies"].append({
+                    "kernel": "kernel_registry",
+                    "error": str(e)
+                })
             
             # Record boot time
             boot_duration = (time.time() - start_time) * 1000
@@ -319,11 +354,28 @@ class BootStressRunner:
         """Print test results"""
         
         print("\n" + "="*70)
-        print("BOOT STRESS TEST RESULTS")
+        print("LAYER 1 E2E STRESS TEST RESULTS")
         print("="*70)
         print(f"Test ID: {self.test_id}")
         print(f"Total Boots: {self.results['summary']['total_boots']}")
         print(f"Successful: {self.results['summary']['successful_boots']}")
+        
+        # Print E2E integration stats
+        if self.results['boot_results']:
+            last_result = self.results['boot_results'][-1]
+            if 'registry_status' in last_result:
+                reg = last_result['registry_status']
+                print(f"\nKernel Registry Integration:")
+                print(f"  Total Kernels: {reg.get('total_kernels', 0)}")
+                print(f"  Domain Kernels: {reg.get('domain_kernels', 0)}")
+                print(f"  Clarity Kernels: {reg.get('clarity_kernels', 0)}")
+            if 'routing_test' in last_result:
+                rt = last_result['routing_test']
+                print(f"\nRequest Routing Test:")
+                print(f"  Routed to: {rt.get('kernel_used', 'N/A')}")
+                print(f"  Framework: {rt.get('framework', 'N/A')}")
+        
+        print(f"\nBoot Performance:")
         print(f"Failed: {self.results['summary']['failed_boots']}")
         print(f"Avg Boot Time: {self.results['summary']['avg_boot_time']:.0f}ms")
         print(f"Watchdog Triggers: {self.results['summary']['watchdog_triggers']}")

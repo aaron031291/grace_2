@@ -63,7 +63,13 @@ class MemoryKernel(KernelSDK):
             asyncio.create_task(self._process_health_summaries(health_queue))
             
         except Exception as e:
-            log_event("memory.infrastructure.subscribe_error", {"error": str(e)})
+            log_event(
+                action="memory.infrastructure.subscribe_error",
+                actor="memory_kernel",
+                resource="infrastructure_subscription",
+                outcome="error",
+                payload={"error": str(e)}
+            )
     
     async def _process_host_registrations(self, queue):
         """Process and persist host registration events"""
@@ -80,26 +86,29 @@ class MemoryKernel(KernelSDK):
                     "data": host_data
                 }
                 
-                # Store in persistent memory
+                # Store in persistent memory (ChatMessage format)
                 await self.memory.store(
-                    domain="infrastructure",
-                    category=f"host_{host_data.get('os_type')}",
-                    key=host_id,
-                    value=host_data,
-                    metadata={
-                        "source": "infrastructure_manager",
-                        "type": "host_registration"
-                    }
+                    user="infrastructure_manager",
+                    role="system",
+                    content=f"Host registered: {host_id} ({host_data.get('os_type')})"
                 )
                 
                 log_event(
-                    "memory.host.persisted",
-                    f"Persisted host state: {host_id}",
-                    {"host_id": host_id}
+                    action="memory.host.persisted",
+                    actor="memory_kernel",
+                    resource=f"host_{host_id}",
+                    outcome="ok",
+                    payload={"host_id": host_id}
                 )
                 
             except Exception as e:
-                log_event("memory.process_registration.error", {"error": str(e)})
+                log_event(
+                    action="memory.process_registration.error",
+                    actor="memory_kernel",
+                    resource="host_registration",
+                    outcome="error",
+                    payload={"error": str(e)}
+                )
     
     async def _process_health_summaries(self, queue):
         """Process and persist infrastructure health summaries"""
@@ -108,18 +117,22 @@ class MemoryKernel(KernelSDK):
                 msg = await queue.get()
                 summary = msg.payload
                 
-                # Store health snapshot
-                timestamp = summary.get("timestamp")
+                # Store health snapshot (ChatMessage format)
+                timestamp = summary.get("timestamp", "unknown")
                 await self.memory.store(
-                    domain="infrastructure",
-                    category="health_snapshots",
-                    key=f"snapshot_{timestamp}",
-                    value=summary,
-                    metadata={"type": "health_summary"}
+                    user="infrastructure_manager",
+                    role="system",
+                    content=f"Health snapshot at {timestamp}: {summary.get('status', 'unknown')}"
                 )
                 
             except Exception as e:
-                log_event("memory.process_health.error", {"error": str(e)})
+                log_event(
+                    action="memory.process_health.error",
+                    actor="memory_kernel",
+                    resource="health_summary",
+                    outcome="error",
+                    payload={"error": str(e)}
+                )
     
     async def get_host_state(self, host_id: str) -> Dict[str, Any]:
         """Retrieve host state from memory"""
