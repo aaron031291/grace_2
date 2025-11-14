@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103822",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:38:22.549496",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:38:22.550497",
+      "boot_duration_ms": 639.6198272705078,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.ml_training.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:38:23.192116"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:38:24.201569",
+      "boot_duration_ms": 116.40334129333496,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.ml_training.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:38:24.320538"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:38:25.335014",
+      "boot_duration_ms": 115.42439460754395,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.ml_training.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:38:25.454152"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:38:26.458905",
+      "boot_duration_ms": 115.5545711517334,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.ml_training.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:38:26.577021"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:38:27.586165",
+      "boot_duration_ms": 114.99309539794922,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.ml_training.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.ml_training.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:38:27.705158"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:38:28.707159",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:38:28.708703"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:38:28.708703",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:38:28.710206"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 220.39904594421387,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:38:28.710206"
+}

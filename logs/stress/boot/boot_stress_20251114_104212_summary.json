@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_104212",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:42:12.963349",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:42:12.964348",
+      "boot_duration_ms": 614.2549514770508,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:13.581108"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:42:14.587831",
+      "boot_duration_ms": 140.90967178344727,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:14.732744"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:42:15.742051",
+      "boot_duration_ms": 119.56620216369629,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:15.865204"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:42:16.865216",
+      "boot_duration_ms": 119.45414543151855,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:16.987669"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:42:17.998017",
+      "boot_duration_ms": 120.36705017089844,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models' (unknown location)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:18.121415"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:42:19.134716",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:42:19.136905"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:42:19.136905",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:42:19.137905"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 222.91040420532227,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:42:19.137905"
+}

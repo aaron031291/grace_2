@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_104247",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:42:47.698484",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:42:47.699483",
+      "boot_duration_ms": 610.6221675872803,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:48.312674"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:42:49.318818",
+      "boot_duration_ms": 109.86614227294922,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:49.432195"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:42:50.441544",
+      "boot_duration_ms": 108.96635055541992,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:50.553515"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:42:51.568434",
+      "boot_duration_ms": 109.4057559967041,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:51.681840"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:42:52.693365",
+      "boot_duration_ms": 110.4574203491211,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "governance",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "memory",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "code",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "federation",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        },
+        {
+          "kernel": "verification",
+          "error": "cannot import name 'async_session' from 'backend.models.memory_models' (c:\\Users\\aaron\\grace_2\\backend\\models\\memory_models.py)"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:42:52.806461"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:42:53.819145",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:42:53.820147"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:42:53.820147",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:42:53.822654"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 209.86356735229492,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:42:53.822654"
+}

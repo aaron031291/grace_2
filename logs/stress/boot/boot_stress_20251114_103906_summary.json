@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103906",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:39:06.166328",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:39:06.166328",
+      "boot_duration_ms": 607.750654220581,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.cognition'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:06.777591"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:39:07.790935",
+      "boot_duration_ms": 112.56814002990723,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.cognition'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:07.907223"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:39:08.912130",
+      "boot_duration_ms": 112.01643943786621,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.cognition'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:09.028192"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:39:10.034404",
+      "boot_duration_ms": 112.66350746154785,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.cognition'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:10.151068"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:39:11.153562",
+      "boot_duration_ms": 112.56790161132812,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.cognition'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.cognition'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:11.270106"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:39:12.274743",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:39:12.276340"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:39:12.276340",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:39:12.278344"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 211.5133285522461,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:39:12.278344"
+}

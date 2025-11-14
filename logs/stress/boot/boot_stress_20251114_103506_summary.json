@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103506",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:35:06.079465",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:35:06.080465",
+      "boot_duration_ms": 781.2533378601074,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.misc.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:06.863784"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:35:07.873160",
+      "boot_duration_ms": 118.66903305053711,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.misc.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:07.995982"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:35:08.997968",
+      "boot_duration_ms": 119.86041069030762,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.misc.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:09.121395"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:35:10.132089",
+      "boot_duration_ms": 118.30353736877441,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.misc.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:10.254518"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:35:11.267221",
+      "boot_duration_ms": 113.72685432434082,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.misc.base_models'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.misc.base_models'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:35:11.385009"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:35:12.393539",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:35:12.395665"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:35:12.395665",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:35:12.395665"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 250.36263465881348,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:35:12.395665"
+}

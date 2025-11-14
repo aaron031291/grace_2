@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103947",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:39:47.887349",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:39:47.888400",
+      "boot_duration_ms": 617.3646450042725,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.transcendence'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:48.508836"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:39:49.519714",
+      "boot_duration_ms": 113.56115341186523,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.transcendence'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:49.637274"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:39:50.640321",
+      "boot_duration_ms": 157.8521728515625,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.transcendence'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:50.803174"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:39:51.807319",
+      "boot_duration_ms": 114.43328857421875,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.transcendence'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:51.926315"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:39:52.930395",
+      "boot_duration_ms": 112.6556396484375,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.transcendence'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.transcendence'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:39:53.047050"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:39:54.052513",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:39:54.054074"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:39:54.054074",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:39:54.056147"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 223.1733798980713,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:39:54.056147"
+}

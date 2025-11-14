@@ -1,0 +1,297 @@
+{
+  "test_id": "boot_stress_20251114_103748",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:37:48.068395",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:37:48.069395",
+      "boot_duration_ms": 588.1962776184082,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.ml_models_table'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:48.659591"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:37:49.665480",
+      "boot_duration_ms": 112.43772506713867,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.ml_models_table'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:49.780937"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:37:50.790248",
+      "boot_duration_ms": 114.38989639282227,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.ml_models_table'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:50.907637"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:37:51.911207",
+      "boot_duration_ms": 111.31167411804199,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.ml_models_table'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:52.025519"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:37:53.032112",
+      "boot_duration_ms": 112.77914047241211,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "governance",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "memory",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "code",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "federation",
+          "error": "No module named 'backend.models.ml_models_table'"
+        },
+        {
+          "kernel": "verification",
+          "error": "No module named 'backend.models.ml_models_table'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:37:53.148891"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:37:54.155554",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:37:54.157104"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:37:54.157104",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:37:54.159104"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 207.82294273376465,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:37:54.159104"
+}

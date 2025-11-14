@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from sqlalchemy.sql import func
-from .models import Base, async_session
+from backend.models.base_models import Base, async_session
 from sqlalchemy import select
 from urllib.parse import urlparse
 
