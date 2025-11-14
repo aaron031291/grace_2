@@ -4,6 +4,8 @@
  */
 import React, { useState } from 'react';
 import { Layer1DashboardMVP } from './pages/Layer1DashboardMVP';
+import { Layer2DashboardMVP } from './pages/Layer2DashboardMVP';
+import { Layer3DashboardMVP } from './pages/Layer3DashboardMVP';
 import './App.MVP.css';
 
 type DashboardLayer = 'layer1' | 'layer2' | 'layer3' | 'layer4';
@@ -16,9 +18,9 @@ export const AppMVP: React.FC = () => {
       case 'layer1':
         return <Layer1DashboardMVP />;
       case 'layer2':
-        return <div className="placeholder-layer">Layer 2: HTM Console (Coming Soon)</div>;
+        return <Layer2DashboardMVP />;
       case 'layer3':
-        return <div className="placeholder-layer">Layer 3: Learning (Coming Soon)</div>;
+        return <Layer3DashboardMVP />;
       case 'layer4':
         return <div className="placeholder-layer">Layer 4: Dev/OS (Coming Soon)</div>;
       default:
