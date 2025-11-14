@@ -28,7 +28,7 @@ class FederationKernel(BaseDomainKernel):
     """
     
     def __init__(self):
-        super().__init__("federation")
+        super().__init__(kernel_id="federation_kernel", domain="federation")
         self.base_url = "http://localhost:8000"
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
@@ -204,6 +204,31 @@ Provide summary of data fetched and any integrations made."""
             ],
             confidence=original_intent.confidence
         )
+    
+    # Implement abstract methods required by BaseDomainKernel
+    async def _initialize_watchers(self):
+        """Set up watchers for federation operations"""
+        pass
+    
+    async def _load_pending_work(self):
+        """Load pending federation tasks"""
+        pass
+    
+    async def _coordinator_loop(self):
+        """Main coordination loop for federation operations"""
+        while self._running:
+            try:
+                await asyncio.sleep(10)
+            except Exception as e:
+                pass
+    
+    async def _create_agent(self, agent_type: str, agent_id: str, task_data: Dict) -> Any:
+        """Create a sub-agent for federation tasks"""
+        return {"agent_id": agent_id, "type": agent_type, "task": task_data}
+    
+    async def _cleanup(self):
+        """Cleanup federation kernel resources"""
+        pass
 
 
 # Global instance

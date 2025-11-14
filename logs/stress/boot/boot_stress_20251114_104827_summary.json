@@ -1,0 +1,282 @@
+{
+  "test_id": "boot_stress_20251114_104827",
+  "cycles": 5,
+  "started_at": "2025-11-14T10:48:27.928583",
+  "boot_results": [
+    {
+      "cycle": 1,
+      "started_at": "2025-11-14T10:48:27.928583",
+      "boot_duration_ms": 650.4900455474854,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "governance",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "code",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "federation",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "verification",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:48:28.582581"
+    },
+    {
+      "cycle": 2,
+      "started_at": "2025-11-14T10:48:29.585619",
+      "boot_duration_ms": 105.41129112243652,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "governance",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "code",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "federation",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "verification",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:48:29.694539"
+    },
+    {
+      "cycle": 3,
+      "started_at": "2025-11-14T10:48:30.704115",
+      "boot_duration_ms": 105.79466819763184,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "governance",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "code",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "federation",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "verification",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:48:30.833605"
+    },
+    {
+      "cycle": 4,
+      "started_at": "2025-11-14T10:48:31.845471",
+      "boot_duration_ms": 105.77893257141113,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "governance",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "code",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "federation",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "verification",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:48:31.954331"
+    },
+    {
+      "cycle": 5,
+      "started_at": "2025-11-14T10:48:32.957082",
+      "boot_duration_ms": 105.86690902709961,
+      "kernels_activated": [
+        "message_bus",
+        "infrastructure_manager",
+        "event_policy",
+        "clarity",
+        "coding_agent",
+        "self_healing_core",
+        "librarian_core",
+        "memory",
+        "self_healing",
+        "librarian",
+        "librarian_enhanced"
+      ],
+      "anomalies": [
+        {
+          "kernel": "core",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "governance",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "code",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "intelligence",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "infrastructure",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "federation",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        },
+        {
+          "kernel": "verification",
+          "error": "BaseDomainKernel.__init__() missing 1 required positional argument: 'domain'"
+        }
+      ],
+      "status": "success",
+      "completed_at": "2025-11-14T10:48:33.065552"
+    }
+  ],
+  "failure_tests": [
+    {
+      "test": "kill_process",
+      "started_at": "2025-11-14T10:48:34.080546",
+      "status": "simulated",
+      "watchdog_expected": true,
+      "completed_at": "2025-11-14T10:48:34.082051"
+    },
+    {
+      "test": "config_corruption",
+      "started_at": "2025-11-14T10:48:34.082051",
+      "status": "simulated",
+      "self_heal_expected": true,
+      "completed_at": "2025-11-14T10:48:34.084051"
+    }
+  ],
+  "summary": {
+    "total_boots": 5,
+    "successful_boots": 5,
+    "failed_boots": 0,
+    "avg_boot_time": 214.6683692932129,
+    "watchdog_triggers": 1,
+    "self_heal_activations": 1
+  },
+  "completed_at": "2025-11-14T10:48:34.084051"
+}

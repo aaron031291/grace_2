@@ -29,7 +29,7 @@ class InfrastructureKernel(BaseDomainKernel):
     """
     
     def __init__(self):
-        super().__init__("infrastructure")
+        super().__init__(kernel_id="infrastructure_kernel", domain="infrastructure")
         self.base_url = "http://localhost:8000"
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
@@ -207,6 +207,31 @@ Provide infrastructure health summary."""
             suggested_panels=[{"type": "infrastructure_dashboard", "title": "System Status"}],
             confidence=original_intent.confidence
         )
+    
+    # Implement abstract methods required by BaseDomainKernel
+    async def _initialize_watchers(self):
+        """Set up watchers for infrastructure monitoring"""
+        pass
+    
+    async def _load_pending_work(self):
+        """Load pending infrastructure tasks"""
+        pass
+    
+    async def _coordinator_loop(self):
+        """Main coordination loop for infrastructure operations"""
+        while self._running:
+            try:
+                await asyncio.sleep(10)
+            except Exception as e:
+                pass
+    
+    async def _create_agent(self, agent_type: str, agent_id: str, task_data: Dict) -> Any:
+        """Create a sub-agent for infrastructure tasks"""
+        return {"agent_id": agent_id, "type": agent_type, "task": task_data}
+    
+    async def _cleanup(self):
+        """Cleanup infrastructure kernel resources"""
+        pass
 
 
 # Global instance

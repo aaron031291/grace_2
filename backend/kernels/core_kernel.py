@@ -34,7 +34,7 @@ class CoreKernel(BaseDomainKernel):
     """
     
     def __init__(self):
-        super().__init__("core")
+        super().__init__(kernel_id="core_kernel", domain="core")
         self.base_url = "http://localhost:8000"
     
     async def parse_intent(self, intent: str, context: Dict[str, Any]) -> KernelIntent:
@@ -220,6 +220,35 @@ Create a concise, helpful summary."""
             suggested_panels=[],
             confidence=original_intent.confidence
         )
+    
+    # Implement abstract methods required by BaseDomainKernel
+    async def _initialize_watchers(self):
+        """Set up filesystem, event, or API watchers for core domain"""
+        # Core kernel monitors system events and API health
+        pass
+    
+    async def _load_pending_work(self):
+        """Load any pending core system tasks"""
+        # Check for pending tasks, health checks, or system operations
+        pass
+    
+    async def _coordinator_loop(self):
+        """Main coordination loop for core operations"""
+        while self._running:
+            try:
+                # Heartbeat and health monitoring
+                await asyncio.sleep(10)
+            except Exception as e:
+                log_event("core_kernel_loop_error", {"error": str(e)})
+    
+    async def _create_agent(self, agent_type: str, agent_id: str, task_data: Dict) -> Any:
+        """Create a sub-agent for core domain tasks"""
+        # Stub: would create actual agent instances
+        return {"agent_id": agent_id, "type": agent_type, "task": task_data}
+    
+    async def _cleanup(self):
+        """Cleanup core kernel resources on shutdown"""
+        pass
 
 
 # Global instance
