@@ -306,7 +306,24 @@ routing_rules:
     
   vision:
     primary: llava_34b
-    fallback: [qwen2.5_72b]  # Qwen can handle some vision tasks
+    fallback: [llama3_2_vision, moondream]
+    output_to_memory: true
+    structured_format: true
+    
+  video:
+    primary: video_llava
+    fallback: [llava_34b]  # Can extract key frames
+    output_to_memory: true
+    structured_format: true
+    timestamp_extraction: true
+    
+  screenshot_analysis:
+    primary: llama3_2_vision  # Fast for real-time
+    fallback: [moondream, llava_34b]
+    
+  ui_understanding:
+    primary: llava_34b
+    fallback: [llama3_2_vision]
     
   fast:
     primary: phi3.5
@@ -320,6 +337,11 @@ routing_rules:
     primary: dolphin_mixtral
     fallback: [qwen2.5_72b]
     requires_approval: true
+    
+  remote_access_capture:
+    primary: llama3_2_vision  # Fast for live captures
+    fallback: [moondream, llava_34b]
+    real_time: true
 
 # === WARM CACHE POLICY (For GPU users) ===
 

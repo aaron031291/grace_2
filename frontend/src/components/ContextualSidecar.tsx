@@ -245,7 +245,9 @@ export default function ContextualSidecar() {
             onMouseLeave={() => setHovering(false)}
             style={{
               background: enabled ? '#8b5cf620' : '#1a1a1a',
-              border: `2px solid ${enabled ? '#8b5cf6' : '#333'}`,
+              borderTop: `2px solid ${enabled ? '#8b5cf6' : '#333'}`,
+              borderBottom: `2px solid ${enabled ? '#8b5cf6' : '#333'}`,
+              borderLeft: `2px solid ${enabled ? '#8b5cf6' : '#333'}`,
               borderRight: 'none',
               borderTopLeftRadius: '8px',
               borderBottomLeftRadius: '8px',
