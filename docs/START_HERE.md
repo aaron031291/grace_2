@@ -1,184 +1,241 @@
-# 🚀 START GRACE - COPY & PASTE COMMANDS
+# 🚀 START GRACE - Single Command
 
-## ⚡ FASTEST WAY - Copy This:
+## One Command to Start Everything
 
-### For PowerShell (Recommended):
-```powershell
+```bash
 cd C:\Users\aaron\grace_2
-.\RUN_GRACE.ps1
+python serve.py
 ```
 
-That's it! This will:
-1. ✅ Test everything
-2. ✅ Boot complete system
-3. ✅ Run until Ctrl+C
+That's it! This starts the **complete Grace system** with:
+
+✅ All 12 kernels  
+✅ Unified orchestrator  
+✅ Comprehensive API (60+ endpoints)  
+✅ Factory pattern routes  
+✅ Log watcher service  
+✅ Event bus  
+✅ Self-healing engine  
+✅ Coding agent integration  
+✅ Automation rules  
 
 ---
 
-## 🐳 DOCKER - Copy This:
+## What Gets Loaded
 
-### Option 1: Quick Docker Start
-```powershell
-cd C:\Users\aaron\grace_2
-docker-compose -f docker-compose.complete.yml up
-```
+When you run `python serve.py`, it loads `backend.unified_grace_orchestrator:app` which includes:
 
-### Option 2: Build Then Start
-```powershell
-cd C:\Users\aaron\grace_2
-docker-compose -f docker-compose.complete.yml build
-docker-compose -f docker-compose.complete.yml up
-```
+### Core Grace System
+- All 12 domain kernels
+- Elite systems (self-healing, coding agent)
+- Mission control
+- Parliament engine
+- Temporal reasoning
 
-### Stop Docker:
-```powershell
-docker-compose -f docker-compose.complete.yml down
-```
+### New Comprehensive API
+- Events API (`/events/*`)
+- Automation API (`/automation/*`)
+- Patches API (`/patches/*`)
+- System metrics
+- Self-healing with code escalation
 
----
-
-## ☸️ KUBERNETES - Copy This:
-
-### Deploy to Kubernetes:
-```powershell
-cd C:\Users\aaron\grace_2\kubernetes
-kubectl apply -f grace-namespace.yaml
-kubectl apply -f grace-configmap.yaml
-kubectl apply -f grace-backend-deployment.yaml
-kubectl apply -f grace-frontend-deployment.yaml
-kubectl apply -f grace-services.yaml
-```
-
-### Check Status:
-```powershell
-kubectl get pods -n grace
-kubectl get services -n grace
-```
-
-### View Logs:
-```powershell
-kubectl logs -n grace -l app=grace-backend --tail=100 -f
-```
-
-### Stop Kubernetes:
-```powershell
-kubectl delete namespace grace
-```
+### Services
+- **Log Watcher**: Monitors errors in real-time
+- **Event Bus**: Pub/sub for service communication
+- **Playbook Engine**: 6 pre-packaged playbooks
+- **Coding Bridge**: Self-healing → coding agent
 
 ---
 
-## 🎯 What Happens After You Run It?
+## Access Points
 
-### Services Available:
-- **Backend:** http://localhost:8000
-- **Frontend:** http://localhost:5173
-- **API Docs:** http://localhost:8000/docs
-- **Health Check:** http://localhost:8000/health
+Once started:
 
-### Test a Kernel:
-```powershell
-curl -X POST http://localhost:8000/kernel/memory `
-  -H "Content-Type: application/json" `
-  -d '{"intent": "What do you know about sales?"}'
+- **Health Check**: http://localhost:8000/health
+- **API Documentation**: http://localhost:8000/docs
+- **Frontend UI**: http://localhost:5173 (start separately)
+
+---
+
+## Health Check Shows Everything
+
+```bash
+curl http://localhost:8000/health
+```
+
+Returns:
+```json
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "platform": "Windows",
+  "imports_successful": true
+}
 ```
 
 ---
 
-## 🛑 Stop Grace
+## Test All Features
 
-### PowerShell:
-Press **Ctrl+C** in the terminal
+### Quick Tests
+```bash
+# Test comprehensive API
+curl http://localhost:8000/self-healing/stats
 
-### Docker:
-```powershell
-docker-compose -f docker-compose.complete.yml down
+# Test events
+curl http://localhost:8000/events/stats
+
+# Test automation
+curl http://localhost:8000/automation/rules
+
+# Test patches
+curl http://localhost:8000/patches/stats
 ```
 
-### Kubernetes:
-```powershell
-kubectl delete namespace grace
+### Comprehensive Test Suite
+```bash
+python test_factory_comprehensive.py
+```
+
+Expected: **25/25 tests passing**
+
+### Patch Workflow Demo
+```bash
+DEMO_PATCH_WORKFLOW.bat
 ```
 
 ---
 
-## ❓ Troubleshooting
+## Frontend Startup
 
-### PowerShell Won't Run Scripts?
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
+In a **separate terminal**:
 
-### Port Already in Use?
-```powershell
-# Check what's using port 8000
-netstat -ano | findstr :8000
-
-# Or use different port
-.\BOOT_GRACE_COMPLETE_E2E.ps1 -BackendPort 9000
-```
-
-### Dependencies Missing?
-```powershell
-# Install Python dependencies
-.venv\Scripts\pip install -r backend\requirements.txt
-
-# Install frontend dependencies
+```bash
 cd frontend
-npm install
-cd ..
+npm run dev
+```
+
+Then access: http://localhost:5173
+
+---
+
+## What's Integrated
+
+### ✅ Original Grace Features
+- All existing routes and kernels
+- Database integrations
+- WebSocket connections
+- Metrics and monitoring
+
+### ✅ New Comprehensive Features
+- Clean factory API architecture
+- Real-time log monitoring
+- Event-driven automation
+- Self-healing → coding agent workflow
+- Patch tracking system
+- Comprehensive UI layout
+
+### ✅ No Conflicts
+- Factory routes registered alongside existing routes
+- Services run in parallel
+- No circular imports
+- Clean separation of concerns
+
+---
+
+## Verify Services Are Running
+
+Check health endpoint for service status:
+
+```bash
+curl http://localhost:8000/events/stats
+```
+
+Should show:
+- Event bus subscribers active
+- Events in history
+- Subscription types
+
+---
+
+## Stop Grace
+
+Just press **Ctrl+C** in the terminal where `serve.py` is running.
+
+All services shut down gracefully:
+- Grace orchestrator stops
+- Log watcher stops  
+- Event bus clears
+- Database connections close
+
+---
+
+## Troubleshooting
+
+### Port Already in Use
+```bash
+# Kill all Python processes
+taskkill /F /IM python.exe
+
+# Wait 2 seconds
+ping 127.0.0.1 -n 3 >nul
+
+# Restart
+python serve.py
+```
+
+### Check Logs
+The console shows all logs in real-time. Look for:
+- ✅ marks = success
+- ❌ marks = failures
+- Service startup messages
+
+### Test Individual Endpoints
+```bash
+# Test if API is responding
+curl http://localhost:8000/health
+
+# Test specific domain
+curl http://localhost:8000/self-healing/stats
+curl http://localhost:8000/librarian/status
+curl http://localhost:8000/automation/rules
 ```
 
 ---
 
-## 📋 First Time Setup (One-Time Only)
+## Files Reference
 
-### Step 1: Install Dependencies
-```powershell
-# Create virtual environment
-python -m venv .venv
+### Main Startup
+- `serve.py` - Main launcher (runs unified_grace_orchestrator)
 
-# Install backend dependencies
-.venv\Scripts\pip install -r backend\requirements.txt
+### Backend
+- `backend/unified_grace_orchestrator.py` - Complete system orchestration
+- `backend/api/*` - 9 clean domain routers
+- `backend/services/*` - Shared services (log watcher, event bus, etc.)
 
-# Install frontend dependencies (optional)
-cd frontend
-npm install
-cd ..
-```
+### Tests
+- `test_factory_comprehensive.py` - 25 comprehensive tests
+- `DEMO_PATCH_WORKFLOW.bat` - Patch workflow demo
 
-### Step 2: Configure Environment
-```powershell
-# Copy .env template
-Copy-Item .env.example .env
-
-# Edit and add API keys (Amp API, etc.)
-notepad .env
-```
-
-### Step 3: Bootstrap Verification System
-```powershell
-# Run one-shot bootstrap (creates tables, snapshots, benchmarks)
-python scripts\bootstrap_verification.py
-```
-
-See [scripts/bootstrap_verification.py](file:///c:/Users/aaron/grace_2/scripts/bootstrap_verification.py#L1-L282) for complete bootstrap process.
-
-### Step 4: Run Integration Tests
-```powershell
-# Verify deployment readiness
-pytest tests/test_full_integration.py -v
-pytest tests/test_verification_comprehensive.py -v
-```
-
-See [tests/test_full_integration.py](file:///c:/Users/aaron/grace_2/tests/test_full_integration.py) for production readiness verification.
-
-### Step 5: Start Grace
-```powershell
-.\RUN_GRACE.ps1
-```
-
-**Production Readiness:** See [docs/PRODUCTION_READY_CHECKLIST.md](file:///c:/Users/aaron/grace_2/docs/PRODUCTION_READY_CHECKLIST.md#L1-L188) for complete deployment checklist.
+### Documentation
+- `FINAL_SUMMARY.md` - Complete system overview
+- `SELF_HEALING_CODE_PATCH_COMPLETE.md` - Patch system details
+- `CLEAN_ARCHITECTURE_FINAL.md` - Architecture guide
 
 ---
 
-**That's all you need!** 🎉
+## Summary
+
+**Single command starts everything:**
+```bash
+python serve.py
+```
+
+**All features integrated:**
+- Complete Grace system ✅
+- Comprehensive API ✅
+- Real-time monitoring ✅
+- Event automation ✅
+- Self-healing with code patches ✅
+
+**No duplication, no conflicts, one unified system!** 🎉
