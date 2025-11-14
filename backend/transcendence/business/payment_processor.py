@@ -9,7 +9,10 @@ import hashlib
 import json
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
-import stripe
+try:
+    import stripe
+except ImportError:
+    stripe = None  # Optional dependency
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

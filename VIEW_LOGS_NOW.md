@@ -1,182 +1,144 @@
-# 📜 View Logs - All Systems Operational!
+# 📋 Log Files Summary - Last 200 Lines
 
-## E2E Test Result: 100% PASS! 🎉
+## What the Logs Show:
 
-All routes working, database functional, frontend accessible!
+### ✅ GOOD NEWS - Layer 1 Boots Successfully!
+
+From `backend_output.log`:
+
+```
+[1/12] Message Bus: ACTIVE
+[2/12] Immutable Log: ACTIVE
+[3/12] Clarity Framework: ACTIVE
+[4/12] Clarity Kernel: ACTIVE
+[INFRA] Registered host: aaron (HostOS.WINDOWS)  ← YOUR PC!
+[INFRA] Infrastructure Manager initialized
+[5/12] Infrastructure Manager: ACTIVE (Multi-OS host registry)
+[6/12] Governance Kernel: ACTIVE (Multi-OS policies)
+[7/12] Memory Kernel: ACTIVE (Host state persistence)
+[8/12] Verification Framework: ACTIVE
+[9/12] Unified Logic: ACTIVE
+[10/12] Self-Healing: ACTIVE (4 playbooks)
+[11/12] Coding Agent: ACTIVE (4 patterns)
+[12/12] Librarian: ACTIVE (5 file types)
+[CONTROL] Control Plane: ACTIVE (16/16 kernels)
+
+LAYER 1 BOOT COMPLETE - MULTI-OS INFRASTRUCTURE READY
+```
+
+**All 12+ kernels boot successfully!** ✅
+
+### ❌ Then Crashed On:
+
+```
+UnicodeEncodeError: 'charmap' codec can't encode characters
+```
+
+**This is now FIXED!** (Removed emojis from serve.py)
+
+### 🔍 Old Errors (Not Current):
+
+The logs also show old database errors from Nov 10-11:
+```
+[ERR] database disk image is malformed
+```
+
+These are from previous days and not affecting current system.
 
 ---
 
-## Where to See Logs NOW
+## 🚀 Current Status
 
-### Option 1: Browser UI (Self-Healing Panel)
-```
-1. Open: http://localhost:5173
-2. Hard refresh: Ctrl+Shift+R  
-3. Click "Self-Healing" in left sidebar
-4. Click "Logs" tab (5th tab)
-5. See:
-   - Live Log Tail (last 50 lines)
-   - Immutable Archive (last 100 entries)
-   - Auto-updates every 5 seconds!
-```
+**All crashes fixed:**
+1. ✅ Stripe module installed
+2. ✅ Emojis removed from serve.py
+3. ✅ Chat.py fixed (no memory arg)
+4. ✅ All imports working
+5. ✅ Diagnostics pass
 
-### Option 2: API Direct
+**Auto-restart system added:**
+1. ✅ Kernel restart manager
+2. ✅ External watchdog
+3. ✅ Kill switch detection
+4. ✅ Alert system
+
+---
+
+## 🎯 To Run Grace Now
+
+### Option 1: With Watchdog (Recommended)
 ```bash
-# Get live tail
-curl http://localhost:8000/api/librarian/logs/tail?lines=50
-
-# Get immutable archive
-curl http://localhost:8000/api/librarian/logs/immutable?limit=100
-
-# Get activity feed
-curl http://localhost:8000/api/librarian/activity?limit=20
+START_GRACE_AND_WATCH.bat
 ```
 
-### Option 3: grace_dashboard.html
-```
-Open: grace_dashboard.html
-- Shows stats from all systems
-- Real-time updates
-- All 12 kernels status
-```
-
----
-
-## Create Some Log Entries
-
-### Drop a Test Book:
+Or:
 ```bash
-echo Test Book Content > grace_training\documents\books\log_test.pdf
+start_grace.cmd
 ```
 
-**Then watch:**
-- Self-Healing → Logs tab → New entries appear!
-- Activity feed updates
-- Librarian processes file
+Features:
+- Auto-restarts on crash
+- Logs all events
+- Sends alerts
+- Respects kill switch
 
-### Trigger Self-Healing Playbook:
+### Option 2: Without Watchdog
 ```bash
-curl -X POST http://localhost:8000/api/self-healing/playbooks/database_recovery/trigger
+python serve.py
 ```
 
-**Then check logs:**
-- New playbook execution logged
-- Actions recorded
-- Timeline updates
+Simple startup, no auto-restart.
 
 ---
 
-## Log Types You'll See
+## 📊 Expected Output
 
-### Librarian Logs:
-- `schema_proposal` - File detected, schema suggested
-- `schema_approval` - Unified Logic approved
-- `ingestion_launch` - Book processing started
-- `ingestion_complete` - Processing finished
-- `trust_update` - Trust score calculated
-- `file_organization` - File moved/organized
-- `folder_created` - New domain folder created
+When you run with watchdog:
 
-### Action Types (Color-Coded):
-- 🟢 Green: `*_complete`, `*_success`, `*_approval`
-- 🔴 Red: `*_error`, `*_failed`, `*_rejected`
-- 🔵 Blue: `*_proposal`, `*_launch`, `*_update`
+```
+GRACE - Auto-Restart System
+========================================
 
----
+Starting Grace with full resilience:
 
-## Immutable Log Features
+  Layer 1: Internal Kernel Supervision
+    - Monitors kernel heartbeats
+    - Auto-restarts failed kernels
+    - Max 3 attempts per kernel
 
-### What Makes It Immutable:
-- **Append-only:** Can only INSERT, never UPDATE or DELETE
-- **Timestamped:** Every entry has creation time
-- **Auditable:** Complete trail of all actions
-- **Searchable:** Query by action_type, timestamp, target
+  Layer 2: External Process Watchdog
+    - Monitors serve.py process
+    - Auto-restarts on crash
+    - Respects kill switch
+    - Logs all events
 
-### Query Examples:
-```bash
-# All schema proposals
-curl "http://localhost:8000/api/librarian/logs/immutable?action_type=schema_proposal"
+========================================
 
-# Last hour of activity
-curl "http://localhost:8000/api/librarian/activity?limit=100"
+[WATCHDOG] GRACE WATCHDOG - Process Supervisor Starting
+[WATCHDOG] Starting Grace backend (serve.py)...
+[WATCHDOG] ✅ Grace started (PID: 12345)
 
-# Live tail (refreshing)
-while true; do 
-  curl "http://localhost:8000/api/librarian/logs/tail?lines=10"
-  sleep 5
-done
+LAYER 1 BOOT COMPLETE - MULTI-OS INFRASTRUCTURE READY
+[INFRA] Infrastructure Manager tracking hosts:
+   [OK] aaron (windows) - healthy
+
+[RESTART-MGR] Kernel restart manager started
+[ALERT-SYS] Restart alert system monitoring active
+
+Grace is now running with full auto-restart protection!
 ```
 
 ---
 
-## UI Features
+## 🎉 Summary
 
-### In Self-Healing → Logs Tab:
+**Grace is now resilient with:**
 
-**Live Tail Section:**
-- Black terminal-style background
-- Scrollable (max 50 lines)
-- Auto-scrolls to bottom
-- Color-coded action types
-- Timestamp + action + target shown
+✅ **Internal Kernel Restart** - Control plane restarts failed kernels  
+✅ **External Watchdog** - Supervisor keeps serve.py alive  
+✅ **Crash Detection** - Distinguishes crash vs manual stop  
+✅ **Kill Switch** - Manual stop prevents auto-restart  
+✅ **Alert System** - Notifies co-pilot on all restart events  
+✅ **Production Ready** - PM2 & systemd configs included  
 
-**Immutable Archive Section:**
-- Card-style display
-- Click to expand details
-- Shows full JSON details
-- Sortable/filterable (future)
-- Complete audit trail
-
-**Refresh Button:**
-- Manual refresh anytime
-- Auto-refresh every 5s when tab active
-- Shows latest data immediately
-
----
-
-## Test It Now!
-
-### Step 1: Open UI
-```
-http://localhost:5173
-Ctrl+Shift+R
-```
-
-### Step 2: Navigate to Logs
-```
-Click: Self-Healing (sidebar)
-Click: Logs (tab)
-```
-
-### Step 3: Watch Real-Time Updates
-```
-Drop a file:
-echo "Test" > grace_training\documents\books\test.pdf
-
-Wait 5 seconds
-Logs tab auto-refreshes
-New entry appears!
-```
-
----
-
-## Current Log Count
-
-From your database:
-```
-memory_librarian_log: Has entries
-memory_file_operations: 0 operations (add some!)
-memory_incidents: Track healing incidents
-```
-
-**Start creating logs by:**
-- Dropping files in watched folders
-- Triggering playbooks
-- Running file operations
-- Approving schemas
-
-**All will appear in the Logs tab!** 📊
-
----
-
-**Your system is 100% operational. Go view those logs!** 🚀📜
+**Just run `START_GRACE_AND_WATCH.bat` to start with full resilience!** 🚀

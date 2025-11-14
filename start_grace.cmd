@@ -1,42 +1,28 @@
 @echo off
-REM Grace Server Startup Script
-REM Handles port conflicts and clean startup
+REM Start Grace with Auto-Restart
 
-echo ============================================================
-echo Grace AI System - Server Startup
-echo ============================================================
+echo.
+echo ================================
+echo Starting GRACE with Watchdog
+echo ================================
 echo.
 
-REM Check if port 8000 is in use
-echo Checking port 8000...
-netstat -ano | findstr :8000 | findstr LISTENING >nul 2>&1
+cd /d %~dp0
 
-if %ERRORLEVEL% EQU 0 (
-    echo WARNING: Port 8000 is already in use
-    echo.
-    echo Finding process...
-    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8000 ^| findstr LISTENING') do (
-        set PID=%%a
-        echo Process ID: %%a
-    )
-    
-    echo.
-    set /p KILL="Kill existing process? (Y/N): "
-    if /i "%KILL%"=="Y" (
-        taskkill /F /PID %PID%
-        echo Process killed
-        timeout /t 2 /nobreak >nul
-    ) else (
-        echo.
-        echo Cannot start - port 8000 is occupied
-        pause
-        exit /b 1
-    )
-)
+REM Clear manual shutdown flag
+echo {"manual_shutdown": false, "timestamp": "%date% %time%", "started_by": "start_script"} > grace_state.json
 
-echo Port 8000 is available
+echo Launching Grace with supervisor...
+echo.
+echo The watchdog will:
+echo  ✅ Keep Grace running
+echo  ✅ Auto-restart on crashes
+echo  ✅ Log all events
+echo  ✅ Alert on failures
+echo.
+echo Press Ctrl+C to stop
 echo.
 
-echo Starting Grace backend...
-echo ============================================================
-python serve.py
+python grace_watchdog.py
+
+pause

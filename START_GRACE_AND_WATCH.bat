@@ -1,34 +1,38 @@
 @echo off
-REM Start Grace Backend and Watch Activity in Real-Time
-
-echo ================================================================================
-echo GRACE - START AND WATCH
-echo ================================================================================
+cls
 echo.
-echo This will:
-echo 1. Start Grace backend server
-echo 2. Open activity monitor to watch Grace work
+echo ========================================
+echo GRACE - Auto-Restart System
+echo ========================================
 echo.
-echo ================================================================================
+echo Starting Grace with full resilience:
 echo.
-
-REM Start backend in new window
-echo [1/2] Starting Grace backend server...
-start "Grace Backend" cmd /k "cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-
+echo  Layer 1: Internal Kernel Supervision
+echo    - Monitors kernel heartbeats
+echo    - Auto-restarts failed kernels
+echo    - Max 3 attempts per kernel
 echo.
-echo [INFO] Backend starting... waiting 10 seconds for it to be ready
-timeout /t 10 /nobreak >nul
-
+echo  Layer 2: External Process Watchdog
+echo    - Monitors serve.py process
+echo    - Auto-restarts on crash
+echo    - Respects kill switch
+echo    - Logs all events
 echo.
-echo [2/2] Starting activity monitor...
+echo ========================================
 echo.
 
-REM Start activity watcher
-python watch_grace_live.py
+cd /d %~dp0
+
+REM Clear manual shutdown flag
+echo {"manual_shutdown": false, "timestamp": "%date% %time%"} > grace_state.json
+
+echo Starting watchdog supervisor...
+echo.
+echo Press Ctrl+C to stop Grace
+echo.
+
+python grace_watchdog.py
 
 echo.
-echo ================================================================================
-echo Grace stopped
-echo ================================================================================
+echo Watchdog stopped.
 pause
