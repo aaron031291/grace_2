@@ -6,6 +6,7 @@ Manages all memory storage, retrieval, and knowledge operations
 from typing import Dict, Any, List
 from datetime import datetime
 import asyncio
+import json
 
 from backend.core.kernel_sdk import KernelSDK
 from backend.core.message_bus import message_bus, MessagePriority
@@ -63,7 +64,13 @@ class MemoryKernel(KernelSDK):
             asyncio.create_task(self._process_health_summaries(health_queue))
             
         except Exception as e:
-            log_event("memory.infrastructure.subscribe_error", {"error": str(e)})
+            log_event(
+                action="memory.infrastructure.subscribe_error",
+                actor="memory_kernel",
+                resource="infrastructure_events",
+                outcome="error",
+                payload={"error": str(e)}
+            )
     
     async def _process_host_registrations(self, queue):
         """Process and persist host registration events"""
@@ -71,35 +78,45 @@ class MemoryKernel(KernelSDK):
             try:
                 msg = await queue.get()
                 host_data = msg.payload
-                host_id = host_data.get("host_id")
+                host_id = host_data.get("host_id", "unknown_host")
+                timestamp = datetime.utcnow().isoformat()
                 
                 # Cache in memory
                 self.host_state_cache[host_id] = {
-                    "registered_at": datetime.utcnow().isoformat(),
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "registered_at": timestamp,
+                    "last_updated": timestamp,
                     "data": host_data
                 }
                 
-                # Store in persistent memory
+                # Store in persistent memory (fallback to JSON blob)
+                record = {
+                    "event": "host_registration",
+                    "host_id": host_id,
+                    "os_type": host_data.get("os_type"),
+                    "payload": host_data,
+                    "timestamp": timestamp
+                }
                 await self.memory.store(
-                    domain="infrastructure",
-                    category=f"host_{host_data.get('os_type')}",
-                    key=host_id,
-                    value=host_data,
-                    metadata={
-                        "source": "infrastructure_manager",
-                        "type": "host_registration"
-                    }
+                    "memory_kernel",
+                    "infrastructure_host",
+                    json.dumps(record)
                 )
                 
                 log_event(
-                    "memory.host.persisted",
-                    f"Persisted host state: {host_id}",
-                    {"host_id": host_id}
+                    action="memory.host.persisted",
+                    actor="memory_kernel",
+                    resource=host_id,
+                    payload={"host_id": host_id, "os_type": host_data.get("os_type")}
                 )
                 
             except Exception as e:
-                log_event("memory.process_registration.error", {"error": str(e)})
+                log_event(
+                    action="memory.process_registration.error",
+                    actor="memory_kernel",
+                    resource="infrastructure.host.registered",
+                    outcome="error",
+                    payload={"error": str(e)}
+                )
     
     async def _process_health_summaries(self, queue):
         """Process and persist infrastructure health summaries"""
@@ -109,17 +126,26 @@ class MemoryKernel(KernelSDK):
                 summary = msg.payload
                 
                 # Store health snapshot
-                timestamp = summary.get("timestamp")
+                timestamp = summary.get("timestamp", datetime.utcnow().isoformat())
+                record = {
+                    "event": "health_summary",
+                    "timestamp": timestamp,
+                    "payload": summary
+                }
                 await self.memory.store(
-                    domain="infrastructure",
-                    category="health_snapshots",
-                    key=f"snapshot_{timestamp}",
-                    value=summary,
-                    metadata={"type": "health_summary"}
+                    "memory_kernel",
+                    "infrastructure_health",
+                    json.dumps(record)
                 )
                 
             except Exception as e:
-                log_event("memory.process_health.error", {"error": str(e)})
+                log_event(
+                    action="memory.process_health.error",
+                    actor="memory_kernel",
+                    resource="infrastructure.health.summary",
+                    outcome="error",
+                    payload={"error": str(e)}
+                )
     
     async def get_host_state(self, host_id: str) -> Dict[str, Any]:
         """Retrieve host state from memory"""
