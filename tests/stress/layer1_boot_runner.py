@@ -61,7 +61,7 @@ class BootStressRunner:
         }
     
     def log_event(self, event_type: str, data: Dict[str, Any]):
-        """Log structured event"""
+        """Log structured event AND publish to observability system"""
         
         log_entry = {
             "test_id": self.test_id,
@@ -70,11 +70,69 @@ class BootStressRunner:
             **data
         }
         
-        # Write to JSONL
+        # Write to JSONL (existing behavior)
         with open(self.log_file, 'a', encoding='utf-8') as f:
             f.write(json.dumps(log_entry) + "\n")
         
         print(f"[STRESS] {event_type}: {data.get('message', '')}")
+        
+        # NEW: Publish to message bus for observability
+        try:
+            asyncio.create_task(self._publish_telemetry(event_type, log_entry))
+        except Exception:
+            pass  # Best-effort, don't fail tests if telemetry unavailable
+    
+    async def _publish_telemetry(self, event_type: str, log_entry: Dict[str, Any]):
+        """Publish stress test telemetry to message bus"""
+        try:
+            from backend.core.message_bus import message_bus, MessagePriority
+            
+            # Determine priority based on event type
+            priority = MessagePriority.HIGH if "failed" in event_type or "error" in event_type else MessagePriority.NORMAL
+            
+            await message_bus.publish(
+                source="stress_test",
+                topic=f"telemetry.stress.{event_type}",
+                payload=log_entry,
+                priority=priority
+            )
+            
+            # Also publish to metrics collector
+            await self._publish_metrics(event_type, log_entry)
+            
+        except Exception as e:
+            # Silently fail - don't break tests
+            pass
+    
+    async def _publish_metrics(self, event_type: str, log_entry: Dict[str, Any]):
+        """Publish metrics to metrics collector"""
+        try:
+            from backend.monitoring.metrics_collector import metrics_collector
+            
+            # Extract metrics from log entry
+            if "boot_duration_ms" in log_entry:
+                await metrics_collector.record_metric(
+                    metric="stress.boot.duration_ms",
+                    value=log_entry["boot_duration_ms"],
+                    tags={"test_id": self.test_id, "cycle": log_entry.get("cycle")}
+                )
+            
+            if "kernels" in log_entry:
+                await metrics_collector.record_metric(
+                    metric="stress.boot.kernels_activated",
+                    value=log_entry["kernels"],
+                    tags={"test_id": self.test_id}
+                )
+            
+            # Failure metrics
+            if "failed" in event_type or "error" in event_type:
+                await metrics_collector.record_metric(
+                    metric="stress.failures",
+                    value=1,
+                    tags={"test_id": self.test_id, "event_type": event_type}
+                )
+        except Exception:
+            pass
     
     async def run_stress_suite(self):
         """Run complete stress test suite"""
