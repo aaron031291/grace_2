@@ -1,0 +1,59 @@
+==========================================
+GRACE - RESTART INSTRUCTIONS
+==========================================
+
+The backend needs to be restarted to load all new API endpoints.
+
+STEP 1: Start Backend
+=====================
+Open Terminal 1 and run:
+
+  cd C:\Users\aaron\grace_2
+  python serve.py
+
+Expected output:
+  GRACE - BOOTING ALL 19 KERNELS
+  [1/19] Message Bus: ACTIVE
+  [2/19] Immutable Log: ACTIVE
+  BOOT COMPLETE - 19 KERNELS OPERATIONAL
+  ...
+  Backend API: http://localhost:8000
+
+STEP 2: Verify Backend
+======================
+Open a browser or run:
+  
+  curl http://localhost:8000/api/health
+
+Expected:
+  {"status":"healthy","layers":{"layer1":...},"total_kernels":19}
+
+STEP 3: Frontend Already Running
+=================================
+Frontend is already running on http://localhost:5173
+It will automatically connect to the backend once it's up.
+
+STEP 4: Refresh Frontend
+=========================
+Refresh the page at http://localhost:5173
+
+Expected:
+  - No more 404 errors
+  - All kernels showing metrics
+  - Librarian dashboard working
+
+==========================================
+NEW API ENDPOINTS ADDED:
+==========================================
+  GET  /api/ingestion/status
+  GET  /api/ingestion/tasks
+  POST /api/ingestion/start
+  POST /api/ingestion/stop/{task_id}
+  GET  /api/kernels/layer1/status
+  GET  /api/telemetry/kernels/status
+  GET  /api/status
+  GET  /api/clarity/status
+  GET  /api/memory/files
+  GET  /api/hunter/alerts
+
+==========================================

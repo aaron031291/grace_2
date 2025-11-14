@@ -3,6 +3,7 @@
  */
 
 import type { NavItem } from '../GraceShell';
+import SystemArchitecture from './SystemArchitecture';
 import OverviewTab from '../tabs/OverviewTab';
 import ChatTab from '../tabs/ChatTab';
 import ClarityTab from '../tabs/ClarityTab';
@@ -23,54 +24,28 @@ interface MainPanelProps {
 }
 
 export default function MainPanel({ item }: MainPanelProps) {
-  // Render based on selection
-  if (item.type === 'kernel') {
-    switch (item.id) {
-      case 'memory':
-        return <MemoryBrowser />;
-      case 'intelligence':
-        return <IntelligenceTab />;
-      case 'code':
-      case 'core':
-      case 'governance':
-      case 'verification':
-      case 'infrastructure':
-      case 'federation':
-      case 'ml':
-        return (
-          <div style={{ padding: '2rem', color: '#e5e7ff' }}>
-            <h2>{item.label} Kernel</h2>
-            <p>Panel for {item.label} kernel coming soon...</p>
-          </div>
-        );
-      default:
-        return <div>Unknown kernel</div>;
-    }
-  }
-
-  // Functions
+  // Simple kernel routing - no SystemArchitecture component
   switch (item.id) {
-    case 'overview':
-      return <OverviewTab />;
-    case 'chat':
-      return <ChatTab />;
-    case 'clarity':
-      return <ClarityTab />;
-    case 'llm':
-      return <LLMTab />;
-    case 'ingestion':
-      return <IngestionTab />;
-    case 'learning':
-      return <LearningTab />;
-    case 'memory':
+    // Execution Layer
+    case 'memory_fusion':
       return <MemoryWorkspace />;
-    case 'hunter':
-      return <HunterDashboard />;
-    case 'agentic':
-      return <AgenticDashboard />;
-    case 'healing':
+    case 'librarian':
+      return <IngestionTab />;
+    case 'self_healing':
       return <HealthDashboard />;
+    case 'coding_agent':
+      return <ChatTab />;
+    
+    // Layer 3 - Agentic
+    case 'agentic_spine':
+      return <AgenticDashboard />;
+    case 'meta_loop':
+      return <LearningTab />;
+    case 'learning_integration':
+      return <IntelligenceTab />;
+    
+    // Default for all other kernels
     default:
-      return <OverviewTab />;
+      return <ClarityTab />;
   }
 }
