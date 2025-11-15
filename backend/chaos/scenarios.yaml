@@ -1,0 +1,52 @@
+scenarios:
+  - id: pause_coding_agent_kernel
+    description: >
+      Pause the coding_agent kernel heartbeat to ensure the control plane
+      watchdogs and self-healing restart it within the SLA window.
+    severity: high
+    category: kernel_stall
+    injection:
+      action: pause_kernel
+      target_kernel: coding_agent
+      duration_seconds: 20
+    verification:
+      checks:
+        - type: kernel_state
+          target_kernel: coding_agent
+          expected_state: running
+        - type: restart_within
+          target_kernel: coding_agent
+          max_seconds: 45
+
+  - id: task_topic_flood
+    description: >
+      Flood a task topic with messages to simulate runaway producers and ensure
+      the message bus and trigger mesh remain responsive.
+    severity: medium
+    category: bus_pressure
+    injection:
+      action: spam_topic
+      topic: task.code_generation
+      message_count: 200
+      burst_delay_ms: 5
+    verification:
+      checks:
+        - type: message_bus_health
+        - type: queue_depth_sample
+          topic: task.code_generation
+          max_depth: 150
+
+  - id: corrupt_model_snapshot
+    description: >
+      Temporarily remove a model snapshot to make sure restore logic and
+      self-healing respond when artifacts disappear.
+    severity: medium
+    category: artifact_integrity
+    injection:
+      action: corrupt_snapshot
+      file_name: dummy_weights.bin
+      duration_seconds: 15
+    verification:
+      checks:
+        - type: snapshot_exists
+          file_name: dummy_weights.bin
