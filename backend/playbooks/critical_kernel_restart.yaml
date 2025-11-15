@@ -1,0 +1,62 @@
+# Critical Kernel Restart Playbook
+# For single critical kernel failures
+
+playbook_id: critical_kernel_restart
+name: "Critical Kernel Restart"
+description: "Fast restart for single critical kernel failure"
+version: "1.0"
+category: recovery
+
+triggers:
+  - critical_kernel_heartbeat
+
+parameters:
+  kernel:
+    type: string
+    description: "Name of the failed critical kernel"
+    required: true
+
+steps:
+  - step_id: 1
+    action: immediate_restart
+    description: "Immediately restart the failed kernel"
+    execute:
+      component: control_plane
+      method: force_restart_kernel
+      params:
+        kernel_name: "{{ parameters.kernel }}"
+        bypass_cooldown: true
+    
+    timeout_seconds: 30
+  
+  - step_id: 2
+    action: verify_restart
+    description: "Verify kernel is running and responsive"
+    execute:
+      component: control_plane
+      method: check_kernel_health
+      params:
+        kernel_name: "{{ parameters.kernel }}"
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 10
+  
+  - step_id: 3
+    action: create_diagnostic_task
+    description: "Ask coding agent to investigate root cause"
+    execute:
+      component: elite_coding_agent
+      method: submit_task
+      params:
+        description: "Diagnose why {{ parameters.kernel }} failed"
+        task_type: "diagnostics"
+        priority: 9
+
+success_criteria:
+  - kernel restarted within 30s
+  - kernel responding to health checks
+  - diagnostic task created
+
+slo:
+  max_execution_time_seconds: 60

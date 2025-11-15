@@ -1,0 +1,232 @@
+# Emergency Critical Kernel Recovery Playbook
+# Triggered when multiple critical kernels (message_bus, self_healing, coding_agent) fail
+
+playbook_id: emergency_critical_kernel_recovery
+name: "Emergency Critical Kernel Recovery"
+description: "Fast-path recovery when multiple critical kernels fail simultaneously"
+version: "1.0"
+category: emergency
+
+# Trigger conditions
+triggers:
+  - critical_kernel_heartbeat (emergency mode)
+
+scenario_tags:
+  - critical_kernel_failure
+  - multi_kernel_outage
+  - emergency_protocol
+
+# Runtime parameters
+parameters:
+  kernels_down:
+    type: array
+    description: "List of critical kernels that are down"
+    required: true
+  
+  kernels_degraded:
+    type: array
+    description: "List of kernels with heartbeat issues"
+    required: false
+  
+  emergency_protocol:
+    type: boolean
+    description: "Whether to bypass normal recovery and use emergency path"
+    default: true
+
+# Execution steps
+steps:
+  - step_id: 1
+    action: assess_damage
+    description: "Assess which critical kernels are down and system state"
+    execute:
+      component: control_plane
+      method: get_status
+    
+    output: system_status
+    
+    success_criteria:
+      - control_plane responding
+    
+    on_failure:
+      action: escalate_to_manual_intervention
+      reason: "Control plane itself is compromised"
+
+  - step_id: 2
+    action: activate_emergency_mode
+    description: "Put system in emergency recovery mode"
+    execute:
+      component: control_plane
+      method: set_emergency_mode
+      params:
+        enabled: true
+        reason: "Multiple critical kernels down"
+    
+    output: emergency_mode_active
+    
+    timeout_seconds: 5
+
+  - step_id: 3
+    action: parallel_kernel_restart
+    description: "Restart all failed kernels in parallel (not sequential)"
+    execute:
+      component: control_plane
+      method: parallel_restart_kernels
+      params:
+        kernels: "{{ parameters.kernels_down }}"
+        max_parallel: 3
+        force: true
+    
+    output: restart_results
+    
+    timeout_seconds: 60
+    
+    success_criteria:
+      - at least 2 of 3 kernels restarted
+
+  - step_id: 4
+    action: verify_message_bus
+    description: "Verify message bus is operational (most critical)"
+    execute:
+      component: message_bus
+      method: health_check
+    
+    output: message_bus_healthy
+    
+    timeout_seconds: 10
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 5
+    
+    on_failure:
+      action: restore_from_snapshot
+      target: message_bus
+
+  - step_id: 5
+    action: verify_self_healing
+    description: "Verify self-healing is operational"
+    execute:
+      component: self_healing
+      method: health_check
+    
+    output: self_healing_healthy
+    
+    timeout_seconds: 10
+    
+    on_failure:
+      action: continue
+      reason: "System can operate without self-healing temporarily"
+
+  - step_id: 6
+    action: verify_coding_agent
+    description: "Verify coding agent is operational"
+    execute:
+      component: coding_agent
+      method: health_check
+    
+    output: coding_agent_healthy
+    
+    timeout_seconds: 10
+    
+    on_failure:
+      action: continue
+      reason: "System can operate without coding agent temporarily"
+
+  - step_id: 7
+    action: create_diagnostic_tasks
+    description: "Create coding-agent tasks to analyze failure root cause"
+    execute:
+      component: elite_coding_agent
+      method: submit_task
+      params:
+        task_type: "diagnostics"
+        description: "Analyze why {{ parameters.kernels_down | length }} critical kernels failed simultaneously"
+        requirements:
+          kernels: "{{ parameters.kernels_down }}"
+          check_for:
+            - resource_exhaustion
+            - dependency_failures
+            - configuration_issues
+            - code_bugs
+            - external_attacks
+        priority: 10
+    
+    output: diagnostic_task_created
+
+  - step_id: 8
+    action: restore_system_health
+    description: "Verify all kernels are back to healthy state"
+    execute:
+      component: control_plane
+      method: verify_all_kernels_healthy
+    
+    output: all_healthy
+    
+    timeout_seconds: 30
+    
+    success_criteria:
+      - message_bus: running
+      - at least 18 of 20 kernels: running
+
+  - step_id: 9
+    action: disable_emergency_mode
+    description: "Return to normal operation"
+    execute:
+      component: control_plane
+      method: set_emergency_mode
+      params:
+        enabled: false
+    
+    output: normal_mode_restored
+
+  - step_id: 10
+    action: log_recovery
+    description: "Log recovery to immutable audit trail"
+    execute:
+      component: immutable_log
+      method: append
+      params:
+        actor: "emergency_recovery_playbook"
+        action: "critical_kernel_recovery_complete"
+        resource: "{{ parameters.kernels_down | join(',') }}"
+        result: "success"
+        details:
+          recovery_time_seconds: "{{ execution_time }}"
+          kernels_recovered: "{{ restart_results.success }}"
+          emergency_protocol_used: true
+
+# Success criteria for entire playbook
+success_criteria:
+  - message_bus operational
+  - at least 2 of 3 critical kernels recovered
+  - recovery_time < 120s
+  - immutable_log continuity maintained
+
+# SLOs
+slo:
+  max_execution_time_seconds: 120
+  max_user_impact: "minimal"
+  data_loss_tolerance: "zero"
+
+# Verification
+verify:
+  - message_bus can publish and subscribe
+  - immutable_log can append entries
+  - self-healing or coding_agent can accept tasks
+  - no data loss in audit trail
+  - system state is consistent
+
+# Post-execution
+post_execution:
+  - notify_ops_team:
+      severity: critical
+      message: "Emergency recovery executed for {{ parameters.kernels_down | length }} critical kernels"
+  
+  - create_incident_report:
+      title: "Critical Kernel Failure - {{ parameters.kernels_down | join(', ') }}"
+      category: "infrastructure"
+      severity: "critical"
+  
+  - schedule_root_cause_analysis:
+      assigned_to: "coding_agent"
+      deadline_hours: 24
