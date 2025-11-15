@@ -8,22 +8,9 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 from cryptography.hazmat.primitives import serialization
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
 from sqlalchemy.sql import func
-from .models import Base, async_session
-
-class VerificationEnvelope(Base):
-    """Signed envelopes for actions"""
-    __tablename__ = "verification_envelopes"
-    id = Column(Integer, primary_key=True)
-    action_id = Column(String(64), unique=True, nullable=False)
-    actor = Column(String(64), nullable=False)
-    action_type = Column(String(128), nullable=False)
-    resource = Column(String(256))
-    input_hash = Column(String(64), nullable=False)
-    output_hash = Column(String(64))
-    signature = Column(String(256), nullable=False)
-    verified = Column(Boolean, default=False)
-    criteria_met = Column(Boolean)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+from backend.models import Base, async_session
+from ..models.verification_models import VerificationArtifact, VerificationEnvelope
+from ..logging.immutable_log import immutable_log
 
 class VerificationEngine:
     """Sign and verify all actions cryptographically"""

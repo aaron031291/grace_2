@@ -7,7 +7,7 @@ import uuid
 import hashlib
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, update
 from backend.models import async_session
 from ..models.parliament_models import (
     GovernanceSession as ParliamentarySession,
@@ -16,17 +16,17 @@ from ..models.parliament_models import (
     CommitteeDefinition,
     ParliamentConfig,
 )
-from ..logging.immutable_log import immutable_log
-from .verification import VerificationEngine
-from .immutable_log import ImmutableLog as ImmutableLogger
-from .metric_publishers import ParliamentMetrics
+from ..logging.immutable_log import immutable_log as ImmutableLogger
+from ..verification_system.verification import VerificationEngine
+from ..monitoring.metric_publishers import ParliamentMetrics
 
 class ParliamentEngine:
-    """Multi-agent voting and consensus system"""
+    """Multi-agent democratic voting system"""
     
     def __init__(self):
         self.verification = VerificationEngine()
-        self.audit = ImmutableLogger()
+        self.audit = ImmutableLogger
+        self.metrics = ParliamentMetrics()
     
     async def create_member(
         self,
