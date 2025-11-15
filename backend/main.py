@@ -14,6 +14,7 @@ from backend.routes.remote_access_api import router as remote_access_router
 from backend.routes.autonomous_learning_api import router as learning_router
 from backend.routes.mission_control_api import router as mission_control_router
 from backend.routes.auth import router as auth_router
+from backend.routes.learning_visibility_api import router as learning_visibility_router
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -47,6 +48,9 @@ app.include_router(mission_control_router)
 
 # Register auth routes
 app.include_router(auth_router)
+
+# Register learning visibility & tracking
+app.include_router(learning_visibility_router)
 
 @app.get("/health")
 async def health_check():
