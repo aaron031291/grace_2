@@ -41,7 +41,8 @@ class BaseSubAgent:
         self.step_id = step.get("id") or str(uuid.uuid4())
 
     async def run(self, orchestration_ctx) -> SubAgentResult:  # noqa: ANN001
-        raise NotImplementedError
+        """Execute subagent task - must be implemented by subclass"""
+        raise NotImplementedError(f"{self.__class__.__name__}.run() must be implemented")
 
 
 class AnalysisAgent(BaseSubAgent):

@@ -1,0 +1,189 @@
+# Mutual Repair Playbooks
+# Self-Healing fixes Coding Agent
+# Coding Agent fixes Self-Healing
+
+playbooks:
+  
+  # ========== SELF-HEALING FIXES CODING AGENT ==========
+  
+  - name: "coding_agent_crash_recovery"
+    description: "Self-healing restarts crashed coding agent"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "kernel == 'coding_agent' AND state == 'failed'"
+    steps:
+      - action: "capture_coding_agent_state"
+        include: [task_queue, active_tasks, completed_tasks]
+      - action: "backup_task_queue"
+        file: ".grace_snapshots/coding_agent_queue.json"
+      - action: "restart_kernel"
+        kernel: "coding_agent"
+        clean_state: false
+      - action: "restore_task_queue"
+        file: ".grace_snapshots/coding_agent_queue.json"
+      - action: "verify_task_processing"
+        timeout: 30
+      - action: "alert"
+        message: "Coding agent recovered by self-healing"
+  
+  - name: "coding_agent_bad_patch_rollback"
+    description: "Rollback faulty code patches from coding agent"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "error_contains('bad patch')"
+      - condition: "actor == 'coding_agent'"
+    steps:
+      - action: "identify_faulty_patch"
+        from_immutable_log: true
+      - action: "git_revert"
+        commits: 1
+      - action: "quarantine_patch"
+        directory: ".quarantine/bad_patches/"
+      - action: "restart_affected_kernels"
+      - action: "create_incident_report"
+        for_human_review: true
+      - action: "update_coding_agent_safeguards"
+  
+  - name: "coding_agent_stuck_loop"
+    description: "Break coding agent out of infinite loop"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "kernel == 'coding_agent' AND cpu_percent > 95 AND duration > 60"
+    steps:
+      - action: "capture_stack_trace"
+        kernel: "coding_agent"
+      - action: "force_restart_kernel"
+        kernel: "coding_agent"
+        kill_signal: "SIGTERM"
+        timeout: 10
+      - action: "analyze_stuck_loop"
+        stack_trace: "$stack_trace"
+      - action: "create_refactor_task"
+        description: "Fix infinite loop in coding agent"
+        priority: 10
+  
+  - name: "coding_agent_memory_leak"
+    description: "Recover from coding agent memory leak"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "kernel == 'coding_agent' AND memory_usage > 4GB"
+    steps:
+      - action: "capture_memory_profile"
+      - action: "restart_kernel"
+        kernel: "coding_agent"
+      - action: "send_memory_profile_to_clarity"
+      - action: "create_optimization_task"
+        for: "coding_agent"
+        priority: 8
+  
+  # ========== CODING AGENT FIXES SELF-HEALING ==========
+  
+  - name: "self_healing_bad_playbook_fix"
+    description: "Coding agent fixes malformed playbook"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "kernel == 'self_healing' AND error_contains('playbook parse')"
+    steps:
+      - action: "escalate_to_coding_agent"
+        description: "Fix malformed playbook YAML"
+        files: ["playbooks/*.yaml"]
+        priority: 10
+        acceptance:
+          - validate_yaml: "playbooks/"
+          - run_playbook_test: true
+      - action: "validate_all_playbooks"
+      - action: "restart_kernel"
+        kernel: "self_healing"
+        if: "validation_passed == true"
+  
+  - name: "self_healing_stuck_loop_fix"
+    description: "Coding agent refactors stuck self-healing loop"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "kernel == 'self_healing' AND cpu_percent > 90 AND duration > 60"
+    steps:
+      - action: "force_restart_kernel"
+        kernel: "self_healing"
+        immediate: true
+      - action: "escalate_to_coding_agent"
+        description: "Refactor self-healing loop to prevent infinite recursion"
+        files: ["backend/core/self_healing_kernel.py"]
+        intent: "reduce_complexity"
+        priority: 10
+        acceptance:
+          - run_lint: true
+          - run_tests: "tests/test_self_healing.py"
+          - verify_cpu: "< 50%"
+  
+  - name: "self_healing_playbook_execution_failure"
+    description: "Fix failing playbook execution logic"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "playbook_failure_count > 5"
+    steps:
+      - action: "capture_playbook_execution_logs"
+      - action: "identify_failing_step"
+      - action: "escalate_to_coding_agent"
+        description: "Debug and fix playbook execution engine"
+        files: ["backend/services/playbook_engine.py"]
+        priority: 9
+        acceptance:
+          - run_tests: "tests/test_playbook_engine.py"
+          - run_sample_playbooks: 3
+  
+  - name: "self_healing_knowledge_base_corruption"
+    description: "Repair corrupted failure signature knowledge base"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "knowledge_base_checksum_fail == true"
+    steps:
+      - action: "backup_corrupted_kb"
+        to: ".quarantine/knowledge_base/"
+      - action: "restore_kb_from_snapshot"
+        snapshot: ".grace_snapshots/knowledge_base.json"
+      - action: "escalate_to_coding_agent"
+        description: "Add integrity validation to knowledge base operations"
+        files: ["backend/core/error_recognition_system.py"]
+        priority: 8
+      - action: "verify_kb_integrity"
+  
+  # ========== MUTUAL MONITORING ==========
+  
+  - name: "mutual_health_check"
+    description: "Each monitors the other continuously"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "cron == '*/5 * * * *'"  # Every 5 minutes
+    steps:
+      - action: "check_coding_agent_health"
+        metrics: [task_queue_depth, active_tasks, cpu_usage, memory_usage]
+      - action: "check_self_healing_health"
+        metrics: [playbook_success_rate, incident_queue, response_time]
+      - action: "cross_validate"
+        coding_agent_validates: "self_healing"
+        self_healing_validates: "coding_agent"
+      - action: "alert_if_degraded"
+        threshold: "either_component_unhealthy"
+  
+  - name: "deadlock_detection"
+    description: "Detect and break deadlock between components"
+    domain: "mutual_repair"
+    trigger_on:
+      - condition: "both_components_stuck == true"
+    steps:
+      - action: "detect_circular_dependency"
+      - action: "force_restart_both"
+        kernels: [self_healing, coding_agent]
+        stagger_seconds: 5
+      - action: "load_minimal_config"
+        safe_mode: true
+      - action: "escalate_to_control_plane"
+        for_manual_intervention: true
+
+metadata:
+  mutual_repair: true
+  critical: true
+  total_playbooks: 10
+  self_healing_fixes_coding: 4
+  coding_fixes_self_healing: 4
+  mutual_monitoring: 2

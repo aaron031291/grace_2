@@ -16,8 +16,8 @@ class AlertChannel:
     """Base class for alert channels"""
 
     async def send(self, alert: Dict[str, Any]):
-        """Send alert through this channel"""
-        raise NotImplementedError
+        """Send alert through this channel - override in subclass"""
+        logger.warning(f"AlertChannel.send() not implemented for {self.__class__.__name__}")
 
 
 class CLIAlertChannel(AlertChannel):

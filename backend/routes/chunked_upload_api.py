@@ -368,17 +368,67 @@ def _compute_checksum(file_path: Path) -> str:
 
 async def _malware_scan(file_path: Path) -> dict:
     """
-    Run malware scan on file.
-    Placeholder: integrate with ClamAV or similar.
+    Run malware scan on file using ClamAV or basic heuristics
     """
-    # Placeholder: always return clean
-    logger.info(f"Scanning {file_path} for malware (placeholder)")
+    try:
+        # Try ClamAV if available
+        import subprocess
+        result = subprocess.run(
+            ['clamscan', '--no-summary', str(file_path)],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode == 0:
+            return {
+                'status': 'clean',
+                'scanner': 'clamav',
+                'scanned_at': datetime.utcnow().isoformat()
+            }
+        else:
+            return {
+                'status': 'infected',
+                'scanner': 'clamav',
+                'details': result.stdout,
+                'scanned_at': datetime.utcnow().isoformat()
+            }
     
-    return {
-        'status': 'clean',
-        'scanner': 'placeholder',
-        'scanned_at': datetime.utcnow().isoformat()
-    }
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        # ClamAV not available, use basic heuristics
+        logger.info(f"ClamAV not available, using basic heuristics for {file_path}")
+        
+        # Basic heuristic checks
+        file_size = file_path.stat().st_size
+        
+        # Check file size (reject files > 500MB as potential threat)
+        if file_size > 500 * 1024 * 1024:
+            return {
+                'status': 'suspicious',
+                'scanner': 'heuristic',
+                'reason': 'file_too_large',
+                'scanned_at': datetime.utcnow().isoformat()
+            }
+        
+        # Check for executable signatures (basic)
+        with open(file_path, 'rb') as f:
+            header = f.read(4)
+            
+        # PE/ELF/Mach-O executables
+        if header in [b'MZ\x90\x00', b'\x7fELF', b'\xcf\xfa\xed\xfe']:
+            return {
+                'status': 'suspicious',
+                'scanner': 'heuristic',
+                'reason': 'executable_detected',
+                'scanned_at': datetime.utcnow().isoformat()
+            }
+        
+        return {
+            'status': 'clean',
+            'scanner': 'heuristic',
+            'note': 'Install ClamAV for comprehensive scanning',
+            'scanned_at': datetime.utcnow().isoformat()
+        }
 
 
 async def _trigger_librarian_ingestion(file_path: str, manifest: dict):
