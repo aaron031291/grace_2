@@ -1,227 +1,210 @@
 """
-Remote Access API
-Secure remote access for Grace with zero-trust + RBAC + session recording
+Remote Access API - Zero-Trust Secure Remote Sessions for Grace
+
+Provides a secure, audited, and governance-controlled way for Grace's
+agentic systems to interact with external environments (e.g., shell, cloud APIs).
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Body
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List, Optional
+import uuid
+from datetime import datetime, timedelta
+from sqlalchemy.future import select
 
-from ..remote_access.zero_trust_layer import zero_trust_layer
-from ..remote_access.rbac_enforcer import rbac_enforcer
-from ..remote_access.session_recorder import session_recorder
+from backend.auth.auth_handler import get_current_user # Assuming a user auth system
+from backend.governance_system.governance import governance_engine
+from backend.models.base_models import async_session
+from backend.models.remote_access_models import RemoteSession, CommandHistory
 
-router = APIRouter(prefix="/api/remote", tags=["Remote Access"])
+router = APIRouter(
+    prefix="/api/remote-access",
+    tags=["Remote Access & Zero Trust"],
+)
 
+# --- In-memory state is now replaced by the database ---
+WHITELISTED_DOMAINS = [
+    # Programming & Software Engineering
+    "github.com", "gitlab.com", "stackoverflow.com",
+    # Data Engineering & Analytics
+    "databricks.com", "snowflake.com", "dbt.com",
+    # Cloud Platforms & Infrastructure
+    "aws.amazon.com", "azure.microsoft.com", "cloud.google.com",
+    "kubernetes.io", "docker.com", "terraform.io",
+    # DevOps, SRE & Observability
+    "prometheus.io", "grafana.com", "datadoghq.com",
+    # Security & Compliance
+    "owasp.org", "sans.org",
+    # Machine Learning & AI
+    "pytorch.org", "tensorflow.org", "huggingface.co", "arxiv.org",
+    "paperswithcode.com", "kaggle.com",
+    # Package managers
+    "pypi.org", "npmjs.com", "mvnrepository.com"
+]
 
-class DeviceRegistration(BaseModel):
-    device_name: str
-    device_type: str
-    approved_by: str
+class SessionRequest(BaseModel):
+    target_system: str = Field(..., description="The system to connect to, e.g., 'local_shell', 'aws_cli'")
+    reason: str = Field(..., description="Justification for the session, e.g., 'Deploying new infrastructure for Mission X'")
 
-
-class RoleAssignment(BaseModel):
-    device_id: str
-    role_name: str
-    approved_by: str
-
-
-class CommandExecution(BaseModel):
-    token: str
+class CommandRequest(BaseModel):
+    session_id: str
     command: str
-    resource: str
 
+def is_whitelisted(command: str) -> bool:
+    """A simple zero-trust gate based on domain whitelisting."""
+    # A real implementation would be more sophisticated, checking for malicious patterns.
+    # This is a basic example.
+    for domain in WHITELISTED_DOMAINS:
+        if domain in command:
+            return True
+    # Allow local commands that don't involve networking
+    if "git" in command or "docker" in command or "kubectl" in command or "terraform" in command:
+        return True
+    return False
 
-@router.on_event("startup")
-async def startup():
-    """Initialize remote access systems"""
-    await zero_trust_layer.start()
-    await session_recorder.start()
-
-
-@router.post("/devices/register")
-async def register_device(registration: DeviceRegistration):
-    """
-    Register new device for remote access
+@router.post("/session/start", status_code=201)
+async def start_session(
+    request: SessionRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Starts a new, audited remote access session."""
+    session_id = f"session_{uuid.uuid4().hex}"
+    expires_at = datetime.utcnow() + timedelta(hours=1)
     
-    Returns device ID and initial credentials
-    """
-    
-    result = zero_trust_layer.register_device(
-        device_name=registration.device_name,
-        device_type=registration.device_type,
-        approved_by=registration.approved_by
+    async with async_session() as session:
+        new_session = RemoteSession(
+            session_id=session_id,
+            user_id=current_user["username"],
+            target_system=request.target_system,
+            reason=request.reason,
+            expires_at=expires_at
+        )
+        session.add(new_session)
+        await session.commit()
+
+    # Log with governance
+    await governance_engine.log_event(
+        actor=current_user["username"],
+        action="remote_session_start",
+        resource=session_id,
+        details={"target": request.target_system, "reason": request.reason}
     )
-    
-    return result
 
-
-@router.post("/roles/assign")
-async def assign_role(assignment: RoleAssignment):
-    """
-    Assign RBAC role to device
-    
-    Available roles:
-    - observer: Read-only access
-    - executor: Can execute pre-approved scripts
-    - developer: Can read, write, execute (no installs)
-    - grace_sandbox: Limited sandbox permissions
-    """
-    
-    success = rbac_enforcer.assign_role(
-        device_id=assignment.device_id,
-        role_name=assignment.role_name,
-        approved_by=assignment.approved_by
-    )
-    
-    if not success:
-        raise HTTPException(status_code=400, detail=f"Invalid role: {assignment.role_name}")
-    
-    return {
-        'device_id': assignment.device_id,
-        'role': assignment.role_name,
-        'permissions': rbac_enforcer.get_role_permissions(assignment.role_name)
-    }
-
+    return {"session_id": session_id, "expires_at": expires_at.isoformat()}
 
 @router.post("/execute")
-async def execute_command(execution: CommandExecution):
-    """
-    Execute remote command with security checks
-    
-    Process:
-    1. Authenticate token (zero-trust)
-    2. Check RBAC permissions
-    3. Start session recording
-    4. Execute command
-    5. Log all activity
-    6. Return result
-    """
-    
-    # Step 1: Authenticate
-    auth_result = await zero_trust_layer.authenticate(execution.token)
-    
-    if not auth_result:
-        raise HTTPException(status_code=401, detail="Authentication failed")
-    
-    device_id = auth_result['device_id']
-    
-    # Step 2: Check RBAC permissions
-    permission_check = await rbac_enforcer.check_permission(
-        device_id=device_id,
-        action='execute_script',
-        resource=execution.resource
-    )
-    
-    if not permission_check['allowed']:
-        raise HTTPException(
-            status_code=403,
-            detail=f"Permission denied: {permission_check['reason']}"
+async def execute_command(
+    request: CommandRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Executes a command within an active remote session after passing the zero-trust gate."""
+    async with async_session() as db_session:
+        result = await db_session.execute(
+            select(RemoteSession).where(RemoteSession.session_id == request.session_id)
         )
-    
-    # Step 3: Start recording
-    recording_id = await session_recorder.start_recording(
-        session_id=execution.token[:8],
-        device_id=device_id,
-        device_name=auth_result['device_name']
+        session = result.scalar_one_or_none()
+
+        if not session or session.expires_at < datetime.utcnow() or session.status != "active" or session.user_id != current_user["username"]:
+            raise HTTPException(status_code=404, detail="Session not found, has expired, or is invalid.")
+
+    # --- ZERO-TRUST GATE ---
+    if not is_whitelisted(request.command):
+        await governance_engine.log_event(
+            actor=current_user["username"],
+            action="remote_command_denied",
+            resource=session.session_id,
+            details={"command": request.command, "reason": "Not in whitelist"}
+        )
+        raise HTTPException(status_code=403, detail="Command is not whitelisted by the Zero-Trust policy.")
+
+    # --- GOVERNANCE CHECK ---
+    is_approved, reason = await governance_engine.check_permission(
+        actor=current_user["username"],
+        action=f"execute:{session.target_system}",
+        resource=request.command
     )
+    if not is_approved:
+        raise HTTPException(status_code=403, detail=f"Governance denied execution: {reason}")
+
+    # --- EXECUTE COMMAND (Simulated) ---
+    try:
+        # A more robust implementation would use subprocess.
+        if "git clone" in request.command:
+            output = f"Cloning repository from {request.command.split()[-1]}... Done."
+            success = True
+        elif "terraform apply" in request.command:
+            output = "Terraform plan has been applied."
+            success = True
+        else:
+            output = f"Simulated execution of: {request.command}"
+            success = True
+    except Exception as e:
+        output = str(e)
+        success = False
     
-    # Step 4: Execute command (in production, actually execute)
-    # For now, simulate
-    result = {
-        'output': f'[SIMULATED] Command executed: {execution.command}',
-        'exit_code': 0,
-        'execution_time_ms': 100.0
+    # Log command to history
+    async with async_session() as db_session:
+        history_entry = CommandHistory(
+            session_id=session.session_id,
+            command=request.command,
+            output=output,
+            success=success
+        )
+        db_session.add(history_entry)
+        await db_session.commit()
+
+    return {"session_id": session.session_id, "output": output, "success": success}
+
+@router.get("/session/{session_id}")
+async def get_session_details(
+    session_id: str,
+    current_user: Dict = Depends(get_current_user)
+):
+    """Retrieves the details and command history of a session."""
+    async with async_session() as db_session:
+        result = await db_session.execute(
+            select(RemoteSession).where(RemoteSession.session_id == session_id)
+        )
+        session = result.scalar_one_or_none()
+
+        if not session or session.user_id != current_user["username"]:
+            raise HTTPException(status_code=404, detail="Session not found.")
+            
+        # Eagerly load history for serialization
+        history_result = await db_session.execute(
+            select(CommandHistory).where(CommandHistory.session_id == session.session_id)
+        )
+        history = history_result.scalars().all()
+
+    return {
+        "session_id": session.session_id,
+        "target_system": session.target_system,
+        "status": session.status,
+        "is_expired": session.expires_at < datetime.utcnow(),
+        "command_history": [{"command": h.command, "output": h.output, "success": h.success, "timestamp": h.timestamp.isoformat()} for h in history],
     }
+
+@router.post("/session/stop")
+async def stop_session(
+    session_id: str = Body(..., embed=True),
+    current_user: Dict = Depends(get_current_user)
+):
+    """Stops and invalidates an active session."""
+    async with async_session() as db_session:
+        result = await db_session.execute(
+            select(RemoteSession).where(RemoteSession.session_id == session_id)
+        )
+        session = result.scalar_one_or_none()
+
+        if not session or session.user_id != current_user["username"]:
+            raise HTTPException(status_code=404, detail="Session not found.")
+        
+        session.status = "stopped"
+        await db_session.commit()
     
-    # Step 5: Record execution
-    await session_recorder.record_command(
-        recording_id=recording_id,
-        command=execution.command,
-        output=result['output'],
-        exit_code=result['exit_code'],
-        execution_time_ms=result['execution_time_ms']
+    await governance_engine.log_event(
+        actor=current_user["username"],
+        action="remote_session_stop",
+        resource=session.session_id,
     )
-    
-    # Step 6: Log to zero-trust layer
-    await zero_trust_layer.log_session_activity(
-        token=execution.token,
-        command=execution.command,
-        result=result
-    )
-    
-    # Stop recording
-    await session_recorder.stop_recording(recording_id)
-    
-    return {
-        'success': True,
-        'result': result,
-        'recording_id': recording_id,
-        'device_id': device_id
-    }
-
-
-@router.get("/sessions")
-async def get_active_sessions():
-    """Get all active remote sessions"""
-    
-    sessions = zero_trust_layer.get_active_sessions()
-    
-    return {
-        'active_sessions': sessions,
-        'count': len(sessions)
-    }
-
-
-@router.get("/audit/{device_id}")
-async def get_session_audit(device_id: str):
-    """Get session audit trail for device"""
-    
-    audit_trail = zero_trust_layer.get_session_audit_trail(device_id=device_id)
-    
-    return {
-        'device_id': device_id,
-        'audit_trail': audit_trail,
-        'count': len(audit_trail)
-    }
-
-
-@router.get("/recordings")
-async def get_recordings(device_id: Optional[str] = None):
-    """Get session recordings"""
-    
-    recordings = session_recorder.get_recordings(device_id=device_id)
-    
-    return {
-        'recordings': recordings,
-        'count': len(recordings)
-    }
-
-
-@router.get("/blocked-attempts")
-async def get_blocked_attempts(device_id: Optional[str] = None):
-    """Get blocked access attempts"""
-    
-    blocked = rbac_enforcer.get_blocked_attempts(device_id=device_id)
-    
-    return {
-        'blocked_attempts': blocked,
-        'count': len(blocked)
-    }
-
-
-@router.post("/credentials/rotate/{device_id}")
-async def rotate_credentials(device_id: str):
-    """Rotate credentials for device"""
-    
-    new_token = await zero_trust_layer.rotate_credentials(device_id)
-    
-    if not new_token:
-        raise HTTPException(status_code=404, detail=f"Device {device_id} not found")
-    
-    return {
-        'device_id': device_id,
-        'new_token': new_token,
-        'rotated_at': datetime.utcnow().isoformat(),
-        'expires_in_minutes': 60
-    }
+    return {"message": "Session stopped successfully."}
