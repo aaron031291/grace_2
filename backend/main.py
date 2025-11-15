@@ -25,6 +25,10 @@ app.include_router(operator_router)
 from backend.routes.remote_session_api import router as remote_session_router
 app.include_router(remote_session_router)
 
+# Register autonomous learning
+from backend.routes.autonomous_learning_api import router as learning_router
+app.include_router(learning_router)
+
 @app.get("/")
 async def root():
     return {"message": "Grace AI System", "version": "2.0.0", "status": "operational"}
