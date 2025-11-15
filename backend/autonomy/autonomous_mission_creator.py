@@ -20,16 +20,17 @@ from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
 
-from .mission_control.schemas import MissionPackage, MissionStatus, Severity, MissionContext, WorkspaceInfo, AcceptanceCriteria, TrustRequirements
-from .mission_control.hub import mission_control_hub
-from .sandbox_manager import sandbox_manager
-from .parliament_engine import parliament_engine
-from .governance import governance_engine
-from .constitutional_engine import constitutional_engine
-from .hunter import hunter_engine
-from .immutable_log import immutable_log
-from .trigger_mesh import trigger_mesh, TriggerEvent
-from .crypto_key_manager import crypto_key_manager
+from backend.mission_control.schemas import MissionPackage, MissionStatus, Severity, MissionContext, WorkspaceInfo, AcceptanceCriteria, TrustRequirements
+from backend.mission_control.hub import mission_control_hub
+from backend.autonomy.sandbox_manager import sandbox_manager
+from backend.autonomy.parliament_engine import parliament_engine
+from backend.governance_system.governance import governance_engine
+from backend.autonomy.constitutional_engine import constitutional_engine
+from backend.security.hunter import hunter_engine
+from backend.logging.immutable_log import immutable_log
+from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
+from backend.crypto.crypto_key_manager import crypto_key_manager
+from backend.autonomy.schemas import AutonomousMission, MissionPhase, KPIMetrics, SandboxResult
 
 logger = logging.getLogger(__name__)
 
