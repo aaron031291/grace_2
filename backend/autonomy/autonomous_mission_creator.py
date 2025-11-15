@@ -32,8 +32,7 @@ from backend.crypto.crypto_key_manager import crypto_key_manager
 from backend.mission_control.hub import mission_control_hub
 from backend.misc.sandbox_manager import sandbox_manager
 from backend.workflow_engines.parliament_engine import parliament_engine
-from backend.autonomy.scaffolding import generate_scaffold
-from backend.llm_services.openai_service import OpenAIService
+# from backend.llm_services.openai_service import OpenAIService
 
 logger = logging.getLogger(__name__)
 
