@@ -286,7 +286,7 @@ class BootOrchestrator:
         """
         
         print("\n" + "=" * 80)
-        print("🔍 PRE-FLIGHT HEALTH GATE")
+        print("[SCAN] PRE-FLIGHT HEALTH GATE")
         print("=" * 80)
         
         self.boot_phase = BootPhase.PRE_FLIGHT
@@ -306,13 +306,13 @@ class BootOrchestrator:
                 )
                 
                 if result == HealthCheckResult.PASSED:
-                    print("✅ PASSED")
+                    print("[OK] PASSED")
                     passed += 1
                 elif result == HealthCheckResult.WARNING:
-                    print("⚠️  WARNING")
+                    print("[WARN]  WARNING")
                     warnings += 1
                 elif result == HealthCheckResult.FAILED:
-                    print("❌ FAILED")
+                    print("[ERROR] FAILED")
                     failed += 1
                     
                     if check.critical:
@@ -320,21 +320,21 @@ class BootOrchestrator:
                             'check': check.name,
                             'critical': True
                         })
-                        print(f"\n❌ CRITICAL CHECK FAILED: {check.name}")
+                        print(f"\n[ERROR] CRITICAL CHECK FAILED: {check.name}")
                         print("   System cannot boot safely. Fix this issue and try again.")
                         return False
                 
             except asyncio.TimeoutError:
-                print(f"⏱️  TIMEOUT ({check.timeout}s)")
+                print(f"[TIMEOUT]  TIMEOUT ({check.timeout}s)")
                 if check.critical:
-                    print(f"\n❌ CRITICAL CHECK TIMED OUT: {check.name}")
+                    print(f"\n[ERROR] CRITICAL CHECK TIMED OUT: {check.name}")
                     return False
                 warnings += 1
             
             except Exception as e:
-                print(f"❌ ERROR: {e}")
+                print(f"[ERROR] ERROR: {e}")
                 if check.critical:
-                    print(f"\n❌ CRITICAL CHECK ERROR: {check.name}")
+                    print(f"\n[ERROR] CRITICAL CHECK ERROR: {check.name}")
                     return False
                 failed += 1
         
@@ -342,7 +342,7 @@ class BootOrchestrator:
         print(f"  Results: {passed} passed, {warnings} warnings, {failed} failed")
         
         if failed > 0 and warnings > 2:
-            print("  ⚠️  Multiple warnings detected - boot may be unstable")
+            print("  [WARN]  Multiple warnings detected - boot may be unstable")
         
         self._log_event("pre_flight_completed", {
             'passed': passed,
@@ -450,14 +450,14 @@ class BootOrchestrator:
         Load resources before tight timeout window begins
         """
         
-        print("\n🔥 Pre-boot warmup...")
+        print("\n[WARMUP] Pre-boot warmup...")
         
         try:
             # Load warm caches
             await self._load_warm_caches()
             
             # Pre-warm database connections
-            print("  ⚡ Warming DB connections...", end=" ")
+            print("  [FAST] Warming DB connections...", end=" ")
             try:
                 import sqlite3
                 db_path = Path(__file__).parent.parent.parent / 'databases' / 'grace.db'
@@ -466,14 +466,14 @@ class BootOrchestrator:
                     conn.execute("SELECT 1")  # Warm the connection
                     conn.execute("PRAGMA cache_size = 10000")  # Increase cache
                     self.pre_warmed_resources['db_connection'] = conn
-                    print("✅")
+                    print("[OK]")
                 else:
-                    print("⚠️  DB not found")
+                    print("[WARN]  DB not found")
             except Exception as e:
-                print(f"⚠️  {e}")
+                print(f"[WARN]  {e}")
             
             # Pre-fetch secrets
-            print("  ⚡ Pre-fetching secrets...", end=" ")
+            print("  [FAST] Pre-fetching secrets...", end=" ")
             try:
                 import os
                 secrets = {
@@ -483,23 +483,23 @@ class BootOrchestrator:
                 # Filter out None values
                 secrets = {k: v for k, v in secrets.items() if v}
                 self.pre_warmed_resources['secrets'] = secrets
-                print(f"✅ ({len(secrets)} secrets)")
+                print(f"[OK] ({len(secrets)} secrets)")
             except Exception as e:
-                print(f"⚠️  {e}")
+                print(f"[WARN]  {e}")
             
             # Pre-compile bytecode
-            print("  ⚡ Checking compiled bytecode...", end=" ")
+            print("  [FAST] Checking compiled bytecode...", end=" ")
             try:
                 import compileall
                 backend_path = Path(__file__).parent.parent
                 # Compile in background, don't block boot
                 compileall.compile_dir(backend_path, quiet=1, workers=4, force=False)
-                print("✅")
+                print("[OK]")
             except Exception as e:
-                print(f"⚠️  {e}")
+                print(f"[WARN]  {e}")
             
         except Exception as e:
-            print(f"⚠️  Warmup warning: {e}")
+            print(f"[WARN]  Warmup warning: {e}")
     
     async def boot_with_dependencies(self, control_plane):
         """
@@ -515,7 +515,7 @@ class BootOrchestrator:
         """
         
         print("\n" + "=" * 80)
-        print("🚀 KERNEL BOOT - DEPENDENCY-DRIVEN")
+        print("[BOOT] KERNEL BOOT - DEPENDENCY-DRIVEN")
         print("=" * 80)
         
         self.boot_phase = BootPhase.DEPENDENCY_CHECK
@@ -544,7 +544,7 @@ class BootOrchestrator:
                 
                 # Check feature flag
                 if kernel.feature_flag and not self.feature_flags.get(kernel.feature_flag):
-                    print(f"  ⏭️  Skipping {name} (feature flag disabled)")
+                    print(f"  [?]  Skipping {name} (feature flag disabled)")
                     booted.add(name)
                     continue
                 
@@ -558,7 +558,7 @@ class BootOrchestrator:
                 # No kernels ready - check for circular dependencies
                 pending = set(self.kernel_graph.keys()) - booted - failed
                 if pending:
-                    print(f"  ⚠️  Circular dependency detected or all pending failed: {pending}")
+                    print(f"  [WARN]  Circular dependency detected or all pending failed: {pending}")
                     break
                 break
             
@@ -576,14 +576,14 @@ class BootOrchestrator:
                     kernel.failed = True
                     
                     if kernel.critical:
-                        print(f"\n❌ CRITICAL KERNEL FAILED: {kernel.name}")
+                        print(f"\n[ERROR] CRITICAL KERNEL FAILED: {kernel.name}")
                         return False
                 else:
                     booted.add(kernel.name)
                     kernel.ready = True
         
         print()
-        print(f"  ✅ Boot complete: {len(booted)} kernels, {len(failed)} failed")
+        print(f"  [OK] Boot complete: {len(booted)} kernels, {len(failed)} failed")
         print("=" * 80)
         
         # Save warm caches for next boot
@@ -614,7 +614,7 @@ class BootOrchestrator:
                 # Get kernel from control plane
                 cp_kernel = control_plane.kernels.get(kernel.name)
                 if not cp_kernel:
-                    print("❌ NOT FOUND")
+                    print("[ERROR] NOT FOUND")
                     return False
                 
                 # Resource throttling for heavy kernels
@@ -634,7 +634,7 @@ class BootOrchestrator:
                 # Retry with exponential backoff
                 if attempt < kernel.max_retries:
                     backoff = 2 ** attempt  # 1s, 2s, 4s
-                    print(f"  ⏳ Retry {attempt + 1}/{kernel.max_retries} in {backoff}s...", end=" ")
+                    print(f"  [WAIT] Retry {attempt + 1}/{kernel.max_retries} in {backoff}s...", end=" ")
                     await asyncio.sleep(backoff)
                     kernel.retry_count += 1
                     
@@ -644,18 +644,18 @@ class BootOrchestrator:
             
             except Exception as e:
                 if attempt == kernel.max_retries:
-                    print(f"❌ ERROR: {e}")
+                    print(f"[ERROR] ERROR: {e}")
                     break
         
         # All retries failed - try graceful degradation
         if not kernel.critical and self.feature_flags.get('enable_graceful_degradation', True):
-            print("  🔄 Attempting degraded mode...", end=" ")
+            print("  [RESTORE] Attempting degraded mode...", end=" ")
             if await self._start_degraded_mode(kernel, control_plane):
                 kernel.degraded = True
-                print("✅ DEGRADED")
+                print("[OK] DEGRADED")
                 return True
         
-        print("❌ FAILED")
+        print("[ERROR] FAILED")
         return False
     
     async def _boot_kernel_attempt(
@@ -694,7 +694,7 @@ class BootOrchestrator:
                     # Check if we got heartbeats - extend deadline if progress evident
                     if self._has_recent_heartbeat(kernel.name, within_seconds=5):
                         deadline += 5  # Extend by 5s on heartbeat
-                        print("💓", end="")  # Show heartbeat progress
+                        print("[HB]", end="")  # Show heartbeat progress
                     elif elapsed > kernel.boot_timeout:
                         # Past base timeout, check grace window
                         if elapsed > kernel.boot_timeout + kernel.grace_window:
@@ -707,7 +707,7 @@ class BootOrchestrator:
                 # Cache successful state for fast retry
                 kernel.cached_state = await self._capture_kernel_state(cp_kernel)
                 
-                print("✅ READY", end="")
+                print("[OK] READY", end="")
                 if attempt > 0:
                     print(f" (retry {attempt})", end="")
                 print()
@@ -720,12 +720,12 @@ class BootOrchestrator:
                 })
                 return True
             else:
-                print("⚠️  NO READINESS")
+                print("[WARN]  NO READINESS")
                 return False
         
         except asyncio.TimeoutError:
             timeout_val = kernel.boot_timeout + kernel.grace_window
-            print(f"⏱️  TIMEOUT ({timeout_val}s)")
+            print(f"[TIMEOUT]  TIMEOUT ({timeout_val}s)")
             return False
         
         finally:
@@ -787,19 +787,19 @@ class BootOrchestrator:
     async def _inject_chaos(self):
         """Inject random faults for chaos testing"""
         
-        print("\n  🎲 CHAOS MODE: Injecting random faults...")
+        print("\n  [CHAOS] CHAOS MODE: Injecting random faults...")
         
         # Randomly select a kernel to fail
         if random.random() < 0.3:  # 30% chance
             kernel_name = random.choice(list(self.kernel_graph.keys()))
-            print(f"  💥 Chaos: Will fail {kernel_name}")
+            print(f"  [?] Chaos: Will fail {kernel_name}")
             # Mark for chaos in kernel graph
             self.kernel_graph[kernel_name].boot_timeout = 1  # Force timeout
     
     async def _load_warm_caches(self):
         """Load warm caches from previous runs"""
         
-        print("  ⚡ Loading warm caches...", end=" ")
+        print("  [FAST] Loading warm caches...", end=" ")
         
         cache_file = self.warm_cache_dir / 'kernel_state.json'
         
@@ -812,11 +812,11 @@ class BootOrchestrator:
                     if kernel_name in self.kernel_graph:
                         self.kernel_graph[kernel_name].cached_state = state
                 
-                print(f"✅ ({len(cached)} kernels)")
+                print(f"[OK] ({len(cached)} kernels)")
             except Exception as e:
-                print(f"⚠️  {e}")
+                print(f"[WARN]  {e}")
         else:
-            print("⚠️  No cache found (first boot)")
+            print("[WARN]  No cache found (first boot)")
     
     async def _save_warm_caches(self):
         """Save warm caches for next boot"""
@@ -952,7 +952,7 @@ class BootOrchestrator:
             return True
         
         print("\n" + "=" * 80)
-        print("🧪 PARALLEL VALIDATION HARNESS")
+        print("[TEST] PARALLEL VALIDATION HARNESS")
         print("=" * 80)
         
         critical_endpoints = [
@@ -973,12 +973,12 @@ class BootOrchestrator:
                     )
                     
                     if response.status_code == 200:
-                        print("✅ PASS")
+                        print("[OK] PASS")
                     else:
-                        print(f"⚠️  {response.status_code}")
+                        print(f"[WARN]  {response.status_code}")
             
             except Exception as e:
-                print(f"❌ FAIL: {e}")
+                print(f"[ERROR] FAIL: {e}")
         
         print("=" * 80)
         print()
