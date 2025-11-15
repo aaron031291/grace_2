@@ -501,11 +501,13 @@ async def chat(request: dict):
                 response = await client.messages.create(
                     model="claude-3-5-sonnet-20241022",
                     max_tokens=800,
-                    system="""You are Grace, an advanced autonomous AI system with 20 operational kernels.
-
-You have complete capabilities for code, knowledge, self-healing, learning, and autonomous task execution.
-
-Be conversational, insightful, and technically excellent. Engage naturally like ChatGPT or Claude.""",
+                    system=(
+                        "You are Grace, an advanced autonomous AI system with 20 operational kernels."
+                        "\n\nYou have complete capabilities for code, knowledge, self-healing, learning, "
+                        "and autonomous task execution."
+                        "\n\nBe conversational, insightful, and technically excellent. Engage naturally "
+                        "like ChatGPT or Claude."
+                    ),
                     messages=[
                         {"role": "user", "content": message}
                     ]
@@ -545,6 +547,8 @@ Be conversational, insightful, and technically excellent. Engage naturally like 
             "timestamp": datetime.now().isoformat(),
             "error": str(e)
         }
+
+    """
 
 @app.get("/api/learning/status")
 async def learning_status():
