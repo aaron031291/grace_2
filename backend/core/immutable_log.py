@@ -25,6 +25,7 @@ class ImmutableLogEntry:
         actor: str,
         action: str,
         resource: str,
+        subsystem: Optional[str],
         decision: Dict[str, Any],
         metadata: Dict[str, Any]
     ):
@@ -33,6 +34,7 @@ class ImmutableLogEntry:
         self.actor = actor
         self.action = action
         self.resource = resource
+        self.subsystem = subsystem
         self.decision = decision
         self.metadata = metadata
     
@@ -43,6 +45,7 @@ class ImmutableLogEntry:
             'actor': self.actor,
             'action': self.action,
             'resource': self.resource,
+            'subsystem': self.subsystem,
             'decision': self.decision,
             'metadata': self.metadata
         }
@@ -90,7 +93,8 @@ class ImmutableLog:
         action: str,
         resource: str,
         decision: Dict[str, Any],
-        metadata: Dict[str, Any] = None
+        metadata: Dict[str, Any] = None,
+        subsystem: Optional[str] = None
     ) -> str:
         """
         Append entry to log (immutable)
@@ -115,6 +119,7 @@ class ImmutableLog:
             actor=actor,
             action=action,
             resource=resource,
+            subsystem=subsystem,
             decision=decision,
             metadata=metadata or {}
         )
