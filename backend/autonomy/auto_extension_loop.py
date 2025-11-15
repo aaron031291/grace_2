@@ -136,8 +136,9 @@ class AutoExtensionLoop:
                         except Exception as _e:
                             # Do not fail the loop if metrics publishing fails
                             print(f"      ⚠️ Failed to publish plan outcome event: {_e}")
-    print("   based on detected capability gaps and business needs.")
-    print()
+                
+                print("   based on detected capability gaps and business needs.")
+                print()
     
     # Initialize
     from .models import Base, engine

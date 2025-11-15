@@ -732,17 +732,30 @@ class BootOrchestrator:
             heartbeat_task.cancel()
     
     async def _wait_for_readiness(self, kernel_name: str, timeout: int = 5) -> bool:
-        """Wait for kernel readiness signal - checks actual heartbeats"""
+        """
+        Wait for kernel readiness - checks heartbeats AND kernel-specific is_ready()
+        Calls actual kernel self-tests, not just state
+        """
         from .control_plane import control_plane, KernelState
+        from .kernel_readiness import check_kernel_ready
         
         start = datetime.utcnow()
         while (datetime.utcnow() - start).total_seconds() < timeout:
             kernel = control_plane.kernels.get(kernel_name)
             if kernel and kernel.state == KernelState.RUNNING:
-                # Check if has recent heartbeat (within 5s)
+                # Check heartbeat
+                heartbeat_ok = True
                 if kernel.last_heartbeat:
                     elapsed = (datetime.utcnow() - kernel.last_heartbeat).total_seconds()
-                    if elapsed < 5:
+                    heartbeat_ok = elapsed < 5
+                
+                # Check kernel-specific readiness
+                if heartbeat_ok:
+                    ready = await check_kernel_ready(kernel_name)
+                    if ready:
+                        # Log readiness time for metrics
+                        ready_time = (datetime.utcnow() - kernel.started_at).total_seconds() if kernel.started_at else 0
+                        logger.info(f"[READINESS] {kernel_name} ready in {ready_time:.2f}s")
                         return True
             
             await asyncio.sleep(0.5)

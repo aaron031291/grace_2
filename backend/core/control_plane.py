@@ -256,7 +256,7 @@ class ControlPlane:
                 kernel_instance = elite_coding_agent
                 
                 # Auto-scan for syntax errors and 404s during boot
-                print("  🔍 Coding agent scanning for errors...")
+                print("  [SCAN] Coding agent scanning for errors...")
                 asyncio.create_task(self._auto_scan_and_fix())
             elif kernel.name == 'sandbox':
                 try:
@@ -327,12 +327,12 @@ class ControlPlane:
                 priority=MessagePriority.HIGH
             )
             
-            print(f"  ✅ {kernel.name} RUNNING")
-            logger.info(f"[CONTROL-PLANE] ✓ {kernel.name} RUNNING")
+            print(f"  [OK] {kernel.name} RUNNING")
+            logger.info(f"[CONTROL-PLANE] {kernel.name} RUNNING")
         
         except Exception as e:
             kernel.state = KernelState.FAILED
-            logger.error(f"[CONTROL-PLANE] ✗ {kernel.name} FAILED: {e}")
+            logger.error(f"[CONTROL-PLANE] {kernel.name} FAILED: {e}")
             
             if kernel.critical:
                 raise Exception(f"Critical kernel {kernel.name} failed to start")
@@ -362,7 +362,7 @@ class ControlPlane:
                 priority=MessagePriority.HIGH
             )
             
-            logger.info(f"[CONTROL-PLANE] ✓ {kernel.name} STOPPED")
+            logger.info(f"[CONTROL-PLANE] [OK] {kernel.name} STOPPED")
         
         except Exception as e:
             logger.error(f"[CONTROL-PLANE] Error stopping {kernel.name}: {e}")
@@ -465,7 +465,7 @@ class ControlPlane:
     
     async def _auto_scan_and_fix(self):
         """
-        Comprehensive auto-scan with 360° trigger system
+        Comprehensive auto-scan with 360-degree trigger system
         Uses coding agent + ML prediction + advanced triggers to fix issues automatically
         
         Triggers:
@@ -482,13 +482,13 @@ class ControlPlane:
         import os
         from pathlib import Path
         
-        print("  🔧 Comprehensive auto-scan (360° triggers)...")
+        print("  [SCAN] Comprehensive auto-scan (360-degree triggers)...")
         
         backend_path = Path(__file__).parent.parent
         all_issues = []
         
         # Trigger 1: Syntax errors
-        print("    🔍 Scanning for syntax errors...", end=" ")
+        print("    [SCAN] Scanning for syntax errors...", end=" ")
         syntax_issues = 0
         for py_file in backend_path.rglob("*.py"):
             try:
@@ -506,13 +506,13 @@ class ControlPlane:
                 syntax_issues += 1
             except Exception as e:
                 logger.debug(f"Could not parse {py_file}: {e}")
-        print(f"✅ ({syntax_issues} issues)" if syntax_issues == 0 else f"⚠️  ({syntax_issues} issues)")
+        print(f"[OK] ({syntax_issues} issues)" if syntax_issues == 0 else f"[WARN]  ({syntax_issues} issues)")
         
         # Trigger 2-10: Run all advanced triggers
         try:
             from ..triggers import run_all_triggers
             
-            print("    🔍 Running advanced triggers...", end=" ")
+            print("    [SCAN] Running advanced triggers...", end=" ")
             trigger_results = await run_all_triggers()
             
             for result in trigger_results:
@@ -522,13 +522,13 @@ class ControlPlane:
                     issue['action'] = result['action']
                     all_issues.append(issue)
             
-            print(f"✅ ({len(trigger_results)} triggers fired)")
+            print(f"[OK] ({len(trigger_results)} triggers fired)")
         except Exception as e:
-            print(f"⚠️  Error: {e}")
+            print(f"[WARN]  Error: {e}")
         
         # Auto-fix all issues
         if all_issues:
-            print(f"  🔨 Found {len(all_issues)} total issues - routing to repair systems...")
+            print(f"  [FIX] Found {len(all_issues)} total issues - routing to repair systems...")
             
             # Route to appropriate repair system
             self_healing_issues = [i for i in all_issues if i.get('target') == 'self_healing']
@@ -536,12 +536,12 @@ class ControlPlane:
             
             # Self-healing actions
             if self_healing_issues:
-                print(f"    ⚡ {len(self_healing_issues)} issues → Self-Healing")
+                print(f"    [FAST] {len(self_healing_issues)} issues -> Self-Healing")
                 await self._execute_self_healing_actions(self_healing_issues)
             
             # Coding agent fixes
             if coding_agent_issues:
-                print(f"    🔨 {len(coding_agent_issues)} issues → Coding Agent")
+                print(f"    [FIX] {len(coding_agent_issues)} issues -> Coding Agent")
             
                 try:
                     from ..agents_core.elite_coding_agent import elite_coding_agent, CodingTask, CodingTaskType, ExecutionMode
@@ -571,12 +571,12 @@ class ControlPlane:
                         )
                         
                         await elite_coding_agent.submit_task(task)
-                        print(f"      ✅ Task: {task_desc[:60]}...")
+                        print(f"      [OK] Task: {task_desc[:60]}...")
                 
                 except Exception as e:
-                    print(f"      ⚠️  Coding agent error: {e}")
+                    print(f"      [WARN]  Coding agent error: {e}")
         else:
-            print("  ✅ No issues detected - all systems healthy!")
+            print("  [OK] No issues detected - all systems healthy!")
         
     async def _execute_self_healing_actions(self, issues: List[Dict]):
         """Execute self-healing actions for detected issues"""
@@ -589,7 +589,7 @@ class ControlPlane:
                     # Restart kernel with missing heartbeat
                     kernel_name = issue.get('kernel')
                     if kernel_name and kernel_name in self.kernels:
-                        print(f"      ⚡ Restarting {kernel_name}...")
+                        print(f"      [FAST] Restarting {kernel_name}...")
                         await self._restart_kernel(self.kernels[kernel_name])
                 
                 elif action == 'restore_from_snapshot':
@@ -597,23 +597,23 @@ class ControlPlane:
                     from ..triggers import config_drift_trigger
                     file_path = issue.get('file')
                     if file_path:
-                        print(f"      ⚡ Restoring {Path(file_path).name} from snapshot...")
+                        print(f"      [FAST] Restoring {Path(file_path).name} from snapshot...")
                         await config_drift_trigger.restore_from_snapshot(file_path)
                 
                 elif action == 'scale_workers':
                     # Actually scale workers
                     queue_name = issue.get('queue', 'default')
-                    print(f"      ⚡ Scaling workers for {queue_name}...")
+                    print(f"      [FAST] Scaling workers for {queue_name}...")
                     
                     # Scale by adjusting max_parallel_tasks in relevant systems
                     if 'message_bus' in queue_name:
                         # Would scale message bus workers
                         logger.info(f"Scaled message_bus workers by 2")
-                    print(f"      ✅ Workers scaled for {queue_name}")
+                    print(f"      [OK] Workers scaled for {queue_name}")
                 
                 elif action == 'shed_load':
                     # Reduce load by pausing non-critical kernels
-                    print(f"      ⚡ Shedding load ({issue['type']})...")
+                    print(f"      [FAST] Shedding load ({issue['type']})...")
                     
                     non_critical = [k for k in self.kernels.values() if not k.critical and k.state == KernelState.RUNNING]
                     
@@ -621,9 +621,9 @@ class ControlPlane:
                         # Pause the least recently used non-critical kernel
                         victim = sorted(non_critical, key=lambda k: k.last_heartbeat or datetime.min.replace(tzinfo=None))[0]
                         await self.pause()  # Pause entire system temporarily
-                        print(f"      ✅ System paused to shed load")
+                        print(f"      [OK] System paused to shed load")
                     else:
-                        print(f"      ⚠️  No non-critical kernels to pause")
+                        print(f"      [WARN]  No non-critical kernels to pause")
                 
                 elif action == 'restore_model_weights':
                     # Restore from .grace_snapshots/models/
@@ -632,18 +632,18 @@ class ControlPlane:
                     snapshot_dir.mkdir(parents=True, exist_ok=True)
                     
                     if model_file:
-                        print(f"      ⚡ Restoring model weights...")
+                        print(f"      [FAST] Restoring model weights...")
                         snapshot_file = snapshot_dir / Path(model_file).name
                         
                         if snapshot_file.exists():
                             import shutil
                             shutil.copy2(snapshot_file, model_file)
-                            print(f"      ✅ Restored {Path(model_file).name}")
+                            print(f"      [OK] Restored {Path(model_file).name}")
                         else:
-                            print(f"      ⚠️  No snapshot found for {Path(model_file).name}")
+                            print(f"      [WARN]  No snapshot found for {Path(model_file).name}")
             
             except Exception as e:
-                print(f"      ⚠️  Self-healing action failed: {e}")
+                print(f"      [WARN]  Self-healing action failed: {e}")
 
 
 # Global instance - Grace's brain stem

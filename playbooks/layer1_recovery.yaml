@@ -1,0 +1,190 @@
+# Layer 1 Recovery Playbooks
+# Dedicated recovery for critical core infrastructure kernels
+
+playbooks:
+  
+  # Message Bus Recovery
+  - name: "message_bus_restart_drain"
+    description: "Restart message bus and drain queue"
+    domain: "boot_readiness"
+    trigger_on:
+      - condition: "kernel == 'message_bus' AND state == 'failed'"
+    steps:
+      - action: "capture_queue_snapshot"
+        queue: "message_bus"
+      - action: "pause_kernel"
+        kernel: "message_bus"
+      - action: "drain_queue"
+        queue: "message_bus"
+        max_messages: 10000
+      - action: "restart_kernel"
+        kernel: "message_bus"
+      - action: "verify_queue_health"
+        queue: "message_bus"
+      - action: "resume_kernel"
+        kernel: "message_bus"
+  
+  - name: "message_bus_acl_violation_fix"
+    description: "Fix ACL violations in message bus"
+    domain: "security"
+    trigger_on:
+      - condition: "error_contains('ACL violation')"
+    steps:
+      - action: "analyze_acl_logs"
+        log_file: "logs/grace.log"
+        search_pattern: "ACL violation"
+      - action: "extract_violating_source"
+      - action: "update_acl_config"
+        config_file: "backend/core/message_bus.py"
+        add_permission: true
+      - action: "escalate_to_coding_agent"
+        description: "Review and validate ACL fix for message bus"
+        priority: 9
+        files: ["backend/core/message_bus.py"]
+      - action: "restart_kernel"
+        kernel: "message_bus"
+      - action: "validate_acl_rules"
+      - action: "verify_no_violations"
+        timeout: 30
+  
+  # Immutable Log Recovery
+  - name: "immutable_log_integrity_repair"
+    description: "Repair immutable log integrity"
+    domain: "boot_readiness"
+    trigger_on:
+      - condition: "kernel == 'immutable_log' AND checksum_mismatch == true"
+    steps:
+      - action: "validate_log_checksum"
+        log_file: "logs/immutable.log"
+      - action: "restore_from_snapshot"
+        file: "logs/immutable.log"
+        if: "corruption_detected == true"
+      - action: "rebuild_log_index"
+      - action: "verify_log_integrity"
+      - action: "restart_kernel"
+        kernel: "immutable_log"
+        if: "integrity_restored == true"
+  
+  - name: "immutable_log_disk_full"
+    description: "Handle disk full on immutable log"
+    domain: "infra_resource"
+    trigger_on:
+      - condition: "disk_percent > 95 AND kernel == 'immutable_log'"
+    steps:
+      - action: "archive_old_logs"
+        older_than_days: 30
+      - action: "compress_logs"
+      - action: "clear_temp_files"
+      - action: "verify_disk_space"
+        min_free_gb: 5
+  
+  # Control Plane Recovery
+  - name: "control_plane_failover"
+    description: "Control plane failover and state replay"
+    domain: "boot_readiness"
+    trigger_on:
+      - condition: "control_plane_state == 'failed'"
+    steps:
+      - action: "snapshot_kernel_states"
+      - action: "stop_control_plane"
+        timeout: 30
+      - action: "restore_control_plane_config"
+      - action: "start_control_plane"
+      - action: "replay_kernel_states"
+        from_snapshot: true
+      - action: "verify_all_kernels_healthy"
+  
+  - name: "control_plane_deadlock"
+    description: "Resolve control plane deadlock"
+    domain: "kernel_runtime"
+    trigger_on:
+      - condition: "control_plane_heartbeat_gap > 60"
+    steps:
+      - action: "detect_deadlock"
+      - action: "force_restart_control_plane"
+        kill_signal: "SIGTERM"
+        timeout: 10
+      - action: "boot_from_clean_state"
+  
+  # Self-Healing Kernel Recovery
+  - name: "self_healing_bootstrap"
+    description: "Bootstrap self-healing if it fails to start"
+    domain: "boot_readiness"
+    trigger_on:
+      - condition: "kernel == 'self_healing' AND state == 'failed'"
+    steps:
+      - action: "check_dependencies"
+        kernel: "self_healing"
+      - action: "validate_playbook_files"
+        directory: "playbooks/"
+      - action: "restart_kernel"
+        kernel: "self_healing"
+        degraded_mode: true
+      - action: "verify_playbook_loading"
+  
+  # Coding Agent Recovery
+  - name: "coding_agent_bootstrap"
+    description: "Bootstrap coding agent if it fails"
+    domain: "boot_readiness"
+    trigger_on:
+      - condition: "kernel == 'coding_agent' AND state == 'failed'"
+    steps:
+      - action: "check_dependencies"
+        kernel: "coding_agent"
+      - action: "validate_code_generation_models"
+      - action: "restart_kernel"
+        kernel: "coding_agent"
+        degraded_mode: true
+      - action: "submit_test_task"
+        description: "Verify coding agent operational"
+  
+  # Micro-Chaos Drills for Layer 1
+  - name: "micro_chaos_message_bus_heartbeat"
+    description: "Drop message bus heartbeat for 5s"
+    domain: "chaos_drill"
+    trigger_on:
+      - condition: "chaos_drill == true"
+    steps:
+      - action: "block_heartbeat"
+        kernel: "message_bus"
+        duration_seconds: 5
+      - action: "verify_watchdog_detects"
+        timeout: 10
+      - action: "verify_auto_restart"
+      - action: "verify_recovery_time"
+        max_seconds: 30
+  
+  - name: "micro_chaos_log_entry_corrupt"
+    description: "Corrupt single log entry"
+    domain: "chaos_drill"
+    trigger_on:
+      - condition: "chaos_drill == true"
+    steps:
+      - action: "inject_corrupt_log_entry"
+        log_file: "logs/immutable.log"
+      - action: "verify_integrity_check_detects"
+        timeout: 30
+      - action: "verify_auto_repair"
+      - action: "verify_log_consistency"
+  
+  - name: "micro_chaos_control_plane_restart"
+    description: "Simulate control plane restart"
+    domain: "chaos_drill"
+    trigger_on:
+      - condition: "chaos_drill == true"
+    steps:
+      - action: "snapshot_all_kernel_states"
+      - action: "stop_control_plane"
+        graceful: true
+      - action: "start_control_plane"
+      - action: "verify_kernel_states_restored"
+      - action: "verify_no_kernel_lost"
+      - action: "verify_total_downtime"
+        max_seconds: 45
+
+metadata:
+  layer: 1
+  critical: true
+  total_playbooks: 12
+  recovery_playbooks: 6
+  chaos_drills: 3
