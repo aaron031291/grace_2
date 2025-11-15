@@ -90,53 +90,52 @@ class UnifiedLLM:
         for model in self.models:
             try:
                 async with httpx.AsyncClient() as client:
-                # Build conversation history
-                messages = [
-                    {
-                        "role": "system",
-                        "content": self._build_system_prompt(memory_results)
-                    }
-                ]
-                
-                # Add context history
-                if context:
-                    messages.extend(context[-5:])  # Last 5 exchanges
-                
-                messages.append({"role": "user", "content": enriched_context})
-                
-                ollama_response = await client.post(
-                    f"{self.ollama_url}/api/chat",
-                    json={
-                        "model": self.ollama_model,
-                        "messages": messages,
-                        "stream": False,
-                        "options": {
-                            "temperature": 0.8,
-                            "num_predict": 600
+                    # Build conversation history
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": self._build_system_prompt(memory_results)
                         }
-                    },
-                    timeout=30.0
-                )
-                
-                if ollama_response.status_code == 200:
-                    result = ollama_response.json()
-                    response_text = result["message"]["content"]
+                    ]
                     
-                    # Step 3: Route through agentic spine (if enabled)
-                    if use_agentic and self._should_execute_task(message, response_text):
-                        response_text = await self._route_to_agentic(message, response_text)
+                    # Add context history
+                    if context:
+                        messages.extend(context[-5:])  # Last 5 exchanges
                     
-                    return {
-                        "text": response_text,
-                        "provider": "ollama",
-                        "model": self.ollama_model,
-                        "memory_used": len(memory_results) > 0,
-                        "agentic_routing": use_agentic,
-                        "timestamp": datetime.now().isoformat()
-                    }
+                    messages.append({"role": "user", "content": enriched_context})
                     
-        except Exception as ollama_error:
-            print(f"Ollama not available: {ollama_error}")
+                    ollama_response = await client.post(
+                        f"{self.ollama_url}/api/chat",
+                        json={
+                            "model": self.ollama_model,
+                            "messages": messages,
+                            "stream": False,
+                            "options": {
+                                "temperature": 0.8,
+                                "num_predict": 600
+                            }
+                        },
+                        timeout=30.0
+                    )
+                    
+                    if ollama_response.status_code == 200:
+                        result = ollama_response.json()
+                        response_text = result["message"]["content"]
+                        
+                        # Step 3: Route through agentic spine (if enabled)
+                        if use_agentic and self._should_execute_task(message, response_text):
+                            response_text = await self._route_to_agentic(message, response_text)
+                        
+                        return {
+                            "text": response_text,
+                            "provider": "ollama",
+                            "model": self.ollama_model,
+                            "memory_used": len(memory_results) > 0,
+                            "agentic_routing": use_agentic,
+                            "timestamp": datetime.now().isoformat()
+                        }
+            except Exception as ollama_error:
+                print(f"Ollama not available: {ollama_error}")
         
         # Step 4: Try OpenAI GPT-4
         if self.openai_key:
