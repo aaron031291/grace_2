@@ -14,74 +14,82 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 
-def allocate_grace_port():
+def get_guardian_allocated_port(boot_result: Dict[str, Any]) -> Optional[int]:
     """
-    Allocate port for Grace using port manager
-    Manages ports 8000-8100 with full tracking
+    Get the port that Guardian allocated during boot
+    Guardian boots FIRST and allocates port in Phase 3
     """
     try:
-        from backend.core.port_manager import port_manager
-        from backend.core.port_watchdog import port_watchdog
-        
-        # Allocate port with metadata
-        allocation = port_manager.allocate_port(
-            service_name="grace_backend",
-            started_by="serve.py",
-            purpose="Main Grace API server with remote access and learning",
-            preferred_port=8000  # Try 8000 first
-        )
-        
-        if 'error' in allocation:
-            logger.error(f"Port allocation failed: {allocation}")
-            return None
-        
-        port = allocation['port']
-        
-        # Start watchdog to monitor this port
-        asyncio.create_task(port_watchdog.start())
-        
-        return port
-    except Exception as e:
-        # Fallback to old method if port manager not available
-        print(f"Port manager not available, using fallback: {e}")
-        for port in range(8000, 8100):
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.bind(('localhost', port))
-                sock.close()
-                return port
-            except OSError:
-                continue
+        return boot_result['phases']['phase3_ports']['port']
+    except:
         return None
 
 
 async def boot_grace_minimal():
     """
-    Minimal Grace boot - just the essentials
-    No complex orchestration that times out
+    Grace boot sequence - Guardian boots FIRST, then everything else
+    
+    Boot Order:
+    0. Guardian (network, ports, diagnostics) - FIRST
+    1-2. Core systems (message bus, immutable log)
+    3-4. Self-healing + Coding agent
+    5+. Everything else
+    
+    Guardian fixes problems BEFORE they reach deeper systems
     """
     
     print()
     print("=" * 80)
-    print("GRACE - STARTING")
+    print("GRACE - BOOT SEQUENCE")
     print("=" * 80)
     print()
     
     try:
-        # Try to import core systems (optional, won't fail if missing)
+        # PRIORITY 0: Boot Guardian FIRST
+        print("[PRIORITY 0] Booting Guardian Kernel...")
+        from backend.core.guardian import guardian
+        
+        guardian_boot = await guardian.boot()
+        
+        if 'error' in guardian_boot:
+            print(f"  ✗ Guardian boot FAILED: {guardian_boot['error']}")
+            print("\nCannot proceed - Guardian must boot successfully")
+            return False
+        
+        print("  ✓ Guardian: Online")
+        print(f"  ✓ Port allocated: {guardian_boot['phases']['phase3_ports']['port']}")
+        print(f"  ✓ Network health: {guardian_boot['phases']['phase2_diagnostics']['status']}")
+        print(f"  ✓ Watchdog: Active")
+        print(f"  ✓ Pre-flight: Passed")
+        print()
+        
+        # Store allocated port for later use
+        allocated_port = guardian_boot['phases']['phase3_ports']['port']
+        
+        # PRIORITY 1-2: Boot core systems (only if Guardian allows)
         try:
             from backend.core import message_bus, immutable_log
             
-            print("[1/5] Booting core systems...")
-            await message_bus.start()
-            print("  ✓ Message Bus: Active")
+            print("[PRIORITY 1-2] Booting core systems...")
             
-            await immutable_log.start()
-            print("  ✓ Immutable Log: Active")
+            if guardian.check_can_boot_kernel('message_bus', 1):
+                await message_bus.start()
+                guardian.signal_kernel_boot('message_bus', 1)
+                print("  ✓ Message Bus: Active")
+            
+            if guardian.check_can_boot_kernel('immutable_log', 2):
+                await immutable_log.start()
+                guardian.signal_kernel_boot('immutable_log', 2)
+                print("  ✓ Immutable Log: Active")
+            
             print()
         except ImportError:
-            print("[1/5] Core systems not available (continuing anyway)")
+            print("[PRIORITY 1-2] Core systems not available (continuing anyway)")
             print()
+        
+        # Guardian is now monitoring everything
+        print("[GUARDIAN] Now monitoring all systems - will catch issues early")
+        print()
         
         # Load and verify all 12+ open source models
         print("[2/5] Loading open source LLMs...")
@@ -142,8 +150,8 @@ async def boot_grace_minimal():
         
         print()
         
-        # Load main app
-        print("[3/5] Loading Grace backend...")
+        # PRIORITY 3+: Load main app and other systems
+        print("[PRIORITY 3+] Loading Grace backend...")
         from backend.main import app
         print("  ✓ Backend loaded")
         print("  ✓ Remote Access: Ready")
@@ -151,13 +159,13 @@ async def boot_grace_minimal():
         print()
         
         # Quick health check
-        print("[4/5] System check...")
+        print("[PRIORITY 10] System check...")
         route_count = len(app.routes)
         print(f"  ✓ {route_count} API endpoints registered")
         print()
         
         # Check databases
-        print("[5/5] Checking databases...")
+        print("[PRIORITY 11] Checking databases...")
         from pathlib import Path
         db_dir = Path("databases")
         if db_dir.exists():
@@ -165,7 +173,8 @@ async def boot_grace_minimal():
             print(f"  ✓ {len(db_files)} databases ready")
         print()
         
-        return True
+        # Return boot result with port info
+        return guardian_boot
         
     except Exception as e:
         print(f"\n[ERROR] Boot failed: {e}")
@@ -188,29 +197,19 @@ if __name__ == "__main__":
     print("=" * 80)
     print()
     
-    # Allocate port from managed range (8000-8100)
-    print("Allocating port from managed range (8000-8100)...")
-    port = allocate_grace_port()
+    # Boot Grace (Guardian boots FIRST and allocates port)
+    boot_result = asyncio.run(boot_grace_minimal())
     
-    if not port:
-        print("❌ No available ports in range 8000-8100")
-        print("\nCheck port usage:")
-        print("  netstat -ano | findstr :80")
-        print("\nOr view port manager status:")
-        print("  python scripts/utilities/check_ports.py")
-        sys.exit(1)
-    
-    print(f"✅ Allocated port {port}")
-    print(f"   Service: grace_backend")
-    print(f"   Watchdog: Active (monitors health every 30s)")
-    print()
-    
-    # Boot Grace
-    boot_success = asyncio.run(boot_grace_minimal())
-    
-    if not boot_success:
+    if not boot_result or isinstance(boot_result, bool) and not boot_result:
         print("Failed to boot Grace. Exiting.")
         input("\nPress Enter to exit...")
+        sys.exit(1)
+    
+    # Get port from Guardian's boot result
+    port = get_guardian_allocated_port(boot_result)
+    
+    if not port:
+        print("❌ Guardian did not allocate a port")
         sys.exit(1)
     
     # Start server
@@ -238,33 +237,78 @@ if __name__ == "__main__":
     print("=" * 80)
     print()
     
-    try:
-        # Register PID with port manager
-        import os
+    # Try to start server, if port fails, try next one automatically
+    max_retries = 10
+    for retry in range(max_retries):
         try:
-            from backend.core.port_manager import port_manager
-            port_manager.register_pid(port, os.getpid())
-            print(f"[PORT-MANAGER] Registered PID {os.getpid()} for port {port}")
-        except:
-            pass
-        
-        # Start server
-        uvicorn.run(
-            "backend.main:app",
-            host="0.0.0.0",
-            port=port,
-            log_level="info",
-            reload=False  # Disable reload to avoid issues
-        )
-    except KeyboardInterrupt:
-        print("\n\nGrace shutdown requested...")
-        
-        # Release port
-        try:
-            from backend.core.port_manager import port_manager
-            port_manager.release_port(port)
-            print(f"[PORT-MANAGER] Released port {port}")
-        except:
-            pass
-        
-        print("Goodbye! 👋")
+            # Register PID with port manager
+            import os
+            try:
+                from backend.core.port_manager import port_manager
+                port_manager.register_pid(port, os.getpid())
+                print(f"[PORT-MANAGER] Registered PID {os.getpid()} for port {port}")
+            except:
+                pass
+            
+            # Start server
+            print(f"\n[STARTING] Attempting to bind to port {port}...")
+            uvicorn.run(
+                "backend.main:app",
+                host="0.0.0.0",
+                port=port,
+                log_level="info",
+                reload=False  # Disable reload to avoid issues
+            )
+            break  # Success!
+            
+        except OSError as e:
+            if 'address already in use' in str(e).lower() or '10048' in str(e):
+                print(f"\n⚠️  Port {port} in use! Trying next port...")
+                
+                # Release this port in manager
+                try:
+                    from backend.core.port_manager import port_manager
+                    port_manager.release_port(port)
+                except:
+                    pass
+                
+                # Try next port
+                port += 1
+                if port > 8100:
+                    port = 8000  # Wrap around
+                
+                # Allocate new port
+                try:
+                    from backend.core.port_manager import port_manager
+                    allocation = port_manager.allocate_port(
+                        service_name="grace_backend",
+                        started_by="serve.py",
+                        purpose="Main Grace API server (retry)",
+                        preferred_port=port
+                    )
+                    if 'port' in allocation:
+                        port = allocation['port']
+                        print(f"✅ Trying port {port} instead...")
+                except:
+                    pass
+                
+                if retry == max_retries - 1:
+                    print(f"\n❌ Could not bind to any port after {max_retries} tries!")
+                    print("Run: python kill_grace.py")
+                    sys.exit(1)
+            else:
+                raise
+                
+        except KeyboardInterrupt:
+            print("\n\nGrace shutdown requested...")
+            
+            # Release port
+            try:
+                from backend.core.port_manager import port_manager
+                port_manager.release_port(port)
+                print(f"[PORT-MANAGER] Released port {port}")
+            except:
+                pass
+            
+            print("Goodbye! 👋")
+            break

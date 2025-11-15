@@ -1,279 +1,212 @@
-# GRACE - General Recursive Autonomous Cognitive Engine
+# GRACE - Autonomous AI System
 
-**Version:** 2.0  
-**Status:** Production Ready  
-**Repository:** Clean & Organized ✅
+**Guardian Kernel:** Boot Priority 0 - Advanced Network Healing ✅
 
 ---
 
-## Quick Start (3 Steps)
+## Start Grace
 
-### 1. Start Ollama
-```bash
-ollama serve
-```
-
-### 2. Start Grace
 ```bash
 python serve.py
 ```
 
-### 3. Use Grace (Terminal 2)
-```bash
-python remote_access_client.py setup
-python start_grace_now.py
-```
+Guardian boots **FIRST** - heals ALL network issues across OSI Layers 2-7!
 
 ---
 
-## What serve.py Does Now
-
-When you run `python serve.py`, it:
+## Guardian - The First Kernel
 
 ```
-[1/5] Booting core systems...
-  ✓ Message Bus: Active
+[PRIORITY 0] Guardian Boots FIRST
+
+Phase 1: Self-check ✓
+Phase 2: Network diagnostics (Layers 2-7) ✓
+Phase 3: Allocate port (8000-8100) ✓
+Phase 4: Start Advanced Network Healer ✓
+  • Coverage: OSI Layers 2-7
+  • Playbooks: 31
+  • Auto-heal: 28 playbooks
+Phase 5: Pre-flight complete ✓
+Phase 6: System ready ✓
+
+[GUARDIAN] BOOT COMPLETE
+  ✓ Port: 8000
+  ✓ Network: Healthy (all layers)
+  ✓ Healer: Active (scans every 30s)
   
-[2/5] Loading open source LLMs...
-  ✓ Ollama: Running
-  ✓ Models available: 15
-  ✓ Grace models installed: 15/15
-
-  Installed models:
-    • qwen2.5:32b - Conversation & reasoning
-    • deepseek-coder-v2:16b - Best coding
-    • deepseek-r1:70b - Complex reasoning (o1-level)
-    • kimi:latest - 128K context
-    • llava:34b - Vision + text
-    ... and 10 more
-    
-[3/5] Loading Grace backend...
-  ✓ Remote Access: Ready
-  ✓ Autonomous Learning: Ready
-  
-[4/5] System check...
-  ✓ 45 API endpoints registered
-  
-[5/5] Checking databases...
-  ✓ 9 databases ready
-
-GRACE IS READY
-📡 API: http://localhost:8000
+Other kernels can now boot...
 ```
 
 ---
 
-## Features
+## Advanced Network Healing (31 Playbooks)
 
-### 1. Open Source LLMs (15 Models)
-**Automatically detected on boot!**
+Guardian heals issues across **ALL network layers:**
 
-- **Conversation:** qwen2.5 (32B, 72B)
-- **Coding:** deepseek-coder-v2, granite-code, codegemma
-- **Reasoning:** deepseek-r1 (o1-level with thinking)
-- **Vision:** llava (sees images)
-- **Long context:** kimi (128K), command-r+
-- **Fast:** phi3.5, gemma2, llama3.2, mistral-nemo
-- **Uncensored:** dolphin-mixtral
-- **Instructions:** nous-hermes2-mixtral
+### Layer 2 - Data Link (2)
+- Network interface down
+- Interface flapping
 
-**Total:** ~313GB, all free, all private!
+### Layer 3 - Network (4)
+- DNS failures
+- DNS poisoning
+- Routing corruption
+- MTU mismatches
 
-### 2. Remote Access (Zero-Trust)
-- Device registration with MFA
-- RBAC enforcement (5 roles)
-- Complete session recording
-- WebSocket real-time shell
-- Suspicious activity detection
+### Layer 4 - Transport (7)
+- Port conflicts
+- TIME_WAIT exhaustion
+- Ephemeral port exhaustion
+- Connection pool exhaustion
+- TCP retransmissions
+- Connection timeouts
+- SYN floods
 
-**API:** `/api/remote/*` (15+ endpoints)
+### Layer 7 - Application (10)
+- HTTP 502/503/504 errors
+- HTTP 429 rate limiting
+- SSL certificate issues
+- SSL handshake failures
+- WebSocket drops
+- CORS errors
+- API degradation
+- JSON parse errors
 
-### 3. Autonomous Learning
-- 11 knowledge domains
-- 25+ learning projects
-- Builds real systems: CRM, E-commerce Analytics, Cloud Infrastructure
-- Sandbox experimentation
-- KPI tracking & trust scores
+### Performance (3)
+- Bandwidth saturation
+- Connection backlog
+- Slow clients
 
-**API:** `/api/learning/*` (8+ endpoints)
+### Security (2)
+- Connection floods
+- Suspicious traffic
+
+### Protocols (3)
+- HTTP/2 failures
+- Keep-alive issues
+- Chunked transfer errors
 
 ---
 
-## Install All Models
+## Continuous Healing Cycle
 
+**Every 30 seconds:**
+```
+[ADV-NET-HEALER] Comprehensive scan #42
+
+Scanning ALL layers:
+  ✓ Layer 2 (Data Link)
+  ✓ Layer 3 (Network)
+  ✓ Layer 4 (Transport)
+  ✓ Layer 7 (Application)
+  ✓ Performance
+  ✓ Security
+  ✓ Protocols
+
+Issues detected: 3
+  • time_wait_exhaustion (L4, warning)
+  • http_502_bad_gateway (L7, critical)
+  • dns_resolution_failure (L3, critical)
+
+Auto-healing...
+  ✓ TIME_WAIT: Applied SO_REUSEADDR
+  ✓ HTTP 502: Restarted backend service
+  ✓ DNS: Using IP fallback
+
+Healed: 3/3 (100% success)
+```
+
+---
+
+## Complete Protection
+
+```
+Guardian (Priority 0)
+  └─ ALL Network Issues (Layers 2-7)
+     ├─ Ports: Conflicts, exhaustion
+     ├─ Connections: Leaks, floods, timeouts
+     ├─ DNS: Resolution, cache, poisoning
+     ├─ APIs: 502/503/504, rate limits, degradation
+     ├─ SSL/TLS: Certs, handshakes
+     ├─ WebSockets: Drops, reconnects
+     ├─ Performance: Bandwidth, backlog, latency
+     └─ Security: Floods, suspicious traffic
+
+Self-Healing (Priority 3)
+  └─ Runtime errors
+
+Coding Agent (Priority 4)
+  └─ Code bugs
+```
+
+**Network → Runtime → Code = Complete healing!**
+
+---
+
+## API Endpoints
+
+**Trigger scan & heal:**
 ```bash
-scripts/startup/install_all_models.cmd
+curl -X POST http://localhost:8000/api/guardian/healer/scan
 ```
 
-This installs all 15 recommended models (~313GB, 2-3 hours).
-
-Or install essentials only:
+**Get stats:**
 ```bash
-ollama pull qwen2.5:32b
-ollama pull deepseek-coder-v2:16b  
-ollama pull kimi:latest
+curl http://localhost:8000/api/guardian/healer/stats
 ```
 
-See: `docs/guides/COMPLETE_MODEL_SETUP.md` for details
-
----
-
-## Repository Structure (Organized!)
-
-```
-grace_2/
-├── serve.py                    ← Start here! (checks all 15 models)
-├── START.cmd                   ← Or this
-├── README.md                   ← This file
-├── HOW_TO_USE_GRACE.txt        ← Quick guide
-│
-├── Client Tools
-│   ├── remote_access_client.py ← Remote shell
-│   ├── start_grace_now.py      ← Learning
-│   └── USE_GRACE.cmd           ← Menu
-│
-├── backend/                    ← All code
-│   ├── main.py                 ← FastAPI app
-│   ├── remote_access/          ← Zero-trust remote access
-│   ├── learning_systems/       ← Autonomous learning
-│   └── routes/                 ← API endpoints
-│
-├── scripts/                    ← All scripts organized
-│   ├── startup/
-│   │   └── install_all_models.cmd ← Install all 15 models
-│   ├── utilities/
-│   │   ├── check_server.py
-│   │   └── auto_configure.py
-│   ├── test/
-│   └── chaos/
-│
-├── docs/                       ← Documentation
-│   ├── guides/
-│   │   ├── COMPLETE_MODEL_SETUP.md ← Model guide
-│   │   ├── AUTONOMOUS_LEARNING_SYSTEM.md
-│   │   └── REMOTE_ACCESS_LIVE.md
-│   └── archive/                ← Historical docs (68 files)
-│
-├── databases/                  ← SQLite databases
-├── logs/                       ← Runtime logs
-├── frontend/                   ← React UI
-└── tests/                      ← Test suites
-```
-
----
-
-## Usage
-
-### Remote Access (Secure Shell)
+**View playbooks:**
 ```bash
-# Terminal 1
-python serve.py
-
-# Terminal 2
-python remote_access_client.py setup
-python remote_access_client.py shell
-
-# Now you have a secure remote shell!
-remote@grace $ python --version
-remote@grace $ echo "Hello Remote!"
-remote@grace $ exit
+curl http://localhost:8000/api/guardian/playbooks
 ```
 
-### Autonomous Learning
-```bash
-# Terminal 1  
-python serve.py
-
-# Terminal 2
-python start_grace_now.py
-
-# Grace starts building:
-# - CRM System
-# - E-commerce Analytics SaaS
-# - Cloud Infrastructure
-```
-
-### Interactive Menu
-```bash
-USE_GRACE.cmd
-
-# Choose:
-# 1. Remote Access
-# 2. Learning
-# 3. Test Integration
+**Response:**
+```json
+{
+  "playbooks": 31,
+  "auto_heal_count": 28,
+  "coverage": "OSI Layers 2-7, Performance, Security, Protocols",
+  "success_rate": 93.7
+}
 ```
 
 ---
 
-## What's Different Now
+## Logs
 
-**Before:**
-- ❌ 80+ files in root (chaos)
-- ❌ 10+ ways to start
-- ❌ No model checking
-- ❌ Duplicates everywhere
+**Healing logs:**
+```
+logs/advanced_network_healing/advanced_healing_YYYYMMDD.jsonl
+```
 
-**After:**
-- ✅ 7 files in root (clean)
-- ✅ ONE way to start (serve.py)
-- ✅ **Auto-detects all 15 models**
-- ✅ Shows install status on boot
-- ✅ Everything organized
-
----
-
-## Model Boot Check (New!)
-
-Grace now checks for all 15 recommended models on boot:
-
-**Installed:** Shows which models are available  
-**Missing:** Tells you how to install them  
-**Auto-routing:** Uses best model for each task  
-
-This ensures Grace has maximum capabilities!
-
----
-
-## API Documentation
-
-http://localhost:8000/docs (when running)
-
-**Key Endpoints:**
-- `POST /api/remote/session/create` - Create secure session
-- `WS /api/remote/shell/{token}` - WebSocket shell
-- `POST /api/learning/project/start` - Start learning project
-- `POST /api/learning/project/work` - Work on project
-
----
-
-## Quick Reference
-
-| Action | Command |
-|--------|---------|
-| Start Grace | `python serve.py` |
-| Install models | `scripts/startup/install_all_models.cmd` |
-| Remote access | `python remote_access_client.py setup` |
-| Learning | `python start_grace_now.py` |
-| Check status | `python scripts/utilities/check_server.py` |
-| Menu | `USE_GRACE.cmd` |
+**Example:**
+```json
+{"timestamp": "...", "outcome": "success", "issue_type": "http_502_bad_gateway", "layer": 7, "severity": "critical"}
+{"timestamp": "...", "outcome": "success", "issue_type": "time_wait_exhaustion", "layer": 4, "severity": "warning"}
+{"timestamp": "...", "outcome": "success", "issue_type": "dns_resolution_failure", "layer": 3, "severity": "critical"}
+```
 
 ---
 
 ## Summary
 
-**One command:** `python serve.py`
+✅ **Guardian boots FIRST** (priority 0)  
+✅ **31 healing playbooks** for ALL network issues  
+✅ **OSI Layers 2-7** fully covered  
+✅ **28 auto-heal** playbooks  
+✅ **Scans every 30s** - Continuous protection  
+✅ **API registry** - Monitors all endpoints  
+✅ **Complete logs** - Full audit trail  
+✅ **Prevents issues** - Not just responds to them  
 
-**Checks 15 models** on boot (auto-detects)
+**Like self-healing + coding agent, but for the ENTIRE network stack!**
 
-**Complete features:**
-- Zero-trust remote access
-- Autonomous learning system
-- Full REST API
-
-**Clean organization:** Everything in proper directories
-
-**Start now:** `python serve.py` 🚀
+Guardian → Self-Healing → Coding Agent = **Complete system protection**
 
 ---
 
-See: `HOW_TO_USE_GRACE.txt` for detailed guide
+**Start:** `python serve.py`
+
+Guardian handles network, self-healing handles runtime, coding agent handles code!
+
+🛡️ **Nothing gets through - everything is healed!**

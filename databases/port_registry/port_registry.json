@@ -1,0 +1,17 @@
+{
+  "allocations": {
+    "8000": {
+      "port": 8000,
+      "service_name": "grace_backend",
+      "started_by": "serve.py",
+      "purpose": "Main Grace API server with remote access and learning",
+      "pid": 48968,
+      "allocated_at": "2025-11-15T22:38:25.298804",
+      "last_health_check": "2025-11-15T22:38:25.298804",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    }
+  },
+  "last_updated": "2025-11-15T22:38:26.597108"
+}
