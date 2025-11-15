@@ -20,15 +20,15 @@ from pathlib import Path
 import subprocess
 import tempfile
 
-from .schemas import (
+from backend.mission_control.schemas import (
     MissionPackage, MissionStatus, PatchCandidate, TestResult,
     MetricObservation, RemediationEvent, Dependency
 )
-from .hub import mission_control_hub
+from backend.mission_control.hub import mission_control_hub
 from backend.logging.immutable_log import immutable_log
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 from backend.governance_system.governance import governance_engine
-from backend.agents_core.hunter import hunter_engine
+from backend.security.hunter import hunter_engine
 
 logger = logging.getLogger(__name__)
 

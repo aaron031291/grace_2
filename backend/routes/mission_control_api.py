@@ -19,17 +19,17 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 
-from ..auth import get_current_user
-from ..mission_control.schemas import (
+from backend.auth.auth_handler import get_current_user
+from backend.mission_control.schemas import (
     MissionPackage, MissionStatus, Severity, MissionContext,
-    WorkspaceInfo, AcceptanceCriteria, TrustRequirements
+    WorkspaceInfo, AcceptanceCriteria, TrustRequirements, TestResult, MetricObservation
 )
-from ..mission_control.hub import mission_control_hub
-from ..mission_control.autonomous_coding_pipeline import autonomous_coding_pipeline
-from ..mission_control.self_healing_workflow import self_healing_workflow
-from ..autonomous_mission_creator import autonomous_mission_creator
-from ..mission_control.mission_manifest import MissionManifest
-from ..mission_control.mission_controller import mission_controller, DynamicMissionPlan
+from backend.mission_control.hub import mission_control_hub
+from backend.mission_control.autonomous_coding_pipeline import autonomous_coding_pipeline
+from backend.mission_control.self_healing_workflow import self_healing_workflow
+from backend.autonomy.autonomous_mission_creator import autonomous_mission_creator
+from backend.mission_control.mission_manifest import MissionManifest
+from backend.mission_control.mission_controller import mission_controller, DynamicMissionPlan
 
 router = APIRouter(prefix="/mission-control", tags=["Mission Control"])
 

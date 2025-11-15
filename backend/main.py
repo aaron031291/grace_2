@@ -5,6 +5,8 @@ Backend Main Entry Point - Minimal Grace API
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from datetime import datetime
+import uuid
 
 from backend.learning_systems.advanced_learning import advanced_learning_supervisor
 
@@ -33,6 +35,10 @@ app.include_router(remote_access_router)
 # Register autonomous learning
 from backend.routes.autonomous_learning_api import router as learning_router
 app.include_router(learning_router)
+
+# Register mission control
+from backend.routes.mission_control_api import router as mission_control_router
+app.include_router(mission_control_router)
 
 @app.get("/")
 async def root():

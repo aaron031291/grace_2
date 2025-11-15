@@ -1,9 +1,12 @@
 import json
 from datetime import datetime, timedelta
-from .governance_models import SecurityRule, SecurityEvent
-from .models import async_session
+from backend.models.governance_models import SecurityRule, SecurityEvent
+from backend.models.base_models import async_session
 from sqlalchemy import select
-from .metric_publishers import HunterMetrics
+from backend.reporting.metric_publishers import HunterMetrics
+from backend.security.hunter_integration import handle_security_alert
+from backend.temporal.causal_graph import CausalGraph
+from backend.ml_training.ml_classifiers import alert_severity_predictor
 
 class Hunter:
     """Security monitoring and threat detection"""
@@ -27,7 +30,6 @@ class Hunter:
                     ml_used = False
                     
                     if self.use_ml_prediction:
-                        from .ml_classifiers import alert_severity_predictor
                         
                         try:
                             alert_data = {
@@ -75,11 +77,9 @@ class Hunter:
                 # Publish metrics for security scan
                 await HunterMetrics.publish_scan_completed(len(triggered), 0.95, 0.012)
 
-                from .hunter_integration import handle_security_alert
                 for rule_name, event_id in triggered:
                     await handle_security_alert(actor, rule_name, event_id, resource)
 
-                from .causal_graph import CausalGraph
                 try:
                     graph = CausalGraph()
                     end = datetime.utcnow()
