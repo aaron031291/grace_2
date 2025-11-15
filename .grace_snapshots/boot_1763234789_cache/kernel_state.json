@@ -1,72 +1,72 @@
 {
   "message_bus": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:32.003240",
+    "started_at": "2025-11-15T19:24:51.061056",
     "restart_count": 0
   },
   "immutable_log": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:32.004241",
+    "started_at": "2025-11-15T19:24:51.062055",
     "restart_count": 0
   },
   "self_healing": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:32.005370",
+    "started_at": "2025-11-15T19:24:51.062055",
     "restart_count": 0
   },
   "coding_agent": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:32.022479",
+    "started_at": "2025-11-15T19:24:51.080138",
     "restart_count": 0
   },
   "secret_manager": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:32.023482",
+    "started_at": "2025-11-15T19:24:51.080138",
     "restart_count": 0
   },
   "governance": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.915055",
+    "started_at": "2025-11-15T19:24:53.758133",
     "restart_count": 0
   },
   "verification_framework": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.915055",
+    "started_at": "2025-11-15T19:24:53.758133",
     "restart_count": 0
   },
   "memory_fusion": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.916055",
+    "started_at": "2025-11-15T19:24:53.759133",
     "restart_count": 0
   },
   "librarian": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.932676",
+    "started_at": "2025-11-15T19:24:53.774146",
     "restart_count": 0
   },
   "sandbox": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.916055",
+    "started_at": "2025-11-15T19:24:53.759133",
     "restart_count": 0
   },
   "agentic_spine": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.915055",
+    "started_at": "2025-11-15T19:24:53.758133",
     "restart_count": 0
   },
   "meta_loop": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.929174",
+    "started_at": "2025-11-15T19:24:53.772145",
     "restart_count": 0
   },
   "voice_conversation": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.930173",
+    "started_at": "2025-11-15T19:24:53.773146",
     "restart_count": 0
   },
   "api_server": {
     "state": "running",
-    "started_at": "2025-11-15T19:26:34.933680",
+    "started_at": "2025-11-15T19:24:53.774146",
     "restart_count": 0
   }
 }

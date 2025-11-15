@@ -3,14 +3,13 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 # Import Base, engine, async_session from base_models (foundation layer)
-from .base_models import Base, engine, async_session
+from .base_models import Base, engine, async_session, ImmutableLogEntry
 
 from .sandbox_models import SandboxRun, SandboxFile
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
 from backend.execution.task_executor import ExecutionTask
 from .issue_models import IssueReport
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
-from backend.logging.immutable_log import ImmutableLogEntry
 from backend.ml_training.mldl import MLEvent
 from backend.misc.avn_avm import VerificationEvent
 from backend.workflow_engines.meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation

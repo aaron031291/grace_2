@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from backend.models.governance_models import SecurityRule, SecurityEvent
 from backend.models.base_models import async_session
 from sqlalchemy import select
-from backend.reporting.metric_publishers import HunterMetrics
+from backend.monitoring.metric_publishers import HunterMetrics
 from backend.security.hunter_integration import handle_security_alert
 from backend.temporal.causal_graph import CausalGraph
-from backend.ml_training.ml_classifiers import alert_severity_predictor
+from backend.ml_classifiers import alert_severity_predictor
 
 class Hunter:
     """Security monitoring and threat detection"""
@@ -50,7 +50,7 @@ class Hunter:
                         except Exception as e:
                             print(f"⚠️ ML prediction failed: {e}, using rule severity")
                             predicted_severity = rule_severity
-                    
+                  
                     details_dict = payload.copy()
                     details_dict['ml_prediction'] = {
                         'predicted_severity': predicted_severity if ml_used else None,

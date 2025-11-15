@@ -1,10 +1,9 @@
 """Integration layer connecting Hunter alerts to tasks/reflections"""
 
-from .hunter import hunter
-from .models import async_session, Task
-from .memory import PersistentMemory
-from .governance_models import SecurityEvent
-from .metric_publishers import HunterMetrics
+from backend.models import async_session, Task
+from backend.memory_services.memory import PersistentMemory
+from backend.models.governance_models import SecurityEvent
+from backend.monitoring.metric_publishers import HunterMetrics
 
 memory = PersistentMemory()
 

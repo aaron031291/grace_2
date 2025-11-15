@@ -8,12 +8,11 @@ import hashlib
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from sqlalchemy import select, update, and_
-from sqlalchemy.orm import Session
-
-from .models import async_session
-from .parliament_models import (
-    GovernanceMember, GovernanceSession, GovernanceVote,
-    CommitteeDefinition, ParliamentConfig
+from backend.models import async_session
+from ..models.parliament_models import (
+    ParliamentarySession,
+    ParliamentaryVote,
+    ParliamentaryMember,
 )
 from .verification import VerificationEngine
 from .immutable_log import ImmutableLog as ImmutableLogger
