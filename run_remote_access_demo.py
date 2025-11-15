@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BASE_URL = "http://localhost:8000"
+API_URL = "http://localhost:8000"
 
 print("\n" + "="*70)
 print("GRACE REMOTE ACCESS SYSTEM - DEMO")
@@ -16,16 +16,14 @@ print("="*70)
 def check_backend():
     """Check if backend is running"""
     try:
-        response = requests.get(f"{BASE_URL}/health")
+        response = requests.get(f"{API_URL}/health")
         if response.status_code == 200:
-            print("\n✅ Backend is running")
+            print("\n\u2713 Backend is running!")
             return True
-    except:
+    except requests.ConnectionError:
         pass
     
-    print("\n❌ Backend not running!")
-    print("\nPlease start backend first:")
-    print("  python serve.py")
+    print("\n[X] Backend not running!")
     return False
 
 if not check_backend():
@@ -43,7 +41,7 @@ device_data = {
     "approved_by": "aaron"
 }
 
-response = requests.post(f"{BASE_URL}/api/remote/devices/register", json=device_data)
+response = requests.post(f"{API_URL}/api/remote/devices/register", json=device_data)
 result = response.json()
 
 if 'error' in result:
@@ -67,7 +65,7 @@ allowlist_data = {
     "approved_by": "aaron"
 }
 
-response = requests.post(f"{BASE_URL}/api/remote/devices/allowlist", json=allowlist_data)
+response = requests.post(f"{API_URL}/api/remote/devices/allowlist", json=allowlist_data)
 result = response.json()
 
 if 'error' not in result:
@@ -86,7 +84,7 @@ role_data = {
     "approved_by": "aaron"
 }
 
-response = requests.post(f"{BASE_URL}/api/remote/roles/assign", json=role_data)
+response = requests.post(f"{API_URL}/api/remote/roles/assign", json=role_data)
 result = response.json()
 
 if 'error' not in result:
@@ -104,7 +102,7 @@ session_data = {
     "mfa_token": "TEST_123456"  # Development MFA token
 }
 
-response = requests.post(f"{BASE_URL}/api/remote/session/create", json=session_data)
+response = requests.post(f"{API_URL}/api/remote/session/create", json=session_data)
 result = response.json()
 
 if 'allowed' in result and result['allowed']:
@@ -138,7 +136,7 @@ for i, cmd in enumerate(commands, 1):
         "timeout": 10
     }
     
-    response = requests.post(f"{BASE_URL}/api/remote/execute", json=exec_data)
+    response = requests.post(f"{API_URL}/api/remote/execute", json=exec_data)
     result = response.json()
     
     if 'success' in result and result['success']:
@@ -155,7 +153,7 @@ print("\n" + "-"*70)
 print("STEP 6: Check Active Sessions")
 print("-"*70)
 
-response = requests.get(f"{BASE_URL}/api/remote/sessions/active")
+response = requests.get(f"{API_URL}/api/remote/sessions/active")
 result = response.json()
 
 print(f"✅ Active sessions: {result['count']}")
@@ -166,7 +164,7 @@ print("\n" + "-"*70)
 print("STEP 7: Get Session Recordings")
 print("-"*70)
 
-response = requests.get(f"{BASE_URL}/api/remote/recordings")
+response = requests.get(f"{API_URL}/api/remote/recordings")
 result = response.json()
 
 print(f"✅ Total recordings: {result.get('count', 0)}")

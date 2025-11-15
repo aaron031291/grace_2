@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Pydantic v2: use 'pattern' instead of deprecated 'regex' in constr()
 UsernameStr = constr(strip_whitespace=True, min_length=3, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
-PasswordStr = constr(min_length=8, max_length=128)
+PasswordStr = constr(min_length=8, max_length=72)
 
 class UserCreate(BaseModel):
     username: UsernameStr
