@@ -16,7 +16,10 @@ from .routers.security_domain import router as security_domain_router
 from .metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
-    # Core app DB
+
+
+async def init_database():
+    """Initialize database"""
     # Ensure model modules are imported so Base.metadata is populated
     try:
         import importlib
@@ -28,14 +31,14 @@ from .logging_utils import ensure_utf8_console
             try:
                 importlib.import_module(_mod)
             except Exception:
-                # Optional modules may not import if they have side effects; ignore
                 pass
     except Exception:
         pass
-
+    
+    from backend.models.base_models import Base, engine
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✓ Database initialized")
+    print("[OK] Database initialized")
 
     # Metrics DB (separate to avoid coupling)
     from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker

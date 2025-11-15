@@ -393,7 +393,9 @@ class AuditLogResponse(BaseModel):
     result: str
     timestamp: datetime
 
-class AuditLogListResponse(RootModel[List[AuditLogResponse]]
+class AuditLogListResponse(RootModel[List[AuditLogResponse]]):
+    pass
+
 
 class ConfigItemResponse(BaseModel):
     key: str
@@ -402,7 +404,8 @@ class ConfigItemResponse(BaseModel):
     approved: bool
     last_updated_by: Optional[str] = None
 
-class ConfigListResponse(RootModel[List[ConfigItemResponse]]
+class ConfigListResponse(RootModel[List[ConfigItemResponse]]):
+    pass
 
 # ============ Memory (Extended) ============
 
@@ -543,7 +546,9 @@ class AutonomyCheckResponse(BaseModel):
     requires_approval: Optional[bool] = None
     tier: Optional[str] = None
 
-class AutonomyApprovalListResponse(RootModel[List[Dict[str, Any]]
+class AutonomyApprovalListResponse(RootModel[List[Dict[str, Any]]]):
+    pass
+
 
 class AutonomyApprovalResponse(BaseModel):
     status: str
@@ -693,7 +698,9 @@ class VerificationStatusResponse(BaseModel):
 
 # ============ Tasks (Extended) ============
 
-class TaskListResponse(RootModel[List[TaskResponse]]
+class TaskListResponse(RootModel[List[TaskResponse]]):
+    pass
+
 
 class TaskUpdateErrorResponse(BaseModel):
     error: str
@@ -913,7 +920,9 @@ class HunterAlertResponse(BaseModel):
     details: str
     user_id: Optional[str] = None
 
-class HunterAlertsResponse(RootModel[List[HunterAlertResponse]]
+class HunterAlertsResponse(RootModel[List[HunterAlertResponse]]):
+    pass
+
 
 class HunterResolveResponse(BaseModel):
     status: str
@@ -928,7 +937,9 @@ class HunterRuleResponse(BaseModel):
     action: str
     created_at: Optional[str] = None
 
-class HunterRulesResponse(RootModel[List[HunterRuleResponse]]
+class HunterRulesResponse(RootModel[List[HunterRuleResponse]]):
+    pass
+
 
 class HunterRuleUpdateResponse(BaseModel):
     id: int

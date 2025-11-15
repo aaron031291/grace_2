@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, Column, Integer, DateTime, Text, Float
 from .models import ChatMessage, async_session, Base

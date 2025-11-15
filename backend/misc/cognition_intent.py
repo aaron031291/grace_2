@@ -1,4 +1,4 @@
-﻿"""
+"""
 Cognition Intent System - Central Authority for Decision-Making
 
 The cognition domain is the AUTHORITY that:

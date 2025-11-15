@@ -1,4 +1,4 @@
-﻿from sqlalchemy import select
+from sqlalchemy import select
 from .models import Task, ChatMessage, async_session
 from datetime import datetime
 

@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, Text, select, func
+from sqlalchemy import Column, Integer, String, DateTime, Text, select, func
 from sqlalchemy.sql import func as sql_func
 from datetime import datetime, timedelta
 from .models import Base, ChatMessage, Task, async_session

@@ -1,0 +1,84 @@
+# Healer Mutual Restart Playbook
+# One healer restarts the other
+
+playbook_id: healer_mutual_restart
+name: "Healer Mutual Restart"
+description: "Self-healing or coding agent restarts the other"
+version: "1.0"
+category: recovery
+
+triggers:
+  - healer_mutual_recovery
+
+parameters:
+  failed_healer:
+    type: string
+    description: "Which healer is down (self_healing or coding_agent)"
+    required: true
+  
+  recovery_agent:
+    type: string
+    description: "Which healer is performing the recovery"
+    required: true
+
+steps:
+  - step_id: 1
+    action: verify_recovery_agent_healthy
+    description: "Confirm recovery agent is operational"
+    execute:
+      component: "{{ parameters.recovery_agent }}"
+      method: health_check
+    
+    timeout_seconds: 10
+
+  - step_id: 2
+    action: restart_failed_healer
+    description: "Restart the failed healing system"
+    execute:
+      component: control_plane
+      method: force_restart_kernel
+      params:
+        kernel_name: "{{ parameters.failed_healer }}"
+        triggered_by: "{{ parameters.recovery_agent }}"
+    
+    timeout_seconds: 30
+
+  - step_id: 3
+    action: verify_restart_success
+    description: "Verify failed healer is now running"
+    execute:
+      component: "{{ parameters.failed_healer }}"
+      method: health_check
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 10
+
+  - step_id: 4
+    action: test_mutual_recovery
+    description: "Test that both healers can now recover each other"
+    execute:
+      component: healer_watchdog
+      method: verify_mutual_recovery
+    
+    output: mutual_recovery_verified
+
+  - step_id: 5
+    action: log_mutual_recovery
+    description: "Log mutual recovery to audit"
+    execute:
+      component: immutable_log
+      method: append
+      params:
+        actor: "{{ parameters.recovery_agent }}"
+        action: "healer_mutual_restart"
+        resource: "{{ parameters.failed_healer }}"
+        result: "success"
+
+success_criteria:
+  - failed_healer operational
+  - recovery_agent still operational
+  - mutual_recovery capability verified
+
+slo:
+  max_execution_time_seconds: 60

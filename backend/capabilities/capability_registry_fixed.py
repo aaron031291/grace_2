@@ -1,4 +1,4 @@
-﻿"""
+"""
 Capability Registry - Safe Actions for LLM Tool Use
 
 Defines every capability Grace can perform:

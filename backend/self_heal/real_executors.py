@@ -1,4 +1,4 @@
-﻿"""
+"""
 Real Playbook Executors - Actual operations instead of simulations
 
 Replaces asyncio.sleep() stubs with real system operations:

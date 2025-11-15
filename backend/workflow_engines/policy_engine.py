@@ -1,4 +1,4 @@
-﻿"""
+"""
 Policy-as-Code Engine - OPA/Cedar Style Policy Evaluation
 
 Declarative policy engine for Grace's autonomy decisions.

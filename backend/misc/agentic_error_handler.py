@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agentic Error Handler - Instant Detection & Trigger Mesh Integration
 
 Catches errors immediately on user input and publishes to Trigger Mesh for
