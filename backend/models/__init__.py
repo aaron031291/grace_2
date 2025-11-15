@@ -5,7 +5,7 @@ Exports all models and database session
 
 from .base_models import Base, engine, async_session
 from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
-from .models import Task
+from .models import Task, User
 
 __all__ = [
     'Base',
@@ -15,4 +15,5 @@ __all__ = [
     'AuditLog',
     'ApprovalRequest',
     'Task',
+    'User',
 ]

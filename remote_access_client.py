@@ -5,33 +5,32 @@ Interactive client for Grace's remote access system
 
 import requests
 import json
-import sys
+import getpass
 import os
+import argparse
 from pathlib import Path
 
 BASE_URL = "http://localhost:8000"
+API_URL = "http://localhost:8000/api/remote-access"
 CONFIG_FILE = Path(".remote_access_config.json")
 
 
 class RemoteAccessClient:
     def __init__(self):
+        self.api_url = API_URL
         self.device_id = None
         self.token = None
-        self.session_id = None
+        self.session_id = None  # Add session_id
         self.load_config()
-    
+
     def load_config(self):
-        """Load saved device ID and token"""
-        if CONFIG_FILE.exists():
-            try:
-                config = json.loads(CONFIG_FILE.read_text())
-                self.device_id = config.get('device_id')
-                self.token = config.get('token')
-                self.session_id = config.get('session_id')
-                print(f"✅ Loaded saved device: {self.device_id}")
-            except:
-                pass
-    
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, "r") as f:
+                config = json.load(f)
+                self.device_id = config.get("device_id")
+                self.token = config.get("token")
+                self.session_id = config.get("session_id") # Load session_id
+
     def save_config(self):
         """Save device ID and token"""
         config = {
@@ -40,7 +39,7 @@ class RemoteAccessClient:
             'session_id': self.session_id
         }
         CONFIG_FILE.write_text(json.dumps(config, indent=2))
-    
+
     def check_backend(self):
         """Check if backend is running"""
         try:
@@ -48,38 +47,7 @@ class RemoteAccessClient:
             return response.status_code == 200
         except:
             return False
-    
-    def register_device(self, device_name, user_identity="aaron"):
-        """Register this device"""
-        print(f"\n📝 Registering device: {device_name}")
-        
-        # Create unique fingerprint
-        import hashlib
-        fingerprint = hashlib.md5(f"{device_name}{user_identity}".encode()).hexdigest()
-        
-        data = {
-            "device_name": device_name,
-            "device_type": "laptop",
-            "user_identity": user_identity,
-            "device_fingerprint": fingerprint,
-            "approved_by": user_identity
-        }
-        
-        response = requests.post(f"{BASE_URL}/api/remote/devices/register", json=data)
-        result = response.json()
-        
-        if 'device_id' in result:
-            self.device_id = result['device_id']
-            print(f"✅ Device registered: {self.device_id}")
-            return True
-        elif result.get('error') == 'device_already_registered':
-            self.device_id = result['device_id']
-            print(f"✅ Device already registered: {self.device_id}")
-            return True
-        else:
-            print(f"❌ Registration failed: {result}")
-            return False
-    
+
     def allowlist_device(self, approved_by="aaron"):
         """Allowlist this device"""
         print(f"\n🔓 Allowlisting device...")
@@ -89,7 +57,7 @@ class RemoteAccessClient:
             "approved_by": approved_by
         }
         
-        response = requests.post(f"{BASE_URL}/api/remote/devices/allowlist", json=data)
+        response = requests.post(f"{API_URL}/devices/allowlist", json=data)
         result = response.json()
         
         if 'allowlisted' in result:
@@ -98,7 +66,7 @@ class RemoteAccessClient:
         else:
             print(f"⚠️  {result}")
             return True  # May already be allowlisted
-    
+
     def assign_role(self, role="developer", approved_by="aaron"):
         """Assign RBAC role"""
         print(f"\n🎭 Assigning role: {role}")
@@ -109,7 +77,7 @@ class RemoteAccessClient:
             "approved_by": approved_by
         }
         
-        response = requests.post(f"{BASE_URL}/api/remote/roles/assign", json=data)
+        response = requests.post(f"{API_URL}/roles/assign", json=data)
         result = response.json()
         
         if 'role' in result:
@@ -119,7 +87,7 @@ class RemoteAccessClient:
         else:
             print(f"⚠️  {result}")
             return True  # May already have role
-    
+
     def create_session(self):
         """Create remote session"""
         print(f"\n🔐 Creating session with MFA...")
@@ -129,7 +97,7 @@ class RemoteAccessClient:
             "mfa_token": "TEST_123456"  # Dev MFA token
         }
         
-        response = requests.post(f"{BASE_URL}/api/remote/session/create", json=data)
+        response = requests.post(f"{API_URL}/session/create", json=data)
         result = response.json()
         
         if result.get('allowed'):
@@ -145,173 +113,164 @@ class RemoteAccessClient:
         else:
             print(f"❌ Session creation failed: {result}")
             return False
-    
-    def execute_command(self, command):
-        """Execute remote command"""
-        if not self.token:
-            print("❌ No active session. Run 'setup' first.")
-            return None
+
+    def get_token(self):
+        """Authenticate and get JWT token"""
+        if self.token:
+            return True
+
+        username = "admin"
+        password = "password"
         
-        data = {
-            "token": self.token,
-            "command": command,
-            "timeout": 30
-        }
-        
-        response = requests.post(f"{BASE_URL}/api/remote/execute", json=data)
-        result = response.json()
-        
-        if result.get('success'):
-            return result
-        else:
-            print(f"❌ Command failed: {result.get('error', 'unknown error')}")
-            return None
-    
-    def setup(self, device_name="my_computer"):
-        """Complete setup process"""
-        if not self.check_backend():
-            print("\n❌ Backend not running!")
-            print("Start it with: python serve.py")
+        try:
+            response = requests.post(f"{self.api_url.replace('/remote-access', '')}/token", data={"username": username, "password": password})
+            if response.status_code == 200:
+                self.token = response.json().get("access_token")
+                self.save_config()
+                print("\u2713 Authenticated successfully.")
+                return True
+            else:
+                print(f"[X] Authentication failed: {response.text}")
+                return False
+        except requests.exceptions.RequestException as e:
+            print(f"[X] Error connecting to backend: {e}")
             return False
-        
-        print("\n" + "="*60)
-        print("REMOTE ACCESS SETUP")
-        print("="*60)
-        
-        if not self.register_device(device_name):
-            return False
-        
-        if not self.allowlist_device():
-            return False
-        
-        if not self.assign_role():
-            return False
-        
-        if not self.create_session():
-            return False
-        
-        self.save_config()
-        
-        print("\n" + "="*60)
-        print("✅ SETUP COMPLETE - READY FOR REMOTE ACCESS")
-        print("="*60)
-        print("\nYou can now:")
-        print("  - Run commands: exec <command>")
-        print("  - Check status: status")
-        print("  - Interactive shell: shell")
-        print()
-        
-        return True
-    
+
     def interactive_shell(self):
-        """Interactive remote shell"""
-        print("\n" + "="*60)
-        print("GRACE REMOTE SHELL (Type 'exit' to quit)")
-        print("="*60)
-        
+        """Start an interactive shell."""
+        if not self.session_id:
+            print("[X] No active session. Please run 'setup' first.")
+            return
+
+        print("\nConnected to remote shell. Type 'exit' to quit.")
         while True:
             try:
-                command = input(f"\nremote@grace $ ").strip()
-                
-                if not command:
-                    continue
-                
-                if command.lower() in ['exit', 'quit']:
-                    print("Exiting remote shell...")
+                command = input(f"({self.device_id}) grace> ")
+                if command.lower() == 'exit':
                     break
-                
-                print(f"🔧 Executing: {command}")
-                result = self.execute_command(command)
-                
-                if result:
-                    if result.get('stdout'):
-                        print(result['stdout'], end='')
-                    if result.get('stderr'):
-                        print("STDERR:", result['stderr'], end='')
-                    print(f"\nExit code: {result.get('exit_code', 'unknown')}")
-            
+                self.execute_command(command)
             except KeyboardInterrupt:
-                print("\n\nExiting...")
                 break
-            except Exception as e:
-                print(f"Error: {e}")
-    
-    def status(self):
-        """Show status"""
-        print("\n" + "="*60)
-        print("REMOTE ACCESS STATUS")
-        print("="*60)
-        
-        if self.device_id:
-            print(f"Device ID: {self.device_id}")
-        else:
-            print("Device: Not registered")
-        
-        if self.session_id:
-            print(f"Session ID: {self.session_id}")
-        else:
-            print("Session: None")
-        
-        if self.token:
-            print(f"Token: {self.token[:40]}...")
-        else:
-            print("Token: None")
-        
-        # Get active sessions
+        print("Disconnected.")
+
+    def execute_command(self, command: str):
+        """Execute a single command."""
+        if not self.session_id:
+            print("[X] No active session. Please run 'setup' first.")
+            return
+
+        headers = {"Authorization": f"Bearer {self.token}"}
         try:
-            response = requests.get(f"{BASE_URL}/api/remote/sessions/active")
+            response = requests.post(f"{self.api_url}/execute", headers=headers, json={
+                "session_id": self.session_id,
+                "command": command
+            })
             result = response.json()
-            print(f"\nActive Sessions: {result.get('count', 0)}")
-        except:
-            print("\nBackend not responding")
-        
-        print("="*60)
+            if response.status_code == 200:
+                print(result.get("output"))
+            else:
+                print(f"[X] Error: {result.get('detail')}")
+        except requests.exceptions.RequestException as e:
+            print(f"[X] Error connecting to backend: {e}")
+
+    def get_status(self):
+        """Get the status of the current session."""
+        if not self.session_id:
+            print("[X] No active session.")
+            return
+
+        headers = {"Authorization": f"Bearer {self.token}"}
+        try:
+            response = requests.get(f"{self.api_url}/session/{self.session_id}", headers=headers)
+            if response.status_code == 200:
+                print(json.dumps(response.json(), indent=2))
+            else:
+                print(f"[X] Error: {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"[X] Error connecting to backend: {e}")
+
+    def setup(self, device_name):
+        """Setup device and start a session"""
+        self.device_id = device_name
+        print(f"\n[+] Starting session for device: {self.device_id}")
+        self.start_session(target_system="local_shell", reason="Initial setup")
+
+    def start_session(self, target_system: str, reason: str):
+        """Start a new remote access session"""
+        try:
+            # First, get a token
+            if not self.get_token():
+                return
+
+            headers = {"Authorization": f"Bearer {self.token}"}
+            response = requests.post(f"{self.api_url}/session/start", headers=headers, json={
+                "target_system": target_system,
+                "reason": reason
+            })
+
+            if response.status_code == 201:
+                result = response.json()
+                self.session_id = result.get("session_id")
+                self.save_config()
+                print(f"\u2713 Session started successfully! Session ID: {self.session_id}")
+            else:
+                print(f"[X] Failed to start session: {response.text}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"[X] Error connecting to backend: {e}")
+
+    def register(self, username, password):
+        """Register a new user"""
+        try:
+            response = requests.post(f"{self.api_url.replace('/remote-access', '')}/register", json={"username": username, "password": password})
+            if response.status_code == 201:
+                print(f"\u2713 User '{username}' registered successfully.")
+                return True
+            else:
+                print(f"[X] Registration failed: {response.text}")
+                return False
+        except requests.exceptions.RequestException as e:
+            print(f"[X] Error connecting to backend: {e}")
+            return False
 
 
 def main():
     client = RemoteAccessClient()
-    
-    if len(sys.argv) < 2:
-        print("\nGRACE REMOTE ACCESS CLIENT")
-        print("\nUsage:")
-        print("  python remote_access_client.py setup [device_name]  - Setup device")
-        print("  python remote_access_client.py shell                - Interactive shell")
-        print("  python remote_access_client.py exec <command>       - Execute command")
-        print("  python remote_access_client.py status               - Show status")
-        print()
-        return
-    
-    command = sys.argv[1].lower()
-    
-    if command == "setup":
-        device_name = sys.argv[2] if len(sys.argv) > 2 else "my_computer"
-        client.setup(device_name)
-    
-    elif command == "shell":
-        client.interactive_shell()
-    
-    elif command == "exec":
-        if len(sys.argv) < 3:
-            print("Usage: python remote_access_client.py exec <command>")
-            return
-        
-        cmd = " ".join(sys.argv[2:])
-        print(f"\n🔧 Executing: {cmd}")
-        result = client.execute_command(cmd)
-        
-        if result:
-            if result.get('stdout'):
-                print(result['stdout'])
-            if result.get('stderr'):
-                print("STDERR:", result['stderr'])
-            print(f"Exit code: {result.get('exit_code')}")
-    
-    elif command == "status":
-        client.status()
-    
-    else:
-        print(f"Unknown command: {command}")
+    parser = argparse.ArgumentParser(description="Grace Remote Access Client")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
+    register_parser = subparsers.add_parser("register", help="Register a new user")
+    register_parser.add_argument("username", help="Username")
+    register_parser.add_argument("password", help="Password")
+
+    setup_parser = subparsers.add_parser("setup", help="Setup a new device and session")
+    setup_parser.add_argument("device_name", help="A name for this device")
+
+    shell_parser = subparsers.add_parser("shell", help="Start an interactive shell")
+    
+    exec_parser = subparsers.add_parser("exec", help="Execute a single command")
+    exec_parser.add_argument("cmd", help="The command to execute")
+
+    status_parser = subparsers.add_parser("status", help="Get session status")
+
+    setup_and_shell_parser = subparsers.add_parser("setup_and_shell", help="Setup a new device and immediately enter the shell")
+    setup_and_shell_parser.add_argument("device_name", help="A name for this device")
+
+    args = parser.parse_args()
+
+    if args.command == "register":
+        client.register(args.username, args.password)
+    elif args.command == "setup":
+        client.setup(args.device_name)
+    elif args.command == "shell":
+        client.interactive_shell()
+    elif args.command == "exec":
+        client.execute_command(args.cmd)
+    elif args.command == "status":
+        client.get_status()
+    elif args.command == "setup_and_shell":
+        client.setup(args.device_name)
+        client.interactive_shell()
 
 if __name__ == "__main__":
     main()
