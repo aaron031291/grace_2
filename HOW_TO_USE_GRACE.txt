@@ -1,20 +1,43 @@
 ====================================================================
-HOW TO USE GRACE - SIMPLE VERSION
+HOW TO USE GRACE - COMPLETE GUIDE
 ====================================================================
 
-STEP 1: Start Grace
+STEP 1: Start Ollama (Required for LLMs)
+-----------------------------------------
+In a terminal:
+  ollama serve
+
+Keep this running.
+
+
+STEP 2: Install Models (One Time)
+----------------------------------
+In another terminal:
+  scripts\startup\install_all_models.cmd
+
+This installs all 15 open source models (~313GB, 2-3 hours).
+
+Or install just essentials:
+  ollama pull qwen2.5:32b
+  ollama pull deepseek-coder-v2:16b
+  ollama pull kimi:latest
+
+
+STEP 3: Start Grace
 -------------------
-python serve.py
+  python serve.py
 
-(Or double-click: START.cmd)
+Or:
+  START.cmd
+
+Grace will:
+  - Find available port
+  - Check which models are installed
+  - Start API server
+  - Show you the URL
 
 
-STEP 2: In another terminal, configure clients
------------------------------------------------
-python auto_configure.py
-
-
-STEP 3: Use Grace
+STEP 4: Use Grace
 -----------------
 
 Option A: Remote Access
@@ -29,16 +52,77 @@ Option C: Interactive Menu
 
 
 ====================================================================
-THAT'S ALL!
+WHAT YOU'LL SEE
 ====================================================================
 
-Files you need to know:
-  serve.py                  - Start server
-  auto_configure.py         - Configure for correct port
-  remote_access_client.py   - Remote shell
-  start_grace_now.py        - Start learning
-  USE_GRACE.cmd             - Menu
+When Grace starts:
 
-Everything else is extra/documentation.
+  [1/5] Booting core systems...
+    ✓ Message Bus: Active
+    
+  [2/5] Loading open source LLMs...
+    ✓ Ollama: Running
+    ✓ Models available: 15
+    ✓ Grace models installed: 15/15
+    
+    Installed models:
+      • qwen2.5:32b - Conversation & reasoning
+      • deepseek-coder-v2:16b - Best coding
+      • deepseek-r1:70b - Complex reasoning
+      ... and 12 more
+      
+  [3/5] Loading Grace backend...
+    ✓ Backend loaded
+    ✓ Remote Access: Ready
+    ✓ Autonomous Learning: Ready
+    
+  [4/5] System check...
+    ✓ 45 API endpoints registered
+    
+  [5/5] Checking databases...
+    ✓ 9 databases ready
+    
+  GRACE IS READY
+  📡 API: http://localhost:8000
+  📖 Docs: http://localhost:8000/docs
+
+
+====================================================================
+FEATURES
+====================================================================
+
+Remote Access:
+  - Zero-trust device authentication
+  - Multi-factor authentication
+  - RBAC with 5 roles
+  - Complete session recording
+  - WebSocket real-time shell
+
+Autonomous Learning:
+  - 11 knowledge domains
+  - 25+ learning projects
+  - Builds: CRM, E-commerce Analytics, Cloud Infrastructure
+  - Sandbox experimentation
+  - KPI tracking & trust scores
+
+Open Source LLMs (15 models):
+  - Conversation: qwen2.5 (32B, 72B)
+  - Coding: deepseek-coder, granite-code, codegemma
+  - Reasoning: deepseek-r1 (o1-level)
+  - Vision: llava (sees images)
+  - Fast: phi3.5, gemma2, llama3.2
+  - All 100% free and private!
+
+
+====================================================================
+QUICK REFERENCE
+====================================================================
+
+Start Grace:      python serve.py
+Install models:   scripts\startup\install_all_models.cmd
+Remote access:    python remote_access_client.py setup
+Learning:         python start_grace_now.py
+Check status:     python scripts\utilities\check_server.py
+API docs:         http://localhost:8000/docs
 
 ====================================================================
