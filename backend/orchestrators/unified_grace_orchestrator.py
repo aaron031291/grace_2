@@ -630,6 +630,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Model rollback monitor not started: {e}")
     
+    # Start ACL and resource pressure monitors (fixes S02/S03 chaos gaps)
+    try:
+        from backend.boot.start_monitors import start_all_monitors
+        await start_all_monitors()
+        logger.info("✅ ACL & Resource monitors started (chaos safeguards)")
+    except Exception as e:
+        logger.warning(f"Monitoring safeguards not started: {e}")
+    
     yield
     
     # Shutdown - stop Grace when uvicorn stops
