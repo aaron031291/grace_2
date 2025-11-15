@@ -2,6 +2,161 @@
 # Google DiRT, Netflix FIT, Jepsen-style testing with full diagnostics
 
 # =============================================================================
+# LAYER 2 ORCHESTRATION CHAOS
+# =============================================================================
+
+- scenario_id: L2_HTM_queue_flood_stress
+  name: "Layer 2: HTM Queue Flood (10K Intents)"
+  category: layer2_orchestration
+  severity: 4
+  description: "Flood HTM with 10,000 intents, 50% invalid"
+  
+  fault:
+    type: htm_queue_flood
+    params:
+      total_intents: 10000
+      invalid_ratio: 0.5
+      concurrency: 100
+      duration_seconds: 90
+  
+  expected_safeguards:
+    - htm_queue_depth_monitor
+    - rate_limiter
+    - intent_validator
+    - load_shedder
+  
+  telemetry:
+    - htm_queue_depth
+    - intent_validation_rate
+    - worker_utilization
+    - sla_breach_count
+  
+  verification:
+    - queue_processed_without_deadlock
+    - invalid_intents_rejected
+    - valid_intents_completed
+    - p99_latency < 5000ms
+  
+  max_recovery_time: 120
+
+- scenario_id: L2_trigger_mesh_storm
+  name: "Layer 2: Trigger Mesh Event Storm"
+  category: layer2_orchestration
+  severity: 4
+  description: "Publish 5000 events/second to trigger mesh"
+  
+  fault:
+    type: trigger_storm
+    params:
+      events_per_second: 5000
+      duration_seconds: 60
+      event_types: ["test.spam.*", "chaos.trigger.*"]
+  
+  expected_safeguards:
+    - trigger_mesh_backpressure
+    - subscription_circuit_breaker
+    - event_rate_limiter
+  
+  telemetry:
+    - event_queue_depth
+    - subscription_processing_rate
+    - dropped_event_count
+  
+  verification:
+    - trigger_mesh_operational
+    - subscriptions_not_overwhelmed
+    - no_event_loss
+  
+  max_recovery_time: 90
+
+- scenario_id: L2_scheduler_pause_during_load
+  name: "Layer 2: Pause Scheduler Under Load"
+  category: layer2_orchestration
+  severity: 5
+  description: "Pause scheduler while 1000 tasks queued"
+  
+  fault:
+    type: component_pause_under_load
+    params:
+      component: "scheduler"
+      pause_seconds: 60
+      background_load:
+        tasks_per_second: 50
+        duration_seconds: 120
+  
+  expected_safeguards:
+    - scheduler_watchdog
+    - task_queue_overflow_protection
+    - task_rerouting
+  
+  telemetry:
+    - scheduler_task_queue_depth
+    - task_dispatch_rate
+    - rerouting_count
+  
+  verification:
+    - scheduler_resumed
+    - all_tasks_eventually_processed
+    - no_task_loss
+  
+  max_recovery_time: 120
+
+- scenario_id: L2_event_policy_cascade
+  name: "Layer 2: Event Policy Cascade Failure"
+  category: layer2_orchestration
+  severity: 4
+  description: "Chain of event policies trigger each other (cascade detection)"
+  
+  fault:
+    type: policy_cascade
+    params:
+      initial_event: "test.cascade.trigger"
+      cascade_depth: 10
+      events_per_level: 5
+  
+  expected_safeguards:
+    - cascade_detector
+    - recursion_limiter
+    - event_policy_circuit_breaker
+  
+  verification:
+    - cascade_detected_and_stopped
+    - recursion_depth_limited
+    - system_not_overwhelmed
+  
+  max_recovery_time: 60
+
+- scenario_id: L2_worker_dropout_chaos
+  name: "Layer 2: Random Worker Dropout"
+  category: layer2_orchestration
+  severity: 3
+  description: "Randomly kill 50% of workers during task execution"
+  
+  fault:
+    type: worker_dropout
+    params:
+      kill_percentage: 0.5
+      dropout_pattern: "random"
+      duration_seconds: 120
+  
+  expected_safeguards:
+    - worker_health_monitor
+    - task_reassignment
+    - worker_pool_recovery
+  
+  telemetry:
+    - active_worker_count
+    - failed_worker_count
+    - task_reassignment_count
+  
+  verification:
+    - workers_auto_respawned
+    - tasks_reassigned_successfully
+    - no_task_loss
+  
+  max_recovery_time: 90
+
+# =============================================================================
 # GOOGLE DiRT-STYLE: Infrastructure + Control Plane Chaos
 # =============================================================================
 
