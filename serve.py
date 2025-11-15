@@ -12,6 +12,11 @@ import uvicorn
 import sys
 from pathlib import Path
 from backend.learning_systems.advanced_learning import advanced_learning_supervisor
+import multiprocessing
+import time
+import socket
+import os
+import sys
 
 
 async def boot_grace_core():
@@ -224,9 +229,48 @@ async def boot_grace_core():
         return False
 
 
+def run_guardian():
+    """Target function to run the guardian kernel."""
+    # Redirect stdout and stderr to a log file
+    sys.stdout = open('guardian.log', 'w')
+    sys.stderr = open('guardian.log', 'w')
+
+    import asyncio
+    # Ensure the project root is on the path
+    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+    from guardian_kernel.guardian import main as guardian_main
+    print("Starting Guardian Kernel...")
+    asyncio.run(guardian_main())
+    time.sleep(1) # Add a small delay
+
+def wait_for_guardian():
+    """Waits for the Guardian Kernel to be ready."""
+    print("Waiting for Guardian Kernel to be ready...")
+    for _ in range(30):  # 30-second timeout
+        try:
+            with socket.create_connection(("127.0.0.1", 65432), timeout=1) as sock:
+                print("Guardian Kernel is ready.")
+                return True
+        except (socket.timeout, ConnectionRefusedError):
+            time.sleep(1)
+    print("Error: Timed out waiting for Guardian Kernel.")
+    return False
+
 if __name__ == "__main__":
     # Boot Layer 1 first
     boot_success = asyncio.run(boot_grace_core())
+    # Start Guardian Kernel in a separate process
+    guardian_process = multiprocessing.Process(target=run_guardian)
+    guardian_process.daemon = True  # Ensure guardian dies when main process exits
+    guardian_process.start()
+    
+    # Wait for the Guardian to be ready
+    if wait_for_guardian():
+        # Now, start the main FastAPI application
+        uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+    else:
+        guardian_process.terminate()
+        print("Could not start main application because Guardian Kernel failed to start.")
     
     if not boot_success:
         print("Failed to boot Layer 1. Exiting.")
