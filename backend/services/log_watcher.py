@@ -39,6 +39,7 @@ class LogWatcher(BaseComponent if HAS_CLARITY else object):
             'ingestion_failure': r'ingestion.*failed|Failed to ingest',
             'connection_lost': r'Connection.*lost|timeout|refused',
             'memory_pressure': r'MemoryError|Out of memory|OOM',
+            'unicode_console_error': r'UnicodeEncodeError|charmap codec can\'t encode character',
         }
         self.running = False
     
@@ -162,3 +163,48 @@ async def trigger_self_healing_on_error(event: Dict[str, Any]):
         # TODO: Integrate with actual self-healing kernel
         # from backend.self_healing import trigger_playbook
         # await trigger_playbook(get_playbook_for_pattern(pattern))
+
+
+async def trigger_error_recognition_on_error(event: Dict[str, Any]):
+    """
+    Unified handler that routes serious log errors to the ErrorRecognitionSystem/coding agent.
+    This is the bridge from raw logs → error recognition → self-healing/coding agent.
+    """
+    pattern = event.get('pattern')
+    line = event.get('line') or ''
+    source = event.get('source') or 'unknown'
+
+    # Only escalate serious patterns
+    if pattern not in ['error', 'critical', 'ingestion_failure', 'connection_lost', 'unicode_console_error']:
+        return
+
+    try:
+        # Lazy import to avoid circular dependencies
+        from backend.core.error_recognition_system import error_recognition_system
+
+        # Derive a synthetic "kernel" name from the source so signatures group logically
+        lower_source = source.lower()
+        if 'serve' in lower_source:
+            kernel_name = 'backend_boot'
+        elif 'startup' in lower_source:
+            kernel_name = 'backend_startup'
+        else:
+            kernel_name = 'log_watcher'
+
+        # Wrap the log line as an exception so diagnostics have a message to work with
+        error = RuntimeError(f"[{pattern}] {line}")
+
+        await error_recognition_system.handle_kernel_failure(kernel_name=kernel_name, error=error)
+    except Exception as e:
+        # Never let the watcher crash on dispatch failures
+        print(f"[LogWatcher] ErrorRecognition dispatch failed: {e}")
+
+
+# Auto-register default handlers so any caller that starts log_watcher
+# automatically gets self-healing + error-recognition wiring.
+try:
+    log_watcher.register_handler(trigger_self_healing_on_error)
+    log_watcher.register_handler(trigger_error_recognition_on_error)
+except Exception as _e:
+    # Safe to ignore; watcher can still be used manually
+    pass
