@@ -17,7 +17,7 @@ import asyncio
 import json
 
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.logging.immutable_log import ImmutableLog
+from backend.logging.immutable_log import immutable_log
 from sqlalchemy import Column, String, JSON, DateTime, Float, Integer, Boolean
 from backend.models.base_models import Base, async_session
 
@@ -33,13 +33,14 @@ class IntentStatus(Enum):
     TIMEOUT = "timeout"
 
 
-class IntentPriority(Enum):
-    """Intent priority levels"""
-    CRITICAL = "critical"
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    BACKGROUND = "background"
+class IntentPriority(int, Enum):
+    """Intent priority"""
+    MINIMUM = 1
+    CRITICAL = 10
+    HIGH = 8
+    NORMAL = 5
+    LOW = 3
+    IDLE = 0
 
 
 @dataclass
@@ -214,19 +215,18 @@ class IntentAPI:
         )
         
         # Log to immutable log
-        log = ImmutableLog()
-        await log.append(
-            actor="agentic_brain",
-            action="intent.created",
+        await immutable_log.append(
+            actor="agentic.message_bus",
+            action="agentic_intent_created",
             resource=f"intent_{intent.domain}",
-            subsystem="layer3",
+            subsystem="intent_api",
             payload={
                 "intent_id": intent.intent_id,
                 "goal": intent.goal,
                 "priority": intent.priority.value,
                 "outcome": "submitted"
             },
-            result="success"
+            result="SUCCESS"
         )
         
         # Update status
@@ -339,12 +339,11 @@ class IntentAPI:
         )
         
         # Log to immutable log
-        log = ImmutableLog()
-        await log.append(
-            actor="intent_api",
-            action="intent.completed",
+        await immutable_log.append(
+            actor="intent.message_bus",
+            action="agentic_intent_completed",
             resource=f"intent_{intent_id}",
-            subsystem="layer3",
+            subsystem="intent_api",
             payload={
                 "intent_id": intent_id,
                 "execution_time_ms": outcome.execution_time_ms,
