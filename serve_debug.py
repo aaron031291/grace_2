@@ -13,9 +13,9 @@ print("="*70)
 print("\n[1/4] Testing imports...")
 try:
     from backend.main import app
-    print("✅ Main app imported successfully")
+    print("[OK] Main app imported successfully")
 except Exception as e:
-    print(f"❌ Failed to import app: {e}")
+    print(f"[ERROR] Failed to import app: {e}")
     print("\nFull error:")
     traceback.print_exc()
     input("\nPress Enter to exit...")
@@ -23,18 +23,18 @@ except Exception as e:
 
 print("\n[2/4] Checking routes...")
 try:
-    print(f"✅ App routes registered: {len(app.routes)} routes")
+    print(f"[OK] App routes registered: {len(app.routes)} routes")
 except Exception as e:
-    print(f"❌ Error checking routes: {e}")
+    print(f"[WARN] Error checking routes: {e}")
 
 print("\n[3/4] Testing basic endpoint...")
 try:
     from fastapi.testclient import TestClient
     client = TestClient(app)
     response = client.get("/health")
-    print(f"✅ Health endpoint works: {response.status_code}")
+    print(f"[OK] Health endpoint works: {response.status_code}")
 except Exception as e:
-    print(f"⚠️  Could not test endpoint: {e}")
+    print(f"[WARN] Could not test endpoint: {e}")
 
 print("\n[4/4] Starting server...")
 print("\nGrace will be available at:")
@@ -51,6 +51,6 @@ try:
 except KeyboardInterrupt:
     print("\n\nShutting down gracefully...")
 except Exception as e:
-    print(f"\n❌ Server error: {e}")
+    print(f"\n[ERROR] Server error: {e}")
     traceback.print_exc()
     input("\nPress Enter to exit...")

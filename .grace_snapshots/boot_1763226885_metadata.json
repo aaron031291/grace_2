@@ -1,0 +1,23 @@
+{
+  "snapshot_id": "boot_1763226885",
+  "timestamp": "2025-11-15T17:14:45.371107",
+  "db_snapshot_path": "c:\\Users\\aaron\\grace_2\\.grace_snapshots\\boot_1763226885_db.sqlite",
+  "cache_snapshot_path": "c:\\Users\\aaron\\grace_2\\.grace_snapshots\\boot_1763226885_cache",
+  "config_hashes": {
+    "c:\\Users\\aaron\\grace_2\\config\\agentic_config.yaml": "2d026f4c1f942fdc0e8c320c9cfcd9037c1d117e44cdd010bedd430c8e664c2f",
+    "c:\\Users\\aaron\\grace_2\\config\\autonomous_improver_whitelist.yaml": "621ad3f02edf3b61f6a539cfe995b830ac3b25ac4886af555afd7875701f3afe",
+    "c:\\Users\\aaron\\grace_2\\config\\grace_constitution.yaml": "116e67cebdf989a356115ba8d20ecb71bf1f4a267ffc3deadb408c9e39023e9e",
+    "c:\\Users\\aaron\\grace_2\\config\\guardrails.yaml": "efea2bfdedae01b3dd751be6ff4afb0727a2d9dad5e5b977f954a2d61ab27248",
+    "c:\\Users\\aaron\\grace_2\\config\\metrics_catalog.yaml": "8f8c7395db773018d61ae8fc8bfc824834df7a85eabaed29e8811c6512b53234",
+    "c:\\Users\\aaron\\grace_2\\config\\model_manifest.yaml": "4aa9555a431528001483e9d3aa86d71291ec37c596bc31ee8719e01f733049f9",
+    "c:\\Users\\aaron\\grace_2\\config\\whitelist.yaml": "16abe8a7bed185811d4732346670ff4410c984937b39fcf5cb2cbe0787b4d497",
+    "c:\\Users\\aaron\\grace_2\\config\\feature_flags.json": "01736d2538985846d9b9420328aec4c581e36a8c7c12fc203d04df4e7a7d44dc",
+    "c:\\Users\\aaron\\grace_2\\config\\metrics_catalog.json": "9f3c8b8b71f9ad03d74f5c4c79d0d1696f65223e86d4c626d4569d8c4c71f436"
+  },
+  "model_hashes": {},
+  "git_commit": "f3a5db0dcce7214bc48fc2d7c7e60df52cd75993",
+  "deployment_metadata": {
+    "hostname": "aaron",
+    "python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]"
+  }
+}

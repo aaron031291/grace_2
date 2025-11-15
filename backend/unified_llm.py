@@ -38,14 +38,14 @@ class UnifiedLLM:
         try:
             from backend.grace_llm import get_grace_llm
             self.grace_llm = get_grace_llm()
-            print("✓ Grace LLM initialized")
+            print("[OK] Grace LLM initialized")
         except Exception as e:
             print(f"Grace LLM not available: {e}")
         
         # List available models
         available = await model_orchestrator.list_available_models()
         installed_count = len([m for m in available if m["installed"]])
-        print(f"✓ Model Orchestrator: {installed_count} models available")
+        print(f"[OK] Model Orchestrator: {installed_count} models available")
     
     async def chat(
         self,

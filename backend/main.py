@@ -355,12 +355,12 @@ async def startup_unified_llm():
     await unified_llm.initialize()
     await capability_system.manage_cache()  # Warm primary models
     
-    print("✓ Model capability system initialized")
-    print("✓ Reading model manifest with 15 models")
+    print("[OK] Model capability system initialized")
+    print("[OK] Reading model manifest with 15 models")
     
     # Show which models are loaded
     matrix = await capability_system.get_capability_matrix()
-    print(f"✓ {len(matrix['warm_cache'])} models in warm cache")
+    print(f"[OK] {len(matrix['warm_cache'])} models in warm cache")
 
 @app.post("/api/chat")
 async def chat(request: dict):
