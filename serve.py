@@ -44,7 +44,7 @@ async def boot_grace_minimal():
         try:
             from backend.core import message_bus, immutable_log
             
-            print("[1/3] Booting core systems...")
+            print("[1/5] Booting core systems...")
             await message_bus.start()
             print("  ✓ Message Bus: Active")
             
@@ -52,11 +52,70 @@ async def boot_grace_minimal():
             print("  ✓ Immutable Log: Active")
             print()
         except ImportError:
-            print("[1/3] Core systems not available (continuing anyway)")
+            print("[1/5] Core systems not available (continuing anyway)")
             print()
         
+        # Load and verify all 12+ open source models
+        print("[2/5] Loading open source LLMs...")
+        try:
+            import requests
+            
+            # Check if Ollama is running
+            try:
+                response = requests.get("http://localhost:11434/api/tags", timeout=2)
+                if response.status_code == 200:
+                    models_data = response.json()
+                    available_models = [m['name'] for m in models_data.get('models', [])]
+                    
+                    # Define all 15 models Grace should have
+                    recommended_models = {
+                        'qwen2.5:32b': 'Conversation & reasoning',
+                        'qwen2.5:72b': 'Ultimate quality',
+                        'deepseek-coder-v2:16b': 'Best coding',
+                        'deepseek-r1:70b': 'Complex reasoning (o1-level)',
+                        'kimi:latest': '128K context',
+                        'llava:34b': 'Vision + text',
+                        'command-r-plus:latest': 'RAG specialist',
+                        'phi3.5:latest': 'Ultra fast',
+                        'codegemma:7b': 'Code completion',
+                        'granite-code:20b': 'Enterprise code',
+                        'dolphin-mixtral:latest': 'Uncensored',
+                        'nous-hermes2-mixtral:latest': 'Instructions',
+                        'gemma2:9b': 'Fast general',
+                        'llama3.2:latest': 'Lightweight',
+                        'mistral-nemo:latest': 'Efficient'
+                    }
+                    
+                    installed = [m for m in recommended_models.keys() if any(m.split(':')[0] in avail for avail in available_models)]
+                    missing = [m for m in recommended_models.keys() if not any(m.split(':')[0] in avail for avail in available_models)]
+                    
+                    print(f"  ✓ Ollama: Running")
+                    print(f"  ✓ Models available: {len(available_models)}")
+                    print(f"  ✓ Grace models installed: {len(installed)}/15")
+                    
+                    if installed:
+                        print(f"\n  Installed models:")
+                        for model in installed[:5]:  # Show first 5
+                            print(f"    • {model} - {recommended_models[model]}")
+                        if len(installed) > 5:
+                            print(f"    ... and {len(installed) - 5} more")
+                    
+                    if missing:
+                        print(f"\n  ⚠️  Missing models: {len(missing)}")
+                        print(f"    Run: scripts/startup/install_all_models.cmd")
+                        print(f"    Or: ollama pull <model_name>")
+                else:
+                    print("  ⚠️  Ollama API returned unexpected status")
+            except requests.exceptions.RequestException:
+                print("  ⚠️  Ollama not running (LLM features disabled)")
+                print("    Start Ollama: ollama serve")
+        except Exception as e:
+            print(f"  ⚠️  Could not check models: {e}")
+        
+        print()
+        
         # Load main app
-        print("[2/3] Loading Grace backend...")
+        print("[3/5] Loading Grace backend...")
         from backend.main import app
         print("  ✓ Backend loaded")
         print("  ✓ Remote Access: Ready")
@@ -64,9 +123,18 @@ async def boot_grace_minimal():
         print()
         
         # Quick health check
-        print("[3/3] System check...")
+        print("[4/5] System check...")
         route_count = len(app.routes)
         print(f"  ✓ {route_count} API endpoints registered")
+        print()
+        
+        # Check databases
+        print("[5/5] Checking databases...")
+        from pathlib import Path
+        db_dir = Path("databases")
+        if db_dir.exists():
+            db_files = list(db_dir.glob("*.db"))
+            print(f"  ✓ {len(db_files)} databases ready")
         print()
         
         return True
