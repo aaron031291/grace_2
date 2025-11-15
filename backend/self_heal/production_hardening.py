@@ -1,4 +1,4 @@
-﻿"""
+"""
 Production Hardening - Resilience patterns for real-world use
 
 Implements:

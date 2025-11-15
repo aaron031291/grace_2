@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agent Core - Unified agentic layer powering all 10 domains
 
 Provides shared sensing, trust, planning, execution, and learning

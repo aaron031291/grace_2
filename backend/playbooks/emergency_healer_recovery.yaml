@@ -1,0 +1,201 @@
+# Emergency Healer Recovery Playbook
+# Triggered when BOTH self-healing AND coding agent are down
+
+playbook_id: emergency_healer_recovery
+name: "Emergency Healer Recovery"
+description: "Restore healing systems when both self-healing and coding agent fail"
+version: "1.0"
+category: emergency
+
+triggers:
+  - healer_watchdog_emergency
+
+scenario_tags:
+  - both_healers_down
+  - emergency_protocol
+  - critical_system_failure
+
+parameters:
+  healers_down:
+    type: array
+    description: "List of failed healing systems"
+    required: true
+  
+  emergency_delegates:
+    type: array
+    description: "Agents temporarily granted healing powers"
+    required: true
+
+steps:
+  - step_id: 1
+    action: activate_emergency_mode
+    description: "System enters emergency mode - no automated healing available"
+    execute:
+      component: control_plane
+      method: set_emergency_mode
+      params:
+        enabled: true
+        reason: "Both healing systems down"
+    
+    output: emergency_active
+
+  - step_id: 2
+    action: delegate_healing_powers
+    description: "Temporarily give healing capabilities to other agents"
+    execute:
+      component: healer_watchdog
+      method: delegate_to_emergency_agents
+      params:
+        delegates: "{{ parameters.emergency_delegates }}"
+    
+    output: delegation_complete
+    
+    timeout_seconds: 10
+
+  - step_id: 3
+    action: force_restart_self_healing
+    description: "Force restart self-healing kernel (bypass normal restart limits)"
+    execute:
+      component: control_plane
+      method: force_restart_kernel
+      params:
+        kernel_name: "self_healing"
+        reset_restart_count: true
+        emergency: true
+    
+    output: self_healing_restart_result
+    
+    timeout_seconds: 30
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 10
+
+  - step_id: 4
+    action: force_restart_coding_agent
+    description: "Force restart coding agent kernel"
+    execute:
+      component: control_plane
+      method: force_restart_kernel
+      params:
+        kernel_name: "coding_agent"
+        reset_restart_count: true
+        emergency: true
+    
+    output: coding_agent_restart_result
+    
+    timeout_seconds: 30
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 10
+
+  - step_id: 5
+    action: verify_self_healing_operational
+    description: "Verify self-healing is back and responding"
+    execute:
+      component: self_healing
+      method: health_check
+    
+    output: self_healing_healthy
+    
+    timeout_seconds: 20
+    
+    retry:
+      max_attempts: 5
+      interval_seconds: 5
+
+  - step_id: 6
+    action: verify_coding_agent_operational
+    description: "Verify coding agent is back and processing tasks"
+    execute:
+      component: coding_agent
+      method: health_check
+    
+    output: coding_agent_healthy
+    
+    timeout_seconds: 20
+    
+    retry:
+      max_attempts: 5
+      interval_seconds: 5
+
+  - step_id: 7
+    action: revoke_emergency_delegation
+    description: "Revoke temporary healing powers from delegates"
+    execute:
+      component: healer_watchdog
+      method: revoke_emergency_delegation
+    
+    output: delegation_revoked
+    
+    timeout_seconds: 5
+
+  - step_id: 8
+    action: disable_emergency_mode
+    description: "Return to normal operation"
+    execute:
+      component: control_plane
+      method: set_emergency_mode
+      params:
+        enabled: false
+    
+    output: normal_mode_restored
+
+  - step_id: 9
+    action: verify_mutual_healing_active
+    description: "Verify both healers can now recover each other"
+    execute:
+      component: healer_watchdog
+      method: verify_mutual_recovery_capability
+    
+    output: mutual_recovery_ready
+
+  - step_id: 10
+    action: log_emergency_recovery
+    description: "Log complete emergency recovery to audit trail"
+    execute:
+      component: immutable_log
+      method: append
+      params:
+        actor: "healer_watchdog"
+        action: "emergency_healer_recovery_complete"
+        resource: "healing_systems"
+        result: "success"
+        metadata:
+          healers_restored: "{{ parameters.healers_down }}"
+          delegates_used: "{{ parameters.emergency_delegates }}"
+          recovery_time_seconds: "{{ execution_time }}"
+          mutual_recovery_count: "{{ healer_watchdog.mutual_recovery_count }}"
+
+success_criteria:
+  - self_healing operational
+  - coding_agent operational
+  - mutual_recovery_capability verified
+  - emergency_mode deactivated
+
+slo:
+  max_execution_time_seconds: 120
+  max_downtime_for_healing: 180
+  zero_data_loss: true
+
+verification:
+  - self_healing can heal other kernels
+  - coding_agent can process tasks
+  - mutual_recovery tested
+  - emergency_delegation revoked
+
+post_execution:
+  - create_incident_report:
+      title: "Emergency: Both Healing Systems Failed"
+      severity: "critical"
+      category: "infrastructure"
+  
+  - notify_ops:
+      severity: "critical"
+      message: "Both healing systems were down, emergency recovery executed"
+  
+  - schedule_root_cause_analysis:
+      assigned_to: "coding_agent"
+      priority: "critical"
+      deadline_hours: 4

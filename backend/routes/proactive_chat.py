@@ -1,4 +1,4 @@
-﻿"""
+"""
 Proactive Chat System - Grace initiates conversations
 Grace can send notifications, ask questions, discuss ideas
 """

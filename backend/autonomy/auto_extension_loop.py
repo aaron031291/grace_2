@@ -87,7 +87,7 @@ class AutoExtensionLoop:
                 continue
             
             # Step 3: Generate extension
-            print(f"   🏗️  Generating extension for: {gap['name']}")
+            print(f"   Generating extension for: {gap['name']}")
             
             try:
                 extension = await grace_architect.generate_grace_extension(
@@ -97,11 +97,11 @@ class AutoExtensionLoop:
                 
                 self.extensions_generated += 1
                 
-                print(f"      ✅ Generated: {extension['request_id']}")
+                print(f"      [OK] Generated: {extension['request_id']}")
                 
                 # Step 4: Auto-deploy if low risk
                 if gap.get('risk_level', 'medium') == 'low':
-                    print(f"      🚀 Auto-deploying (low risk)...")
+                    print(f"      [DEPLOY] Auto-deploying (low risk)...")
                     
                     deploy_result = await grace_architect.deploy_extension(
                         extension_id=extension['request_id'],
@@ -111,7 +111,7 @@ class AutoExtensionLoop:
                     
                     if deploy_result['status'] == 'success':
                         self.extensions_deployed += 1
-                        print(f"      ✅ Deployed successfully")
+                        print(f"      [OK] Deployed successfully")
                         
                         # Track success metric
                         await self._track_extension_success(
@@ -120,7 +120,7 @@ class AutoExtensionLoop:
                         )
                         # Publish autonomy plan outcome event for metrics pipeline
                         try:
-                            from .trigger_mesh import trigger_mesh, TriggerEvent
+                            from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
                             await trigger_mesh.publish(TriggerEvent(
                                 event_type="autonomy.plan_outcome",
                                 source="auto_extension_loop",
@@ -135,49 +135,37 @@ class AutoExtensionLoop:
                             ))
                         except Exception as _e:
                             # Do not fail the loop if metrics publishing fails
-                            print(f"      ⚠️ Failed to publish plan outcome event: {_e}")
-                
-                print("   based on detected capability gaps and business needs.")
-                print()
+                            pass
+            
+            except Exception as e:
+                print(f"      [ERROR] Extension generation failed: {e}")
+
+
+# Demo function for testing
+async def demo_auto_extension_loop():
+    """Demo the auto-extension loop"""
     
     # Initialize
-    from .models import Base, engine
+    from backend.agents_core.grace_architect_agent import grace_architect
+    from backend.models.base_models import Base, engine
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     
     # Learn architecture first
-    print("📚 Learning Grace architecture...")
+    print("Learning Grace architecture...")
     await grace_architect.learn_grace_architecture()
-    print("   ✅ Ready\n")
+    print("   [OK] Ready\n")
     
     # Run one iteration
-    print("🔍 Running capability gap analysis...")
+    print("Running capability gap analysis...")
     print()
     
-    await auto_extension_loop._check_and_extend()
+    loop = AutoExtensionLoop()
+    await loop._check_and_extend()
     
     print("\n" + "="*80)
-    
-    # Show stats
-    stats = await auto_extension_loop.get_stats()
-    
-    print("\n📊 Auto-Extension Statistics:")
-    print(f"   Total extensions: {stats['total_extensions']}")
-    print(f"   Auto-generated: {stats['auto_generated']}")
-    print(f"   Deployed: {stats['deployed']}")
-    print(f"   Pending approval: {stats['pending_approval']}")
-    print(f"   Success rate: {stats['success_rate']:.1f}%")
-    print()
-    
-    print("🚀 In production, this runs continuously:")
-    print("   - Monitors business goals")
-    print("   - Detects capability gaps")
-    print("   - Auto-generates extensions")
-    print("   - Submits to Parliament")
-    print("   - Deploys when approved")
-    print("   - Tracks success metrics")
-    print()
-    print("Grace becomes self-extending based on business needs!")
+    print("Demo complete!")
     print()
 
 if __name__ == "__main__":

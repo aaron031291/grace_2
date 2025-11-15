@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agentic Configuration Loader
 
 Loads configuration for all agentic systems from YAML config file

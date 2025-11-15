@@ -149,6 +149,14 @@ class ControlPlane:
         except Exception as e:
             logger.warning(f"[CONTROL-PLANE] Could not start critical kernel trigger: {e}")
         
+        # Start healer watchdog (watches self-healing + coding agent)
+        try:
+            from backend.monitoring.healer_watchdog import healer_watchdog
+            await healer_watchdog.start()
+            logger.info("[CONTROL-PLANE] Healer watchdog started - mutual recovery enabled")
+        except Exception as e:
+            logger.warning(f"[CONTROL-PLANE] Could not start healer watchdog: {e}")
+        
         # Start health monitoring
         asyncio.create_task(self._health_monitor_loop())
         

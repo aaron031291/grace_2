@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agentic Memory - Intelligent Memory Broker
 
 Memory is NOT passive storage - it's an active, intelligent agent that:
