@@ -676,7 +676,7 @@ class DependencySBOMManager:
     async def check_vulnerabilities(self) -> List[VulnerabilityAlert]:
         """Check for known vulnerabilities (stub - would use real CVE DB)"""
         
-        print("   🔍 Checking for CVEs...", end=" ")
+        print("   [SCAN] Checking for CVEs...", end=" ")
         
         # Would actually query CVE databases here
         # For now, just check for known vulnerable versions
@@ -702,11 +702,11 @@ class DependencySBOMManager:
                     self.vulnerabilities.append(alert)
         
         if self.vulnerabilities:
-            print(f"⚠️  {len(self.vulnerabilities)} vulnerabilities found")
+            print(f"[WARN] {len(self.vulnerabilities)} vulnerabilities found")
             for vuln in self.vulnerabilities:
                 print(f"      - {vuln.package} {vuln.current_version}: {vuln.vulnerability_id} ({vuln.severity})")
         else:
-            print("✅ No known vulnerabilities")
+            print("[OK] No known vulnerabilities")
         
         return self.vulnerabilities
 
