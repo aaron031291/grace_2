@@ -43,6 +43,18 @@ class IntentPriority(int, Enum):
     IDLE = 0
 
 
+class IntentDomain(str, Enum):
+    """Intent domains for categorization"""
+    INGESTION = "ingestion"
+    QUERY = "query"
+    LEARNING = "learning"
+    ANALYSIS = "analysis"
+    ORCHESTRATION = "orchestration"
+    MAINTENANCE = "maintenance"
+    SECURITY = "security"
+    UNKNOWN = "unknown"
+
+
 @dataclass
 class Intent:
     """Structured intent from agentic brain to orchestration layer"""

@@ -1,7 +1,8 @@
 @echo off
+cls
 echo.
 echo ====================================
-echo Starting GRACE...
+echo GRACE - SIMPLE MODE (No Boot Wait)
 echo ====================================
 echo.
 python serve_simple.py
