@@ -1,6 +1,7 @@
 """
 Port Manager & Watchdog
 Manages ports 8000-8100 with full tracking, logging, and metadata
+Integrated with network hardening for comprehensive issue detection
 """
 
 import socket
@@ -10,6 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import psutil
+
+from .network_hardening import network_hardening
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +75,7 @@ class PortManager:
     ) -> Dict[str, Any]:
         """
         Allocate a port from the managed range
+        WITH comprehensive network checks and hardening
         
         Args:
             service_name: Name of service (e.g., "grace_backend", "grace_learning")
@@ -80,7 +84,7 @@ class PortManager:
             preferred_port: Try this port first (optional)
         
         Returns:
-            Port allocation info with metadata
+            Port allocation info with metadata + network health check
         """
         
         # Try preferred port first
@@ -97,6 +101,22 @@ class PortManager:
                 'range': f'{self.start_port}-{self.end_port}'
             }
         
+        # Run comprehensive network checks
+        network_check = network_hardening.check_all_networking_issues(port)
+        
+        if network_check['status'] == 'critical':
+            logger.error(f"[PORT-MANAGER] Critical network issues detected for port {port}")
+            logger.error(f"[PORT-MANAGER] Issues: {network_check['critical_issues']}")
+            return {
+                'error': 'critical_network_issues',
+                'port': port,
+                'issues': network_check['critical_issues'],
+                'details': network_check
+            }
+        
+        if network_check['warnings']:
+            logger.warning(f"[PORT-MANAGER] Network warnings for port {port}: {network_check['warnings']}")
+        
         # Create allocation
         allocation = PortAllocation(
             port=port,
@@ -112,13 +132,15 @@ class PortManager:
         
         logger.info(f"[PORT-MANAGER] ✅ Allocated port {port} for {service_name}")
         logger.info(f"[PORT-MANAGER] Purpose: {purpose}, Started by: {started_by}")
+        logger.info(f"[PORT-MANAGER] Network health: {network_check['status']}")
         
         return {
             'port': port,
             'service_name': service_name,
             'purpose': purpose,
             'started_by': started_by,
-            'allocated_at': allocation.allocated_at
+            'allocated_at': allocation.allocated_at,
+            'network_health': network_check
         }
     
     def register_pid(self, port: int, pid: int):

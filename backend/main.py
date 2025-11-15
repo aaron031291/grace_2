@@ -16,6 +16,7 @@ from backend.routes.mission_control_api import router as mission_control_router
 from backend.routes.auth import router as auth_router
 from backend.routes.learning_visibility_api import router as learning_visibility_router
 from backend.routes.port_manager_api import router as port_manager_router
+from backend.routes.guardian_api import router as guardian_router
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -52,6 +53,9 @@ app.include_router(auth_router)
 
 # Register port manager
 app.include_router(port_manager_router)
+
+# Register Guardian (unified system protection)
+app.include_router(guardian_router)
 
 # Register learning visibility & tracking
 app.include_router(learning_visibility_router)
