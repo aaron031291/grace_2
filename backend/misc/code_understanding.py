@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy import select, and_
 from backend.models.base_models import async_session
 from .code_memory import CodePattern, CodeContext, code_memory
-from .causal_analyzer import causal_analyzer
+from backend.temporal.causal_analyzer import causal_analyzer
 
 # Lazy import to avoid circular dependency  
 def _get_meta_loop():

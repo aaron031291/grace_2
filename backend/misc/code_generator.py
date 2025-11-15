@@ -7,9 +7,8 @@ from datetime import datetime
 from sqlalchemy import select
 from backend.models.base_models import async_session
 from .code_memory import code_memory, CodePattern
-from .governance import governance_engine
-from .hunter import hunter_engine
-from .code_understanding import code_understanding
+from backend.agents_core.governance import governance_engine
+from backend.agents_core.hunter import hunter_engine
 
 class CodeGenerator:
     """Generate code from specifications using learned patterns"""

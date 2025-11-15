@@ -1,0 +1,368 @@
+{
+  "incident_id": "S02_acl_spam_1763203886",
+  "scenario_id": "S02_acl_spam",
+  "wave_id": "wave_2_1763203886",
+  "injected_at": "2025-11-15 10:51:26.719547",
+  "detected_at": null,
+  "healed_at": null,
+  "watchdog_triggered": false,
+  "playbook_executed": false,
+  "coding_task_created": false,
+  "recovery_successful": false,
+  "control_plane_metrics": {
+    "before": {
+      "system_state": "running",
+      "running": true,
+      "kernels": {
+        "message_bus": {
+          "name": "message_bus",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:51:08.769264",
+          "last_heartbeat": "2025-11-15T10:51:08.769264",
+          "restart_count": 0
+        },
+        "immutable_log": {
+          "name": "immutable_log",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:51:08.769264",
+          "last_heartbeat": "2025-11-15T10:51:08.769264",
+          "restart_count": 0
+        },
+        "self_healing": {
+          "name": "self_healing",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:08.769797",
+          "last_heartbeat": "2025-11-15T10:51:08.769797",
+          "restart_count": 0
+        },
+        "coding_agent": {
+          "name": "coding_agent",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.020820",
+          "last_heartbeat": "2025-11-15T10:51:09.020820",
+          "restart_count": 0
+        },
+        "clarity_framework": {
+          "name": "clarity_framework",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.020820",
+          "last_heartbeat": "2025-11-15T10:51:09.020820",
+          "restart_count": 0
+        },
+        "verification_framework": {
+          "name": "verification_framework",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.020820",
+          "last_heartbeat": "2025-11-15T10:51:09.020820",
+          "restart_count": 0
+        },
+        "secret_manager": {
+          "name": "secret_manager",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.020820",
+          "last_heartbeat": "2025-11-15T10:51:09.020820",
+          "restart_count": 0
+        },
+        "governance": {
+          "name": "governance",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.023622",
+          "last_heartbeat": "2025-11-15T10:51:09.023622",
+          "restart_count": 0
+        },
+        "infrastructure_manager": {
+          "name": "infrastructure_manager",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.023622",
+          "last_heartbeat": "2025-11-15T10:51:09.023622",
+          "restart_count": 0
+        },
+        "memory_fusion": {
+          "name": "memory_fusion",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.025639",
+          "last_heartbeat": "2025-11-15T10:51:09.025639",
+          "restart_count": 0
+        },
+        "librarian": {
+          "name": "librarian",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.025639",
+          "last_heartbeat": "2025-11-15T10:51:09.025639",
+          "restart_count": 0
+        },
+        "sandbox": {
+          "name": "sandbox",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.025639",
+          "last_heartbeat": "2025-11-15T10:51:09.025639",
+          "restart_count": 0
+        },
+        "agentic_spine": {
+          "name": "agentic_spine",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.025639",
+          "last_heartbeat": "2025-11-15T10:51:09.025639",
+          "restart_count": 0
+        },
+        "voice_conversation": {
+          "name": "voice_conversation",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.878943",
+          "last_heartbeat": "2025-11-15T10:51:09.878943",
+          "restart_count": 0
+        },
+        "meta_loop": {
+          "name": "meta_loop",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.878943",
+          "last_heartbeat": "2025-11-15T10:51:09.878943",
+          "restart_count": 0
+        },
+        "learning_integration": {
+          "name": "learning_integration",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.878943",
+          "last_heartbeat": "2025-11-15T10:51:09.878943",
+          "restart_count": 0
+        },
+        "health_monitor": {
+          "name": "health_monitor",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:51:09.878943",
+          "last_heartbeat": "2025-11-15T10:51:09.878943",
+          "restart_count": 0
+        },
+        "trigger_mesh": {
+          "name": "trigger_mesh",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.880946",
+          "last_heartbeat": "2025-11-15T10:51:09.880946",
+          "restart_count": 0
+        },
+        "scheduler": {
+          "name": "scheduler",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.880946",
+          "last_heartbeat": "2025-11-15T10:51:09.880946",
+          "restart_count": 0
+        },
+        "api_server": {
+          "name": "api_server",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:09.880946",
+          "last_heartbeat": "2025-11-15T10:51:09.880946",
+          "restart_count": 0
+        }
+      },
+      "total_kernels": 20,
+      "running_kernels": 20,
+      "failed_kernels": 0,
+      "resources": {
+        "cpu_percent": 3.9,
+        "memory_percent": 34.6
+      }
+    },
+    "after": {
+      "system_state": "running",
+      "running": true,
+      "kernels": {
+        "message_bus": {
+          "name": "message_bus",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:51:42.857925",
+          "last_heartbeat": "2025-11-15T10:51:42.857925",
+          "restart_count": 1
+        },
+        "immutable_log": {
+          "name": "immutable_log",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:51:44.888914",
+          "last_heartbeat": "2025-11-15T10:51:44.888914",
+          "restart_count": 1
+        },
+        "self_healing": {
+          "name": "self_healing",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:46.926422",
+          "last_heartbeat": "2025-11-15T10:51:46.926422",
+          "restart_count": 1
+        },
+        "coding_agent": {
+          "name": "coding_agent",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:48.996025",
+          "last_heartbeat": "2025-11-15T10:51:48.996025",
+          "restart_count": 1
+        },
+        "clarity_framework": {
+          "name": "clarity_framework",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:51.634863",
+          "last_heartbeat": "2025-11-15T10:51:51.634863",
+          "restart_count": 1
+        },
+        "verification_framework": {
+          "name": "verification_framework",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:53.684925",
+          "last_heartbeat": "2025-11-15T10:51:53.684925",
+          "restart_count": 1
+        },
+        "secret_manager": {
+          "name": "secret_manager",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:55.735045",
+          "last_heartbeat": "2025-11-15T10:51:55.735045",
+          "restart_count": 1
+        },
+        "governance": {
+          "name": "governance",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:57.752783",
+          "last_heartbeat": "2025-11-15T10:51:57.752783",
+          "restart_count": 1
+        },
+        "infrastructure_manager": {
+          "name": "infrastructure_manager",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:51:59.755194",
+          "last_heartbeat": "2025-11-15T10:51:59.755194",
+          "restart_count": 1
+        },
+        "memory_fusion": {
+          "name": "memory_fusion",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:01.755353",
+          "last_heartbeat": "2025-11-15T10:52:01.755353",
+          "restart_count": 1
+        },
+        "librarian": {
+          "name": "librarian",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:03.758887",
+          "last_heartbeat": "2025-11-15T10:52:03.758887",
+          "restart_count": 1
+        },
+        "sandbox": {
+          "name": "sandbox",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:05.761579",
+          "last_heartbeat": "2025-11-15T10:52:05.761579",
+          "restart_count": 1
+        },
+        "agentic_spine": {
+          "name": "agentic_spine",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:07.763551",
+          "last_heartbeat": "2025-11-15T10:52:07.763551",
+          "restart_count": 1
+        },
+        "voice_conversation": {
+          "name": "voice_conversation",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:09.766444",
+          "last_heartbeat": "2025-11-15T10:52:09.766444",
+          "restart_count": 1
+        },
+        "meta_loop": {
+          "name": "meta_loop",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:11.785137",
+          "last_heartbeat": "2025-11-15T10:52:11.785137",
+          "restart_count": 1
+        },
+        "learning_integration": {
+          "name": "learning_integration",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:13.786854",
+          "last_heartbeat": "2025-11-15T10:52:13.786854",
+          "restart_count": 1
+        },
+        "health_monitor": {
+          "name": "health_monitor",
+          "state": "running",
+          "critical": true,
+          "started_at": "2025-11-15T10:52:15.788009",
+          "last_heartbeat": "2025-11-15T10:52:15.788009",
+          "restart_count": 1
+        },
+        "trigger_mesh": {
+          "name": "trigger_mesh",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:17.788713",
+          "last_heartbeat": "2025-11-15T10:52:17.788713",
+          "restart_count": 1
+        },
+        "scheduler": {
+          "name": "scheduler",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:19.793430",
+          "last_heartbeat": "2025-11-15T10:52:19.793430",
+          "restart_count": 1
+        },
+        "api_server": {
+          "name": "api_server",
+          "state": "running",
+          "critical": false,
+          "started_at": "2025-11-15T10:52:21.794205",
+          "last_heartbeat": "2025-11-15T10:52:21.794205",
+          "restart_count": 1
+        }
+      },
+      "total_kernels": 20,
+      "running_kernels": 20,
+      "failed_kernels": 0,
+      "resources": {
+        "cpu_percent": 5.1,
+        "memory_percent": 34.6
+      }
+    }
+  },
+  "playbook_outcomes": [],
+  "coding_tasks_spawned": [],
+  "logs_captured": [
+    "Spammed system.control with 100 messages"
+  ],
+  "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S02_acl_spam_1763203886",
+  "failure_reason": "Recovery timeout - safeguards did not trigger",
+  "escalated": true
+}
