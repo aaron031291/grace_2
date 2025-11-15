@@ -16,6 +16,9 @@ from collections import defaultdict
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from backend.logging.immutable_log import immutable_log
+from backend.core.intent_api import intent_api, IntentDomain, IntentPriority
+from backend.learning_systems.learning_loop import learning_loop
+from backend.core.message_bus import message_bus
 # Integrations commented out - not critical for core functionality
 # from .integrations.slack_integration import slack_integration
 # from .integrations.pagerduty_integration import pagerduty_integration
@@ -630,8 +633,65 @@ class AutonomousPlanner:
         return list(self.playbooks.values())
     
     async def _select_best_playbook(self, playbooks: List[Playbook], event: EnrichedEvent) -> Playbook:
-        """Select best playbook based on success rate and risk"""
-        return max(playbooks, key=lambda p: p.success_rate)
+        """Select best playbook based on learned success stats and risk.
+
+        Uses learning_loop playbook statistics when available to choose the
+        most reliable playbook rather than only in-memory success_rate.
+        """
+        # If only one, no need for DB lookups
+        if len(playbooks) == 1:
+            return playbooks[0]
+
+        scored: List[Tuple[float, Playbook]] = []
+
+        for pb in playbooks:
+            # Start from in-memory success_rate as baseline
+            base_score = pb.success_rate or 0.0
+
+            try:
+                stats = await learning_loop.get_playbook_stats(pb.playbook_id)
+            except Exception:
+                stats = None
+
+            if stats:
+                sr = stats.get("success_rate") or 0.0
+                total = stats.get("total_executions") or 0
+                score = sr
+
+                # Penalize playbooks that perform poorly with enough data
+                if total >= 3:
+                    if sr < 0.4:
+                        score -= 0.3
+                    elif sr < 0.6:
+                        score -= 0.15
+                    elif sr > 0.9:
+                        # Slightly boost very reliable playbooks
+                        score += 0.1
+            else:
+                score = base_score
+
+            # Apply live preference adjustment from learning insights, if available
+            try:
+                from backend.misc.agentic_spine import agentic_spine  # local import to avoid cycles
+                delta = agentic_spine.playbook_preferences.get(pb.playbook_id, 0.0)
+                score += delta
+            except Exception:
+                pass
+
+            # Small bonus/penalty based on risk level
+            if pb.risk_level == RiskLevel.LOW:
+                score += 0.05
+            elif pb.risk_level == RiskLevel.HIGH:
+                score -= 0.05
+
+            scored.append((score, pb))
+
+        # Fallback: if all scores are equal/zero, just return the first
+        if not scored:
+            return playbooks[0]
+
+        _, best = max(scored, key=lambda x: x[0])
+        return best
     
     async def _identify_targets(self, event: EnrichedEvent) -> List[str]:
         """Identify target nodes for recovery"""
@@ -801,10 +861,18 @@ class AgenticSpine:
         self.planner = AutonomousPlanner(self.health_graph, self.trust_core)
         self.meta_loop = MetaLoopAutonomy(self.planner)
         self.running = False
+        # Live preference adjustments from learning insights: playbook_id -> delta
+        self.playbook_preferences: Dict[str, float] = {}
     
     async def start(self):
         """Start the agentic spine"""
         await trigger_mesh.subscribe("*", self._handle_event)
+        # Subscribe to learning insights so planner can adjust behavior in real time
+        await message_bus.subscribe(
+            subscriber="agentic_spine",
+            topic="agentic.learning.insight",
+            handler=self._handle_learning_insight,
+        )
         self.running = True
         print("✓ Agentic Spine activated - GRACE is now autonomous")
     
@@ -877,6 +945,9 @@ class AgenticSpine:
         if not plan:
             return
 
+        # Emit structured intent for this recovery so execution layer / HTM can see it
+        await self._emit_intent_for_plan(enriched, plan, rationale, escalations)
+
         await immutable_log.append(
             actor="agentic_spine",
             action="recovery_planned",
@@ -901,7 +972,7 @@ class AgenticSpine:
 
         if plan.status == PlanStatus.APPROVED:
             success = await self.planner.execute_plan(plan.plan_id)
-
+ 
             # Update external notifications
             await slack_integration.notify_recovery({
                 "action": plan.playbook.name,
@@ -921,6 +992,119 @@ class AgenticSpine:
             )
 
             await self.meta_loop.schedule_retrospective(plan)
+
+
+    async def _emit_intent_for_plan(
+        self,
+        enriched: EnrichedEvent,
+        plan: RecoveryPlan,
+        rationale: str,
+        escalations: List[str]
+    ):
+        """
+        Emit a structured intent for a recovery plan so Layer 3 decisions
+        are visible and routable through the Intent API / HTM dispatcher.
+        """
+        try:
+            # Determine priority based on risk
+            if plan.risk_score >= 0.8:
+                priority = IntentPriority.CRITICAL
+            elif plan.risk_score >= 0.5:
+                priority = IntentPriority.HIGH
+            else:
+                priority = IntentPriority.NORMAL
+
+            requires_approval = (
+                "human_approval_required" in escalations
+                or plan.status == PlanStatus.AWAITING_APPROVAL
+                or plan.playbook.requires_approval
+            )
+
+            intent = await intent_api.create_intent(
+                domain=IntentDomain.SELF_HEALING,
+                actor="agentic_spine",
+                verb="recover",
+                target=enriched.original_event.resource,
+                description=f"Execute playbook '{plan.playbook.name}' in response to {enriched.original_event.event_type}",
+                parameters={
+                    "plan_id": plan.plan_id,
+                    "playbook_id": plan.playbook.playbook_id,
+                    "risk_score": plan.risk_score,
+                    "justification": plan.justification,
+                    "rationale": rationale,
+                    "event_type": enriched.original_event.event_type,
+                    "event_source": enriched.original_event.source,
+                    "context": enriched.context,
+                },
+                priority=priority,
+                confidence=enriched.confidence,
+                requires_approval=requires_approval,
+                tags=["incident_response", plan.playbook.risk_level.value],
+            )
+
+            # Submit + dispatch so downstream handlers can act
+            await intent_api.submit_intent(intent)
+            await intent_api.dispatch_intent(intent)
+        except Exception as e:
+            # Never let intent emission break incident handling
+            await immutable_log.append(
+                actor="agentic_spine",
+                action="intent_emit_failed",
+                resource=plan.plan_id,
+                subsystem="intent_api",
+                payload={"error": str(e)},
+                result="failed"
+            )
+
+    async def _handle_learning_insight(self, message: Dict[str, Any]):
+        """
+        Handle learning_loop insights and adjust playbook preferences.
+
+        Expects payload with:
+        - insight_type: 'low_success_rate' | 'high_success_rate'
+        - playbook_id: str
+        - success_rate: float
+        - total_executions: int
+        """
+        try:
+            payload = message.get("payload", {})
+            insight_type = payload.get("insight_type")
+            playbook_id = payload.get("playbook_id")
+            success_rate = payload.get("success_rate", 0.0)
+            total = payload.get("total_executions", 0)
+
+            if not playbook_id:
+                return
+
+            # Base adjustment magnitude
+            adjustment = 0.0
+
+            if insight_type == "low_success_rate":
+                # Penalize low-performing playbooks; stronger penalty when enough data
+                if total >= 5 and success_rate < 0.4:
+                    adjustment = -0.4
+                elif total >= 3 and success_rate < 0.6:
+                    adjustment = -0.2
+            elif insight_type == "high_success_rate":
+                # Reward consistently strong playbooks
+                if total >= 10 and success_rate > 0.9:
+                    adjustment = 0.3
+                elif total >= 5 and success_rate > 0.8:
+                    adjustment = 0.15
+
+            if adjustment != 0.0:
+                self.playbook_preferences[playbook_id] = (
+                    self.playbook_preferences.get(playbook_id, 0.0) + adjustment
+                )
+        except Exception as e:
+            await immutable_log.append(
+                actor="agentic_spine",
+                action="learning_insight_failed",
+                resource="agentic.learning.insight",
+                subsystem="agentic_spine",
+                payload={"error": str(e), "raw_message": message},
+                result="failed",
+            )
 
 
 agentic_spine = AgenticSpine()
