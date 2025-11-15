@@ -26,6 +26,7 @@ from .boot_pipeline import boot_pipeline, BootStep, BootStage
 from .clarity_framework import clarity_framework, DecisionType, ClarityLevel
 from .verification_framework import verification_framework
 from .unified_logic_integration import unified_logic_core
+from .boot_orchestrator import boot_orchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,8 @@ class BootLayer:
         print()
         
         try:
+            await boot_orchestrator.pre_boot_warmup()
+            
             # Step 1: Message Bus (Foundation)
             print("[1/10] Starting Message Bus (nervous system)...")
             await message_bus.start()
@@ -98,6 +101,7 @@ class BootLayer:
             # Step 8: Control Plane (Orchestrator)
             print("\n[8/8] Starting Control Plane (orchestrator)...")
             await control_plane.start()
+            await boot_orchestrator.start_watchdogs()
             print("  [OK] Control Plane ACTIVE")
             
             # Step 9: Boot Pipeline (Structured startup)
@@ -186,6 +190,11 @@ class BootLayer:
                 'success': False,
                 'error': str(e)
             }
+        finally:
+            # Monitors keep running across sessions, but release prewarm handles if boot failed early
+            if not self.boot_successful:
+                await boot_orchestrator.stop_watchdogs()
+                await boot_orchestrator.release_warmup_resources()
     
     async def shutdown_grace(self):
         """Graceful shutdown of all systems"""
@@ -207,6 +216,7 @@ class BootLayer:
         
         # Stop control plane (stops all kernels)
         print("[1/3] Stopping kernels...")
+        await boot_orchestrator.stop_watchdogs()
         await control_plane.stop()
         print("  ✓ All kernels stopped")
         
@@ -233,6 +243,8 @@ class BootLayer:
         print("Audit trail preserved")
         print("=" * 80)
         print()
+        
+        await boot_orchestrator.release_warmup_resources()
 
 
 # Global instance - Grace's boot sequence
