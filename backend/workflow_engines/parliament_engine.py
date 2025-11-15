@@ -7,13 +7,16 @@ import uuid
 import hashlib
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
-from sqlalchemy import select, update, and_
+from sqlalchemy import select, and_
 from backend.models import async_session
 from ..models.parliament_models import (
-    ParliamentarySession,
-    ParliamentaryVote,
-    ParliamentaryMember,
+    GovernanceSession as ParliamentarySession,
+    GovernanceVote as ParliamentaryVote,
+    GovernanceMember as ParliamentaryMember,
+    CommitteeDefinition,
+    ParliamentConfig,
 )
+from ..logging.immutable_log import immutable_log
 from .verification import VerificationEngine
 from .immutable_log import ImmutableLog as ImmutableLogger
 from .metric_publishers import ParliamentMetrics
