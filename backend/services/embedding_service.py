@@ -402,8 +402,46 @@ class EmbeddingService:
                 print(f"[EMBEDDING SERVICE] OpenAI API error: {e}")
                 raise
         
+        elif self.provider == "huggingface":
+            # Use sentence-transformers for local embeddings
+            try:
+                from sentence_transformers import SentenceTransformer
+                
+                # Load model (cached)
+                if not hasattr(self, '_hf_model'):
+                    self._hf_model = SentenceTransformer(model)
+                
+                embedding = self._hf_model.encode(text, convert_to_tensor=False)
+                return embedding.tolist()
+                
+            except ImportError:
+                raise RuntimeError("sentence-transformers not installed. Run: pip install sentence-transformers")
+            except Exception as e:
+                print(f"[EMBEDDING SERVICE] HuggingFace error: {e}")
+                raise
+        
+        elif self.provider == "local":
+            # Use local sentence-transformers models
+            try:
+                from sentence_transformers import SentenceTransformer
+                
+                # Default to all-MiniLM-L6-v2 (fast, 384 dimensions)
+                model_name = model or "all-MiniLM-L6-v2"
+                
+                if not hasattr(self, '_local_model'):
+                    self._local_model = SentenceTransformer(model_name)
+                
+                embedding = self._local_model.encode(text, convert_to_tensor=False)
+                return embedding.tolist()
+                
+            except ImportError:
+                raise RuntimeError("sentence-transformers not installed. Run: pip install sentence-transformers")
+            except Exception as e:
+                print(f"[EMBEDDING SERVICE] Local embedding error: {e}")
+                raise
+        
         else:
-            raise NotImplementedError(f"Provider {self.provider} not implemented")
+            raise ValueError(f"Unknown provider: {self.provider}. Supported: openai, huggingface, local")
     
     async def embed_chunks(
         self,
