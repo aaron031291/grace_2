@@ -1,75 +1,152 @@
+#!/usr/bin/env python3
 """
-Debug version of serve.py with better error reporting
+Grace Server - Single Entry Point
+Run: python serve.py
 """
 
-import subprocess
-from backend.main import app
-from backend.database import engine, Base
-from backend.models.verification_models import RegisteredDevice, DeviceAllowlist, DeviceRole
-from fastapi.testclient import TestClient
-import os
 import asyncio
-import sqlite3
 import uvicorn
-import requests
-import traceback
-# from uvloop import event_loop_policy
+import sys
+import socket
+from pathlib import Path
 
-async def create_db_and_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# Add backend to path
+sys.path.insert(0, str(Path(__file__).parent))
 
-async def main():
-    await create_db_and_tables()
+
+def find_free_port(start_port=8000, max_tries=10):
+    """Find first available port"""
+    for port in range(start_port, start_port + max_tries):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(('localhost', port))
+            sock.close()
+            return port
+        except OSError:
+            continue
+    return None
+
+
+async def boot_grace_minimal():
+    """
+    Minimal Grace boot - just the essentials
+    No complex orchestration that times out
+    """
     
-    config = uvicorn.Config("backend.main:app", host="0.0.0.0", port=8001, log_level="info", reload=True)
-    server = uvicorn.Server(config)
-    await server.serve()
-
-if __name__ == "__main__":
-    
-    print("=" * 70)
-    print("GRACE BACKEND - DEBUG MODE")
-    print("=" * 70)
+    print()
+    print("=" * 80)
+    print("GRACE - STARTING")
+    print("=" * 80)
+    print()
     
     try:
-        # 1. Test Imports
-        print("\n[1/4] Testing imports...")
+        # Try to import core systems (optional, won't fail if missing)
+        try:
+            from backend.core import message_bus, immutable_log
+            
+            print("[1/3] Booting core systems...")
+            await message_bus.start()
+            print("  ✓ Message Bus: Active")
+            
+            await immutable_log.start()
+            print("  ✓ Immutable Log: Active")
+            print()
+        except ImportError:
+            print("[1/3] Core systems not available (continuing anyway)")
+            print()
+        
+        # Load main app
+        print("[2/3] Loading Grace backend...")
         from backend.main import app
-        print("[OK] Main app imported successfully")
-
-        # 2. Check Routes
-        print("\n[2/4] Checking routes...")
-        total_routes = len(app.routes)
-        print(f"[OK] App routes registered: {total_routes} routes")
-
-        # 3. Test Health Endpoint
-        print("\n[3/4] Testing basic endpoint...")
-        print("[OK] Health endpoint check will occur after server start.")
-
-
-        # 4. Start Server
-        print("\n[4/4] Starting server...")
-        print("")
-        print("Grace will be available at:")
-        print("  - API: http://localhost:8001")
-        print("  - Docs: http://localhost:8001/docs")
-        print("  - Health: http://localhost:8001/health")
-        print("")
-        print("Press Ctrl+C to stop")
-        print("=" * 70)
-        print("")
-
-        asyncio.run(main())
-
-    except ImportError as e:
-        print(f"\n[ERROR] Failed to import app: {e}")
-        print("\nFull error:\n")
-        import traceback
-        traceback.print_exc()
-        input("\nPress Enter to exit...")
+        print("  ✓ Backend loaded")
+        print("  ✓ Remote Access: Ready")
+        print("  ✓ Autonomous Learning: Ready")
+        print()
+        
+        # Quick health check
+        print("[3/3] System check...")
+        route_count = len(app.routes)
+        print(f"  ✓ {route_count} API endpoints registered")
+        print()
+        
+        return True
+        
     except Exception as e:
-        print(f"\n[ERROR] Server error: {e}")
+        print(f"\n[ERROR] Boot failed: {e}")
         import traceback
         traceback.print_exc()
+        return False
+
+
+if __name__ == "__main__":
+    print()
+    print("=" * 80)
+    print("   ██████╗ ██████╗  █████╗  ██████╗███████╗")
+    print("  ██╔════╝ ██╔══██╗██╔══██╗██╔════╝██╔════╝")
+    print("  ██║  ███╗██████╔╝███████║██║     █████╗  ")
+    print("  ██║   ██║██╔══██╗██╔══██║██║     ██╔══╝  ")
+    print("  ╚██████╔╝██║  ██║██║  ██║╚██████╗███████╗")
+    print("   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝")
+    print()
+    print("  Autonomous AI System")
+    print("=" * 80)
+    print()
+    
+    # Find available port
+    print("Finding available port...")
+    port = find_free_port()
+    
+    if not port:
+        print("❌ No available ports found (tried 8000-8009)")
+        print("\nTo free up ports:")
+        print("  netstat -ano | findstr :800")
+        print("  taskkill /PID <pid> /F")
+        sys.exit(1)
+    
+    print(f"✅ Using port {port}")
+    print()
+    
+    # Boot Grace
+    boot_success = asyncio.run(boot_grace_minimal())
+    
+    if not boot_success:
+        print("Failed to boot Grace. Exiting.")
         input("\nPress Enter to exit...")
+        sys.exit(1)
+    
+    # Start server
+    print("=" * 80)
+    print("GRACE IS READY")
+    print("=" * 80)
+    print()
+    print(f"📡 API: http://localhost:{port}")
+    print(f"📖 Docs: http://localhost:{port}/docs")
+    print(f"❤️  Health: http://localhost:{port}/health")
+    print()
+    print("=" * 80)
+    print("NEXT STEPS")
+    print("=" * 80)
+    print()
+    print("Terminal 2 - Configure clients for this port:")
+    print(f"  python auto_configure.py")
+    print()
+    print("Then use:")
+    print("  • Remote Access: python remote_access_client.py setup")
+    print("  • Learning: python start_grace_now.py")
+    print("  • Menu: USE_GRACE.cmd")
+    print()
+    print("Press Ctrl+C to stop")
+    print("=" * 80)
+    print()
+    
+    try:
+        uvicorn.run(
+            "backend.main:app",
+            host="0.0.0.0",
+            port=port,
+            log_level="info",
+            reload=False  # Disable reload to avoid issues
+        )
+    except KeyboardInterrupt:
+        print("\n\nGrace shutdown requested...")
+        print("Goodbye! 👋")

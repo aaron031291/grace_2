@@ -1,7 +1,2 @@
 @echo off
-echo.
-echo ====================================
-echo Starting GRACE...
-echo ====================================
-echo.
-python serve_simple.py
+python serve.py
