@@ -393,6 +393,9 @@ class ControlPlane:
                                     await self._restart_kernel(kernel)
                                 else:
                                     logger.error(f"[CONTROL-PLANE] {kernel.name} exceeded max restarts")
+                                    
+                                    # IMMEDIATE ESCALATION - stop restart loop, quarantine kernel
+                                    await self._handle_max_restarts_exceeded(kernel)
                                     kernel.state = KernelState.FAILED
             
             except asyncio.CancelledError:
