@@ -16,8 +16,11 @@ from typing import Dict, Any, Optional, Union
 
 from .mission_manifest import MissionManifest
 from .mission_planner import DynamicMissionPlan, MissionGoal, MissionStatus, create_mission_plan
-from backend.core.intent_api import create_intent, submit_intent, Intent, IntentDomain, IntentPriority
+from backend.core.intent_api import intent_api, Intent, IntentPriority
 from backend.agents_core.elite_coding_agent import elite_coding_agent, CodingTask, CodingTaskType, ExecutionMode
+from backend.model_orchestrator import model_orchestrator
+from backend.unified_llm import unified_llm 
+from backend.core.intent_api import IntentPriority
 
 class MissionController:
     """Orchestrates the entire lifecycle of a manifest-driven mission."""
@@ -70,12 +73,16 @@ class MissionController:
         """
 
         try:
+            # Let the orchestrator pick the best model for this reasoning task
+            selected_model = await model_orchestrator.select_best_model(decomposition_prompt)
+            
             task = CodingTask(
                 task_id=f"decompose_{goal.goal_id}",
                 task_type=CodingTaskType.GENERATE_CODE, # Using this for structured text generation
                 description=decomposition_prompt,
                 execution_mode=ExecutionMode.AUTO,
-                priority=9
+                priority=9,
+                preferred_model=selected_model # Pass the selected model
             )
             # This is a simplified interaction; a real implementation would use a callback
             # or poll for the result. For now, we assume a direct 'get_result' method.
@@ -145,12 +152,17 @@ class MissionController:
         Respond ONLY with "actionable" or "decomposition".
         """
         try:
+            # Reusing the existing 'select_best_model' which seems to have a typo in my previous version.
+            # Assuming it should be `model_orchestrator.select_best_model`.
+            selected_model = await model_orchestrator.select_best_model(prompt) 
+
             task = CodingTask(
                 task_id=f"check_actionable_{goal.goal_id}",
                 task_type=CodingTaskType.GENERATE_CODE,
                 description=prompt,
                 execution_mode=ExecutionMode.AUTO,
-                priority=8
+                priority=8,
+                preferred_model=selected_model
             )
             result = await elite_coding_agent.execute_and_get_result(task)
             return "actionable" in result.lower()
@@ -169,39 +181,44 @@ class MissionController:
         The Intent should have 'domain', 'verb', 'target', and 'parameters'.
 
         Available domains: {', '.join([d.value for d in IntentDomain])}.
-        Choose the most appropriate one.
 
         Respond ONLY with the JSON object for the Intent.
         Example for a goal "Apply the most promising optimization as a code patch.":
-        {{{
+        {{
             "domain": "coding",
-            "verb": "apply_patch",
-            "target": "repository:grace/backend/slow_endpoint.py",
-            "parameters": {{
-                "patch_id": "opt-123",
-                "validation_required": true
+            "goal": "Apply code patch opt-123 to slow_endpoint.py",
+            "expected_outcome": "p95 latency reduced by 10%",
+            "context": {{
+                "file_path": "backend/slow_endpoint.py",
+                "patch_id": "opt-123"
             }}
-        }}}
+        }}
         """
+        selected_model = await model_orchestrator.select_best_model(prompt)
+
         task = CodingTask(
             task_id=f"formulate_intent_{goal.goal_id}",
             task_type=CodingTaskType.GENERATE_CODE,
             description=prompt,
             execution_mode=ExecutionMode.AUTO,
-            priority=8
+            priority=8,
+            preferred_model=selected_model
         )
         intent_data = await elite_coding_agent.execute_and_get_result(task) or {}
 
-        return await create_intent(
-            domain=IntentDomain(intent_data.get("domain", "system")),
-            actor="mission_controller",
-            verb=intent_data.get("verb", "execute_goal"),
-            target=intent_data.get("target", goal.goal_id),
-            description=goal.description,
-            parameters=intent_data.get("parameters", {"raw_goal": goal.description}),
-            priority=IntentPriority.NORMAL, # Could be dynamically set
-            confidence=0.9, # High confidence as it's a planned step
-            tags=["mission_step", manifest.mission_name]
+        # Use the correct Intent data model from intent_api.py
+        return Intent(
+            intent_id=f"intent_{uuid.uuid4().hex}",
+            goal=intent_data.get("goal", goal.description),
+            expected_outcome=intent_data.get("expected_outcome", "Goal completed"),
+            sla_ms=60000, # 1 minute default SLA
+            priority=IntentPriority.NORMAL, # Default priority
+            domain=intent_data.get("domain", "system"),
+            context={
+                "mission_id": manifest.manifest_id,
+                "goal_id": goal.goal_id,
+                "parameters": intent_data.get("context", {}) # The 'context' from the LLM is the 'parameters' for the intent
+            },
         )
 
     def get_mission_status(self, mission_id: str) -> Optional[DynamicMissionPlan]:

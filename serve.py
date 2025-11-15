@@ -11,9 +11,7 @@ import asyncio
 import uvicorn
 import sys
 from pathlib import Path
-
-# Add backend to path
-sys.path.insert(0, str(Path(__file__).parent / 'backend'))
+from backend.learning_systems.advanced_learning import advanced_learning_supervisor
 
 
 async def boot_grace_core():
@@ -209,6 +207,13 @@ async def boot_grace_core():
         print("  [OK] Telemetry - Enriched metrics to observability hub")
         print("  [OK] Verification loop - Post-fix validation")
         print()
+
+        # Start advanced learning systems in the background
+        print("=" * 80)
+        print("[SUCCESS] STARTING ADVANCED LEARNING SYSTEMS")
+        print("=" * 80)
+        advanced_learning_supervisor.start()
+        print()
         
         return True
     
@@ -254,5 +259,8 @@ if __name__ == "__main__":
         )
     except KeyboardInterrupt:
         print("\n\nGrace shutdown requested...")
+    finally:
+        # Ensure learning supervisor is stopped
+        advanced_learning_supervisor.stop()
         print("Layer 1 core will continue running until process ends")
 

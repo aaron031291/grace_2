@@ -1,0 +1,25 @@
+manifest_id: "mission_learn_github_001"
+mission_name: "Learn from External Repository"
+description: "Use remote access to clone a public repository from GitHub for knowledge acquisition."
+objective: "Clone the 'https://github.com/stedolan/jq.git' repository into a local sandbox directory for future analysis by the KnowledgeSynthesisAgent."
+
+success_criteria:
+  - description: "The 'jq' repository exists in the local sandbox."
+    check_type: "file_system_check"
+    check_parameters:
+        path: "sandbox/jq"
+        condition: "exists"
+    expected_result: true
+
+constraints:
+  - description: "Only whitelisted domains can be accessed."
+    constraint_type: "zero_trust_whitelist"
+    value: ["github.com"]
+
+initial_context:
+  repo_url: "https://github.com/stedolan/jq.git"
+  clone_dir: "sandbox/jq"
+
+governance_policy:
+  max_risk_level: "low"
+  auto_approve: true
