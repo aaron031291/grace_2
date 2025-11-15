@@ -1,0 +1,191 @@
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[MESSAGE-BUS] ACL violation: chaos_test -> system.control
+[CONTROL-PLANE] message_bus missed heartbeat
+[CONTROL-PLANE] Restarting kernel: message_bus
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] immutable_log missed heartbeat
+[CONTROL-PLANE] Restarting kernel: immutable_log
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] self_healing missed heartbeat
+[CONTROL-PLANE] Restarting kernel: self_healing
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] coding_agent missed heartbeat
+[CONTROL-PLANE] Restarting kernel: coding_agent
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] clarity_framework missed heartbeat
+[CONTROL-PLANE] Restarting kernel: clarity_framework
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] verification_framework missed heartbeat
+[CONTROL-PLANE] Restarting kernel: verification_framework
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] secret_manager missed heartbeat
+[CONTROL-PLANE] Restarting kernel: secret_manager
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] governance missed heartbeat
+[CONTROL-PLANE] Restarting kernel: governance
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] infrastructure_manager missed heartbeat
+[CONTROL-PLANE] Restarting kernel: infrastructure_manager
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] memory_fusion missed heartbeat
+[CONTROL-PLANE] Restarting kernel: memory_fusion
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] librarian missed heartbeat
+[CONTROL-PLANE] Restarting kernel: librarian
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] sandbox missed heartbeat
+[CONTROL-PLANE] Restarting kernel: sandbox
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] agentic_spine missed heartbeat
+[CONTROL-PLANE] Restarting kernel: agentic_spine
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] voice_conversation missed heartbeat
+[CONTROL-PLANE] Restarting kernel: voice_conversation
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] meta_loop missed heartbeat
+[CONTROL-PLANE] Restarting kernel: meta_loop
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] learning_integration missed heartbeat
+[CONTROL-PLANE] Restarting kernel: learning_integration
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] health_monitor missed heartbeat
+[CONTROL-PLANE] Restarting kernel: health_monitor
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] trigger_mesh missed heartbeat
+[CONTROL-PLANE] Restarting kernel: trigger_mesh
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] scheduler missed heartbeat
+[CONTROL-PLANE] Restarting kernel: scheduler
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] api_server missed heartbeat
+[CONTROL-PLANE] Restarting kernel: api_server
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CHAOS] Escalating failure: S02_acl_spam_1763203886
+[CONTROL-PLANE] message_bus missed heartbeat
+[CONTROL-PLANE] Restarting kernel: message_bus
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] immutable_log missed heartbeat
+[CONTROL-PLANE] Restarting kernel: immutable_log
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] self_healing missed heartbeat
+[CONTROL-PLANE] Restarting kernel: self_healing
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] coding_agent missed heartbeat
+[CONTROL-PLANE] Restarting kernel: coding_agent
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] clarity_framework missed heartbeat
+[CONTROL-PLANE] Restarting kernel: clarity_framework
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] verification_framework missed heartbeat
+[CONTROL-PLANE] Restarting kernel: verification_framework
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] secret_manager missed heartbeat
+[CONTROL-PLANE] Restarting kernel: secret_manager
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] governance missed heartbeat
+[CONTROL-PLANE] Restarting kernel: governance
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] infrastructure_manager missed heartbeat
+[CONTROL-PLANE] Restarting kernel: infrastructure_manager
+[MESSAGE-BUS] ACL violation: control_plane -> system.health
+[CONTROL-PLANE] memory_fusion missed heartbeat
+[CONTROL-PLANE] Restarting kernel: memory_fusion
+[MESSAGE-BUS] ACL violation: control_plane -> system.health

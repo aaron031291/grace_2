@@ -1,0 +1,19 @@
+{
+  "scenario_id": "S02_acl_spam",
+  "name": "ACL Violation Flood",
+  "fault_type": "acl_flood",
+  "injection_method": "api_spam",
+  "injection_params": {
+    "topic": "system.control",
+    "count": 100
+  },
+  "expected_watchdog": null,
+  "expected_playbook": "message_bus_acl_violation_fix",
+  "expected_coding_task": true,
+  "verification_steps": [
+    "check_acl_violations == 0"
+  ],
+  "max_recovery_time": 60,
+  "severity": 2,
+  "conflicts_with": []
+}
