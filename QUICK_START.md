@@ -1,218 +1,181 @@
-# GRACE - Quick Start Guide
+# Grace - Quick Start
 
-**Version:** 2.0  
-**Last Updated:** November 14, 2025
+## Start Grace (2 Terminals)
 
----
-
-## 🚀 Starting GRACE
-
-### Method 1: Manual Start (Recommended for Development)
-
-Open **two terminals**:
-
-#### Terminal 1: Backend
+### Terminal 1: Start Backend
 ```bash
-cd C:\Users\aaron\grace_2
 python serve.py
 ```
 
-Wait for: `✓ Grace backend started on http://localhost:8000`
-
-#### Terminal 2: Frontend
+Or use:
 ```bash
-cd C:\Users\aaron\grace_2\frontend
-npm run dev
+RUN_GRACE.cmd
 ```
 
-Wait for: `Local: http://localhost:5173/`
+### Terminal 2: Start Learning
+```bash
+python start_grace_now.py
+```
+
+This will:
+1. ✅ Get curriculum overview (11 domains, 25+ projects)
+2. ✅ Start first project (CRM System or E-commerce Analytics)
+3. ✅ Grace works autonomously for 1 hour
+4. ✅ Shows progress and learnings
 
 ---
 
-### Method 2: Auto-Restart (Production)
+## What You'll See
 
-```bash
-cd C:\Users\aaron\grace_2
-scripts\startup\start_grace.cmd
 ```
+======================================================================
+GRACE - AUTONOMOUS AI LEARNING SYSTEM
+======================================================================
 
-This starts with:
-- Auto-restart on crashes
-- Process watchdog
-- System service integration
+STEP 1: Get Curriculum Overview
+----------------------------------------------------------------------
+📚 Total Knowledge Domains: 11
+🎓 Domains Mastered: 0
+✅ Projects Completed: 0
 
----
+🎯 Priority Projects (Business Value):
+   1. proj_crm_system - Full CRM System (business need)
+   2. proj_ecommerce_tracking - E-commerce Analytics SaaS
+   3. proj_cloud_infra_scratch - Cloud Infrastructure from Scratch
 
-## 🔍 Verifying System
+STEP 2: Check Current Status
+----------------------------------------------------------------------
+🤖 System: autonomous_learning
+📝 Mode: project_based
+🧠 LLM: local_open_source
+🧪 Sandbox: Enabled
+💤 No active project - Ready to start learning!
 
-### Check Status
-```bash
-scripts\startup\grace.cmd status
-```
+STEP 3: Start First Project
+----------------------------------------------------------------------
+🚀 Starting next learning project...
+✅ Project Started!
+   ID: proj_crm_system
+   Name: Full CRM System
+   Domain: business_apps
+   
+📋 Project Plan:
+   Total Phases: 5
+   Estimated Hours: 90
+   
+   Phases:
+      1. Research & Design
+      2. Core Implementation
+      3. Advanced Features
+      4. Testing & Edge Cases
+      5. Documentation & KPIs
 
-### Quick Test
-```bash
-python tests\e2e\FINAL_COMPLETE_TEST.py
-```
+STEP 4: Grace Works on Project
+----------------------------------------------------------------------
+🔨 Grace is working autonomously...
+✅ Work Session Complete!
+   Progress: 2.5%
+   Iterations: 4
+   Edge Cases Discovered: 1
+   Solutions Tested: 1
+   Learnings Recorded: 4
 
-Expected output:
-```
-[OK] Message bus started
-[PASS] Message bus publishes events
-[PASS] Infrastructure Manager
-[PASS] Governance Kernel
-[PASS] Memory Kernel
-```
-
----
-
-## 🌐 Accessing GRACE
-
-Once both services are running:
-
-- **Frontend UI:** http://localhost:5173
-- **Backend API:** http://localhost:8000
-- **API Documentation:** http://localhost:8000/docs
-- **Health Check:** http://localhost:8000/api/health
-
----
-
-## 🧪 Running Tests
-
-### Core Systems Test
-```bash
-set PYTHONPATH=C:\Users\aaron\grace_2
-python tests\e2e\test_core_simple.py
-```
-
-### Layer 1 Kernels Test
-```bash
-set PYTHONPATH=C:\Users\aaron\grace_2
-python tests\e2e\test_clarity_kernel.py
-python tests\e2e\test_librarian_kernel.py
-```
-
-### Full E2E Test (requires backend running)
-```bash
-python tests\e2e\test_multi_os_fabric_e2e.py
+✅ GRACE IS NOW LEARNING!
 ```
 
 ---
 
-## 🛑 Stopping GRACE
+## Continue Learning
 
-### Manual Stop
-Press `Ctrl+C` in both terminal windows
-
-### Auto-Restart Stop
+**Let Grace work more:**
 ```bash
-scripts\startup\stop_grace.cmd
+curl -X POST http://localhost:8000/api/learning/project/work \
+  -H "Content-Type: application/json" \
+  -d '{"hours": 2.0}'
 ```
 
-Or:
+**Check progress:**
 ```bash
-scripts\startup\grace.cmd stop
+curl http://localhost:8000/api/learning/progress
+```
+
+**Complete project (when ~100%):**
+```bash
+curl -X POST http://localhost:8000/api/learning/project/complete
 ```
 
 ---
 
-## 📋 System Requirements
+## API Endpoints
 
-- **Python:** 3.11+
-- **Node.js:** 18+
-- **RAM:** 8GB+ recommended
-- **Disk:** 20GB+ free space
-- **OS:** Windows, Linux, macOS
+All learning APIs available at: http://localhost:8000/docs
 
----
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create `.env` from `.env.example`:
-
-```bash
-copy .env.example .env
-```
-
-Required variables:
-```env
-OPENAI_API_KEY=sk-...
-DATABASE_URL=sqlite:///databases/grace.db
-BACKEND_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:5173
-```
+Key endpoints:
+- `GET /api/learning/curriculum/overview` - See all domains
+- `GET /api/learning/progress` - Current progress
+- `POST /api/learning/project/start` - Start next project
+- `POST /api/learning/project/work` - Work session
+- `POST /api/learning/project/complete` - Finish project
 
 ---
 
-## 🐛 Troubleshooting
+## What Grace Is Doing
 
-### Backend Won't Start
+When you run `start_grace_now.py`, Grace:
 
-**Check port 8000:**
+1. **Picks Priority Project** (CRM, E-commerce, or Cloud)
+2. **Creates Project Plan** (Research → Implementation → Testing → Docs)
+3. **Works Autonomously**:
+   - Implements features
+   - Discovers edge cases in sandbox
+   - Tests multiple solutions
+   - Optimizes performance
+   - Documents everything
+4. **Tracks KPIs**:
+   - Code quality
+   - Test coverage
+   - Performance benchmarks
+   - Documentation
+5. **Calculates Trust Score** (must be ≥70%)
+6. **Records Learnings** to memory
+
+---
+
+## Remote Access (Bonus)
+
+While Grace is learning, you can also use remote access:
+
+**Terminal 3:**
 ```bash
-netstat -ano | findstr :8000
-```
-
-**Kill existing process:**
-```bash
-taskkill /F /PID <PID>
-```
-
-**Run diagnostics:**
-```bash
-python scripts\utilities\DIAGNOSE_BACKEND.py
-```
-
-### Frontend Won't Start
-
-**Check port 5173:**
-```bash
-netstat -ano | findstr :5173
-```
-
-**Clear cache and reinstall:**
-```bash
-cd frontend
-rmdir /s /q node_modules
-npm install
-npm run dev
-```
-
-### Database Corruption
-
-**Rebuild database:**
-```bash
-del databases\grace_system.db
-python -c "import sqlite3; conn = sqlite3.connect('databases/grace_system.db'); conn.execute('CREATE TABLE IF NOT EXISTS verification_events (id INTEGER PRIMARY KEY, event_type TEXT, timestamp TEXT, passed INTEGER DEFAULT 1)'); conn.commit(); conn.close()"
+python remote_access_client.py setup
+python remote_access_client.py shell
 ```
 
 ---
 
-## 📚 Next Steps
+## Files & Directories
 
-- **Documentation:** See `docs/` folder
-- **Architecture:** Read `docs/architecture/FINAL_COMPREHENSIVE_SYSTEM_DOCUMENT.md`
-- **API Guide:** Visit http://localhost:8000/docs when backend is running
-- **Complete Test Report:** See `E2E_TEST_REPORT_20251114.md`
+**Grace's Work:**
+- `sandbox/learning_projects/proj_*/` - Built projects
+- `databases/learning_curriculum/` - Progress tracking
+- `logs/remote_sessions/` - Remote access recordings
 
----
-
-## ✅ Verification Checklist
-
-After starting GRACE, verify:
-
-- [ ] Backend responds: http://localhost:8000/api/health
-- [ ] Frontend loads: http://localhost:5173
-- [ ] API docs accessible: http://localhost:8000/docs
-- [ ] Quick test passes: `python tests\e2e\FINAL_COMPLETE_TEST.py`
-- [ ] 16 kernels running (check status command)
-- [ ] No errors in backend logs: `logs\backend.log`
+**Documentation:**
+- `AUTONOMOUS_LEARNING_SYSTEM.md` - Complete learning docs
+- `REMOTE_ACCESS_LIVE.md` - Remote access guide
+- `GRACE_LEARNING_COMPLETE.md` - System overview
 
 ---
 
-**Need Help?**
-- Check `docs/guides/` for detailed guides
-- Review `README.md` for comprehensive documentation
-- See `E2E_TEST_REPORT_20251114.md` for latest test results
+## That's It!
+
+**Start Grace:**
+```bash
+# Terminal 1
+python serve.py
+
+# Terminal 2
+python start_grace_now.py
+```
+
+**Grace is now learning by building real systems!** 🚀

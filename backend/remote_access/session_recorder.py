@@ -10,8 +10,6 @@ from pathlib import Path
 import json
 import logging
 
-from ..unified_logger import unified_logger
-
 logger = logging.getLogger(__name__)
 
 
@@ -194,22 +192,8 @@ class SessionRecorder:
         with open(recording_file, 'w', encoding='utf-8') as f:
             json.dump(recording, f, indent=2)
         
-        # Log to unified logger
-        await unified_logger.log_agentic_spine_decision(
-            decision_type='session_recording',
-            decision_context={
-                'recording_id': recording_id,
-                'total_events': recording['total_events'],
-                'suspicious_count': recording['total_suspicious']
-            },
-            chosen_action='save_recording',
-            rationale=f'Session recording completed',
-            actor='session_recorder',
-            confidence=1.0,
-            risk_score=0.05,
-            status='completed',
-            resource=recording_id
-        )
+        # Log completion
+        logger.info(f"[SESSION-RECORDER] Recording complete: {recording['total_events']} events, {recording['total_suspicious']} suspicious")
         
         # Remove from active
         del self.active_recordings[recording_id]
@@ -284,19 +268,8 @@ class SessionRecorder:
         }
         
         # Log alert
-        await unified_logger.log_agentic_spine_decision(
-            decision_type='security_alert',
-            decision_context=alert,
-            chosen_action='alert_admin',
-            rationale=f'Suspicious activity detected in remote session',
-            actor='session_recorder',
-            confidence=0.9,
-            risk_score=0.85,
-            status='alerted',
-            resource=recording_id
-        )
-        
         logger.warning(f"[SESSION-RECORDER] 🚨 ALERT: Suspicious activity in {recording_id}")
+        logger.warning(f"[SESSION-RECORDER] Event: {event}")
     
     async def _forward_to_siem(self, recording_id: str, event: Dict[str, Any]):
         """Forward event to SIEM system"""
