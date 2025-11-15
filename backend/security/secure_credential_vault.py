@@ -7,7 +7,7 @@ Never hardcodes credentials - uses secure vault with encryption
 import os
 import json
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from cryptography.fernet import Fernet
 from datetime import datetime
 

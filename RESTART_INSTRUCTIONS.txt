@@ -1,59 +1,32 @@
-==========================================
-GRACE - RESTART INSTRUCTIONS
-==========================================
+====================================================================
+GRACE WON'T START? USE SIMPLE MODE
+====================================================================
 
-The backend needs to be restarted to load all new API endpoints.
+The original serve.py tries to boot 20+ complex kernels.
+This can timeout or fail.
 
-STEP 1: Start Backend
-=====================
-Open Terminal 1 and run:
+SOLUTION: Use simple mode (skips boot orchestration)
+====================================================================
 
-  cd C:\Users\aaron\grace_2
-  python serve.py
+OPTION 1: Double-click
+  RUN_SIMPLE.cmd
 
-Expected output:
-  GRACE - BOOTING ALL 19 KERNELS
-  [1/19] Message Bus: ACTIVE
-  [2/19] Immutable Log: ACTIVE
-  BOOT COMPLETE - 19 KERNELS OPERATIONAL
-  ...
-  Backend API: http://localhost:8000
+OPTION 2: Command line
+  python serve_simple.py
 
-STEP 2: Verify Backend
-======================
-Open a browser or run:
-  
-  curl http://localhost:8000/api/health
+OPTION 3: Test first
+  python quick_test.py
+  (then if it passes, run serve_simple.py)
 
-Expected:
-  {"status":"healthy","layers":{"layer1":...},"total_kernels":19}
+====================================================================
 
-STEP 3: Frontend Already Running
-=================================
-Frontend is already running on http://localhost:5173
-It will automatically connect to the backend once it's up.
+This will start ONLY the API server with:
+  ✅ Remote Access
+  ✅ Autonomous Learning  
+  ✅ All API endpoints
 
-STEP 4: Refresh Frontend
-=========================
-Refresh the page at http://localhost:5173
+No complex boot orchestration = Fast startup!
 
-Expected:
-  - No more 404 errors
-  - All kernels showing metrics
-  - Librarian dashboard working
-
-==========================================
-NEW API ENDPOINTS ADDED:
-==========================================
-  GET  /api/ingestion/status
-  GET  /api/ingestion/tasks
-  POST /api/ingestion/start
-  POST /api/ingestion/stop/{task_id}
-  GET  /api/kernels/layer1/status
-  GET  /api/telemetry/kernels/status
-  GET  /api/status
-  GET  /api/clarity/status
-  GET  /api/memory/files
-  GET  /api/hunter/alerts
-
-==========================================
+====================================================================
+JUST RUN: RUN_SIMPLE.cmd
+====================================================================
