@@ -14,17 +14,45 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 
-def find_free_port(start_port=8000, max_tries=10):
-    """Find first available port"""
-    for port in range(start_port, start_port + max_tries):
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.bind(('localhost', port))
-            sock.close()
-            return port
-        except OSError:
-            continue
-    return None
+def allocate_grace_port():
+    """
+    Allocate port for Grace using port manager
+    Manages ports 8000-8100 with full tracking
+    """
+    try:
+        from backend.core.port_manager import port_manager
+        from backend.core.port_watchdog import port_watchdog
+        
+        # Allocate port with metadata
+        allocation = port_manager.allocate_port(
+            service_name="grace_backend",
+            started_by="serve.py",
+            purpose="Main Grace API server with remote access and learning",
+            preferred_port=8000  # Try 8000 first
+        )
+        
+        if 'error' in allocation:
+            logger.error(f"Port allocation failed: {allocation}")
+            return None
+        
+        port = allocation['port']
+        
+        # Start watchdog to monitor this port
+        asyncio.create_task(port_watchdog.start())
+        
+        return port
+    except Exception as e:
+        # Fallback to old method if port manager not available
+        print(f"Port manager not available, using fallback: {e}")
+        for port in range(8000, 8100):
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.bind(('localhost', port))
+                sock.close()
+                return port
+            except OSError:
+                continue
+        return None
 
 
 async def boot_grace_minimal():
@@ -160,18 +188,21 @@ if __name__ == "__main__":
     print("=" * 80)
     print()
     
-    # Find available port
-    print("Finding available port...")
-    port = find_free_port()
+    # Allocate port from managed range (8000-8100)
+    print("Allocating port from managed range (8000-8100)...")
+    port = allocate_grace_port()
     
     if not port:
-        print("❌ No available ports found (tried 8000-8009)")
-        print("\nTo free up ports:")
-        print("  netstat -ano | findstr :800")
-        print("  taskkill /PID <pid> /F")
+        print("❌ No available ports in range 8000-8100")
+        print("\nCheck port usage:")
+        print("  netstat -ano | findstr :80")
+        print("\nOr view port manager status:")
+        print("  python scripts/utilities/check_ports.py")
         sys.exit(1)
     
-    print(f"✅ Using port {port}")
+    print(f"✅ Allocated port {port}")
+    print(f"   Service: grace_backend")
+    print(f"   Watchdog: Active (monitors health every 30s)")
     print()
     
     # Boot Grace
@@ -208,6 +239,16 @@ if __name__ == "__main__":
     print()
     
     try:
+        # Register PID with port manager
+        import os
+        try:
+            from backend.core.port_manager import port_manager
+            port_manager.register_pid(port, os.getpid())
+            print(f"[PORT-MANAGER] Registered PID {os.getpid()} for port {port}")
+        except:
+            pass
+        
+        # Start server
         uvicorn.run(
             "backend.main:app",
             host="0.0.0.0",
@@ -217,4 +258,13 @@ if __name__ == "__main__":
         )
     except KeyboardInterrupt:
         print("\n\nGrace shutdown requested...")
+        
+        # Release port
+        try:
+            from backend.core.port_manager import port_manager
+            port_manager.release_port(port)
+            print(f"[PORT-MANAGER] Released port {port}")
+        except:
+            pass
+        
         print("Goodbye! 👋")
