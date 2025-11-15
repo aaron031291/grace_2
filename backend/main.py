@@ -17,6 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register operator dashboard
+from backend.routes.operator_dashboard import router as operator_router
+app.include_router(operator_router)
+
 @app.get("/")
 async def root():
     return {"message": "Grace AI System", "version": "2.0.0", "status": "operational"}

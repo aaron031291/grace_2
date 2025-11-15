@@ -38,12 +38,42 @@ async def boot_grace_core():
         from backend.core.boot_orchestrator import boot_orchestrator
         from backend.core.control_plane import control_plane
         from backend.core import message_bus, immutable_log
+        from backend.core.production_hardening import (
+            rollback_manager,
+            contract_test_runner,
+            secret_attestation,
+            boot_rate_limiter,
+            sbom_manager
+        )
+        
+        # PHASE 0: Production hardening pre-checks
+        print("=" * 80)
+        print("PHASE 0: Production Hardening")
+        print("=" * 80)
+        
+        # Create stateful snapshot for rollback
+        boot_snapshot = await rollback_manager.create_boot_snapshot()
+        
+        # Attest secrets and configs
+        await secret_attestation.attest_all_secrets()
+        
+        # Generate SBOM and check CVEs
+        await sbom_manager.generate_sbom()
+        vulnerabilities = await sbom_manager.check_vulnerabilities()
+        
+        # Enable boot rate limiting
+        print("\n   🛡️  Boot rate limiting: ENABLED")
+        
+        print()
         
         # PHASE 1: Pre-flight health gate
         print("PHASE 1: Pre-flight health checks")
         if not await boot_orchestrator.run_pre_flight_checks():
             print("\n❌ PRE-FLIGHT FAILED - Cannot boot safely")
             print("   Fix critical issues and try again\n")
+            
+            # Offer rollback
+            print("   💡 Rollback available to last snapshot")
             return False
         
         # PHASE 2: Boot core infrastructure
@@ -100,11 +130,46 @@ async def boot_grace_core():
         print("PHASE 4: Endpoint validation")
         await boot_orchestrator.validate_endpoints()
         
+        # PHASE 5: Contract tests (block traffic if failed)
         print()
+        print("PHASE 5: Contract tests")
+        tests_passed, failed_tests = await contract_test_runner.run_all_tests()
+        
+        if not tests_passed:
+            print("\n❌ CRITICAL CONTRACT TESTS FAILED")
+            print("   Traffic BLOCKED for safety")
+            print(f"   Failed tests: {', '.join(failed_tests)}")
+            print("\n   🔄 Rolling back to last snapshot...")
+            
+            await rollback_manager.rollback_to_snapshot(boot_snapshot.snapshot_id)
+            
+            return False
+        
+        # PHASE 6: Exit boot mode (remove rate limits)
+        boot_rate_limiter.exit_boot_mode()
+        
+        # PHASE 7: Verify secrets/configs unchanged
+        changed = await secret_attestation.verify_attestations()
+        if changed:
+            print(f"\n⚠️  WARNING: {len(changed)} secrets/configs changed during boot:")
+            for item in changed:
+                print(f"      - {item}")
+        
+        print()
+        print("=" * 80)
         print("🎉 GRACE FULLY OPERATIONAL")
-        print("   Self-healing: ACTIVE")
-        print("   Coding agent: ACTIVE (auto-fix enabled)")
-        print("   All 20 kernels ready")
+        print("=" * 80)
+        print("   ✅ Self-healing: ACTIVE")
+        print("   ✅ Coding agent: ACTIVE (auto-fix enabled)")
+        print("   ✅ All 20 kernels ready")
+        print("   ✅ Contract tests: PASSED")
+        print("   ✅ Rate limiting: DISABLED (boot complete)")
+        print(f"   ✅ Snapshot: {boot_snapshot.snapshot_id}")
+        print(f"   ✅ Dependencies: {len(sbom_manager.sbom)} packages tracked")
+        if vulnerabilities:
+            print(f"   ⚠️  CVE Alerts: {len(vulnerabilities)} vulnerabilities (see above)")
+        else:
+            print("   ✅ CVE Alerts: No vulnerabilities detected")
         print()
         
         return True
