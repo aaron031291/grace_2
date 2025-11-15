@@ -1,0 +1,44 @@
+====================================================================
+HOW TO USE GRACE - SIMPLE VERSION
+====================================================================
+
+STEP 1: Start Grace
+-------------------
+python serve.py
+
+(Or double-click: START.cmd)
+
+
+STEP 2: In another terminal, configure clients
+-----------------------------------------------
+python auto_configure.py
+
+
+STEP 3: Use Grace
+-----------------
+
+Option A: Remote Access
+  python remote_access_client.py setup
+  python remote_access_client.py shell
+
+Option B: Autonomous Learning
+  python start_grace_now.py
+
+Option C: Interactive Menu
+  USE_GRACE.cmd
+
+
+====================================================================
+THAT'S ALL!
+====================================================================
+
+Files you need to know:
+  serve.py                  - Start server
+  auto_configure.py         - Configure for correct port
+  remote_access_client.py   - Remote shell
+  start_grace_now.py        - Start learning
+  USE_GRACE.cmd             - Menu
+
+Everything else is extra/documentation.
+
+====================================================================

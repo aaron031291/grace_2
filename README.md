@@ -1,371 +1,234 @@
-# GRACE - General Recursive Autonomous Cognitive Engine
+# GRACE - Autonomous AI System
 
 **Version:** 2.0  
-**Status:** Production Ready  
-**Last Updated:** November 14, 2025
+**Status:** Production Ready
 
 ---
 
-## 🚀 Quick Start
+## Start Grace (One Command)
 
-### Start GRACE System
-
-**Backend (Terminal 1):**
 ```bash
-cd C:\Users\aaron\grace_2
 python serve.py
 ```
 
-**Frontend (Terminal 2):**
-```bash
-cd C:\Users\aaron\grace_2\frontend
-npm run dev
-```
-
-**Alternative:** Auto-restart protection:
-```bash
-scripts\startup\start_grace.cmd
-```
-
-### Run Tests
-```bash
-python tests\e2e\FINAL_COMPLETE_TEST.py
-```
-
-### Check Status
-```bash
-scripts\startup\grace.cmd status
-```
+Or double-click: **START.cmd**
 
 ---
 
-## 📖 System Overview
+## What You Get
 
-Grace is an enterprise-grade autonomous AI system with:
-
-- **12+ Layer 1 Kernels** - Core intelligence components
-- **Multi-OS Fabric** - Manages Windows/Linux/macOS hosts
-- **Auto-Restart System** - 3-layer resilience
-- **Self-Healing** - 17 triggers, 9 automated playbooks
-- **HTM Orchestration** - Priority queues with temporal SLAs
-- **Event-Driven** - Intelligent routing via message bus
+- ✅ **Remote Access** - Zero-trust secure shell
+- ✅ **Autonomous Learning** - 11 domains, 25+ projects  
+- ✅ **Full REST API** - Complete documentation
 
 ---
 
-## 🏗️ Architecture
+## Quick Start
 
-```
-grace_2/
-├── backend/           # Core backend (Python/FastAPI)
-├── frontend/          # Web interface (React/TypeScript)
-├── docs/              # All documentation
-├── scripts/           # Startup, test, utility scripts
-├── tests/             # Test suites
-├── databases/         # SQLite databases
-├── storage/           # File storage
-├── logs/              # Runtime logs
-└── serve.py           # Main entry point
-```
-
----
-
-## 📚 Documentation
-
-### Essential Reading
-- **[START_HERE.md](docs/START_HERE.md)** - Begin here
-- **[System Architecture](docs/architecture/FINAL_COMPREHENSIVE_SYSTEM_DOCUMENT.md)** - Complete technical docs
-- **[Quick Start Guide](docs/guides/QUICK_START_GUIDE.md)** - Get running fast
-
-### By Category
-- **Architecture:** `docs/architecture/` - System design
-- **Guides:** `docs/guides/` - How-to documentation
-- **Status:** `docs/status/` - Current system state
-- **Milestones:** `docs/milestones/` - Progress markers
-
----
-
-## 🎯 Key Features
-
-### Multi-OS Infrastructure Management
-Grace tracks and manages hosts across operating systems:
-- Windows, Linux, macOS support
-- Dependency detection (pip, npm, conda)
-- Resource monitoring (CPU, RAM, GPU, disk)
-- OS-specific policy enforcement
-
-### Auto-Restart & Resilience
-Three-layer protection keeps Grace running:
-- **Layer 1:** Kernel supervision (10s recovery)
-- **Layer 2:** Process watchdog (30s recovery)
-- **Layer 3:** System service (auto-start on boot)
-
-### Self-Healing Triggers
-Proactive monitoring prevents issues:
-- Heartbeat failures → Auto-restart
-- API timeouts → Service recovery
-- Resource spikes → Cleanup/optimization
-- Dependency drift → Auto-sync
-- Anomalies → Diagnostics
-
-### Hierarchical Task Manager (HTM)
-Intelligent task prioritization:
-- **CRITICAL** - Prod outages (<5min SLA)
-- **HIGH** - Canary failures (<30min SLA)
-- **NORMAL** - Daily tasks (<4hr SLA)
-- **LOW** - Background jobs (<24hr SLA)
-
-### Learning & Improvement
-Grace learns from experience:
-- Records successful workflows
-- Recommends proven solutions
-- Improves response times over time
-
----
-
-## 🚦 Commands
-
-### Start/Stop
+### Terminal 1: Start Server
 ```bash
-# Start with watchdog
-scripts\startup\start_grace.cmd
-
-# Stop (kill switch)
-scripts\startup\stop_grace.cmd
-
-# Restart
-scripts\startup\grace.cmd restart
-
-# Status
-scripts\startup\grace.cmd status
-```
-
-### Testing
-```bash
-# Quick validation
-python tests\e2e\FINAL_COMPLETE_TEST.py
-
-# Full E2E test
-python tests\e2e\test_multi_os_fabric_e2e.py
-
-# Diagnostics
-python scripts\utilities\DIAGNOSE_BACKEND.py
-```
-
-### Deployment
-```bash
-# Verify system
-scripts\deployment\VERIFY_SYSTEM.bat
-
-# PM2 (production)
-pm2 start pm2.config.js
-
-# Systemd (Linux)
-sudo systemctl start grace
-```
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-Create `.env` from `.env.example`:
-```bash
-OPENAI_API_KEY=sk-...
-DATABASE_URL=sqlite:///databases/grace.db
-BACKEND_URL=http://localhost:8000
-FRONTEND_URL=http://localhost:5173
-```
-
-### System Requirements
-- Python 3.11+
-- Node.js 18+
-- 8GB+ RAM
-- 20GB+ disk space
-
----
-
-## 📊 System Status
-
-**All Core Systems:**
-- [x] Message Bus
-- [x] Infrastructure Manager (Multi-OS)
-- [x] Governance Kernel
-- [x] Memory Kernel
-- [x] Enhanced HTM
-- [x] Event Policy Kernel
-- [x] Self-Healing System
-- [x] Auto-Restart System
-
-**Test Status:** 100% Pass Rate ✅  
-**Production Ready:** Yes ✅
-
----
-
-## 📁 Project Structure
-
-### Backend (`backend/`)
-- `core/` - Layer 1 kernels and core systems
-- `kernels/` - Domain-specific kernels
-- `routes/` - API endpoints
-- `self_heal/` - Self-healing system
-- `middleware/` - Request/response middleware
-
-### Frontend (`frontend/`)
-- `src/` - React components
-- `public/` - Static assets
-
-### Scripts (`scripts/`)
-- `startup/` - Start/stop/control scripts
-- `test/` - Test runners
-- `deployment/` - Deployment tools
-- `utilities/` - Helper scripts
-
-### Tests (`tests/`)
-- `e2e/` - End-to-end tests
-- `unit/` - Unit tests
-- `integration/` - Integration tests
-
-### Docs (`docs/`)
-- `architecture/` - System design documents
-- `guides/` - How-to guides
-- `milestones/` - Progress tracking
-- `status/` - Status reports
-- `summaries/` - Summary documents
-
----
-
-## 🔌 API Endpoints
-
-**Backend:** http://localhost:8000
-
-**Key Endpoints:**
-- `GET /api/health` - System health
-- `POST /api/chat` - Conversational interface
-- `GET /api/kernels` - Kernel status
-- `POST /api/memory` - Memory operations
-- `POST /api/books/ingest` - Book ingestion
-- `GET /docs` - API documentation
-
----
-
-## 🛠️ Development
-
-### Install Dependencies
-```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-
-# Frontend
-cd frontend
-npm install
-```
-
-### Run Development Server
-```bash
-# Backend (Terminal 1)
-cd C:\Users\aaron\grace_2
 python serve.py
-
-# Frontend (Terminal 2)
-cd C:\Users\aaron\grace_2\frontend
-npm run dev
 ```
 
-**Access:**
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- Frontend UI: http://localhost:5173
+Wait for: "GRACE IS READY" and note the port number
 
-### Run Tests
+### Terminal 2: Configure & Use
+
+**Configure (one time):**
 ```bash
-# All tests
-pytest tests/
+python auto_configure.py
+```
 
-# Specific test
-python tests/e2e/FINAL_COMPLETE_TEST.py
+**Then choose:**
+
+**Remote Access:**
+```bash
+python remote_access_client.py setup
+python remote_access_client.py shell
+```
+
+**Autonomous Learning:**
+```bash
+python start_grace_now.py
+```
+
+**Interactive Menu:**
+```bash
+USE_GRACE.cmd
 ```
 
 ---
 
-## 📞 Troubleshooting
+## Features
 
-### Backend Won't Start
+### 1. Remote Access (Zero-Trust)
+- Device registration with hardware fingerprints
+- Multi-factor authentication
+- RBAC enforcement (5 roles: observer, executor, developer, admin, grace_sandbox)
+- Complete session recording
+- WebSocket real-time shell
+- Suspicious activity detection
+
+**API:** `/api/remote/*` (15+ endpoints)
+
+### 2. Autonomous Learning
+- 11 knowledge domains
+- 25+ learning projects
+- Builds real systems (CRM, e-commerce analytics, cloud infrastructure)
+- Sandbox experimentation
+- Edge case discovery
+- KPI tracking with trust scores
+
+**Priority Projects:**
+- CRM System (Salesforce-like)
+- E-commerce Analytics SaaS (market prediction, ad funnels)
+- Cloud Infrastructure from Scratch (VM orchestrator, auto-scaler)
+
+**API:** `/api/learning/*` (8+ endpoints)
+
+---
+
+## API Documentation
+
+Once running: **http://localhost:8000/docs**
+
+(Or whatever port serve.py tells you)
+
+---
+
+## Core Files
+
+| File | Purpose |
+|------|---------|
+| `serve.py` | **ONLY way to start** (auto port detection) |
+| `START.cmd` | Double-click to start |
+| `auto_configure.py` | Configure clients for correct port |
+| `remote_access_client.py` | Remote shell access |
+| `start_grace_now.py` | Start autonomous learning |
+| `USE_GRACE.cmd` | Interactive menu |
+| `check_server.py` | Check if running |
+| `test_integration.py` | Test everything |
+
+---
+
+## Troubleshooting
+
+**Server won't start?**
 ```bash
-# Check port 8000
-netstat -ano | findstr :8000
-
-# Run diagnostics
-python scripts\utilities\DIAGNOSE_BACKEND.py
-
-# View logs
-type logs\backend.log
+python check_server.py  # See what's wrong
 ```
 
-### Tests Fail
+**Port conflict?**
+serve.py automatically finds next available port!
+
+**Already running?**
 ```bash
-# Ensure backend is running
+python check_server.py  # Shows which port
+python auto_configure.py  # Updates clients
+```
+
+---
+
+## Architecture
+
+```
+serve.py (Entry Point)
+  ↓
+  Finds available port
+  ↓
+  Boots minimal Grace systems
+  ↓
+  Loads backend/main.py
+    ↓
+    ├─ Remote Access API (/api/remote/*)
+    │  ├─ Zero-trust gate
+    │  ├─ RBAC enforcer
+    │  ├─ Session manager
+    │  └─ Session recorder
+    │
+    └─ Autonomous Learning API (/api/learning/*)
+       ├─ Curriculum manager
+       └─ Project builder
+```
+
+---
+
+## What Grace Does
+
+### Remote Access
+1. Register device → Verify identity → MFA
+2. Allowlist device → Assign RBAC role
+3. Create session → Get token
+4. Execute commands → All recorded
+5. Full audit trail
+
+### Autonomous Learning
+1. Select project (CRM, e-commerce, cloud)
+2. Create 5-phase plan
+3. Implement in sandbox
+4. Discover edge cases
+5. Test solutions
+6. Calculate KPIs & trust score
+7. Record learnings
+8. Master domain
+9. Next project
+
+---
+
+## Success Looks Like
+
+**Terminal 1:**
+```
+GRACE - STARTING
+✅ Using port 8000
+
+[1/3] Booting core systems...
+  ✓ Message Bus: Active
+  
+[2/3] Loading Grace backend...
+  ✓ Remote Access: Ready
+  ✓ Autonomous Learning: Ready
+  
+GRACE IS READY
+📡 API: http://localhost:8000
+```
+
+**Terminal 2:**
+```bash
+$ python start_grace_now.py
+
+✅ Started: Full CRM System
+Progress: 2.5%
+Edge cases found: 1
+Grace is learning!
+```
+
+---
+
+## Documentation
+
+- **This file** - Quick start
+- `README_FINAL.md` - Complete details
+- `HOW_TO_USE_GRACE.txt` - Simple guide
+- `AUTONOMOUS_LEARNING_SYSTEM.md` - Learning docs
+- `REMOTE_ACCESS_LIVE.md` - Remote access guide
+
+---
+
+## Summary
+
+**One command starts everything:**
+```bash
 python serve.py
-
-# Run validation
-python tests\e2e\FINAL_COMPLETE_TEST.py
 ```
 
-### See Full Guides
-Check `docs/guides/` for detailed troubleshooting and setup guides.
+**Then use Grace for:**
+- Secure remote shell access
+- Autonomous learning (builds CRM, e-commerce SaaS, cloud infrastructure)
+- Full API access
+
+**No more confusion. One clear path.** 🚀
 
 ---
 
-## 🎯 What Makes Grace Special
-
-### Autonomous
-- Self-healing from failures
-- Auto-restarts on crashes
-- Learns from experience
-- Improves over time
-
-### Multi-Platform
-- Windows, Linux, macOS support
-- Unified host management
-- OS-specific policy enforcement
-
-### Resilient
-- 3-layer auto-restart
-- Survives kernel crashes
-- Survives process crashes
-- Survives system reboots
-
-### Intelligent
-- Priority-based task queuing
-- Temporal SLA management
-- Health-aware throttling
-- Workload-based agent spawning
-
----
-
-## 📄 License
-
-See LICENSE file for details.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Make changes with tests
-4. Submit pull request
-
----
-
-## 📧 Support
-
-- **Documentation:** `docs/`
-- **Issues:** GitHub Issues
-- **Guides:** `docs/guides/`
-
----
-
-**Grace is production-ready with enterprise-grade resilience and intelligence!**
-
-*Built with ❤️ for autonomous AI systems*
+**Quick start:** `python serve.py`
