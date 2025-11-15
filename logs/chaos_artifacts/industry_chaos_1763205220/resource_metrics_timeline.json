@@ -1,0 +1,416 @@
+[
+  {
+    "timestamp": "2025-11-15 11:13:41.918055",
+    "cpu_percent": 8.1,
+    "memory_percent": 34.8,
+    "disk_io_read_mb": 55066.80908203125,
+    "disk_io_write_mb": 187546.7138671875,
+    "network_bytes_sent": 14993543305,
+    "network_bytes_recv": 3483895879
+  },
+  {
+    "timestamp": "2025-11-15 11:13:42.028208",
+    "cpu_percent": 18.6,
+    "memory_percent": 34.8,
+    "disk_io_read_mb": 55066.80908203125,
+    "disk_io_write_mb": 187546.7138671875,
+    "network_bytes_sent": 14993543359,
+    "network_bytes_recv": 3483896233
+  },
+  {
+    "timestamp": "2025-11-15 11:13:47.160731",
+    "cpu_percent": 8.5,
+    "memory_percent": 35.0,
+    "disk_io_read_mb": 55066.82470703125,
+    "disk_io_write_mb": 187547.4326171875,
+    "network_bytes_sent": 14993754906,
+    "network_bytes_recv": 3483902602
+  },
+  {
+    "timestamp": "2025-11-15 11:13:52.282026",
+    "cpu_percent": 10.3,
+    "memory_percent": 34.8,
+    "disk_io_read_mb": 55066.84033203125,
+    "disk_io_write_mb": 187548.1982421875,
+    "network_bytes_sent": 14993767828,
+    "network_bytes_recv": 3483938148
+  },
+  {
+    "timestamp": "2025-11-15 11:13:57.408355",
+    "cpu_percent": 2.7,
+    "memory_percent": 34.9,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187549.2490234375,
+    "network_bytes_sent": 14993985622,
+    "network_bytes_recv": 3483962247
+  },
+  {
+    "timestamp": "2025-11-15 11:14:02.510590",
+    "cpu_percent": 3.0,
+    "memory_percent": 34.9,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187550.1708984375,
+    "network_bytes_sent": 14993991924,
+    "network_bytes_recv": 3483992925
+  },
+  {
+    "timestamp": "2025-11-15 11:14:07.630026",
+    "cpu_percent": 6.9,
+    "memory_percent": 34.9,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187550.6552734375,
+    "network_bytes_sent": 14993998812,
+    "network_bytes_recv": 3484061510
+  },
+  {
+    "timestamp": "2025-11-15 11:14:12.754674",
+    "cpu_percent": 2.4,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187551.3779296875,
+    "network_bytes_sent": 14994010273,
+    "network_bytes_recv": 3484186289
+  },
+  {
+    "timestamp": "2025-11-15 11:14:17.875841",
+    "cpu_percent": 5.4,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187551.7294921875,
+    "network_bytes_sent": 14994012090,
+    "network_bytes_recv": 3484205006
+  },
+  {
+    "timestamp": "2025-11-15 11:14:22.991635",
+    "cpu_percent": 5.0,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187553.2021484375,
+    "network_bytes_sent": 14994015724,
+    "network_bytes_recv": 3484229418
+  },
+  {
+    "timestamp": "2025-11-15 11:14:28.114136",
+    "cpu_percent": 9.3,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187554.3896484375,
+    "network_bytes_sent": 14994025800,
+    "network_bytes_recv": 3484262645
+  },
+  {
+    "timestamp": "2025-11-15 11:14:33.223715",
+    "cpu_percent": 7.3,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187555.9130859375,
+    "network_bytes_sent": 14994048901,
+    "network_bytes_recv": 3484513335
+  },
+  {
+    "timestamp": "2025-11-15 11:14:38.346194",
+    "cpu_percent": 3.7,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85595703125,
+    "disk_io_write_mb": 187558.0302734375,
+    "network_bytes_sent": 14994058402,
+    "network_bytes_recv": 3484536725
+  },
+  {
+    "timestamp": "2025-11-15 11:14:43.457669",
+    "cpu_percent": 9.0,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.85986328125,
+    "disk_io_write_mb": 187559.2763671875,
+    "network_bytes_sent": 14994061046,
+    "network_bytes_recv": 3484571575
+  },
+  {
+    "timestamp": "2025-11-15 11:14:48.556436",
+    "cpu_percent": 3.1,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187559.8310546875,
+    "network_bytes_sent": 14994078908,
+    "network_bytes_recv": 3484602027
+  },
+  {
+    "timestamp": "2025-11-15 11:14:53.672459",
+    "cpu_percent": 2.8,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187560.8896484375,
+    "network_bytes_sent": 14994121480,
+    "network_bytes_recv": 3484661965
+  },
+  {
+    "timestamp": "2025-11-15 11:14:58.787601",
+    "cpu_percent": 4.0,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187570.5458984375,
+    "network_bytes_sent": 14994156942,
+    "network_bytes_recv": 3488730318
+  },
+  {
+    "timestamp": "2025-11-15 11:15:03.895746",
+    "cpu_percent": 3.5,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187570.9404296875,
+    "network_bytes_sent": 14994158611,
+    "network_bytes_recv": 3488752816
+  },
+  {
+    "timestamp": "2025-11-15 11:15:09.028325",
+    "cpu_percent": 4.2,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187572.2802734375,
+    "network_bytes_sent": 14994165411,
+    "network_bytes_recv": 3488828111
+  },
+  {
+    "timestamp": "2025-11-15 11:15:14.129580",
+    "cpu_percent": 3.2,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187572.5927734375,
+    "network_bytes_sent": 14994166810,
+    "network_bytes_recv": 3488844034
+  },
+  {
+    "timestamp": "2025-11-15 11:15:19.256481",
+    "cpu_percent": 2.5,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.87548828125,
+    "disk_io_write_mb": 187573.4990234375,
+    "network_bytes_sent": 14994169553,
+    "network_bytes_recv": 3488867626
+  },
+  {
+    "timestamp": "2025-11-15 11:15:24.377635",
+    "cpu_percent": 4.1,
+    "memory_percent": 34.7,
+    "disk_io_read_mb": 55066.89111328125,
+    "disk_io_write_mb": 187575.4482421875,
+    "network_bytes_sent": 14994179981,
+    "network_bytes_recv": 3488929107
+  },
+  {
+    "timestamp": "2025-11-15 11:15:29.497598",
+    "cpu_percent": 7.5,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.89111328125,
+    "disk_io_write_mb": 187576.9560546875,
+    "network_bytes_sent": 14994186221,
+    "network_bytes_recv": 3488953862
+  },
+  {
+    "timestamp": "2025-11-15 11:15:34.620915",
+    "cpu_percent": 3.9,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.90673828125,
+    "disk_io_write_mb": 187578.1201171875,
+    "network_bytes_sent": 14994195443,
+    "network_bytes_recv": 3489193653
+  },
+  {
+    "timestamp": "2025-11-15 11:15:39.724589",
+    "cpu_percent": 2.7,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.90673828125,
+    "disk_io_write_mb": 187578.7451171875,
+    "network_bytes_sent": 14994201180,
+    "network_bytes_recv": 3489221130
+  },
+  {
+    "timestamp": "2025-11-15 11:15:44.846782",
+    "cpu_percent": 4.1,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.90673828125,
+    "disk_io_write_mb": 187579.0341796875,
+    "network_bytes_sent": 14994263823,
+    "network_bytes_recv": 3489263060
+  },
+  {
+    "timestamp": "2025-11-15 11:15:49.966189",
+    "cpu_percent": 4.8,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.92236328125,
+    "disk_io_write_mb": 187580.3154296875,
+    "network_bytes_sent": 14994278510,
+    "network_bytes_recv": 3489458666
+  },
+  {
+    "timestamp": "2025-11-15 11:15:55.074462",
+    "cpu_percent": 5.0,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.92236328125,
+    "disk_io_write_mb": 187580.9755859375,
+    "network_bytes_sent": 14994284915,
+    "network_bytes_recv": 3489482200
+  },
+  {
+    "timestamp": "2025-11-15 11:16:00.180690",
+    "cpu_percent": 3.3,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55066.92236328125,
+    "disk_io_write_mb": 187582.5966796875,
+    "network_bytes_sent": 14994286801,
+    "network_bytes_recv": 3489501019
+  },
+  {
+    "timestamp": "2025-11-15 11:16:05.286947",
+    "cpu_percent": 3.4,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.1748046875,
+    "disk_io_write_mb": 187584.5419921875,
+    "network_bytes_sent": 14994294435,
+    "network_bytes_recv": 3489544767
+  },
+  {
+    "timestamp": "2025-11-15 11:16:10.391809",
+    "cpu_percent": 5.2,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.1904296875,
+    "disk_io_write_mb": 187585.2998046875,
+    "network_bytes_sent": 14994299703,
+    "network_bytes_recv": 3489573177
+  },
+  {
+    "timestamp": "2025-11-15 11:16:15.514110",
+    "cpu_percent": 6.6,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187585.9365234375,
+    "network_bytes_sent": 14994302268,
+    "network_bytes_recv": 3489596562
+  },
+  {
+    "timestamp": "2025-11-15 11:16:20.634045",
+    "cpu_percent": 3.1,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187586.6552734375,
+    "network_bytes_sent": 14994303222,
+    "network_bytes_recv": 3489614553
+  },
+  {
+    "timestamp": "2025-11-15 11:16:25.760681",
+    "cpu_percent": 3.0,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187588.2138671875,
+    "network_bytes_sent": 14994306733,
+    "network_bytes_recv": 3489640272
+  },
+  {
+    "timestamp": "2025-11-15 11:16:30.872399",
+    "cpu_percent": 5.5,
+    "memory_percent": 34.4,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187589.8623046875,
+    "network_bytes_sent": 14994314555,
+    "network_bytes_recv": 3489674329
+  },
+  {
+    "timestamp": "2025-11-15 11:16:35.985091",
+    "cpu_percent": 4.0,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187592.0888671875,
+    "network_bytes_sent": 14994318336,
+    "network_bytes_recv": 3489739332
+  },
+  {
+    "timestamp": "2025-11-15 11:16:41.106991",
+    "cpu_percent": 8.3,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187593.3896484375,
+    "network_bytes_sent": 14994328514,
+    "network_bytes_recv": 3489760590
+  },
+  {
+    "timestamp": "2025-11-15 11:16:42.025640",
+    "cpu_percent": 4.2,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187593.5888671875,
+    "network_bytes_sent": 14994329020,
+    "network_bytes_recv": 3489760834
+  },
+  {
+    "timestamp": "2025-11-15 11:16:44.143449",
+    "cpu_percent": 5.4,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187594.2490234375,
+    "network_bytes_sent": 14994336291,
+    "network_bytes_recv": 3489779725
+  },
+  {
+    "timestamp": "2025-11-15 11:16:44.244376",
+    "cpu_percent": 3.1,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187594.2490234375,
+    "network_bytes_sent": 14994336291,
+    "network_bytes_recv": 3489779725
+  },
+  {
+    "timestamp": "2025-11-15 11:16:46.212264",
+    "cpu_percent": 3.6,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187594.3505859375,
+    "network_bytes_sent": 14994341808,
+    "network_bytes_recv": 3489802482
+  },
+  {
+    "timestamp": "2025-11-15 11:16:46.378678",
+    "cpu_percent": 3.3,
+    "memory_percent": 34.3,
+    "disk_io_read_mb": 55067.2060546875,
+    "disk_io_write_mb": 187594.3505859375,
+    "network_bytes_sent": 14994341808,
+    "network_bytes_recv": 3489802564
+  },
+  {
+    "timestamp": "2025-11-15 11:17:16.641408",
+    "cpu_percent": 5.9,
+    "memory_percent": 33.5,
+    "disk_io_read_mb": 55067.2841796875,
+    "disk_io_write_mb": 187598.2919921875,
+    "network_bytes_sent": 14994377051,
+    "network_bytes_recv": 3490157354
+  },
+  {
+    "timestamp": "2025-11-15 11:17:21.810686",
+    "cpu_percent": 6.3,
+    "memory_percent": 33.5,
+    "disk_io_read_mb": 55067.2841796875,
+    "disk_io_write_mb": 187598.9951171875,
+    "network_bytes_sent": 14994378136,
+    "network_bytes_recv": 3490175910
+  },
+  {
+    "timestamp": "2025-11-15 11:17:26.513757",
+    "cpu_percent": 3.5,
+    "memory_percent": 33.5,
+    "disk_io_read_mb": 55067.2841796875,
+    "disk_io_write_mb": 187600.0498046875,
+    "network_bytes_sent": 14994381712,
+    "network_bytes_recv": 3490200226
+  },
+  {
+    "timestamp": "2025-11-15 11:17:26.963813",
+    "cpu_percent": 8.2,
+    "memory_percent": 33.5,
+    "disk_io_read_mb": 55067.2841796875,
+    "disk_io_write_mb": 187600.0654296875,
+    "network_bytes_sent": 14994382600,
+    "network_bytes_recv": 3490383789
+  }
+]

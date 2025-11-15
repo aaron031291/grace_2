@@ -1,0 +1,447 @@
+# Industry-Standard Chaos Scenarios
+# Google DiRT, Netflix FIT, Jepsen-style testing with full diagnostics
+
+# =============================================================================
+# GOOGLE DiRT-STYLE: Infrastructure + Control Plane Chaos
+# =============================================================================
+
+- scenario_id: DIRT01_critical_kernel_kill
+  name: "DiRT: Kill Critical Kernels Simultaneously"
+  category: dirt_infrastructure
+  severity: 5
+  description: "Kill message_bus, self_healing, and coding_agent simultaneously"
+  
+  faults:
+    - type: kernel_kill
+      params:
+        targets: ["message_bus", "self_healing", "coding_agent"]
+        kill_method: "hard_stop"
+        duration_seconds: 120
+    
+    - type: heartbeat_revocation
+      params:
+        kernels: ["governance", "memory_fusion"]
+        duration_seconds: 60
+  
+  expected_safeguards:
+    - kernel_watchdog
+    - auto_restart_protocol
+    - emergency_fallback_mode
+  
+  diagnostics:
+    control_plane_dumps: true
+    kernel_state_tracking: true
+    restart_count_monitoring: true
+    heartbeat_logs: true
+  
+  verification:
+    - all_kernels_auto_restarted
+    - no_data_loss
+    - recovery_time < 180s
+    - immutable_log_continuity
+  
+  max_recovery_time: 180
+
+- scenario_id: DIRT02_snapshot_apocalypse
+  name: "DiRT: Total Snapshot Corruption"
+  category: dirt_infrastructure
+  severity: 5
+  description: "Corrupt all snapshots and models, verify restore from backups"
+  
+  faults:
+    - type: total_snapshot_corruption
+      params:
+        targets:
+          - ".grace_snapshots/models"
+          - ".grace_snapshots/state"
+          - ".grace_snapshots/config"
+        corruption_method: "truncate_all"
+    
+    - type: backup_verification_test
+      params:
+        force_restore: true
+        verify_integrity: true
+  
+  expected_safeguards:
+    - snapshot_hygiene_manager
+    - backup_restore_system
+    - integrity_checker
+  
+  diagnostics:
+    snapshot_diff: true
+    restore_logs: true
+    integrity_verification: true
+    coding_agent_audit_tasks: true
+  
+  verification:
+    - all_snapshots_restored
+    - models_verified
+    - no_corruption_spread
+    - audit_trail_complete
+  
+  max_recovery_time: 300
+
+- scenario_id: DIRT03_sustained_resource_siege
+  name: "DiRT: Multi-Minute Resource Saturation"
+  category: dirt_infrastructure
+  severity: 5
+  description: "5-minute CPU/IO/Memory saturation to test steady-state resilience"
+  
+  faults:
+    - type: cpu_saturation
+      params:
+        cpu_percent: 95
+        duration_seconds: 300
+        cores: "all"
+    
+    - type: memory_saturation
+      params:
+        memory_percent: 90
+        duration_seconds: 300
+        leak_rate: "aggressive"
+    
+    - type: disk_io_saturation
+      params:
+        io_ops_per_second: 10000
+        duration_seconds: 300
+        random_access: true
+  
+  expected_safeguards:
+    - resource_pressure_monitor
+    - load_shedding
+    - graceful_degradation
+    - emergency_gc
+  
+  diagnostics:
+    resource_metrics_timeline: true
+    degradation_tracking: true
+    shedding_decisions: true
+    recovery_curve: true
+  
+  verification:
+    - system_remained_operational
+    - no_hard_crashes
+    - load_shedding_activated
+    - recovery_after_pressure_release
+  
+  max_recovery_time: 120
+
+# =============================================================================
+# NETFLIX FIT-STYLE: Load + Resilience Testing
+# =============================================================================
+
+- scenario_id: FIT01_api_production_load
+  name: "FIT: Production-Level API Flood"
+  category: fit_load
+  severity: 4
+  description: "Spam all API endpoints at production throughput during chaos"
+  
+  load_profile:
+    endpoints:
+      - path: "/api/task/enqueue"
+        rps: 1000
+        duration: 180
+      - path: "/api/system/control"
+        rps: 500
+        duration: 180
+      - path: "/api/knowledge/query"
+        rps: 2000
+        duration: 180
+      - path: "/api/sandbox/execute"
+        rps: 100
+        duration: 180
+    
+    concurrent_users: 1000
+    ramp_up_seconds: 30
+  
+  chaos_during_load:
+    - type: worker_dropout
+      params:
+        workers: ["htm_worker_1", "htm_worker_2"]
+        dropout_pattern: "random"
+        restore_after: 60
+    
+    - type: dependency_failure
+      params:
+        dependencies: ["trigger_mesh", "event_router"]
+        failure_mode: "intermittent"
+  
+  expected_safeguards:
+    - rate_limiter
+    - circuit_breaker
+    - task_rerouting
+    - worker_pool_scaling
+  
+  diagnostics:
+    api_metrics: true
+    response_time_p50_p95_p99: true
+    error_rates: true
+    throughput_timeline: true
+    htm_queue_depth: true
+    sla_breaches: true
+  
+  verification:
+    - p99_latency < 5000ms
+    - error_rate < 5%
+    - no_queue_deadlock
+    - tasks_rerouted_successfully
+  
+  max_recovery_time: 60
+
+- scenario_id: FIT02_dependency_chaos
+  name: "FIT: Random Dependency Dropout"
+  category: fit_load
+  severity: 4
+  description: "Drop and restore dependencies randomly while under load"
+  
+  synthetic_traffic:
+    script: "scripts/run_production_scenario.py"
+    duration: 300
+    user_count: 500
+  
+  dependency_chaos:
+    targets:
+      - "trigger_mesh"
+      - "message_bus"
+      - "htm_workers"
+      - "scheduler"
+    
+    dropout_pattern:
+      type: "random"
+      drop_probability: 0.3
+      restore_after_min: 10
+      restore_after_max: 60
+  
+  expected_safeguards:
+    - dependency_circuit_breaker
+    - fallback_routing
+    - queue_persistence
+    - state_recovery
+  
+  diagnostics:
+    dependency_health_timeline: true
+    rerouting_decisions: true
+    queue_persistence_events: true
+    user_experience_metrics: true
+  
+  verification:
+    - zero_user_visible_failures
+    - all_tasks_eventually_processed
+    - state_consistency_maintained
+    - graceful_degradation_only
+  
+  max_recovery_time: 180
+
+- scenario_id: FIT03_combined_load_chaos
+  name: "FIT: Load Spike + Infrastructure Fault"
+  category: fit_load
+  severity: 5
+  description: "Traffic spike during kernel failures"
+  
+  load_spike:
+    normal_rps: 1000
+    spike_rps: 10000
+    spike_duration: 60
+    spike_pattern: "sudden"
+  
+  faults_during_spike:
+    - type: kernel_pause
+      params:
+        target: "self_healing"
+        pause_seconds: 45
+    
+    - type: api_rate_limit_disable
+      params:
+        duration_seconds: 30
+    
+    - type: memory_pressure
+      params:
+        memory_percent: 85
+        duration_seconds: 60
+  
+  expected_safeguards:
+    - emergency_rate_limiting
+    - load_shedding
+    - priority_queueing
+    - resource_throttling
+  
+  diagnostics:
+    load_profile: true
+    shedding_decisions: true
+    priority_queue_usage: true
+    resource_allocation: true
+  
+  verification:
+    - critical_requests_processed
+    - graceful_shedding_of_low_priority
+    - no_cascading_failures
+    - recovery_within_limits
+  
+  max_recovery_time: 120
+
+# =============================================================================
+# JEPSEN-STYLE: Consistency + Partition Testing
+# =============================================================================
+
+- scenario_id: JEPSEN01_immutable_log_partition
+  name: "Jepsen: Partition Immutable Log Writes"
+  category: jepsen_consistency
+  severity: 5
+  description: "Simulate network partition to immutable log storage"
+  
+  partition:
+    type: "write_partition"
+    targets:
+      - "immutable_log"
+      - "memory_fusion"
+    duration: 120
+    allow_reads: true
+    block_writes: true
+  
+  verification_during:
+    - type: "sequence_continuity"
+      check_interval: 5
+    
+    - type: "no_split_brain"
+      check_for_duplicates: true
+    
+    - type: "read_your_writes"
+      consistency_level: "eventual"
+  
+  expected_safeguards:
+    - partition_detector
+    - write_buffering
+    - sequence_guarantor
+    - conflict_resolver
+  
+  diagnostics:
+    partition_timeline: true
+    sequence_gaps: true
+    duplicate_detection: true
+    consistency_violations: true
+  
+  verification:
+    - no_sequence_gaps
+    - no_duplicate_entries
+    - eventual_consistency_achieved
+    - partition_healed_cleanly
+  
+  max_recovery_time: 180
+
+- scenario_id: JEPSEN02_clock_skew_attack
+  name: "Jepsen: Clock Skew + Timestamp Chaos"
+  category: jepsen_consistency
+  severity: 4
+  description: "Inject clock skew to test timestamp ordering"
+  
+  clock_chaos:
+    - type: "system_clock_skew"
+      skew_seconds: 300
+      targets: ["message_bus", "immutable_log"]
+    
+    - type: "timestamp_injection"
+      future_timestamps: true
+      past_timestamps: true
+      random_jitter_ms: 5000
+  
+  operations_during_skew:
+    - write_to_immutable_log: 1000
+    - create_memory_artifacts: 100
+    - schedule_tasks: 500
+  
+  verification_after:
+    - type: "causal_order_preserved"
+    - type: "no_time_travel_paradox"
+    - type: "event_sequence_valid"
+  
+  diagnostics:
+    timestamp_audit: true
+    ordering_violations: true
+    causality_graph: true
+  
+  verification:
+    - all_events_properly_ordered
+    - no_causality_violations
+    - vector_clock_consistency
+  
+  max_recovery_time: 60
+
+- scenario_id: JEPSEN03_snapshot_rollback_chaos
+  name: "Jepsen: Snapshot Rollback + Corruption"
+  category: jepsen_consistency
+  severity: 5
+  description: "Force rollback to old snapshots, verify consistency"
+  
+  rollback_chaos:
+    - type: "force_snapshot_rollback"
+      params:
+        target_age_minutes: 30
+        components: ["memory_fusion", "governance"]
+    
+    - type: "partial_corruption"
+      params:
+        corrupt_percentage: 20
+        targets: ["state_snapshots"]
+  
+  consistency_checks:
+    - verify_referential_integrity: true
+    - check_transaction_atomicity: true
+    - validate_state_machine: true
+  
+  expected_safeguards:
+    - rollback_detector
+    - state_reconciliation
+    - consistency_repair
+    - transaction_replay
+  
+  diagnostics:
+    state_diff: true
+    reconciliation_log: true
+    transaction_replay_log: true
+    integrity_violations: true
+  
+  verification:
+    - state_fully_reconciled
+    - no_orphaned_references
+    - transactions_atomic
+    - invariants_preserved
+  
+  max_recovery_time: 300
+
+- scenario_id: JEPSEN04_concurrent_write_conflict
+  name: "Jepsen: Concurrent Write Conflicts"
+  category: jepsen_consistency
+  severity: 4
+  description: "Force concurrent writes to same resources, verify resolution"
+  
+  concurrent_writes:
+    resource: "knowledge_base"
+    writers: 10
+    writes_per_second: 100
+    duration: 60
+    conflict_probability: 0.8
+  
+  conflict_types:
+    - lost_update
+    - write_skew
+    - phantom_read
+    - dirty_write
+  
+  expected_safeguards:
+    - optimistic_locking
+    - conflict_detector
+    - last_write_wins_or_merge
+    - version_vector
+  
+  diagnostics:
+    conflict_log: true
+    resolution_strategy_used: true
+    data_loss_detection: true
+  
+  verification:
+    - no_lost_updates
+    - all_conflicts_resolved
+    - deterministic_outcome
+    - linearizability_preserved
+  
+  max_recovery_time: 60

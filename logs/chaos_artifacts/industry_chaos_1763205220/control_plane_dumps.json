@@ -1,0 +1,6166 @@
+[
+  {
+    "timestamp": "2025-11-15 11:13:41.918055",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "running",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "running",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "running",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 13.2,
+      "memory": 34.8
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:13:42.028208",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 0.0,
+      "memory": 34.8
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:13:47.160731",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 10.5,
+      "memory": 34.9
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:13:52.282026",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 5.7,
+      "memory": 34.9
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:13:57.408355",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.8,
+      "memory": 34.9
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:02.510590",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.4,
+      "memory": 34.9
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:07.630026",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.6,
+      "memory": 34.9
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:12.754674",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 0,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 0,
+      "verification_framework": 0,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:13:40.822355",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:13:41.054887",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 5.2,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:17.875841",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "stopped",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 0,
+      "governance": 0,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:13:41.054887",
+      "secret_manager": "2025-11-15T11:13:41.054887",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.4,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:22.991635",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "stopped",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 0,
+      "memory_fusion": 0,
+      "librarian": 0,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:13:41.056890",
+      "infrastructure_manager": "2025-11-15T11:13:41.056890",
+      "memory_fusion": "2025-11-15T11:13:41.058989",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 5.9,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:28.114136",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "stopped",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 0,
+      "agentic_spine": 0,
+      "voice_conversation": 0,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:13:41.058989",
+      "sandbox": "2025-11-15T11:13:41.058989",
+      "agentic_spine": "2025-11-15T11:13:41.058989",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 5.4,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:33.223715",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "stopped",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 0,
+      "learning_integration": 0,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:13:41.918055",
+      "meta_loop": "2025-11-15T11:13:41.918055",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 5.0,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:38.346194",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "stopped",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 0,
+      "trigger_mesh": 0,
+      "scheduler": 0,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:13:41.918055",
+      "health_monitor": "2025-11-15T11:13:41.918055",
+      "trigger_mesh": "2025-11-15T11:13:41.918055",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.6,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:43.457669",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "stopped",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 0
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:13:41.918055",
+      "api_server": "2025-11-15T11:13:41.918055"
+    },
+    "resource_usage": {
+      "cpu": 4.9,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:48.556436",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 5.2,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:53.672459",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 1,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.9,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:14:58.787601",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "stopped",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 1,
+      "verification_framework": 1,
+      "secret_manager": 1,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:14.979090",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:14:16.974066",
+      "verification_framework": "2025-11-15T11:14:18.988994",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.7,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:03.895746",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "stopped",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 1,
+      "infrastructure_manager": 1,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:14:20.995794",
+      "governance": "2025-11-15T11:14:23.098997",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.4,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:09.028325",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "stopped",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 1,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:14:25.101022",
+      "memory_fusion": "2025-11-15T11:14:27.102714",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.7,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:14.129580",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 5.6,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:19.256481",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 1,
+      "sandbox": 1,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:14:29.111136",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.9,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:24.377635",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "stopped",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 1,
+      "voice_conversation": 1,
+      "meta_loop": 1,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:14:31.123189",
+      "agentic_spine": "2025-11-15T11:14:33.141163",
+      "voice_conversation": "2025-11-15T11:14:35.161474",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 5.7,
+      "memory": 34.7
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:29.497598",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "stopped",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 1,
+      "health_monitor": 1,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:14:37.176615",
+      "learning_integration": "2025-11-15T11:14:39.193442",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 6.0,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:34.620915",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "stopped",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 1,
+      "scheduler": 1,
+      "api_server": 1
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:14:41.195042",
+      "trigger_mesh": "2025-11-15T11:14:43.207528",
+      "scheduler": "2025-11-15T11:14:45.218541",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 5.2,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:39.724589",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "stopped",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:15:07.294225",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:15:11.281617",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:14:47.223206"
+    },
+    "resource_usage": {
+      "cpu": 4.9,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:44.846782",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:14:02.027860",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:14:02.027860",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.5,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:49.966189",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 2,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 2,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:14:59.248863",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:14:02.027860",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:14:02.027860",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 5.1,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:15:55.074462",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "stopped",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 2,
+      "secret_manager": 2,
+      "governance": 2,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:01.267637",
+      "verification_framework": "2025-11-15T11:15:03.271601",
+      "secret_manager": "2025-11-15T11:15:05.285814",
+      "governance": "2025-11-15T11:14:02.027860",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:14:02.027860",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.7,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:00.180690",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "stopped",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 2,
+      "memory_fusion": 2,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:14:02.027860",
+      "infrastructure_manager": "2025-11-15T11:15:09.294249",
+      "memory_fusion": "2025-11-15T11:14:02.027860",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.8,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:05.286947",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "stopped",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:14:02.027860",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 5.1,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:10.391809",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 2,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.8,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:15.514110",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "stopped",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 2,
+      "agentic_spine": 2,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:15:23.325612",
+      "sandbox": "2025-11-15T11:15:25.327460",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.5,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:20.634045",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "stopped",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 2,
+      "meta_loop": 2,
+      "learning_integration": 2,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:15:27.333464",
+      "voice_conversation": "2025-11-15T11:15:29.348766",
+      "meta_loop": "2025-11-15T11:15:31.349036",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 4.6,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:25.760681",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "stopped",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 2,
+      "trigger_mesh": 2,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:15:33.370965",
+      "health_monitor": "2025-11-15T11:15:35.364462",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 5.2,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:30.872399",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "stopped",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 2,
+      "api_server": 2
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:15:37.372001",
+      "scheduler": "2025-11-15T11:15:39.376118",
+      "api_server": "2025-11-15T11:15:41.394833"
+    },
+    "resource_usage": {
+      "cpu": 6.5,
+      "memory": 34.4
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:35.985091",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 5.5,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:41.106991",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 4.9,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:42.025640",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 4.1,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:44.143449",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 5.4,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:44.244376",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 0.0,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:46.212264",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 4.6,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:16:46.378678",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 4.8,
+      "memory": 34.3
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:17:16.641408",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 6.5,
+      "memory": 33.5
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:17:21.810686",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 7.8,
+      "memory": 33.5
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:17:26.513757",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 8.4,
+      "memory": 33.5
+    }
+  },
+  {
+    "timestamp": "2025-11-15 11:17:26.963813",
+    "system_state": "running",
+    "kernel_states": {
+      "message_bus": {
+        "state": "failed",
+        "critical": true
+      },
+      "immutable_log": {
+        "state": "running",
+        "critical": true
+      },
+      "self_healing": {
+        "state": "failed",
+        "critical": false
+      },
+      "coding_agent": {
+        "state": "failed",
+        "critical": false
+      },
+      "clarity_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "verification_framework": {
+        "state": "running",
+        "critical": false
+      },
+      "secret_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "governance": {
+        "state": "running",
+        "critical": false
+      },
+      "infrastructure_manager": {
+        "state": "running",
+        "critical": false
+      },
+      "memory_fusion": {
+        "state": "running",
+        "critical": false
+      },
+      "librarian": {
+        "state": "running",
+        "critical": false
+      },
+      "sandbox": {
+        "state": "running",
+        "critical": false
+      },
+      "agentic_spine": {
+        "state": "running",
+        "critical": false
+      },
+      "voice_conversation": {
+        "state": "running",
+        "critical": false
+      },
+      "meta_loop": {
+        "state": "running",
+        "critical": false
+      },
+      "learning_integration": {
+        "state": "running",
+        "critical": false
+      },
+      "health_monitor": {
+        "state": "running",
+        "critical": true
+      },
+      "trigger_mesh": {
+        "state": "running",
+        "critical": false
+      },
+      "scheduler": {
+        "state": "running",
+        "critical": false
+      },
+      "api_server": {
+        "state": "running",
+        "critical": false
+      }
+    },
+    "restart_counts": {
+      "message_bus": 0,
+      "immutable_log": 3,
+      "self_healing": 0,
+      "coding_agent": 0,
+      "clarity_framework": 3,
+      "verification_framework": 3,
+      "secret_manager": 3,
+      "governance": 3,
+      "infrastructure_manager": 3,
+      "memory_fusion": 3,
+      "librarian": 3,
+      "sandbox": 3,
+      "agentic_spine": 3,
+      "voice_conversation": 3,
+      "meta_loop": 3,
+      "learning_integration": 3,
+      "health_monitor": 3,
+      "trigger_mesh": 3,
+      "scheduler": 3,
+      "api_server": 3
+    },
+    "heartbeat_status": {
+      "message_bus": "2025-11-15T11:13:40.822355",
+      "immutable_log": "2025-11-15T11:15:53.423097",
+      "self_healing": "2025-11-15T11:13:40.822355",
+      "coding_agent": "2025-11-15T11:13:41.054887",
+      "clarity_framework": "2025-11-15T11:15:55.440424",
+      "verification_framework": "2025-11-15T11:15:57.458303",
+      "secret_manager": "2025-11-15T11:15:59.460863",
+      "governance": "2025-11-15T11:16:01.465351",
+      "infrastructure_manager": "2025-11-15T11:16:03.458413",
+      "memory_fusion": "2025-11-15T11:16:05.469204",
+      "librarian": "2025-11-15T11:16:17.498452",
+      "sandbox": "2025-11-15T11:16:19.500853",
+      "agentic_spine": "2025-11-15T11:16:21.519236",
+      "voice_conversation": "2025-11-15T11:16:23.522135",
+      "meta_loop": "2025-11-15T11:16:25.537634",
+      "learning_integration": "2025-11-15T11:16:27.544644",
+      "health_monitor": "2025-11-15T11:16:29.545194",
+      "trigger_mesh": "2025-11-15T11:16:31.547200",
+      "scheduler": "2025-11-15T11:16:33.565911",
+      "api_server": "2025-11-15T11:16:35.566571"
+    },
+    "resource_usage": {
+      "cpu": 10.4,
+      "memory": 33.5
+    }
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "test_id": "industry_chaos_1763205220",
+  "duration_seconds": 226.800465,
+  "snapshots_collected": 46,
+  "resource_metrics_points": 46,
+  "cpu_peak_percent": 18.6,
+  "memory_peak_percent": 35.0,
+  "total_kernel_restarts": 51,
+  "api_endpoints_monitored": 0,
+  "consistency_checks_run": 0,
+  "consistency_pass_rate": 0,
+  "timestamp": "2025-11-15T11:17:28.718520"
+}
