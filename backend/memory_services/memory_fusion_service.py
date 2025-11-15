@@ -42,7 +42,7 @@ class MemoryFusionService:
     def _subscribe_to_logic_updates(self):
         """Subscribe to unified logic hub updates"""
         try:
-            from backend.trigger_mesh import trigger_mesh
+            from backend.misc.trigger_mesh import trigger_mesh
             
             async def on_logic_update(event):
                 """Handle logic update events"""
@@ -209,7 +209,7 @@ class MemoryFusionService:
         # Publish memory stored event
         if self._trigger_mesh:
             try:
-                from backend.trigger_mesh import TriggerEvent
+                from backend.misc.trigger_mesh import TriggerEvent
                 
                 await self._trigger_mesh.publish(TriggerEvent(
                     event_type="memory.stored",
@@ -390,7 +390,7 @@ class MemoryFusionService:
         
         if not self._trigger_mesh:
             try:
-                from backend.trigger_mesh import trigger_mesh, TriggerEvent
+                from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
                 self._trigger_mesh = trigger_mesh
             except ImportError:
                 pass

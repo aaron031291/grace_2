@@ -131,11 +131,13 @@ class RefactorTaskSystem:
             from .message_bus import message_bus
             
             # Subscribe to refactor requests
-            await message_bus.subscribe(
-                topic='task.code_refactor',
-                handler=self._handle_refactor_request,
-                subscriber='refactor_system'
+            queue = await message_bus.subscribe(
+                subscriber='refactor_system',
+                topic='task.code_refactor'
             )
+            
+            # Register handler separately
+            message_bus.register_handler('task.code_refactor', self._handle_refactor_request)
             
             logger.info("[REFACTOR-SYSTEM] Subscribed to task.code_refactor")
         
