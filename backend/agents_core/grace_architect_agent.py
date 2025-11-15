@@ -23,9 +23,9 @@ from .models import Base, async_session
 
 # Lazy imports to avoid circular dependencies
 if TYPE_CHECKING:
-    from .code_memory import CodeMemoryEngine, CodePattern
-    from .code_understanding import CodeUnderstandingEngine
-    from .code_generator import CodeGenerator
+    from backend.misc.code_memory import CodeMemoryEngine, CodePattern
+    from backend.misc.code_understanding import CodeUnderstandingEngine
+    from backend.misc.code_generator import CodeGenerator
 
 class GraceArchitectureKnowledge(Base):
     """Deep knowledge of Grace's architecture patterns"""
@@ -116,9 +116,9 @@ class GraceArchitectAgent:
     
     def __init__(self):
         # Lazy load to avoid circular imports
-        from .code_memory import CodeMemoryEngine
-        from .code_understanding import CodeUnderstandingEngine
-        from .code_generator import CodeGenerator
+        from backend.misc.code_memory import CodeMemoryEngine
+        from backend.misc.code_understanding import CodeUnderstandingEngine
+        from backend.misc.code_generator import CodeGenerator
 
         self.code_memory = CodeMemoryEngine()
         self.code_understanding = CodeUnderstandingEngine()

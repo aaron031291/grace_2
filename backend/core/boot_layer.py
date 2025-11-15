@@ -156,7 +156,7 @@ class BootLayer:
             
             print("\nCore Kernels:")
             for kernel_name, kernel_info in status['kernels'].items():
-                state_icon = "✓" if kernel_info['state'] == 'running' else "✗"
+                state_icon = "[OK]" if kernel_info['state'] == 'running' else "[X]"
                 critical = "CRITICAL" if kernel_info['critical'] else "optional"
                 print(f"  {state_icon} {kernel_name:<20} [{kernel_info['state']}] ({critical})")
             
@@ -208,12 +208,12 @@ class BootLayer:
         # Stop control plane (stops all kernels)
         print("[1/3] Stopping kernels...")
         await control_plane.stop()
-        print("  ✓ All kernels stopped")
+        print("  [OK] All kernels stopped")
         
         # Stop message bus
         print("\n[2/3] Stopping message bus...")
         await message_bus.stop()
-        print("  ✓ Message bus stopped")
+        print("  [OK] Message bus stopped")
         
         # Final log
         print("\n[3/3] Final audit log...")
@@ -224,7 +224,7 @@ class BootLayer:
             decision={'status': 'completed'},
             metadata={'timestamp': datetime.utcnow().isoformat()}
         )
-        print("  ✓ Shutdown logged")
+        print("  [OK] Shutdown logged")
         
         print()
         print("=" * 80)
