@@ -1,0 +1,113 @@
+# Scheduler Load Shedding Playbook
+# Triggered when queue depth exceeds critical threshold
+
+playbook_id: scheduler_load_shedding
+name: "Scheduler Load Shedding"
+description: "Shed low-priority tasks when queue overflows"
+version: "1.0"
+category: performance
+
+triggers:
+  - scheduler_queue_overflow
+
+parameters:
+  queue_depth:
+    type: integer
+    description: "Current queue depth"
+    required: true
+  
+  threshold:
+    type: integer
+    description: "Critical threshold that was exceeded"
+    required: true
+
+steps:
+  - step_id: 1
+    action: assess_queue
+    description: "Analyze queue composition"
+    execute:
+      component: scheduler
+      method: analyze_queue
+    
+    output: queue_analysis
+    
+    timeout_seconds: 10
+
+  - step_id: 2
+    action: identify_shed_candidates
+    description: "Identify low-priority tasks to shed"
+    execute:
+      component: scheduler
+      method: select_shed_candidates
+      params:
+        criteria: "priority < 5 AND age > 10min"
+        max_shed_count: 100
+    
+    output: shed_candidates
+    
+    timeout_seconds: 5
+
+  - step_id: 3
+    action: shed_tasks
+    description: "Remove low-priority tasks from queue"
+    execute:
+      component: scheduler
+      method: shed_tasks
+      params:
+        task_ids: "{{ shed_candidates }}"
+        reason: "queue_overflow_protection"
+    
+    output: shed_count
+    
+    timeout_seconds: 10
+
+  - step_id: 4
+    action: log_with_5w1h
+    description: "Log shedding decision with full narrative"
+    execute:
+      component: clarity_5w1h
+      method: log_load_shedding
+      params:
+        shedder: "scheduler"
+        shed_count: "{{ shed_count }}"
+        total_load: "{{ parameters.queue_depth }}"
+        shed_criteria: "priority<5 AND age>10min"
+        reasons:
+          - "Queue exceeded critical threshold"
+          - "Shed low-priority tasks to protect SLA"
+          - "Retained all high-priority tasks"
+          - "Mission alignment: Preserve critical operations"
+
+  - step_id: 5
+    action: verify_queue_normalized
+    description: "Verify queue is back to healthy levels"
+    execute:
+      component: scheduler
+      method: get_queue_depth
+    
+    success_criteria:
+      - queue_depth < 1000
+
+  - step_id: 6
+    action: log_completion
+    description: "Log to immutable audit"
+    execute:
+      component: immutable_log
+      method: append
+      params:
+        actor: "scheduler_load_shedder"
+        action: "load_shedding_complete"
+        resource: "scheduler_queue"
+        result: "success"
+        metadata:
+          shed_count: "{{ shed_count }}"
+          final_queue_depth: "{{ queue_depth }}"
+
+success_criteria:
+  - queue_depth < threshold
+  - critical_tasks_preserved
+  - shedding_logged_with_reasoning
+
+slo:
+  max_execution_time_seconds: 60
+  data_loss_tolerance: "low_priority_only"

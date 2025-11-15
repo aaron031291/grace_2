@@ -1,0 +1,92 @@
+# Trigger Storm Mitigation Playbook
+# Triggered when trigger mesh detects event flood
+
+playbook_id: trigger_storm_mitigation
+name: "Trigger Storm Mitigation"
+description: "Mitigate trigger mesh event flood"
+version: "1.0"
+category: resilience
+
+triggers:
+  - trigger_storm_safeguard
+
+parameters:
+  event_type:
+    type: string
+    description: "Event type causing the storm"
+    required: true
+  
+  rate_per_second:
+    type: integer
+    description: "Current event rate"
+    required: true
+
+steps:
+  - step_id: 1
+    action: enable_rate_limiting
+    description: "Enable rate limiting on trigger mesh"
+    execute:
+      component: trigger_mesh
+      method: enable_rate_limit
+      params:
+        event_type: "{{ parameters.event_type }}"
+        max_rate: 100  # events/second
+    
+    timeout_seconds: 5
+
+  - step_id: 2
+    action: identify_source
+    description: "Identify source of event flood"
+    execute:
+      component: trigger_storm_safeguard
+      method: trace_event_source
+      params:
+        event_type: "{{ parameters.event_type }}"
+    
+    output: flood_source
+
+  - step_id: 3
+    action: throttle_source
+    description: "Throttle flooding source"
+    execute:
+      component: trigger_mesh
+      method: throttle_publisher
+      params:
+        source: "{{ flood_source }}"
+        throttle_percentage: 90
+    
+    timeout_seconds: 10
+
+  - step_id: 4
+    action: verify_rate_normalized
+    description: "Verify event rate has normalized"
+    execute:
+      component: trigger_storm_safeguard
+      method: check_event_rate
+      params:
+        event_type: "{{ parameters.event_type }}"
+        expected_max: 50
+    
+    retry:
+      max_attempts: 3
+      interval_seconds: 10
+
+  - step_id: 5
+    action: log_mitigation
+    description: "Log mitigation to audit trail"
+    execute:
+      component: immutable_log
+      method: append
+      params:
+        actor: "trigger_storm_safeguard"
+        action: "storm_mitigated"
+        resource: "{{ parameters.event_type }}"
+        result: "success"
+
+success_criteria:
+  - event_rate < 100/second
+  - trigger_mesh operational
+  - no_subscription_failures
+
+slo:
+  max_execution_time_seconds: 60
