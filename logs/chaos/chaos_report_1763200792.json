@@ -1,0 +1,2378 @@
+{
+  "timestamp": "2025-11-15T09:59:52.152031",
+  "waves_run": 3,
+  "total_scenarios": 6,
+  "passed": 2,
+  "failed": 4,
+  "success_rate": 0.3333333333333333,
+  "waves": [
+    {
+      "wave_id": "wave_1_1763200569",
+      "scenarios": [
+        {
+          "scenario_id": "S01_heartbeat_pause",
+          "name": "Kernel Heartbeat 5s Pause",
+          "fault_type": "heartbeat_stall",
+          "injection_method": "heartbeat_block",
+          "injection_params": {
+            "kernel": "librarian",
+            "duration": 5
+          },
+          "expected_watchdog": "tier_watchdog",
+          "expected_playbook": null,
+          "expected_coding_task": false,
+          "verification_steps": [
+            "check_kernel_running librarian"
+          ],
+          "max_recovery_time": 30,
+          "severity": 1,
+          "conflicts_with": []
+        }
+      ],
+      "start_time": "2025-11-15 09:56:09.985128",
+      "end_time": "2025-11-15 09:56:15.240509",
+      "results": {
+        "scenarios_run": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0
+      }
+    },
+    {
+      "wave_id": "wave_2_1763200589",
+      "scenarios": [
+        {
+          "scenario_id": "S02_acl_spam",
+          "name": "ACL Violation Flood",
+          "fault_type": "acl_flood",
+          "injection_method": "api_spam",
+          "injection_params": {
+            "topic": "system.control",
+            "count": 100
+          },
+          "expected_watchdog": null,
+          "expected_playbook": "message_bus_acl_violation_fix",
+          "expected_coding_task": true,
+          "verification_steps": [
+            "check_acl_violations == 0"
+          ],
+          "max_recovery_time": 60,
+          "severity": 2,
+          "conflicts_with": []
+        },
+        {
+          "scenario_id": "S03_cpu_spike",
+          "name": "CPU Saturation",
+          "fault_type": "cpu_spike",
+          "injection_method": "cpu_stress",
+          "injection_params": {
+            "cores": 2,
+            "duration": 30
+          },
+          "expected_watchdog": null,
+          "expected_playbook": "cpu_saturation",
+          "expected_coding_task": false,
+          "verification_steps": [
+            "check_cpu < 80"
+          ],
+          "max_recovery_time": 90,
+          "severity": 3,
+          "conflicts_with": []
+        }
+      ],
+      "start_time": "2025-11-15 09:56:29.225695",
+      "end_time": "2025-11-15 09:57:59.598493",
+      "results": {
+        "scenarios_run": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0
+      }
+    },
+    {
+      "wave_id": "wave_3_1763200698",
+      "scenarios": [
+        {
+          "scenario_id": "S01_heartbeat_pause",
+          "name": "Kernel Heartbeat 5s Pause",
+          "fault_type": "heartbeat_stall",
+          "injection_method": "heartbeat_block",
+          "injection_params": {
+            "kernel": "librarian",
+            "duration": 5
+          },
+          "expected_watchdog": "tier_watchdog",
+          "expected_playbook": null,
+          "expected_coding_task": false,
+          "verification_steps": [
+            "check_kernel_running librarian"
+          ],
+          "max_recovery_time": 30,
+          "severity": 1,
+          "conflicts_with": []
+        },
+        {
+          "scenario_id": "S02_acl_spam",
+          "name": "ACL Violation Flood",
+          "fault_type": "acl_flood",
+          "injection_method": "api_spam",
+          "injection_params": {
+            "topic": "system.control",
+            "count": 100
+          },
+          "expected_watchdog": null,
+          "expected_playbook": "message_bus_acl_violation_fix",
+          "expected_coding_task": true,
+          "verification_steps": [
+            "check_acl_violations == 0"
+          ],
+          "max_recovery_time": 60,
+          "severity": 2,
+          "conflicts_with": []
+        },
+        {
+          "scenario_id": "S03_cpu_spike",
+          "name": "CPU Saturation",
+          "fault_type": "cpu_spike",
+          "injection_method": "cpu_stress",
+          "injection_params": {
+            "cores": 2,
+            "duration": 30
+          },
+          "expected_watchdog": null,
+          "expected_playbook": "cpu_saturation",
+          "expected_coding_task": false,
+          "verification_steps": [
+            "check_cpu < 80"
+          ],
+          "max_recovery_time": 90,
+          "severity": 3,
+          "conflicts_with": []
+        }
+      ],
+      "start_time": "2025-11-15 09:58:18.313709",
+      "end_time": "2025-11-15 09:59:48.960608",
+      "results": {
+        "scenarios_run": 3,
+        "passed": 1,
+        "failed": 2,
+        "errors": 0
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "incident_id": "S01_heartbeat_pause_1763200570",
+      "scenario_id": "S01_heartbeat_pause",
+      "wave_id": "wave_1_1763200569",
+      "injected_at": "2025-11-15 09:56:10.674381",
+      "detected_at": null,
+      "healed_at": "2025-11-15 09:56:10.777977",
+      "watchdog_triggered": true,
+      "playbook_executed": true,
+      "coding_task_created": true,
+      "recovery_successful": true,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.721849",
+              "last_heartbeat": "2025-11-15T09:56:09.721849",
+              "restart_count": 0
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.722849",
+              "last_heartbeat": "2025-11-15T09:56:09.722849",
+              "restart_count": 0
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 8.2,
+            "memory_percent": 38.9
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.721849",
+              "last_heartbeat": "2025-11-15T09:56:09.721849",
+              "restart_count": 0
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.722849",
+              "last_heartbeat": "2025-11-15T09:56:09.722849",
+              "restart_count": 0
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 2.6,
+            "memory_percent": 38.9
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Blocked heartbeat for librarian (5s)"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S01_heartbeat_pause_1763200570",
+      "failure_reason": null,
+      "escalated": false
+    },
+    {
+      "incident_id": "S02_acl_spam_1763200589",
+      "scenario_id": "S02_acl_spam",
+      "wave_id": "wave_2_1763200589",
+      "injected_at": "2025-11-15 09:56:29.225695",
+      "detected_at": null,
+      "healed_at": null,
+      "watchdog_triggered": false,
+      "playbook_executed": false,
+      "coding_task_created": false,
+      "recovery_successful": false,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.721849",
+              "last_heartbeat": "2025-11-15T09:56:09.721849",
+              "restart_count": 0
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.722849",
+              "last_heartbeat": "2025-11-15T09:56:09.722849",
+              "restart_count": 0
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 3.6,
+            "memory_percent": 38.5
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:42.857793",
+              "last_heartbeat": "2025-11-15T09:56:42.857793",
+              "restart_count": 1
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:44.889184",
+              "last_heartbeat": "2025-11-15T09:56:44.889184",
+              "restart_count": 1
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:46.944892",
+              "last_heartbeat": "2025-11-15T09:56:46.944892",
+              "restart_count": 1
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:48.991338",
+              "last_heartbeat": "2025-11-15T09:56:48.991338",
+              "restart_count": 1
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:51.635953",
+              "last_heartbeat": "2025-11-15T09:56:51.635953",
+              "restart_count": 1
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:53.691647",
+              "last_heartbeat": "2025-11-15T09:56:53.691647",
+              "restart_count": 1
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:56.621493",
+              "last_heartbeat": "2025-11-15T09:56:56.621493",
+              "restart_count": 1
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:58.675166",
+              "last_heartbeat": "2025-11-15T09:56:58.675166",
+              "restart_count": 1
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:00.674670",
+              "last_heartbeat": "2025-11-15T09:57:00.674670",
+              "restart_count": 1
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:02.693395",
+              "last_heartbeat": "2025-11-15T09:57:02.693395",
+              "restart_count": 1
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:04.711875",
+              "last_heartbeat": "2025-11-15T09:57:04.711875",
+              "restart_count": 1
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:06.714688",
+              "last_heartbeat": "2025-11-15T09:57:06.714688",
+              "restart_count": 1
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:08.716671",
+              "last_heartbeat": "2025-11-15T09:57:08.716671",
+              "restart_count": 1
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:10.719178",
+              "last_heartbeat": "2025-11-15T09:57:10.719178",
+              "restart_count": 1
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:12.737963",
+              "last_heartbeat": "2025-11-15T09:57:12.737963",
+              "restart_count": 1
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:14.739957",
+              "last_heartbeat": "2025-11-15T09:57:14.739957",
+              "restart_count": 1
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:16.739811",
+              "last_heartbeat": "2025-11-15T09:57:16.739811",
+              "restart_count": 1
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 1
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 3.6,
+            "memory_percent": 38.6
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Spammed system.control with 100 messages"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S02_acl_spam_1763200589",
+      "failure_reason": "Recovery timeout - safeguards did not trigger",
+      "escalated": true
+    },
+    {
+      "incident_id": "S03_cpu_spike_1763200589",
+      "scenario_id": "S03_cpu_spike",
+      "wave_id": "wave_2_1763200589",
+      "injected_at": "2025-11-15 09:56:29.226738",
+      "detected_at": null,
+      "healed_at": null,
+      "watchdog_triggered": false,
+      "playbook_executed": false,
+      "coding_task_created": false,
+      "recovery_successful": false,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.805783",
+              "last_heartbeat": "2025-11-15T09:56:08.805783",
+              "restart_count": 0
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:08.913093",
+              "last_heartbeat": "2025-11-15T09:56:08.913093",
+              "restart_count": 0
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.022548",
+              "last_heartbeat": "2025-11-15T09:56:09.022548",
+              "restart_count": 0
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.023315",
+              "last_heartbeat": "2025-11-15T09:56:09.023315",
+              "restart_count": 0
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.721849",
+              "last_heartbeat": "2025-11-15T09:56:09.721849",
+              "restart_count": 0
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.722849",
+              "last_heartbeat": "2025-11-15T09:56:09.722849",
+              "restart_count": 0
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:56:09.723929",
+              "last_heartbeat": "2025-11-15T09:56:09.723929",
+              "restart_count": 0
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 5.3,
+            "memory_percent": 38.5
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:34.742691",
+              "last_heartbeat": "2025-11-15T09:57:34.742691",
+              "restart_count": 2
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:36.761586",
+              "last_heartbeat": "2025-11-15T09:57:36.761586",
+              "restart_count": 2
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:38.764598",
+              "last_heartbeat": "2025-11-15T09:57:38.764598",
+              "restart_count": 2
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:40.782685",
+              "last_heartbeat": "2025-11-15T09:57:40.782685",
+              "restart_count": 2
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:43.319261",
+              "last_heartbeat": "2025-11-15T09:57:43.319261",
+              "restart_count": 2
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:45.319957",
+              "last_heartbeat": "2025-11-15T09:57:45.319957",
+              "restart_count": 2
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:47.335007",
+              "last_heartbeat": "2025-11-15T09:57:47.335007",
+              "restart_count": 2
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:49.342078",
+              "last_heartbeat": "2025-11-15T09:57:49.342078",
+              "restart_count": 2
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:51.327071",
+              "last_heartbeat": "2025-11-15T09:57:51.327071",
+              "restart_count": 2
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:53.343029",
+              "last_heartbeat": "2025-11-15T09:57:53.343029",
+              "restart_count": 2
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:04.711875",
+              "last_heartbeat": "2025-11-15T09:57:04.711875",
+              "restart_count": 1
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:06.714688",
+              "last_heartbeat": "2025-11-15T09:57:06.714688",
+              "restart_count": 1
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:08.716671",
+              "last_heartbeat": "2025-11-15T09:57:08.716671",
+              "restart_count": 1
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:10.719178",
+              "last_heartbeat": "2025-11-15T09:57:10.719178",
+              "restart_count": 1
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:12.737963",
+              "last_heartbeat": "2025-11-15T09:57:12.737963",
+              "restart_count": 1
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:14.739957",
+              "last_heartbeat": "2025-11-15T09:57:14.739957",
+              "restart_count": 1
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:16.739811",
+              "last_heartbeat": "2025-11-15T09:57:16.739811",
+              "restart_count": 1
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 1
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 20,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 3.7,
+            "memory_percent": 38.4
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Started CPU stress: 2 cores for 30s"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S03_cpu_spike_1763200589",
+      "failure_reason": "Recovery timeout - safeguards did not trigger",
+      "escalated": true
+    },
+    {
+      "incident_id": "S01_heartbeat_pause_1763200698",
+      "scenario_id": "S01_heartbeat_pause",
+      "wave_id": "wave_3_1763200698",
+      "injected_at": "2025-11-15 09:58:18.313709",
+      "detected_at": null,
+      "healed_at": "2025-11-15 09:58:18.422394",
+      "watchdog_triggered": true,
+      "playbook_executed": true,
+      "coding_task_created": true,
+      "recovery_successful": true,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:34.742691",
+              "last_heartbeat": "2025-11-15T09:57:34.742691",
+              "restart_count": 2
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:36.761586",
+              "last_heartbeat": "2025-11-15T09:57:36.761586",
+              "restart_count": 2
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:38.764598",
+              "last_heartbeat": "2025-11-15T09:57:38.764598",
+              "restart_count": 2
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:40.782685",
+              "last_heartbeat": "2025-11-15T09:57:40.782685",
+              "restart_count": 2
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:43.319261",
+              "last_heartbeat": "2025-11-15T09:57:43.319261",
+              "restart_count": 2
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:45.319957",
+              "last_heartbeat": "2025-11-15T09:57:45.319957",
+              "restart_count": 2
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:47.335007",
+              "last_heartbeat": "2025-11-15T09:57:47.335007",
+              "restart_count": 2
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:49.342078",
+              "last_heartbeat": "2025-11-15T09:57:49.342078",
+              "restart_count": 2
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:51.327071",
+              "last_heartbeat": "2025-11-15T09:57:51.327071",
+              "restart_count": 2
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:53.343029",
+              "last_heartbeat": "2025-11-15T09:57:53.343029",
+              "restart_count": 2
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:05.357843",
+              "last_heartbeat": "2025-11-15T09:58:05.357843",
+              "restart_count": 2
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:07.343531",
+              "last_heartbeat": "2025-11-15T09:58:07.343531",
+              "restart_count": 2
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:09.360825",
+              "last_heartbeat": "2025-11-15T09:58:09.360825",
+              "restart_count": 2
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:11.381369",
+              "last_heartbeat": "2025-11-15T09:58:11.381369",
+              "restart_count": 2
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:13.400075",
+              "last_heartbeat": "2025-11-15T09:58:13.400075",
+              "restart_count": 2
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:15.403495",
+              "last_heartbeat": "2025-11-15T09:58:15.403495",
+              "restart_count": 2
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:18.313709",
+              "last_heartbeat": "2025-11-15T09:58:18.313709",
+              "restart_count": 2
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "stopped",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 2
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 19,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 9.7,
+            "memory_percent": 38.5
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:34.742691",
+              "last_heartbeat": "2025-11-15T09:57:34.742691",
+              "restart_count": 2
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:36.761586",
+              "last_heartbeat": "2025-11-15T09:57:36.761586",
+              "restart_count": 2
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:38.764598",
+              "last_heartbeat": "2025-11-15T09:57:38.764598",
+              "restart_count": 2
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:40.782685",
+              "last_heartbeat": "2025-11-15T09:57:40.782685",
+              "restart_count": 2
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:43.319261",
+              "last_heartbeat": "2025-11-15T09:57:43.319261",
+              "restart_count": 2
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:45.319957",
+              "last_heartbeat": "2025-11-15T09:57:45.319957",
+              "restart_count": 2
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:47.335007",
+              "last_heartbeat": "2025-11-15T09:57:47.335007",
+              "restart_count": 2
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:49.342078",
+              "last_heartbeat": "2025-11-15T09:57:49.342078",
+              "restart_count": 2
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:51.327071",
+              "last_heartbeat": "2025-11-15T09:57:51.327071",
+              "restart_count": 2
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:53.343029",
+              "last_heartbeat": "2025-11-15T09:57:53.343029",
+              "restart_count": 2
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:05.357843",
+              "last_heartbeat": "2025-11-15T09:58:05.357843",
+              "restart_count": 2
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:07.343531",
+              "last_heartbeat": "2025-11-15T09:58:07.343531",
+              "restart_count": 2
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:09.360825",
+              "last_heartbeat": "2025-11-15T09:58:09.360825",
+              "restart_count": 2
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:11.381369",
+              "last_heartbeat": "2025-11-15T09:58:11.381369",
+              "restart_count": 2
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:13.400075",
+              "last_heartbeat": "2025-11-15T09:58:13.400075",
+              "restart_count": 2
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:15.403495",
+              "last_heartbeat": "2025-11-15T09:58:15.403495",
+              "restart_count": 2
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:18.313709",
+              "last_heartbeat": "2025-11-15T09:58:18.313709",
+              "restart_count": 2
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "stopped",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 2
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 19,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 9.5,
+            "memory_percent": 38.5
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Blocked heartbeat for librarian (5s)"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S01_heartbeat_pause_1763200698",
+      "failure_reason": null,
+      "escalated": false
+    },
+    {
+      "incident_id": "S02_acl_spam_1763200698",
+      "scenario_id": "S02_acl_spam",
+      "wave_id": "wave_3_1763200698",
+      "injected_at": "2025-11-15 09:58:18.533449",
+      "detected_at": null,
+      "healed_at": null,
+      "watchdog_triggered": false,
+      "playbook_executed": false,
+      "coding_task_created": false,
+      "recovery_successful": false,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:34.742691",
+              "last_heartbeat": "2025-11-15T09:57:34.742691",
+              "restart_count": 2
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:36.761586",
+              "last_heartbeat": "2025-11-15T09:57:36.761586",
+              "restart_count": 2
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:38.764598",
+              "last_heartbeat": "2025-11-15T09:57:38.764598",
+              "restart_count": 2
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:40.782685",
+              "last_heartbeat": "2025-11-15T09:57:40.782685",
+              "restart_count": 2
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:43.319261",
+              "last_heartbeat": "2025-11-15T09:57:43.319261",
+              "restart_count": 2
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:45.319957",
+              "last_heartbeat": "2025-11-15T09:57:45.319957",
+              "restart_count": 2
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:47.335007",
+              "last_heartbeat": "2025-11-15T09:57:47.335007",
+              "restart_count": 2
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:49.342078",
+              "last_heartbeat": "2025-11-15T09:57:49.342078",
+              "restart_count": 2
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:51.327071",
+              "last_heartbeat": "2025-11-15T09:57:51.327071",
+              "restart_count": 2
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:53.343029",
+              "last_heartbeat": "2025-11-15T09:57:53.343029",
+              "restart_count": 2
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:05.357843",
+              "last_heartbeat": "2025-11-15T09:58:05.357843",
+              "restart_count": 2
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:07.343531",
+              "last_heartbeat": "2025-11-15T09:58:07.343531",
+              "restart_count": 2
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:09.360825",
+              "last_heartbeat": "2025-11-15T09:58:09.360825",
+              "restart_count": 2
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:11.381369",
+              "last_heartbeat": "2025-11-15T09:58:11.381369",
+              "restart_count": 2
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:13.400075",
+              "last_heartbeat": "2025-11-15T09:58:13.400075",
+              "restart_count": 2
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:15.403495",
+              "last_heartbeat": "2025-11-15T09:58:15.403495",
+              "restart_count": 2
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:18.313709",
+              "last_heartbeat": "2025-11-15T09:58:18.313709",
+              "restart_count": 2
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "stopped",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 2
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 19,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 8.1,
+            "memory_percent": 38.5
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:36.744114",
+              "last_heartbeat": "2025-11-15T09:58:36.744114",
+              "restart_count": 3
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:38.804009",
+              "last_heartbeat": "2025-11-15T09:58:38.804009",
+              "restart_count": 3
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:40.844882",
+              "last_heartbeat": "2025-11-15T09:58:40.844882",
+              "restart_count": 3
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:42.880709",
+              "last_heartbeat": "2025-11-15T09:58:42.880709",
+              "restart_count": 3
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:45.510752",
+              "last_heartbeat": "2025-11-15T09:58:45.510752",
+              "restart_count": 3
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:47.574319",
+              "last_heartbeat": "2025-11-15T09:58:47.574319",
+              "restart_count": 3
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:49.569458",
+              "last_heartbeat": "2025-11-15T09:58:49.569458",
+              "restart_count": 3
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:51.572520",
+              "last_heartbeat": "2025-11-15T09:58:51.572520",
+              "restart_count": 3
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:53.573557",
+              "last_heartbeat": "2025-11-15T09:58:53.573557",
+              "restart_count": 3
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:55.575697",
+              "last_heartbeat": "2025-11-15T09:58:55.575697",
+              "restart_count": 3
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:07.572253",
+              "last_heartbeat": "2025-11-15T09:59:07.572253",
+              "restart_count": 3
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:09.556726",
+              "last_heartbeat": "2025-11-15T09:59:09.556726",
+              "restart_count": 3
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:11.571333",
+              "last_heartbeat": "2025-11-15T09:59:11.571333",
+              "restart_count": 3
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:13.578293",
+              "last_heartbeat": "2025-11-15T09:59:13.578293",
+              "restart_count": 3
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:15.597577",
+              "last_heartbeat": "2025-11-15T09:59:15.597577",
+              "restart_count": 3
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:17.599219",
+              "last_heartbeat": "2025-11-15T09:59:17.599219",
+              "restart_count": 3
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "stopped",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:18.313709",
+              "last_heartbeat": "2025-11-15T09:58:18.313709",
+              "restart_count": 3
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:20.361200",
+              "last_heartbeat": "2025-11-15T09:58:20.361200",
+              "restart_count": 2
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:22.418846",
+              "last_heartbeat": "2025-11-15T09:58:22.418846",
+              "restart_count": 2
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:24.615869",
+              "last_heartbeat": "2025-11-15T09:58:24.615869",
+              "restart_count": 2
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 19,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 3.6,
+            "memory_percent": 38.4
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Spammed system.control with 100 messages"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S02_acl_spam_1763200698",
+      "failure_reason": "Recovery timeout - safeguards did not trigger",
+      "escalated": true
+    },
+    {
+      "incident_id": "S03_cpu_spike_1763200698",
+      "scenario_id": "S03_cpu_spike",
+      "wave_id": "wave_3_1763200698",
+      "injected_at": "2025-11-15 09:58:18.533449",
+      "detected_at": null,
+      "healed_at": null,
+      "watchdog_triggered": false,
+      "playbook_executed": false,
+      "coding_task_created": false,
+      "recovery_successful": false,
+      "control_plane_metrics": {
+        "before": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:34.742691",
+              "last_heartbeat": "2025-11-15T09:57:34.742691",
+              "restart_count": 2
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:57:36.761586",
+              "last_heartbeat": "2025-11-15T09:57:36.761586",
+              "restart_count": 2
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:38.764598",
+              "last_heartbeat": "2025-11-15T09:57:38.764598",
+              "restart_count": 2
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:40.782685",
+              "last_heartbeat": "2025-11-15T09:57:40.782685",
+              "restart_count": 2
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:43.319261",
+              "last_heartbeat": "2025-11-15T09:57:43.319261",
+              "restart_count": 2
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:45.319957",
+              "last_heartbeat": "2025-11-15T09:57:45.319957",
+              "restart_count": 2
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:47.335007",
+              "last_heartbeat": "2025-11-15T09:57:47.335007",
+              "restart_count": 2
+            },
+            "governance": {
+              "name": "governance",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:49.342078",
+              "last_heartbeat": "2025-11-15T09:57:49.342078",
+              "restart_count": 2
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:51.327071",
+              "last_heartbeat": "2025-11-15T09:57:51.327071",
+              "restart_count": 2
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:53.343029",
+              "last_heartbeat": "2025-11-15T09:57:53.343029",
+              "restart_count": 2
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:05.357843",
+              "last_heartbeat": "2025-11-15T09:58:05.357843",
+              "restart_count": 2
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:07.343531",
+              "last_heartbeat": "2025-11-15T09:58:07.343531",
+              "restart_count": 2
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:09.360825",
+              "last_heartbeat": "2025-11-15T09:58:09.360825",
+              "restart_count": 2
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:11.381369",
+              "last_heartbeat": "2025-11-15T09:58:11.381369",
+              "restart_count": 2
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:13.400075",
+              "last_heartbeat": "2025-11-15T09:58:13.400075",
+              "restart_count": 2
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:15.403495",
+              "last_heartbeat": "2025-11-15T09:58:15.403495",
+              "restart_count": 2
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:18.313709",
+              "last_heartbeat": "2025-11-15T09:58:18.313709",
+              "restart_count": 2
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "stopped",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:18.743228",
+              "last_heartbeat": "2025-11-15T09:57:18.743228",
+              "restart_count": 2
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:20.746634",
+              "last_heartbeat": "2025-11-15T09:57:20.746634",
+              "restart_count": 1
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:57:22.747133",
+              "last_heartbeat": "2025-11-15T09:57:22.747133",
+              "restart_count": 1
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 19,
+          "failed_kernels": 0,
+          "resources": {
+            "cpu_percent": 5.3,
+            "memory_percent": 38.5
+          }
+        },
+        "after": {
+          "system_state": "running",
+          "running": true,
+          "kernels": {
+            "message_bus": {
+              "name": "message_bus",
+              "state": "failed",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:36.744114",
+              "last_heartbeat": "2025-11-15T09:58:36.744114",
+              "restart_count": 3
+            },
+            "immutable_log": {
+              "name": "immutable_log",
+              "state": "failed",
+              "critical": true,
+              "started_at": "2025-11-15T09:58:38.804009",
+              "last_heartbeat": "2025-11-15T09:58:38.804009",
+              "restart_count": 3
+            },
+            "self_healing": {
+              "name": "self_healing",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:40.844882",
+              "last_heartbeat": "2025-11-15T09:58:40.844882",
+              "restart_count": 3
+            },
+            "coding_agent": {
+              "name": "coding_agent",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:42.880709",
+              "last_heartbeat": "2025-11-15T09:58:42.880709",
+              "restart_count": 3
+            },
+            "clarity_framework": {
+              "name": "clarity_framework",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:45.510752",
+              "last_heartbeat": "2025-11-15T09:58:45.510752",
+              "restart_count": 3
+            },
+            "verification_framework": {
+              "name": "verification_framework",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:47.574319",
+              "last_heartbeat": "2025-11-15T09:58:47.574319",
+              "restart_count": 3
+            },
+            "secret_manager": {
+              "name": "secret_manager",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:49.569458",
+              "last_heartbeat": "2025-11-15T09:58:49.569458",
+              "restart_count": 3
+            },
+            "governance": {
+              "name": "governance",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:51.572520",
+              "last_heartbeat": "2025-11-15T09:58:51.572520",
+              "restart_count": 3
+            },
+            "infrastructure_manager": {
+              "name": "infrastructure_manager",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:53.573557",
+              "last_heartbeat": "2025-11-15T09:58:53.573557",
+              "restart_count": 3
+            },
+            "memory_fusion": {
+              "name": "memory_fusion",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:58:55.575697",
+              "last_heartbeat": "2025-11-15T09:58:55.575697",
+              "restart_count": 3
+            },
+            "librarian": {
+              "name": "librarian",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:07.572253",
+              "last_heartbeat": "2025-11-15T09:59:07.572253",
+              "restart_count": 3
+            },
+            "sandbox": {
+              "name": "sandbox",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:09.556726",
+              "last_heartbeat": "2025-11-15T09:59:09.556726",
+              "restart_count": 3
+            },
+            "agentic_spine": {
+              "name": "agentic_spine",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:11.571333",
+              "last_heartbeat": "2025-11-15T09:59:11.571333",
+              "restart_count": 3
+            },
+            "voice_conversation": {
+              "name": "voice_conversation",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:13.578293",
+              "last_heartbeat": "2025-11-15T09:59:13.578293",
+              "restart_count": 3
+            },
+            "meta_loop": {
+              "name": "meta_loop",
+              "state": "failed",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:15.597577",
+              "last_heartbeat": "2025-11-15T09:59:15.597577",
+              "restart_count": 3
+            },
+            "learning_integration": {
+              "name": "learning_integration",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:17.599219",
+              "last_heartbeat": "2025-11-15T09:59:17.599219",
+              "restart_count": 3
+            },
+            "health_monitor": {
+              "name": "health_monitor",
+              "state": "running",
+              "critical": true,
+              "started_at": "2025-11-15T09:59:19.615371",
+              "last_heartbeat": "2025-11-15T09:59:19.615371",
+              "restart_count": 3
+            },
+            "trigger_mesh": {
+              "name": "trigger_mesh",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:21.635158",
+              "last_heartbeat": "2025-11-15T09:59:21.635158",
+              "restart_count": 3
+            },
+            "scheduler": {
+              "name": "scheduler",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:23.637792",
+              "last_heartbeat": "2025-11-15T09:59:23.637792",
+              "restart_count": 3
+            },
+            "api_server": {
+              "name": "api_server",
+              "state": "running",
+              "critical": false,
+              "started_at": "2025-11-15T09:59:25.639752",
+              "last_heartbeat": "2025-11-15T09:59:25.639752",
+              "restart_count": 3
+            }
+          },
+          "total_kernels": 20,
+          "running_kernels": 5,
+          "failed_kernels": 15,
+          "resources": {
+            "cpu_percent": 5.4,
+            "memory_percent": 38.5
+          }
+        }
+      },
+      "playbook_outcomes": [],
+      "coding_tasks_spawned": [],
+      "logs_captured": [
+        "Started CPU stress: 2 cores for 30s"
+      ],
+      "diagnostic_dump_path": "c:\\Users\\aaron\\grace_2\\logs\\chaos\\S03_cpu_spike_1763200698",
+      "failure_reason": "Recovery timeout - safeguards did not trigger",
+      "escalated": true
+    }
+  ],
+  "summary": {
+    "steady_state_recovered": true,
+    "escalated_incidents": 4,
+    "diagnostic_dumps": 6
+  }
+}
