@@ -27,150 +27,193 @@ def get_guardian_allocated_port(boot_result: Dict[str, Any]) -> Optional[int]:
 
 async def boot_grace_minimal():
     """
-    Grace boot sequence - Guardian boots FIRST, then everything else
+    Grace boot sequence - CHUNKED BOOT with Guardian validation
     
-    Boot Order:
-    0. Guardian (network, ports, diagnostics) - FIRST
-    1-2. Core systems (message bus, immutable log)
-    3-4. Self-healing + Coding agent
-    5+. Everything else
+    Guardian validates each chunk completely before moving to next.
     
-    Guardian fixes problems BEFORE they reach deeper systems
+    Guardian Priorities:
+    1. Boot integrity & networking (Guardian's domain)
+    2. Delegate healing to self-healing system
+    3. Delegate coding to coding agent
+    
+    Guardian works in SYNERGY with specialists.
     """
     
     print()
     print("=" * 80)
-    print("GRACE - BOOT SEQUENCE")
+    print("GRACE - CHUNKED BOOT SEQUENCE (Guardian Orchestrated)")
     print("=" * 80)
     print()
     
     try:
-        # PRIORITY 0: Boot Guardian FIRST
-        print("[PRIORITY 0] Booting Guardian Kernel...")
+        # Import orchestrator
+        from backend.core.guardian_boot_orchestrator import boot_orchestrator, BootChunk
         from backend.core.guardian import guardian
         
-        guardian_boot = await guardian.boot()
+        # CHUNK 0: Guardian Self-Boot (MUST succeed)
+        async def chunk_0_guardian():
+            print("[CHUNK 0] Guardian Kernel Boot...")
+            boot_result = await guardian.boot()
+            print(f"  ✓ Guardian: Online")
+            print(f"  ✓ Port: {boot_result['phases']['phase3_ports']['port']}")
+            print(f"  ✓ Network: {boot_result['phases']['phase2_diagnostics']['status']}")
+            print(f"  ✓ Watchdog: Active")
+            return boot_result
         
-        if 'error' in guardian_boot:
-            print(f"  ✗ Guardian boot FAILED: {guardian_boot['error']}")
-            print("\nCannot proceed - Guardian must boot successfully")
-            return False
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="guardian_boot",
+            name="Guardian Kernel (Network, Ports, Diagnostics)",
+            priority=0,
+            boot_function=chunk_0_guardian,
+            can_fail=False,  # CRITICAL
+            guardian_validates=True,
+            delegate_to=None  # Guardian handles its own domain
+        ))
         
-        print("  ✓ Guardian: Online")
-        print(f"  ✓ Port allocated: {guardian_boot['phases']['phase3_ports']['port']}")
-        print(f"  ✓ Network health: {guardian_boot['phases']['phase2_diagnostics']['status']}")
-        print(f"  ✓ Watchdog: Active")
-        print(f"  ✓ Pre-flight: Passed")
-        print()
-        
-        # Store allocated port for later use
-        allocated_port = guardian_boot['phases']['phase3_ports']['port']
-        
-        # PRIORITY 1-2: Boot core systems (only if Guardian allows)
-        try:
-            from backend.core import message_bus, immutable_log
+        # CHUNK 1-2: Core Systems (Guardian validates, can delegate healing)
+        async def chunk_1_core_systems():
+            print("[CHUNK 1-2] Core Systems...")
+            results = {}
             
-            print("[PRIORITY 1-2] Booting core systems...")
+            try:
+                from backend.core import message_bus, immutable_log
+                
+                if guardian.check_can_boot_kernel('message_bus', 1):
+                    await message_bus.start()
+                    guardian.signal_kernel_boot('message_bus', 1)
+                    print("  ✓ Message Bus: Active")
+                    results['message_bus'] = 'active'
+                
+                if guardian.check_can_boot_kernel('immutable_log', 2):
+                    await immutable_log.start()
+                    guardian.signal_kernel_boot('immutable_log', 2)
+                    print("  ✓ Immutable Log: Active")
+                    results['immutable_log'] = 'active'
             
-            if guardian.check_can_boot_kernel('message_bus', 1):
-                await message_bus.start()
-                guardian.signal_kernel_boot('message_bus', 1)
-                print("  ✓ Message Bus: Active")
+            except ImportError as e:
+                print(f"  ⚠ Core systems not available: {e}")
+                results['warnings'] = ['core_systems_unavailable']
             
-            if guardian.check_can_boot_kernel('immutable_log', 2):
-                await immutable_log.start()
-                guardian.signal_kernel_boot('immutable_log', 2)
-                print("  ✓ Immutable Log: Active")
-            
-            print()
-        except ImportError:
-            print("[PRIORITY 1-2] Core systems not available (continuing anyway)")
-            print()
+            return results
         
-        # Guardian is now monitoring everything
-        print("[GUARDIAN] Now monitoring all systems - will catch issues early")
-        print()
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="core_systems",
+            name="Core Systems (Message Bus, Immutable Log)",
+            priority=1,
+            boot_function=chunk_1_core_systems,
+            can_fail=True,  # Non-critical for basic operation
+            guardian_validates=True,
+            delegate_to="self_healing"  # Delegate issues to self-healing
+        ))
         
-        # Load and verify all 12+ open source models
-        print("[2/5] Loading open source LLMs...")
-        try:
+        # CHUNK 2: LLM Models (Guardian validates, delegates to coding agent for issues)
+        async def chunk_2_llm_models():
+            print("[CHUNK 2] LLM Models...")
             import requests
             
-            # Check if Ollama is running
+            results = {'ollama_running': False, 'models_found': 0}
+            
             try:
                 response = requests.get("http://localhost:11434/api/tags", timeout=2)
                 if response.status_code == 200:
                     models_data = response.json()
-                    available_models = [m['name'] for m in models_data.get('models', [])]
-                    
-                    # Define all 15 models Grace should have
-                    recommended_models = {
-                        'qwen2.5:32b': 'Conversation & reasoning',
-                        'qwen2.5:72b': 'Ultimate quality',
-                        'deepseek-coder-v2:16b': 'Best coding',
-                        'deepseek-r1:70b': 'Complex reasoning (o1-level)',
-                        'kimi:latest': '128K context',
-                        'llava:34b': 'Vision + text',
-                        'command-r-plus:latest': 'RAG specialist',
-                        'phi3.5:latest': 'Ultra fast',
-                        'codegemma:7b': 'Code completion',
-                        'granite-code:20b': 'Enterprise code',
-                        'dolphin-mixtral:latest': 'Uncensored',
-                        'nous-hermes2-mixtral:latest': 'Instructions',
-                        'gemma2:9b': 'Fast general',
-                        'llama3.2:latest': 'Lightweight',
-                        'mistral-nemo:latest': 'Efficient'
-                    }
-                    
-                    installed = [m for m in recommended_models.keys() if any(m.split(':')[0] in avail for avail in available_models)]
-                    missing = [m for m in recommended_models.keys() if not any(m.split(':')[0] in avail for avail in available_models)]
+                    available = [m['name'] for m in models_data.get('models', [])]
                     
                     print(f"  ✓ Ollama: Running")
-                    print(f"  ✓ Models available: {len(available_models)}")
-                    print(f"  ✓ Grace models installed: {len(installed)}/15")
+                    print(f"  ✓ Models: {len(available)}")
                     
-                    if installed:
-                        print(f"\n  Installed models:")
-                        for model in installed[:5]:  # Show first 5
-                            print(f"    • {model} - {recommended_models[model]}")
-                        if len(installed) > 5:
-                            print(f"    ... and {len(installed) - 5} more")
-                    
-                    if missing:
-                        print(f"\n  ⚠️  Missing models: {len(missing)}")
-                        print(f"    Run: scripts/startup/install_all_models.cmd")
-                        print(f"    Or: ollama pull <model_name>")
+                    results['ollama_running'] = True
+                    results['models_found'] = len(available)
                 else:
-                    print("  ⚠️  Ollama API returned unexpected status")
-            except requests.exceptions.RequestException:
-                print("  ⚠️  Ollama not running (LLM features disabled)")
-                print("    Start Ollama: ollama serve")
-        except Exception as e:
-            print(f"  ⚠️  Could not check models: {e}")
+                    results['warnings'] = ['ollama_unexpected_status']
+            
+            except requests.exceptions.RequestException as e:
+                print(f"  ⚠ Ollama not running")
+                results['warnings'] = ['ollama_not_running']
+            
+            return results
         
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="llm_models",
+            name="LLM Models (Ollama)",
+            priority=2,
+            boot_function=chunk_2_llm_models,
+            can_fail=True,  # Grace can run without LLMs
+            guardian_validates=True,
+            delegate_to="coding_agent"  # Coding agent handles model issues
+        ))
+        
+        # CHUNK 3: Main Application (Guardian validates, delegates to self-healing)
+        async def chunk_3_main_app():
+            print("[CHUNK 3] Grace Backend...")
+            from backend.main import app
+            
+            print(f"  ✓ Backend loaded")
+            print(f"  ✓ Remote Access: Ready")
+            print(f"  ✓ {len(app.routes)} API endpoints")
+            
+            return {'app': 'loaded', 'endpoints': len(app.routes)}
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="main_app",
+            name="Grace Backend Application",
+            priority=3,
+            boot_function=chunk_3_main_app,
+            can_fail=False,  # CRITICAL
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
+        # CHUNK 4: Databases (Guardian validates, delegates to self-healing)
+        async def chunk_4_databases():
+            print("[CHUNK 4] Databases...")
+            from pathlib import Path
+            
+            db_dir = Path("databases")
+            db_count = 0
+            
+            if db_dir.exists():
+                db_files = list(db_dir.glob("*.db"))
+                db_count = len(db_files)
+                print(f"  ✓ {db_count} databases ready")
+            else:
+                print(f"  ⚠ Database directory not found")
+            
+            return {'db_count': db_count}
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="databases",
+            name="Database Systems",
+            priority=4,
+            boot_function=chunk_4_databases,
+            can_fail=True,  # Can run without some DBs
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
+        # Execute chunked boot with Guardian validation
+        print()
+        print("[ORCHESTRATOR] Starting chunked boot sequence...")
+        print("[ORCHESTRATOR] Guardian will validate each chunk before proceeding")
         print()
         
-        # PRIORITY 3+: Load main app and other systems
-        print("[PRIORITY 3+] Loading Grace backend...")
-        from backend.main import app
-        print("  ✓ Backend loaded")
-        print("  ✓ Remote Access: Ready")
-        print("  ✓ Autonomous Learning: Ready")
-        print()
+        boot_log = await boot_orchestrator.execute_boot()
         
-        # Quick health check
-        print("[PRIORITY 10] System check...")
-        route_count = len(app.routes)
-        print(f"  ✓ {route_count} API endpoints registered")
-        print()
+        if not boot_log.get('success'):
+            print(f"\n❌ Boot failed at chunk: {boot_log.get('aborted_at_chunk')}")
+            print(f"   Reason: {boot_log.get('abort_reason')}")
+            return False
         
-        # Check databases
-        print("[PRIORITY 11] Checking databases...")
-        from pathlib import Path
-        db_dir = Path("databases")
-        if db_dir.exists():
-            db_files = list(db_dir.glob("*.db"))
-            print(f"  ✓ {len(db_files)} databases ready")
+        # Extract results
+        guardian_chunk = next((c for c in boot_orchestrator.chunks if c.chunk_id == 'guardian_boot'), None)
+        if not guardian_chunk or not guardian_chunk.result:
+            print("❌ Guardian chunk not found or failed")
+            return False
+        
+        guardian_boot = guardian_chunk.result
+        
+        print()
+        print("[ORCHESTRATOR] All chunks validated and approved by Guardian")
         print()
         
         # Return boot result with port info
