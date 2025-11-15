@@ -13,7 +13,6 @@ from ..remote_access.zero_trust_gate import zero_trust_gate
 from ..remote_access.rbac_enforcer import rbac_enforcer
 from ..remote_access.remote_session_manager import remote_session_manager
 from ..remote_access.session_recorder import session_recorder
-from ..immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 
@@ -87,15 +86,8 @@ async def register_device(request: RegisterDeviceRequest) -> Dict[str, Any]:
         public_key=request.public_key
     )
     
-    # Log to immutable log
-    await immutable_log.append(
-        actor=request.approved_by,
-        action="register_remote_device",
-        resource=result.get('device_id', 'unknown'),
-        subsystem="remote_access",
-        payload={"device_name": request.device_name, "user": request.user_identity},
-        result="registered" if 'error' not in result else "failed"
-    )
+    # Log registration
+    logger.info(f"[REMOTE-API] Device registered: {result.get('device_id', 'unknown')} by {request.approved_by}")
     
     return result
 
@@ -111,15 +103,8 @@ async def allowlist_device(request: AllowlistDeviceRequest) -> Dict[str, Any]:
         approved_by=request.approved_by
     )
     
-    # Log to immutable log
-    await immutable_log.append(
-        actor=request.approved_by,
-        action="allowlist_device",
-        resource=request.device_id,
-        subsystem="remote_access",
-        payload={"approved_by": request.approved_by},
-        result="approved" if 'error' not in result else "failed"
-    )
+    # Log allowlist
+    logger.info(f"[REMOTE-API] Device allowlisted: {request.device_id} by {request.approved_by}")
     
     return result
 
@@ -136,15 +121,8 @@ async def verify_mfa(request: VerifyMFARequest) -> Dict[str, Any]:
         mfa_method=request.mfa_method
     )
     
-    # Log verification attempt
-    await immutable_log.append(
-        actor=request.device_id,
-        action="mfa_verification",
-        resource="remote_access",
-        subsystem="zero_trust",
-        payload={"method": request.mfa_method},
-        result="verified" if result.get('verified') else "failed"
-    )
+    # Log verification
+    logger.info(f"[REMOTE-API] MFA verification: {request.device_id} - {'verified' if result.get('verified') else 'failed'}")
     
     return result
 
@@ -169,15 +147,7 @@ async def create_session(request: CreateSessionRequest) -> Dict[str, Any]:
     
     if not result.get('allowed'):
         # Log rejection
-        await immutable_log.append(
-            actor=request.device_id,
-            action="session_create_denied",
-            resource="remote_access",
-            subsystem="zero_trust",
-            payload={"reason": result.get('error')},
-            result="denied"
-        )
-        
+        logger.warning(f"[REMOTE-API] Session denied: {request.device_id} - {result.get('error')}")
         raise HTTPException(status_code=403, detail=result)
     
     # Initialize session in session manager
@@ -186,17 +156,7 @@ async def create_session(request: CreateSessionRequest) -> Dict[str, Any]:
     )
     
     # Log session creation
-    await immutable_log.append(
-        actor=result['user_identity'],
-        action="remote_session_created",
-        resource=result['session_id'],
-        subsystem="remote_access",
-        payload={
-            "device_id": request.device_id,
-            "recording_id": session_result.get('recording_id')
-        },
-        result="created"
-    )
+    logger.info(f"[REMOTE-API] Session created: {result['session_id']} for {result['user_identity']}")
     
     return {
         **result,
@@ -213,14 +173,7 @@ async def revoke_session(token: str) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=result)
     
     # Log revocation
-    await immutable_log.append(
-        actor="admin",
-        action="session_revoked",
-        resource=result['session_id'],
-        subsystem="remote_access",
-        payload={"reason": "manual_revocation"},
-        result="revoked"
-    )
+    logger.info(f"[REMOTE-API] Session revoked: {result['session_id']}")
     
     return result
 
@@ -250,14 +203,7 @@ async def assign_role(request: AssignRoleRequest) -> Dict[str, Any]:
     )
     
     # Log role assignment
-    await immutable_log.append(
-        actor=request.approved_by,
-        action="assign_remote_role",
-        resource=request.device_id,
-        subsystem="rbac",
-        payload={"role": request.role_name},
-        result="assigned" if 'error' not in result else "failed"
-    )
+    logger.info(f"[REMOTE-API] Role assigned: {request.role_name} to {request.device_id} by {request.approved_by}")
     
     if 'error' in result:
         raise HTTPException(status_code=400, detail=result)
