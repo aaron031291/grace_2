@@ -61,10 +61,19 @@ async def run_full_stress_test():
     await refactor_task_system.start()
     await snapshot_hygiene_manager.start()
     
+    # NEW: Start ACL and resource pressure monitors
+    from backend.monitoring.acl_violation_monitor import acl_violation_monitor
+    from backend.monitoring.resource_pressure_monitor import resource_pressure_monitor
+    
+    await acl_violation_monitor.start()
+    await resource_pressure_monitor.start()
+    
     print(f"[OK] Error recognition: {len(error_recognition_system.knowledge_base)} known signatures")
     print(f"[OK] Runtime triggers: Monitoring")
     print(f"[OK] Refactor system: {len(refactor_task_system.patterns)} patterns")
     print(f"[OK] Snapshot hygiene: Hourly refresh")
+    print(f"[OK] ACL violation monitor: Active (S02 safeguard)")
+    print(f"[OK] Resource pressure monitor: Active (S03 safeguard)")
     print()
     
     # Trigger current boot errors

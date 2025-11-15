@@ -1,0 +1,348 @@
+{
+  "before": {
+    "system_state": "running",
+    "running": true,
+    "kernels": {
+      "message_bus": {
+        "name": "message_bus",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:09:08.713874",
+        "last_heartbeat": "2025-11-15T10:09:08.713874",
+        "restart_count": 0
+      },
+      "immutable_log": {
+        "name": "immutable_log",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:09:08.713874",
+        "last_heartbeat": "2025-11-15T10:09:08.713874",
+        "restart_count": 0
+      },
+      "self_healing": {
+        "name": "self_healing",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.713874",
+        "last_heartbeat": "2025-11-15T10:09:08.713874",
+        "restart_count": 0
+      },
+      "coding_agent": {
+        "name": "coding_agent",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.820922",
+        "last_heartbeat": "2025-11-15T10:09:08.820922",
+        "restart_count": 0
+      },
+      "clarity_framework": {
+        "name": "clarity_framework",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.820922",
+        "last_heartbeat": "2025-11-15T10:09:08.820922",
+        "restart_count": 0
+      },
+      "verification_framework": {
+        "name": "verification_framework",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.820922",
+        "last_heartbeat": "2025-11-15T10:09:08.820922",
+        "restart_count": 0
+      },
+      "secret_manager": {
+        "name": "secret_manager",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.820922",
+        "last_heartbeat": "2025-11-15T10:09:08.820922",
+        "restart_count": 0
+      },
+      "governance": {
+        "name": "governance",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.921108",
+        "last_heartbeat": "2025-11-15T10:09:08.921108",
+        "restart_count": 0
+      },
+      "infrastructure_manager": {
+        "name": "infrastructure_manager",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.921108",
+        "last_heartbeat": "2025-11-15T10:09:08.921108",
+        "restart_count": 0
+      },
+      "memory_fusion": {
+        "name": "memory_fusion",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.922110",
+        "last_heartbeat": "2025-11-15T10:09:08.922110",
+        "restart_count": 0
+      },
+      "librarian": {
+        "name": "librarian",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.922110",
+        "last_heartbeat": "2025-11-15T10:09:08.922110",
+        "restart_count": 0
+      },
+      "sandbox": {
+        "name": "sandbox",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.922110",
+        "last_heartbeat": "2025-11-15T10:09:08.922110",
+        "restart_count": 0
+      },
+      "agentic_spine": {
+        "name": "agentic_spine",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:08.922110",
+        "last_heartbeat": "2025-11-15T10:09:08.922110",
+        "restart_count": 0
+      },
+      "voice_conversation": {
+        "name": "voice_conversation",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.571353",
+        "last_heartbeat": "2025-11-15T10:09:09.571353",
+        "restart_count": 0
+      },
+      "meta_loop": {
+        "name": "meta_loop",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      },
+      "learning_integration": {
+        "name": "learning_integration",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      },
+      "health_monitor": {
+        "name": "health_monitor",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      },
+      "trigger_mesh": {
+        "name": "trigger_mesh",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      },
+      "scheduler": {
+        "name": "scheduler",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      },
+      "api_server": {
+        "name": "api_server",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:09:09.572436",
+        "last_heartbeat": "2025-11-15T10:09:09.572436",
+        "restart_count": 0
+      }
+    },
+    "total_kernels": 20,
+    "running_kernels": 20,
+    "failed_kernels": 0,
+    "resources": {
+      "cpu_percent": 5.4,
+      "memory_percent": 38.8
+    }
+  },
+  "after": {
+    "system_state": "running",
+    "running": true,
+    "kernels": {
+      "message_bus": {
+        "name": "message_bus",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:10:36.522441",
+        "last_heartbeat": "2025-11-15T10:10:36.522441",
+        "restart_count": 2
+      },
+      "immutable_log": {
+        "name": "immutable_log",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:10:38.529200",
+        "last_heartbeat": "2025-11-15T10:10:38.529200",
+        "restart_count": 2
+      },
+      "self_healing": {
+        "name": "self_healing",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:40.531228",
+        "last_heartbeat": "2025-11-15T10:10:40.531228",
+        "restart_count": 2
+      },
+      "coding_agent": {
+        "name": "coding_agent",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:42.550004",
+        "last_heartbeat": "2025-11-15T10:10:42.550004",
+        "restart_count": 2
+      },
+      "clarity_framework": {
+        "name": "clarity_framework",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:45.392575",
+        "last_heartbeat": "2025-11-15T10:10:45.392575",
+        "restart_count": 2
+      },
+      "verification_framework": {
+        "name": "verification_framework",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:47.404930",
+        "last_heartbeat": "2025-11-15T10:10:47.404930",
+        "restart_count": 2
+      },
+      "secret_manager": {
+        "name": "secret_manager",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:49.420483",
+        "last_heartbeat": "2025-11-15T10:10:49.420483",
+        "restart_count": 2
+      },
+      "governance": {
+        "name": "governance",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:51.424318",
+        "last_heartbeat": "2025-11-15T10:10:51.424318",
+        "restart_count": 2
+      },
+      "infrastructure_manager": {
+        "name": "infrastructure_manager",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:53.441713",
+        "last_heartbeat": "2025-11-15T10:10:53.441713",
+        "restart_count": 2
+      },
+      "memory_fusion": {
+        "name": "memory_fusion",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:55.442367",
+        "last_heartbeat": "2025-11-15T10:10:55.442367",
+        "restart_count": 2
+      },
+      "librarian": {
+        "name": "librarian",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:04.411353",
+        "last_heartbeat": "2025-11-15T10:10:04.411353",
+        "restart_count": 1
+      },
+      "sandbox": {
+        "name": "sandbox",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:06.427347",
+        "last_heartbeat": "2025-11-15T10:10:06.427347",
+        "restart_count": 1
+      },
+      "agentic_spine": {
+        "name": "agentic_spine",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:08.432693",
+        "last_heartbeat": "2025-11-15T10:10:08.432693",
+        "restart_count": 1
+      },
+      "voice_conversation": {
+        "name": "voice_conversation",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:10.434754",
+        "last_heartbeat": "2025-11-15T10:10:10.434754",
+        "restart_count": 1
+      },
+      "meta_loop": {
+        "name": "meta_loop",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:12.437159",
+        "last_heartbeat": "2025-11-15T10:10:12.437159",
+        "restart_count": 1
+      },
+      "learning_integration": {
+        "name": "learning_integration",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:14.438864",
+        "last_heartbeat": "2025-11-15T10:10:14.438864",
+        "restart_count": 1
+      },
+      "health_monitor": {
+        "name": "health_monitor",
+        "state": "running",
+        "critical": true,
+        "started_at": "2025-11-15T10:10:16.440958",
+        "last_heartbeat": "2025-11-15T10:10:16.440958",
+        "restart_count": 1
+      },
+      "trigger_mesh": {
+        "name": "trigger_mesh",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:18.441865",
+        "last_heartbeat": "2025-11-15T10:10:18.441865",
+        "restart_count": 1
+      },
+      "scheduler": {
+        "name": "scheduler",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:20.444037",
+        "last_heartbeat": "2025-11-15T10:10:20.444037",
+        "restart_count": 1
+      },
+      "api_server": {
+        "name": "api_server",
+        "state": "running",
+        "critical": false,
+        "started_at": "2025-11-15T10:10:22.463558",
+        "last_heartbeat": "2025-11-15T10:10:22.463558",
+        "restart_count": 1
+      }
+    },
+    "total_kernels": 20,
+    "running_kernels": 20,
+    "failed_kernels": 0,
+    "resources": {
+      "cpu_percent": 4.6,
+      "memory_percent": 38.4
+    }
+  }
+}
