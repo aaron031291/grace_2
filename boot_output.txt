@@ -1,0 +1,53 @@
+
+================================================================================
+GRACE - PRODUCTION BOOT ORCHESTRATOR
+================================================================================
+
+================================================================================
+PHASE 0: Production Hardening
+================================================================================
+  [SNAPSHOT] Creating boot snapshot: boot_1763191747
+    [OK] DB snapshot: boot_1763191747_db.sqlite
+    [OK] Cache snapshot: boot_1763191747_cache
+    [OK] Config hashes: 9 files
+    [OK] Model hashes: 0 models
+
+[SECURITY] ATTESTING SECRETS & CONFIGS
+   [OK] Attested 7 secrets/configs
+
+[SBOM] GENERATING SBOM
+   [OK] Tracked 89 dependencies
+   [SCAN] Checking for CVEs... [OK] No known vulnerabilities
+
+   [SECURITY] Boot rate limiting: ENABLED
+
+PHASE 1: Pre-flight health checks
+
+================================================================================
+[SCAN] PRE-FLIGHT HEALTH GATE
+================================================================================
+  Checking python_version... [OK] PASSED
+  Checking pip_dependencies... [OK] PASSED
+  Checking env_variables... [WARN] WARNING
+  Checking database_connectivity... [OK] PASSED
+  Checking disk_space... [OK] PASSED
+  Checking port_availability... [OK] PASSED
+  Checking config_files... [OK] PASSED
+
+  Results: 6 passed, 1 warnings, 0 failed
+================================================================================
+
+PHASE 2: Booting core infrastructure
+[1/20] Message Bus: ACTIVE
+[2/20] Immutable Log: ACTIVE
+
+PHASE 3: Dependency-driven kernel boot
+
+================================================================================
+[BOOT] KERNEL BOOT - DEPENDENCY-DRIVEN
+================================================================================
+
+[WARMUP] Pre-boot warmup...
+
+[ERROR] Boot failed: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+Failed to boot Layer 1. Exiting.

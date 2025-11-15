@@ -3,7 +3,7 @@
   "enable_meta_loop": true,
   "enable_voice": true,
   "enable_chaos_testing": false,
-  "enable_parallel_validation": true,
+  "enable_parallel_validation": false,
   "enable_auto_rollback": true,
   "enable_ml_error_prediction": true,
   "enable_auto_fix": true,

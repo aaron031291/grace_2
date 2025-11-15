@@ -702,7 +702,7 @@ class DependencySBOMManager:
                     self.vulnerabilities.append(alert)
         
         if self.vulnerabilities:
-            print(f"[WARN] {len(self.vulnerabilities)} vulnerabilities found")
+            print(f"[WARN]  {len(self.vulnerabilities)} vulnerabilities found")
             for vuln in self.vulnerabilities:
                 print(f"      - {vuln.package} {vuln.current_version}: {vuln.vulnerability_id} ({vuln.severity})")
         else:
