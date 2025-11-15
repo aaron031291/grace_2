@@ -25,10 +25,10 @@ from .schemas import (
     MetricObservation, RemediationEvent, Dependency
 )
 from .hub import mission_control_hub
-from ..immutable_log import immutable_log
-from ..trigger_mesh import trigger_mesh, TriggerEvent
-from ..governance import governance_engine
-from ..hunter import hunter_engine
+from backend.logging.immutable_log import immutable_log
+from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
+from backend.governance_system.governance import governance_engine
+from backend.agents_core.hunter import hunter_engine
 
 logger = logging.getLogger(__name__)
 

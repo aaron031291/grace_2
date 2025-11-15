@@ -28,6 +28,8 @@ from ..mission_control.hub import mission_control_hub
 from ..mission_control.autonomous_coding_pipeline import autonomous_coding_pipeline
 from ..mission_control.self_healing_workflow import self_healing_workflow
 from ..autonomous_mission_creator import autonomous_mission_creator
+from ..mission_control.mission_manifest import MissionManifest
+from ..mission_control.mission_controller import mission_controller, DynamicMissionPlan
 
 router = APIRouter(prefix="/mission-control", tags=["Mission Control"])
 
@@ -46,6 +48,11 @@ class CreateMissionRequest(BaseModel):
     acceptance_criteria: Dict[str, Any]
     trust_requirements: Optional[Dict[str, Any]] = None
     tags: Optional[Dict[str, str]] = None
+
+
+class CreateMissionFromManifestRequest(BaseModel):
+    """Request to create a dynamic mission from a declarative manifest."""
+    manifest: Dict[str, Any]
 
 
 class ExecuteMissionRequest(BaseModel):
@@ -81,14 +88,69 @@ async def get_subsystem_health(current_user: str = Depends(get_current_user)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/missions/create-from-manifest")
+async def create_mission_from_manifest(
+    request: CreateMissionFromManifestRequest,
+    current_user: str = Depends(get_current_user)
+):
+    """
+    Creates and starts a new dynamic, high-end agentic mission from a manifest.
+    """
+    try:
+        # Re-construct the dataclass from the request dict
+        manifest_data = request.manifest
+        manifest = MissionManifest(**manifest_data)
+        
+        plan = await mission_controller.start_mission_from_manifest(manifest)
+        
+        return {
+            "success": True,
+            "mission_id": plan.mission_id,
+            "status": plan.status.value,
+            "message": "Dynamic mission initiated. Goal decomposition is in progress."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create mission from manifest: {e}")
+
+
+@router.get("/missions/dynamic/{mission_id}", response_model=Dict)
+async def get_dynamic_mission_plan(
+    mission_id: str,
+    current_user: str = Depends(get_current_user)
+):
+    """
+    Gets the real-time status and plan of a dynamic, agentic mission.
+    """
+    plan = mission_controller.get_mission_status(mission_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Dynamic mission not found.")
+    
+    # A simple serialization for now. A real implementation would handle the recursive structure.
+    def serialize_plan(p: DynamicMissionPlan):
+        def serialize_goal(g: MissionGoal):
+            return {
+                "goal_id": g.goal_id,
+                "description": g.description,
+                "status": g.status.value,
+                "sub_steps": [serialize_goal(s) if isinstance(s, MissionGoal) else s.to_dict() for s in g.sub_steps]
+            }
+        return {
+            "mission_id": p.mission_id,
+            "status": p.status.value,
+            "root_goal": serialize_goal(p.root_goal)
+        }
+        
+    return serialize_plan(plan)
+
+
 # ========== Mission Endpoints ==========
 
-@router.post("/missions")
-async def create_mission(
+@router.post("/missions/legacy")
+async def create_legacy_mission(
     request: CreateMissionRequest,
     current_user: str = Depends(get_current_user)
 ):
-    """Create a new mission"""
+    """Create a new mission (Legacy Endpoint)"""
     try:
         # Get current system state
         status = await mission_control_hub.get_status()

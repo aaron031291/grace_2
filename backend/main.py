@@ -6,6 +6,8 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.learning_systems.advanced_learning import advanced_learning_supervisor
+
 app = FastAPI(title="Grace API", version="2.0.0")
 
 # Track degraded features for Layer 2
@@ -379,6 +381,17 @@ async def startup_unified_llm():
         except Exception:
             # app.state may not be available in some edge cases, ignore
             pass
+
+@app.on_event("startup")
+async def startup_advanced_learning():
+    """Starts the advanced learning supervisor and its sub-agents."""
+    advanced_learning_supervisor.start()
+
+@app.on_event("shutdown")
+def shutdown_advanced_learning():
+    """Stops the advanced learning agents gracefully."""
+    advanced_learning_supervisor.stop()
+
 
 @app.post("/api/chat")
 async def chat(request: dict):

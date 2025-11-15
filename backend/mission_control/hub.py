@@ -24,8 +24,8 @@ from .schemas import (
     MissionPackage, MissionStatus, Severity, SubsystemHealth,
     MissionControlStatus, RemediationEvent, TestResult, MetricObservation
 )
-from ..immutable_log import immutable_log
-from ..trigger_mesh import trigger_mesh, TriggerEvent
+from backend.logging.immutable_log import immutable_log
+from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 from ..models import async_session
 
 logger = logging.getLogger(__name__)
