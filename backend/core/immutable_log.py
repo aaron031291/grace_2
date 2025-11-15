@@ -89,8 +89,11 @@ class ImmutableLog:
         actor: str,
         action: str,
         resource: str,
-        decision: Dict[str, Any],
-        metadata: Dict[str, Any] = None
+        decision: Dict[str, Any] = None,
+        metadata: Dict[str, Any] = None,
+        subsystem: Optional[str] = None,
+        payload: Optional[Dict] = None,
+        result: Optional[str] = None
     ) -> str:
         """
         Append entry to log (immutable)
@@ -109,13 +112,24 @@ class ImmutableLog:
         self.entry_count += 1
         entry_id = f"log_{self.entry_count}_{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}"
         
+        # Merge all data (support both old and new API)
+        decision_data = decision or payload or {}
+        if subsystem:
+            if not metadata:
+                metadata = {}
+            metadata['subsystem'] = subsystem
+        if result:
+            if not metadata:
+                metadata = {}
+            metadata['result'] = result
+        
         entry = ImmutableLogEntry(
             entry_id=entry_id,
             timestamp=datetime.utcnow(),
             actor=actor,
             action=action,
             resource=resource,
-            decision=decision,
+            decision=decision_data,
             metadata=metadata or {}
         )
         

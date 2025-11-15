@@ -1,0 +1,19 @@
+{
+  "scenario_id": "S01_heartbeat_pause",
+  "name": "Kernel Heartbeat 5s Pause",
+  "fault_type": "heartbeat_stall",
+  "injection_method": "heartbeat_block",
+  "injection_params": {
+    "kernel": "librarian",
+    "duration": 5
+  },
+  "expected_watchdog": "tier_watchdog",
+  "expected_playbook": null,
+  "expected_coding_task": false,
+  "verification_steps": [
+    "check_kernel_running librarian"
+  ],
+  "max_recovery_time": 30,
+  "severity": 1,
+  "conflicts_with": []
+}

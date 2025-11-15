@@ -1,0 +1,233 @@
+# Chaos Engineering Scenarios
+# Multi-fault concurrent stress tests for Layer 1
+
+scenarios:
+  
+  # Kernel Health Scenarios
+  - id: pause_coding_agent_kernel
+    name: "Pause Coding Agent Kernel"
+    category: kernel_health
+    severity: moderate
+    injection:
+      method: pause_kernel
+      params:
+        kernel: coding_agent
+        duration: 30
+    expected_recovery:
+      watchdog: tier_watchdog
+      playbook: kernel_heartbeat_gap
+      max_seconds: 60
+    verification:
+      - check_kernel_state: coding_agent == running
+      - check_task_queue: operational
+    conflicts_with: []
+  
+  - id: kill_librarian_process
+    name: "Kill Librarian Process"
+    category: kernel_health
+    severity: high
+    injection:
+      method: kill_process
+      params:
+        kernel: librarian
+    expected_recovery:
+      watchdog: tier_watchdog
+      playbook: kernel_heartbeat_gap
+      max_seconds: 45
+    verification:
+      - check_kernel_state: librarian == running
+    conflicts_with: []
+  
+  # Message Bus Scenarios
+  - id: task_topic_flood
+    name: "Task Topic Message Flood"
+    category: message_bus
+    severity: moderate
+    injection:
+      method: flood_topic
+      params:
+        topic: task.code_refactor
+        count: 5000
+        rate_per_second: 500
+    expected_recovery:
+      watchdog: null
+      playbook: high_queue_backlog
+      max_seconds: 90
+    verification:
+      - check_queue_depth: < 100
+      - check_message_bus: operational
+    conflicts_with: [acl_violation_spam]
+  
+  - id: acl_violation_spam
+    name: "ACL Violation Spam"
+    category: message_bus
+    severity: high
+    injection:
+      method: acl_spam
+      params:
+        topic: system.control
+        source: unauthorized_actor
+        count: 200
+    expected_recovery:
+      watchdog: null
+      playbook: message_bus_acl_violation_fix
+      max_seconds: 120
+      coding_agent_task: true
+    verification:
+      - check_acl_violations: == 0
+      - check_message_bus: operational
+    conflicts_with: [task_topic_flood]
+  
+  # Resource Scenarios
+  - id: cpu_saturation_burst
+    name: "CPU Saturation Burst"
+    category: resource
+    severity: high
+    injection:
+      method: cpu_stress
+      params:
+        cores: 4
+        duration: 45
+        utilization: 95
+    expected_recovery:
+      watchdog: null
+      playbook: cpu_saturation
+      max_seconds: 60
+    verification:
+      - check_cpu_percent: < 70
+      - check_kernel_health: all_running
+    conflicts_with: []
+  
+  - id: memory_leak_simulation
+    name: "Memory Leak Simulation"
+    category: resource
+    severity: high
+    injection:
+      method: memory_stress
+      params:
+        size_mb: 2048
+        duration: 60
+        leak_pattern: gradual
+    expected_recovery:
+      watchdog: null
+      playbook: memory_pressure
+      max_seconds: 90
+    verification:
+      - check_memory_percent: < 80
+      - check_caches: cleared
+    conflicts_with: [cpu_saturation_burst]
+  
+  # Model/Snapshot Scenarios
+  - id: corrupt_model_snapshot
+    name: "Corrupt Model Snapshot"
+    category: model_integrity
+    severity: moderate
+    injection:
+      method: corrupt_file
+      params:
+        file: .grace_snapshots/models/dummy_weights.bin
+        bytes: 1024
+        pattern: random
+    expected_recovery:
+      watchdog: null
+      playbook: model_corruption_detected
+      max_seconds: 120
+    verification:
+      - check_model_checksum: valid
+      - check_model_restored: true
+    conflicts_with: []
+  
+  - id: config_drift_injection
+    name: "Config File Drift"
+    category: config
+    severity: moderate
+    injection:
+      method: modify_config
+      params:
+        file: config/model_manifest.yaml
+        changes:
+          - key: governance.approval_required
+            value: false
+    expected_recovery:
+      watchdog: null
+      playbook: config_drift_detected
+      max_seconds: 60
+    verification:
+      - check_config_checksum: matches_baseline
+      - check_config_restored: true
+    conflicts_with: []
+  
+  # Combined Stress Scenarios
+  - id: full_stack_breaker
+    name: "Full Stack Breaker (Multi-Fault)"
+    category: combined
+    severity: critical
+    injection:
+      method: multi_fault
+      params:
+        faults:
+          - {type: cpu_stress, cores: 2, duration: 30}
+          - {type: pause_kernel, kernel: sandbox, duration: 20}
+          - {type: flood_topic, topic: telemetry.layer1.metrics, count: 1000}
+    expected_recovery:
+      watchdog: tier_watchdog
+      playbook: multiple
+      max_seconds: 180
+    verification:
+      - check_all_kernels: operational
+      - check_system_health: steady_state
+      - check_slo: latency < 500ms
+    conflicts_with: []
+  
+  # Heartbeat Scenarios
+  - id: heartbeat_stall_30s
+    name: "30-Second Heartbeat Stall"
+    category: kernel_health
+    severity: moderate
+    injection:
+      method: block_heartbeat
+      params:
+        kernel: memory_fusion
+        duration: 35
+    expected_recovery:
+      watchdog: tier_watchdog
+      playbook: kernel_heartbeat_gap
+      max_seconds: 50
+    verification:
+      - check_kernel_restarted: memory_fusion
+      - check_heartbeat: active
+    conflicts_with: []
+  
+  # Immutable Log Scenarios
+  - id: immutable_log_corruption
+    name: "Immutable Log Entry Corruption"
+    category: data_integrity
+    severity: high
+    injection:
+      method: corrupt_log
+      params:
+        log_file: logs/immutable.log
+        corrupt_entries: 5
+    expected_recovery:
+      watchdog: null
+      playbook: immutable_log_integrity_repair
+      max_seconds: 90
+    verification:
+      - check_log_integrity: valid
+      - check_log_restored: true
+    conflicts_with: []
+
+metadata:
+  total_scenarios: 11
+  severity_breakdown:
+    moderate: 5
+    high: 5
+    critical: 1
+  categories:
+    - kernel_health
+    - message_bus
+    - resource
+    - model_integrity
+    - config
+    - combined
+    - data_integrity
