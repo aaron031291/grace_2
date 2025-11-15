@@ -48,6 +48,11 @@ app.include_router(mission_control_router)
 # Register auth routes
 app.include_router(auth_router)
 
+@app.get("/health")
+async def health_check():
+    """Simple health check endpoint"""
+    return {"status": "ok"}
+
 @app.get("/")
 async def root():
     resp = JSONResponse(content={"uid": str(uuid.uuid4())})

@@ -1,28 +1,41 @@
-"""Verification and cryptographic signature models"""
+from datetime import datetime
+from backend.models.base_models import Base
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Integer
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
-from sqlalchemy.sql import func
-from .base_models import Base
+class RegisteredDevice(Base):
+    """Device registration model"""
+    __tablename__ = "registered_devices"
 
-class VerificationArtifact(Base):
-    """Placeholder for verification artifacts"""
-    __tablename__ = "verification_artifacts"
-    id = Column(Integer, primary_key=True)
-    artifact_type = Column(String(64))
-    content = Column(Text)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, unique=True, index=True, default=lambda: f"dev_{uuid.uuid4().hex}")
+    device_name = Column(String)
+    device_type = Column(String)
+    user_identity = Column(String)
+    device_fingerprint = Column(String, unique=True)
+    registration_date = Column(DateTime, default=datetime.utcnow)
+    last_seen = Column(DateTime, default=datetime.utcnow)
+    status = Column(String, default="pending_approval")  # pending_approval, allowlisted, blocked
 
-class VerificationEnvelope(Base):
-    """Signed envelopes for actions"""
-    __tablename__ = "verification_envelopes"
-    id = Column(Integer, primary_key=True)
-    action_id = Column(String(64), unique=True, nullable=False)
-    actor = Column(String(64), nullable=False)
-    action_type = Column(String(128), nullable=False)
-    resource = Column(String(256))
-    input_hash = Column(String(64), nullable=False)
-    output_hash = Column(String(64))
-    signature = Column(String(256), nullable=False)
-    verified = Column(Boolean, default=False)
-    criteria_met = Column(Boolean)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class DeviceAllowlist(Base):
+    """Device allowlist model"""
+    __tablename__ = "device_allowlist"
+    
+    device_id = Column(String, ForeignKey("registered_devices.device_id"), primary_key=True)
+    approved_by = Column(String)
+    approval_date = Column(DateTime, default=datetime.utcnow)
+    
+class DeviceRole(Base):
+    """Device role model"""
+    __tablename__ = "device_roles"
+    
+    device_id = Column(String, ForeignKey("registered_devices.device_id"), primary_key=True)
+    role = Column(String, default="developer")
+    assigned_by = Column(String)
+    last_updated = Column(DateTime, default=datetime.utcnow)
+
+class RemoteAccessPolicy(Base):
+    __tablename__ = "remote_access_policies"
