@@ -6,21 +6,21 @@ behaves ethically, transparently, and safely with automatic clarification.
 
 import uuid
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
-from sqlalchemy import select, and_
+from datetime import datetime
+from sqlalchemy import select
 
-from .models import async_session
-from .constitutional_models import (
+from backend.models import async_session
+from ..models.constitutional_models import (
     ConstitutionalPrinciple, ConstitutionalViolation,
-    ClarificationRequest, ConstitutionalCompliance, OperationalTenet
+    ClarificationRequest, ConstitutionalCompliance
 )
-from .immutable_log import ImmutableLog
+from ..logging.immutable_log import immutable_log
 
 class ConstitutionalEngine:
     """Enforce constitutional principles across all Grace operations"""
     
     def __init__(self):
-        self.audit = ImmutableLog()
+        self.audit = immutable_log
         
         # Confidence thresholds
         self.clarification_threshold = 0.7  # Below this, ask for clarification
@@ -87,7 +87,7 @@ class ConstitutionalEngine:
         if confidence < self.clarification_threshold:
             checks['needs_clarification'] = True
             checks['clarification_reason'] = f"Low confidence ({confidence:.2f}) below threshold ({self.clarification_threshold})"
-        
+
         # Store compliance record
         async with async_session() as session:
             compliance = ConstitutionalCompliance(

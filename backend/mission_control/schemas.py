@@ -61,7 +61,7 @@ class MissionContext(BaseModel):
     version: Optional[str] = Field(None, description="Grace version")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "git_sha": "a1b2c3d4e5f6",
                 "config_hash": "sha256:abc123",
@@ -267,7 +267,7 @@ class MissionPackage(BaseModel):
     tags: Dict[str, str] = Field(default_factory=dict)
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "mission_id": "mission_20250110_001",
                 "subsystem_id": "trigger_mesh",
