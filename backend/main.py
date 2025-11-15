@@ -8,6 +8,9 @@ from fastapi.responses import JSONResponse
 
 app = FastAPI(title="Grace API", version="2.0.0")
 
+# Track degraded features for Layer 2
+app.state.degraded_features = set()
+
 # CORS - Allow all origins for development
 app.add_middleware(
     CORSMiddleware,
@@ -348,19 +351,34 @@ async def monitoring_incidents(limit: int = 20):
 
 @app.on_event("startup")
 async def startup_unified_llm():
-    """Initialize unified LLM and model capability system"""
-    from backend.unified_llm import unified_llm
-    from backend.model_capability_system import capability_system
-    
-    await unified_llm.initialize()
-    await capability_system.manage_cache()  # Warm primary models
-    
-    print("[OK] Model capability system initialized")
-    print("[OK] Reading model manifest with 15 models")
-    
-    # Show which models are loaded
-    matrix = await capability_system.get_capability_matrix()
-    print(f"[OK] {len(matrix['warm_cache'])} models in warm cache")
+    """Initialize unified LLM and model capability system in non-fatal way"""
+    try:
+        from backend.unified_llm import unified_llm
+        from backend.model_capability_system import capability_system
+        
+        await unified_llm.initialize()
+        await capability_system.manage_cache()  # Warm primary models
+        
+        print("[OK] Model capability system initialized")
+        print("[OK] Reading model manifest with 15 models")
+        
+        # Show which models are loaded
+        matrix = await capability_system.get_capability_matrix()
+        print(f"[OK] {len(matrix['warm_cache'])} models in warm cache")
+    except Exception as e:
+        # Do not let startup fail – mark Layer 2 degraded and continue
+        print(f"[WARN] Unified LLM startup degraded: {e}")
+        try:
+            import traceback
+            traceback.print_exc()
+        except Exception:
+            pass
+        # Record degraded feature for health/status endpoints
+        try:
+            app.state.degraded_features.add("unified_llm")
+        except Exception:
+            # app.state may not be available in some edge cases, ignore
+            pass
 
 @app.post("/api/chat")
 async def chat(request: dict):
