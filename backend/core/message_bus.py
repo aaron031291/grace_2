@@ -36,6 +36,7 @@ class BusMessage:
     priority: MessagePriority
     timestamp: datetime
     correlation_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -46,7 +47,8 @@ class BusMessage:
             'payload': self.payload,
             'priority': self.priority.value,
             'timestamp': self.timestamp.isoformat(),
-            'correlation_id': self.correlation_id
+            'correlation_id': self.correlation_id,
+            'metadata': self.metadata or {}
         }
 
 

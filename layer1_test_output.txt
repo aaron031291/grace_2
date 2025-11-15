@@ -1,0 +1,226 @@
+[ELITE_CODE] Grace architect not available
+[MESSAGE-BUS] ACL violation: kernel_a -> kernel.memory
+[UNIFIED-LOGIC] Error in decision loop: 'BusMessage' object has no attribute 'metadata'
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "c:\Users\aaron\grace_2\tests\e2e\test_layer1_e2e.py", line 292, in <module>
+    asyncio.run(test_layer1_complete())
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "c:\Users\aaron\grace_2\tests\e2e\test_layer1_e2e.py", line 288, in test_layer1_complete
+    await boot_layer.shutdown_grace()
+  File "c:\Users\aaron\grace_2\backend\core\boot_layer.py", line 211, in shutdown_grace
+    print("  \u2713 All kernels stopped")
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 2: character maps to <undefined>
+================================================================================
+GRACE LAYER 1 - COMPLETE E2E TEST
+Unbreakable Core + Message Bus + Unified Logic
+================================================================================
+
+[BOOT] Booting Grace's unbreakable core...
+
+[1/6] Message Bus: STARTED
+[2/6] Immutable Log: STARTED
+[3/6] Clarity Framework: STARTED
+[4/6] Verification Framework: STARTED
+[5/6] Unified Logic: STARTED
+[1/20] Booting: message_bus
+  [OK] message_bus RUNNING
+[2/20] Booting: immutable_log
+  [OK] immutable_log RUNNING
+[3/20] Booting: self_healing
+  [OK] self_healing RUNNING
+[4/20] Booting: coding_agent
+  [SCAN] Coding agent scanning for errors...
+  [OK] coding_agent RUNNING
+[5/20] Booting: clarity_framework
+  [OK] clarity_framework RUNNING
+[6/20] Booting: verification_framework
+  [OK] verification_framework RUNNING
+[7/20] Booting: secret_manager
+  [OK] secret_manager RUNNING
+[8/20] Booting: governance
+  [OK] governance RUNNING
+[9/20] Booting: infrastructure_manager
+  [OK] infrastructure_manager RUNNING
+[10/20] Booting: memory_fusion
+[OK] Subscribed to unified_logic.update
+  [OK] memory_fusion RUNNING
+[11/20] Booting: librarian
+  [OK] librarian RUNNING
+[12/20] Booting: sandbox
+  [OK] sandbox RUNNING
+[13/20] Booting: agentic_spine
+  [OK] agentic_spine RUNNING
+[14/20] Booting: voice_conversation
+  [OK] voice_conversation RUNNING
+[15/20] Booting: meta_loop
+  [OK] meta_loop RUNNING
+[16/20] Booting: learning_integration
+  [OK] learning_integration RUNNING
+[17/20] Booting: health_monitor
+  [OK] health_monitor RUNNING
+[18/20] Booting: trigger_mesh
+  [OK] trigger_mesh RUNNING
+[19/20] Booting: scheduler
+  [OK] scheduler RUNNING
+[20/20] Booting: api_server
+  [OK] api_server RUNNING
+[6/6] Control Plane: STARTED
+
+[BOOT] Complete!
+
+
+================================================================================
+TEST 1: Message Schemas
+================================================================================
+
+Creating structured message...
+Message Type: task.enqueue
+Source: test_kernel
+Trust Level: TrustLevel.HIGH
+Payload: {'task_id': 'test_123', 'task_type': 'ingest', 'data': {'file': 'test.pdf'}}
+
+================================================================================
+TEST 2: Kernel-to-Kernel Communication
+================================================================================
+
+Kernel A publishing to Kernel B...
+[OK] Message published to bus
+Bus stats: 23 messages, 4 topics
+
+================================================================================
+TEST 3: Unified Logic Integration
+================================================================================
+
+Submitting proposal to Unified Logic...
+[OK] Proposal submitted
+  [SCAN] Comprehensive auto-scan (360-degree triggers)...
+    [SCAN] Scanning for syntax errors... [WARN]  (20 issues)
+    [SCAN] Running advanced triggers... Unified Logic: 1 proposals, 0 decisions
+
+================================================================================
+TEST 4: Clarity Framework
+================================================================================
+
+Recording decision with full transparency...
+[OK] Decision recorded: decision_1_20251115103958
+Confidence: 92%
+Risk: 15%
+Evidence: 2 items
+
+Explanation:
+  Summary: test decided to test_action on test_resource
+  Reasoning chain:
+    - Situation: test needed to decide on test_action
+    - Alternatives considered: option_a, option_b, option_c
+    - Evidence: 2 factors analyzed
+    - Decision: test_action
+    - Reasoning: Testing clarity framework with complete reasoning
+    - Confidence: 92.0%, Risk: Low
+
+================================================================================
+TEST 5: Verification Framework
+================================================================================
+
+Running verification checks...
+Status: all_verified
+Rules checked: 3
+Passed: 3
+Failed: 0
+[OK] All verification rules passed
+
+================================================================================
+TEST 6: Immutable Log Audit Trail
+================================================================================
+
+Total entries: 199
+Log file: logs\immutable_audit.jsonl
+Size: 104349 bytes
+
+Recent entries:
+  [2025-11-15 10:39:58.117914] test: test_action
+  [2025-11-15 10:39:54.029237] elite_coding_agent: system_start
+  [2025-11-15 10:35:47.353670] elite_coding_agent: system_start
+  [2025-11-15 10:28:22.860706] elite_coding_agent: system_start
+  [2025-11-15 10:13:21.413142] elite_coding_agent: system_start
+
+================================================================================
+TEST 7: Control Plane & Kernel Status
+================================================================================
+
+System State: running
+Total Kernels: 20
+Running: 20/20
+Failed: 0
+
+Critical Kernels:
+  message_bus               [running]
+  immutable_log             [running]
+  health_monitor            [running]
+
+================================================================================
+LAYER 1 E2E TEST RESULTS
+================================================================================
+
+UNBREAKABLE CORE - FULLY OPERATIONAL:
+
+[1] Message Bus
+    - Messages sent: 23
+    - Communication: Working
+    - ACL enforcement: Active
+
+[2] Immutable Log
+    - Entries logged: 199
+    - Audit trail: Complete
+    - Append-only: Verified
+
+[3] Clarity Framework
+    - Decisions recorded: 1
+    - Reasoning chains: Complete
+    - Transparency: Full
+
+[4] Verification Framework
+    - Rules enforced: 3
+    - Violations detected: 0
+    - Auto-validation: Active
+
+[5] Unified Logic
+    - Proposals received: 1
+    - Decisions made: 0
+    - Governance: Enforced
+
+[6] Control Plane
+    - Kernels managed: 20
+    - Running kernels: 20
+    - Auto-restart: Active
+
+LAYER 1 STATUS: OPERATIONAL
+
+All core systems communicating via message bus
+All decisions logged to immutable audit trail
+All actions transparent via clarity framework
+All states verified continuously
+All governance enforced via unified logic
+
+Layer 1 is resilient and ready!
+FastAPI (Layer 2) can connect and use this core.
+
+================================================================================
+
+================================================================================
+GRACE SHUTDOWN - GRACEFUL
+================================================================================
+
+[1/3] Stopping kernels...
