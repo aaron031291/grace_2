@@ -141,6 +141,14 @@ class ControlPlane:
             logger.info(f"[CONTROL-PLANE] Booting {kernel.name}...")
             await self._boot_kernel(kernel)
         
+        # Start critical kernel heartbeat trigger
+        try:
+            from backend.triggers.critical_kernel_heartbeat_trigger import critical_kernel_trigger
+            await critical_kernel_trigger.start()
+            logger.info("[CONTROL-PLANE] Critical kernel trigger started")
+        except Exception as e:
+            logger.warning(f"[CONTROL-PLANE] Could not start critical kernel trigger: {e}")
+        
         # Start health monitoring
         asyncio.create_task(self._health_monitor_loop())
         
@@ -395,13 +403,47 @@ class ControlPlane:
                                     logger.error(f"[CONTROL-PLANE] {kernel.name} exceeded max restarts")
                                     
                                     # IMMEDIATE ESCALATION - stop restart loop, quarantine kernel
-                                    await self._handle_max_restarts_exceeded(kernel)
+                                    if hasattr(self, '_handle_max_restarts_exceeded'):
+                                        await self._handle_max_restarts_exceeded(kernel)
                                     kernel.state = KernelState.FAILED
             
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 logger.error(f"[CONTROL-PLANE] Health monitor error: {e}")
+    
+    async def _handle_max_restarts_exceeded(self, kernel: Kernel):
+        """
+        Handle kernel that exceeded max restart attempts
+        Emergency protocol - quarantine and escalate
+        """
+        
+        logger.critical(f"[EMERGENCY] Kernel {kernel.name} exceeded max restarts - activating emergency protocol")
+        
+        # Publish emergency event
+        await message_bus.publish(
+            source='control_plane',
+            topic='system.control',
+            payload={
+                'action': 'kernel_quarantined',
+                'kernel': kernel.name,
+                'restart_count': kernel.restart_count,
+                'emergency': True,
+                'timestamp': datetime.utcnow().isoformat()
+            },
+            priority=MessagePriority.CRITICAL
+        )
+        
+        # If it's a critical kernel, trigger emergency protocol
+        if kernel.name in ['message_bus', 'self_healing', 'coding_agent']:
+            try:
+                from backend.triggers.critical_kernel_heartbeat_trigger import critical_kernel_trigger
+                await critical_kernel_trigger._trigger_emergency_protocol(
+                    kernels_down=[kernel.name],
+                    degraded=[]
+                )
+            except Exception as e:
+                logger.error(f"[EMERGENCY] Could not trigger emergency protocol: {e}")
     
     async def _restart_kernel(self, kernel: Kernel):
         """Restart a kernel"""
