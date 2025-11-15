@@ -2,7 +2,7 @@
 Backend Main Entry Point - Minimal Grace API
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -388,35 +388,8 @@ async def chat(request: dict):
             "timestamp": datetime.now().isoformat()
         }
     
-    # Old slow path (commented out for now)
-    """
+    # Try to use real LLM (OpenAI/Anthropic/Ollama)
     try:
-        # Use unified LLM wrapper
-        from backend.unified_llm import unified_llm
-        
-        result = await unified_llm.chat(
-            message=message,
-            context=None,
-            use_memory=True,
-            use_agentic=True
-        )
-        
-        return {
-            "response": result["text"],
-            "kernel": "coding_agent",
-            "llm_provider": result["provider"],
-            "model": result["model"],
-            "timestamp": result["timestamp"]
-        }
-        
-    except Exception as e:
-        print(f"Unified LLM error: {e}")
-        import traceback
-        traceback.print_exc()
-        
-        # Legacy fallback
-        try:
-        # Try to use real LLM (OpenAI/Anthropic)
         import os
         
         # Check for API keys

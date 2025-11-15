@@ -370,18 +370,18 @@ cache_tiers:
 governance:
   uncensored_models:
     - dolphin_mixtral
-    approval_required: true
-    review_mode: mandatory
-    sandbox_required: true
+  approval_required: true
+  review_mode: mandatory
+  sandbox_required: true
     
   high_vram_models:
     - qwen2.5_72b
     - deepseek_r1_70b
-    check_resources: true
+  check_resources: true
     
   experimental_models:
     - wizardlm2
-    verification_required: true
+  verification_required: true
 
 # === TELEMETRY CONFIGURATION ===
 
