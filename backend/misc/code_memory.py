@@ -11,7 +11,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, select, or_
 from sqlalchemy.sql import func
-from .models import Base, async_session
+from backend.models.base_models import Base, async_session
 
 class CodePattern(Base):
     """Stored code patterns for recall and generation"""
