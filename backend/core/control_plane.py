@@ -454,6 +454,59 @@ class ControlPlane:
             kernel.last_heartbeat = datetime.utcnow()
             logger.debug(f"[CONTROL-PLANE] Heartbeat: {kernel_name}")
     
+    async def pause_kernel(self, kernel_name: str):
+        """Pause a specific kernel for testing/maintenance"""
+        if kernel_name not in self.kernels:
+            raise ValueError(f"Kernel not found: {kernel_name}")
+        
+        kernel = self.kernels[kernel_name]
+        
+        if kernel.state != KernelState.RUNNING:
+            logger.warning(f"[CONTROL-PLANE] Cannot pause {kernel_name} - not running")
+            return
+        
+        # Set state to paused
+        kernel.state = KernelState.PAUSED
+        logger.info(f"[CONTROL-PLANE] Paused kernel: {kernel_name}")
+        
+        # Publish pause event
+        await message_bus.publish(
+            source='control_plane',
+            topic='system.control',
+            payload={
+                'action': 'kernel_paused',
+                'kernel': kernel_name,
+                'timestamp': datetime.utcnow().isoformat()
+            }
+        )
+    
+    async def resume_kernel(self, kernel_name: str):
+        """Resume a paused kernel"""
+        if kernel_name not in self.kernels:
+            raise ValueError(f"Kernel not found: {kernel_name}")
+        
+        kernel = self.kernels[kernel_name]
+        
+        if kernel.state != KernelState.PAUSED:
+            logger.warning(f"[CONTROL-PLANE] Cannot resume {kernel_name} - not paused")
+            return
+        
+        # Restart the kernel
+        kernel.state = KernelState.RESTARTING
+        await self._boot_kernel(kernel)
+        logger.info(f"[CONTROL-PLANE] Resumed kernel: {kernel_name}")
+        
+        # Publish resume event
+        await message_bus.publish(
+            source='control_plane',
+            topic='system.control',
+            payload={
+                'action': 'kernel_resumed',
+                'kernel': kernel_name,
+                'timestamp': datetime.utcnow().isoformat()
+            }
+        )
+    
     def get_status(self) -> Dict[str, Any]:
         """Get control plane status"""
         

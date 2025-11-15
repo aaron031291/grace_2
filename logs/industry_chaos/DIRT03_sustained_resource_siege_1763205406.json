@@ -1,0 +1,27 @@
+{
+  "incident_id": "DIRT03_sustained_resource_siege_1763205406",
+  "scenario_id": "DIRT03_sustained_resource_siege",
+  "category": "dirt_infrastructure",
+  "severity": 5,
+  "started_at": "2025-11-15 11:16:46.378678",
+  "faults_injected_at": {
+    "cpu_saturation": "2025-11-15 11:17:16.501141",
+    "memory_saturation": "2025-11-15 11:17:21.513581",
+    "disk_io_saturation": "2025-11-15 11:17:26.513757"
+  },
+  "detected_at": null,
+  "recovered_at": "2025-11-15 11:17:26.621300",
+  "safeguards_triggered": [],
+  "playbooks_executed": [],
+  "coding_tasks_created": [],
+  "control_plane_dumps_count": 0,
+  "resource_snapshots_count": 0,
+  "api_metrics_collected": false,
+  "consistency_checks_passed": 0,
+  "consistency_checks_failed": 0,
+  "artifacts_dir": "c:\\Users\\aaron\\grace_2\\logs\\chaos_artifacts\\industry_chaos_1763205220",
+  "log_files": [],
+  "success": true,
+  "recovery_time_seconds": 40.242622,
+  "failure_reason": null
+}

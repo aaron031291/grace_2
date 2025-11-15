@@ -1,0 +1,30 @@
+{
+  "incident_id": "DIRT01_critical_kernel_kill_1763205221",
+  "scenario_id": "DIRT01_critical_kernel_kill",
+  "category": "dirt_infrastructure",
+  "severity": 5,
+  "started_at": "2025-11-15 11:13:41.918055",
+  "faults_injected_at": {
+    "kill_message_bus": "2025-11-15 11:13:42.028208",
+    "kill_self_healing": "2025-11-15 11:13:42.028208",
+    "kill_coding_agent": "2025-11-15 11:13:42.028208",
+    "heartbeat_revoke": "2025-11-15 11:16:42.025640"
+  },
+  "detected_at": null,
+  "recovered_at": "2025-11-15 11:16:42.132648",
+  "safeguards_triggered": [
+    "heartbeat_watchdog"
+  ],
+  "playbooks_executed": [],
+  "coding_tasks_created": [],
+  "control_plane_dumps_count": 0,
+  "resource_snapshots_count": 0,
+  "api_metrics_collected": false,
+  "consistency_checks_passed": 0,
+  "consistency_checks_failed": 0,
+  "artifacts_dir": "c:\\Users\\aaron\\grace_2\\logs\\chaos_artifacts\\industry_chaos_1763205220",
+  "log_files": [],
+  "success": false,
+  "recovery_time_seconds": 180.214593,
+  "failure_reason": "Exceeded max recovery time: 180.2s > 180s"
+}
