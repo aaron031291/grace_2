@@ -132,6 +132,10 @@ class MessageBus:
         # Check ACL
         if not self._check_acl(source, topic):
             logger.warning(f"[MESSAGE-BUS] ACL violation: {source} -> {topic}")
+            
+            # Publish ACL violation event for monitoring
+            asyncio.create_task(self._publish_acl_violation(source, topic))
+            
             return ""
         
         # Create message
