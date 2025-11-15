@@ -73,10 +73,10 @@ class MessageBus:
         self.topic_acls = {
             'kernel.memory': ['memory_fusion', 'librarian'],
             'kernel.healing': ['self_healing', 'orchestrator'],
-            'kernel.governance': ['governance_engine', 'orchestrator'],
+            'kernel.governance': ['governance_engine', 'orchestrator', 'control_plane'],
             'kernel.code': ['coding_agent', 'sandbox'],
             'kernel.crypto': ['crypto_service', 'orchestrator'],
-            'system.control': ['orchestrator', 'control_center'],
+            'system.control': ['orchestrator', 'control_center', 'control_plane'],
             'system.health': ['health_monitor', 'orchestrator']
         }
     
