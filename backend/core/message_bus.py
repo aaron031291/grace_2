@@ -90,6 +90,23 @@ class MessageBus:
         self.running = False
         logger.info("[MESSAGE-BUS] Stopped")
     
+    async def _publish_acl_violation(self, source: str, topic: str):
+        """Publish ACL violation event for monitoring"""
+        try:
+            from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
+            
+            await trigger_mesh.publish(TriggerEvent(
+                source="message_bus",
+                event_type="message_bus.acl_violation",
+                payload={
+                    "actor": source,
+                    "topic": topic,
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+            ))
+        except Exception as e:
+            logger.debug(f"[MESSAGE-BUS] Could not publish ACL violation event: {e}")
+    
     async def publish(
         self,
         source: str,

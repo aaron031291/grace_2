@@ -1,0 +1,149 @@
+---
+# Resource Pressure CPU Playbook
+# Triggered when CPU saturation detected
+# Fixes: S03_cpu_spike scenario gap
+
+playbook_id: resource_pressure_cpu
+name: "CPU Saturation Load Shedding"
+description: "Handles CPU pressure before watchdogs stall"
+version: "1.0"
+risk_level: high
+
+trigger_conditions:
+  - cpu_saturation
+  - sustained_cpu_pressure
+  - resource_spike_cpu
+
+parameters:
+  - name: cpu_percent
+    type: float
+    required: true
+    description: "Current CPU usage percentage"
+  
+  - name: threshold
+    type: float
+    required: true
+    description: "CPU threshold that was exceeded"
+  
+  - name: sustained_duration
+    type: float
+    required: true
+    description: "How long CPU has been elevated (seconds)"
+
+steps:
+  - id: identify_cpu_hogs
+    action: identify_top_processes
+    description: "Identify processes consuming most CPU"
+    parameters:
+      resource_type: "cpu"
+      top_n: 5
+    timeout: 5
+    critical: true
+    
+  - id: throttle_non_critical
+    action: throttle_services
+    description: "Throttle non-critical services"
+    parameters:
+      services:
+        - "background_jobs"
+        - "report_generator"
+        - "indexer"
+      throttle_percent: 50
+    timeout: 10
+    critical: true
+    
+  - id: pause_heavy_tasks
+    action: pause_heavy_computations
+    description: "Pause heavy computational tasks"
+    parameters:
+      task_types:
+        - "model_training"
+        - "large_embeddings"
+        - "batch_processing"
+    timeout: 10
+    critical: true
+    
+  - id: enable_request_throttling
+    action: enable_api_throttling
+    description: "Throttle incoming API requests"
+    parameters:
+      max_rps: 10  # requests per second
+      duration: 60  # 1 minute
+    timeout: 5
+    critical: false
+    
+  - id: kill_runaway_process
+    action: kill_process_if_runaway
+    description: "Kill process if consuming >50% CPU"
+    parameters:
+      cpu_threshold: 50
+      exclude_critical: true
+    timeout: 10
+    critical: false
+    condition: "cpu_percent > 90"
+    
+  - id: scale_down_replicas
+    action: scale_instances
+    description: "Scale down non-essential replicas"
+    parameters:
+      min_delta: -2
+      service_types: ["worker", "background"]
+    timeout: 20
+    critical: false
+    
+  - id: notify_operations
+    action: send_ops_alert
+    description: "Alert operations team"
+    parameters:
+      alert_type: "cpu_saturation"
+      severity: "high"
+      details:
+        cpu_percent: "{cpu_percent}"
+        duration: "{sustained_duration}"
+    timeout: 5
+    critical: false
+    
+  - id: route_to_scheduler
+    action: notify_scheduler
+    description: "Route to scheduler for task prioritization"
+    parameters:
+      event_type: "resource_pressure"
+      action_required: "prioritize_critical_only"
+    timeout: 5
+    critical: true
+
+verification:
+  - id: check_cpu_reduced
+    check: resource_check
+    parameters:
+      resource: "cpu"
+      max_value: 60
+    timeout: 30
+    retries: 3
+    
+  - id: check_system_responsive
+    check: http_health
+    parameters:
+      endpoint: "/api/health"
+      expect: "ok"
+      timeout_ms: 5000
+    timeout: 20
+
+rollback:
+  - id: restore_throttling
+    action: disable_api_throttling
+    
+  - id: resume_tasks
+    action: resume_heavy_computations
+
+metadata:
+  tags:
+    - performance
+    - cpu
+    - load_shedding
+    - resource_management
+  owner: "infrastructure_team"
+  last_updated: "2025-11-15"
+  related_playbooks:
+    - resource_pressure_memory
+    - message_bus_acl_violation_fix

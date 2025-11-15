@@ -1,0 +1,136 @@
+---
+# Message Bus ACL Violation Fix Playbook
+# Triggered when ACL spam detected
+# Fixes: S02_acl_spam scenario gap
+
+playbook_id: message_bus_acl_violation_fix
+name: "Message Bus ACL Violation Remediation"
+description: "Fixes ACL spam attacks on message bus"
+version: "1.0"
+risk_level: medium
+
+trigger_conditions:
+  - acl_spam_attack
+  - control_topic_flooding
+  - actor_blacklist
+
+parameters:
+  - name: reason
+    type: string
+    required: true
+    description: "Reason for ACL violation (spam_attack, actor_blacklist, control_topic_flood)"
+  
+  - name: actor
+    type: string
+    required: false
+    description: "Actor causing violations (for blacklisting)"
+  
+  - name: topic
+    type: string
+    required: false
+    description: "Topic being flooded"
+  
+  - name: violations_count
+    type: integer
+    required: false
+    description: "Number of violations detected"
+
+steps:
+  - id: assess_severity
+    action: evaluate_acl_violations
+    description: "Assess severity of ACL attack"
+    parameters:
+      violations_count: "{violations_count}"
+      actor: "{actor}"
+    timeout: 5
+    critical: false
+    
+  - id: blacklist_actor
+    action: add_to_acl_blacklist
+    description: "Blacklist abusive actor"
+    parameters:
+      actor: "{actor}"
+      reason: "Exceeded ACL violation threshold"
+    timeout: 5
+    critical: false
+    condition: "actor is not None"
+    
+  - id: rate_limit_topic
+    action: apply_rate_limit
+    description: "Apply rate limiting to flooded topic"
+    parameters:
+      topic: "{topic}"
+      limit: 10  # messages per second
+      duration: 300  # 5 minutes
+    timeout: 10
+    critical: true
+    
+  - id: scale_message_bus
+    action: restart_service
+    description: "Restart message bus if needed"
+    parameters:
+      service: "message_bus"
+      graceful: true
+    timeout: 30
+    critical: true
+    condition: "violations_count > 200"
+    
+  - id: notify_security
+    action: send_security_alert
+    description: "Alert security team"
+    parameters:
+      alert_type: "acl_spam_detected"
+      details:
+        reason: "{reason}"
+        actor: "{actor}"
+        violations: "{violations_count}"
+    timeout: 5
+    critical: false
+    
+  - id: create_coding_task
+    action: create_coding_agent_task
+    description: "Create task for coding agent to fix root cause"
+    parameters:
+      task_type: "fix_acl_vulnerability"
+      description: "Analyze and fix ACL vulnerability that allowed spam"
+      priority: 8
+      context:
+        actor: "{actor}"
+        topic: "{topic}"
+        violations: "{violations_count}"
+    timeout: 10
+    critical: false
+
+verification:
+  - id: check_acl_violations
+    check: http_health
+    parameters:
+      endpoint: "/api/message-bus/health"
+      expect: "no_violations"
+    timeout: 30
+    retries: 3
+    
+  - id: check_message_bus_healthy
+    check: service_health
+    parameters:
+      service: "message_bus"
+      min_health: 0.9
+    timeout: 30
+
+rollback:
+  - id: remove_rate_limits
+    action: remove_rate_limit
+    parameters:
+      topic: "{topic}"
+
+metadata:
+  tags:
+    - security
+    - message_bus
+    - acl
+    - spam_protection
+  owner: "security_team"
+  last_updated: "2025-11-15"
+  related_playbooks:
+    - resource_pressure_cpu
+    - security_incident_response
