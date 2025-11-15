@@ -1,0 +1,412 @@
+# Enhanced Chaos Scenarios - Multi-Fault, Cross-Layer, Deep Complexity
+# Pushes Grace to the absolute limit
+
+# =============================================================================
+# CATEGORY 1: MULTI-FAULT ORCHESTRATION
+# =============================================================================
+
+- scenario_id: MF01_triple_threat
+  name: "Triple Threat - ACL + CPU + Kernel Pause"
+  category: multi_fault
+  severity: 5
+  description: "Simultaneous ACL flood, CPU spike, and kernel pause"
+  faults:
+    - type: acl_flood
+      target: message_bus
+      params:
+        messages_per_second: 1000
+        duration_seconds: 60
+        blocked_actor: "rogue_kernel"
+    - type: cpu_spike
+      target: system
+      params:
+        cpu_percent: 90
+        duration_seconds: 60
+    - type: kernel_pause
+      target: memory_fusion
+      params:
+        pause_seconds: 45
+  
+  expected_safeguards:
+    - acl_violation_monitor
+    - resource_pressure_monitor
+    - kernel_watchdog
+  
+  expected_playbooks:
+    - message_bus_acl_violation_fix
+    - resource_pressure_cpu
+    - kernel_restart
+  
+  verification:
+    - message_bus.acl_violations > 500
+    - cpu_usage_peak >= 85
+    - memory_fusion restarted within 60s
+    - all_safeguards_triggered
+  
+  max_recovery_time: 180
+
+- scenario_id: MF02_cascading_corruption
+  name: "Cascading Corruption - Model + Snapshot + Config"
+  category: multi_fault
+  severity: 5
+  description: "Corrupt model snapshots while maintaining resource pressure"
+  faults:
+    - type: model_corruption
+      target: ".grace_snapshots/models"
+      params:
+        corrupt_files: ["classifier_model.pkl", "trust_scorer.pkl"]
+        corruption_type: "truncate"
+    - type: snapshot_corruption
+      target: ".grace_snapshots/state"
+      params:
+        corrupt_keys: ["memory_index", "governance_rules"]
+    - type: cpu_pressure
+      target: system
+      params:
+        cpu_percent: 75
+        duration_seconds: 120
+  
+  expected_safeguards:
+    - snapshot_hygiene_manager
+    - model_integrity_check
+    - resource_pressure_monitor
+  
+  verification:
+    - models_restored_from_backup
+    - snapshot_regenerated
+    - system_remained_operational
+  
+  max_recovery_time: 240
+
+- scenario_id: MF03_randomized_assault
+  name: "Randomized Multi-Vector Assault"
+  category: multi_fault
+  severity: 4
+  description: "5 random faults in shuffled order over 3 minutes"
+  fault_pool:
+    - acl_flood
+    - cpu_spike
+    - memory_pressure
+    - disk_io_saturation
+    - network_latency
+    - kernel_pause
+    - api_spam
+    - model_corruption
+  
+  execution:
+    random_selection: 5
+    shuffle_order: true
+    spacing_seconds: 30
+    total_duration: 180
+  
+  verification:
+    - all_faults_detected
+    - concurrent_playbooks_executed
+    - no_cascading_failures
+    - recovery_within_threshold
+
+# =============================================================================
+# CATEGORY 2: CROSS-LAYER PERSPECTIVES
+# =============================================================================
+
+- scenario_id: L2_HTM_queue_flood
+  name: "Layer 2: HTM Queue Storm"
+  category: layer2
+  severity: 4
+  description: "Flood HTM with 10K intents, half invalid"
+  injection:
+    type: api_flood
+    endpoint: "/api/htm/intents"
+    params:
+      total_requests: 10000
+      invalid_ratio: 0.5
+      concurrency: 100
+      duration_seconds: 90
+  
+  expected_safeguards:
+    - rate_limiter
+    - intent_validator
+    - queue_pressure_monitor
+  
+  verification:
+    - queue_processed_all_valid
+    - invalid_intents_rejected
+    - no_queue_deadlock
+    - latency_p99 < 5000ms
+
+- scenario_id: L2_worker_stall
+  name: "Layer 2: Worker Thread Stall"
+  category: layer2
+  severity: 3
+  description: "Inject infinite loop into worker threads"
+  injection:
+    type: code_patch
+    target: "backend/temporal/htm_worker.py"
+    patch: "while True: time.sleep(0.1)  # injected stall"
+    location: "process_intent function"
+  
+  expected_safeguards:
+    - worker_watchdog
+    - thread_timeout
+  
+  verification:
+    - stalled_workers_detected
+    - workers_restarted
+    - queue_continues_processing
+
+- scenario_id: L3_governance_intent_storm
+  name: "Layer 3: Governance Intent Storm"
+  category: layer3
+  severity: 4
+  description: "1000 concurrent governance check requests"
+  injection:
+    type: api_flood
+    endpoint: "/api/governance/check"
+    params:
+      total_requests: 1000
+      concurrency: 50
+      payload:
+        actor: "chaos_tester"
+        action: "critical_operation"
+        resource: "production_database"
+  
+  verification:
+    - all_requests_processed
+    - decisions_consistent
+    - audit_trail_complete
+    - no_race_conditions
+
+- scenario_id: L3_retro_cascade_failure
+  name: "Layer 3: Retrospective Analysis Cascade"
+  category: layer3
+  severity: 3
+  description: "Trigger 100 retro analyses simultaneously"
+  injection:
+    type: api_spam
+    endpoint: "/api/meta_loop/retrospective"
+    params:
+      count: 100
+      component: "all"
+  
+  verification:
+    - retro_queue_managed
+    - no_resource_exhaustion
+    - analyses_completed
+
+- scenario_id: EXT_api_client_chaos
+  name: "External: Malicious API Client"
+  category: external
+  severity: 4
+  description: "External client sends malformed requests at high rate"
+  injection:
+    type: external_attack
+    params:
+      attack_type: "malformed_json"
+      endpoints: ["/api/chat", "/api/knowledge", "/api/sandbox"]
+      requests_per_second: 100
+      duration_seconds: 120
+      malformations:
+        - invalid_json
+        - sql_injection_attempt
+        - xss_payload
+        - buffer_overflow_string
+  
+  expected_safeguards:
+    - hunter_engine
+    - input_validator
+    - rate_limiter
+    - waf_rules
+  
+  verification:
+    - all_attacks_blocked
+    - legitimate_traffic_unaffected
+    - attackers_logged_to_audit
+
+- scenario_id: EXT_model_drift
+  name: "External: Open Source Model Drift"
+  category: external
+  severity: 3
+  description: "Simulate upstream model quality degradation"
+  injection:
+    type: model_degradation
+    params:
+      model_id: "sentence-transformers/all-MiniLM-L6-v2"
+      degradation_type: "random_outputs"
+      confidence_drop: 0.4
+      duration_seconds: 180
+  
+  verification:
+    - drift_detected
+    - fallback_model_activated
+    - alerts_generated
+
+# =============================================================================
+# CATEGORY 3: DEEPER COMPLEXITY
+# =============================================================================
+
+- scenario_id: DC01_sustained_pressure
+  name: "Deep Complexity: 10-Minute Resource Siege"
+  category: deep_complexity
+  severity: 5
+  description: "Sustained multi-resource pressure for 10 minutes"
+  faults:
+    - type: cpu_pressure
+      params:
+        cpu_percent: 80
+        duration_seconds: 600
+    - type: memory_pressure
+      params:
+        memory_percent: 85
+        duration_seconds: 600
+    - type: disk_io_saturation
+      params:
+        io_ops_per_second: 5000
+        duration_seconds: 600
+  
+  execution:
+    all_simultaneous: true
+    monitor_interval_seconds: 10
+  
+  expected_behavior:
+    - graceful_degradation
+    - no_hard_failures
+    - recovery_mechanisms_active
+    - playbooks_in_steady_state
+  
+  verification:
+    - system_operational_throughout
+    - performance_degraded_but_acceptable
+    - all_kernels_survived
+    - playbooks_executed_multiple_times
+  
+  max_recovery_time: 300
+
+- scenario_id: DC02_replica_failover
+  name: "Deep Complexity: Replica Instance Failure"
+  category: deep_complexity
+  severity: 5
+  description: "Kill entire Grace instance, verify automatic failover"
+  injection:
+    type: instance_kill
+    params:
+      target_instance: "grace_instance_1"
+      kill_method: "SIGKILL"
+      expected_failover_to: "grace_instance_2"
+  
+  prerequisites:
+    - multi_instance_deployment
+    - load_balancer_configured
+  
+  verification:
+    - traffic_shifted_automatically
+    - zero_request_failures
+    - instance_restarted
+    - state_synchronized
+  
+  max_failover_time: 30
+
+- scenario_id: DC03_self_healing_outage
+  name: "Deep Complexity: Self-Healing & Coding Agent Down"
+  category: deep_complexity
+  severity: 5
+  description: "Both self-healing and coding agent offline simultaneously"
+  injection:
+    type: kernel_kill
+    params:
+      targets: ["self_healing", "coding_agent"]
+      kill_method: "hard_stop"
+  
+  expected_safeguards:
+    - emergency_protocol
+    - manual_fallback_mode
+    - alert_escalation
+  
+  verification:
+    - emergency_mode_activated
+    - core_systems_continue
+    - alerts_sent_to_ops
+    - kernels_auto_restart_attempted
+  
+  max_recovery_time: 120
+
+- scenario_id: DC04_byzantine_fault
+  name: "Deep Complexity: Byzantine Kernel Behavior"
+  category: deep_complexity
+  severity: 5
+  description: "Kernel sends contradictory messages, corrupts state"
+  injection:
+    type: byzantine_injection
+    params:
+      target_kernel: "governance"
+      behaviors:
+        - send_conflicting_decisions
+        - corrupt_outbound_messages
+        - lie_about_state
+        - delay_responses_randomly
+      duration_seconds: 180
+  
+  expected_safeguards:
+    - message_verification
+    - state_consistency_checks
+    - quorum_voting
+    - byzantine_detection
+  
+  verification:
+    - byzantine_kernel_detected
+    - kernel_quarantined
+    - state_rollback_successful
+    - system_integrity_maintained
+
+- scenario_id: DC05_data_poison
+  name: "Deep Complexity: Knowledge Base Poisoning"
+  category: deep_complexity
+  severity: 4
+  description: "Inject malicious data into knowledge base over time"
+  injection:
+    type: data_poisoning
+    params:
+      target: "knowledge_base"
+      injection_rate: "10_per_minute"
+      poison_type: "adversarial_examples"
+      duration_seconds: 300
+      subtlety: "high"  # Hard to detect
+  
+  expected_safeguards:
+    - content_integrity_check
+    - trust_scoring
+    - anomaly_detection
+    - knowledge_validation
+  
+  verification:
+    - poisoned_entries_detected
+    - trust_scores_degraded
+    - contaminated_knowledge_quarantined
+    - clean_knowledge_preserved
+
+- scenario_id: DC06_circular_dependency_deadlock
+  name: "Deep Complexity: Circular Dependency Deadlock"
+  category: deep_complexity
+  severity: 5
+  description: "Create circular wait between kernels"
+  injection:
+    type: dependency_deadlock
+    params:
+      chain:
+        - kernel: "governance"
+          waits_for: "memory_fusion"
+        - kernel: "memory_fusion"
+          waits_for: "librarian"
+        - kernel: "librarian"
+          waits_for: "governance"
+      timeout_disabled: true
+  
+  expected_safeguards:
+    - deadlock_detector
+    - timeout_enforcement
+    - dependency_breaker
+  
+  verification:
+    - deadlock_detected
+    - cycle_broken_automatically
+    - kernels_recovered
+    - no_data_loss
