@@ -1,7 +1,16 @@
 import json
 from typing import Optional
-from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
-from .models import async_session
+
+try:
+    from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
+except ImportError:
+    from backend.models.governance_models import GovernancePolicy, AuditLog, ApprovalRequest
+
+try:
+    from .models import async_session
+except ImportError:
+    from backend.models import async_session
+
 from sqlalchemy import select
 
 class GovernanceEngine:

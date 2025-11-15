@@ -377,7 +377,7 @@ class PolicyResponse(BaseModel):
     condition: str
     action: str
 
-class PolicyListResponse(RootModel[List[PolicyResponse]]]):
+class PolicyListResponse(RootModel[List[PolicyResponse]]):
     root: List[PolicyResponse]
 
 class PolicyCreateResponse(BaseModel):

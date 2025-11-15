@@ -29,8 +29,17 @@ from pathlib import Path
 # from .execution_engine import execution_engine
 # from .governance import governance_engine
 # from .hunter import hunter_engine
-from .immutable_log import immutable_log
-from .trigger_mesh import trigger_mesh, TriggerEvent
+try:
+    from .immutable_log import immutable_log
+except ImportError:
+    from backend.core.immutable_log import immutable_log
+
+try:
+    from .trigger_mesh import trigger_mesh, TriggerEvent
+except ImportError:
+    # Trigger mesh not in agents_core, skip for now
+    trigger_mesh = None
+    TriggerEvent = None
 
 logger = logging.getLogger(__name__)
 
@@ -355,9 +364,12 @@ class EliteCodingAgent:
     
     async def _subscribe_to_events(self):
         """Subscribe to trigger mesh events"""
-        await trigger_mesh.subscribe("code.*", self._handle_code_event)
-        await trigger_mesh.subscribe("feature.*", self._handle_feature_event)
-        logger.info("[ELITE_CODE] Subscribed to trigger mesh events")
+        if trigger_mesh:
+            await trigger_mesh.subscribe("code.*", self._handle_code_event)
+            await trigger_mesh.subscribe("feature.*", self._handle_feature_event)
+            logger.info("[ELITE_CODE] Subscribed to trigger mesh events")
+        else:
+            logger.info("[ELITE_CODE] Trigger mesh not available, skipping subscription")
     
     async def _handle_code_event(self, event: TriggerEvent):
         """Handle code-related events"""
@@ -401,13 +413,14 @@ class EliteCodingAgent:
         logger.info(f"[ELITE_CODE] Task submitted: {task.task_id} - {task.description}")
         
         # Publish event
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="coding.task_submitted",
-            source="elite_coding_agent",
-            actor="elite_coding_agent",
-            resource=task.task_id,
-            payload={"task_type": task.task_type.value, "description": task.description}
-        ))
+        if trigger_mesh and TriggerEvent:
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="coding.task_submitted",
+                source="elite_coding_agent",
+                actor="elite_coding_agent",
+                resource=task.task_id,
+                payload={"task_type": task.task_type.value, "description": task.description}
+            ))
     
     async def _task_processing_loop(self):
         """Main task processing loop with parallel execution"""

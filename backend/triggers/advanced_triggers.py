@@ -526,7 +526,9 @@ class LiveErrorFeedTrigger:
     def record_error(self, error_type: str, traceback_snippet: str):
         """Record error occurrence"""
         # Create error signature from type + first line of traceback
-        sig = f"{error_type}:{traceback_snippet.split('\n')[0][:100]}"
+        lines = traceback_snippet.split('\n')
+        first_line = lines[0][:100] if lines else ''
+        sig = f"{error_type}:{first_line}"
         self.error_counts[sig] = self.error_counts.get(sig, 0) + 1
 
 

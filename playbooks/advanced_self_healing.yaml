@@ -1,0 +1,143 @@
+# Advanced Self-Healing Playbooks
+# Uses new scale_workers, shed_load, restore_model_weights actions
+
+playbooks:
+  
+  # High Queue Backlog
+  - name: "high_queue_backlog"
+    trigger_on:
+      - condition: "queue_size > 1000"
+        metric: "message_bus.queue_size"
+    steps:
+      - action: "scale_workers"
+        queue: "message_bus"
+        target_workers: "+2"
+      - action: "alert"
+        message: "Scaled message bus workers due to backlog"
+  
+  # API Latency Spike
+  - name: "api_latency_spike"
+    trigger_on:
+      - condition: "avg_latency_ms > 500"
+        metric: "api.latency"
+    steps:
+      - action: "scale_workers"
+        queue: "api_requests"
+        target_workers: "+3"
+      - action: "log"
+        message: "Scaled API workers for latency"
+  
+  # Resource Pressure - CPU
+  - name: "cpu_saturation"
+    trigger_on:
+      - condition: "cpu_percent > 90"
+        metric: "system.cpu"
+    steps:
+      - action: "shed_load"
+        reason: "cpu_saturation"
+      - action: "pause_non_critical_kernels"
+      - action: "alert"
+        severity: "high"
+        message: "CPU saturation - paused non-critical kernels"
+  
+  # Resource Pressure - Memory
+  - name: "memory_pressure"
+    trigger_on:
+      - condition: "memory_percent > 85"
+        metric: "system.memory"
+    steps:
+      - action: "shed_load"
+        reason: "memory_pressure"
+      - action: "clear_caches"
+      - action: "alert"
+        severity: "high"
+        message: "Memory pressure - cleared caches and shed load"
+  
+  # Model Corruption
+  - name: "model_corruption_detected"
+    trigger_on:
+      - condition: "checksum_mismatch == true"
+        metric: "model.integrity"
+    steps:
+      - action: "restore_model_weights"
+        model_file: "$model_file_path"
+      - action: "restart_kernel"
+        kernel: "coding_agent"
+      - action: "verify_model_accuracy"
+      - action: "log"
+        message: "Restored corrupted model weights"
+  
+  # Config Drift
+  - name: "config_drift_detected"
+    trigger_on:
+      - condition: "config_hash_changed == true"
+        metric: "config.integrity"
+    steps:
+      - action: "restore_from_snapshot"
+        file: "$config_file_path"
+      - action: "restart_affected_kernels"
+      - action: "alert"
+        severity: "critical"
+        message: "Config drift detected and restored"
+  
+  # Heartbeat Gap
+  - name: "kernel_heartbeat_gap"
+    trigger_on:
+      - condition: "heartbeat_gap_seconds > 30"
+        metric: "kernel.heartbeat"
+    steps:
+      - action: "restart_kernel"
+        kernel: "$kernel_name"
+      - action: "escalate_to_coding_agent"
+        if: "restart_count > 3"
+      - action: "log"
+        message: "Kernel restarted due to missing heartbeats"
+  
+  # Repeated Errors
+  - name: "repeated_error_pattern"
+    trigger_on:
+      - condition: "error_count >= 5"
+        metric: "errors.by_signature"
+    steps:
+      - action: "escalate_to_coding_agent"
+        description: "Fix repeated error: $error_signature"
+        priority: 9
+      - action: "capture_context"
+        include: ["traceback", "logs", "variables"]
+      - action: "log"
+        message: "Escalated repeated error to coding agent"
+  
+  # Predictive Failure
+  - name: "high_failure_risk_detected"
+    trigger_on:
+      - condition: "failure_risk > 0.7"
+        metric: "ml.failure_prediction"
+    steps:
+      - action: "escalate_to_coding_agent"
+        description: "Proactive code review for high-risk file: $file_path"
+        priority: 7
+      - action: "run_tests"
+        file: "$file_path"
+      - action: "log"
+        message: "Proactive review triggered for high-risk file"
+  
+  # Dependency Vulnerability
+  - name: "cve_vulnerability_detected"
+    trigger_on:
+      - condition: "severity in ['critical', 'high']"
+        metric: "dependencies.cve"
+    steps:
+      - action: "escalate_to_coding_agent"
+        description: "Update vulnerable package: $package ($vulnerability_id)"
+        priority: 10
+      - action: "create_upgrade_pr"
+        package: "$package"
+        target_version: "$fixed_version"
+      - action: "alert"
+        severity: "critical"
+        message: "Critical CVE detected - upgrade task created"
+
+metadata:
+  version: "2.0"
+  last_updated: "2025-11-15"
+  total_playbooks: 10
