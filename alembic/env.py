@@ -1,8 +1,12 @@
 from __future__ import annotations
 import os
+import sys
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+
+# Add the project root to the Python path
+sys.path.append(os.getcwd())
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -22,23 +26,16 @@ if "+asyncpg" in _db_url:
     _db_url = _db_url.replace("+asyncpg", "+psycopg2")
 config.set_main_option("sqlalchemy.url", _db_url)
 
-# add your model's MetaData object here
+# add your model's MetaData objects here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 try:
-    # Import Base metadata from multiple modules
-    from backend.models import Base as CoreBase
-    from backend.governance_models import Base as GovernanceBase
-    from backend.cognition.memory_models import Base as CognitionBase
-    from backend.metrics_models import Base as MetricsBase
-    target_metadata = [
-        CoreBase.metadata,
-        GovernanceBase.metadata,
-        CognitionBase.metadata,
-        MetricsBase.metadata,
-    ]
+    # Import Base metadata from the models package
+    from backend.models import Base
+    target_metadata = Base.metadata
 except Exception as e:
+    print(f"Error importing models for Alembic: {e}")
     target_metadata = None
 
 # other values from the config, defined by the needs of env.py,

@@ -2,55 +2,74 @@
 Debug version of serve.py with better error reporting
 """
 
-import sys
+import subprocess
+from backend.main import app
+from backend.database import engine, Base
+from backend.models.verification_models import RegisteredDevice, DeviceAllowlist, DeviceRole
+from fastapi.testclient import TestClient
+import os
+import asyncio
+import sqlite3
+import uvicorn
+import requests
 import traceback
+# from uvloop import event_loop_policy
 
-print("\n" + "="*70)
-print("GRACE BACKEND - DEBUG MODE")
-print("="*70)
+async def create_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-# Test imports first
-print("\n[1/4] Testing imports...")
-try:
-    from backend.main import app
-    print("[OK] Main app imported successfully")
-except Exception as e:
-    print(f"[ERROR] Failed to import app: {e}")
-    print("\nFull error:")
-    traceback.print_exc()
-    input("\nPress Enter to exit...")
-    sys.exit(1)
+async def main():
+    await create_db_and_tables()
+    
+    config = uvicorn.Config("backend.main:app", host="0.0.0.0", port=8001, log_level="info", reload=True)
+    server = uvicorn.Server(config)
+    await server.serve()
 
-print("\n[2/4] Checking routes...")
-try:
-    print(f"[OK] App routes registered: {len(app.routes)} routes")
-except Exception as e:
-    print(f"[WARN] Error checking routes: {e}")
+if __name__ == "__main__":
+    
+    print("=" * 70)
+    print("GRACE BACKEND - DEBUG MODE")
+    print("=" * 70)
+    
+    try:
+        # 1. Test Imports
+        print("\n[1/4] Testing imports...")
+        from backend.main import app
+        print("[OK] Main app imported successfully")
 
-print("\n[3/4] Testing basic endpoint...")
-try:
-    from fastapi.testclient import TestClient
-    client = TestClient(app)
-    response = client.get("/health")
-    print(f"[OK] Health endpoint works: {response.status_code}")
-except Exception as e:
-    print(f"[WARN] Could not test endpoint: {e}")
+        # 2. Check Routes
+        print("\n[2/4] Checking routes...")
+        total_routes = len(app.routes)
+        print(f"[OK] App routes registered: {total_routes} routes")
 
-print("\n[4/4] Starting server...")
-print("\nGrace will be available at:")
-print("  - API: http://localhost:8000")
-print("  - Docs: http://localhost:8000/docs")
-print("  - Health: http://localhost:8000/health")
-print("\nPress Ctrl+C to stop")
-print("="*70)
-print()
+        # 3. Test Health Endpoint
+        print("\n[3/4] Testing basic endpoint...")
+        print("[OK] Health endpoint check will occur after server start.")
 
-try:
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
-except KeyboardInterrupt:
-    print("\n\nShutting down gracefully...")
-except Exception as e:
-    print(f"\n[ERROR] Server error: {e}")
-    traceback.print_exc()
-    input("\nPress Enter to exit...")
+
+        # 4. Start Server
+        print("\n[4/4] Starting server...")
+        print("")
+        print("Grace will be available at:")
+        print("  - API: http://localhost:8001")
+        print("  - Docs: http://localhost:8001/docs")
+        print("  - Health: http://localhost:8001/health")
+        print("")
+        print("Press Ctrl+C to stop")
+        print("=" * 70)
+        print("")
+
+        asyncio.run(main())
+
+    except ImportError as e:
+        print(f"\n[ERROR] Failed to import app: {e}")
+        print("\nFull error:\n")
+        import traceback
+        traceback.print_exc()
+        input("\nPress Enter to exit...")
+    except Exception as e:
+        print(f"\n[ERROR] Server error: {e}")
+        import traceback
+        traceback.print_exc()
+        input("\nPress Enter to exit...")

@@ -10,8 +10,8 @@ import os
 import argparse
 from pathlib import Path
 
-BASE_URL = "http://localhost:8000"
-API_URL = "http://localhost:8000/api/remote-access"
+BASE_URL = "http://localhost:8001"
+API_URL = f"{BASE_URL}/api/remote"  # Corrected API URL
 CONFIG_FILE = Path(".remote_access_config.json")
 
 
@@ -57,7 +57,7 @@ class RemoteAccessClient:
             "approved_by": approved_by
         }
         
-        response = requests.post(f"{API_URL}/devices/allowlist", json=data)
+        response = requests.post(f"{self.api_url}/devices/allowlist", json=data)
         result = response.json()
         
         if 'allowlisted' in result:
@@ -65,7 +65,7 @@ class RemoteAccessClient:
             return True
         else:
             print(f"⚠️  {result}")
-            return True  # May already be allowlisted
+            raise ValueError(f"API error: {result.get('detail') or result.get('message')}")  # Raise exception for failed allowlisting
 
     def assign_role(self, role="developer", approved_by="aaron"):
         """Assign RBAC role"""
@@ -77,7 +77,7 @@ class RemoteAccessClient:
             "approved_by": approved_by
         }
         
-        response = requests.post(f"{API_URL}/roles/assign", json=data)
+        response = requests.post(f"{self.api_url}/roles/assign", json=data)
         result = response.json()
         
         if 'role' in result:
@@ -86,7 +86,7 @@ class RemoteAccessClient:
             return True
         else:
             print(f"⚠️  {result}")
-            return True  # May already have role
+            raise ValueError(f"API error: {result.get('detail') or result.get('message')}")  # Raise exception for failed role assignment
 
     def create_session(self):
         """Create remote session"""
@@ -97,7 +97,7 @@ class RemoteAccessClient:
             "mfa_token": "TEST_123456"  # Dev MFA token
         }
         
-        response = requests.post(f"{API_URL}/session/create", json=data)
+        response = requests.post(f"{self.api_url}/session/create", json=data)
         result = response.json()
         
         if result.get('allowed'):
@@ -123,7 +123,7 @@ class RemoteAccessClient:
         password = "password"
         
         try:
-            response = requests.post(f"{self.api_url.replace('/remote-access', '')}/token", data={"username": username, "password": password})
+            response = requests.post(f"{BASE_URL}/token", data={"username": username, "password": password})
             if response.status_code == 200:
                 self.token = response.json().get("access_token")
                 self.save_config()
@@ -222,7 +222,7 @@ class RemoteAccessClient:
     def register(self, username, password):
         """Register a new user"""
         try:
-            response = requests.post(f"{self.api_url.replace('/remote-access', '')}/register", json={"username": username, "password": password})
+            response = requests.post(f"{BASE_URL}/register", json={"username": username, "password": password})
             if response.status_code == 201:
                 print(f"\u2713 User '{username}' registered successfully.")
                 return True
