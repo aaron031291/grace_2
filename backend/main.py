@@ -25,8 +25,8 @@ from backend.routes.operator_dashboard import router as operator_router
 app.include_router(operator_router)
 
 # Register remote access (zero-trust secure remote sessions)
-from backend.routes.remote_session_api import router as remote_session_router
-app.include_router(remote_session_router)
+from backend.routes.remote_access_api import router as remote_access_router
+app.include_router(remote_access_router)
 
 # Register autonomous learning
 from backend.routes.autonomous_learning_api import router as learning_router
