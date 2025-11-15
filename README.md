@@ -5,7 +5,7 @@
 
 ---
 
-## Start Grace (One Command)
+## Quick Start
 
 ```bash
 python serve.py
@@ -13,222 +13,195 @@ python serve.py
 
 Or double-click: **START.cmd**
 
+That's it! Everything starts from one command.
+
 ---
 
 ## What You Get
 
-- ✅ **Remote Access** - Zero-trust secure shell
-- ✅ **Autonomous Learning** - 11 domains, 25+ projects  
-- ✅ **Full REST API** - Complete documentation
+- ✅ **Remote Access** - Zero-trust secure shell with RBAC
+- ✅ **Autonomous Learning** - 11 domains, 25+ projects
+- ✅ **REST API** - Full API with documentation
 
 ---
 
-## Quick Start
+## After Server Starts
 
-### Terminal 1: Start Server
-```bash
-python serve.py
+**Terminal 1:** (serve.py running)
+```
+GRACE IS READY
+📡 API: http://localhost:8000
+📖 Docs: http://localhost:8000/docs
 ```
 
-Wait for: "GRACE IS READY" and note the port number
-
-### Terminal 2: Configure & Use
-
-**Configure (one time):**
+**Terminal 2:** Use Grace
 ```bash
-python auto_configure.py
-```
-
-**Then choose:**
-
-**Remote Access:**
-```bash
+# Remote Access
 python remote_access_client.py setup
 python remote_access_client.py shell
-```
 
-**Autonomous Learning:**
-```bash
+# Autonomous Learning
 python start_grace_now.py
+
+# Or use menu
+USE_GRACE.cmd
 ```
 
-**Interactive Menu:**
-```bash
-USE_GRACE.cmd
+---
+
+## Repository Structure
+
+```
+grace_2/
+├── serve.py              ← Start here!
+├── START.cmd             ← Or double-click this
+├── README.md             ← You are here
+├── HOW_TO_USE_GRACE.txt  ← Quick guide
+│
+├── Client Tools (use after server starts)
+│   ├── remote_access_client.py  ← Remote shell
+│   ├── start_grace_now.py       ← Start learning
+│   └── USE_GRACE.cmd            ← Interactive menu
+│
+├── backend/              ← Grace core code
+│   ├── main.py           ← FastAPI app
+│   ├── remote_access/    ← Remote access system
+│   ├── learning_systems/ ← Autonomous learning
+│   ├── routes/           ← API endpoints
+│   └── ...
+│
+├── scripts/              ← Organized scripts
+│   ├── startup/          ← Startup commands
+│   ├── utilities/        ← Utility scripts
+│   ├── test/             ← Test scripts
+│   └── chaos/            ← Chaos testing
+│
+└── docs/                 ← All documentation
+    ├── guides/           ← User guides
+    ├── archive/          ← Old status docs
+    └── ...
 ```
 
 ---
 
 ## Features
 
-### 1. Remote Access (Zero-Trust)
-- Device registration with hardware fingerprints
-- Multi-factor authentication
-- RBAC enforcement (5 roles: observer, executor, developer, admin, grace_sandbox)
+### Remote Access (Zero-Trust)
+- Device registration with MFA
+- 5 RBAC roles (observer, executor, developer, admin, grace_sandbox)
 - Complete session recording
 - WebSocket real-time shell
 - Suspicious activity detection
 
-**API:** `/api/remote/*` (15+ endpoints)
+**Endpoints:** `/api/remote/*`
 
-### 2. Autonomous Learning
-- 11 knowledge domains
+### Autonomous Learning
+- 11 knowledge domains (Programming, Cloud, ML/AI, Security, etc.)
 - 25+ learning projects
-- Builds real systems (CRM, e-commerce analytics, cloud infrastructure)
-- Sandbox experimentation
-- Edge case discovery
-- KPI tracking with trust scores
+- Builds real systems: CRM, E-commerce Analytics SaaS, Cloud Infrastructure
+- Sandbox experimentation with edge case discovery
+- KPI tracking and trust scores
 
 **Priority Projects:**
-- CRM System (Salesforce-like)
-- E-commerce Analytics SaaS (market prediction, ad funnels)
-- Cloud Infrastructure from Scratch (VM orchestrator, auto-scaler)
+1. **CRM System** - Salesforce-like platform
+2. **E-commerce Analytics** - Market prediction, ad funnel optimization
+3. **Cloud Infrastructure** - VM orchestrator, auto-scaler
 
-**API:** `/api/learning/*` (8+ endpoints)
-
----
-
-## API Documentation
-
-Once running: **http://localhost:8000/docs**
-
-(Or whatever port serve.py tells you)
+**Endpoints:** `/api/learning/*`
 
 ---
 
-## Core Files
+## Key Files (Root Directory)
 
 | File | Purpose |
 |------|---------|
-| `serve.py` | **ONLY way to start** (auto port detection) |
+| `serve.py` | **Main entry point** - starts everything |
 | `START.cmd` | Double-click to start |
-| `auto_configure.py` | Configure clients for correct port |
-| `remote_access_client.py` | Remote shell access |
-| `start_grace_now.py` | Start autonomous learning |
+| `README.md` | This file |
+| `HOW_TO_USE_GRACE.txt` | Quick reference |
+| `remote_access_client.py` | Remote shell client |
+| `start_grace_now.py` | Learning starter |
 | `USE_GRACE.cmd` | Interactive menu |
-| `check_server.py` | Check if running |
-| `test_integration.py` | Test everything |
 
----
-
-## Troubleshooting
-
-**Server won't start?**
-```bash
-python check_server.py  # See what's wrong
-```
-
-**Port conflict?**
-serve.py automatically finds next available port!
-
-**Already running?**
-```bash
-python check_server.py  # Shows which port
-python auto_configure.py  # Updates clients
-```
-
----
-
-## Architecture
-
-```
-serve.py (Entry Point)
-  ↓
-  Finds available port
-  ↓
-  Boots minimal Grace systems
-  ↓
-  Loads backend/main.py
-    ↓
-    ├─ Remote Access API (/api/remote/*)
-    │  ├─ Zero-trust gate
-    │  ├─ RBAC enforcer
-    │  ├─ Session manager
-    │  └─ Session recorder
-    │
-    └─ Autonomous Learning API (/api/learning/*)
-       ├─ Curriculum manager
-       └─ Project builder
-```
-
----
-
-## What Grace Does
-
-### Remote Access
-1. Register device → Verify identity → MFA
-2. Allowlist device → Assign RBAC role
-3. Create session → Get token
-4. Execute commands → All recorded
-5. Full audit trail
-
-### Autonomous Learning
-1. Select project (CRM, e-commerce, cloud)
-2. Create 5-phase plan
-3. Implement in sandbox
-4. Discover edge cases
-5. Test solutions
-6. Calculate KPIs & trust score
-7. Record learnings
-8. Master domain
-9. Next project
-
----
-
-## Success Looks Like
-
-**Terminal 1:**
-```
-GRACE - STARTING
-✅ Using port 8000
-
-[1/3] Booting core systems...
-  ✓ Message Bus: Active
-  
-[2/3] Loading Grace backend...
-  ✓ Remote Access: Ready
-  ✓ Autonomous Learning: Ready
-  
-GRACE IS READY
-📡 API: http://localhost:8000
-```
-
-**Terminal 2:**
-```bash
-$ python start_grace_now.py
-
-✅ Started: Full CRM System
-Progress: 2.5%
-Edge cases found: 1
-Grace is learning!
-```
+**Everything else is in subdirectories.**
 
 ---
 
 ## Documentation
 
-- **This file** - Quick start
-- `README_FINAL.md` - Complete details
-- `HOW_TO_USE_GRACE.txt` - Simple guide
-- `AUTONOMOUS_LEARNING_SYSTEM.md` - Learning docs
+**Quick Reference:**
+- `HOW_TO_USE_GRACE.txt` - Simple steps
+
+**Detailed Guides:** (in `docs/guides/`)
+- `AUTONOMOUS_LEARNING_SYSTEM.md` - Complete learning docs
 - `REMOTE_ACCESS_LIVE.md` - Remote access guide
+- `README_FINAL.md` - Comprehensive system guide
+
+**API Documentation:**
+- http://localhost:8000/docs (when running)
+
+---
+
+## Troubleshooting
+
+**Check if Grace is running:**
+```bash
+python scripts/utilities/check_server.py
+```
+
+**Port conflict?**
+serve.py auto-detects available port!
+
+**Need to configure clients?**
+```bash
+python scripts/utilities/auto_configure.py
+```
+
+---
+
+## Project Organization
+
+All files are now organized:
+- ✅ **Root** - Only essential files (serve.py, START.cmd, clients, README)
+- ✅ **docs/** - All documentation (guides, archives, specs)
+- ✅ **scripts/** - All scripts (utilities, tests, chaos, startup)
+- ✅ **backend/** - All code (routes, systems, kernels)
+- ✅ **No duplicates** - One clear path for everything
+
+---
+
+## Development
+
+**Start backend:**
+```bash
+python serve.py
+```
+
+**Run tests:**
+```bash
+python scripts/test/test_integration.py
+```
+
+**View logs:**
+```bash
+dir logs
+```
 
 ---
 
 ## Summary
 
-**One command starts everything:**
-```bash
-python serve.py
-```
+**One command to start:** `python serve.py`
 
-**Then use Grace for:**
-- Secure remote shell access
-- Autonomous learning (builds CRM, e-commerce SaaS, cloud infrastructure)
-- Full API access
+**Clean structure:** Everything organized
 
-**No more confusion. One clear path.** 🚀
+**Full featured:**
+- Remote access with zero-trust security
+- Autonomous learning system
+- Complete REST API
+
+**No confusion:** One entry point, clear documentation
 
 ---
 
-**Quick start:** `python serve.py`
+**Start now:** `python serve.py` 🚀
