@@ -89,11 +89,17 @@ class GraceWorldModel:
         # Load from disk
         self._load_knowledge()
         
-        # Initialize RAG integration
-        from backend.services.rag_service import rag_service
-        
-        if not rag_service.initialized:
-            await rag_service.initialize()
+        # Try to initialize RAG integration (optional)
+        try:
+            from backend.services.rag_service import rag_service
+            
+            if not rag_service.initialized:
+                await rag_service.initialize()
+            
+            logger.info("[WORLD-MODEL] RAG integration enabled")
+        except Exception as e:
+            logger.warning(f"[WORLD-MODEL] RAG integration unavailable: {e}")
+            logger.info("[WORLD-MODEL] Continuing without RAG (text search only)")
         
         # Build self-knowledge
         await self._build_self_knowledge()
@@ -223,19 +229,22 @@ class GraceWorldModel:
         self.knowledge_base[knowledge_id] = knowledge
         self.categories[category].append(knowledge_id)
         
-        # Also add to RAG vector store for semantic search
-        from backend.services.vector_store import vector_store
-        
-        await vector_store.add_text(
-            content=content,
-            source=f"world_model/{category}/{source}",
-            metadata={
-                'knowledge_id': knowledge_id,
-                'category': category,
-                'confidence': confidence,
-                'tags': tags or []
-            }
-        )
+        # Try to add to RAG vector store for semantic search (optional)
+        try:
+            from backend.services.vector_store import vector_store
+            
+            await vector_store.add_text(
+                content=content,
+                source=f"world_model/{category}/{source}",
+                metadata={
+                    'knowledge_id': knowledge_id,
+                    'category': category,
+                    'confidence': confidence,
+                    'tags': tags or []
+                }
+            )
+        except Exception:
+            pass  # RAG not available, knowledge still stored in memory
         
         logger.info(f"[WORLD-MODEL] Added knowledge: {category}/{knowledge_id}")
         
@@ -295,35 +304,52 @@ class GraceWorldModel:
         Returns:
             Relevant knowledge items
         """
-        from backend.services.rag_service import rag_service
-        
-        # Use RAG for semantic search
-        rag_results = await rag_service.retrieve(
-            query=query,
-            top_k=top_k,
-            similarity_threshold=min_confidence,
-            requested_by='world_model'
-        )
-        
-        # Match with world knowledge
-        results = []
-        
-        for item in rag_results.get('results', []):
-            knowledge_id = item.get('metadata', {}).get('knowledge_id')
+        # Try RAG first, fallback to text search
+        try:
+            from backend.services.rag_service import rag_service
             
-            if knowledge_id and knowledge_id in self.knowledge_base:
-                knowledge = self.knowledge_base[knowledge_id]
+            if rag_service.initialized:
+                rag_results = await rag_service.retrieve(
+                    query=query,
+                    top_k=top_k,
+                    similarity_threshold=min_confidence,
+                    requested_by='world_model'
+                )
                 
-                # Filter by category if specified
-                if category and knowledge.category != category:
-                    continue
+                results = []
+                for item in rag_results.get('results', []):
+                    knowledge_id = item.get('metadata', {}).get('knowledge_id')
+                    
+                    if knowledge_id and knowledge_id in self.knowledge_base:
+                        knowledge = self.knowledge_base[knowledge_id]
+                        
+                        if category and knowledge.category != category:
+                            continue
+                        
+                        knowledge.access_count += 1
+                        results.append(knowledge)
                 
-                # Track access
+                return results
+        except:
+            pass
+        
+        # Fallback: Simple text search
+        results = []
+        query_lower = query.lower()
+        
+        for knowledge in self.knowledge_base.values():
+            if category and knowledge.category != category:
+                continue
+            
+            if knowledge.confidence < min_confidence:
+                continue
+            
+            if query_lower in knowledge.content.lower() or any(query_lower in tag for tag in knowledge.tags):
                 knowledge.access_count += 1
-                
                 results.append(knowledge)
         
-        return results
+        results.sort(key=lambda k: (k.confidence, k.access_count), reverse=True)
+        return results[:top_k]
     
     async def ask_self(self, question: str) -> Dict[str, Any]:
         """

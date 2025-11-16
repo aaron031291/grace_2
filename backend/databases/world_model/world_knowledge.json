@@ -1,0 +1,31 @@
+{
+  "knowledge": [
+    {
+      "knowledge_id": "fe4c7311-f7a",
+      "category": "system",
+      "content": "I noticed latency exceeded 500ms threshold. I analyze_capacity, scale_workers. Metrics stabilized. Completed in 2.0 minutes.",
+      "confidence": 0.95,
+      "source": "ecommerce_mission_outcome",
+      "learned_at": "2025-11-16T20:41:35.147250",
+      "updated_at": "2025-11-16T20:41:35.147250",
+      "access_count": 0,
+      "tags": [
+        "mission",
+        "outcome",
+        "completed",
+        "ecommerce",
+        "performance_optimization"
+      ],
+      "metadata": {
+        "mission_id": "test_mission_001",
+        "domain_id": "ecommerce",
+        "mission_type": "performance_optimization",
+        "auto_generated": false,
+        "duration_seconds": 120,
+        "tasks_count": 2,
+        "metrics_impact": {}
+      }
+    }
+  ],
+  "saved_at": "2025-11-16T20:41:35.147250"
+}
