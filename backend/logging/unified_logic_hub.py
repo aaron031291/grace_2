@@ -94,6 +94,9 @@ class UnifiedLogicHub:
         self._schema_evolution = None
         self._learning_loop = None
         
+        # Flags to prevent repeated warnings
+        self._warned_missing = set()
+        
         # Metrics
         self.stats = {
             "total_updates": 0,
@@ -257,7 +260,9 @@ class UnifiedLogicHub:
             logger.info(f"[GOVERNANCE] ✓ Approved update {package.update_id}")
             
         except ImportError:
-            logger.warning(f"[GOVERNANCE] Skipped (not available)")
+            if 'governance' not in self._warned_missing:
+                logger.warning(f"[GOVERNANCE] Skipped (not available)")
+                self._warned_missing.add('governance')
     
     async def _stage_crypto_assignment(self, package: LogicUpdatePackage):
         """Stage 2: Lightning crypto signature"""
@@ -284,7 +289,9 @@ class UnifiedLogicHub:
             logger.info(f"[CRYPTO] ✓ Assigned crypto ID {package.crypto_id}")
             
         except ImportError:
-            logger.warning(f"[CRYPTO] Skipped (not available)")
+            if 'crypto' not in self._warned_missing:
+                logger.warning(f"[CRYPTO] Skipped (not available)")
+                self._warned_missing.add('crypto')
     
     async def _stage_log_proposal(self, package: LogicUpdatePackage):
         """Stage 3: Immutable log entry for proposal"""
@@ -315,7 +322,9 @@ class UnifiedLogicHub:
             logger.info(f"[IMMUTABLE_LOG] ✓ Logged proposal (sequence: {entry_id})")
             
         except ImportError:
-            logger.warning(f"[IMMUTABLE_LOG] Skipped (not available)")
+            if 'immutable_log' not in self._warned_missing:
+                logger.warning(f"[IMMUTABLE_LOG] Skipped (not available)")
+                self._warned_missing.add('immutable_log')
     
     async def _stage_validation(self, package: LogicUpdatePackage):
         """Stage 4: Validation in sandbox + schema checks"""
@@ -455,7 +464,9 @@ class UnifiedLogicHub:
             logger.info(f"[DISTRIBUTION] ✓ Published update event {event.event_id}")
             
         except ImportError:
-            logger.warning(f"[DISTRIBUTION] Skipped (trigger mesh not available)")
+            if 'distribution' not in self._warned_missing:
+                logger.warning(f"[DISTRIBUTION] Skipped (trigger mesh not available)")
+                self._warned_missing.add('distribution')
     
     async def _stage_log_completion(self, package: LogicUpdatePackage):
         """Stage 7: Log distribution completion"""
@@ -495,7 +506,9 @@ class UnifiedLogicHub:
             logger.info(f"[WATCHDOG] ✓ Monitoring update {package.update_id} for regressions")
             
         except ImportError:
-            logger.warning(f"[WATCHDOG] Skipped (not available)")
+            if 'watchdog' not in self._warned_missing:
+                logger.warning(f"[WATCHDOG] Skipped (not available)")
+                self._warned_missing.add('watchdog')
         
         # Generate update summary and start observation window
         try:

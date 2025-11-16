@@ -25,8 +25,9 @@ class PortWatchdog:
     - Logs everything
     """
     
-    def __init__(self, check_interval: int = 30):
+    def __init__(self, check_interval: int = 30, initial_delay: int = 60):
         self.check_interval = check_interval
+        self.initial_delay = initial_delay  # Wait before first check (server startup time)
         self.running = False
         self.watchdog_task: Optional[asyncio.Task] = None
         self.checks_performed = 0
@@ -34,14 +35,14 @@ class PortWatchdog:
         self.stale_cleaned = 0
     
     async def start(self):
-        """Start the watchdog"""
+        """Start the watchdog with initial delay for server startup"""
         if self.running:
             return
         
         self.running = True
         self.watchdog_task = asyncio.create_task(self._watch_loop())
         
-        logger.info(f"[PORT-WATCHDOG] Started (checking every {self.check_interval}s)")
+        logger.info(f"[PORT-WATCHDOG] Started (first check in {self.initial_delay}s, then every {self.check_interval}s)")
         logger.info(f"[PORT-WATCHDOG] Monitoring ports {port_manager.start_port}-{port_manager.end_port}")
     
     async def stop(self):
@@ -60,7 +61,11 @@ class PortWatchdog:
         logger.info("[PORT-WATCHDOG] Stopped")
     
     async def _watch_loop(self):
-        """Main watchdog loop"""
+        """Main watchdog loop with initial delay"""
+        # Wait for server to fully start before first check
+        logger.info(f"[PORT-WATCHDOG] Waiting {self.initial_delay}s for server startup...")
+        await asyncio.sleep(self.initial_delay)
+        
         while self.running:
             try:
                 await self._perform_health_checks()
