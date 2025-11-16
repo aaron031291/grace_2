@@ -5,7 +5,7 @@ Ability to revert to known-good model versions when integrity is compromised
 
 import subprocess
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
