@@ -11,6 +11,9 @@ import './MemoryPanel.css';
 import { GraceCopilotSidebar } from './GraceCopilotSidebar';
 import { CollaborationDashboard } from './CollaborationDashboard';
 import { FileTreeWorking } from './FileTreeWorking';
+import { useState } from 'react';
+import { MemoryWorkspace } from './MemoryWorkspace';
+import { FileText, Database, Search, Settings } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -42,8 +45,16 @@ interface MemoryPanelProps {
 }
 
 export const MemoryPanel: React.FC<MemoryPanelProps> = ({ token, userId }) => {
+  const [activeTab, setActiveTab] = useState<'files' | 'artifacts' | 'search' | 'settings'>('files');
+
+  const tabs = [
+    { id: 'files' as const, label: 'Files', icon: FileText },
+    { id: 'artifacts' as const, label: 'Artifacts', icon: Database },
+    { id: 'search' as const, label: 'Search', icon: Search },
+    { id: 'settings' as const, label: 'Settings', icon: Settings }
+  ];
+
   // State
-  const [activeTab, setActiveTab] = useState<'files' | 'tables' | 'collaboration'>('files');
   const [fileTree, setFileTree] = useState<FileNode | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['/']));
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -772,3 +783,4 @@ export const MemoryPanel: React.FC<MemoryPanelProps> = ({ token, userId }) => {
     </div>
   );
 };
+
