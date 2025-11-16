@@ -59,6 +59,31 @@ async def trigger_health_check() -> Dict[str, Any]:
     }
 
 
+@router.post("/cleanup-stale")
+async def cleanup_stale_ports() -> Dict[str, Any]:
+    """Force cleanup of all stale/dead port allocations"""
+    allocations = port_manager.get_all_allocations()
+    
+    stale_count = 0
+    cleaned_ports = []
+    
+    for alloc in allocations:
+        port = alloc['port']
+        status = alloc['health_status']
+        
+        if status in ['dead', 'not_listening', 'unreachable', 'unknown']:
+            port_manager.release_port(port)
+            cleaned_ports.append({'port': port, 'service': alloc['service_name'], 'status': status})
+            stale_count += 1
+    
+    return {
+        'success': True,
+        'cleaned_count': stale_count,
+        'cleaned_ports': cleaned_ports,
+        'remaining_allocations': len(port_manager.get_all_allocations())
+    }
+
+
 @router.get("/watchdog/status")
 async def get_watchdog_status() -> Dict[str, Any]:
     """Get watchdog status"""

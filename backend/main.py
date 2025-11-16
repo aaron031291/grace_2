@@ -67,6 +67,20 @@ try:
 except ImportError:
     pass  # TRUST framework routes not critical for basic operation
 
+# Register Domain System (NEW - Synergistic Architecture)
+try:
+    from backend.routes.domain_system_api import router as domain_system_router
+    app.include_router(domain_system_router)
+except ImportError:
+    pass  # Domain system optional for now
+
+# Register Infrastructure Layer (NEW - Service Mesh, Gateway, Load Balancer, Discovery)
+try:
+    from backend.routes.infrastructure_api import router as infrastructure_router
+    app.include_router(infrastructure_router)
+except ImportError:
+    pass  # Infrastructure layer optional for now
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
@@ -97,6 +111,22 @@ async def startup_unified_llm():
     except Exception as e:
         # Do not let startup fail – mark Layer 2 degraded and continue
         print(f"[WARN] Unified LLM startup degraded: {e}")
+    
+    # NEW: Initialize Domain System (synergistic architecture)
+    try:
+        from backend.domains import initialize_domain_system
+        await initialize_domain_system()
+        print("[OK] Domain system initialized (registry, events, memory, orchestrator)")
+    except Exception as e:
+        print(f"[WARN] Domain system initialization degraded: {e}")
+    
+    # NEW: Initialize Infrastructure Layer (service mesh, gateway, load balancer, discovery)
+    try:
+        from backend.infrastructure import initialize_infrastructure
+        await initialize_infrastructure()
+        print("[OK] Infrastructure layer initialized (service mesh, gateway, discovery)")
+    except Exception as e:
+        print(f"[WARN] Infrastructure layer initialization degraded: {e}")
         try:
             import traceback
             traceback.print_exc()
