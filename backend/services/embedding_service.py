@@ -70,7 +70,7 @@ class EmbeddingService:
     def __init__(
         self,
         default_model: str = EmbeddingModel.EMBED_3_SMALL,
-        provider: str = "openai",
+        provider: str = "local",
         batch_size: int = 100
     ):
         self.default_model = default_model
@@ -94,7 +94,8 @@ class EmbeddingService:
                 
                 api_key = os.getenv("OPENAI_API_KEY")
                 if not api_key:
-                    print("[EMBEDDING SERVICE] Warning: OPENAI_API_KEY not set")
+                    print("[EMBEDDING SERVICE] OPENAI_API_KEY not set, using local provider")
+                    self.provider = "local"  # Fallback to local
                     return
                 
                 self.openai_client = openai.AsyncOpenAI(api_key=api_key)
@@ -103,9 +104,11 @@ class EmbeddingService:
                 print("[EMBEDDING SERVICE] OpenAI client initialized")
                 
             except ImportError:
-                print("[EMBEDDING SERVICE] Warning: openai package not installed")
+                print("[EMBEDDING SERVICE] OpenAI not available, using local embeddings")
+                self.provider = "local"  # Fallback to local
             except Exception as e:
-                print(f"[EMBEDDING SERVICE] OpenAI initialization error: {e}")
+                print(f"[EMBEDDING SERVICE] OpenAI initialization error: {e}, using local embeddings")
+                self.provider = "local"  # Fallback to local
         
         # Load embedding cache from database
         await self._load_cache()
