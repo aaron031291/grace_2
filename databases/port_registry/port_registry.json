@@ -185,7 +185,7 @@
       "service_name": "grace_backend",
       "started_by": "guardian_kernel",
       "purpose": "Main Grace API - allocated by Guardian during boot",
-      "pid": null,
+      "pid": 11764,
       "allocated_at": "2025-11-16T23:52:24.763668",
       "last_health_check": "2025-11-16T23:52:24.763668",
       "health_status": "active",
@@ -193,5 +193,5 @@
       "error_count": 0
     }
   },
-  "last_updated": "2025-11-16T23:52:24.763668"
+  "last_updated": "2025-11-16T23:53:32.414454"
 }
