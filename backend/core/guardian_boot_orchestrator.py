@@ -148,15 +148,15 @@ class GuardianBootOrchestrator:
             
             if chunk.status == BootChunkStatus.PASSED:
                 boot_log['passed_chunks'] += 1
-                logger.info(f"[CHUNK {chunk.priority}] ✓ PASSED - Guardian approved")
+                logger.info(f"[CHUNK {chunk.priority}] [OK] PASSED - Guardian approved")
             
             elif chunk.status == BootChunkStatus.FAILED:
                 boot_log['failed_chunks'] += 1
                 
                 if chunk.can_fail:
-                    logger.warning(f"[CHUNK {chunk.priority}] ⚠ FAILED (non-critical) - Continuing")
+                    logger.warning(f"[CHUNK {chunk.priority}] [WARN] FAILED (non-critical) - Continuing")
                 else:
-                    logger.error(f"[CHUNK {chunk.priority}] ✗ FAILED (critical) - Boot aborted")
+                    logger.error(f"[CHUNK {chunk.priority}] [FAIL] FAILED (critical) - Boot aborted")
                     boot_log['aborted_at_chunk'] = chunk.chunk_id
                     boot_log['abort_reason'] = chunk.error
                     return boot_log
@@ -210,9 +210,9 @@ class GuardianBootOrchestrator:
         
         try:
             chunk.result = await chunk.boot_function()
-            logger.info(f"  ✓ Boot function completed")
+            logger.info(f"  [OK] Boot function completed")
         except Exception as e:
-            logger.error(f"  ✗ Boot function failed: {e}")
+            logger.error(f"  [FAIL] Boot function failed: {e}")
             chunk.status = BootChunkStatus.FAILED
             chunk.error = str(e)
             chunk.completed_at = datetime.utcnow().isoformat()
@@ -229,10 +229,10 @@ class GuardianBootOrchestrator:
             chunk.validation_result = validation_result
             
             if validation_result['passed']:
-                logger.info(f"  ✓ Guardian validation: PASSED")
+                logger.info(f"  [OK] Guardian validation: PASSED")
             else:
                 logger.warning(
-                    f"  ⚠ Guardian validation: ISSUES FOUND "
+                    f"  [WARN] Guardian validation: ISSUES FOUND "
                     f"({len(validation_result['issues'])} issues)"
                 )
                 chunk.issues_found = validation_result['issues']
@@ -253,7 +253,7 @@ class GuardianBootOrchestrator:
                 fixes = await self._guardian_auto_fix(chunk)
             
             chunk.auto_fixes_applied = fixes
-            logger.info(f"  ✓ Applied {len(fixes)} fixes")
+            logger.info(f"  [OK] Applied {len(fixes)} fixes")
         else:
             logger.info(f"  [3/6] No issues found - skipping fixes")
         
@@ -264,11 +264,11 @@ class GuardianBootOrchestrator:
             revalidation = await self._guardian_validate_chunk(chunk)
             
             if revalidation['passed']:
-                logger.info(f"  ✓ Re-validation: PASSED")
+                logger.info(f"  [OK] Re-validation: PASSED")
                 chunk.issues_found = []
             else:
                 logger.warning(
-                    f"  ⚠ Re-validation: {len(revalidation['issues'])} issues remain"
+                    f"  [WARN] Re-validation: {len(revalidation['issues'])} issues remain"
                 )
                 chunk.issues_found = revalidation['issues']
         else:
@@ -280,18 +280,18 @@ class GuardianBootOrchestrator:
         if not chunk.issues_found:
             chunk.guardian_approved = True
             chunk.status = BootChunkStatus.PASSED
-            logger.info(f"  ✓ Guardian: APPROVED")
+            logger.info(f"  [OK] Guardian: APPROVED")
         else:
             if chunk.can_fail:
                 logger.warning(
-                    f"  ⚠ Guardian: APPROVED WITH WARNINGS "
+                    f"  [WARN] Guardian: APPROVED WITH WARNINGS "
                     f"({len(chunk.issues_found)} non-critical issues)"
                 )
                 chunk.guardian_approved = True
                 chunk.status = BootChunkStatus.PASSED
             else:
                 logger.error(
-                    f"  ✗ Guardian: REJECTED "
+                    f"  [FAIL] Guardian: REJECTED "
                     f"({len(chunk.issues_found)} critical issues)"
                 )
                 chunk.guardian_approved = False
@@ -387,7 +387,7 @@ class GuardianBootOrchestrator:
                     logger.info(f"    → Guardian cannot fix: {issue} (outside domain)")
             
             except Exception as e:
-                logger.error(f"    ✗ Failed to fix {issue}: {e}")
+                logger.error(f"    [FAIL] Failed to fix {issue}: {e}")
         
         return fixes
     
@@ -439,11 +439,11 @@ class GuardianBootOrchestrator:
             # Example fixes
             if 'ipv6' in issue.lower():
                 # IPv6 issues are non-critical, just log
-                logger.info(f"      ✓ IPv6 issue noted (not critical)")
+                logger.info(f"      [OK] IPv6 issue noted (not critical)")
                 return True
             
             elif 'firewall' in issue.lower():
-                logger.info(f"      ⚠ Firewall issue - will retry on next port")
+                logger.info(f"      [WARN] Firewall issue - will retry on next port")
                 return True
             
             # Add more network fixes as needed
@@ -460,11 +460,11 @@ class GuardianBootOrchestrator:
         try:
             # Example boot fixes
             if 'timeout' in issue.lower():
-                logger.info(f"      ⚠ Increasing boot timeout")
+                logger.info(f"      [WARN] Increasing boot timeout")
                 return True
             
             elif 'dependency' in issue.lower():
-                logger.info(f"      ⚠ Reordering boot sequence")
+                logger.info(f"      [WARN] Reordering boot sequence")
                 return True
             
             # Add more boot fixes as needed

@@ -55,10 +55,10 @@ async def boot_grace_minimal():
         async def chunk_0_guardian():
             print("[CHUNK 0] Guardian Kernel Boot...")
             boot_result = await guardian.boot()
-            print(f"  ✓ Guardian: Online")
-            print(f"  ✓ Port: {boot_result['phases']['phase3_ports']['port']}")
-            print(f"  ✓ Network: {boot_result['phases']['phase2_diagnostics']['status']}")
-            print(f"  ✓ Watchdog: Active")
+            print(f"  [OK] Guardian: Online")
+            print(f"  [OK] Port: {boot_result['phases']['phase3_ports']['port']}")
+            print(f"  [OK] Network: {boot_result['phases']['phase2_diagnostics']['status']}")
+            print(f"  [OK] Watchdog: Active")
             return boot_result
         
         boot_orchestrator.register_chunk(BootChunk(
@@ -82,17 +82,17 @@ async def boot_grace_minimal():
                 if guardian.check_can_boot_kernel('message_bus', 1):
                     await message_bus.start()
                     guardian.signal_kernel_boot('message_bus', 1)
-                    print("  ✓ Message Bus: Active")
+                    print("  [OK] Message Bus: Active")
                     results['message_bus'] = 'active'
                 
                 if guardian.check_can_boot_kernel('immutable_log', 2):
                     await immutable_log.start()
                     guardian.signal_kernel_boot('immutable_log', 2)
-                    print("  ✓ Immutable Log: Active")
+                    print("  [OK] Immutable Log: Active")
                     results['immutable_log'] = 'active'
             
             except ImportError as e:
-                print(f"  ⚠ Core systems not available: {e}")
+                print(f"  [WARN] Core systems not available: {e}")
                 results['warnings'] = ['core_systems_unavailable']
             
             return results
@@ -161,9 +161,9 @@ async def boot_grace_minimal():
                         if not any(m.split(':')[0] in avail for avail in available_models)
                     ]
                     
-                    print(f"  ✓ Ollama: Running")
-                    print(f"  ✓ Total models: {len(available_models)}")
-                    print(f"  ✓ Grace models: {len(installed)}/21 specialized models")
+                    print(f"  [OK] Ollama: Running")
+                    print(f"  [OK] Total models: {len(available_models)}")
+                    print(f"  [OK] Grace models: {len(installed)}/21 specialized models")
                     
                     # Show categorization
                     summary = get_summary()
@@ -180,7 +180,7 @@ async def boot_grace_minimal():
                             print(f"    ... and {len(installed) - 5} more")
                     
                     if missing:
-                        print(f"  ⚠ Missing {len(missing)} models:")
+                        print(f"  [WARN] Missing {len(missing)} models:")
                         for model in missing[:3]:
                             print(f"    • {model}")
                         if len(missing) > 3:
@@ -193,11 +193,11 @@ async def boot_grace_minimal():
                     results['installed'] = installed
                     results['missing'] = missing
                 else:
-                    print(f"  ⚠ Ollama returned status {response.status_code}")
+                    print(f"  [WARN] Ollama returned status {response.status_code}")
                     results['warnings'] = ['ollama_unexpected_status']
             
             except requests.exceptions.RequestException as e:
-                print(f"  ⚠ Ollama not running")
+                print(f"  [WARN] Ollama not running")
                 print(f"    Start with: ollama serve")
                 results['warnings'] = ['ollama_not_running']
             
@@ -218,9 +218,9 @@ async def boot_grace_minimal():
             print("[CHUNK 3] Grace Backend...")
             from backend.main import app
             
-            print(f"  ✓ Backend loaded")
-            print(f"  ✓ Remote Access: Ready")
-            print(f"  ✓ {len(app.routes)} API endpoints")
+            print(f"  [OK] Backend loaded")
+            print(f"  [OK] Remote Access: Ready")
+            print(f"  [OK] {len(app.routes)} API endpoints")
             
             return {'app': 'loaded', 'endpoints': len(app.routes)}
         
@@ -245,9 +245,9 @@ async def boot_grace_minimal():
             if db_dir.exists():
                 db_files = list(db_dir.glob("*.db"))
                 db_count = len(db_files)
-                print(f"  ✓ {db_count} databases ready")
+                print(f"  [OK] {db_count} databases ready")
             else:
-                print(f"  ⚠ Database directory not found")
+                print(f"  [WARN] Database directory not found")
             
             return {'db_count': db_count}
         
@@ -272,10 +272,10 @@ async def boot_grace_minimal():
             domains_count = len(learning_whitelist_manager.whitelist.get('domains', {}))
             rules = learning_whitelist_manager.whitelist.get('autonomous_rules', {})
             
-            print(f"  ✓ Whitelist loaded")
-            print(f"  ✓ Learning domains: {domains_count}")
-            print(f"  ✓ Allowed actions: {len(rules.get('allowed_actions', []))}")
-            print(f"  ✓ Approval required: {len(rules.get('approval_required', []))}")
+            print(f"  [OK] Whitelist loaded")
+            print(f"  [OK] Learning domains: {domains_count}")
+            print(f"  [OK] Allowed actions: {len(rules.get('allowed_actions', []))}")
+            print(f"  [OK] Approval required: {len(rules.get('approval_required', []))}")
             
             return {
                 'loaded': True,
@@ -312,20 +312,20 @@ async def boot_grace_minimal():
             from backend.trust_framework.alert_system import alert_system
             from backend.trust_framework.trend_analyzer import trend_analyzer
             
-            print(f"  ✓ HTM Anomaly Detection: Active")
-            print(f"  ✓ Verification Mesh: 5-role quorum")
-            print(f"  ✓ Model Health Telemetry: 20 monitors")
-            print(f"  ✓ Adaptive Guardrails: 4 levels")
-            print(f"  ✓ Ahead-of-User Research: Predictive")
-            print(f"  ✓ Data Hygiene Pipeline: 6 checks")
-            print(f"  ✓ Hallucination Ledger: Tracking")
-            print(f"  ✓ External Model Protocol: Secure (HMAC, rate-limited, audited)")
-            print(f"  ✓ Advanced Watchdog: Predictive failure detection")
-            print(f"  ✓ Model Integrity System: Checksum + behavioral verification")
-            print(f"  ✓ Model Rollback: Snapshot-based recovery")
-            print(f"  ✓ Metrics Aggregator: Time-series collection")
-            print(f"  ✓ Alert System: Multi-channel notifications")
-            print(f"  ✓ Trend Analyzer: Historical analysis & prediction")
+            print(f"  [OK] HTM Anomaly Detection: Active")
+            print(f"  [OK] Verification Mesh: 5-role quorum")
+            print(f"  [OK] Model Health Telemetry: 20 monitors")
+            print(f"  [OK] Adaptive Guardrails: 4 levels")
+            print(f"  [OK] Ahead-of-User Research: Predictive")
+            print(f"  [OK] Data Hygiene Pipeline: 6 checks")
+            print(f"  [OK] Hallucination Ledger: Tracking")
+            print(f"  [OK] External Model Protocol: Secure (HMAC, rate-limited, audited)")
+            print(f"  [OK] Advanced Watchdog: Predictive failure detection")
+            print(f"  [OK] Model Integrity System: Checksum + behavioral verification")
+            print(f"  [OK] Model Rollback: Snapshot-based recovery")
+            print(f"  [OK] Metrics Aggregator: Time-series collection")
+            print(f"  [OK] Alert System: Multi-channel notifications")
+            print(f"  [OK] Trend Analyzer: Historical analysis & prediction")
             
             # Start advanced watchdog
             await advanced_watchdog.start()
@@ -369,12 +369,12 @@ async def boot_grace_minimal():
             # Integrate all kernels
             result = await integrator.integrate_all_kernels()
             
-            print(f"  ✓ Integrated: {result.get('integrated', 0)}/20 kernels")
-            print(f"  ✓ Tier 1 (Critical): {result.get('tier1_count', 0)}")
-            print(f"  ✓ Tier 2 (Governance): {result.get('tier2_count', 0)}")
-            print(f"  ✓ Tier 3 (Execution): {result.get('tier3_count', 0)}")
-            print(f"  ✓ Tier 4 (Agentic): {result.get('tier4_count', 0)}")
-            print(f"  ✓ Tier 5 (Services): {result.get('tier5_count', 0)}")
+            print(f"  [OK] Integrated: {result.get('integrated', 0)}/20 kernels")
+            print(f"  [OK] Tier 1 (Critical): {result.get('tier1_count', 0)}")
+            print(f"  [OK] Tier 2 (Governance): {result.get('tier2_count', 0)}")
+            print(f"  [OK] Tier 3 (Execution): {result.get('tier3_count', 0)}")
+            print(f"  [OK] Tier 4 (Agentic): {result.get('tier4_count', 0)}")
+            print(f"  [OK] Tier 5 (Services): {result.get('tier5_count', 0)}")
             
             return result
         
@@ -397,14 +397,14 @@ async def boot_grace_minimal():
         boot_log = await boot_orchestrator.execute_boot()
         
         if not boot_log.get('success'):
-            print(f"\n❌ Boot failed at chunk: {boot_log.get('aborted_at_chunk')}")
+            print(f"\n[ERROR] Boot failed at chunk: {boot_log.get('aborted_at_chunk')}")
             print(f"   Reason: {boot_log.get('abort_reason')}")
             return False
         
         # Extract results
         guardian_chunk = next((c for c in boot_orchestrator.chunks if c.chunk_id == 'guardian_boot'), None)
         if not guardian_chunk or not guardian_chunk.result:
-            print("❌ Guardian chunk not found or failed")
+            print("[ERROR] Guardian chunk not found or failed")
             return False
         
         guardian_boot = guardian_chunk.result
@@ -426,14 +426,7 @@ async def boot_grace_minimal():
 if __name__ == "__main__":
     print()
     print("=" * 80)
-    print("   ██████╗ ██████╗  █████╗  ██████╗███████╗")
-    print("  ██╔════╝ ██╔══██╗██╔══██╗██╔════╝██╔════╝")
-    print("  ██║  ███╗██████╔╝███████║██║     █████╗  ")
-    print("  ██║   ██║██╔══██╗██╔══██║██║     ██╔══╝  ")
-    print("  ╚██████╔╝██║  ██║██║  ██║╚██████╗███████╗")
-    print("   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝")
-    print()
-    print("  Autonomous AI System")
+    print("   GRACE - Autonomous AI System")
     print("=" * 80)
     print()
     
@@ -449,7 +442,7 @@ if __name__ == "__main__":
     port = get_guardian_allocated_port(boot_result)
     
     if not port:
-        print("❌ Guardian did not allocate a port")
+        print("[ERROR] Guardian did not allocate a port")
         sys.exit(1)
     
     # Start server
@@ -503,7 +496,7 @@ if __name__ == "__main__":
             
         except OSError as e:
             if 'address already in use' in str(e).lower() or '10048' in str(e):
-                print(f"\n⚠️  Port {port} in use! Trying next port...")
+                print(f"\n[WARN]️  Port {port} in use! Trying next port...")
                 
                 # Release this port in manager
                 try:
@@ -533,7 +526,7 @@ if __name__ == "__main__":
                     pass
                 
                 if retry == max_retries - 1:
-                    print(f"\n❌ Could not bind to any port after {max_retries} tries!")
+                    print(f"\n[ERROR] Could not bind to any port after {max_retries} tries!")
                     print("Run: python kill_grace.py")
                     sys.exit(1)
             else:
