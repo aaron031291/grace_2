@@ -161,6 +161,11 @@ async def startup_unified_llm():
         asyncio.create_task(world_model_integrity_validator.start_validation_loop())
         print("[OK] Integrity validation loop started (5-minute intervals)")
         
+        # NEW: Initialize Performance Analyzer (Self-Optimization)
+        from backend.self_optimization.domain_performance_analyzer import domain_performance_analyzer
+        await domain_performance_analyzer.initialize()
+        print("[OK] Performance analyzer initialized (self-optimization + auto-tuning)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
@@ -711,5 +716,60 @@ async def sample_tts_audio():
     """Sample TTS audio (placeholder)"""
     # TODO: Return actual generated TTS audio
     return {"message": "TTS audio generation placeholder"}
+
+# ===== SELF-OPTIMIZATION API =====
+
+@app.get("/api/self/assessment")
+async def get_self_assessment():
+    """
+    Get Grace's self-assessment of her performance
+    
+    Returns strengths, weaknesses, and improvement actions
+    """
+    from backend.self_optimization.domain_performance_analyzer import get_self_assessment
+    
+    analysis = await get_self_assessment()
+    
+    return {
+        "overall_health": analysis.overall_health,
+        "strengths": analysis.strengths,
+        "weaknesses": analysis.weaknesses,
+        "improvement_actions": analysis.improvement_actions,
+        "narrative": analysis.to_narrative(),
+        "analyzed_at": analysis.analysis_timestamp
+    }
+
+@app.get("/api/self/domain/{domain_id}/performance")
+async def get_domain_performance(domain_id: str):
+    """Get performance report for specific domain"""
+    from backend.self_optimization.domain_performance_analyzer import domain_performance_analyzer
+    
+    return domain_performance_analyzer.get_domain_report(domain_id)
+
+@app.post("/api/self/improve")
+async def execute_improvement(action_index: int = 0):
+    """
+    Execute a self-improvement action
+    
+    Args:
+        action_index: Index of action to execute (0 = highest priority)
+    """
+    from backend.self_optimization.domain_performance_analyzer import execute_improvement_action
+    
+    result = await execute_improvement_action(action_index)
+    
+    return {
+        "success": result.get("success", False),
+        "action": result.get("action"),
+        "summary": result.get("summary"),
+        "metrics": result.get("metrics", {})
+    }
+
+@app.get("/api/self/stats")
+async def get_self_optimization_stats():
+    """Get self-optimization system statistics"""
+    from backend.self_optimization.domain_performance_analyzer import domain_performance_analyzer
+    
+    return domain_performance_analyzer.get_stats()
 
 __all__ = ['app']
