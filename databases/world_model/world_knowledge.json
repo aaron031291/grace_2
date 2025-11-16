@@ -3479,7 +3479,28 @@
         "auto_fixable": true,
         "healing_playbook": "restart_service"
       }
+    },
+    {
+      "knowledge_id": "09514162-a86",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T23:54:28.710539",
+      "updated_at": "2025-11-16T23:54:28.710539",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     }
   ],
-  "saved_at": "2025-11-16T23:54:25.887210"
+  "saved_at": "2025-11-16T23:54:28.710539"
 }
