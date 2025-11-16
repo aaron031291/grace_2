@@ -65,6 +65,7 @@ class KernelPortManager:
     
     def __init__(self):
         self.port_assignments: Dict[str, KernelPortAssignment] = {}
+        self.api_assignments: Dict[str, KernelPortAssignment] = {}  # Empty for now, APIs on main port
         self.base_port = 8100
         
         # Define kernel port map

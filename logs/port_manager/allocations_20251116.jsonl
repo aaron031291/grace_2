@@ -24,3 +24,29 @@
 {"timestamp": "2025-11-16T16:32:31.972794", "action": "allocate", "port": 8018, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-16T16:32:52.540372", "action": "release", "port": 8017, "service_name": "grace_backend", "duration_seconds": 4126.693811, "request_count": 0, "error_count": 0}
 {"timestamp": "2025-11-16T16:32:52.544809", "action": "release", "port": 8016, "service_name": "grace_backend", "duration_seconds": 3907.361173, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.033152", "action": "release", "port": 8001, "service_name": "grace_backend", "duration_seconds": 9257.148669, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.037217", "action": "release", "port": 8002, "service_name": "grace_backend", "duration_seconds": 6839.226564, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.039217", "action": "release", "port": 8000, "service_name": "grace_backend", "duration_seconds": 6720.763141, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.041745", "action": "release", "port": 8003, "service_name": "grace_backend", "duration_seconds": 6369.550632, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.044275", "action": "release", "port": 8004, "service_name": "grace_backend", "duration_seconds": 6365.731325, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.047386", "action": "release", "port": 8005, "service_name": "grace_backend", "duration_seconds": 6299.762803, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.050385", "action": "release", "port": 8006, "service_name": "grace_backend", "duration_seconds": 6264.427905, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.052385", "action": "release", "port": 8007, "service_name": "grace_backend", "duration_seconds": 6221.810055, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.054938", "action": "release", "port": 8008, "service_name": "grace_backend", "duration_seconds": 6170.458865, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.056942", "action": "release", "port": 8009, "service_name": "grace_backend", "duration_seconds": 6101.456334, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.059007", "action": "release", "port": 8010, "service_name": "grace_backend", "duration_seconds": 6031.787303, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.061007", "action": "release", "port": 8011, "service_name": "grace_backend", "duration_seconds": 5950.212383, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.064007", "action": "release", "port": 8012, "service_name": "grace_backend", "duration_seconds": 5866.013191, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.066010", "action": "release", "port": 8013, "service_name": "grace_backend", "duration_seconds": 5735.976163, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.068063", "action": "release", "port": 8014, "service_name": "grace_backend", "duration_seconds": 5575.340564, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.070064", "action": "release", "port": 8015, "service_name": "grace_backend", "duration_seconds": 5423.888917, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.072565", "action": "release", "port": 8018, "service_name": "grace_backend", "duration_seconds": 540.101771, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:41:32.174537", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T16:45:04.799612", "action": "release", "port": 8000, "service_name": "grace_backend", "duration_seconds": 212.627074, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:45:12.039364", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T16:47:20.765962", "action": "allocate", "port": 8001, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T16:47:24.510868", "action": "release", "port": 8000, "service_name": "grace_backend", "duration_seconds": 132.473856, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:51:47.178599", "action": "release", "port": 8001, "service_name": "grace_backend", "duration_seconds": 266.414637, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:51:47.310558", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T17:00:34.309103", "action": "allocate", "port": 8001, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T17:11:38.097782", "action": "allocate", "port": 8002, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}

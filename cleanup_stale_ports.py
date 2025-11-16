@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from backend.core.port_manager import port_manager
 
-def cleanup_stale_ports():
+def cleanup_stale_ports(auto_yes=False):
     """Clean up all stale port allocations"""
     print("=" * 60)
     print("GRACE - Port Cleanup Utility")
@@ -45,7 +45,11 @@ def cleanup_stale_ports():
     print()
     
     if stale_ports:
-        response = input(f"Clean up {len(stale_ports)} stale ports? (y/n): ")
+        if not auto_yes:
+            response = input(f"Clean up {len(stale_ports)} stale ports? (y/n): ")
+        else:
+            response = 'y'
+            print(f"Auto-cleaning {len(stale_ports)} stale ports...")
         
         if response.lower() == 'y':
             for port in stale_ports:
@@ -65,4 +69,6 @@ def cleanup_stale_ports():
     print()
 
 if __name__ == "__main__":
-    cleanup_stale_ports()
+    import sys
+    auto_yes = '--yes' in sys.argv or '-y' in sys.argv
+    cleanup_stale_ports(auto_yes=auto_yes)

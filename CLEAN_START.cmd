@@ -9,7 +9,7 @@ python kill_grace.py >nul 2>&1
 timeout /t 2 /nobreak >nul
 
 echo Step 2: Cleaning up stale port allocations...
-python cleanup_stale_ports.py
+python cleanup_stale_ports.py --yes
 
 echo Step 3: Starting Grace with complete infrastructure...
 echo.

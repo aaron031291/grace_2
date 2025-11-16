@@ -81,6 +81,13 @@ try:
 except ImportError:
     pass  # Infrastructure layer optional for now
 
+# Register World Model (NEW - Grace's internal knowledge with RAG + MCP)
+try:
+    from backend.routes.world_model_api import router as world_model_router
+    app.include_router(world_model_router)
+except ImportError:
+    pass  # World model optional for now
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
@@ -127,6 +134,14 @@ async def startup_unified_llm():
         print("[OK] Infrastructure layer initialized (service mesh, gateway, discovery)")
     except Exception as e:
         print(f"[WARN] Infrastructure layer initialization degraded: {e}")
+    
+    # NEW: Initialize World Model (Grace's internal knowledge with RAG + MCP)
+    try:
+        from backend.world_model import initialize_world_model
+        await initialize_world_model()
+        print("[OK] World model initialized (Grace's self-knowledge with RAG + MCP)")
+    except Exception as e:
+        print(f"[WARN] World model initialization degraded: {e}")
         try:
             import traceback
             traceback.print_exc()

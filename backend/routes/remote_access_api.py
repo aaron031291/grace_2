@@ -1278,3 +1278,202 @@ async def stop_session(
         resource=session.session_id,
     )
     return {"message": "Session stopped successfully."}
+
+
+# ============================================================================
+# RAG Pipeline - Knowledge Retrieval for Remote Access
+# ============================================================================
+
+class RAGQueryRequest(BaseModel):
+    """RAG query request"""
+    query: str
+    top_k: int = 5
+    source_types: Optional[List[str]] = None
+    with_citations: bool = True
+
+
+@router.post("/rag/query")
+async def query_knowledge_base(
+    request: RAGQueryRequest,
+    current_user: Dict = Depends(get_current_user)
+):
+    """
+    Query Grace's knowledge base using RAG
+    
+    Returns relevant context from:
+    - Documents
+    - Recordings  
+    - Code memory
+    - Conversations
+    - Learning history
+    
+    Secured with governance and audit logging
+    """
+    from backend.services.rag_service import rag_service
+    
+    # Log governance event
+    await governance_engine.log_event(
+        actor=current_user["username"],
+        action="rag_query",
+        resource=f"query:{request.query[:50]}",
+        metadata={"top_k": request.top_k, "source_types": request.source_types}
+    )
+    
+    # Initialize RAG if needed
+    if not rag_service.initialized:
+        await rag_service.initialize()
+    
+    # Retrieve context
+    if request.with_citations:
+        result = await rag_service.retrieve_with_citations(
+            query=request.query,
+            top_k=request.top_k,
+            source_types=request.source_types,
+            requested_by=current_user["username"]
+        )
+    else:
+        result = await rag_service.retrieve(
+            query=request.query,
+            top_k=request.top_k,
+            source_types=request.source_types,
+            requested_by=current_user["username"]
+        )
+    
+    return {
+        "success": True,
+        "query": request.query,
+        "results": result,
+        "retrieved_at": datetime.utcnow().isoformat()
+    }
+
+
+@router.post("/rag/ask")
+async def ask_with_rag(
+    question: str,
+    model: str = "qwen2.5:32b",
+    current_user: Dict = Depends(get_current_user)
+):
+    """
+    Ask a question and get answer augmented with retrieved knowledge
+    
+    Flow:
+    1. Retrieve relevant context from knowledge base
+    2. Generate answer using LLM with context
+    3. Return answer with citations
+    """
+    from backend.services.rag_service import rag_service
+    from backend.model_orchestrator import model_orchestrator
+    
+    # Log governance
+    await governance_engine.log_event(
+        actor=current_user["username"],
+        action="rag_ask",
+        resource=f"question:{question[:50]}"
+    )
+    
+    # Initialize RAG
+    if not rag_service.initialized:
+        await rag_service.initialize()
+    
+    # Step 1: Retrieve context
+    context_result = await rag_service.retrieve_with_citations(
+        query=question,
+        top_k=5,
+        requested_by=current_user["username"]
+    )
+    
+    # Step 2: Build prompt with context
+    context_text = "\n\n".join([
+        f"[Source: {item['source']}]\n{item['content']}"
+        for item in context_result.get('results', [])
+    ])
+    
+    prompt = f"""Based on the following context, answer the question.
+
+Context:
+{context_text}
+
+Question: {question}
+
+Answer (cite sources):"""
+    
+    # Step 3: Generate answer
+    response = await model_orchestrator.generate(
+        model=model,
+        prompt=prompt,
+        max_tokens=500
+    )
+    
+    return {
+        "success": True,
+        "question": question,
+        "answer": response.get('text', ''),
+        "context_used": context_result.get('results', []),
+        "citations": [item['source'] for item in context_result.get('results', [])],
+        "model_used": model
+    }
+
+
+@router.get("/rag/stats")
+async def get_rag_stats(current_user: Dict = Depends(get_current_user)):
+    """Get RAG service statistics"""
+    from backend.services.rag_service import rag_service
+    
+    if not rag_service.initialized:
+        return {
+            "initialized": False,
+            "message": "RAG service not yet initialized"
+        }
+    
+    # Get vector store stats
+    from backend.services.vector_store import vector_store
+    
+    return {
+        "initialized": True,
+        "vector_store": {
+            "total_vectors": await vector_store.count(),
+            "collections": await vector_store.list_collections()
+        },
+        "max_context_tokens": rag_service.max_context_tokens
+    }
+
+
+@router.post("/rag/ingest-text")
+async def ingest_text_to_rag(
+    content: str,
+    source: str,
+    metadata: Optional[Dict[str, Any]] = None,
+    current_user: Dict = Depends(get_current_user)
+):
+    """
+    Ingest text into RAG knowledge base
+    Makes content searchable for future queries
+    """
+    from backend.services.rag_service import rag_service
+    from backend.services.vector_store import vector_store
+    
+    # Log governance
+    await governance_engine.log_event(
+        actor=current_user["username"],
+        action="rag_ingest",
+        resource=f"source:{source}"
+    )
+    
+    # Initialize if needed
+    if not rag_service.initialized:
+        await rag_service.initialize()
+    
+    # Ingest
+    result = await vector_store.add_text(
+        content=content,
+        source=source,
+        metadata=metadata or {}
+    )
+    
+    return {
+        "success": True,
+        "source": source,
+        "ingested_at": datetime.utcnow().isoformat(),
+        "vector_id": result.get('id'),
+        "message": "Content added to knowledge base"
+    }
