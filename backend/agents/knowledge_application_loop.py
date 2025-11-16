@@ -39,15 +39,17 @@ class KnowledgeApplicationLoop:
         self,
         problem: str,
         goal: str = None,
-        max_attempts: int = 3
+        max_attempts: int = 3,
+        deep_ingest: bool = True
     ) -> Dict[str, Any]:
         """
-        Complete cycle: Learn → Test → Apply → Feedback
+        Complete cycle: Learn → Ingest Real Data → Test → Apply → Feedback
         
         Args:
             problem: Problem to solve
             goal: Desired outcome
             max_attempts: Max attempts before giving up
+            deep_ingest: Whether to ingest real documentation/examples/datasets
         
         Returns:
             Complete cycle report with knowledge and application results
@@ -64,7 +66,10 @@ class KnowledgeApplicationLoop:
             'phases': {},
             'final_result': None,
             'knowledge_acquired': False,
-            'application_successful': False
+            'real_data_ingested': False,
+            'application_successful': False,
+            'terms_discovered': [],
+            'resources_downloaded': []
         }
         
         logger.info(f"[KNOWLEDGE-APP-LOOP] 🔄 Starting learn-test-apply cycle")
@@ -105,6 +110,35 @@ class KnowledgeApplicationLoop:
                     context={'goal': goal} if goal else None,
                     test_in_sandbox=True  # Always test in sandbox
                 )
+                
+                # DEEP INGEST: Use extracted terms to get REAL data
+                if deep_ingest and solution.get('learned_terminology'):
+                    logger.info("[KNOWLEDGE-APP-LOOP] 📥 Deep ingesting real data from discovered terms...")
+                    
+                    from backend.agents.real_data_ingestion import real_data_ingestion
+                    
+                    # Get all unknown/new terms
+                    terms_to_ingest = solution['learned_terminology'].get('unknown_terms', [])
+                    if not terms_to_ingest:
+                        # Fallback to all terms if no unknown
+                        terms_to_ingest = list(solution['learned_terminology'].get('all_terms', set()))[:10]
+                    
+                    if terms_to_ingest:
+                        ingestion_result = await real_data_ingestion.ingest_from_terms(
+                            terms=terms_to_ingest,
+                            context=problem
+                        )
+                        
+                        cycle_report['real_data_ingested'] = True
+                        cycle_report['terms_discovered'] = terms_to_ingest
+                        cycle_report['resources_downloaded'] = ingestion_result.get('total_ingested', 0)
+                        cycle_report['phases'][f'attempt_{attempt}_data_ingestion'] = ingestion_result
+                        
+                        logger.info(f"[KNOWLEDGE-APP-LOOP] ✅ Ingested {ingestion_result.get('total_ingested', 0)} real resources")
+                        logger.info(f"[KNOWLEDGE-APP-LOOP] - Docs: {len(ingestion_result.get('documentation_found', []))}")
+                        logger.info(f"[KNOWLEDGE-APP-LOOP] - Code: {len(ingestion_result.get('code_examples_found', []))}")
+                        logger.info(f"[KNOWLEDGE-APP-LOOP] - Datasets: {len(ingestion_result.get('datasets_found', []))}")
+                        logger.info(f"[KNOWLEDGE-APP-LOOP] - Repos: {len(ingestion_result.get('repos_found', []))}")
                 
                 cycle_report['phases'][f'attempt_{attempt}_creative_solving'] = {
                     'approaches_generated': len(solution.get('alternatives', [])),
