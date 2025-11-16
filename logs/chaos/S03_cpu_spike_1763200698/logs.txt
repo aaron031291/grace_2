@@ -1,1 +1,0 @@
-Started CPU stress: 2 cores for 30s

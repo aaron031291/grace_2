@@ -104,6 +104,13 @@ class MissionOutcomeLogger:
                 knowledge_id=knowledge_id
             )
             
+            await self._record_to_analytics(
+                mission_id=mission_id,
+                mission_context=mission_context,
+                telemetry_data=telemetry_data,
+                success=success
+            )
+            
             self.outcomes_logged += 1
             self.narratives_created += 1
             
@@ -545,6 +552,45 @@ class MissionOutcomeLogger:
             
         except Exception as e:
             logger.error(f"[TELEMETRY] Failed to update outcome: {e}")
+    
+    async def _record_to_analytics(
+        self,
+        mission_id: str,
+        mission_context: Dict[str, Any],
+        telemetry_data: Dict[str, Any],
+        success: bool
+    ):
+        """Record mission to analytics for historical analysis"""
+        try:
+            from backend.autonomy.mission_analytics import mission_analytics
+            
+            # Extract metrics delta from telemetry
+            metrics_delta = {}
+            if telemetry_data.get("pre_post_comparison"):
+                for source, metrics in telemetry_data["pre_post_comparison"].items():
+                    if isinstance(metrics, dict):
+                        for metric_name, metric_data in metrics.items():
+                            if isinstance(metric_data, dict) and "percent_change" in metric_data:
+                                metrics_delta[metric_name] = metric_data["percent_change"]
+            
+            await mission_analytics.record_mission(
+                mission_id=mission_id,
+                domain_id=mission_context.get("domain_id", "unknown"),
+                mission_type=mission_context.get("mission_type", "unknown"),
+                success=success,
+                duration_seconds=mission_context.get("duration_seconds", 0),
+                effectiveness_score=telemetry_data.get("effectiveness_score", 0.5),
+                metrics_delta=metrics_delta,
+                tasks_count=len(mission_context.get("tasks_executed", [])),
+                auto_generated=mission_context.get("auto_generated", False),
+                metadata={
+                    "trigger_reason": mission_context.get("trigger_reason"),
+                    "title": mission_context.get("title")
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"[ANALYTICS] Failed to record mission: {e}")
 
     def get_stats(self) -> Dict[str, Any]:
         """Get logger statistics"""

@@ -6,8 +6,11 @@ Successfully closed the loop on mission outcomes by implementing:
 
 1. **Enhanced Mission Outcome Logger** - Writes narratives with telemetry backfill
 2. **Auto-Status Brief Generator** - Consolidates outcomes into stakeholder digests
-3. **API Endpoints** - Full programmatic access to narratives and briefs
-4. **Complete Testing** - Validated end-to-end narrative flow
+3. **Proactive Follow-ups** - Auto-creates refinement missions for repeat failures
+4. **Production-Ready Notifications** - Slack/Email integration with rich formatting
+5. **Historical Analytics** - Persists metrics for trending and dashboards
+6. **API Endpoints** - Full programmatic access to narratives, briefs, and analytics
+7. **Complete Testing** - Validated end-to-end narrative flow
 
 ## 1. Enhanced Mission Outcome Logger
 
@@ -119,170 +122,242 @@ export STATUS_BRIEF_RECIPIENTS=ops@company.com,cto@company.com
 export ENABLE_AUTO_STATUS_BRIEFS=true
 ```
 
-## 3. API Endpoints
+## 3. Proactive Follow-ups (NEW)
 
-**File:** [`backend/main.py`](backend/main.py:815-886)
+**Enhanced:** [`backend/autonomy/auto_status_brief.py`](backend/autonomy/auto_status_brief.py:398-519)
 
-### GET `/api/missions/outcome/stats`
-Returns mission outcome logger statistics including telemetry backfills
+### Automatic Problem Detection
 
-```json
-{
-  "outcomes_logged": 42,
-  "narratives_created": 42,
-  "telemetry_backfills": 38
-}
-```
+During brief generation, analyzes for:
+- **Recurring issues**: Domain with 3+ missions in short time
+- **Mission failures**: Any failed missions flagged
+- **Low effectiveness**: Missions with effectiveness score < 0.5
+- **Degrading KPIs**: Metrics getting worse over time
 
-### POST `/api/status-brief/generate`
-Manually trigger status brief generation
-
-```json
-{
-  "success": true,
-  "narrative": "Status Brief: I completed 5 missions today...",
-  "missions_covered": 5,
-  "domains_affected": ["ecommerce", "payments", "database"],
-  "brief_id": "xyz789",
-  "generated_at": "2025-11-16T20:00:00Z"
-}
-```
-
-### GET `/api/status-brief/stats`
-Get auto-status brief generator statistics
-
-```json
-{
-  "running": true,
-  "interval_hours": 24,
-  "briefs_generated": 7,
-  "last_brief_at": "2025-11-16T08:00:00Z",
-  "slack_enabled": false,
-  "email_enabled": false
-}
-```
-
-### GET `/api/status-brief/latest`
-Get the most recent status brief from world model
-
-```json
-{
-  "success": true,
-  "narrative": "Status Brief: I completed 5 missions today...",
-  "metadata": {
-    "brief_type": "mission_status",
-    "interval_hours": 24,
-    "domains_covered": ["ecommerce", "payments", "database"],
-    "total_missions": 5
-  },
-  "generated_at": "2025-11-16T08:00:00Z"
-}
-```
-
-## 4. Startup Integration
-
-**File:** [`backend/main.py`](backend/main.py:174-192)
-
-### Initialization Order
-```python
-# 1. Mission outcome logger (auto-subscribes to events)
-await mission_outcome_logger.initialize()
-
-# 2. Auto-status brief (periodic consolidation)
-await auto_status_brief.initialize()
-
-# 3. Start brief loop (if enabled)
-if os.getenv("ENABLE_AUTO_STATUS_BRIEFS", "true").lower() == "true":
-    asyncio.create_task(auto_status_brief.start_loop())
-```
-
-### Graceful Degradation
-- All services wrapped in try/except
-- System continues if services fail to initialize
-- Clear logging of initialization status
-
-## 5. World Model Enhancement
-
-**File:** [`backend/world_model/grace_world_model.py`](backend/world_model/grace_world_model.py:247-271)
-
-### New Method: `update_knowledge_metadata()`
-Enables telemetry backfill to update existing outcomes with additional metrics
+### Auto-Create Refinement Missions
 
 ```python
-await grace_world_model.update_knowledge_metadata(
-    knowledge_id="abc123",
-    additional_metadata={
-        "telemetry_backfill": telemetry_data,
-        "effectiveness_score": 0.85
+# Example: Auto-detected problem
+problems = [
+    {
+        "type": "mission_failures",
+        "severity": "high",
+        "description": "payments had 2 failed missions"
+    },
+    {
+        "type": "degrading_kpi",  
+        "severity": "high",
+        "description": "payments metric 'error_rate' degrading (avg: -15.2%)"
     }
-)
+]
+
+# Automatically creates follow-up mission:
+mission = {
+    "title": "Investigate payments issues",
+    "type": "failure_remediation",
+    "reason": "Auto-brief flagged problems: payments had 2 failed missions; error_rate degrading",
+    "priority": "high"
+}
 ```
 
-## 6. Testing
+## 4. Production-Ready Stakeholder Notifications (ENHANCED)
 
-**File:** [`tests/test_mission_narrative_loop.py`](tests/test_mission_narrative_loop.py)
+### Slack Integration (Lines 297-370)
 
-### Test Coverage
-- ✅ Mission outcome logging with narratives
-- ✅ Telemetry backfill with hard metrics
-- ✅ Auto-status brief generation
-- ✅ Complete narrative loop end-to-end
-- ✅ Narrative queryability via world model
+**Rich formatted messages with:**
+- Header with date
+- Mission count by domain
+- Sample outcomes per domain
+- Metric improvements with emojis (📈/📉)
+- Retry logic (3 attempts)
+- Proper error handling
 
-### Test Execution
+**Configuration:**
 ```bash
-# Run via pytest (recommended)
-python -m pytest tests/test_mission_narrative_loop.py -v -s
-
-# Results
-# PASSED test_mission_outcome_logging
+export SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+export ENABLE_AUTO_STATUS_BRIEFS=true
 ```
 
-## Benefits
+**Example Slack Message:**
+```
+🤖 Grace Status Brief - 2025-11-16
 
-### For Grace
-1. **Self-awareness**: Can cite her own repairs with hard numbers
-2. **Learning**: Telemetry effectiveness scores inform future decisions
-3. **Conversational**: Natural responses to "What did you fix?" queries
+5 missions completed across 3 domains
 
-### For Stakeholders
-1. **Proactive reporting**: Daily "Today I fixed..." digests
-2. **Zero effort**: Auto-generated from mission outcomes
-3. **Cross-channel**: World model + Slack + Email
+━━━━━━━━━━━━━━━━━━
 
-### For Developers
-1. **Audit trail**: Complete mission narratives in world model
-2. **Metrics validation**: Pre/post comparisons prove fixes worked
-3. **API access**: Programmatic access to all narratives and briefs
+Ecommerce (2 missions)
+• I noticed latency exceeded 500ms threshold...
+📈 latency_ms: 42.5% improvement
+📈 error_rate: 60.0% improvement
 
-## Configuration
+Payments (2 missions)
+• I noticed error rate spiked to 8%...
+📈 error_rate: 75.0% improvement
 
-### Environment Variables
+Database (1 mission)
+• I noticed query latency exceeded 200ms...
+📈 query_time_ms: 52.0% improvement
 
+━━━━━━━━━━━━━━━━━━
+All systems operational • Generated at 20:00 UTC
+```
+
+### Email Integration (Lines 372-467)
+
+**HTML formatted emails with:**
+- Styled header with Grace branding
+- Summary box with key stats
+- Domain-specific sections with borders
+- Metric cards with color coding
+- Mobile-responsive design
+- Both HTML and plain text versions
+
+**Configuration:**
 ```bash
-# Enable auto-status briefs (default: true)
-ENABLE_AUTO_STATUS_BRIEFS=true
-
-# Slack notifications
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-
-# Email notifications
-STATUS_BRIEF_RECIPIENTS=ops@company.com,cto@company.com
+export STATUS_BRIEF_RECIPIENTS=ops@company.com,cto@company.com
+export SMTP_HOST=smtp.gmail.com
+export SMTP_PORT=587
+export SMTP_USER=grace@company.com
+export SMTP_PASSWORD=your_password
+export SMTP_FROM_EMAIL=grace@company.com
 ```
 
-### Customization
+**Dependencies:**
+```bash
+pip install aiosmtplib
+```
 
-**Change brief interval:**
+## 5. Historical Analytics (NEW)
+
+**File:** [`backend/autonomy/mission_analytics.py`](backend/autonomy/mission_analytics.py)
+
+### Lightweight Metrics Persistence
+
+**Stores in JSONL format:**
+```jsonl
+{"record_id": "abc123", "mission_id": "m001", "domain_id": "ecommerce", "timestamp": "2025-11-16T20:00:00Z", "success": true, "duration_seconds": 120, "effectiveness_score": 0.85, "metrics_delta": {"latency_ms": -46.15}, ...}
+{"record_id": "def456", "mission_id": "m002", "domain_id": "payments", "timestamp": "2025-11-16T21:00:00Z", "success": true, "duration_seconds": 45, "effectiveness_score": 0.92, "metrics_delta": {"error_rate": -75.0}, ...}
+```
+
+### Available Trends
+
+#### Domain Trends
 ```python
-# In backend/autonomy/auto_status_brief.py (line 336)
-auto_status_brief = AutoStatusBrief(
-    interval_hours=12,  # Every 12 hours instead of 24
-    enable_slack=True,
-    enable_email=True
+trends = await mission_analytics.get_domain_trends(
+    domain_id="ecommerce",
+    period_days=30
 )
+
+# Returns:
+{
+    "domain_id": "ecommerce",
+    "total_missions": 42,
+    "success_rate": 0.95,
+    "avg_duration_seconds": 145.2,
+    "avg_effectiveness_score": 0.87,
+    "mttr_seconds": 120.5,
+    "top_issues": ["performance_optimization", "error_remediation"],
+    "kpi_trends": {
+        "latency_ms": -35.2,  # avg improvement
+        "error_rate": -58.1
+    }
+}
 ```
 
-## Architecture Diagram
+#### Missions Per Domain (Charting)
+```python
+data = await mission_analytics.get_missions_per_domain(
+    period_days=30,
+    granularity="daily"
+)
+
+# Returns:
+{
+    "ecommerce": [
+        {"date": "2025-11-15", "count": 5},
+        {"date": "2025-11-16", "count": 3}
+    ],
+    "payments": [
+        {"date": "2025-11-15", "count": 2},
+        {"date": "2025-11-16", "count": 4}
+    ]
+}
+```
+
+#### MTTR Trend
+```python
+trend = await mission_analytics.get_mttr_trend(
+    domain_id="ecommerce",
+    period_days=90
+)
+
+# Returns:
+[
+    {"date": "2025-11-15", "mttr_seconds": 120.5, "count": 3},
+    {"date": "2025-11-16", "mttr_seconds": 95.3, "count": 2}
+]
+```
+
+#### Effectiveness Trend
+```python
+trend = await mission_analytics.get_effectiveness_trend(
+    domain_id="ecommerce",
+    period_days=30
+)
+
+# Returns:
+[
+    {"date": "2025-11-15", "avg_effectiveness": 0.85, "count": 5},
+    {"date": "2025-11-16", "avg_effectiveness": 0.92, "count": 3}
+]
+```
+
+### Auto-Recording
+
+**Integrated into mission outcome logger** (lines 103-125):
+- Every mission automatically recorded
+- Extracts metrics delta from telemetry
+- Stores effectiveness score
+- Persists to JSONL for fast queries
+
+## 6. Enhanced API Endpoints
+
+**File:** [`backend/main.py`](backend/main.py:815-980)
+
+### Mission Outcomes
+- `GET /api/missions/outcome/stats` - Logger statistics
+
+### Status Briefs
+- `POST /api/status-brief/generate` - Manual generation (returns follow_ups_created count)
+- `GET /api/status-brief/stats` - Brief generator statistics
+- `GET /api/status-brief/latest` - Most recent brief
+
+### Analytics (NEW)
+- `GET /api/analytics/domain-trends?domain_id=ecommerce&period_days=30` - Domain trend analysis
+- `GET /api/analytics/missions-per-domain?period_days=30&granularity=daily` - Chart data
+- `GET /api/analytics/mttr-trend?domain_id=ecommerce&period_days=90` - MTTR over time
+- `GET /api/analytics/effectiveness-trend?domain_id=ecommerce&period_days=30` - Effectiveness scores
+- `GET /api/analytics/stats` - Analytics system statistics
+
+### Example Usage
+
+**Dashboard data for last 30 days:**
+```bash
+# Get domain trends
+curl http://localhost:8000/api/analytics/domain-trends?period_days=30
+
+# Get missions per domain for charting
+curl http://localhost:8000/api/analytics/missions-per-domain?period_days=30
+
+# Get MTTR trend
+curl http://localhost:8000/api/analytics/mttr-trend?period_days=90
+
+# Get effectiveness trend
+curl http://localhost:8000/api/analytics/effectiveness-trend?period_days=30
+```
+
+## 7. Architecture Diagram (Updated)
 
 ```
 Mission Completes
@@ -298,50 +373,150 @@ Mission Completes
 6. Calculate effectiveness score
 7. Update outcome with pre/post metrics
       ↓
-[Auto-Status Brief] (periodic)
+8. → Record to Analytics (JSONL persistence)
       ↓
-8. Query recent outcomes via RAG
-9. Aggregate by domain
-10. Generate consolidated brief
-11. Publish to world model + Slack/Email
+[Auto-Status Brief] (periodic, every 24h)
       ↓
-[Grace answers "What did you fix?"]
+9. Query recent outcomes via RAG
+10. Aggregate by domain
+11. → Analyze for Problems (NEW)
+      ├─ Recurring issues detected?
+      ├─ Low effectiveness scores?
+      ├─ Degrading KPIs?
+      └─ → Auto-create refinement missions
+12. Generate consolidated brief
+13. Publish to world model
+14. → Push to Slack (rich formatted, with retry)
+15. → Push to Email (HTML formatted)
       ↓
-12. Query world model via RAG
-13. Synthesize answer with hard numbers
-14. Cite specific missions and metrics
+[Grace answers questions]
+      ↓
+16. "What did you fix?" → Query world model
+17. "Show me trends" → Query analytics
+18. "What's the MTTR?" → Query analytics MTTR trend
+19. Cite specific missions with hard numbers
 ```
 
-## Impact
+## 8. Configuration Reference
+
+### Environment Variables
+
+```bash
+# Auto-Status Briefs
+ENABLE_AUTO_STATUS_BRIEFS=true  # Enable/disable periodic briefs (default: true)
+
+# Slack Integration
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+
+# Email Integration (SMTP)
+STATUS_BRIEF_RECIPIENTS=ops@company.com,cto@company.com,ceo@company.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=grace@company.com
+SMTP_PASSWORD=your_app_password
+SMTP_FROM_EMAIL=grace@company.com
+```
+
+### Python Dependencies
+
+```bash
+# For Email notifications
+pip install aiosmtplib
+
+# Already included
+# httpx (for Slack webhooks)
+# asyncio (for async operations)
+```
+
+## 9. Benefits Summary
+
+### For Grace
+1. **Self-awareness**: Cites her own repairs with hard numbers
+2. **Learning**: Effectiveness scores inform future decisions
+3. **Proactive**: Auto-detects problems and creates follow-up missions
+4. **Historical context**: Trends inform mission planning
+
+### For Stakeholders
+1. **Zero-effort reporting**: Daily digests to Slack/Email
+2. **Rich visualization**: HTML emails, formatted Slack messages
+3. **Trending data**: See MTTR, effectiveness, missions over time
+4. **Problem alerting**: Auto-notified of recurring issues
+
+### For Developers
+1. **Audit trail**: Complete mission history in JSONL
+2. **API access**: Full programmatic access to all data
+3. **Dashboard-ready**: Chart data for missions, MTTR, effectiveness
+4. **Fast queries**: Lightweight JSONL storage
+
+## 10. Real-World Usage Examples
+
+### Example 1: Daily Operations
+```
+8:00 AM: Auto-brief runs
+  → Queries last 24h of missions
+  → Finds 12 missions across 4 domains
+  → Detects: "payments had 3 missions" (potential recurring issue)
+  → Creates follow-up mission: "Investigate payments issues"
+  → Sends Slack message to #ops channel
+  → Sends HTML email to ops team
+```
+
+### Example 2: Stakeholder Question
+```
+CTO: "What's our MTTR trend?"
+Dashboard: Queries /api/analytics/mttr-trend?period_days=90
+Response: Shows MTTR dropping from 180s to 95s over 90 days
+```
+
+### Example 3: Problem Detection
+```
+Brief detects:
+- ecommerce: 4 missions with low effectiveness (<0.5)
+- database: error_rate degrading by 15%
+
+Auto-creates missions:
+1. "Investigate ecommerce issues" (priority: medium)
+2. "Investigate database issues" (priority: high)
+
+Notifies via Slack: "⚠️ Auto-created 2 follow-up missions"
+```
+
+## 11. Impact
 
 ### Before
 - Mission outcomes logged but not queryable
 - No consolidated reporting
 - Grace couldn't cite her own work
 - Metrics not validated post-fix
+- No trend analysis
+- Manual stakeholder updates
 
 ### After
 - ✅ Every mission creates a narrative Grace can cite
 - ✅ Telemetry backfill proves fixes worked with hard numbers
-- ✅ Daily "Today I fixed..." briefs to stakeholders
-- ✅ Grace can answer "Did it work?" with confidence
+- ✅ Daily "Today I fixed..." briefs to Slack/Email
+- ✅ Proactive follow-ups for recurring problems
+- ✅ Historical analytics for trending (MTTR, effectiveness, missions/domain)
+- ✅ Rich formatted stakeholder notifications
+- ✅ Auto-detects problems and creates refinement missions
+- ✅ Dashboard-ready data for visualization
 - ✅ Complete audit trail of autonomous operations
 
-## Next Steps
+## 12. Summary
 
-### Potential Enhancements
-1. **Trending**: Track effectiveness scores over time
-2. **Alerting**: Notify if effectiveness score < 0.5
-3. **Learning**: Feed effectiveness scores back to mission planner
-4. **Visualization**: Dashboard showing mission outcomes and trends
-5. **Multi-tenant**: Per-domain status briefs
+The mission narrative and reporting system is now production-ready with:
 
-## Summary
+1. **Narrative Loop**: Missions → Outcomes → Narratives → World Model
+2. **Telemetry Validation**: Hard pre/post metrics prove fixes worked
+3. **Stakeholder Push**: Auto-send rich briefs to Slack/Email
+4. **Proactive Intelligence**: Auto-detect problems, create follow-ups
+5. **Historical Analysis**: Persist metrics, query trends, build dashboards
+6. **Complete Automation**: Zero human intervention required
 
-The mission narrative and reporting loop is now complete. Grace can:
-- Log every mission with a human-readable narrative
-- Backfill hard telemetry data to prove fixes worked
-- Generate consolidated status briefs automatically
-- Answer stakeholder questions with specific citations
-
-This closes the loop on autonomous operations, making Grace's work transparent, auditable, and conversational.
+Grace can now:
+- Log and narrate every autonomous operation
+- Validate every fix with telemetry
+- Report to stakeholders automatically
+- Detect and remediate recurring issues
+- Provide trend data for decision-making
+- Answer "What did you fix?" and "Did it work?" with confidence
