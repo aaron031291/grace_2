@@ -40,6 +40,7 @@ dependencies = [
     "opentelemetry-sdk>=1.21.0",
     "opentelemetry-instrumentation-fastapi>=0.42b0",
     "structlog>=23.2.0",
+    "watchdog>=3.0.0",
 ]
 
 [project.optional-dependencies]
