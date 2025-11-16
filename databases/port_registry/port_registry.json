@@ -1,17 +1,17 @@
 {
   "allocations": {
-    "8001": {
-      "port": 8001,
+    "8000": {
+      "port": 8000,
       "service_name": "grace_backend",
       "started_by": "guardian_kernel",
       "purpose": "Main Grace API - allocated by Guardian during boot",
-      "pid": 28204,
-      "allocated_at": "2025-11-15T23:15:05.713244",
-      "last_health_check": "2025-11-15T23:15:09.033154",
+      "pid": 33172,
+      "allocated_at": "2025-11-16T11:27:22.750990",
+      "last_health_check": "2025-11-16T11:27:32.304665",
       "health_status": "not_listening",
       "request_count": 0,
       "error_count": 0
     }
   },
-  "last_updated": "2025-11-15T23:15:17.105437"
+  "last_updated": "2025-11-16T11:27:40.418621"
 }
