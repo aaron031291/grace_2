@@ -9,6 +9,7 @@ from datetime import datetime
 import uuid
 
 from backend.learning_systems.advanced_learning import advanced_learning_supervisor
+from backend.services.proactive_mission_detector import proactive_mission_detector
 from backend.routes.operator_dashboard import router as operator_router
 from backend.routes.remote_access_api import router as remote_access_router
 from backend.routes.autonomous_learning_api import router as learning_router
@@ -153,6 +154,13 @@ async def startup_unified_llm():
         except Exception:
             # app.state may not be available in some edge cases, ignore
             pass
+
+    # Start proactive mission detector
+    try:
+        await proactive_mission_detector.start()
+        print("[OK] Proactive mission detector started")
+    except Exception as e:
+        print(f"[WARN] Proactive mission detector degraded: {e}")
 
 @app.on_event("startup")
 async def startup_advanced_learning():
