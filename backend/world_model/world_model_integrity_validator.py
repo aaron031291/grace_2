@@ -301,11 +301,12 @@ class WorldModelIntegrityValidator:
         """Publish integrity violation to knowledge systems"""
         try:
             # Publish to domain event bus
-            from backend.domains import domain_event_bus
+            from backend.domains import domain_event_bus, DomainEvent
             
-            await domain_event_bus.publish(
+            await domain_event_bus.publish(DomainEvent(
                 event_type="integrity.violation.detected",
-                domain_id="core",
+                source_domain="core",
+                timestamp=datetime.now().isoformat(),
                 data={
                     "fact_id": violation.fact_id,
                     "fact_statement": violation.fact_statement,
@@ -316,7 +317,7 @@ class WorldModelIntegrityValidator:
                     "healing_playbook": violation.healing_playbook,
                     "detected_at": violation.detected_at
                 }
-            )
+            ))
             
             # Add to world model as system knowledge
             from backend.world_model import grace_world_model
@@ -352,7 +353,7 @@ class WorldModelIntegrityValidator:
         
         try:
             # Trigger Guardian/healing system
-            from backend.guardian import guardian_service
+            from backend.core.guardian import guardian_service
             
             fix_result = await guardian_service.execute_healing_action(
                 playbook=violation.healing_playbook,
