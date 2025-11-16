@@ -122,43 +122,141 @@ export STATUS_BRIEF_RECIPIENTS=ops@company.com,cto@company.com
 export ENABLE_AUTO_STATUS_BRIEFS=true
 ```
 
-## 3. Proactive Follow-ups (NEW)
+## 3. Proactive Follow-ups (ENHANCED - Real-Time Per-Mission)
 
-**Enhanced:** [`backend/autonomy/auto_status_brief.py`](backend/autonomy/auto_status_brief.py:398-519)
+**Implemented:** [`backend/autonomy/mission_outcome_logger.py`](backend/autonomy/mission_outcome_logger.py:144-329)
 
-### Automatic Problem Detection
+### Immediate Detection (On Every Mission Completion)
 
-During brief generation, analyzes for:
-- **Recurring issues**: Domain with 3+ missions in short time
-- **Mission failures**: Any failed missions flagged
-- **Low effectiveness**: Missions with effectiveness score < 0.5
-- **Degrading KPIs**: Metrics getting worse over time
-
-### Auto-Create Refinement Missions
-
+When **each mission completes**, the system immediately analyzes for problems:
 ```python
-# Example: Auto-detected problem
-problems = [
-    {
-        "type": "mission_failures",
-        "severity": "high",
-        "description": "payments had 2 failed missions"
-    },
-    {
-        "type": "degrading_kpi",  
-        "severity": "high",
-        "description": "payments metric 'error_rate' degrading (avg: -15.2%)"
-    }
-]
+# Step 8: Immediate Follow-up Detection (real-time per-mission)
+follow_up = await self._detect_and_create_follow_up(
+    mission_id=mission_id,
+    mission_context=mission_context,
+    telemetry_data=telemetry_data,
+    success=success,
+    narrative=narrative
+)
+```
 
-# Automatically creates follow-up mission:
-mission = {
-    "title": "Investigate payments issues",
-    "type": "failure_remediation",
-    "reason": "Auto-brief flagged problems: payments had 2 failed missions; error_rate degrading",
-    "priority": "high"
+### Detection Criteria
+
+Creates follow-up missions for:
+
+1. **Mission Failed** (priority: high)
+   - Original mission status = failed
+   
+2. **Partial Success** (priority: medium)
+   - Mission completed but effectiveness score < 0.5
+   - Example: "Fixed but metrics only improved 20%"
+
+3. **Lingering Poor Metrics** (priority: high)
+   - KPIs still degraded after fix attempt
+   - Detected via telemetry backfill data
+   - Example: "Latency fixed but error_rate still high"
+
+4. **Failed/Incomplete Tasks** (priority: high)
+   - Some tasks in mission failed or incomplete
+   - Example: "2 tasks failed or incomplete"
+
+5. **Recurring Issue** (priority: high)
+   - 3+ missions in same domain within 6 hours
+   - Indicates systemic problem
+   - Example: "3 missions in last 6h (recurring issue)"
+
+### Follow-up Mission Context
+
+Each follow-up includes:
+```python
+{
+    "title": "Follow-up: Fix ecommerce latency",
+    "mission_type": "follow_up_investigation",  # or remediation/deep_analysis
+    "priority": "high",
+    "trigger_reason": """
+Auto-escalation from mission abc123.
+
+Original objective: latency exceeded 500ms threshold
+
+Issues detected:
+- Low effectiveness score (0.42)
+- Metrics still poor: error_rate, timeout_rate
+- 3 missions in last 6h (recurring issue)
+
+Grace's assessment: Mission completed but results suboptimal. 
+Further investigation and remediation required.
+    """,
+    "metadata": {
+        "triggered_by": "mission_outcome_logger",
+        "escalation_type": "automatic",
+        "original_mission_id": "abc123",
+        "is_follow_up": true,
+        "escalation_reasons": [...]
+    }
 }
 ```
+
+### World Model Escalation Recording
+
+Grace records every escalation so she can explain it:
+```python
+await grace_world_model.add_knowledge(
+    category='system',
+    content="""
+I escalated mission abc123 by creating follow-up mission def456.
+
+Reason: Low effectiveness score (0.42); Metrics still poor: error_rate
+
+I detected that my initial fix did not fully resolve the issue, so I'm 
+automatically investigating further to ensure complete remediation.
+    """,
+    tags=['escalation', 'follow_up', 'self_correction']
+)
+```
+
+### Example Flow
+```
+Mission M001 Completes
+  ↓
+Outcome Logger runs:
+  1. Captures context
+  2. Generates narrative
+  3. Backfills telemetry → effectiveness = 0.38
+  4. Records to analytics
+  5. → IMMEDIATE DETECTION
+      - Success = true BUT effectiveness < 0.5
+      - Metrics: error_rate still high (not improved)
+      - Verdict: NEEDS FOLLOW-UP
+  ↓
+Creates Follow-up Mission M002:
+  - Title: "Follow-up: Fix payment gateway errors"
+  - Priority: high
+  - Linked to: M001
+  - Reason: "Low effectiveness (0.38); Metrics still poor: error_rate"
+  ↓
+Records Escalation to World Model:
+  "I escalated mission M001 because my fix was suboptimal..."
+  ↓
+Grace can now answer:
+  "Why did you create mission M002?"
+  → "I escalated from M001 because the error_rate was still high 
+     after my initial fix. The effectiveness was only 0.38, so I'm 
+     investigating further."
+```
+
+### Batch Analysis (Daily Briefs)
+
+**In addition** to per-mission detection, daily briefs also analyze patterns:
+
+**Implemented:** [`backend/autonomy/auto_status_brief.py:398-519`](backend/autonomy/auto_status_brief.py:398-519)
+
+- Aggregates multiple missions
+- Detects cross-domain patterns
+- Creates strategic follow-ups
+
+This provides **two layers** of follow-up creation:
+1. **Immediate** (per-mission): Catches individual failures/poor results
+2. **Periodic** (daily brief): Catches recurring patterns and trends
 
 ## 4. Production-Ready Stakeholder Notifications (ENHANCED)
 
@@ -357,7 +455,7 @@ curl http://localhost:8000/api/analytics/mttr-trend?period_days=90
 curl http://localhost:8000/api/analytics/effectiveness-trend?period_days=30
 ```
 
-## 7. Architecture Diagram (Updated)
+## 7. Architecture Diagram (Updated with Real-Time Follow-ups)
 
 ```
 Mission Completes
@@ -367,34 +465,43 @@ Mission Completes
 1. Capture context (trigger, tasks, metrics)
 2. Generate narrative ("I fixed X because Y")
 3. Store in world model
-4. → Telemetry Backfill
+      ↓
+4. Telemetry Backfill
       ↓
 5. Re-query KPI sources (RAG, domain health, infra)
 6. Calculate effectiveness score
 7. Update outcome with pre/post metrics
       ↓
-8. → Record to Analytics (JSONL persistence)
+8. Record to Analytics (JSONL persistence)
+      ↓
+9. → IMMEDIATE FOLLOW-UP DETECTION (NEW - per mission)
+      ├─ Mission failed?
+      ├─ Partial success (effectiveness < 0.5)?
+      ├─ Metrics still poor?
+      ├─ Tasks incomplete?
+      ├─ Recurring issue (3+ missions in 6h)?
+      └─ → YES: Create follow-up mission immediately
+             - Link to original mission
+             - Clear escalation context
+             - Record to world model
       ↓
 [Auto-Status Brief] (periodic, every 24h)
       ↓
-9. Query recent outcomes via RAG
-10. Aggregate by domain
-11. → Analyze for Problems (NEW)
-      ├─ Recurring issues detected?
-      ├─ Low effectiveness scores?
-      ├─ Degrading KPIs?
-      └─ → Auto-create refinement missions
-12. Generate consolidated brief
-13. Publish to world model
-14. → Push to Slack (rich formatted, with retry)
-15. → Push to Email (HTML formatted)
+10. Query recent outcomes via RAG
+11. Aggregate by domain
+12. → Analyze for Patterns (batch detection)
+      ├─ Cross-domain issues?
+      ├─ Trending problems?
+      └─ → Create strategic follow-ups
+13. Generate consolidated brief
+14. Push to Slack (rich formatted, with retry)
+15. Push to Email (HTML formatted)
       ↓
 [Grace answers questions]
       ↓
 16. "What did you fix?" → Query world model
-17. "Show me trends" → Query analytics
-18. "What's the MTTR?" → Query analytics MTTR trend
-19. Cite specific missions with hard numbers
+17. "Why did you escalate?" → Cites original mission + reasons
+18. "Show me trends" → Query analytics
 ```
 
 ## 8. Configuration Reference
