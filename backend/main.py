@@ -176,6 +176,19 @@ async def startup_unified_llm():
         await mission_outcome_logger.initialize()
         print("[OK] Mission outcome logger initialized (tracks completions, writes narratives)")
         
+        # NEW: Initialize Auto-Status Brief Generator (Consolidated Reporting)
+        from backend.autonomy.auto_status_brief import auto_status_brief
+        await auto_status_brief.initialize()
+        print("[OK] Auto-status brief initialized (generates periodic summaries)")
+        
+        # Optionally start the periodic brief loop (configurable via env)
+        import os
+        if os.getenv("ENABLE_AUTO_STATUS_BRIEFS", "true").lower() == "true":
+            asyncio.create_task(auto_status_brief.start_loop())
+            print("[OK] Auto-status brief loop started (24h interval)")
+        else:
+            print("[INFO] Auto-status briefs disabled (set ENABLE_AUTO_STATUS_BRIEFS=true to enable)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
@@ -811,5 +824,76 @@ async def create_mission_narrative(request: dict):
         "narrative": narrative,
         "created_at": datetime.now().isoformat()
     }
+
+@app.get("/api/missions/outcome/stats")
+async def get_mission_outcome_stats():
+    """Get mission outcome logger statistics including telemetry backfills"""
+    from backend.autonomy.mission_outcome_logger import mission_outcome_logger
+    
+    return mission_outcome_logger.get_stats()
+
+@app.post("/api/status-brief/generate")
+async def generate_status_brief_now():
+    """
+    Manually trigger status brief generation
+    
+    Returns consolidated "Today I fixed..." summary
+    """
+    from backend.autonomy.auto_status_brief import generate_status_brief
+    
+    result = await generate_status_brief()
+    
+    return {
+        "success": result.get("success", False),
+        "narrative": result.get("narrative", ""),
+        "missions_covered": result.get("missions_covered", 0),
+        "domains_affected": result.get("domains_affected", []),
+        "brief_id": result.get("brief_id", ""),
+        "generated_at": result.get("generated_at")
+    }
+
+@app.get("/api/status-brief/stats")
+async def get_status_brief_stats():
+    """Get auto-status brief generator statistics"""
+    from backend.autonomy.auto_status_brief import auto_status_brief
+    
+    return auto_status_brief.get_stats()
+
+@app.get("/api/status-brief/latest")
+async def get_latest_status_brief():
+    """
+    Get the most recent status brief from world model
+    
+    Returns the latest consolidated summary
+    """
+    try:
+        from backend.services.rag_service import rag_service
+        
+        results = await rag_service.retrieve(
+            query="status brief mission summary",
+            filters={"tags": "status_brief,periodic_summary"},
+            top_k=1,
+            requested_by="api"
+        )
+        
+        if results.get("results") and len(results["results"]) > 0:
+            latest = results["results"][0]
+            return {
+                "success": True,
+                "narrative": latest.get("content", ""),
+                "metadata": latest.get("metadata", {}),
+                "generated_at": latest.get("metadata", {}).get("timestamp")
+            }
+        else:
+            return {
+                "success": False,
+                "message": "No status briefs found"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 __all__ = ['app']

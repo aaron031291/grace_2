@@ -244,6 +244,38 @@ class GraceWorldModel:
         
         return knowledge_id
     
+    async def update_knowledge_metadata(
+        self,
+        knowledge_id: str,
+        additional_metadata: Dict[str, Any]
+    ) -> bool:
+        """
+        Update metadata for an existing knowledge entry
+        
+        Args:
+            knowledge_id: The knowledge entry to update
+            additional_metadata: New metadata to merge in
+        
+        Returns:
+            True if successful, False if knowledge_id not found
+        """
+        if knowledge_id not in self.knowledge_base:
+            logger.warning(f"[WORLD-MODEL] Knowledge {knowledge_id} not found for update")
+            return False
+        
+        knowledge = self.knowledge_base[knowledge_id]
+        
+        # Merge metadata
+        knowledge.metadata.update(additional_metadata)
+        knowledge.updated_at = datetime.utcnow().isoformat()
+        
+        # Save to disk
+        self._save_knowledge()
+        
+        logger.info(f"[WORLD-MODEL] Updated metadata for {knowledge_id}")
+        
+        return True
+    
     async def query(
         self,
         query: str,
