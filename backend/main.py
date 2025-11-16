@@ -171,6 +171,11 @@ async def startup_unified_llm():
         await start_proactive_missions()
         print("[OK] Proactive mission generator started (auto-detects issues, creates missions)")
         
+        # NEW: Initialize Mission Outcome Logger (Mission Storytelling)
+        from backend.autonomy.mission_outcome_logger import mission_outcome_logger
+        await mission_outcome_logger.initialize()
+        print("[OK] Mission outcome logger initialized (tracks completions, writes narratives)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
