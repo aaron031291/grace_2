@@ -60,6 +60,13 @@ app.include_router(guardian_router)
 # Register learning visibility & tracking
 app.include_router(learning_visibility_router)
 
+# Register autonomous web learning (NEW - unrestricted internet access)
+try:
+    from backend.routes.autonomous_web_learning import router as web_learning_router
+    app.include_router(web_learning_router)
+except ImportError:
+    pass  # Web learning optional
+
 # Register Console UI APIs (NEW - for Unified Console)
 try:
     from backend.routes.logs_api import router as logs_router
@@ -198,11 +205,43 @@ async def startup_unified_llm():
 async def startup_advanced_learning():
     """Starts the advanced learning supervisor and its sub-agents."""
     advanced_learning_supervisor.start()
+    
+    # Initialize self-heal runner for learning capture
+    try:
+        from backend.self_heal.runner import runner
+        await runner.start()
+        print("[OK] Self-heal runner started (learning capture enabled)")
+    except Exception as e:
+        print(f"[WARN] Self-heal runner initialization degraded: {e}")
+    
+    # Initialize web scraper for internet access
+    try:
+        from backend.utilities.safe_web_scraper import safe_web_scraper
+        await safe_web_scraper.initialize()
+        print("[OK] Safe web scraper initialized (internet access enabled)")
+    except Exception as e:
+        print(f"[WARN] Web scraper initialization degraded: {e}")
+    
+    # Initialize Google search service for free internet learning
+    try:
+        from backend.services.google_search_service import google_search_service
+        await google_search_service.initialize()
+        print("[OK] Google search service initialized (unrestricted web learning enabled)")
+    except Exception as e:
+        print(f"[WARN] Google search initialization degraded: {e}")
 
 @app.on_event("shutdown")
-def shutdown_advanced_learning():
+async def shutdown_advanced_learning():
     """Stops the advanced learning agents gracefully."""
     advanced_learning_supervisor.stop()
+    
+    # Stop self-heal runner
+    try:
+        from backend.self_heal.runner import runner
+        await runner.stop()
+        print("[OK] Self-heal runner stopped")
+    except Exception:
+        pass
 
 
 @app.post("/api/chat")
