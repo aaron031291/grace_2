@@ -60,6 +60,13 @@ app.include_router(guardian_router)
 # Register learning visibility & tracking
 app.include_router(learning_visibility_router)
 
+# Register TRUST framework API
+try:
+    from backend.routes.trust_framework_api import router as trust_router
+    app.include_router(trust_router)
+except ImportError:
+    pass  # TRUST framework routes not critical for basic operation
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""

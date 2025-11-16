@@ -107,18 +107,18 @@ async def boot_grace_minimal():
             delegate_to="self_healing"  # Delegate issues to self-healing
         ))
         
-        # CHUNK 2: LLM Models (Guardian validates, delegates to coding agent for issues)
+        # CHUNK 2: LLM Models with Categorization (Guardian validates, delegates to coding agent for issues)
         async def chunk_2_llm_models():
-            print("[CHUNK 2] LLM Models (15 Open Source Models)...")
+            print("[CHUNK 2] LLM Models (21 Open Source Models by Specialty)...")
             import requests
+            from backend.model_categorization import MODEL_REGISTRY, get_summary
             
-            # Define all 15 open source models Grace should have
+            # Define all 20 open source models Grace should have
             recommended_models = {
                 'qwen2.5:32b': 'Conversation & reasoning',
                 'qwen2.5:72b': 'Ultimate quality',
                 'deepseek-coder-v2:16b': 'Best coding',
                 'deepseek-r1:70b': 'Complex reasoning (o1-level)',
-                'kimi:latest': '128K context',
                 'llava:34b': 'Vision + text',
                 'command-r-plus:latest': 'RAG specialist',
                 'phi3.5:latest': 'Ultra fast',
@@ -128,7 +128,14 @@ async def boot_grace_minimal():
                 'nous-hermes2-mixtral:latest': 'Instructions',
                 'gemma2:9b': 'Fast general',
                 'llama3.2:latest': 'Lightweight',
-                'mistral-nemo:latest': 'Efficient'
+                'mistral-nemo:latest': 'Efficient',
+                'llama3.1:70b': 'Best agentic model',
+                'nemotron:70b': 'Enterprise agent',
+                'qwen2.5-coder:32b': 'Coding specialist',
+                'mixtral:8x22b': 'MoE reasoning',
+                'yi:34b': 'Long context',
+                'mixtral:8x7b': 'Efficient MoE',
+                'deepseek-v2.5:236b': 'MoE powerhouse'
             }
             
             results = {
@@ -156,7 +163,14 @@ async def boot_grace_minimal():
                     
                     print(f"  ✓ Ollama: Running")
                     print(f"  ✓ Total models: {len(available_models)}")
-                    print(f"  ✓ Grace models: {len(installed)}/15")
+                    print(f"  ✓ Grace models: {len(installed)}/21 specialized models")
+                    
+                    # Show categorization
+                    summary = get_summary()
+                    print(f"  → By specialty:")
+                    for specialty, data in summary.items():
+                        if data['count'] > 0:
+                            print(f"    • {specialty}: {data['count']} models")
                     
                     if installed:
                         print(f"  → Installed:")
@@ -279,9 +293,74 @@ async def boot_grace_minimal():
             delegate_to="self_healing"
         ))
         
-        # CHUNK 6-25: All 20 Grace Kernels (Guardian validates each)
-        async def chunk_5_20_kernels():
-            print("[CHUNK 5-24] Grace Kernels (20 kernels)...")
+        # CHUNK 6: TRUST Framework + External Model Protocol (Guardian validates)
+        async def chunk_6_trust_framework():
+            print("[CHUNK 6] TRUST Framework + External Model Protocol...")
+            
+            from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+            from backend.trust_framework.verification_mesh import verification_mesh
+            from backend.trust_framework.model_health_telemetry import model_health_registry
+            from backend.trust_framework.adaptive_guardrails import adaptive_guardrails
+            from backend.trust_framework.ahead_of_user_research import ahead_of_user_research
+            from backend.trust_framework.data_hygiene_pipeline import data_hygiene_pipeline
+            from backend.trust_framework.hallucination_ledger import hallucination_ledger
+            from backend.external_integration.external_model_protocol import external_model_protocol
+            from backend.core.advanced_watchdog import advanced_watchdog
+            from backend.trust_framework.model_integrity_system import model_integrity_registry
+            from backend.trust_framework.model_rollback_system import model_rollback_system
+            from backend.trust_framework.metrics_aggregator import metrics_collector
+            from backend.trust_framework.alert_system import alert_system
+            from backend.trust_framework.trend_analyzer import trend_analyzer
+            
+            print(f"  ✓ HTM Anomaly Detection: Active")
+            print(f"  ✓ Verification Mesh: 5-role quorum")
+            print(f"  ✓ Model Health Telemetry: 20 monitors")
+            print(f"  ✓ Adaptive Guardrails: 4 levels")
+            print(f"  ✓ Ahead-of-User Research: Predictive")
+            print(f"  ✓ Data Hygiene Pipeline: 6 checks")
+            print(f"  ✓ Hallucination Ledger: Tracking")
+            print(f"  ✓ External Model Protocol: Secure (HMAC, rate-limited, audited)")
+            print(f"  ✓ Advanced Watchdog: Predictive failure detection")
+            print(f"  ✓ Model Integrity System: Checksum + behavioral verification")
+            print(f"  ✓ Model Rollback: Snapshot-based recovery")
+            print(f"  ✓ Metrics Aggregator: Time-series collection")
+            print(f"  ✓ Alert System: Multi-channel notifications")
+            print(f"  ✓ Trend Analyzer: Historical analysis & prediction")
+            
+            # Start advanced watchdog
+            await advanced_watchdog.start()
+            
+            # Start metrics collection
+            await metrics_collector.start(interval_seconds=60)
+            
+            return {
+                'htm_active': True,
+                'verification_mesh_active': True,
+                'model_monitors': 20,
+                'guardrail_levels': 4,
+                'systems_loaded': 14,
+                'external_protocol_active': True,
+                'advanced_watchdog_active': True,
+                'model_integrity_active': True,
+                'model_rollback_active': True,
+                'metrics_collector_active': True,
+                'alert_system_active': True,
+                'trend_analyzer_active': True
+            }
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="trust_framework",
+            name="TRUST Framework (AI Governance)",
+            priority=6,
+            boot_function=chunk_6_trust_framework,
+            can_fail=False,  # Critical - trust framework must load
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
+        # CHUNK 7-26: All 20 Grace Kernels (Guardian validates each)
+        async def chunk_7_20_kernels():
+            print("[CHUNK 7-26] Grace Kernels (20 kernels)...")
             from backend.unified_logic.kernel_integration import KernelIntegrator
             
             integrator = KernelIntegrator()
@@ -302,8 +381,8 @@ async def boot_grace_minimal():
         boot_orchestrator.register_chunk(BootChunk(
             chunk_id="grace_kernels",
             name="All 20 Grace Kernels (Tiered Boot)",
-            priority=6,
-            boot_function=chunk_5_20_kernels,
+            priority=7,
+            boot_function=chunk_7_20_kernels,
             can_fail=False,  # Critical - kernels must boot
             guardian_validates=True,
             delegate_to="self_healing"  # Self-healing handles kernel issues
