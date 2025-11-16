@@ -70,10 +70,12 @@ A single-window interface unifying Grace's logs, chat, and task management with 
 
 ---
 
-## 🪟 Dynamic Workspaces
+## 🪟 Dynamic Workspaces (Pop-Out Tabs)
 
 ### Concept
-Pop-out tabs/windows for focused work, spawned on demand
+**When you ask Grace to "open CRM latency dashboard" or "show mission followup_abc123," Grace spawns a dedicated tab/window with the relevant charts, logs, or code view.**
+
+**Key Design Principle**: Keep tabs lightweight so you can close them without affecting the core console.
 
 ### Examples
 ```
@@ -83,6 +85,7 @@ User: "open CRM latency dashboard"
   - Request traces
   - Performance metrics
   - Recent errors
+  - Close tab anytime - console continues
 
 User: "show mission followup_abc123"
 → Grace spawns tab: Mission followup_abc123
@@ -91,6 +94,7 @@ User: "show mission followup_abc123"
   - Test results
   - Before/after KPIs
   - Related logs
+  - Close when done - no impact on Grace
 
 User: "debug domain memory port 8201"
 → Grace spawns tab: Memory Domain Debug
@@ -99,21 +103,43 @@ User: "debug domain memory port 8201"
   - Recent requests
   - Error logs
   - Quick actions (restart, heal)
+  - Independent debugging - close when fixed
 ```
 
 ### Workspace Types
-1. **Domain Dashboards** - Health, metrics, logs for specific domain
-2. **Mission Details** - Deep dive into specific mission
-3. **Code Views** - File/function being debugged
+1. **Domain Dashboards** - Health, metrics, logs for specific domain (8200-8209)
+2. **Mission Details** - Deep dive into specific mission with full context
+3. **Code Views** - File/function being debugged with Monaco editor
 4. **Data Explorers** - Database query results, knowledge base search
 5. **Chart/Metrics Views** - Time-series, comparisons, trends
-6. **Approval Queues** - Pending consents/approvals
+6. **Approval Queues** - Pending consents/approvals for review
 
 ### Behavior
-- **Lightweight** - Close without affecting main console
-- **Independent** - Each tab has own state
-- **Linkable** - Tabs can reference each other
-- **Persistent** (optional) - Restore on reload
+- **Lightweight** - Minimal overhead, close without affecting main console
+- **Independent** - Each tab has own state, doesn't block others
+- **Non-blocking** - Closing a workspace doesn't interrupt Grace
+- **Linkable** - Tabs can reference each other (click to jump)
+- **Persistent** (optional) - Restore open tabs on reload
+- **Disposable** - No commitment - open, review, close
+- **Multi-instance** - Open multiple of same type (e.g., 3 mission tabs)
+
+### Spawning Methods
+1. **Chat Commands**: "open dashboard memory" → spawns workspace
+2. **Click Actions**: Click mission card → spawns mission detail
+3. **Command Palette**: Cmd+K → "Open Dashboard" → select domain
+4. **Quick Links**: Click domain name in logs → spawns domain dashboard
+5. **Context Menu**: Right-click on item → "Open in Workspace"
+
+### Workspace Lifecycle
+```
+1. User triggers spawn (chat, click, palette)
+2. Grace creates tab in workspace area
+3. Tab fetches data from relevant domain API
+4. User interacts with workspace (charts, logs, code)
+5. User closes tab when done
+6. Main console unaffected - continues running
+7. No cleanup needed - just close the tab
+```
 
 ---
 
@@ -185,11 +211,55 @@ User: "debug domain memory port 8201"
   - 📊 Open dashboard (select domain)
   - 🔧 Trigger healing playbook
   - 📁 Open workspace (by type)
+  - 📂 Open knowledge explorer
   - 📝 View recent missions
   - 🧠 Check learning insights
 - Fuzzy search
 - Keyboard navigation
 - Recent commands history
+
+---
+
+### File Explorer UI (New!)
+**Location**: Dynamic workspace tab or dedicated panel
+
+**Purpose**: Browse, manage, and ingest knowledge artifacts
+
+**Features**:
+- Browse knowledge by category (Documents, Recordings, Code, etc.)
+- View metadata (source path, tags, ingestion date, chunk count)
+- Actions per file:
+  - 👁️ Preview content
+  - ✏️ Add notes (appends to artifact)
+  - 🔄 Re-ingest (with updated pipeline)
+  - 🗑️ Delete (soft delete with archive)
+  - 📊 View embeddings
+  - ⬇️ Download
+- Upload controls:
+  - 📤 Drag & drop files → auto-ingest
+  - 📝 Paste text directly → chunk & embed
+  - 🎤 Record voice note → transcribe & index
+  - 🔄 Bulk upload → batch processing
+- Search/filter:
+  - RAG-powered semantic search
+  - Filter by category, date, tags
+  - Check for duplicates before upload
+- Zero-trust access:
+  - Backed by credential vault
+  - Every action logged
+  - Governance approval required
+  - Full audit trail
+
+**Integration**:
+- Uses existing ingestion endpoints:
+  - `/api/remote-access/rag/ingest-text`
+  - `/api/ingestion/upload-document`
+  - `/api/speech/upload-voice-note`
+- Triggers `vector_integration.embed_all()` on bulk upload
+- Stores in `grace_training/` directory structure
+- Makes all content RAG-searchable
+
+**See**: [FILE_EXPLORER_DESIGN.md](../ui/FILE_EXPLORER_DESIGN.md) for full specification
 
 ---
 
