@@ -140,6 +140,27 @@ async def startup_unified_llm():
         from backend.world_model import initialize_world_model
         await initialize_world_model()
         print("[OK] World model initialized (Grace's self-knowledge with RAG + MCP)")
+        
+        # NEW: Initialize RAG Mesh Integration
+        from backend.services.rag_mesh_integration import rag_mesh_integration
+        await rag_mesh_integration.initialize()
+        print("[OK] RAG registered with service mesh (retries, circuit breakers, load balancing)")
+        
+        # NEW: Initialize Closed-Loop Learning
+        from backend.services.closed_loop_learning import closed_loop_learning
+        await closed_loop_learning.initialize()
+        print("[OK] Closed-loop learning active (execution feedback to knowledge)")
+        
+        # NEW: Initialize Integrity Validator
+        from backend.world_model.world_model_integrity_validator import world_model_integrity_validator
+        await world_model_integrity_validator.initialize()
+        print("[OK] Integrity validator initialized (self-awareness + auto-healing)")
+        
+        # Start integrity validation loop in background
+        import asyncio
+        asyncio.create_task(world_model_integrity_validator.start_validation_loop())
+        print("[OK] Integrity validation loop started (5-minute intervals)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
