@@ -315,28 +315,108 @@ class AutoStatusBrief:
         narrative: str,
         aggregated: Dict[str, Dict[str, Any]]
     ):
-        """Publish brief to Slack (optional)"""
+        """Publish brief to Slack (production-ready)"""
         try:
-            # TODO: Implement Slack webhook integration
             import os
+            import httpx
+            
             slack_webhook = os.getenv("SLACK_WEBHOOK_URL")
             
             if not slack_webhook:
-                logger.warning("[AUTO-BRIEF] Slack enabled but no webhook configured")
+                logger.warning("[AUTO-BRIEF] Slack enabled but no webhook configured (set SLACK_WEBHOOK_URL)")
                 return
             
-            import httpx
-            async with httpx.AsyncClient() as client:
-                await client.post(
-                    slack_webhook,
-                    json={
-                        "text": f"🤖 Grace Status Brief\n\n{narrative}",
-                        "username": "Grace",
-                        "icon_emoji": ":robot_face:"
-                    }
-                )
+            # Build rich Slack message with formatting
+            total_missions = sum(d["mission_count"] for d in aggregated.values())
             
-            logger.info("[AUTO-BRIEF] Published to Slack")
+            # Header block
+            blocks = [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f"🤖 Grace Status Brief - {datetime.utcnow().strftime('%Y-%m-%d')}",
+                        "emoji": True
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"*{total_missions} missions completed* across {len(aggregated)} domains"
+                    }
+                },
+                {"type": "divider"}
+            ]
+            
+            # Per-domain sections
+            for domain_id, data in sorted(aggregated.items(), key=lambda x: x[1]["mission_count"], reverse=True):
+                mission_count = data["mission_count"]
+                
+                # Domain header
+                domain_text = f"*{domain_id.title()}* ({mission_count} missions)\n"
+                
+                # Sample mission
+                if data["missions"]:
+                    sample = data["missions"][0]["content"][:150]
+                    domain_text += f"• {sample}...\n"
+                
+                # Key metrics
+                if data["total_impact"]:
+                    for metric, impact_data in list(data["total_impact"].items())[:2]:
+                        avg = impact_data["total_improvement"] / impact_data["occurrences"]
+                        emoji = "📈" if avg > 0 else "📉"
+                        domain_text += f"{emoji} _{metric}_: {abs(avg):.1f}% {'improvement' if avg > 0 else 'degradation'}\n"
+                
+                blocks.append({
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": domain_text
+                    }
+                })
+            
+            # Footer
+            blocks.append({"type": "divider"})
+            blocks.append({
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"All systems operational • Generated at {datetime.utcnow().strftime('%H:%M UTC')}"
+                    }
+                ]
+            })
+            
+            payload = {
+                "text": f"Grace Status Brief: {total_missions} missions completed",
+                "blocks": blocks,
+                "username": "Grace",
+                "icon_emoji": ":robot_face:"
+            }
+            
+            # Send with retry logic
+            max_retries = 3
+            retry_delay = 2
+            
+            for attempt in range(max_retries):
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.post(slack_webhook, json=payload)
+                        
+                        if response.status_code == 200:
+                            logger.info("[AUTO-BRIEF] Successfully published to Slack")
+                            return
+                        else:
+                            logger.warning(f"[AUTO-BRIEF] Slack returned {response.status_code}: {response.text}")
+                    
+                except httpx.TimeoutException:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"[AUTO-BRIEF] Slack timeout, retrying in {retry_delay}s...")
+                        await asyncio.sleep(retry_delay)
+                        retry_delay *= 2
+                    else:
+                        raise
             
         except Exception as e:
             logger.error(f"[AUTO-BRIEF] Failed to publish to Slack: {e}")
@@ -346,18 +426,132 @@ class AutoStatusBrief:
         narrative: str,
         aggregated: Dict[str, Dict[str, Any]]
     ):
-        """Publish brief to email (optional)"""
+        """Publish brief to email (production-ready)"""
         try:
-            # TODO: Implement email integration
             import os
-            email_recipients = os.getenv("STATUS_BRIEF_RECIPIENTS", "").split(",")
             
-            if not email_recipients or not email_recipients[0]:
-                logger.warning("[AUTO-BRIEF] Email enabled but no recipients configured")
+            email_recipients = os.getenv("STATUS_BRIEF_RECIPIENTS", "").split(",")
+            email_recipients = [r.strip() for r in email_recipients if r.strip()]
+            
+            if not email_recipients:
+                logger.warning("[AUTO-BRIEF] Email enabled but no recipients configured (set STATUS_BRIEF_RECIPIENTS)")
                 return
             
-            # Use simple SMTP or SendGrid/Mailgun
-            logger.info(f"[AUTO-BRIEF] Would email to: {email_recipients}")
+            smtp_host = os.getenv("SMTP_HOST", "localhost")
+            smtp_port = int(os.getenv("SMTP_PORT", "587"))
+            smtp_user = os.getenv("SMTP_USER", "")
+            smtp_pass = os.getenv("SMTP_PASSWORD", "")
+            from_email = os.getenv("SMTP_FROM_EMAIL", "grace@localhost")
+            
+            # Build HTML email
+            total_missions = sum(d["mission_count"] for d in aggregated.values())
+            
+            html_content = f"""
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                    .header {{ background: #4CAF50; color: white; padding: 20px; text-align: center; }}
+                    .summary {{ background: #f5f5f5; padding: 15px; margin: 20px 0; border-left: 4px solid #4CAF50; }}
+                    .domain {{ margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }}
+                    .domain-title {{ font-size: 18px; font-weight: bold; color: #4CAF50; }}
+                    .metric {{ margin: 5px 0; padding: 5px; background: #f9f9f9; }}
+                    .footer {{ text-align: center; color: #999; font-size: 12px; margin-top: 30px; }}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>🤖 Grace Status Brief</h1>
+                    <p>{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
+                </div>
+                
+                <div class="summary">
+                    <strong>{total_missions} missions completed</strong> across {len(aggregated)} domains
+                </div>
+                
+            """
+            
+            # Per-domain sections
+            for domain_id, data in sorted(aggregated.items(), key=lambda x: x[1]["mission_count"], reverse=True):
+                mission_count = data["mission_count"]
+                
+                html_content += f"""
+                <div class="domain">
+                    <div class="domain-title">{domain_id.title()} ({mission_count} missions)</div>
+                """
+                
+                # Sample mission
+                if data["missions"]:
+                    sample = data["missions"][0]["content"][:200]
+                    html_content += f"<p>• {sample}...</p>"
+                
+                # Key metrics
+                if data["total_impact"]:
+                    html_content += "<div>"
+                    for metric, impact_data in list(data["total_impact"].items())[:3]:
+                        avg = impact_data["total_improvement"] / impact_data["occurrences"]
+                        emoji = "📈" if avg > 0 else "📉"
+                        html_content += f"""
+                        <div class="metric">
+                            {emoji} <strong>{metric}</strong>: {abs(avg):.1f}% {'improvement' if avg > 0 else 'degradation'}
+                        </div>
+                        """
+                    html_content += "</div>"
+                
+                html_content += "</div>"
+            
+            html_content += """
+                <div class="footer">
+                    <p>All systems operational</p>
+                    <p>This is an automated report from Grace's autonomous operations system</p>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # Plain text version
+            text_content = narrative
+            
+            # Send email
+            try:
+                import aiosmtplib
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
+                
+                message = MIMEMultipart('alternative')
+                message['Subject'] = f"Grace Status Brief - {total_missions} missions completed"
+                message['From'] = from_email
+                message['To'] = ", ".join(email_recipients)
+                
+                part1 = MIMEText(text_content, 'plain')
+                part2 = MIMEText(html_content, 'html')
+                
+                message.attach(part1)
+                message.attach(part2)
+                
+                # Send with authentication if configured
+                if smtp_user and smtp_pass:
+                    await aiosmtplib.send(
+                        message,
+                        hostname=smtp_host,
+                        port=smtp_port,
+                        username=smtp_user,
+                        password=smtp_pass,
+                        start_tls=True
+                    )
+                else:
+                    await aiosmtplib.send(
+                        message,
+                        hostname=smtp_host,
+                        port=smtp_port
+                    )
+                
+                logger.info(f"[AUTO-BRIEF] Successfully sent email to {len(email_recipients)} recipients")
+                
+            except ImportError:
+                logger.error("[AUTO-BRIEF] aiosmtplib not installed. Install with: pip install aiosmtplib")
+            except Exception as smtp_error:
+                logger.error(f"[AUTO-BRIEF] SMTP error: {smtp_error}")
             
         except Exception as e:
             logger.error(f"[AUTO-BRIEF] Failed to publish to email: {e}")
