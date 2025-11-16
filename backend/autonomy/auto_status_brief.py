@@ -136,10 +136,15 @@ class AutoStatusBrief:
                 await self._publish_to_email(narrative, aggregated)
                 published_to.append("email")
             
+            # Step 6: NEW - Proactive Follow-ups (analyze for problems)
+            follow_ups = await self._analyze_and_create_follow_ups(aggregated, outcomes)
+            
             self.briefs_generated += 1
             self.last_brief_at = datetime.utcnow()
             
             logger.info(f"[AUTO-BRIEF] Generated brief covering {len(outcomes)} missions")
+            if follow_ups:
+                logger.info(f"[AUTO-BRIEF] Created {len(follow_ups)} follow-up missions")
             
             return {
                 "success": True,
@@ -148,6 +153,7 @@ class AutoStatusBrief:
                 "missions_covered": len(outcomes),
                 "domains_affected": list(aggregated.keys()),
                 "published_to": published_to,
+                "follow_ups_created": follow_ups,
                 "generated_at": self.last_brief_at.isoformat()
             }
             
@@ -355,6 +361,146 @@ class AutoStatusBrief:
             
         except Exception as e:
             logger.error(f"[AUTO-BRIEF] Failed to publish to email: {e}")
+    
+    async def _analyze_and_create_follow_ups(
+        self,
+        aggregated: Dict[str, Dict[str, Any]],
+        outcomes: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Analyze brief for problems and create follow-up missions
+        
+        Triggers follow-ups for:
+        - Repeat failures in same domain
+        - Low effectiveness scores
+        - Degrading KPIs
+        - Multiple failed tests
+        
+        Returns list of created follow-up missions
+        """
+        follow_ups = []
+        
+        try:
+            # Analyze each domain for problems
+            for domain_id, data in aggregated.items():
+                problems = []
+                
+                # Check 1: Multiple missions in short time (potential recurring issue)
+                if data["mission_count"] >= 3:
+                    problems.append({
+                        "type": "recurring_issue",
+                        "severity": "medium",
+                        "description": f"{domain_id} had {data['mission_count']} missions - may indicate recurring issue"
+                    })
+                
+                # Check 2: Failed missions
+                if data.get("failure_count", 0) > 0:
+                    problems.append({
+                        "type": "mission_failures",
+                        "severity": "high",
+                        "description": f"{domain_id} had {data['failure_count']} failed missions"
+                    })
+                
+                # Check 3: Low effectiveness scores
+                low_effectiveness = []
+                for mission in data["missions"]:
+                    metadata = mission.get("metadata", {})
+                    effectiveness = metadata.get("effectiveness_score", 1.0)
+                    if effectiveness < 0.5:
+                        low_effectiveness.append(mission)
+                
+                if low_effectiveness:
+                    problems.append({
+                        "type": "low_effectiveness",
+                        "severity": "medium",
+                        "description": f"{domain_id} had {len(low_effectiveness)} missions with effectiveness < 0.5"
+                    })
+                
+                # Check 4: Degrading trends in KPIs
+                if data.get("total_impact"):
+                    for metric_name, impact_data in data["total_impact"].items():
+                        avg_improvement = impact_data["total_improvement"] / impact_data["occurrences"]
+                        if avg_improvement < 0:  # Metrics getting worse
+                            problems.append({
+                                "type": "degrading_kpi",
+                                "severity": "high",
+                                "description": f"{domain_id} metric '{metric_name}' degrading (avg: {avg_improvement:.1f}%)"
+                            })
+                
+                # Create follow-up missions for significant problems
+                if problems:
+                    high_severity = [p for p in problems if p["severity"] == "high"]
+                    
+                    if high_severity or len(problems) >= 2:
+                        follow_up = await self._create_follow_up_mission(
+                            domain_id=domain_id,
+                            problems=problems,
+                            mission_data=data
+                        )
+                        if follow_up:
+                            follow_ups.append(follow_up)
+            
+            return follow_ups
+            
+        except Exception as e:
+            logger.error(f"[AUTO-BRIEF] Failed to analyze follow-ups: {e}")
+            return []
+    
+    async def _create_follow_up_mission(
+        self,
+        domain_id: str,
+        problems: List[Dict[str, Any]],
+        mission_data: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Create a follow-up refinement mission
+        
+        Returns mission details if created
+        """
+        try:
+            from backend.autonomy.proactive_mission_generator import proactive_mission_generator
+            
+            # Build mission context
+            problem_summary = "; ".join([p["description"] for p in problems])
+            high_severity = any(p["severity"] == "high" for p in problems)
+            
+            mission_title = f"Investigate {domain_id} issues"
+            mission_reason = f"Auto-brief flagged problems: {problem_summary}"
+            
+            # Determine mission type based on problems
+            mission_type = "investigation"
+            if any(p["type"] == "degrading_kpi" for p in problems):
+                mission_type = "performance_analysis"
+            elif any(p["type"] == "mission_failures" for p in problems):
+                mission_type = "failure_remediation"
+            
+            # Create mission via proactive generator
+            mission = await proactive_mission_generator.create_mission(
+                title=mission_title,
+                domain_id=domain_id,
+                mission_type=mission_type,
+                trigger_reason=mission_reason,
+                priority="high" if high_severity else "medium",
+                metadata={
+                    "triggered_by": "auto_status_brief",
+                    "problems": problems,
+                    "original_mission_count": mission_data["mission_count"]
+                }
+            )
+            
+            logger.info(f"[AUTO-BRIEF] Created follow-up mission for {domain_id}")
+            
+            return {
+                "mission_id": mission.get("mission_id"),
+                "domain_id": domain_id,
+                "title": mission_title,
+                "problems": len(problems),
+                "severity": "high" if high_severity else "medium"
+            }
+            
+        except Exception as e:
+            logger.error(f"[AUTO-BRIEF] Failed to create follow-up mission: {e}")
+            return None
     
     def get_stats(self) -> Dict[str, Any]:
         """Get brief generator statistics"""
