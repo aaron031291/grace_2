@@ -283,7 +283,7 @@ class GoogleSearchService:
             # Load from grace_training whitelist
             whitelist_path = Path(__file__).parent.parent.parent / "grace_training" / "documents" / "whitelist.txt"
             if whitelist_path.exists():
-                content = whitelist_path.read_text()
+                content = whitelist_path.read_text(encoding='utf-8')
                 for line in content.splitlines():
                     line = line.strip()
                     if line and not line.startswith('#'):
