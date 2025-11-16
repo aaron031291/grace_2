@@ -166,6 +166,11 @@ async def startup_unified_llm():
         await domain_performance_analyzer.initialize()
         print("[OK] Performance analyzer initialized (self-optimization + auto-tuning)")
         
+        # NEW: Initialize Proactive Mission Generator (Autonomous Mission Creation)
+        from backend.autonomy.proactive_mission_generator import proactive_mission_generator, start_proactive_missions
+        await start_proactive_missions()
+        print("[OK] Proactive mission generator started (auto-detects issues, creates missions)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
@@ -771,5 +776,35 @@ async def get_self_optimization_stats():
     from backend.self_optimization.domain_performance_analyzer import domain_performance_analyzer
     
     return domain_performance_analyzer.get_stats()
+
+@app.get("/api/missions/proactive/stats")
+async def get_proactive_mission_stats():
+    """Get proactive mission generator statistics"""
+    from backend.autonomy.proactive_mission_generator import proactive_mission_generator
+    
+    return proactive_mission_generator.get_stats()
+
+@app.post("/api/missions/proactive/narrative")
+async def create_mission_narrative(request: dict):
+    """
+    Create narrative for completed mission
+    
+    Body: {
+        "mission_id": str,
+        "outcome": { ... }
+    }
+    """
+    from backend.autonomy.proactive_mission_generator import create_mission_narrative
+    
+    mission_id = request.get("mission_id")
+    outcome = request.get("outcome", {})
+    
+    narrative = await create_mission_narrative(mission_id, outcome)
+    
+    return {
+        "mission_id": mission_id,
+        "narrative": narrative,
+        "created_at": datetime.now().isoformat()
+    }
 
 __all__ = ['app']
