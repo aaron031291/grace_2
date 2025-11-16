@@ -35,6 +35,7 @@ class MissionOutcomeLogger:
         self._initialized = False
         self.outcomes_logged = 0
         self.narratives_created = 0
+        self.telemetry_backfills = 0  # Track telemetry operations
     
     async def initialize(self):
         """Initialize and subscribe to mission events"""
@@ -96,16 +97,24 @@ class MissionOutcomeLogger:
             # Step 5: Log to governance
             await self._log_governance(mission_id, narrative, success)
             
+            # Step 6: NEW - Telemetry Backfill (hard numbers for "Did it work?")
+            telemetry_data = await self._backfill_telemetry(
+                mission_id=mission_id,
+                mission_context=mission_context,
+                knowledge_id=knowledge_id
+            )
+            
             self.outcomes_logged += 1
             self.narratives_created += 1
             
-            logger.info(f"[OUTCOME-LOGGER] Logged outcome for {mission_id}")
+            logger.info(f"[OUTCOME-LOGGER] Logged outcome for {mission_id} with telemetry")
             
             return {
                 "success": True,
                 "knowledge_id": knowledge_id,
                 "narrative": narrative,
                 "metrics_impact": metrics_impact,
+                "telemetry": telemetry_data,
                 "mission_id": mission_id
             }
             
@@ -196,14 +205,14 @@ class MissionOutcomeLogger:
             # What was noticed
             trigger = context.get("trigger_reason", "an issue")
             parts.append(f"I noticed {trigger}.")
-            
+
             # What was done
             if context.get("tasks_executed"):
                 task_summary = ", ".join(t.get("type", "task") for t in context["tasks_executed"][:3])
                 parts.append(f"I {task_summary}.")
             else:
                 parts.append(f"I investigated and applied fixes.")
-            
+
             # Impact
             if metrics_impact.get("improvement"):
                 for metric_name, impact in list(metrics_impact["improvement"].items())[:2]:
@@ -324,12 +333,226 @@ class MissionOutcomeLogger:
         except Exception as e:
             logger.error(f"[OUTCOME-LOGGER] Error handling auto mission: {e}")
     
+    async def _backfill_telemetry(
+        self,
+        mission_id: str,
+        mission_context: Dict[str, Any],
+        knowledge_id: str
+    ) -> Dict[str, Any]:
+        """
+        Backfill telemetry with hard pre/post metrics
+        
+        After outcome is logged, re-query actual KPI sources for concrete numbers
+        so Grace can answer "Did the fix work?" with hard data.
+        
+        Returns:
+            {
+                "metrics_captured": bool,
+                "pre_post_comparison": Dict,
+                "effectiveness_score": float,
+                "data_sources": List[str]
+            }
+        """
+        try:
+            domain_id = mission_context.get("domain_id", "unknown")
+            
+            # Wait a moment for metrics to propagate
+            await asyncio.sleep(2)
+            
+            # Query multiple data sources for comprehensive metrics
+            telemetry = {
+                "metrics_captured": False,
+                "pre_post_comparison": {},
+                "effectiveness_score": 0.0,
+                "data_sources": [],
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            
+            # Source 1: RAG for stored KPIs
+            rag_metrics = await self._query_rag_metrics(domain_id, mission_context)
+            if rag_metrics:
+                telemetry["data_sources"].append("rag_kpis")
+                telemetry["pre_post_comparison"]["rag"] = rag_metrics
+            
+            # Source 2: Domain health metrics (if available)
+            try:
+                from backend.domains import domain_registry
+                domain_health = await domain_registry.get_domain_health(domain_id)
+                if domain_health:
+                    telemetry["data_sources"].append("domain_health")
+                    telemetry["pre_post_comparison"]["domain_health"] = {
+                        "current_status": domain_health.get("status"),
+                        "health_score": domain_health.get("health_score"),
+                        "active_alerts": domain_health.get("active_alerts", 0)
+                    }
+            except Exception as e:
+                logger.debug(f"[TELEMETRY] Domain health unavailable: {e}")
+            
+            # Source 3: Infrastructure metrics (if available)
+            try:
+                from backend.infrastructure import service_mesh
+                service_metrics = await service_mesh.get_service_metrics(domain_id)
+                if service_metrics:
+                    telemetry["data_sources"].append("service_mesh")
+                    telemetry["pre_post_comparison"]["infrastructure"] = service_metrics
+            except Exception as e:
+                logger.debug(f"[TELEMETRY] Infrastructure metrics unavailable: {e}")
+            
+            # Calculate effectiveness score
+            if telemetry["pre_post_comparison"]:
+                telemetry["metrics_captured"] = True
+                telemetry["effectiveness_score"] = self._calculate_effectiveness(
+                    telemetry["pre_post_comparison"]
+                )
+                
+                # Update world model entry with telemetry
+                await self._update_outcome_with_telemetry(knowledge_id, telemetry)
+                
+                self.telemetry_backfills += 1
+                logger.info(f"[TELEMETRY] Backfilled metrics from {len(telemetry['data_sources'])} sources")
+            
+            return telemetry
+            
+        except Exception as e:
+            logger.error(f"[TELEMETRY] Backfill failed: {e}")
+            return {
+                "metrics_captured": False,
+                "error": str(e)
+            }
+    
+    async def _query_rag_metrics(
+        self,
+        domain_id: str,
+        context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Query RAG for KPI metrics with pre/post comparison"""
+        try:
+            from backend.services.rag_service import rag_service
+            
+            # Get metrics before and after mission
+            before_time = datetime.utcnow() - timedelta(hours=1)
+            after_time = datetime.utcnow()
+            
+            # Query for current metrics
+            current_results = await rag_service.retrieve(
+                query=f"{domain_id} KPI metrics performance status",
+                filters={"domain_id": domain_id},
+                top_k=5,
+                requested_by="telemetry_backfill"
+            )
+            
+            if not current_results.get("results"):
+                return {}
+            
+            # Extract numeric metrics
+            current_metrics = {}
+            for result in current_results["results"]:
+                metadata = result.get("metadata", {})
+                for key, value in metadata.items():
+                    if isinstance(value, (int, float)) and key not in ["confidence", "score"]:
+                        current_metrics[key] = value
+            
+            # Compare with baseline from mission context
+            baseline = context.get("metrics_before", {})
+            
+            comparison = {}
+            for metric_name in set(list(baseline.keys()) + list(current_metrics.keys())):
+                before_val = baseline.get(metric_name)
+                after_val = current_metrics.get(metric_name)
+                
+                if before_val is not None and after_val is not None:
+                    if isinstance(before_val, (int, float)) and isinstance(after_val, (int, float)):
+                        delta = after_val - before_val
+                        pct_change = (delta / before_val * 100) if before_val != 0 else 0
+                        
+                        comparison[metric_name] = {
+                            "pre": before_val,
+                            "post": after_val,
+                            "delta": delta,
+                            "percent_change": pct_change,
+                            "improved": self._is_improvement(metric_name, delta)
+                        }
+            
+            return comparison
+            
+        except Exception as e:
+            logger.warning(f"[TELEMETRY] RAG metrics query failed: {e}")
+            return {}
+    
+    def _is_improvement(self, metric_name: str, delta: float) -> bool:
+        """Determine if metric change is an improvement"""
+        # Lower is better for these metrics
+        lower_is_better = [
+            "latency", "error_rate", "errors", "failures", 
+            "response_time", "memory_usage", "cpu_usage"
+        ]
+        
+        for pattern in lower_is_better:
+            if pattern in metric_name.lower():
+                return delta < 0  # Negative change is improvement
+        
+        # Higher is better for everything else
+        return delta > 0
+    
+    def _calculate_effectiveness(self, pre_post_data: Dict[str, Any]) -> float:
+        """
+        Calculate mission effectiveness score from pre/post metrics
+        
+        Returns score 0.0-1.0 based on metric improvements
+        """
+        total_score = 0.0
+        metric_count = 0
+        
+        for source, metrics in pre_post_data.items():
+            if isinstance(metrics, dict):
+                for metric_name, metric_data in metrics.items():
+                    if isinstance(metric_data, dict) and "improved" in metric_data:
+                        if metric_data["improved"]:
+                            # Weight by magnitude of improvement
+                            pct = abs(metric_data.get("percent_change", 0))
+                            score = min(pct / 100, 1.0)  # Cap at 100%
+                            total_score += score
+                        else:
+                            # Negative score for regressions
+                            total_score -= 0.1
+                        metric_count += 1
+        
+        if metric_count == 0:
+            return 0.5  # Neutral score if no metrics
+        
+        # Average and normalize to 0-1 range
+        avg_score = total_score / metric_count
+        return max(0.0, min(1.0, avg_score))
+    
+    async def _update_outcome_with_telemetry(
+        self,
+        knowledge_id: str,
+        telemetry: Dict[str, Any]
+    ):
+        """Update world model outcome entry with telemetry data"""
+        try:
+            from backend.world_model import grace_world_model
+            
+            # Add telemetry as additional metadata
+            await grace_world_model.update_knowledge_metadata(
+                knowledge_id=knowledge_id,
+                additional_metadata={
+                    "telemetry_backfill": telemetry,
+                    "effectiveness_score": telemetry.get("effectiveness_score", 0),
+                    "metrics_data_sources": telemetry.get("data_sources", [])
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"[TELEMETRY] Failed to update outcome: {e}")
+
     def get_stats(self) -> Dict[str, Any]:
         """Get logger statistics"""
         return {
             "initialized": self._initialized,
             "outcomes_logged": self.outcomes_logged,
-            "narratives_created": self.narratives_created
+            "narratives_created": self.narratives_created,
+            "telemetry_backfills": self.telemetry_backfills
         }
 
 
