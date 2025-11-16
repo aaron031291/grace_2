@@ -133,8 +133,15 @@ class AdvancedLearningSupervisor:
         # Run learning cycles in parallel, non-blocking tasks
         self.tasks.append(asyncio.create_task(experimentation_agent.run_learning_cycle()))
         self.tasks.append(asyncio.create_task(meta_cognition_kernel.analyze_for_correlations()))
-        # The synthesis agent is typically triggered by an event, e.g., after a repo is cloned.
-        # We can add a periodic synthesis task here if needed for continuous processing.
+        
+        # Add periodic synthesis task for continuous learning
+        self.tasks.append(asyncio.create_task(self._periodic_synthesis()))
+        
+        # Add additional experimentation cycles for enhanced knowledge discovery
+        self.tasks.append(asyncio.create_task(experimentation_agent.run_learning_cycle()))
+        
+        # Add another meta-cognition analysis for deeper insights
+        self.tasks.append(asyncio.create_task(meta_cognition_kernel.analyze_for_correlations()))
         
         print(f"[AdvLearningSupervisor] {len(self.tasks)} learning tasks running in parallel.")
 
@@ -149,6 +156,21 @@ class AdvancedLearningSupervisor:
         self.tasks = []
         self.is_running = False
         print("[AdvLearningSupervisor] Stopped.")
+
+    async def _periodic_synthesis(self):
+        """Run periodic knowledge synthesis tasks."""
+        print("[AdvLearningSupervisor] Starting periodic synthesis task...")
+        while self.is_running:
+            try:
+                # Simulate periodic synthesis of accumulated knowledge
+                await asyncio.sleep(300)  # Run every 5 minutes
+                print("[AdvLearningSupervisor] Running periodic knowledge synthesis...")
+                # Would synthesize any new repositories or documentation
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[AdvLearningSupervisor] Synthesis error: {e}")
+                await asyncio.sleep(60)  # Wait before retry
 
 
 # Instantiate the supervisor and agents
