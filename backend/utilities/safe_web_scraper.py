@@ -13,14 +13,45 @@ import logging
 from bs4 import BeautifulSoup
 import re
 
-from .governance_framework import governance_framework
-from .hunter import HunterEngine
-from .constitutional_engine import constitutional_engine
-from .unified_logger import unified_logger
-from .secrets_vault import secrets_vault
-from .models import async_session
-from .knowledge_provenance import provenance_tracker
-from .memory_models import MemoryArtifact
+try:
+    from backend.governance.verification_charter import governance_framework
+except ImportError:
+    governance_framework = None
+
+try:
+    from backend.hunter.hunter_engine import HunterEngine
+except ImportError:
+    HunterEngine = None
+
+try:
+    from backend.constitutional.constitutional_engine import constitutional_engine
+except ImportError:
+    constitutional_engine = None
+
+try:
+    from backend.logging.unified_logger import unified_logger
+except ImportError:
+    unified_logger = None
+
+try:
+    from backend.security.secrets_vault import secrets_vault
+except ImportError:
+    secrets_vault = None
+
+try:
+    from backend.models import async_session
+except ImportError:
+    async_session = None
+
+try:
+    from backend.knowledge.knowledge_provenance import provenance_tracker
+except ImportError:
+    provenance_tracker = None
+
+try:
+    from backend.memory_tables.memory_models import MemoryArtifact
+except ImportError:
+    MemoryArtifact = None
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +62,7 @@ class SafeWebScraper:
     """
     
     def __init__(self):
-        self.hunter = HunterEngine()
+        self.hunter = HunterEngine() if HunterEngine else None
         self.session: Optional[aiohttp.ClientSession] = None
         self.knowledge_dir = Path(__file__).parent.parent / "storage" / "web_knowledge"
         self.knowledge_dir.mkdir(parents=True, exist_ok=True)
@@ -136,8 +167,8 @@ class SafeWebScraper:
         self.request_delay = 2.0  # Respectful 2 second delay
         self.max_content_size = 5 * 1024 * 1024  # 5MB max
     
-    async def start(self):
-        """Start web scraper session"""
+    async def initialize(self):
+        """Initialize web scraper"""
         if not self.session:
             self.session = aiohttp.ClientSession(
                 headers={
@@ -145,7 +176,11 @@ class SafeWebScraper:
                 },
                 timeout=aiohttp.ClientTimeout(total=30)
             )
-        logger.info("[WEB-SCRAPER] ✅ Started with governance enabled")
+        logger.info(f"[WEB-SCRAPER] Initialized with {len(self.trusted_domains)} trusted domains")
+    
+    async def start(self):
+        """Start web scraper session (alias for initialize)"""
+        await self.initialize()
     
     async def stop(self):
         """Stop web scraper session"""

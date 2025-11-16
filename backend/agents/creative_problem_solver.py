@@ -41,8 +41,10 @@ class CreativeProblemSolver:
         try:
             playbook_path = Path(__file__).parent.parent.parent / "playbooks" / "advanced_problem_solving_playbook.yaml"
             if playbook_path.exists():
-                with open(playbook_path, 'r') as f:
-                    self.playbook = yaml.safe_load(f)
+                with open(playbook_path, 'r', encoding='utf-8') as f:
+                    # Load all documents and merge (YAML file has multiple --- separators)
+                    docs = list(yaml.safe_load_all(f))
+                    self.playbook = docs[0] if docs else {}
                 logger.info("[CREATIVE-SOLVER] Loaded advanced problem-solving playbook")
             else:
                 logger.warning(f"[CREATIVE-SOLVER] Playbook not found: {playbook_path}")

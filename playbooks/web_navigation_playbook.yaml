@@ -428,8 +428,6 @@ failure_modes:
       - "Prioritize by urgency"
       - "Execute in batches"
 
----
-
 # Grace: This playbook is your guide to the internet!
 # 
 # You now know:
