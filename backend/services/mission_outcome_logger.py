@@ -1,180 +1,139 @@
 """
 Mission Outcome Logger
 
-Listens for mission lifecycle updates and records outcomes into the world model
-so Grace can explain what she fixed (or where she failed) with citations.
+Listens for mission lifecycle events, summarizes the outcome, and records it
+in Grace's world model so she can explain what she fixed or shipped.
 """
 
+import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Set
+from collections import deque
 from datetime import datetime
+from typing import Dict, List, Optional
 
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 from backend.mission_control.hub import mission_control_hub
-from backend.mission_control.schemas import MissionStatus, MissionPackage
+from backend.mission_control.schemas import MissionPackage, MissionStatus, MetricObservation
 from backend.world_model import grace_world_model
-from backend.governance_system.governance import governance_engine
 
 logger = logging.getLogger(__name__)
 
 
 class MissionOutcomeLogger:
-    """Subscribes to mission events and logs outcomes into Grace's world model."""
+    """Captures mission results and feeds them back into the world model."""
 
     def __init__(self):
-        self.started = False
-        self.logged_missions: Set[str] = set()
+        self.running = False
+        self._processed: deque[str] = deque(maxlen=500)
 
     async def start(self):
-        if self.started:
+        if self.running:
             return
-
+        self.running = True
         await trigger_mesh.subscribe("mission.*", self._handle_event)
-        self.started = True
-        logger.info("[MISSION-OUTCOME] Outcome logger subscribed to mission events")
+        logger.info("[MISSION-OUTCOMES] Outcome logger started")
+
+    async def stop(self):
+        self.running = False
 
     async def _handle_event(self, event: TriggerEvent):
-        payload = event.payload or {}
-        mission_id = payload.get("mission_id") or event.resource
-        status = payload.get("status")
+        if not self.running:
+            return
 
+        if event.event_type != "mission.updated":
+            return
+
+        mission_id = event.payload.get("mission_id")
+        status = event.payload.get("status")
         if not mission_id or not status:
             return
 
-        # Only log terminal states
-        if status not in {
-            MissionStatus.RESOLVED.value,
-            MissionStatus.FAILED.value,
-            MissionStatus.ESCALATED.value,
-        }:
+        if status not in {MissionStatus.RESOLVED.value, MissionStatus.FAILED.value}:
             return
 
-        if mission_id in self.logged_missions:
+        key = f"{mission_id}:{status}"
+        if key in self._processed:
             return
 
         mission = await mission_control_hub.get_mission(mission_id)
         if not mission:
             return
 
-        await self._record_outcome(mission, status)
-        self.logged_missions.add(mission_id)
+        await self._record_outcome(mission)
+        self._processed.append(key)
 
-    async def _record_outcome(self, mission: MissionPackage, status: str):
-        """Persist mission outcome into world model with helpful metadata."""
-        tests_info = self._summarize_tests(mission.evidence.test_results)
-        metrics_info = self._summarize_metrics(mission.evidence.metrics_snapshot)
-        actions_info = self._summarize_actions(mission.remediation_history)
-
-        summary = self._build_summary(mission, status, tests_info, metrics_info)
-
-        metadata = {
-            "mission_id": mission.mission_id,
-            "status": status,
-            "subsystem_id": mission.subsystem_id,
-            "severity": mission.severity.value,
-            "tests_passed": tests_info["passed"],
-            "tests_total": tests_info["total"],
-            "metrics": metrics_info["metrics"],
-            "last_action": actions_info.get("last_action"),
-            "actions_count": actions_info.get("count"),
-            "detected_by": mission.detected_by,
-            "assigned_to": mission.assigned_to,
-            "resolved_at": (
-                mission.resolved_at.isoformat() if mission.resolved_at else None
-            ),
-            "objective": mission.tags.get("objective")
-            if mission.tags
-            else mission.subsystem_id,
-        }
+    async def _record_outcome(self, mission: MissionPackage):
+        summary = self._build_summary(mission)
+        metadata = self._build_metadata(mission)
 
         try:
             await grace_world_model.add_knowledge(
                 category="system",
                 content=summary,
                 source="mission_outcome_logger",
-                confidence=0.95 if status == MissionStatus.RESOLVED.value else 0.75,
-                tags=["mission", "outcome", status],
+                confidence=0.93 if mission.status == MissionStatus.RESOLVED else 0.7,
+                tags=["mission", "outcome"],
                 metadata=metadata,
+            )
+            logger.info(
+                "[MISSION-OUTCOMES] Captured mission %s outcome (%s)",
+                mission.mission_id,
+                mission.status.value,
             )
         except Exception as exc:
             logger.error(
-                "[MISSION-OUTCOME] Failed to log mission %s outcome: %s",
-                mission.mission_id,
-                exc,
+                "[MISSION-OUTCOMES] Failed to write mission outcome: %s", exc
             )
 
-        try:
-            await governance_engine.log_event(
-                actor="mission_outcome_logger",
-                action="mission.outcome_recorded",
-                resource=mission.mission_id,
-                metadata={"status": status, "subsystem": mission.subsystem_id},
-            )
-        except Exception:
-            # Governance logging is best effort
-            pass
+    def _build_summary(self, mission: MissionPackage) -> str:
+        tests_total = len(mission.evidence.test_results)
+        tests_passed = len([t for t in mission.evidence.test_results if t.passed])
+        remediation_count = len(mission.remediation_history)
 
-        logger.info(
-            "[MISSION-OUTCOME] Recorded mission outcome %s (%s)", mission.mission_id, status
-        )
-
-    def _build_summary(
-        self,
-        mission: MissionPackage,
-        status: str,
-        tests_info: Dict[str, Any],
-        metrics_info: Dict[str, Any],
-    ) -> str:
-        objective = mission.tags.get("objective") if mission.tags else None
-        objective_text = objective or f"Stabilize {mission.subsystem_id}"
-        status_text = status.replace("_", " ").title()
-        tests_text = (
-            f"{tests_info['passed']}/{tests_info['total']} tests passed"
-            if tests_info["total"]
-            else "No automated tests recorded"
-        )
-        metrics_text = (
-            ", ".join(
-                f"{m['id']}={m['value']}"
-                for m in metrics_info["metrics"][:3]
-            )
-            or "No metrics captured"
+        metric_lines = self._format_metrics(mission.evidence.metrics_snapshot)
+        metric_text = (
+            " ; ".join(metric_lines) if metric_lines else "No metric snapshots recorded"
         )
 
         return (
-            f"Mission {mission.mission_id} ({objective_text}) {status_text}. "
-            f"{tests_text}. Key metrics: {metrics_text}."
+            f"Mission {mission.mission_id} targeting {mission.subsystem_id} "
+            f"finished with status {mission.status.value} (severity {mission.severity.value}). "
+            f"Detected by {mission.detected_by} and assigned to {mission.assigned_to}. "
+            f"Tests passed: {tests_passed}/{tests_total}. "
+            f"Metrics: {metric_text}. "
+            f"Remediation steps executed: {remediation_count}."
         )
 
-    @staticmethod
-    def _summarize_tests(test_results: List[Any]) -> Dict[str, Any]:
-        total = len(test_results)
-        passed = len([t for t in test_results if getattr(t, "passed", False)])
-        return {"total": total, "passed": passed}
+    def _build_metadata(self, mission: MissionPackage) -> Dict[str, any]:
+        metrics_meta = [
+            {
+                "metric_id": obs.metric_id,
+                "value": obs.value,
+                "timestamp": obs.timestamp.isoformat(),
+            }
+            for obs in mission.evidence.metrics_snapshot[:5]
+        ]
 
-    @staticmethod
-    def _summarize_metrics(metrics: List[Any]) -> Dict[str, Any]:
-        summarized = []
-        for m in metrics:
-            summarized.append(
-                {
-                    "id": getattr(m, "metric_id", "unknown"),
-                    "value": getattr(m, "value", None),
-                    "timestamp": getattr(m, "timestamp", None),
-                }
-            )
-        return {"metrics": summarized}
-
-    @staticmethod
-    def _summarize_actions(actions: List[Any]) -> Dict[str, Any]:
-        if not actions:
-            return {"count": 0}
-        last_action = actions[-1]
         return {
-            "count": len(actions),
-            "last_action": getattr(last_action, "action", None),
-            "last_actor": getattr(last_action, "actor", None),
+            "mission_id": mission.mission_id,
+            "status": mission.status.value,
+            "severity": mission.severity.value,
+            "subsystem": mission.subsystem_id,
+            "detected_by": mission.detected_by,
+            "assigned_to": mission.assigned_to,
+            "tests_total": len(mission.evidence.test_results),
+            "tests_passed": len([t for t in mission.evidence.test_results if t.passed]),
+            "metrics": metrics_meta,
+            "remediation_steps": len(mission.remediation_history),
+            "tags": mission.tags,
         }
+
+    def _format_metrics(self, observations: List[MetricObservation]) -> List[str]:
+        lines: List[str] = []
+        for obs in observations[:5]:
+            metric_line = f"{obs.metric_id}={obs.value:.2f}"
+            lines.append(metric_line)
+        return lines
 
 
 mission_outcome_logger = MissionOutcomeLogger()
