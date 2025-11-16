@@ -1,22 +1,23 @@
 """
 Grace's World Model with RAG and MCP
 
-Grace's unified internal knowledge representation:
-- Self-knowledge (what Grace knows about herself)
-- System knowledge (Grace's systems and architecture)
-- User knowledge (what Grace learns about users)
-- Domain knowledge (domain-specific learnings)
-- Temporal knowledge (time-series events)
-
-Accessible via:
-- RAG (semantic search)
-- MCP (Model Context Protocol)
-- API endpoints
-- Service mesh
+Provides:
+- Internal knowledge representation (self, system, user, domain, temporal)
+- Semantic search via RAG
+- External access via MCP (Model Context Protocol)
+- Automatic domain summary ingestion
 """
 
 from .grace_world_model import grace_world_model, GraceWorldModel, WorldKnowledge
 from .mcp_integration import mcp_integration, MCPIntegration
+from .world_model_summary_pipeline import (
+    world_model_summary_pipeline,
+    WorldModelSummaryPipeline,
+    DomainSummary,
+    publish_mission_summary,
+    publish_incident_summary,
+    publish_insight_summary
+)
 
 __all__ = [
     'grace_world_model',
@@ -24,18 +25,31 @@ __all__ = [
     'WorldKnowledge',
     'mcp_integration',
     'MCPIntegration',
+    'world_model_summary_pipeline',
+    'WorldModelSummaryPipeline',
+    'DomainSummary',
+    'publish_mission_summary',
+    'publish_incident_summary',
+    'publish_insight_summary',
 ]
 
 
 async def initialize_world_model():
     """
-    Initialize Grace's world model
-    Call this on startup
+    Initialize the complete world model system
+    Call this on Grace startup
     """
+    # Initialize core world model
     await grace_world_model.initialize()
+    
+    # Initialize MCP integration
     await mcp_integration.initialize()
+    
+    # Initialize summary pipeline
+    await world_model_summary_pipeline.initialize()
     
     return {
         'world_model': 'initialized',
-        'mcp': 'initialized'
+        'mcp': 'initialized',
+        'summary_pipeline': 'initialized'
     }

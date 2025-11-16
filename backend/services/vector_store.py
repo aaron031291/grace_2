@@ -364,6 +364,114 @@ class VectorStore:
         
         print(f"[VECTOR STORE] Initialized {self.backend_type} backend")
     
+    async def add_text(
+        self,
+        content: str,
+        source: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        source_type: str = "document",
+        source_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Convenience method: Embed text and immediately index it
+        
+        This is a thin wrapper that:
+        1. Calls embedding_service.embed_text()
+        2. Immediately calls index_embeddings() with the embedding_id
+        3. Returns metadata/stats
+        
+        Args:
+            content: Text content to embed and index
+            source: Source description
+            metadata: Additional metadata
+            source_type: Type of source (document, recording, etc.)
+            source_id: Optional source identifier
+            
+        Returns:
+            {
+                "embedding_id": str,
+                "indexed": bool,
+                "vector_count": int,
+                "source": str
+            }
+        """
+        from backend.services.embedding_service import embedding_service
+        
+        # Step 1: Generate embedding
+        embedding_result = await embedding_service.embed_text(
+            text=content,
+            source_type=source_type,
+            source_id=source_id,
+            metadata=metadata
+        )
+        
+        embedding_id = embedding_result["embedding_id"]
+        
+        # Step 2: Immediately index it
+        index_result = await self.index_embeddings([embedding_id])
+        
+        # Step 3: Return metadata/stats
+        return {
+            "embedding_id": embedding_id,
+            "indexed": index_result["indexed_count"] > 0,
+            "vector_count": index_result["total_vectors"],
+            "source": source,
+            "dimensions": embedding_result["dimensions"]
+        }
+    
+    async def count(self) -> int:
+        """
+        Get count of vectors in the store
+        
+        Returns:
+            Total number of vectors indexed
+        """
+        stats = await self.backend.get_stats()
+        return stats.get("total_vectors", 0)
+    
+    async def list_collections(self) -> List[Dict[str, Any]]:
+        """
+        List available collections/indexes
+        
+        Returns:
+            List of collection metadata
+        """
+        # Get all index records from database
+        async with async_session() as session:
+            result = await session.execute(
+                select(VectorIndex)
+                .where(VectorIndex.status == "active")
+                .order_by(VectorIndex.created_at.desc())
+            )
+            indexes = result.scalars().all()
+        
+        collections = []
+        for idx in indexes:
+            collections.append({
+                "index_id": idx.index_id,
+                "index_name": idx.index_name,
+                "backend_type": idx.backend_type,
+                "vector_dimensions": idx.vector_dimensions,
+                "total_vectors": idx.total_vectors,
+                "created_at": idx.created_at.isoformat() if idx.created_at else None,
+                "last_updated_at": idx.last_updated_at.isoformat() if idx.last_updated_at else None
+            })
+        
+        # Add current backend info
+        if self.backend:
+            backend_stats = await self.backend.get_stats()
+            collections.append({
+                "index_id": "current",
+                "index_name": f"grace_{self.backend_type}_current",
+                "backend_type": self.backend_type,
+                "vector_dimensions": self.config.get("dimensions", 1536),
+                "total_vectors": backend_stats.get("total_vectors", 0),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "status": "active"
+            })
+        
+        return collections
+    
     async def index_embeddings(self, embedding_ids: List[str]) -> Dict[str, Any]:
         """
         Index embeddings from database into vector store
