@@ -353,9 +353,17 @@ class WorldModelIntegrityValidator:
         
         try:
             # Trigger Guardian/healing system
-            from backend.core.guardian import guardian_service
+            from backend.core.guardian import guardian
             
-            fix_result = await guardian_service.execute_healing_action(
+            # Check if guardian has healing action method
+            if not hasattr(guardian, 'execute_healing_action'):
+                logger.debug(
+                    f"[INTEGRITY-VALIDATOR] Guardian healing not available yet - "
+                    f"logging violation for manual review"
+                )
+                return False
+            
+            fix_result = await guardian.execute_healing_action(
                 playbook=violation.healing_playbook,
                 context={
                     "fact_id": violation.fact_id,
