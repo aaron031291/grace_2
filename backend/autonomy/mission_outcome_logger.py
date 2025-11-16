@@ -111,10 +111,27 @@ class MissionOutcomeLogger:
                 success=success
             )
             
+            # Step 7: NEW - Record to Analytics (for trending and historical analysis)
+            await self._record_to_analytics(
+                mission_id=mission_id,
+                mission_context=mission_context,
+                telemetry_data=telemetry_data,
+                success=success
+            )
+            
+            # Step 8: NEW - Immediate Follow-up Detection (real-time per-mission)
+            follow_up = await self._detect_and_create_follow_up(
+                mission_id=mission_id,
+                mission_context=mission_context,
+                telemetry_data=telemetry_data,
+                success=success,
+                narrative=narrative
+            )
+            
             self.outcomes_logged += 1
             self.narratives_created += 1
             
-            logger.info(f"[OUTCOME-LOGGER] Logged outcome for {mission_id} with telemetry")
+            logger.info(f"[OUTCOME-LOGGER] Logged outcome for {mission_id}")
             
             return {
                 "success": True,
@@ -122,6 +139,7 @@ class MissionOutcomeLogger:
                 "narrative": narrative,
                 "metrics_impact": metrics_impact,
                 "telemetry": telemetry_data,
+                "follow_up_mission": follow_up,  # Include follow-up if created
                 "mission_id": mission_id
             }
             
@@ -591,6 +609,237 @@ class MissionOutcomeLogger:
             
         except Exception as e:
             logger.error(f"[ANALYTICS] Failed to record mission: {e}")
+    
+    async def _detect_and_create_follow_up(
+        self,
+        mission_id: str,
+        mission_context: Dict[str, Any],
+        telemetry_data: Dict[str, Any],
+        success: bool,
+        narrative: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Detect if follow-up mission needed immediately after mission completes
+        
+        Creates follow-up for:
+        - Partial success (success=True but effectiveness < 0.5)
+        - Failed missions
+        - Lingering poor metrics (KPIs still off)
+        - Repeated issues in same domain
+        
+        Returns follow-up mission details if created
+        """
+        try:
+            domain_id = mission_context.get("domain_id", "unknown")
+            effectiveness = telemetry_data.get("effectiveness_score", 0.5)
+            
+            # Analyze if follow-up needed
+            needs_follow_up = False
+            follow_up_reason = []
+            follow_up_priority = "medium"
+            
+            # Check 1: Mission failed
+            if not success:
+                needs_follow_up = True
+                follow_up_reason.append("Mission failed")
+                follow_up_priority = "high"
+            
+            # Check 2: Partial success (completed but low effectiveness)
+            elif success and effectiveness < 0.5:
+                needs_follow_up = True
+                follow_up_reason.append(f"Low effectiveness score ({effectiveness:.2f})")
+                follow_up_priority = "medium"
+            
+            # Check 3: Lingering poor metrics (KPIs still degraded)
+            poor_metrics = []
+            if telemetry_data.get("pre_post_comparison"):
+                for source, metrics in telemetry_data["pre_post_comparison"].items():
+                    if isinstance(metrics, dict):
+                        for metric_name, metric_data in metrics.items():
+                            if isinstance(metric_data, dict):
+                                # Check if metric is still poor after fix
+                                post_value = metric_data.get("post")
+                                improved = metric_data.get("improved", False)
+                                
+                                if not improved:
+                                    poor_metrics.append(metric_name)
+            
+            if poor_metrics:
+                needs_follow_up = True
+                follow_up_reason.append(f"Metrics still poor: {', '.join(poor_metrics[:3])}")
+                follow_up_priority = "high"
+            
+            # Check 4: Tasks incomplete or failed
+            tasks_executed = mission_context.get("tasks_executed", [])
+            failed_tasks = [t for t in tasks_executed if t.get("status") not in ["completed", "success"]]
+            if failed_tasks and len(failed_tasks) > 0:
+                needs_follow_up = True
+                follow_up_reason.append(f"{len(failed_tasks)} tasks failed or incomplete")
+                follow_up_priority = "high"
+            
+            # Check 5: Multiple recent missions in same domain (recurring issue)
+            recent_missions = await self._count_recent_missions(domain_id, hours=6)
+            if recent_missions >= 3:
+                needs_follow_up = True
+                follow_up_reason.append(f"{recent_missions} missions in last 6h (recurring issue)")
+                follow_up_priority = "high"
+            
+            # Create follow-up mission if needed
+            if needs_follow_up:
+                follow_up = await self._create_follow_up_mission(
+                    original_mission_id=mission_id,
+                    domain_id=domain_id,
+                    mission_context=mission_context,
+                    reasons=follow_up_reason,
+                    priority=follow_up_priority,
+                    effectiveness=effectiveness
+                )
+                
+                if follow_up:
+                    logger.info(f"[FOLLOW-UP] Created follow-up mission for {mission_id}: {follow_up.get('mission_id')}")
+                    return follow_up
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"[FOLLOW-UP] Failed to detect/create follow-up: {e}")
+            return None
+    
+    async def _count_recent_missions(
+        self,
+        domain_id: str,
+        hours: int = 6
+    ) -> int:
+        """Count recent missions in domain"""
+        try:
+            from backend.autonomy.mission_analytics import mission_analytics
+            
+            since = datetime.utcnow() - timedelta(hours=hours)
+            records = mission_analytics._load_records_since(since)
+            
+            count = sum(1 for r in records if r.domain_id == domain_id)
+            return count
+            
+        except Exception as e:
+            logger.debug(f"[FOLLOW-UP] Could not count recent missions: {e}")
+            return 0
+    
+    async def _create_follow_up_mission(
+        self,
+        original_mission_id: str,
+        domain_id: str,
+        mission_context: Dict[str, Any],
+        reasons: List[str],
+        priority: str,
+        effectiveness: float
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Create a follow-up mission with context
+        
+        Links to original mission and explains escalation
+        """
+        try:
+            from backend.autonomy.proactive_mission_generator import proactive_mission_generator
+            
+            # Build escalation context
+            original_title = mission_context.get("title", "mission")
+            reason_summary = "; ".join(reasons)
+            
+            # Create follow-up mission title
+            follow_up_title = f"Follow-up: {original_title}"
+            
+            # Detailed reason with context
+            follow_up_reason = f"""
+Auto-escalation from mission {original_mission_id}.
+
+Original objective: {mission_context.get('trigger_reason', 'Unknown')}
+
+Issues detected:
+{chr(10).join(f'- {r}' for r in reasons)}
+
+Grace's assessment: Mission completed but results suboptimal (effectiveness: {effectiveness:.2f}). 
+Further investigation and remediation required.
+""".strip()
+            
+            # Determine mission type
+            mission_type = "follow_up_investigation"
+            if not mission_context.get("success", True):
+                mission_type = "follow_up_remediation"
+            elif effectiveness < 0.3:
+                mission_type = "follow_up_deep_analysis"
+            
+            # Create mission
+            mission = await proactive_mission_generator.create_mission(
+                title=follow_up_title,
+                domain_id=domain_id,
+                mission_type=mission_type,
+                trigger_reason=follow_up_reason,
+                priority=priority,
+                metadata={
+                    "triggered_by": "mission_outcome_logger",
+                    "escalation_type": "automatic",
+                    "original_mission_id": original_mission_id,
+                    "original_effectiveness": effectiveness,
+                    "escalation_reasons": reasons,
+                    "is_follow_up": True
+                }
+            )
+            
+            # Store escalation in world model for Grace's memory
+            await self._record_escalation_to_world_model(
+                original_mission_id=original_mission_id,
+                follow_up_mission_id=mission.get("mission_id"),
+                reason_summary=reason_summary
+            )
+            
+            return {
+                "mission_id": mission.get("mission_id"),
+                "title": follow_up_title,
+                "priority": priority,
+                "reasons": reasons,
+                "original_mission_id": original_mission_id,
+                "escalation_context": follow_up_reason
+            }
+            
+        except Exception as e:
+            logger.error(f"[FOLLOW-UP] Failed to create follow-up mission: {e}")
+            return None
+    
+    async def _record_escalation_to_world_model(
+        self,
+        original_mission_id: str,
+        follow_up_mission_id: str,
+        reason_summary: str
+    ):
+        """Record escalation in world model so Grace can explain it"""
+        try:
+            from backend.world_model import grace_world_model
+            
+            escalation_narrative = f"""
+I escalated mission {original_mission_id} by creating follow-up mission {follow_up_mission_id}.
+
+Reason: {reason_summary}
+
+I detected that my initial fix did not fully resolve the issue, so I'm automatically 
+investigating further to ensure complete remediation.
+""".strip()
+            
+            await grace_world_model.add_knowledge(
+                category='system',
+                content=escalation_narrative,
+                source='mission_escalation',
+                confidence=0.95,
+                tags=['escalation', 'follow_up', 'self_correction'],
+                metadata={
+                    "original_mission": original_mission_id,
+                    "follow_up_mission": follow_up_mission_id,
+                    "escalation_type": "automatic",
+                    "reason": reason_summary
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"[FOLLOW-UP] Failed to record escalation: {e}")
 
     def get_stats(self) -> Dict[str, Any]:
         """Get logger statistics"""
