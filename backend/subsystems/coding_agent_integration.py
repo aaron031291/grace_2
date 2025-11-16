@@ -237,3 +237,4 @@ class CodingAgentIntegration:
 
 # Singleton instance
 coding_agent_integration = CodingAgentIntegration()
+coding_agent = coding_agent_integration  # Alias for backward compatibility

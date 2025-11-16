@@ -14,3 +14,10 @@
 {"timestamp": "2025-11-16T15:01:00.273705", "action": "allocate", "port": 8010, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-16T15:02:21.851627", "action": "allocate", "port": 8011, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-16T15:03:46.053815", "action": "allocate", "port": 8012, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:05:56.091848", "action": "allocate", "port": 8013, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:08:36.729503", "action": "allocate", "port": 8014, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:11:08.183147", "action": "allocate", "port": 8015, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:13:50.420285", "action": "allocate", "port": 8016, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:24:05.849624", "action": "allocate", "port": 8017, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T15:24:25.993164", "action": "release", "port": 8016, "service_name": "grace_backend", "duration_seconds": 635.574879, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T15:27:45.186637", "action": "allocate", "port": 8016, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}

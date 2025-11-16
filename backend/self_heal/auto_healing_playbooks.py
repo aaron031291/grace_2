@@ -5,7 +5,7 @@ Playbooks triggered by the trigger system
 Each playbook responds to specific triggers and performs automated recovery.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List
 import asyncio
 import subprocess
 import psutil

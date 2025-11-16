@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
+from .guardian_playbooks import RemediationResult
 
 logger = logging.getLogger(__name__)
 
