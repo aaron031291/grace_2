@@ -60,6 +60,15 @@ app.include_router(guardian_router)
 # Register learning visibility & tracking
 app.include_router(learning_visibility_router)
 
+# Register Console UI APIs (NEW - for Unified Console)
+try:
+    from backend.routes.logs_api import router as logs_router
+    from backend.routes.console_api import router as console_router
+    app.include_router(logs_router)
+    app.include_router(console_router)
+except ImportError:
+    pass  # Console APIs optional
+
 # Register TRUST framework API
 try:
     from backend.routes.trust_framework_api import router as trust_router
