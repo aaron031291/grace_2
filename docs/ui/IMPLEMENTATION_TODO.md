@@ -60,7 +60,29 @@
   - [ ] Parse "open dashboard X" → spawn workspace
   - [ ] Parse "show mission Y" → spawn workspace
 
-### Phase 3: Additional Panels (Week 3)
+### Phase 3: File Explorer (Week 3)
+- [ ] Build `FileExplorer` component
+  - [ ] Category tree navigation
+  - [ ] File list with metadata cards
+  - [ ] Drag & drop upload zone
+  - [ ] Search bar with RAG integration
+  - [ ] Filter controls
+- [ ] Implement file actions
+  - [ ] Preview modal
+  - [ ] Notes editor
+  - [ ] Re-ingest trigger
+  - [ ] Delete with confirmation
+- [ ] Build upload flows
+  - [ ] Single file upload
+  - [ ] Bulk upload
+  - [ ] Text paste & ingest
+  - [ ] Voice recording
+- [ ] Add governance integration
+  - [ ] Access control checks
+  - [ ] Audit logging
+  - [ ] Credential vault for remote files
+
+### Phase 4: Additional Panels (Week 4)
 - [ ] Build `MissionDashboard` component
   - [ ] Card/table view
   - [ ] Active/Proactive/Follow-up tabs
