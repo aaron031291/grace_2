@@ -171,6 +171,7 @@ class PortManager:
         """
         Watchdog: Check health of all allocated ports
         Detects stale allocations, crashes, port hijacking
+        Auto-cleans dead/stale allocations
         """
         
         health_report = []
@@ -178,20 +179,43 @@ class PortManager:
         
         for port, allocation in list(self.allocations.items()):
             health = self._check_port_health(port, allocation)
-            health_report.append(health)
             
             # Update allocation
             allocation.last_health_check = datetime.utcnow().isoformat()
             allocation.health_status = health['status']
             
-            # Mark stale if process died
+            # Determine if port is stale
+            is_stale = False
+            
+            # Dead process
             if health['status'] == 'dead':
+                is_stale = True
+            
+            # Not listening for extended period (auto-cleanup after 2 minutes)
+            elif health['status'] in ['not_listening', 'unreachable']:
+                allocated_at = datetime.fromisoformat(allocation.allocated_at)
+                age_minutes = (datetime.utcnow() - allocated_at).total_seconds() / 60
+                
+                if age_minutes > 2:
+                    logger.warning(
+                        f"[PORT-MANAGER] Port {port} ({allocation.service_name}) "
+                        f"not responding for {age_minutes:.1f} min - marking stale"
+                    )
+                    is_stale = True
+            
+            # Add to stale list
+            if is_stale:
                 stale_ports.append(port)
+            
+            # Only report active or dead (skip noise from not_listening)
+            if health['status'] in ['active', 'dead']:
+                health_report.append(health)
         
         # Cleanup stale ports
-        for port in stale_ports:
-            logger.warning(f"[PORT-MANAGER] Cleaning up stale port {port}")
-            self.release_port(port)
+        if stale_ports:
+            logger.info(f"[PORT-MANAGER] Cleaning up {len(stale_ports)} stale ports")
+            for port in stale_ports:
+                self.release_port(port)
         
         self._save_allocations()
         

@@ -47,6 +47,25 @@ async def boot_grace_minimal():
     print()
     
     try:
+        # PRE-BOOT: Cleanup stale port allocations
+        print("[PRE-BOOT] Cleaning up stale port allocations...")
+        from backend.core.port_manager import port_manager
+        
+        allocations_before = len(port_manager.get_all_allocations())
+        
+        # Force cleanup of stale ports
+        for alloc in port_manager.get_all_allocations():
+            if alloc['health_status'] in ['dead', 'not_listening', 'unreachable']:
+                port_manager.release_port(alloc['port'])
+        
+        allocations_after = len(port_manager.get_all_allocations())
+        cleaned = allocations_before - allocations_after
+        
+        if cleaned > 0:
+            print(f"  [OK] Cleaned {cleaned} stale port allocations")
+        else:
+            print(f"  [OK] No stale ports found")
+        
         # Import orchestrator
         from backend.core.guardian_boot_orchestrator import boot_orchestrator, BootChunk
         from backend.core.guardian import guardian

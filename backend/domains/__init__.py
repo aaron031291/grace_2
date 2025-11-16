@@ -1,24 +1,58 @@
 """
-Domain Adapters - Integration layer between domains and Agent Core
+Domain System - Synergistic Domain Architecture
 
-Each domain implements the DomainAdapter interface to integrate
-with GRACE's autonomous capabilities.
+Provides:
+- Auto-discovery and registration
+- Pub/Sub event bus
+- Shared collective memory
+- Multi-domain workflows
+- Smart routing
+- Health federation
+- Cryptographic trust
+
+Creates a living, learning organism from independent domains
 """
 
-from .core_domain_adapter import core_domain_adapter
-
-# Import other domain adapters as they're implemented
-# from .transcendence_adapter import transcendence_adapter
-# from .knowledge_adapter import knowledge_adapter
-# from .security_adapter import security_adapter
-# from .ml_adapter import ml_adapter
-# from .temporal_adapter import temporal_adapter
-# from .parliament_adapter import parliament_adapter
-# from .federation_adapter import federation_adapter
-# from .speech_adapter import speech_adapter
-# from .cognition_adapter import cognition_adapter
+from .domain_registry import domain_registry, DomainRegistry, DomainInfo
+from .domain_event_bus import domain_event_bus, DomainEventBus, DomainEvent
+from .shared_domain_memory import shared_domain_memory, SharedDomainMemory, MemoryContribution
+from .domain_orchestrator import domain_orchestrator, DomainOrchestrator, Workflow, WorkflowStep
 
 __all__ = [
-    "core_domain_adapter",
-    # Add others as implemented
+    # Registry
+    'domain_registry',
+    'DomainRegistry',
+    'DomainInfo',
+    
+    # Event Bus
+    'domain_event_bus',
+    'DomainEventBus',
+    'DomainEvent',
+    
+    # Shared Memory
+    'shared_domain_memory',
+    'SharedDomainMemory',
+    'MemoryContribution',
+    
+    # Orchestrator
+    'domain_orchestrator',
+    'DomainOrchestrator',
+    'Workflow',
+    'WorkflowStep',
 ]
+
+
+async def initialize_domain_system():
+    """
+    Initialize the complete domain system
+    Call this on Grace startup
+    """
+    await domain_registry.initialize()
+    # Event bus and shared memory don't need async init
+    
+    return {
+        'domain_registry': 'initialized',
+        'event_bus': 'ready',
+        'shared_memory': 'ready',
+        'orchestrator': 'ready'
+    }

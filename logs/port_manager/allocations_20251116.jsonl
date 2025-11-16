@@ -21,3 +21,6 @@
 {"timestamp": "2025-11-16T15:24:05.849624", "action": "allocate", "port": 8017, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-16T15:24:25.993164", "action": "release", "port": 8016, "service_name": "grace_backend", "duration_seconds": 635.574879, "request_count": 0, "error_count": 0}
 {"timestamp": "2025-11-16T15:27:45.186637", "action": "allocate", "port": 8016, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T16:32:31.972794", "action": "allocate", "port": 8018, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-16T16:32:52.540372", "action": "release", "port": 8017, "service_name": "grace_backend", "duration_seconds": 4126.693811, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-16T16:32:52.544809", "action": "release", "port": 8016, "service_name": "grace_backend", "duration_seconds": 3907.361173, "request_count": 0, "error_count": 0}
