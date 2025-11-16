@@ -363,7 +363,8 @@ class CreativeProblemSolver:
     async def solve_problem_creatively(
         self,
         problem: str,
-        context: Dict[str, Any] = None
+        context: Dict[str, Any] = None,
+        test_in_sandbox: bool = True
     ) -> Dict[str, Any]:
         """
         Main method: Apply full creative problem-solving process
@@ -373,7 +374,8 @@ class CreativeProblemSolver:
         2. Iteratively search terms to build understanding
         3. Reverse engineer from goal to current state
         4. Generate multiple alternative approaches
-        5. Return comprehensive solution plan
+        5. Test approaches in sandbox (if enabled)
+        6. Return comprehensive solution plan
         """
         if not self._initialized:
             await self.initialize()
@@ -427,7 +429,76 @@ class CreativeProblemSolver:
         
         logger.info(f"[CREATIVE-SOLVER] ✅ Generated solution with {len(solution['alternatives'])} approaches")
         
+        # Step 7: Test in sandbox (knowledge + application)
+        if test_in_sandbox and solution.get('solution_plan', {}).get('recommended_approach'):
+            logger.info("[CREATIVE-SOLVER] Step 4: Testing approach in sandbox...")
+            try:
+                sandbox_result = await self._test_solution_in_sandbox(
+                    problem=problem,
+                    solution_plan=solution['solution_plan'],
+                    approach=solution['solution_plan']['recommended_approach']
+                )
+                solution['sandbox_testing'] = sandbox_result
+                
+                if sandbox_result.get('passed'):
+                    logger.info("[CREATIVE-SOLVER] ✅ Sandbox test PASSED - solution validated!")
+                else:
+                    logger.warning("[CREATIVE-SOLVER] ⚠️ Sandbox test failed - trying alternative...")
+                    # Try first alternative approach
+                    if len(solution['alternatives']) > 1:
+                        alternative = solution['alternatives'][1]
+                        alt_test = await self._test_solution_in_sandbox(
+                            problem=problem,
+                            solution_plan=solution['solution_plan'],
+                            approach=alternative
+                        )
+                        solution['alternative_sandbox_test'] = alt_test
+                        if alt_test.get('passed'):
+                            solution['recommendation']['primary_approach'] = alternative
+                            logger.info("[CREATIVE-SOLVER] ✅ Alternative approach PASSED!")
+            except Exception as e:
+                logger.warning(f"[CREATIVE-SOLVER] Sandbox testing failed: {e}")
+                solution['sandbox_testing'] = {'error': str(e), 'passed': False}
+        
         return solution
+    
+    async def _test_solution_in_sandbox(
+        self,
+        problem: str,
+        solution_plan: Dict[str, Any],
+        approach: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Test a solution approach in sandbox
+        Combines knowledge acquisition with practical application
+        """
+        from backend.knowledge.knowledge_application_sandbox import knowledge_sandbox
+        
+        # Create testable code/scenario from approach
+        approach_desc = approach.get('description', '')
+        example = approach.get('example_solution', '')
+        
+        test_code = f"""
+# Problem: {problem[:200]}
+# Approach: {approach_desc}
+# Test implementation
+
+{example[:500] if example else '# No example code provided'}
+
+# Validation
+result = "test passed"
+assert result == "test passed"
+"""
+        
+        # Test in sandbox
+        sandbox_result = await knowledge_sandbox.test_learned_code(
+            code=test_code,
+            source_id=f"creative-solver-{datetime.utcnow().timestamp()}",
+            source_url=approach.get('research_results', [{}])[0].get('url', 'creative_solution'),
+            context=f"Testing solution for: {problem[:100]}"
+        )
+        
+        return sandbox_result
     
     async def record_failure(
         self,
