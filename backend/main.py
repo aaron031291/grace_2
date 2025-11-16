@@ -171,29 +171,6 @@ async def startup_unified_llm():
         await start_proactive_missions()
         print("[OK] Proactive mission generator started (auto-detects issues, creates missions)")
         
-        # NEW: Initialize Mission Outcome Logger (Mission Storytelling)
-        from backend.autonomy.mission_outcome_logger import mission_outcome_logger
-        await mission_outcome_logger.initialize()
-        print("[OK] Mission outcome logger initialized (tracks completions, writes narratives)")
-        
-        # NEW: Initialize Auto-Status Brief Generator (Consolidated Reporting)
-        from backend.autonomy.auto_status_brief import auto_status_brief
-        await auto_status_brief.initialize()
-        print("[OK] Auto-status brief initialized (generates periodic summaries)")
-        
-        # Optionally start the periodic brief loop (configurable via env)
-        import os
-        if os.getenv("ENABLE_AUTO_STATUS_BRIEFS", "true").lower() == "true":
-            asyncio.create_task(auto_status_brief.start_loop())
-            print("[OK] Auto-status brief loop started (24h interval)")
-        else:
-            print("[INFO] Auto-status briefs disabled (set ENABLE_AUTO_STATUS_BRIEFS=true to enable)")
-        
-        # NEW: Initialize Mission Analytics (Historical Metrics)
-        from backend.autonomy.mission_analytics import mission_analytics
-        await mission_analytics.initialize()
-        print("[OK] Mission analytics initialized (historical metrics and trends)")
-        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
