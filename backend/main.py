@@ -244,6 +244,30 @@ async def startup_advanced_learning():
         print("[OK] Autonomous web navigator initialized (Grace knows when to search web)")
     except Exception as e:
         print(f"[WARN] Autonomous web navigator initialization degraded: {e}")
+    
+    # Initialize creative problem solver (reverse engineering, outside-the-box thinking)
+    try:
+        from backend.agents.creative_problem_solver import creative_problem_solver
+        await creative_problem_solver.initialize()
+        print("[OK] Creative problem solver initialized (reverse engineering, adaptive thinking)")
+    except Exception as e:
+        print(f"[WARN] Creative problem solver initialization degraded: {e}")
+    
+    # Initialize knowledge + application loop (learn → test → apply → feedback)
+    try:
+        from backend.agents.knowledge_application_loop import knowledge_application_loop
+        await knowledge_application_loop.initialize()
+        print("[OK] Knowledge+Application loop initialized (learn→test→apply→feedback)")
+    except Exception as e:
+        print(f"[WARN] Knowledge+Application loop initialization degraded: {e}")
+    
+    # Initialize real data ingestion (uses terms to download actual docs/code/datasets)
+    try:
+        from backend.agents.real_data_ingestion import real_data_ingestion
+        await real_data_ingestion.initialize()
+        print("[OK] Real data ingestion initialized (terms→docs/code/datasets→full understanding)")
+    except Exception as e:
+        print(f"[WARN] Real data ingestion initialization degraded: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_advanced_learning():
