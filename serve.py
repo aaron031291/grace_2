@@ -167,13 +167,13 @@ async def boot_grace_minimal():
                     
                     # Show categorization
                     summary = get_summary()
-                    print(f"  → By specialty:")
+                    print(f"  -> By specialty:")
                     for specialty, data in summary.items():
                         if data['count'] > 0:
                             print(f"    • {specialty}: {data['count']} models")
                     
                     if installed:
-                        print(f"  → Installed:")
+                        print(f"  -> Installed:")
                         for model in installed[:5]:
                             print(f"    • {model} - {recommended_models[model]}")
                         if len(installed) > 5:
@@ -364,7 +364,7 @@ async def boot_grace_minimal():
             from backend.unified_logic.kernel_integration import KernelIntegrator
             
             integrator = KernelIntegrator()
-            print(f"  → Defined {len(integrator.kernel_registry)} kernels")
+            print(f"  -> Defined {len(integrator.kernel_registry)} kernels")
             
             # Integrate all kernels
             result = await integrator.integrate_all_kernels()
@@ -450,9 +450,9 @@ if __name__ == "__main__":
     print("GRACE IS READY")
     print("=" * 80)
     print()
-    print(f"📡 API: http://localhost:{port}")
-    print(f"📖 Docs: http://localhost:{port}/docs")
-    print(f"❤️  Health: http://localhost:{port}/health")
+    print(f" API: http://localhost:{port}")
+    print(f" Docs: http://localhost:{port}/docs")
+    print(f"  Health: http://localhost:{port}/health")
     print()
     print("=" * 80)
     print("NEXT STEPS")
