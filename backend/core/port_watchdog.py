@@ -1,6 +1,7 @@
 """
 Port Watchdog
 Monitors all ports 8000-8500, tracks usage, detects issues
+INTEGRATED with Guardian for auto-remediation
 """
 
 import asyncio
@@ -109,8 +110,65 @@ class PortWatchdog:
                     port_manager.allocations[port].health_status = 'active'
             else:
                 logger.warning(f"[PORT-WATCHDOG] Port {port} returned {response.status_code}")
+                
+                # Forward to Guardian
+                await self._forward_to_guardian(
+                    port=port,
+                    failure_type="port_unhealthy",
+                    description=f"Port {port} returned status {response.status_code}",
+                    severity="warning"
+                )
         except Exception as e:
             logger.warning(f"[PORT-WATCHDOG] Port {port} not responding: {e}")
+            
+            # Forward to Guardian for auto-remediation
+            await self._forward_to_guardian(
+                port=port,
+                failure_type="port_not_responding",
+                description=f"Port {port} not responding: {str(e)}",
+                severity="error"
+            )
+    
+    async def _forward_to_guardian(
+        self,
+        port: int,
+        failure_type: str,
+        description: str,
+        severity: str
+    ):
+        """Forward alert to Guardian for auto-remediation"""
+        
+        try:
+            from backend.core.watchdog_guardian_integration import watchdog_guardian_bridge, WatchdogAlert
+            
+            # Get service info
+            allocation = port_manager.allocations.get(port)
+            service_name = allocation.service_name if allocation else "unknown"
+            
+            # Create structured alert
+            alert = WatchdogAlert(
+                alert_id=f"watchdog_{port}_{datetime.utcnow().timestamp()}",
+                timestamp=datetime.utcnow().isoformat(),
+                subsystem="port_watchdog",
+                component=f"port_{port}",
+                failure_type=failure_type,
+                severity=severity,
+                description=description,
+                last_successful_check=allocation.last_health_check if allocation else None,
+                context={
+                    'port': port,
+                    'service_name': service_name,
+                    'pid': allocation.pid if allocation else None
+                },
+                recommended_action="restart_service",
+                priority=8 if severity == "error" else 5
+            )
+            
+            # Submit to Guardian
+            await watchdog_guardian_bridge.submit_alert(alert)
+            
+        except Exception as e:
+            logger.debug(f"[PORT-WATCHDOG] Could not forward to Guardian: {e}")
     
     def get_status(self) -> Dict[str, Any]:
         """Get watchdog status"""

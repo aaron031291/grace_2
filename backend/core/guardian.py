@@ -120,8 +120,25 @@ class Guardian:
         
         logger.info(f"[GUARDIAN] ✓ Phase 3 complete: Port {phase3['port']} allocated")
         
-        # PHASE 4: Start watchdog AND healer
-        logger.info("[GUARDIAN] Phase 4/6: Starting watchdog & healer")
+        # PHASE 4: Start watchdog AND healer AND playbook sharing
+        logger.info("[GUARDIAN] Phase 4/6: Starting watchdog, healer & playbook sharing")
+        
+        # Start watchdog-Guardian bridge for auto-remediation
+        try:
+            from .watchdog_guardian_integration import watchdog_guardian_bridge
+            await watchdog_guardian_bridge.start()
+            logger.info("[GUARDIAN] ✓ Watchdog-Guardian bridge active (auto-remediation enabled)")
+        except Exception as e:
+            logger.warning(f"[GUARDIAN] Watchdog-Guardian bridge failed: {e}")
+        
+        # Initialize playbook sharing
+        try:
+            from .playbook_sharing import playbook_sharing_hub
+            await playbook_sharing_hub.initialize()
+            logger.info("[GUARDIAN] ✓ Playbook sharing active (synergy with self-healing & coding agent)")
+        except Exception as e:
+            logger.warning(f"[GUARDIAN] Playbook sharing failed: {e}")
+        
         await self.port_watchdog.start()
         
         # Initialize and start ADVANCED healer (covers ALL network layers)
