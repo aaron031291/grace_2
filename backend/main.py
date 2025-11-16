@@ -189,6 +189,11 @@ async def startup_unified_llm():
         else:
             print("[INFO] Auto-status briefs disabled (set ENABLE_AUTO_STATUS_BRIEFS=true to enable)")
         
+        # NEW: Initialize Mission Analytics (Historical Metrics)
+        from backend.autonomy.mission_analytics import mission_analytics
+        await mission_analytics.initialize()
+        print("[OK] Mission analytics initialized (historical metrics and trends)")
+        
     except Exception as e:
         print(f"[WARN] World model initialization degraded: {e}")
         try:
@@ -895,5 +900,116 @@ async def get_latest_status_brief():
             "success": False,
             "error": str(e)
         }
+
+@app.get("/api/analytics/domain-trends")
+async def get_domain_analytics_trends(domain_id: str = None, period_days: int = 30):
+    """
+    Get historical trend data for domains
+    
+    Query params:
+    - domain_id: Optional specific domain
+    - period_days: Days to analyze (default 30)
+    """
+    from backend.autonomy.mission_analytics import mission_analytics
+    
+    trends = await mission_analytics.get_domain_trends(
+        domain_id=domain_id,
+        period_days=period_days
+    )
+    
+    return {
+        "success": True,
+        "trends": [
+            {
+                "domain_id": t.domain_id,
+                "period_start": t.period_start,
+                "period_end": t.period_end,
+                "total_missions": t.total_missions,
+                "success_rate": t.success_rate,
+                "avg_duration_seconds": t.avg_duration_seconds,
+                "avg_effectiveness_score": t.avg_effectiveness_score,
+                "mttr_seconds": t.mttr_seconds,
+                "top_issues": t.top_issues,
+                "kpi_trends": t.kpi_trends
+            }
+            for t in trends
+        ]
+    }
+
+@app.get("/api/analytics/missions-per-domain")
+async def get_missions_per_domain_chart(period_days: int = 30, granularity: str = "daily"):
+    """
+    Get missions per domain over time (for charting)
+    
+    Query params:
+    - period_days: Days to analyze (default 30)
+    - granularity: "daily" or "hourly" (default daily)
+    """
+    from backend.autonomy.mission_analytics import mission_analytics
+    
+    data = await mission_analytics.get_missions_per_domain(
+        period_days=period_days,
+        granularity=granularity
+    )
+    
+    return {
+        "success": True,
+        "chart_data": data,
+        "period_days": period_days,
+        "granularity": granularity
+    }
+
+@app.get("/api/analytics/mttr-trend")
+async def get_mttr_trend_chart(domain_id: str = None, period_days: int = 90):
+    """
+    Get Mean Time To Repair trend over time
+    
+    Query params:
+    - domain_id: Optional specific domain
+    - period_days: Days to analyze (default 90)
+    """
+    from backend.autonomy.mission_analytics import mission_analytics
+    
+    trend = await mission_analytics.get_mttr_trend(
+        domain_id=domain_id,
+        period_days=period_days
+    )
+    
+    return {
+        "success": True,
+        "trend_data": trend,
+        "domain_id": domain_id or "all",
+        "period_days": period_days
+    }
+
+@app.get("/api/analytics/effectiveness-trend")
+async def get_effectiveness_trend_chart(domain_id: str = None, period_days: int = 30):
+    """
+    Get effectiveness score trend over time
+    
+    Query params:
+    - domain_id: Optional specific domain
+    - period_days: Days to analyze (default 30)
+    """
+    from backend.autonomy.mission_analytics import mission_analytics
+    
+    trend = await mission_analytics.get_effectiveness_trend(
+        domain_id=domain_id,
+        period_days=period_days
+    )
+    
+    return {
+        "success": True,
+        "trend_data": trend,
+        "domain_id": domain_id or "all",
+        "period_days": period_days
+    }
+
+@app.get("/api/analytics/stats")
+async def get_analytics_stats():
+    """Get mission analytics system statistics"""
+    from backend.autonomy.mission_analytics import mission_analytics
+    
+    return mission_analytics.get_stats()
 
 __all__ = ['app']
