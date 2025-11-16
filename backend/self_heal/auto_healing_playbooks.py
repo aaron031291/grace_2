@@ -366,6 +366,34 @@ class PlaybookRegistry:
     def list_playbooks(self) -> List[str]:
         """List all available playbooks"""
         return list(self.playbooks.keys())
+    
+    def import_external_playbooks(self, playbooks: List[Playbook], source: str = "external"):
+        """
+        Import playbooks from external sources (e.g., Guardian)
+        
+        Args:
+            playbooks: List of playbook instances to import
+            source: Source system name (e.g., "guardian", "coding_agent")
+        """
+        imported_count = 0
+        
+        for playbook in playbooks:
+            # Add source prefix to avoid name collisions
+            prefixed_name = f"{source}_{playbook.name}"
+            
+            # Only import if not already registered
+            if prefixed_name not in self.playbooks:
+                self.playbooks[prefixed_name] = playbook
+                imported_count += 1
+            else:
+                print(f"[PLAYBOOK-REG] Skipping duplicate: {prefixed_name}")
+        
+        print(f"[PLAYBOOK-REG] Imported {imported_count} playbooks from {source}")
+        print(f"[PLAYBOOK-REG] Total playbooks: {len(self.playbooks)}")
+    
+    def list_all_playbooks(self) -> Dict[str, Playbook]:
+        """Return all registered playbooks (for sharing with other systems)"""
+        return self.playbooks.copy()
 
 
 # Global instance
