@@ -469,8 +469,9 @@ class DomainPerformanceAnalyzer:
         Returns:
             Execution result
         """
-        if not action.get("auto_executable"):
-            return await execute_action(action)
+        try:
+            if not action.get("auto_executable"):
+                return await execute_action(action)
             
             result = await self._execute_tuning_action(action)
             
@@ -534,7 +535,7 @@ class DomainPerformanceAnalyzer:
         except Exception as e:
             return {"success": False, "error": str(e)}
     
-   async def _update_model_preference(self, domain_id: str, preference: str) -> Dict[str, Any]:
+    async def _update_model_preference(self, domain_id: str, preference: str) -> Dict[str, Any]:
         """Update model selection preference for domain"""
         try:
             from backend.model_capability_system import capability_system
