@@ -442,8 +442,13 @@ class KernelIntegrator:
         
         return {
             "total_kernels": len(self.kernel_registry),
-            "integrated_kernels": len(self.integrated_kernels),
+            "integrated": len(self.integrated_kernels),
             "integration_complete": len(self.integrated_kernels) == len(self.kernel_registry),
+            "tier1_count": len(self.get_kernels_by_tier("tier1_critical")),
+            "tier2_count": len(self.get_kernels_by_tier("tier2_governance")),
+            "tier3_count": len(self.get_kernels_by_tier("tier3_execution")),
+            "tier4_count": len(self.get_kernels_by_tier("tier4_agentic")),
+            "tier5_count": len(self.get_kernels_by_tier("tier5_service")),
             "by_tier": {
                 "tier1_critical": len(self.get_kernels_by_tier("tier1_critical")),
                 "tier2_governance": len(self.get_kernels_by_tier("tier2_governance")),

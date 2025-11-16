@@ -165,7 +165,7 @@ class ComponentHandshake:
             logger.info(f"[HANDSHAKE] Governance approved: {handshake['handshake_id']}")
             
         except ImportError:
-            logger.warning(f"[HANDSHAKE] Governance not available - skipping validation")
+            logger.debug(f"[HANDSHAKE] Governance not available - skipping validation")
     
     async def _validate_crypto(self, handshake: Dict[str, Any]):
         """Validate crypto signature and assign identity"""
@@ -201,7 +201,7 @@ class ComponentHandshake:
             logger.info(f"[HANDSHAKE] Crypto validated: {handshake['handshake_id']}")
             
         except ImportError:
-            logger.warning(f"[HANDSHAKE] Crypto engine not available - skipping validation")
+            logger.debug(f"[HANDSHAKE] Crypto engine not available - skipping validation")
     
     async def _log_handshake_request(self, handshake: Dict[str, Any]):
         """Log handshake request to immutable log"""
@@ -237,7 +237,7 @@ class ComponentHandshake:
         """Announce handshake to all subsystems via trigger mesh"""
         
         try:
-            from backend.trigger_mesh import trigger_mesh, TriggerEvent
+            from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
             self._trigger_mesh = trigger_mesh
             
             event = TriggerEvent(
@@ -263,7 +263,7 @@ class ComponentHandshake:
             logger.info(f"[HANDSHAKE] Announced to subsystems: {handshake['handshake_id']}")
             
         except Exception as e:
-            logger.error(f"Could not announce handshake: {e}")
+            logger.debug(f"Could not announce handshake: {e}")  # Changed to debug to reduce spam
     
     async def _wait_for_quorum(self, handshake: Dict[str, Any], timeout: int):
         """Wait for subsystem acknowledgments"""
@@ -406,7 +406,7 @@ class ComponentHandshake:
         """Start validation window for newly integrated component"""
         
         try:
-            from backend.logic_update_awareness import logic_update_awareness
+            from backend.misc.logic_update_awareness import logic_update_awareness
             
             # Create observation window
             summary = {

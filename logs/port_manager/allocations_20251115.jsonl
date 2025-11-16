@@ -1,1 +1,7 @@
 {"timestamp": "2025-11-15T22:38:25.300804", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "serve.py", "purpose": "Main Grace API server with remote access and learning"}
+{"timestamp": "2025-11-15T23:04:37.884990", "action": "allocate", "port": 8001, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-15T23:04:41.227813", "action": "release", "port": 8000, "service_name": "grace_backend", "duration_seconds": 1575.929009, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-15T23:12:15.843413", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-15T23:12:19.134966", "action": "release", "port": 8001, "service_name": "grace_backend", "duration_seconds": 461.251976, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-15T23:15:05.715244", "action": "allocate", "port": 8001, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-15T23:15:09.033154", "action": "release", "port": 8000, "service_name": "grace_backend", "duration_seconds": 173.194333, "request_count": 0, "error_count": 0}

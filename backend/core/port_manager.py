@@ -1,6 +1,6 @@
 """
 Port Manager & Watchdog
-Manages ports 8000-8100 with full tracking, logging, and metadata
+Manages ports 8000-8500 with full tracking, logging, and metadata
 Integrated with network hardening for comprehensive issue detection
 """
 
@@ -41,7 +41,7 @@ class PortAllocation:
 
 class PortManager:
     """
-    Manages port range 8000-8100
+    Manages port range 8000-8500
     - Allocates ports automatically
     - Tracks who/what/when/why for each port
     - Watchdog monitors health
@@ -49,7 +49,7 @@ class PortManager:
     - Automatic cleanup
     """
     
-    def __init__(self, start_port=8000, end_port=8100):
+    def __init__(self, start_port=8000, end_port=8500):
         self.start_port = start_port
         self.end_port = end_port
         self.allocations: Dict[int, PortAllocation] = {}

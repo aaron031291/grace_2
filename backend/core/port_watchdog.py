@@ -1,6 +1,6 @@
 """
 Port Watchdog
-Monitors all ports 8000-8100, tracks usage, detects issues
+Monitors all ports 8000-8500, tracks usage, detects issues
 """
 
 import asyncio
