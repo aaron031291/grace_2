@@ -499,7 +499,7 @@ class UnifiedLogicHub:
         
         # Generate update summary and start observation window
         try:
-            from backend.logic_update_awareness import logic_update_awareness
+            from backend.misc.logic_update_awareness import logic_update_awareness
             
             # Generate summary for AgenticSpine
             summary = await logic_update_awareness.generate_update_summary(
@@ -528,7 +528,7 @@ class UnifiedLogicHub:
             logger.info(f"[UPDATE_AWARENESS] ✓ Started observation for {package.update_id}")
             
         except Exception as e:
-            logger.warning(f"[UPDATE_AWARENESS] Failed to start observation: {e}")
+            logger.debug(f"[UPDATE_AWARENESS] Failed to start observation: {e}")
     
     async def _rollback_update(self, package: LogicUpdatePackage):
         """Rollback a failed update"""

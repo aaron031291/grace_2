@@ -9,6 +9,7 @@ import uvicorn
 import sys
 import socket
 from pathlib import Path
+from typing import Dict, Any, Optional
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -108,27 +109,82 @@ async def boot_grace_minimal():
         
         # CHUNK 2: LLM Models (Guardian validates, delegates to coding agent for issues)
         async def chunk_2_llm_models():
-            print("[CHUNK 2] LLM Models...")
+            print("[CHUNK 2] LLM Models (15 Open Source Models)...")
             import requests
             
-            results = {'ollama_running': False, 'models_found': 0}
+            # Define all 15 open source models Grace should have
+            recommended_models = {
+                'qwen2.5:32b': 'Conversation & reasoning',
+                'qwen2.5:72b': 'Ultimate quality',
+                'deepseek-coder-v2:16b': 'Best coding',
+                'deepseek-r1:70b': 'Complex reasoning (o1-level)',
+                'kimi:latest': '128K context',
+                'llava:34b': 'Vision + text',
+                'command-r-plus:latest': 'RAG specialist',
+                'phi3.5:latest': 'Ultra fast',
+                'codegemma:7b': 'Code completion',
+                'granite-code:20b': 'Enterprise code',
+                'dolphin-mixtral:latest': 'Uncensored',
+                'nous-hermes2-mixtral:latest': 'Instructions',
+                'gemma2:9b': 'Fast general',
+                'llama3.2:latest': 'Lightweight',
+                'mistral-nemo:latest': 'Efficient'
+            }
+            
+            results = {
+                'ollama_running': False,
+                'models_found': 0,
+                'installed': [],
+                'missing': []
+            }
             
             try:
                 response = requests.get("http://localhost:11434/api/tags", timeout=2)
                 if response.status_code == 200:
                     models_data = response.json()
-                    available = [m['name'] for m in models_data.get('models', [])]
+                    available_models = [m['name'] for m in models_data.get('models', [])]
+                    
+                    # Check which recommended models are installed
+                    installed = [
+                        m for m in recommended_models.keys()
+                        if any(m.split(':')[0] in avail for avail in available_models)
+                    ]
+                    missing = [
+                        m for m in recommended_models.keys()
+                        if not any(m.split(':')[0] in avail for avail in available_models)
+                    ]
                     
                     print(f"  ✓ Ollama: Running")
-                    print(f"  ✓ Models: {len(available)}")
+                    print(f"  ✓ Total models: {len(available_models)}")
+                    print(f"  ✓ Grace models: {len(installed)}/15")
+                    
+                    if installed:
+                        print(f"  → Installed:")
+                        for model in installed[:5]:
+                            print(f"    • {model} - {recommended_models[model]}")
+                        if len(installed) > 5:
+                            print(f"    ... and {len(installed) - 5} more")
+                    
+                    if missing:
+                        print(f"  ⚠ Missing {len(missing)} models:")
+                        for model in missing[:3]:
+                            print(f"    • {model}")
+                        if len(missing) > 3:
+                            print(f"    ... and {len(missing) - 3} more")
+                        print(f"\n  Install all: python scripts/utilities/install_all_models.py")
+                        results['warnings'] = [f'missing_{len(missing)}_models']
                     
                     results['ollama_running'] = True
-                    results['models_found'] = len(available)
+                    results['models_found'] = len(available_models)
+                    results['installed'] = installed
+                    results['missing'] = missing
                 else:
+                    print(f"  ⚠ Ollama returned status {response.status_code}")
                     results['warnings'] = ['ollama_unexpected_status']
             
             except requests.exceptions.RequestException as e:
                 print(f"  ⚠ Ollama not running")
+                print(f"    Start with: ollama serve")
                 results['warnings'] = ['ollama_not_running']
             
             return results
@@ -189,6 +245,68 @@ async def boot_grace_minimal():
             can_fail=True,  # Can run without some DBs
             guardian_validates=True,
             delegate_to="self_healing"
+        ))
+        
+        # CHUNK 5: Autonomous Learning Whitelist (Guardian validates)
+        async def chunk_5_whitelist():
+            print("[CHUNK 5] Autonomous Learning Whitelist...")
+            from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
+            
+            # Reload to ensure latest version
+            learning_whitelist_manager.load_whitelist()
+            
+            domains_count = len(learning_whitelist_manager.whitelist.get('domains', {}))
+            rules = learning_whitelist_manager.whitelist.get('autonomous_rules', {})
+            
+            print(f"  ✓ Whitelist loaded")
+            print(f"  ✓ Learning domains: {domains_count}")
+            print(f"  ✓ Allowed actions: {len(rules.get('allowed_actions', []))}")
+            print(f"  ✓ Approval required: {len(rules.get('approval_required', []))}")
+            
+            return {
+                'loaded': True,
+                'domains': domains_count,
+                'rules_defined': True
+            }
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="learning_whitelist",
+            name="Autonomous Learning Whitelist",
+            priority=5,
+            boot_function=chunk_5_whitelist,
+            can_fail=True,  # Grace can run without whitelist
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
+        # CHUNK 6-25: All 20 Grace Kernels (Guardian validates each)
+        async def chunk_5_20_kernels():
+            print("[CHUNK 5-24] Grace Kernels (20 kernels)...")
+            from backend.unified_logic.kernel_integration import KernelIntegrator
+            
+            integrator = KernelIntegrator()
+            print(f"  → Defined {len(integrator.kernel_registry)} kernels")
+            
+            # Integrate all kernels
+            result = await integrator.integrate_all_kernels()
+            
+            print(f"  ✓ Integrated: {result.get('integrated', 0)}/20 kernels")
+            print(f"  ✓ Tier 1 (Critical): {result.get('tier1_count', 0)}")
+            print(f"  ✓ Tier 2 (Governance): {result.get('tier2_count', 0)}")
+            print(f"  ✓ Tier 3 (Execution): {result.get('tier3_count', 0)}")
+            print(f"  ✓ Tier 4 (Agentic): {result.get('tier4_count', 0)}")
+            print(f"  ✓ Tier 5 (Services): {result.get('tier5_count', 0)}")
+            
+            return result
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="grace_kernels",
+            name="All 20 Grace Kernels (Tiered Boot)",
+            priority=6,
+            boot_function=chunk_5_20_kernels,
+            can_fail=False,  # Critical - kernels must boot
+            guardian_validates=True,
+            delegate_to="self_healing"  # Self-healing handles kernel issues
         ))
         
         # Execute chunked boot with Guardian validation

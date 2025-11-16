@@ -29,9 +29,9 @@ domains:
       - Port Python library to Rust
     
     success_criteria:
-      - KPI: Projects compile and run
-      - Trust score: >0.8 on code review
-      - All edge cases handled in sandbox
+      - "KPI: Projects compile and run"
+      - "Trust score: >0.8 on code review"
+      - "All edge cases handled in sandbox"
 
   2_data_engineering:
     priority: critical

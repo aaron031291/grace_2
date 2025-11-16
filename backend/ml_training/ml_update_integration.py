@@ -449,7 +449,7 @@ class MLUpdateIntegration:
         
         # Query recent updates
         try:
-            from backend.logic_update_awareness import logic_update_awareness
+            from backend.misc.logic_update_awareness import logic_update_awareness
             
             # Get updates in time window
             recent_updates = [
