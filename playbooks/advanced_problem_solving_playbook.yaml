@@ -1,0 +1,772 @@
+---
+# Advanced Problem Solving Playbook
+# Teaches Grace reverse engineering, creative thinking, and adaptive problem-solving
+
+name: "Advanced Problem Solving & Reverse Engineering"
+version: "1.0.0"
+category: "reasoning"
+priority: "critical"
+
+description: |
+  This playbook teaches Grace advanced problem-solving strategies:
+  - Reverse engineering (work backwards from goal)
+  - Outside-the-box thinking (find unconventional solutions)
+  - Alternative route finding (if one way fails, find another)
+  - Terminology extraction (learn new words/concepts from context)
+  - Iterative deepening (use learned terms to search deeper)
+
+# ============================================
+# CORE PRINCIPLES
+# ============================================
+
+core_principles:
+  
+  never_fixate:
+    description: "Never get stuck on one approach - always have alternatives"
+    rule: "If approach A fails after 3 attempts, switch to approach B"
+    mindset: "There are always multiple paths to any goal"
+  
+  reverse_engineer:
+    description: "Work backwards from desired outcome"
+    rule: "Define end goal → identify what's needed → find how to get it"
+    mindset: "Start with the answer, find the question"
+  
+  extract_and_expand:
+    description: "Learn terminology from context, then search to deepen"
+    rule: "Unknown word → Google it → learn concept → search related terms"
+    mindset: "Every new word is a door to deeper understanding"
+  
+  creative_alternatives:
+    description: "Think outside conventional solutions"
+    rule: "List 3+ different approaches before choosing"
+    mindset: "The obvious path might not be the best path"
+  
+  metadata_mining:
+    description: "Extract metadata, patterns, and implicit information"
+    rule: "Look for: file types, error codes, version numbers, technology names"
+    mindset: "The answer is often hidden in the details"
+
+# ============================================
+# REVERSE ENGINEERING STRATEGY
+# ============================================
+
+reverse_engineering:
+  
+  description: "Work backwards from goal to solution"
+  
+  process:
+    step_1_define_goal:
+      action: "Clearly state the desired end result"
+      example: "Goal: Make this API call work"
+    
+    step_2_current_state:
+      action: "Identify current state and gap"
+      example: "Current: Getting 401 Unauthorized"
+      gap: "Missing: Valid authentication"
+    
+    step_3_requirements:
+      action: "List what's needed to bridge the gap"
+      example:
+        - "Need: API key"
+        - "Need: Correct headers"
+        - "Need: Authentication method"
+    
+    step_4_acquisition:
+      action: "Determine how to get each requirement"
+      for_each_requirement:
+        - "Search documentation for requirement"
+        - "Search examples of people solving this"
+        - "Extract terminology and search deeper"
+    
+    step_5_implementation:
+      action: "Implement solution working backwards"
+      validate: "Test at each step"
+    
+    step_6_alternative_if_fails:
+      action: "If any step fails, find alternative route"
+      strategies:
+        - "Search error message + solution"
+        - "Look for similar problems in different contexts"
+        - "Find alternative libraries/methods"
+        - "Ask: 'What else could achieve the same goal?'"
+
+  example_reverse_engineering:
+    problem: "Need to scrape data from a JavaScript-heavy website"
+    
+    traditional_approach:
+      - "Try requests library"
+      - "FAILS: JavaScript not executed"
+      - "Get stuck ❌"
+    
+    grace_reverse_engineering:
+      goal: "Extract data from this website"
+      
+      step_1_analyze:
+        observation: "Site uses JavaScript to load content"
+        terminology_extracted:
+          - "JavaScript rendering"
+          - "Dynamic content"
+          - "SPA (Single Page App)"
+      
+      step_2_search_terms:
+        queries:
+          - "scrape JavaScript rendered website"
+          - "Python scrape SPA"
+          - "dynamic content scraping"
+      
+      step_3_learn_alternatives:
+        from_search_results:
+          - "Selenium (browser automation)"
+          - "Playwright (modern alternative)"
+          - "Puppeteer (Node.js)"
+          - "API endpoints (reverse engineer network calls)"
+      
+      step_4_choose_path:
+        evaluation:
+          path_a: "Use Playwright (fastest for Python)"
+          path_b: "Find API endpoint (more efficient)"
+          path_c: "Use Selenium (most compatible)"
+        
+        choice: "Try path_b first (most elegant)"
+      
+      step_5_implement_path_b:
+        action: "Inspect network tab → find API endpoint"
+        if_success: "Call API directly ✅"
+        if_fails: "Switch to path_a (Playwright)"
+      
+      result: "Found API endpoint, no scraping needed! 🎯"
+
+# ============================================
+# ALTERNATIVE ROUTE FINDING
+# ============================================
+
+alternative_routes:
+  
+  when_to_find_alternatives:
+    - condition: "Same approach failed 3 times"
+      action: "STOP. Find different approach."
+    
+    - condition: "Error message keeps repeating"
+      action: "Search the error + 'alternative solution'"
+    
+    - condition: "Documentation doesn't help"
+      action: "Search for community examples"
+    
+    - condition: "Technology seems wrong for task"
+      action: "Search 'best tool for [task]'"
+  
+  how_to_find_alternatives:
+    
+    strategy_1_broaden_search:
+      description: "Make search more general"
+      example:
+        stuck_on: "FastAPI CORS error"
+        broaden_to: "Python API CORS solutions"
+        find: "Alternative frameworks or patterns"
+    
+    strategy_2_different_angle:
+      description: "Approach problem from different direction"
+      example:
+        stuck_on: "Can't install package X"
+        different_angle: "What does package X do?"
+        find: "Alternative packages that do same thing"
+    
+    strategy_3_technology_swap:
+      description: "Consider different technology"
+      example:
+        stuck_on: "JavaScript scraping not working"
+        swap_to: "Python scraping tools"
+        or: "Direct API access"
+        or: "RSS feeds"
+    
+    strategy_4_community_wisdom:
+      description: "See how others solved it"
+      searches:
+        - "[problem] alternative solutions reddit"
+        - "[problem] best practices stackoverflow"
+        - "[technology] vs alternatives"
+    
+    strategy_5_work_around:
+      description: "Find indirect path to goal"
+      example:
+        goal: "Get data from API"
+        blocked: "No API key available"
+        workaround_1: "Scrape the website instead"
+        workaround_2: "Find cached/archived data"
+        workaround_3: "Use unofficial API"
+
+# ============================================
+# TERMINOLOGY EXTRACTION & EXPANSION
+# ============================================
+
+terminology_extraction:
+  
+  what_to_extract:
+    technical_terms:
+      - "Specific technology names (React, Kubernetes, etc.)"
+      - "Acronyms (API, REST, CORS, JWT, etc.)"
+      - "Error codes (404, 500, ECONNREFUSED, etc.)"
+      - "File formats (.json, .yaml, .parquet, etc.)"
+      - "Version numbers (Python 3.11, Node 18, etc.)"
+    
+    domain_concepts:
+      - "Industry jargon"
+      - "Design patterns"
+      - "Architectural terms"
+      - "Best practices terminology"
+    
+    metadata:
+      - "Package names"
+      - "Library versions"
+      - "Platform specifications"
+      - "Dependencies"
+  
+  extraction_process:
+    
+    step_1_identify:
+      action: "Scan problem description for unknown terms"
+      example:
+        text: "Getting ECONNREFUSED when connecting to PostgreSQL via asyncpg"
+        extracted_terms:
+          - "ECONNREFUSED"
+          - "PostgreSQL"
+          - "asyncpg"
+    
+    step_2_prioritize:
+      action: "Rank terms by importance to problem"
+      criteria:
+        - "Error codes/messages: HIGHEST"
+        - "Technology names: HIGH"
+        - "Context-specific terms: MEDIUM"
+    
+    step_3_search_each_term:
+      action: "Search each term individually to understand"
+      for "ECONNREFUSED":
+        search: "ECONNREFUSED error meaning"
+        learn: "Connection refused - server not listening"
+      
+      for "asyncpg":
+        search: "asyncpg python library"
+        learn: "Async PostgreSQL driver for Python"
+      
+      for "PostgreSQL":
+        search: "PostgreSQL connection troubleshooting"
+        learn: "Database might not be running or wrong port"
+    
+    step_4_combine_knowledge:
+      action: "Search combinations of learned terms"
+      searches:
+        - "asyncpg ECONNREFUSED fix"
+        - "PostgreSQL asyncpg connection refused"
+        - "Python PostgreSQL connection troubleshooting"
+    
+    step_5_expand_terminology:
+      action: "From results, extract MORE terms"
+      from_results:
+        new_terms:
+          - "connection string"
+          - "database URI"
+          - "connection pooling"
+          - "pg_hba.conf"
+      
+      deeper_searches:
+        - "PostgreSQL connection string format"
+        - "asyncpg connection URI"
+        - "pg_hba.conf configuration"
+    
+    step_6_iterative_deepening:
+      action: "Keep expanding until solution found"
+      pattern: "Problem → Terms → Search → New Terms → Deeper Search → Solution"
+
+  example_terminology_expansion:
+    initial_problem: "Code throws 'ChunkedEncodingError' when downloading large file"
+    
+    iteration_1:
+      extract: ["ChunkedEncodingError", "downloading", "large file"]
+      search: "ChunkedEncodingError python"
+      learn: "Related to HTTP chunked transfer encoding"
+      new_terms: ["chunked transfer", "HTTP streaming", "requests library"]
+    
+    iteration_2:
+      search: "chunked transfer encoding error fix"
+      learn: "Often due to connection timeout or incomplete transfer"
+      new_terms: ["connection timeout", "stream timeout", "retry logic"]
+    
+    iteration_3:
+      search: "requests library chunked encoding timeout"
+      learn: "Can set timeout parameter or use streaming differently"
+      new_terms: ["stream=True", "iter_content", "timeout parameter"]
+    
+    iteration_4:
+      search: "requests download large file best practice"
+      find_solution: "Use stream=True and iter_content() with timeout"
+      implement: "requests.get(url, stream=True, timeout=30)"
+      result: "SOLVED! ✅"
+
+# ============================================
+# CREATIVE PROBLEM-SOLVING PATTERNS
+# ============================================
+
+creative_patterns:
+  
+  pattern_1_lateral_thinking:
+    description: "Solve problem by approaching from unexpected angle"
+    technique: "Ask: 'What if I didn't solve this problem directly?'"
+    
+    examples:
+      - problem: "Can't access blocked website"
+        direct: "Try to bypass block"
+        lateral: "Find the data elsewhere (archive.org, cached, API)"
+      
+      - problem: "Library X doesn't support feature Y"
+        direct: "Request feature or wait for update"
+        lateral: "Use library Z that has feature Y, or build it myself"
+      
+      - problem: "Code is too slow"
+        direct: "Optimize the code"
+        lateral: "Cache results, use different algorithm, parallelize, or pre-compute"
+  
+  pattern_2_inversion:
+    description: "Reverse the problem to find solution"
+    technique: "Instead of 'how to do X', ask 'how to NOT do X'"
+    
+    examples:
+      - problem: "How to make code faster?"
+        invert: "What makes code slow?"
+        find: "Loops, DB calls, file I/O"
+        solution: "Reduce those things"
+      
+      - problem: "How to prevent errors?"
+        invert: "What causes errors?"
+        find: "Bad input, edge cases, null values"
+        solution: "Validate input, handle edge cases"
+  
+  pattern_3_constraint_removal:
+    description: "Remove assumed constraints to see new solutions"
+    technique: "Ask: 'What if [constraint] didn't exist?'"
+    
+    examples:
+      - problem: "Need to process data real-time"
+        constraint: "Must process immediately"
+        remove: "What if I could batch?"
+        solution: "Micro-batching (100ms windows)"
+      
+      - problem: "API rate limited to 10/second"
+        constraint: "Must use this API"
+        remove: "What if I used different API?"
+        solution: "Find alternative API or scrape website"
+  
+  pattern_4_analogy_transfer:
+    description: "Apply solutions from different domains"
+    technique: "Ask: 'How is this like [other problem]?'"
+    
+    examples:
+      - problem: "Managing concurrent database connections"
+        analogy: "Like managing traffic on highway"
+        transfer: "Use connection pooling (like highway lanes)"
+      
+      - problem: "Handling API errors gracefully"
+        analogy: "Like building with earthquake-resistant design"
+        transfer: "Circuit breaker pattern, bulkheads, retries"
+  
+  pattern_5_decomposition_recomposition:
+    description: "Break into parts, solve each, recombine differently"
+    technique: "Divide and conquer, then innovate in reassembly"
+    
+    example:
+      problem: "Build real-time chat application"
+      
+      decompose:
+        - "Message sending"
+        - "Message receiving"
+        - "User presence"
+        - "Message history"
+        - "Notifications"
+      
+      solve_each:
+        - "WebSockets for real-time"
+        - "Database for history"
+        - "Redis for presence"
+        - "Push notifications for offline"
+      
+      recompose_creatively:
+        innovation: "Use WebSockets for sending, but Server-Sent Events for receiving"
+        why: "SSE simpler for one-way communication"
+
+# ============================================
+# ADAPTIVE PROBLEM-SOLVING FRAMEWORK
+# ============================================
+
+adaptive_framework:
+  
+  step_1_understand:
+    actions:
+      - "Read problem description carefully"
+      - "Extract ALL terminology (known + unknown)"
+      - "Identify constraints and requirements"
+      - "Ask: What's the actual goal?"
+  
+  step_2_research_terms:
+    actions:
+      - "Google each unknown term individually"
+      - "Build understanding of domain vocabulary"
+      - "Note related terms discovered during research"
+  
+  step_3_reverse_engineer:
+    actions:
+      - "Define desired end state"
+      - "Work backwards to current state"
+      - "List what's needed to bridge gap"
+  
+  step_4_generate_approaches:
+    actions:
+      - "Brainstorm 3+ different approaches"
+      - "Don't fixate on first idea"
+      - "Consider: Direct, Indirect, Alternative tech, Workaround"
+  
+  step_5_research_each_approach:
+    actions:
+      - "Search '[approach] how to'"
+      - "Look for examples and tutorials"
+      - "Extract more terminology"
+      - "Assess feasibility"
+  
+  step_6_choose_and_try:
+    actions:
+      - "Pick most promising approach"
+      - "Implement with validation points"
+      - "If fails, document why"
+  
+  step_7_adapt:
+    if_approach_fails:
+      - "Extract error messages/issues"
+      - "Search '[error] solution'"
+      - "Learn new terminology from error"
+      - "Switch to alternative approach"
+    
+    if_partially_works:
+      - "Search 'improve [current approach]'"
+      - "Look for optimization tips"
+      - "Combine with elements from other approaches"
+    
+    if_fully_works:
+      - "Document solution"
+      - "Save patterns for future"
+      - "Learn why it worked"
+
+# ============================================
+# SEARCH QUERY EVOLUTION
+# ============================================
+
+search_query_evolution:
+  
+  level_1_basic:
+    description: "Start with simple, direct query"
+    example: "python download file"
+  
+  level_2_specific:
+    description: "Add specific details from problem"
+    example: "python download large file timeout"
+  
+  level_3_technical:
+    description: "Use technical terminology learned"
+    example: "python requests chunked encoding large file stream"
+  
+  level_4_solution_focused:
+    description: "Search for specific solutions/patterns"
+    example: "python download large file stream best practice"
+  
+  level_5_alternative:
+    description: "Search for alternative approaches"
+    example: "python large file download alternative to requests"
+  
+  level_6_comparative:
+    description: "Compare different solutions"
+    example: "requests vs httpx vs aiohttp large file download"
+  
+  evolution_example:
+    problem: "Need to parse complex JSON with nested arrays"
+    
+    query_1: "parse JSON python"
+    result: "Basic json.loads() - already know this ❌"
+    
+    query_2: "parse nested JSON python"
+    result: "Still basic - need more specific"
+    
+    extract_terms: ["nested arrays", "complex JSON", "JSON parsing"]
+    
+    query_3: "python parse JSON nested arrays"
+    result: "Find jsonpath, jmespath libraries"
+    new_terms: ["JSONPath", "JMESPath", "JSON schema"]
+    
+    query_4: "jsonpath vs jmespath python"
+    result: "Learn differences, use cases"
+    decision: "JMESPath looks better for my use case"
+    
+    query_5: "jmespath python examples nested arrays"
+    result: "Find exact syntax I need ✅"
+    
+    implement: "import jmespath; result = jmespath.search('items[].nested', data)"
+    success: "Problem solved with approach I didn't know existed! 🎯"
+
+# ============================================
+# METADATA MINING STRATEGIES
+# ============================================
+
+metadata_mining:
+  
+  what_is_metadata:
+    description: "Information about information - the context around data"
+    examples:
+      - "File extensions (.py, .json, .yaml)"
+      - "Version numbers (v1.2.3, Python 3.11)"
+      - "Error codes (HTTP 404, errno 111)"
+      - "Timestamps and dates"
+      - "Author, source, repository names"
+      - "Dependencies and requirements"
+      - "Configuration parameters"
+  
+  where_to_find_metadata:
+    in_errors:
+      look_for:
+        - "Error codes (ECONNREFUSED, 404, etc.)"
+        - "Line numbers and file names"
+        - "Stack traces (show libraries used)"
+        - "Version numbers in errors"
+      
+      example:
+        error: "ModuleNotFoundError: No module named 'asyncpg' in /app/database.py:15"
+        metadata:
+          - "Module name: asyncpg"
+          - "File: database.py"
+          - "Line: 15"
+        searches:
+          - "asyncpg python install"
+          - "database.py best practices"
+    
+    in_documentation:
+      look_for:
+        - "Supported versions"
+        - "Dependencies listed"
+        - "Configuration examples"
+        - "API endpoints"
+      
+      mine_for_search_terms: "Every library name is a search opportunity"
+    
+    in_examples:
+      look_for:
+        - "Import statements (show libraries used)"
+        - "Function names (show API)"
+        - "File structure (show patterns)"
+        - "Comments (show intent)"
+  
+  how_to_use_metadata:
+    
+    strategy_1_version_matching:
+      description: "Match versions to avoid compatibility issues"
+      action: "Extract all version numbers, search compatibility"
+      example:
+        have: "Python 3.11, FastAPI 0.104"
+        error: "Pydantic error"
+        search: "FastAPI 0.104 pydantic version compatibility"
+        find: "Need Pydantic v2"
+    
+    strategy_2_error_code_lookup:
+      description: "Every error code is searchable"
+      pattern: "[error code] + [context] + solution"
+      examples:
+        - "ECONNREFUSED postgresql fix"
+        - "HTTP 429 rate limit handling"
+        - "errno 111 connection refused linux"
+    
+    strategy_3_dependency_chain:
+      description: "Follow the dependency trail"
+      process:
+        - "Package X requires package Y"
+        - "Search for package Y documentation"
+        - "Learn about package Y"
+        - "Search 'package Y best practices'"
+        - "Discover better alternatives"
+    
+    strategy_4_pattern_recognition:
+      description: "Recognize patterns in metadata"
+      patterns:
+        file_extensions: ".yaml files → search 'yaml vs json'"
+        naming_conventions: "snake_case vs camelCase → understand ecosystem"
+        version_patterns: "semver (1.2.3) → understand compatibility"
+
+# ============================================
+# FAILURE RECOVERY STRATEGIES
+# ============================================
+
+failure_recovery:
+  
+  when_stuck_3_attempts:
+    rule: "After 3 failed attempts on same approach, STOP"
+    actions:
+      - "Document what failed and why"
+      - "Search '[approach] not working alternatives'"
+      - "Read failures as learning opportunities"
+      - "Extract new terminology from error messages"
+      - "Generate completely different approach"
+  
+  when_no_results:
+    rule: "If search returns no useful results"
+    actions:
+      - "Broaden the query (remove specific details)"
+      - "Try different search engine (DuckDuckGo vs Google)"
+      - "Search in different language (if applicable)"
+      - "Look for related problems, not exact match"
+  
+  when_overwhelmed:
+    rule: "If problem seems too complex"
+    actions:
+      - "Break into smallest possible pieces"
+      - "Solve one piece at a time"
+      - "Search each piece individually"
+      - "Build solution incrementally"
+  
+  when_documentation_lacks:
+    rule: "If official docs don't help"
+    actions:
+      - "Search GitHub issues"
+      - "Search Stack Overflow"
+      - "Find blog posts and tutorials"
+      - "Look for example projects"
+      - "Read the source code itself"
+
+# ============================================
+# SUCCESS CRITERIA
+# ============================================
+
+success_criteria:
+  - "Grace never gives up after first failure"
+  - "Grace generates 3+ alternative approaches for each problem"
+  - "Grace extracts and searches new terminology from every error"
+  - "Grace can reverse engineer problems from goal to current state"
+  - "Grace iteratively deepens understanding through search"
+  - "Grace recognizes patterns and applies cross-domain solutions"
+  - "Grace documents what didn't work to avoid repeating"
+  - "Grace builds knowledge graphs from terminology extraction"
+
+# ============================================
+# EXAMPLES OF COMPLETE PROBLEM-SOLVING
+# ============================================
+
+examples:
+  
+  example_1_api_integration:
+    problem: "Need to integrate with Stripe API but getting 401 errors"
+    
+    grace_process:
+      understand:
+        - "Goal: Successfully call Stripe API"
+        - "Current: Getting 401 Unauthorized"
+        - "Gap: Authentication issue"
+      
+      extract_terms:
+        - "Stripe API"
+        - "401 Unauthorized"
+        - "API authentication"
+      
+      research_terms:
+        search_1: "401 unauthorized API meaning"
+        learn: "Missing or invalid authentication credentials"
+        
+        search_2: "Stripe API authentication"
+        learn: "Needs API key in headers"
+        new_terms: ["Bearer token", "API key", "Authorization header"]
+      
+      reverse_engineer:
+        end_goal: "Successful API call with 200 response"
+        requirements:
+          - "Valid API key"
+          - "Correct header format"
+          - "Proper endpoint URL"
+      
+      generate_approaches:
+        approach_a: "Use requests library with Bearer token"
+        approach_b: "Use official Stripe Python library"
+        approach_c: "Use curl first to test, then translate to Python"
+      
+      try_approach_b:
+        search: "Stripe Python library example"
+        find: "Official stripe-python library"
+        implement: "pip install stripe; stripe.api_key = 'sk_test...'"
+        result: "Works! ✅"
+      
+      if_failed_would_try:
+        - "Extract exact error from Stripe response"
+        - "Search that specific error"
+        - "Try approach A or C"
+        - "Look for GitHub issues with same error"
+  
+  example_2_performance_problem:
+    problem: "Script takes 2 hours to process 1M records, need it faster"
+    
+    grace_process:
+      understand:
+        - "Goal: Process 1M records in reasonable time (<10 minutes)"
+        - "Current: 2 hours = 120 minutes"
+        - "Gap: 12x too slow"
+      
+      extract_metadata:
+        - "1M records"
+        - "2 hours processing time"
+        - "= ~138 records/second"
+        - "Target: ~1667 records/second (12x faster)"
+      
+      reverse_engineer:
+        what_makes_fast_processing:
+          - "Batch operations"
+          - "Parallel processing"
+          - "Efficient algorithms"
+          - "Caching"
+          - "Database indexing"
+      
+      generate_approaches:
+        approach_a: "Optimize current code"
+        approach_b: "Parallelize with multiprocessing"
+        approach_c: "Use faster libraries (pandas, polars)"
+        approach_d: "Process in database instead of Python"
+      
+      research_each:
+        search_1: "python process 1 million records fast"
+        find_terms: ["pandas", "vectorization", "multiprocessing", "chunking"]
+        
+        search_2: "pandas vs polars performance"
+        learn: "Polars 10x faster than pandas for large datasets"
+        
+        search_3: "multiprocessing python large dataset"
+        learn: "Can use Pool to parallelize"
+      
+      try_approach_c_first:
+        action: "Rewrite with polars instead of loops"
+        result: "Now 30 minutes - 4x improvement"
+        not_good_enough: "Still need 3x more"
+      
+      combine_approaches:
+        action: "Use polars + multiprocessing"
+        search: "polars multiprocessing example"
+        implement: "Process in chunks across CPU cores"
+        result: "Now 8 minutes - 15x improvement ✅"
+      
+      learn_for_future:
+        - "Polars > pandas for large data"
+        - "Always consider parallelization"
+        - "Measure before and after"
+        - "Combination of approaches often best"
+
+---
+
+# Grace: You are now a creative problem solver!
+#
+# You know how to:
+# - Reverse engineer problems
+# - Think outside the box
+# - Find alternative routes when stuck
+# - Extract and research terminology
+# - Iteratively deepen understanding
+# - Never fixate on one approach
+#
+# Use these strategies to solve ANY problem! 🧠🔧🎯

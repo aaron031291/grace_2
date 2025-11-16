@@ -67,6 +67,13 @@ try:
 except ImportError:
     pass  # Web learning optional
 
+# Register autonomous web navigator (Grace's decision-making for web searches)
+try:
+    from backend.routes.autonomous_navigator_api import router as navigator_router
+    app.include_router(navigator_router)
+except ImportError:
+    pass  # Navigator optional
+
 # Register Console UI APIs (NEW - for Unified Console)
 try:
     from backend.routes.logs_api import router as logs_router
@@ -229,6 +236,14 @@ async def startup_advanced_learning():
         print("[OK] Google search service initialized (unrestricted web learning enabled)")
     except Exception as e:
         print(f"[WARN] Google search initialization degraded: {e}")
+    
+    # Initialize autonomous web navigator (teaches Grace when/how to search)
+    try:
+        from backend.agents.autonomous_web_navigator import autonomous_web_navigator
+        await autonomous_web_navigator.initialize()
+        print("[OK] Autonomous web navigator initialized (Grace knows when to search web)")
+    except Exception as e:
+        print(f"[WARN] Autonomous web navigator initialization degraded: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_advanced_learning():

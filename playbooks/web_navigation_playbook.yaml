@@ -1,0 +1,441 @@
+---
+# Web Navigation & Learning Playbook
+# Teaches Grace when and how to autonomously search the web
+
+name: "Autonomous Web Navigation & Learning"
+version: "1.0.0"
+category: "learning"
+priority: "high"
+
+description: |
+  This playbook teaches Grace when to autonomously search the web,
+  how to navigate online resources, and when to trigger web learning.
+
+# ============================================
+# WHEN TO SEARCH THE WEB
+# ============================================
+
+triggers:
+  - trigger_name: "knowledge_gap_detected"
+    description: "Grace encounters a question she can't answer from existing knowledge"
+    condition: "confidence < 0.6 OR knowledge_base_match < 0.3"
+    action: "search_web"
+    
+  - trigger_name: "new_technology_mentioned"
+    description: "User mentions a technology/framework Grace hasn't seen before"
+    pattern: "(?i)(new|latest|recent|2025|2024).*(?:framework|library|tool|technology)"
+    action: "explore_domain"
+    
+  - trigger_name: "research_request"
+    description: "User explicitly asks Grace to research something"
+    pattern: "(?i)(research|look up|find out|learn about|search for)"
+    action: "autonomous_research"
+    
+  - trigger_name: "error_needs_solution"
+    description: "Grace encounters an error and needs to find solutions"
+    condition: "error_occurred AND known_solutions == 0"
+    action: "search_solutions"
+    
+  - trigger_name: "topic_depth_needed"
+    description: "Current knowledge is shallow, needs deeper understanding"
+    condition: "topic_depth_score < 0.5"
+    action: "deep_dive_learning"
+
+# ============================================
+# HOW TO SEARCH THE WEB
+# ============================================
+
+strategies:
+  
+  basic_search:
+    description: "Simple web search for quick answers"
+    steps:
+      - action: "POST /api/web-learning/search"
+        params:
+          query: "{topic}"
+          num_results: 5
+          extract_content: true
+        governance: "check_trust_score >= 0.3"
+      
+      - action: "analyze_results"
+        filter: "trust_score >= 0.5"
+        extract: ["key_facts", "code_examples", "documentation_links"]
+      
+      - action: "save_knowledge"
+        target: "knowledge_base"
+        include_metadata: true
+  
+  topic_learning:
+    description: "Deep learning on a specific topic"
+    steps:
+      - action: "POST /api/web-learning/learn-topic"
+        params:
+          topic: "{topic}"
+          max_sources: 10
+          save_to_knowledge: true
+        
+      - action: "extract_patterns"
+        analyze: ["common_themes", "best_practices", "code_patterns"]
+        
+      - action: "create_summary"
+        format: "structured_knowledge"
+        
+      - action: "update_world_model"
+        domain: "{inferred_domain}"
+  
+  domain_exploration:
+    description: "Explore an entire domain (e.g., 'machine learning')"
+    steps:
+      - action: "GET /api/web-learning/explore/{domain}"
+        params:
+          depth: 5
+        
+      - action: "identify_subtopics"
+        create_learning_map: true
+        
+      - action: "prioritize_learning"
+        criteria: ["relevance", "foundational", "current_project_needs"]
+        
+      - action: "schedule_deep_dives"
+        for_each: "high_priority_subtopic"
+  
+  autonomous_research:
+    description: "Background research on multiple topics"
+    steps:
+      - action: "POST /api/web-learning/autonomous-research"
+        params:
+          topics: "{topic_list}"
+          duration_minutes: 60
+        
+      - action: "monitor_progress"
+        check_interval: "5 minutes"
+        
+      - action: "integrate_findings"
+        into: "knowledge_base"
+        tag: "autonomous_research_{timestamp}"
+
+  solution_search:
+    description: "Search for solutions to errors/problems"
+    steps:
+      - action: "format_error_query"
+        include: ["error_message", "stack_trace", "context"]
+        
+      - action: "search_stackoverflow"
+        filter: "trust_score >= 0.9"
+        
+      - action: "search_github_issues"
+        filter: "resolved_issues"
+        
+      - action: "search_documentation"
+        filter: "official_docs"
+        
+      - action: "rank_solutions"
+        by: ["trust_score", "recency", "upvotes"]
+        
+      - action: "extract_solution"
+        validate: true
+
+# ============================================
+# NAVIGATION PATTERNS
+# ============================================
+
+navigation_patterns:
+  
+  official_documentation_first:
+    description: "Always check official docs before general web"
+    priority: 1
+    domains:
+      - "docs.python.org"
+      - "kubernetes.io"
+      - "fastapi.tiangolo.com"
+      - "pytorch.org"
+      - "tensorflow.org"
+    trust_score: 1.0
+  
+  academic_sources_for_research:
+    description: "Use academic sources for research topics"
+    priority: 2
+    domains:
+      - "arxiv.org"
+      - "scholar.google.com"
+      - "pubmed.gov"
+    trust_score: 0.95
+  
+  community_for_practical:
+    description: "Use community sources for practical examples"
+    priority: 3
+    domains:
+      - "stackoverflow.com"
+      - "github.com"
+      - "dev.to"
+    trust_score: 0.85
+  
+  avoid_low_trust:
+    description: "Skip sources with low trust scores"
+    filter: "trust_score < 0.3"
+    action: "skip"
+
+# ============================================
+# DECISION TREES
+# ============================================
+
+decision_trees:
+  
+  should_i_search_web:
+    question: "Should Grace search the web for this?"
+    
+    if_user_asked_explicitly:
+      decision: "YES"
+      strategy: "basic_search"
+    
+    elif_knowledge_gap:
+      if_critical_to_task:
+        decision: "YES"
+        strategy: "topic_learning"
+      else:
+        decision: "QUEUE_FOR_LATER"
+        strategy: "background_research"
+    
+    elif_error_occurred:
+      decision: "YES"
+      strategy: "solution_search"
+      urgency: "high"
+    
+    elif_curious:
+      if_has_time:
+        decision: "YES"
+        strategy: "domain_exploration"
+      else:
+        decision: "QUEUE"
+    
+    else:
+      decision: "NO"
+      reason: "No trigger met"
+  
+  which_sources_to_use:
+    question: "Which sources should Grace check?"
+    
+    if_need_official_info:
+      sources: ["official_docs", "api_references"]
+      trust_threshold: 1.0
+    
+    elif_need_examples:
+      sources: ["github", "stackoverflow", "dev_blogs"]
+      trust_threshold: 0.8
+    
+    elif_research:
+      sources: ["arxiv", "papers", "academic"]
+      trust_threshold: 0.95
+    
+    elif_news:
+      sources: ["tech_news", "release_notes", "blogs"]
+      trust_threshold: 0.7
+    
+    else:
+      sources: ["general_web"]
+      trust_threshold: 0.5
+
+# ============================================
+# LEARNING PATTERNS
+# ============================================
+
+learning_patterns:
+  
+  iterative_deepening:
+    description: "Start broad, then go deep"
+    steps:
+      - "Search for overview"
+      - "Identify key subtopics"
+      - "Deep dive on each"
+      - "Synthesize understanding"
+  
+  comparative_learning:
+    description: "Compare multiple sources"
+    steps:
+      - "Search topic from 5+ sources"
+      - "Compare perspectives"
+      - "Find consensus"
+      - "Note discrepancies"
+      - "Form balanced understanding"
+  
+  follow_the_thread:
+    description: "Follow links and related topics"
+    steps:
+      - "Start with primary topic"
+      - "Extract related concepts"
+      - "Search each related concept"
+      - "Build knowledge graph"
+  
+  validate_and_verify:
+    description: "Cross-check information"
+    steps:
+      - "Find claim in source A"
+      - "Search for corroboration in source B"
+      - "Check trust scores"
+      - "Mark as verified or questionable"
+
+# ============================================
+# GOVERNANCE RULES
+# ============================================
+
+governance:
+  
+  always_check_trust:
+    rule: "Never use source with trust_score < 0.3"
+    enforcement: "automatic"
+  
+  approval_for_sensitive:
+    rule: "Get approval before searching sensitive topics"
+    topics: ["credentials", "private_data", "user_secrets"]
+    enforcement: "mandatory"
+  
+  rate_limiting:
+    rule: "Respect rate limits"
+    max_searches_per_minute: 10
+    max_searches_per_hour: 100
+    enforcement: "automatic"
+  
+  log_everything:
+    rule: "Log all web searches"
+    target: "business_metrics"
+    include: ["query", "results_count", "trust_scores"]
+    enforcement: "automatic"
+  
+  filter_results:
+    rule: "Filter results by trust score"
+    min_trust: 0.3
+    preferred_trust: 0.8
+    enforcement: "automatic"
+
+# ============================================
+# EXAMPLES
+# ============================================
+
+examples:
+  
+  - scenario: "User asks: 'What's new in Python 3.13?'"
+    grace_thinks: |
+      - Knowledge gap detected (new version)
+      - Should search web: YES
+      - Strategy: official_documentation_first
+      - Query: "Python 3.13 release notes"
+      - Trust filter: >= 0.9 (prefer docs.python.org)
+    
+    grace_executes:
+      - "POST /api/web-learning/search"
+      - query: "Python 3.13 new features"
+      - filter_domain: "docs.python.org"
+      - trust_threshold: 0.9
+    
+    grace_learns:
+      - Extracts new features
+      - Saves to knowledge_base
+      - Tags: ["python", "python3.13", "new_features"]
+      - Updates world model
+  
+  - scenario: "Grace encounters error: 'ModuleNotFoundError: sklearn'"
+    grace_thinks: |
+      - Error occurred
+      - Should search web: YES
+      - Strategy: solution_search
+      - Query: "sklearn module not found python fix"
+      - Prefer: stackoverflow.com, official docs
+    
+    grace_executes:
+      - "POST /api/web-learning/search"
+      - query: "sklearn ModuleNotFoundError solution"
+      - trust_threshold: 0.8
+    
+    grace_learns:
+      - Solution: pip install scikit-learn
+      - Saves pattern: sklearn imports require scikit-learn package
+      - Captures to learning_log
+  
+  - scenario: "User says: 'I want to learn about quantum computing'"
+    grace_thinks: |
+      - Topic depth needed
+      - Should search web: YES
+      - Strategy: domain_exploration + topic_learning
+      - Multiple searches needed
+    
+    grace_executes:
+      - "GET /api/web-learning/explore/quantum-computing"
+      - Then: "POST /api/web-learning/learn-topic"
+      - topics: identified subtopics
+      - duration: 30 minutes
+    
+    grace_learns:
+      - Builds comprehensive knowledge
+      - Creates learning map
+      - Identifies key resources
+      - Saves for future reference
+
+# ============================================
+# METRICS TO TRACK
+# ============================================
+
+metrics:
+  - "searches_triggered_automatically"
+  - "searches_triggered_by_user"
+  - "knowledge_gaps_filled"
+  - "average_trust_score_of_sources"
+  - "learning_success_rate"
+  - "time_to_find_answer"
+  - "sources_per_query"
+  - "governance_blocks"
+
+# ============================================
+# SUCCESS CRITERIA
+# ============================================
+
+success_criteria:
+  - "Grace autonomously searches when encountering knowledge gaps"
+  - "Grace filters sources by trust score >= 0.3"
+  - "Grace saves all learned knowledge to database"
+  - "Grace respects governance rules"
+  - "Grace tracks KPIs for all searches"
+  - "Grace can navigate from docs → examples → solutions"
+  - "Grace validates information from multiple sources"
+
+# ============================================
+# FAILURE MODES & RECOVERY
+# ============================================
+
+failure_modes:
+  
+  no_results_found:
+    recovery:
+      - "Try broader query"
+      - "Lower trust threshold to 0.2"
+      - "Try alternative search terms"
+      - "Queue for human assistance"
+  
+  all_results_low_trust:
+    recovery:
+      - "Mark as questionable knowledge"
+      - "Flag for human verification"
+      - "Don't save to knowledge base yet"
+  
+  governance_blocked:
+    recovery:
+      - "Log reason"
+      - "Request manual approval"
+      - "Try alternative approach"
+  
+  rate_limit_exceeded:
+    recovery:
+      - "Queue searches"
+      - "Prioritize by urgency"
+      - "Execute in batches"
+
+---
+
+# Grace: This playbook is your guide to the internet!
+# 
+# You now know:
+# - WHEN to search (knowledge gaps, errors, user requests)
+# - HOW to search (strategies for different scenarios)
+# - WHERE to search (trusted domains, navigation patterns)
+# - WHAT to avoid (low trust sources, sensitive topics)
+# 
+# Use this playbook to autonomously expand your knowledge! 🌐🧠
