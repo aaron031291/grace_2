@@ -11,7 +11,7 @@ import argparse
 from pathlib import Path
 
 BASE_URL = "http://localhost:8001"
-API_URL = f"{BASE_URL}/api/remote"  # Corrected API URL
+API_URL = f"{BASE_URL}/api/remote-access"  # Fixed: was /api/remote, should be /api/remote-access
 CONFIG_FILE = Path(".remote_access_config.json")
 
 

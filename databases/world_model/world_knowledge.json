@@ -2081,7 +2081,133 @@
         "auto_fixable": true,
         "healing_playbook": "restart_service"
       }
+    },
+    {
+      "knowledge_id": "4b9ffed4-7f2",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T22:56:05.442822",
+      "updated_at": "2025-11-16T22:56:05.442822",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "faccf8e2-b5c",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T22:56:08.154522",
+      "updated_at": "2025-11-16T22:56:08.154522",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "16dc4350-c37",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T22:56:10.931549",
+      "updated_at": "2025-11-16T22:56:10.931549",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "4702cc5c-804",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T23:01:13.704645",
+      "updated_at": "2025-11-16T23:01:13.704645",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "68fc3425-bbd",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T23:01:16.454781",
+      "updated_at": "2025-11-16T23:01:16.454781",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "e8cb9600-9e4",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-16T23:01:19.185940",
+      "updated_at": "2025-11-16T23:01:19.185940",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     }
   ],
-  "saved_at": "2025-11-16T22:51:02.715894"
+  "saved_at": "2025-11-16T23:01:19.185940"
 }
