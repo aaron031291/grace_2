@@ -323,6 +323,90 @@ class ServiceDiscovery:
         if service_id in self.services:
             self.services[service_id].current_load = load
     
+    async def register_service(
+        self,
+        service_id: str,
+        service_type: str,
+        capabilities: List[str],
+        host: str,
+        port: int,
+        health_endpoint: str,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """
+        Manually register a service with discovery
+        
+        Used by services that want to register themselves directly
+        (e.g., RAG service, World Model, external services)
+        
+        Args:
+            service_id: Unique service identifier
+            service_type: Type of service ('api', 'knowledge', 'kernel', 'domain', etc.)
+            capabilities: List of capabilities this service provides
+            host: Service host
+            port: Service port
+            health_endpoint: Health check endpoint path
+            metadata: Optional metadata about the service
+            
+        Returns:
+            service_id: The registered service ID
+        """
+        health_url = f"http://{host}:{port}{health_endpoint}"
+        
+        instance = ServiceInstance(
+            service_id=service_id,
+            service_type=service_type,
+            host=host,
+            port=port,
+            capabilities=capabilities,
+            health_url=health_url,
+            metadata=metadata or {}
+        )
+        
+        self.services[service_id] = instance
+        
+        # Map capabilities
+        for capability in capabilities:
+            if capability not in self.service_by_capability:
+                self.service_by_capability[capability] = []
+            if service_id not in self.service_by_capability[capability]:
+                self.service_by_capability[capability].append(service_id)
+        
+        logger.info(
+            f"[SERVICE-DISCOVERY] Registered service: {service_id} "
+            f"({service_type}) with {len(capabilities)} capabilities"
+        )
+        
+        return service_id
+    
+    async def update_service_health(
+        self,
+        service_id: str,
+        health_status: str,
+        metadata: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Update health status of a registered service
+        
+        Args:
+            service_id: Service to update
+            health_status: New health status ('healthy', 'degraded', 'unhealthy')
+            metadata: Optional health metadata
+        """
+        if service_id not in self.services:
+            logger.warning(f"[SERVICE-DISCOVERY] Cannot update health for unknown service: {service_id}")
+            return
+        
+        service = self.services[service_id]
+        service.health_status = health_status
+        service.last_health_check = datetime.utcnow().isoformat()
+        service.last_seen = datetime.utcnow().isoformat()
+        
+        if metadata:
+            service.metadata.update(metadata)
+        
+        logger.debug(f"[SERVICE-DISCOVERY] Updated health for {service_id}: {health_status}")
+    
     def get_stats(self) -> Dict[str, Any]:
         """Get service discovery statistics"""
         total = len(self.services)
