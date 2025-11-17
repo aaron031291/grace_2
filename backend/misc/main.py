@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from .models import Base, engine
 from .metrics_models import Base as MetricsBase
+import asyncio
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
 from .routes import ml_coding_api, integrations_api
 from .routes import control_api
@@ -490,15 +491,13 @@ async def shutdown_server():
     print("\n🛑 Shutdown requested via API...")
     
     # Trigger shutdown after brief delay to allow response
-    def delayed_shutdown():
-        time.sleep(1)
+    async def delayed_shutdown():
+        await asyncio.sleep(1)
         print("🛑 Initiating graceful shutdown...")
         os.kill(os.getpid(), signal.SIGTERM)
     
-    # Start shutdown in background thread
-    shutdown_thread = threading.Thread(target=delayed_shutdown)
-    shutdown_thread.daemon = True
-    shutdown_thread.start()
+    # Schedule shutdown as async task
+    asyncio.create_task(delayed_shutdown())
     
     return {"message": "Shutdown initiated", "status": "success"}
 
