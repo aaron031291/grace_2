@@ -22,10 +22,10 @@ def run_command(name: str, cmd: list, env: dict = None) -> bool:
     result = subprocess.run(cmd, env=full_env)
     
     if result.returncode == 0:
-        print(f"\n✅ {name}: PASSED")
+        print(f"\n[OK] {name}: PASSED")
         return True
     else:
-        print(f"\n❌ {name}: FAILED")
+        print(f"\n[FAIL] {name}: FAILED")
         return False
 
 def main():
@@ -62,7 +62,7 @@ def main():
         "backend", "scripts", "tests", "cli"
     ])
     results['syntax'] = result.returncode == 0
-    print(f"\n{'✅' if results['syntax'] else '❌'} Syntax Check: {'PASSED' if results['syntax'] else 'FAILED'}")
+    print(f"\n[{'OK' if results['syntax'] else 'FAIL'}] Syntax Check: {'PASSED' if results['syntax'] else 'FAILED'}")
     
     # Test 4: Guardian playbook tests
     results['guardian'] = run_command(
@@ -82,7 +82,7 @@ def main():
         "--exit-zero"
     ])
     results['lint'] = True  # Always pass (exit-zero)
-    print(f"\n✅ Lint Check: PASSED (non-blocking)")
+    print(f"\n[OK] Lint Check: PASSED (non-blocking)")
     
     # Summary
     print("\n" + "="*80)
@@ -94,7 +94,7 @@ def main():
     passed = sum(1 for r in results.values() if r)
     
     for test, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "[OK] PASS" if result else "[FAIL] FAIL"
         print(f"  {test:20s} {status}")
     
     print()
@@ -103,12 +103,12 @@ def main():
     
     if passed == total:
         print("="*80)
-        print("✅ ALL CI TESTS PASSED")
+        print("[OK] ALL CI TESTS PASSED")
         print("="*80)
         return 0
     else:
         print("="*80)
-        print(f"❌ {total - passed} CI TEST(S) FAILED")
+        print(f"[FAIL] {total - passed} CI TEST(S) FAILED")
         print("="*80)
         return 1
 

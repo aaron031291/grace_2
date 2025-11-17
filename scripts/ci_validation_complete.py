@@ -341,7 +341,8 @@ PORT = int(os.getenv("GRACE_PORT", "8001"))
           echo "- Core tests: PASS"
           echo "- Boot probe: PASS"
           echo "- Lint check: PASS (with warnings)"
-          echo "- Note: Heavy stress tests run in nightly workflow""""
+          echo "- Note: Heavy stress tests run in nightly workflow"
+"""
                 )
                 ci_yml.write_text(content)
                 self.issues_resolved.append("Updated main CI to exclude heavy tests (moved to nightly)")
