@@ -542,8 +542,9 @@ if __name__ == "__main__":
             input("\nPress Enter to exit...")
         sys.exit(1)
     
-    # Get port from Guardian's boot result
-    port = get_guardian_allocated_port(boot_result)
+    # Get port: GRACE_PORT env var takes precedence, then Guardian's allocation
+    from backend.config.environment import GRACE_PORT
+    port = GRACE_PORT if GRACE_PORT != 8000 else get_guardian_allocated_port(boot_result)
     
     if not port:
         print("[ERROR] Guardian did not allocate a port")

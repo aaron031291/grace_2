@@ -1,0 +1,27 @@
+{
+  "capture_timestamp": "2025-11-17T16:11:47.309922",
+  "boot_metrics": {
+    "guardian_boot_time_seconds": 0.06166672706604004,
+    "guardian_port": 8050,
+    "total_boot_time_seconds": 0.29435014724731445,
+    "chunks_boot_time_seconds": 0.05049395561218262,
+    "boot_success": true
+  },
+  "memory_metrics": {
+    "baseline_memory_mb": 25.31640625,
+    "post_boot_memory_mb": 45.54296875,
+    "boot_memory_increase_mb": 20.2265625,
+    "system_memory_available_mb": 42452.9296875,
+    "system_memory_percent_used": 32.7
+  },
+  "api_metrics": {
+    "total_endpoints": 292,
+    "endpoint_count": 292
+  },
+  "system_info": {
+    "cpu_count": 32,
+    "total_memory_mb": 63091.88671875,
+    "python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "platform": "win32"
+  }
+}

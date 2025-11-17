@@ -102,12 +102,33 @@ def test_fastapi_app_creation():
         print(f"FAIL {e}")
         return False
 
-def test_route_registration():
-    """Test core routes are registered"""
-    print("[6/7] Testing route registration...", end=" ")
-    # Skip in OFFLINE_MODE due to model import issues
-    print("SKIP (offline mode)")
-    return True
+def test_chunks_0_to_4():
+    """Test Grace chunks 0-4 can boot in offline/dry-run mode"""
+    print("[6/7] Testing chunks 0-4 boot...", end=" ")
+    try:
+        import asyncio
+        
+        # Test Guardian boot (chunk 0)
+        from backend.core.guardian import guardian
+        result = asyncio.run(guardian.boot())
+        assert 'phases' in result, "Guardian should return boot phases"
+        assert 'phase3_ports' in result['phases'], "Guardian should allocate port"
+        
+        # Test remaining chunks can at least import
+        from backend.main import app  # Chunk 3
+        from pathlib import Path
+        db_dir = Path("databases")  # Chunk 4
+        
+        from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager  # Chunk 5
+        learning_whitelist_manager.load_whitelist()
+        
+        print("OK")
+        return True
+    except Exception as e:
+        print(f"FAIL {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 def test_boot_time():
     """Test boot time is acceptable"""
@@ -149,7 +170,7 @@ def main():
         test_metrics_initialization,
         test_database_models,
         test_fastapi_app_creation,
-        test_route_registration,
+        test_chunks_0_to_4,
         test_boot_time,
     ]
     
