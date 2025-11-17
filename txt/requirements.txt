@@ -16,6 +16,7 @@ aiofiles>=23.2.1
 alembic>=1.13.1
 passlib[bcrypt]>=1.7.4
 pip-audit>=2.7.3
+watchdog>=2.3.0
 
 # Business Empire Dependencies
 stripe>=7.0.0
