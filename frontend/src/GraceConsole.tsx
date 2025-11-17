@@ -7,10 +7,13 @@ import TaskManager from './panels/TaskManager';
 import ChatPane from './panels/ChatPane';
 import MemoryExplorer from './panels/MemoryExplorer';
 import WorkspaceManager from './panels/WorkspaceManager.enhanced';
+import GovernanceConsole from './panels/GovernanceConsole';
+import MCPToolsPanel from './panels/MCPToolsPanel';
+import SecretsVault from './panels/SecretsVault';
 
 import './GraceConsole.css';
 
-type PanelType = 'logs' | 'tasks' | 'chat' | 'memory' | 'workspace';
+type PanelType = 'logs' | 'tasks' | 'chat' | 'memory' | 'workspace' | 'governance' | 'mcp' | 'vault';
 
 interface LayoutConfig {
   main: PanelType;
@@ -79,6 +82,15 @@ export default function GraceConsole() {
       case 'memory':
         return <MemoryExplorer />;
       
+      case 'governance':
+        return <GovernanceConsole />;
+      
+      case 'mcp':
+        return <MCPToolsPanel />;
+      
+      case 'vault':
+        return <SecretsVault />;
+      
       case 'workspace':
         return (
           <WorkspaceManager
@@ -127,6 +139,27 @@ export default function GraceConsole() {
             title="Memory Explorer"
           >
             🧠 Memory
+          </button>
+          <button 
+            className={layout.main === 'governance' ? 'active' : ''}
+            onClick={() => swapPanel('main', 'governance')}
+            title="Governance & Approvals"
+          >
+            ⚖️ Governance
+          </button>
+          <button 
+            className={layout.main === 'mcp' ? 'active' : ''}
+            onClick={() => swapPanel('main', 'mcp')}
+            title="MCP Tools"
+          >
+            🔧 MCP
+          </button>
+          <button 
+            className={layout.main === 'vault' ? 'active' : ''}
+            onClick={() => swapPanel('main', 'vault')}
+            title="Secrets Vault"
+          >
+            🔐 Vault
           </button>
           <button 
             className={layout.sidebar === 'tasks' || layout.main === 'tasks' ? 'active' : ''}
@@ -232,7 +265,10 @@ function getPanelTitle(type: PanelType): string {
     tasks: 'Mission Control',
     chat: 'Grace Chat',
     memory: 'Memory Explorer',
-    workspace: 'Workspace'
+    workspace: 'Workspace',
+    governance: 'Governance',
+    mcp: 'MCP Tools',
+    vault: 'Secrets Vault'
   };
   return titles[type] || type;
 }
