@@ -11,6 +11,7 @@ from backend.models.base_models import Base
 class SecurityEvent(Base):
     """Security event logging"""
     __tablename__ = "security_event_logs"
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True)
     event_type = Column(String(100), nullable=False, index=True)
