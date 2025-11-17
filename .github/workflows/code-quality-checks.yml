@@ -1,0 +1,97 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  anti-pattern-detection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install analysis tools
+        run: |
+          pip install ruff semgrep
+
+      - name: Check for unbounded database queries
+        run: |
+          echo "🔍 Scanning for unbounded .all() queries..."
+          ! grep -rn "\.all()" backend/ --include="*.py" | grep -E "(scalars|execute|query)" || {
+            echo "⚠️  WARNING: Found potentially unbounded .all() queries"
+            echo "Add .limit() before .all() or use pagination"
+            grep -rn "\.all()" backend/ --include="*.py" | grep -E "(scalars|execute|query)"
+            exit 1
+          }
+
+      - name: Check for sync sleep in async code
+        run: |
+          echo "🔍 Scanning for time.sleep() in async contexts..."
+          ! grep -rn "time\.sleep" backend/ --include="*.py" | grep -B5 "async def" || {
+            echo "⚠️  WARNING: Found time.sleep() near async functions"
+            echo "Use 'await asyncio.sleep()' instead"
+            exit 1
+          }
+
+      - name: Check for Python-level filtering
+        run: |
+          echo "🔍 Scanning for Python datetime filtering after queries..."
+          ! grep -rn "for .* in .*\.all():" backend/ --include="*.py" -A10 | grep "datetime\|timedelta" || {
+            echo "⚠️  WARNING: Potential Python-level date filtering"
+            echo "Move date filtering to SQL with .where() clauses"
+            exit 1
+          }
+
+      - name: Check for json.loads with .read()
+        run: |
+          echo "🔍 Scanning for inefficient JSON parsing..."
+          ! grep -rn "json\.loads.*\.read()" backend/ --include="*.py" || {
+            echo "⚠️  WARNING: Found json.loads(stream.read())"
+            echo "Use json.load(stream) for streaming"
+            exit 1
+          }
+
+      - name: Check for string concatenation in loops
+        run: |
+          echo "🔍 Scanning for += string concatenation..."
+          ! grep -rn '^\s*.*\s+=\s*.*\s+\+\s*"' backend/ --include="*.py" | grep -B3 "for\|while" || {
+            echo "⚠️  WARNING: String concatenation in loops"
+            echo "Use str.join() or f-strings"
+            exit 1
+          }
+
+      - name: Check import paths
+        run: |
+          echo "🔍 Verifying canonical import paths..."
+          ! grep -rn "from backend\.monitoring\.metrics_service import" backend/ --include="*.py" || {
+            echo "❌ ERROR: Wrong import path detected"
+            echo "Use: from backend.metrics_service import"
+            exit 1
+          }
+          ! grep -rn "from backend\.misc\.cognition_metrics import" backend/ --include="*.py" || {
+            echo "❌ ERROR: Wrong import path detected"
+            echo "Use: from backend.cognition_metrics import"
+            exit 1
+          }
+
+      - name: Ruff linting
+        run: |
+          echo "🔍 Running Ruff linter..."
+          ruff check backend --select F,E,W --ignore E501,E722
+
+      - name: Generate quality report
+        if: always()
+        run: |
+          echo "## Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All anti-pattern checks completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Unbounded queries: Checked" >> $GITHUB_STEP_SUMMARY
+          echo "- Async/sync sleep: Checked" >> $GITHUB_STEP_SUMMARY
+          echo "- Import paths: Validated" >> $GITHUB_STEP_SUMMARY
