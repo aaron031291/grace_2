@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-11-17T15:23:09.955660",
+  "timestamp": "2025-11-17T16:08:33.513786",
   "metrics": {
     "precision_at_1": 1.0,
     "precision_at_5": 0.6,
     "precision_at_10": 0.3,
     "mean_reciprocal_rank": 1.0,
-    "average_latency_ms": 15.600000007543713,
+    "average_latency_ms": 15.59999999590218,
     "total_questions": 5,
     "by_domain": {
       "core": {
