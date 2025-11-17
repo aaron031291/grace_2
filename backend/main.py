@@ -17,6 +17,8 @@ from backend.routes.auth import router as auth_router
 from backend.routes.learning_visibility_api import router as learning_visibility_router
 from backend.routes.port_manager_api import router as port_manager_router
 from backend.routes.guardian_api import router as guardian_router
+from backend.routes.ingest import router as ingest_router
+from backend.routes.vault_api import router as vault_router
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -59,6 +61,12 @@ app.include_router(guardian_router)
 
 # Register learning visibility & tracking
 app.include_router(learning_visibility_router)
+
+# Register ingestion API
+app.include_router(ingest_router)
+
+# Register vault API (secrets management)
+app.include_router(vault_router)
 
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:

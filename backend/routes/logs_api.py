@@ -98,6 +98,56 @@ async def logs_health():
     }
 
 
+# ==================== Governance Logs ====================
+
+@router.get("/governance")
+async def get_governance_logs(
+    limit: int = Query(100, ge=1, le=1000),
+    level: Optional[str] = None,
+    search: Optional[str] = None
+):
+    """
+    Get governance-specific log entries
+    
+    Filters for logs related to governance events like:
+    - Policy approvals/denials
+    - Security events
+    - Access control changes
+    - Compliance events
+    
+    Query Parameters:
+    - limit: Max number of logs to return (default 100)
+    - level: Filter by log level (info, warning, error, success)
+    - search: Search in log messages
+    """
+    # Filter for governance-related domains
+    governance_domains = ['governance', 'security', 'compliance', 'audit', 'policy', 'access']
+    
+    filtered_logs = [
+        log for log in recent_logs 
+        if log.get('domain') in governance_domains or 
+           any(domain in log.get('message', '').lower() for domain in governance_domains)
+    ]
+    
+    # Apply additional filters
+    if level:
+        filtered_logs = [log for log in filtered_logs if log.get('level') == level]
+    
+    if search:
+        search_lower = search.lower()
+        filtered_logs = [
+            log for log in filtered_logs 
+            if search_lower in log.get('message', '').lower()
+        ]
+    
+    return {
+        "logs": filtered_logs[:limit],
+        "total": len(filtered_logs),
+        "limit": limit,
+        "governance_only": True
+    }
+
+
 # WebSocket for live log streaming
 active_connections: List[WebSocket] = []
 
