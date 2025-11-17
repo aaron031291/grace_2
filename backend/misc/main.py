@@ -26,7 +26,7 @@ from .routers.temporal_domain import router as temporal_domain_router
 from .routers.parliament_domain import router as parliament_domain_router
 from .routers.federation_domain import router as federation_domain_router
 from .routers.speech_domain import router as speech_domain_router
-from .metrics_service import init_metrics_collector
+from backend.metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
 
@@ -543,8 +543,8 @@ async def api_status():
     """
     try:
         # Lazy imports to avoid startup import ordering issues
-        from .metrics_service import get_metrics_collector
-        from .cognition_metrics import get_metrics_engine
+        from backend.metrics_service import get_metrics_collector
+        from backend.cognition_metrics import get_metrics_engine
 
         collector = get_metrics_collector()
         engine = get_metrics_engine()

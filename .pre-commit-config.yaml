@@ -1,0 +1,30 @@
+# Pre-commit hooks to catch anti-patterns before commit
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-unbounded-queries
+        name: Check for unbounded database queries
+        entry: bash -c 'if grep -rn "\.all()" --include="*.py" | grep -E "(scalars|execute|query)" | grep -v "limit\|offset"; then echo "ERROR: Unbounded .all() query found. Add .limit()"; exit 1; fi'
+        language: system
+        files: \.py$
+
+      - id: check-async-sleep
+        name: Check for sync sleep in async code
+        entry: bash -c 'if grep -rn "time\.sleep" --include="*.py"; then echo "ERROR: Use asyncio.sleep() in async code"; exit 1; fi'
+        language: system
+        files: \.py$
+
+      - id: check-import-paths
+        name: Verify canonical import paths
+        entry: bash -c 'if grep -rn "from backend\.monitoring\.metrics_service\|from backend\.misc\.cognition_metrics" --include="*.py"; then echo "ERROR: Use canonical import paths (backend.metrics_service, backend.cognition_metrics)"; exit 1; fi'
+        language: system
+        files: \.py$
+
+      - id: check-json-parsing
+        name: Check for inefficient JSON parsing
+        entry: bash -c 'if grep -rn "json\.loads.*\.read()" --include="*.py"; then echo "WARNING: Use json.load(stream) for streaming"; exit 0; fi'
+        language: system
+        files: \.py$
+        verbose: true
