@@ -76,6 +76,12 @@ except ImportError as e:
     print(f"[WARN] Guardian API disabled: {e}")
 
 try:
+    from backend.api.guardian_stats import router as guardian_stats_router
+    app.include_router(guardian_stats_router)
+except ImportError as e:
+    print(f"[WARN] Guardian Stats API disabled: {e}")
+
+try:
     from backend.routes.learning_visibility_api import router as learning_visibility_router
     app.include_router(learning_visibility_router)
 except ImportError as e:
