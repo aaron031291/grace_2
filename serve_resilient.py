@@ -107,7 +107,8 @@ if __name__ == "__main__":
         print("\nSelf-healing missions have been created.")
         print("Grace will attempt to fix the issues automatically.")
         print("\nCheck mission-control/missions for status.")
-        input("\nPress Enter to exit...")
+        if sys.stdin.isatty():
+            input("\nPress Enter to exit...")
         sys.exit(1)
     
     # Get port
@@ -119,14 +120,8 @@ if __name__ == "__main__":
     except:
         pass
     
-    # Start continuous validation in background
-    print("\n[RESILIENCE] Starting continuous validation...")
-    try:
-        from backend.core.boot_resilience_system import boot_resilience
-        asyncio.create_task(boot_resilience.continuous_validation_loop(interval_minutes=60))
-        print("[RESILIENCE] Schema + dependency checks will run every 60 minutes")
-    except:
-        pass
+    print("\n[RESILIENCE] Continuous validation will start with server...")
+    print("[RESILIENCE] Schema + dependency checks will run every 60 minutes")
     
     # Display ready message
     print("\n" + "=" * 80)

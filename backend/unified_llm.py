@@ -85,57 +85,84 @@ class UnifiedLLM:
             except Exception as e:
                 print(f"Memory enrichment skipped: {e}")
         
-        # Step 2: Try Ollama models (open-source, free, local)
-        # Try multiple models in priority order
-        for model in self.models:
-            try:
-                async with httpx.AsyncClient() as client:
-                    # Build conversation history
-                    messages = [
-                        {
-                            "role": "system",
-                            "content": self._build_system_prompt(memory_results)
+        # Step 2: Use Model Orchestrator for intelligent routing
+        try:
+            selected_model = await model_orchestrator.select_best_model(
+                task=message,
+                context=context
+            )
+            print(f"[Model Router] Selected: {selected_model}")
+        except Exception as e:
+            print(f"[Model Router] Fallback to default: {e}")
+            selected_model = self.models[0]
+        
+        # Step 3: Try selected model with learning feedback
+        try:
+            async with httpx.AsyncClient() as client:
+                # Build conversation history
+                messages = [
+                    {
+                        "role": "system",
+                        "content": self._build_system_prompt(memory_results)
+                    }
+                ]
+                
+                # Add context history
+                if context:
+                    messages.extend(context[-5:])  # Last 5 exchanges
+                
+                messages.append({"role": "user", "content": enriched_context})
+                    
+                start_time = datetime.now()
+                ollama_response = await client.post(
+                    f"{self.ollama_url}/api/chat",
+                    json={
+                        "model": selected_model,
+                        "messages": messages,
+                        "stream": False,
+                        "options": {
+                            "temperature": 0.8,
+                            "num_predict": 600
                         }
-                    ]
+                    },
+                    timeout=30.0
+                )
+                
+                if ollama_response.status_code == 200:
+                    result = ollama_response.json()
+                    response_text = result["message"]["content"]
+                    latency_ms = (datetime.now() - start_time).total_seconds() * 1000
                     
-                    # Add context history
-                    if context:
-                        messages.extend(context[-5:])  # Last 5 exchanges
-                    
-                    messages.append({"role": "user", "content": enriched_context})
-                    
-                    ollama_response = await client.post(
-                        f"{self.ollama_url}/api/chat",
-                        json={
-                            "model": self.ollama_model,
-                            "messages": messages,
-                            "stream": False,
-                            "options": {
-                                "temperature": 0.8,
-                                "num_predict": 600
-                            }
-                        },
-                        timeout=30.0
+                    await model_orchestrator._record_performance(
+                        model=selected_model,
+                        task=message,
+                        success=True,
+                        latency_ms=latency_ms,
+                        quality_score=0.8  # Default, can be improved with verification
                     )
                     
-                    if ollama_response.status_code == 200:
-                        result = ollama_response.json()
-                        response_text = result["message"]["content"]
-                        
-                        # Step 3: Route through agentic spine (if enabled)
-                        if use_agentic and self._should_execute_task(message, response_text):
-                            response_text = await self._route_to_agentic(message, response_text)
-                        
-                        return {
-                            "text": response_text,
-                            "provider": "ollama",
-                            "model": self.ollama_model,
-                            "memory_used": len(memory_results) > 0,
-                            "agentic_routing": use_agentic,
-                            "timestamp": datetime.now().isoformat()
-                        }
-            except Exception as ollama_error:
-                print(f"Ollama not available: {ollama_error}")
+                    # Step 4: Route through agentic spine (if enabled)
+                    if use_agentic and self._should_execute_task(message, response_text):
+                        response_text = await self._route_to_agentic(message, response_text)
+                    
+                    return {
+                        "text": response_text,
+                        "provider": "ollama",
+                        "model": selected_model,
+                        "latency_ms": latency_ms,
+                        "memory_used": len(memory_results) > 0,
+                        "agentic_routing": use_agentic,
+                        "timestamp": datetime.now().isoformat()
+                    }
+        except Exception as ollama_error:
+            print(f"Ollama error with {selected_model}: {ollama_error}")
+            await model_orchestrator._record_performance(
+                model=selected_model,
+                task=message,
+                success=False,
+                latency_ms=0,
+                quality_score=0.0
+            )
         
         # Step 4: Try OpenAI GPT-4
         if self.openai_key:

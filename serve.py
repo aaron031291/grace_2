@@ -316,56 +316,140 @@ async def boot_grace_minimal():
         async def chunk_6_trust_framework():
             print("[CHUNK 6] TRUST Framework + External Model Protocol...")
             
-            from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
-            from backend.trust_framework.verification_mesh import verification_mesh
-            from backend.trust_framework.model_health_telemetry import model_health_registry
-            from backend.trust_framework.adaptive_guardrails import adaptive_guardrails
-            from backend.trust_framework.ahead_of_user_research import ahead_of_user_research
-            from backend.trust_framework.data_hygiene_pipeline import data_hygiene_pipeline
-            from backend.trust_framework.hallucination_ledger import hallucination_ledger
-            from backend.external_integration.external_model_protocol import external_model_protocol
-            from backend.core.advanced_watchdog import advanced_watchdog
-            from backend.trust_framework.model_integrity_system import model_integrity_registry
-            from backend.trust_framework.model_rollback_system import model_rollback_system
-            from backend.trust_framework.metrics_aggregator import metrics_collector
-            from backend.trust_framework.alert_system import alert_system
-            from backend.trust_framework.trend_analyzer import trend_analyzer
-            
-            print(f"  [OK] HTM Anomaly Detection: Active")
-            print(f"  [OK] Verification Mesh: 5-role quorum")
-            print(f"  [OK] Model Health Telemetry: 20 monitors")
-            print(f"  [OK] Adaptive Guardrails: 4 levels")
-            print(f"  [OK] Ahead-of-User Research: Predictive")
-            print(f"  [OK] Data Hygiene Pipeline: 6 checks")
-            print(f"  [OK] Hallucination Ledger: Tracking")
-            print(f"  [OK] External Model Protocol: Secure (HMAC, rate-limited, audited)")
-            print(f"  [OK] Advanced Watchdog: Predictive failure detection")
-            print(f"  [OK] Model Integrity System: Checksum + behavioral verification")
-            print(f"  [OK] Model Rollback: Snapshot-based recovery")
-            print(f"  [OK] Metrics Aggregator: Time-series collection")
-            print(f"  [OK] Alert System: Multi-channel notifications")
-            print(f"  [OK] Trend Analyzer: Historical analysis & prediction")
-            
-            # Start advanced watchdog
-            await advanced_watchdog.start()
-            
-            # Start metrics collection
-            await metrics_collector.start(interval_seconds=60)
-            
-            return {
-                'htm_active': True,
-                'verification_mesh_active': True,
-                'model_monitors': 20,
-                'guardrail_levels': 4,
-                'systems_loaded': 14,
-                'external_protocol_active': True,
-                'advanced_watchdog_active': True,
-                'model_integrity_active': True,
-                'model_rollback_active': True,
-                'metrics_collector_active': True,
-                'alert_system_active': True,
-                'trend_analyzer_active': True
+            results = {
+                'systems_loaded': 0,
+                'degraded': []
             }
+            
+            try:
+                from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+                print(f"  [OK] HTM Anomaly Detection: Active")
+                results['htm_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] HTM Anomaly Detection degraded: {e}")
+                results['degraded'].append('htm_anomaly_detector')
+            
+            try:
+                from backend.trust_framework.verification_mesh import verification_mesh
+                print(f"  [OK] Verification Mesh: 5-role quorum")
+                results['verification_mesh_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Verification Mesh degraded: {e}")
+                results['degraded'].append('verification_mesh')
+            
+            try:
+                from backend.trust_framework.model_health_telemetry import model_health_registry
+                print(f"  [OK] Model Health Telemetry: 20 monitors")
+                results['model_monitors'] = 20
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Model Health Telemetry degraded: {e}")
+                results['degraded'].append('model_health_telemetry')
+            
+            try:
+                from backend.trust_framework.adaptive_guardrails import adaptive_guardrails
+                print(f"  [OK] Adaptive Guardrails: 4 levels")
+                results['guardrail_levels'] = 4
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Adaptive Guardrails degraded: {e}")
+                results['degraded'].append('adaptive_guardrails')
+            
+            try:
+                from backend.trust_framework.ahead_of_user_research import ahead_of_user_research
+                print(f"  [OK] Ahead-of-User Research: Predictive")
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Ahead-of-User Research degraded: {e}")
+                results['degraded'].append('ahead_of_user_research')
+            
+            try:
+                from backend.trust_framework.data_hygiene_pipeline import data_hygiene_pipeline
+                print(f"  [OK] Data Hygiene Pipeline: 6 checks")
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Data Hygiene Pipeline degraded: {e}")
+                results['degraded'].append('data_hygiene_pipeline')
+            
+            try:
+                from backend.trust_framework.hallucination_ledger import hallucination_ledger
+                print(f"  [OK] Hallucination Ledger: Tracking")
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Hallucination Ledger degraded: {e}")
+                results['degraded'].append('hallucination_ledger')
+            
+            try:
+                from backend.external_integration.external_model_protocol import external_model_protocol
+                print(f"  [OK] External Model Protocol: Secure (HMAC, rate-limited, audited)")
+                results['external_protocol_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] External Model Protocol degraded: {e}")
+                results['degraded'].append('external_model_protocol')
+            
+            try:
+                from backend.core.advanced_watchdog import advanced_watchdog
+                print(f"  [OK] Advanced Watchdog: Predictive failure detection")
+                await advanced_watchdog.start()
+                results['advanced_watchdog_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Advanced Watchdog degraded: {e}")
+                results['degraded'].append('advanced_watchdog')
+            
+            try:
+                from backend.trust_framework.model_integrity_system import model_integrity_registry
+                print(f"  [OK] Model Integrity System: Checksum + behavioral verification")
+                results['model_integrity_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Model Integrity System degraded: {e}")
+                results['degraded'].append('model_integrity_system')
+            
+            try:
+                from backend.trust_framework.model_rollback_system import model_rollback_system
+                print(f"  [OK] Model Rollback: Snapshot-based recovery")
+                results['model_rollback_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Model Rollback degraded: {e}")
+                results['degraded'].append('model_rollback_system')
+            
+            try:
+                from backend.trust_framework.metrics_aggregator import metrics_collector
+                print(f"  [OK] Metrics Aggregator: Time-series collection")
+                await metrics_collector.start(interval_seconds=60)
+                results['metrics_collector_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Metrics Aggregator degraded: {e}")
+                results['degraded'].append('metrics_aggregator')
+            
+            try:
+                from backend.trust_framework.alert_system import alert_system
+                print(f"  [OK] Alert System: Multi-channel notifications")
+                results['alert_system_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Alert System degraded: {e}")
+                results['degraded'].append('alert_system')
+            
+            try:
+                from backend.trust_framework.trend_analyzer import trend_analyzer
+                print(f"  [OK] Trend Analyzer: Historical analysis & prediction")
+                results['trend_analyzer_active'] = True
+                results['systems_loaded'] += 1
+            except Exception as e:
+                print(f"  [WARN] Trend Analyzer degraded: {e}")
+                results['degraded'].append('trend_analyzer')
+            
+            if results['degraded']:
+                print(f"  [WARN] {len(results['degraded'])} TRUST systems degraded")
+            
+            return results
         
         boot_orchestrator.register_chunk(BootChunk(
             chunk_id="trust_framework",
@@ -454,7 +538,8 @@ if __name__ == "__main__":
     
     if not boot_result or isinstance(boot_result, bool) and not boot_result:
         print("Failed to boot Grace. Exiting.")
-        input("\nPress Enter to exit...")
+        if sys.stdin.isatty():
+            input("\nPress Enter to exit...")
         sys.exit(1)
     
     # Get port from Guardian's boot result
