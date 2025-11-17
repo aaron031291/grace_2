@@ -3,7 +3,7 @@ Book Automation Rules - Automated workflows for book ingestion
 Handles: auto-detection, pipeline triggering, monitoring
 """
 
-from typing import Dict, Any, List
+from typing import Dict, List
 from datetime import datetime
 from pathlib import Path
 import json

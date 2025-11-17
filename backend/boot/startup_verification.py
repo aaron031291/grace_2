@@ -3,7 +3,7 @@ Startup Verification System
 Verifies all Grace systems initialized correctly and reports status
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import logging

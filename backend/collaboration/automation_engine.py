@@ -2,7 +2,6 @@
 Automation Engine
 Trigger-based automation for workflows and tasks
 """
-import asyncio
 import logging
 from typing import Dict, Any, List, Callable, Optional
 from datetime import datetime

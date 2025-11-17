@@ -4,7 +4,7 @@ Grace analyzes her own performance, identifies improvement areas, and sets goals
 """
 
 from typing import Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 
 from .grace_log_reader import grace_log_reader

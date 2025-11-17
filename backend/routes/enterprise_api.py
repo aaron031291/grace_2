@@ -2,9 +2,8 @@
 Enterprise API - Tenancy, Billing, RBAC, Templates, DR
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/enterprise", tags=["enterprise"])
 

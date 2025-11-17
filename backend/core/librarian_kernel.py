@@ -7,15 +7,13 @@ NOT simulated - actually ingests and processes files
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 from pathlib import Path
 import logging
 
 from .message_bus import message_bus, MessagePriority
-from .immutable_log import immutable_log
 from .kernel_sdk import KernelSDK
-from .schemas import MessageType
 
 logger = logging.getLogger(__name__)
 

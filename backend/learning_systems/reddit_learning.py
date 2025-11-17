@@ -8,7 +8,6 @@ import aiohttp
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
-import re
 import os
 import praw
 from praw.exceptions import PRAWException
@@ -16,7 +15,6 @@ from praw.exceptions import PRAWException
 from .governance_framework import governance_framework
 from .constitutional_engine import constitutional_engine
 from .knowledge_provenance import provenance_tracker
-from .unified_logger import unified_logger
 from .secrets_vault import secrets_vault
 
 logger = logging.getLogger(__name__)

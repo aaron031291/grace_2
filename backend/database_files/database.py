@@ -5,7 +5,7 @@ Provides async database access using aiosqlite with helper methods
 
 import aiosqlite
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional
 
 
 # Database path

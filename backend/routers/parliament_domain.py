@@ -12,7 +12,7 @@ Canonical Verbs: propose, vote, approve, audit, escalate, override
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 
 from ..auth import get_current_user

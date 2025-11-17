@@ -11,7 +11,6 @@ from typing import Dict, Any, List, Optional, Tuple, Callable, Awaitable
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 
 from backend.logging.immutable_log import immutable_log
 

@@ -15,7 +15,6 @@ Integration:
 """
 
 import os
-import sys
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass
 from enum import Enum

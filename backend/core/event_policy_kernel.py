@@ -1,7 +1,5 @@
 """Event Policy Kernel - Simple Working Version"""
-import asyncio
 from backend.core.kernel_sdk import KernelSDK
-from backend.core.message_bus import message_bus, MessagePriority
 
 
 class EventPolicyKernel(KernelSDK):

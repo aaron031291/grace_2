@@ -5,13 +5,12 @@ Unified enforcement of Constitution + Guardrails + Whitelists
 
 import yaml
 import re
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pathlib import Path
 from datetime import datetime
 import logging
 
 from .constitutional_engine import ConstitutionalEngine
-from .governance import governance_engine
 from .immutable_log import ImmutableLog
 from .metric_publishers import CoreMetrics
 

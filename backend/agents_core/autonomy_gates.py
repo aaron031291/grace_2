@@ -5,7 +5,6 @@ Pillar 2: Governance + Safety Gates
 Implements 3-tier autonomy system with intent routing and verification bundles.
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field, asdict

@@ -5,7 +5,7 @@ Monitors conditions and triggers alerts for dashboard
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 from enum import Enum
 

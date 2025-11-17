@@ -1,7 +1,5 @@
 """PagerDuty integration for incident management and escalation"""
 
-import asyncio
-import json
 from typing import Dict, Any, Optional
 from datetime import datetime
 from backend.trigger_mesh import trigger_mesh, TriggerEvent

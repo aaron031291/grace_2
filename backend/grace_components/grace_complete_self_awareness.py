@@ -20,10 +20,9 @@ Not just Transcendence - EVERYTHING:
 Grace can explain ANYTHING about herself.
 """
 
-from typing import Dict, Any, List, Optional
-from pathlib import Path
+from typing import Dict, Any
 
-from .transcendence.self_awareness import GraceSelfAwareness, ComponentKnowledge
+from .transcendence.self_awareness import ComponentKnowledge
 from .models import async_session
 
 class GraceCompleteKnowledgeBase:

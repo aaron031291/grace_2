@@ -162,7 +162,7 @@ class KnowledgeDomainAdapter(DomainAdapter):
     async def collect_metrics(self) -> DomainMetrics:
         try:
             from ..models import async_session
-            from sqlalchemy import select, func, text
+            from sqlalchemy import text
             
             async with async_session() as session:
                 # Try to count knowledge entities (table might not exist)

@@ -73,7 +73,6 @@ async def upload_book(
         pipeline = get_pipeline()
         
         # Process immediately (runs full pipeline automatically)
-        import asyncio
         pipeline_result = await pipeline.process_upload(
             file_path=file_path,
             title=metadata["title"],

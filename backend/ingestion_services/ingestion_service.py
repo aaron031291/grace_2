@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-from typing import Optional, Dict
 from pathlib import Path
 import asyncio
 from sqlalchemy.exc import OperationalError

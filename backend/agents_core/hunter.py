@@ -3,7 +3,7 @@ Hunter Engine for Elite Coding Agent
 Tracks code execution, debugging, and issue detection
 """
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 

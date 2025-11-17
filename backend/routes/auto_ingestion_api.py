@@ -6,7 +6,7 @@ Manage automatic file ingestion and approval workflows
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 import logging
 from pathlib import Path
 

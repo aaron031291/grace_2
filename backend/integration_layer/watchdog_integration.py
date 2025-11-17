@@ -4,7 +4,7 @@ Maps anomalies to playbooks and captures outcomes for learning
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,6 @@ async def setup_watchdog_integration():
     
     try:
         from backend.trigger_mesh import trigger_mesh
-        from backend.anomaly_watchdog import anomaly_watchdog
         from backend.capa_system import capa_system, CAPAType, CAPASeverity
         
         # Track playbook execution outcomes

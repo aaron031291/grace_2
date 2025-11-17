@@ -1,8 +1,4 @@
-from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from .models import Base, engine
-from .metrics_models import Base as MetricsBase
+from fastapi import Depends
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api
 from .transcendence.dashboards.observatory_dashboard import router as dashboard_router
 from .transcendence.business.api import router as business_api_router
@@ -14,8 +10,6 @@ from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
 from backend.metrics_service import init_metrics_collector
-from .request_id_middleware import RequestIDMiddleware
-from .logging_utils import ensure_utf8_console
 
 
 async def init_database():

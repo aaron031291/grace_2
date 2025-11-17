@@ -9,9 +9,8 @@ Uses extracted terminology to find and ingest REAL data:
 - Libraries (actual source code)
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List
 from datetime import datetime
 from pathlib import Path
 import aiohttp

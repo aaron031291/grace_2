@@ -11,9 +11,8 @@ Features:
 """
 
 import asyncio
-import subprocess
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -276,7 +275,6 @@ class CodingAgentVerificationLoop:
         """Close incident after successful verification"""
         
         try:
-            from .error_recognition_system import error_recognition_system
             
             # If this was a known signature fix, update confidence
             signature_id = task.requirements.get('signature', {}).get('signature_id')

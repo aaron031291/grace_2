@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from sqlalchemy import select, exists
+from sqlalchemy import exists
 
 from ..security.auth import get_current_user
 from ..ingestion_services.ingestion_service import ingestion_service
@@ -9,12 +9,6 @@ from ..knowledge.trusted_sources import trust_manager
 from ..verification_system.verification import verification_engine
 from ..verification_system.verification_middleware import verify_action
 from ..models.knowledge_models import KnowledgeTombstone
-from ..models.schemas_extended import (
-    IngestTextResponse,
-    IngestUrlResponse,
-    IngestFileResponse,
-    IngestArtifactsListResponse
-)
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 

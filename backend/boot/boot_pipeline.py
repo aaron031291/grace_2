@@ -20,7 +20,7 @@ import json
 import sqlite3
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -259,7 +259,6 @@ class BootPipeline:
         print("  [2/4] Trigger mesh...")
         try:
             sys.path.insert(0, str(self.project_root))
-            from backend.trigger_mesh import trigger_mesh
             services_started.append("trigger_mesh")
             print("    [OK] Trigger mesh loaded")
         except Exception as e:
@@ -269,7 +268,6 @@ class BootPipeline:
         # Metrics collector
         print("  [3/4] Metrics collector...")
         try:
-            from backend.metrics_collector import metrics_collector
             services_started.append("metrics_collector")
             print("    [OK] Metrics collector loaded")
         except Exception as e:
@@ -279,7 +277,6 @@ class BootPipeline:
         # Governance
         print("  [4/4] Governance framework...")
         try:
-            from backend.governance import governance_engine
             services_started.append("governance")
             print("    [OK] Governance loaded")
         except Exception as e:

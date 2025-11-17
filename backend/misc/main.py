@@ -1,10 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from backend.models.models import Base, engine
-from backend.models.metrics_models import Base as MetricsBase
 import asyncio
-from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
+from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, memory_api, websocket_routes, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
 from .routes import ml_coding_api, integrations_api
 from .routes import control_api
 from .routes import remote_access_api
@@ -86,7 +84,6 @@ async def on_startup():
 
     # Compatibility shim: ensure verification_events.passed column exists
     try:
-        from sqlalchemy import text
         async with engine.begin() as conn:
             # SQLite pragma to list columns
             result = await conn.exec_driver_sql("PRAGMA table_info(verification_events);")
@@ -481,8 +478,6 @@ async def on_shutdown():
         pass
 
 import signal
-import threading
-import time
 
 # Add shutdown endpoint
 @app.post("/shutdown")

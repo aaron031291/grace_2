@@ -14,7 +14,7 @@ import shutil
 import os
 import psutil
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime, timezone
 
 

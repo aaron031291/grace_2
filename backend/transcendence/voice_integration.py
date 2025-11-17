@@ -10,15 +10,12 @@ Persistent voice for ALL Transcendence operations:
 All stored, verified, and trust-scored.
 """
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime
-from pathlib import Path
+from typing import Dict, Any, Optional
 
 from ..speech_service import speech_service
 from ..tts_service import tts_service
 from ..models import async_session
-from ..parliament_engine import parliament_engine
-from .unified_intelligence import transcendence, CollaborativeDecision, AgenticLearningCycle
+from .unified_intelligence import transcendence, AgenticLearningCycle
 
 class TranscendenceVoice:
     """

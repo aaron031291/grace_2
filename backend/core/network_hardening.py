@@ -6,7 +6,7 @@ Handles common networking problems beyond just port conflicts
 import socket
 import logging
 import psutil
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 import platform
 

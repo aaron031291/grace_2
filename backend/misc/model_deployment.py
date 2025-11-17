@@ -1,12 +1,10 @@
 """Model deployment pipeline with governance and verification"""
 
-from datetime import datetime
-from typing import Optional
 from sqlalchemy import select
 from .ml_models_table import MLModel
 from .models import async_session
 from .governance import governance_engine
-from .mldl import mldl_manager, MLEvent
+from .mldl import MLEvent
 
 class ModelDeploymentPipeline:
     """End-to-end deployment: train -> verify -> approve -> deploy"""

@@ -6,7 +6,6 @@ ISO 9001 requirement for quality management
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
-from datetime import datetime
 
 router = APIRouter(prefix="/api/capa", tags=["CAPA"])
 

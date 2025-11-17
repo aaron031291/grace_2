@@ -1,7 +1,7 @@
 """AWS cloud executor for real infrastructure actions"""
 
 import asyncio
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 from backend.trigger_mesh import trigger_mesh, TriggerEvent
 

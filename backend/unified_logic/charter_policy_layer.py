@@ -13,7 +13,6 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 
 from backend.constitutional.grace_charter import get_grace_charter, MissionPillar
-from backend.constitutional.mission_planner import get_mission_planner
 
 logger = logging.getLogger(__name__)
 

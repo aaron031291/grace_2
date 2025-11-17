@@ -6,7 +6,7 @@ Compliant with ISO/SOC/NIST requirements for traceability and governance
 """
 
 from pydantic import BaseModel, Field, validator
-from typing import List, Optional, Dict, Any, Literal
+from typing import List, Optional, Dict, Literal
 from datetime import datetime
 from enum import Enum
 

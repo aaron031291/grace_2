@@ -31,7 +31,6 @@ from typing import Dict, Any, Optional
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.core.agentic_brain import agentic_brain
 from backend.core.enhanced_htm import enhanced_htm
-from backend.core.enhanced_ingestion_pipeline import enhanced_ingestion_pipeline
 from backend.core.librarian_ingestion_integration import librarian_ingestion_integration
 from backend.kernels.librarian_kernel_enhanced import enhanced_librarian_kernel
 

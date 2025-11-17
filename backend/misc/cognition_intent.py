@@ -22,7 +22,6 @@ from enum import Enum
 from sqlalchemy import Column, String, JSON, DateTime, Integer, Boolean
 from .models import Base, async_session
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from .immutable_log import immutable_log
 
 
 class IntentStatus(Enum):

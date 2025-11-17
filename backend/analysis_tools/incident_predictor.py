@@ -5,7 +5,7 @@ Analyzes forecasts and triggers early warnings
 
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log

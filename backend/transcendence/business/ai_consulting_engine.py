@@ -1,11 +1,9 @@
 """AI Consulting Engine - Automated consulting delivery"""
 
-import json
 import uuid
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...models import async_session
 from ...governance import governance_engine
@@ -13,9 +11,8 @@ from ...verification import VerificationEngine
 from ...hunter import hunter
 from ...parliament_engine import ParliamentEngine
 from ...grace_architect_agent import GraceArchitectAgent
-from ...ml_classifiers import TrustScoreClassifier
 from ...immutable_log import ImmutableLog
-from .models import Client, Lead, Project, Invoice
+from .models import Client, Project, Invoice
 
 
 class AIConsultingEngine:

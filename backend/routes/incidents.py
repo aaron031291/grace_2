@@ -9,7 +9,6 @@ from ..settings import settings
 from ..models import async_session
 from ..self_heal_models import Incident, IncidentEvent
 from ..integrations.notify import notify
-from ..schemas_extended import IncidentNotifyResponse, IncidentAckResponse, IncidentDetailResponse
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])  # feature-gated in main
 

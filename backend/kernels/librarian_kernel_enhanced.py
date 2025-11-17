@@ -16,7 +16,7 @@ Triggers:
 import asyncio
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 

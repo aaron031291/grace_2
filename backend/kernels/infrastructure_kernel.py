@@ -3,7 +3,7 @@ Infrastructure Kernel - Monitoring, Scheduling & Workers AI Agent
 Manages: self-healing, monitoring, scheduling, workers, observability
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

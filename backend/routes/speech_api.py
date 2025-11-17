@@ -1,26 +1,14 @@
 """Speech and audio API endpoints"""
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional, List
-import os
+from typing import Optional
 from pathlib import Path
 
 from ..speech_service import speech_service
 from ..tts_service import tts_service
-from ..auth import get_current_user
 from ..governance import governance_engine
-from ..hunter import hunter_engine
-from ..websocket_manager import websocket_manager
-from ..schemas_extended import (
-    SpeechUploadResponse,
-    SpeechMessageResponse,
-    SpeechListResponse,
-    SpeechReviewResponse,
-    SpeechDeleteResponse,
-    TTSGenerateResponse
-)
 
 
 router = APIRouter(prefix="/api/audio", tags=["speech"])

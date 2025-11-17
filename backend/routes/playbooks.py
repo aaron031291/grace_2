@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 from ..auth import get_current_user
 from ..settings import settings
 from ..self_heal import playbooks as pb
-from ..schemas_extended import PlaybooksListResponse
 
 router = APIRouter(prefix="/api/playbooks", tags=["playbooks"])  # feature-gated in main via settings
 

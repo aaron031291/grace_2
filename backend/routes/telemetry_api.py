@@ -3,7 +3,7 @@ Telemetry API - Unified data source for all dashboard views
 Provides real-time metrics for Layer 1-4 dashboards
 """
 from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, List, Any, Optional
+from typing import Optional
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, and_
 from backend.core.database import get_session
@@ -11,7 +11,6 @@ from backend.kernels.kernel_registry import KernelRegistry
 from backend.memory_services.htm_queue import HTMQueue
 from backend.learning_systems.learning_loop import LearningLoop
 from backend.crypto.crypto_health import CryptoHealthMonitor
-import asyncio
 
 router = APIRouter(prefix="/api/telemetry", tags=["telemetry"])
 

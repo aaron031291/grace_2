@@ -10,7 +10,6 @@ Provides:
 - Unified access point for all RAG operations
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime

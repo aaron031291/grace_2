@@ -7,7 +7,6 @@ import asyncio
 import platform
 import sys
 import os
-import json
 import psutil
 import subprocess
 from pathlib import Path

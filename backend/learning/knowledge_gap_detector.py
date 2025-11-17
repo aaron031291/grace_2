@@ -3,8 +3,8 @@ Knowledge Gap Detection System
 Identifies missing knowledge based on confidence scores and query patterns
 """
 
-from typing import Dict, Any, List, Optional, Set
-from dataclasses import dataclass, asdict
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 import re

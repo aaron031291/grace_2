@@ -3,7 +3,7 @@ Code Kernel - Code Generation & Execution AI Agent
 Manages: coding, sandbox, execution, commits, grace-architect
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

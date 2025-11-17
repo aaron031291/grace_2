@@ -3,8 +3,7 @@ Trusted Sources Integration
 Validates external data sources against whitelist before ingestion
 """
 
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import re
 from datetime import datetime
 import logging

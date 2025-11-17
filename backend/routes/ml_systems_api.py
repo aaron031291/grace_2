@@ -4,13 +4,12 @@ Endpoints for monitoring and controlling ML/AI systems
 """
 
 from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, List, Optional
+from typing import Dict, List
 from pydantic import BaseModel
 from datetime import datetime
 
-from ..causal_playbook_reinforcement import causal_rl_agent, PlaybookExperience
+from ..causal_playbook_reinforcement import causal_rl_agent
 from ..temporal_forecasting import temporal_forecaster, ForecastRequest
-from ..auth import get_current_user
 
 router = APIRouter(prefix="/api/ml", tags=["ml_systems"])
 

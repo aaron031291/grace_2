@@ -10,9 +10,7 @@ Normalized schema for all business intelligence:
 """
 
 import sqlite3
-from pathlib import Path
 from typing import Dict, Any, List
-from datetime import datetime
 import json
 
 DB_PATH = "databases/memory_tables.db"

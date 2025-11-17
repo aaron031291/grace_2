@@ -3,7 +3,7 @@ Execution Engine for Elite Coding Agent
 Safely executes code in isolated environments
 """
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from datetime import datetime
 

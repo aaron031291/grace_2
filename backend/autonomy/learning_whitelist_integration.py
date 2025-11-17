@@ -6,12 +6,10 @@ enabling Grace to learn by building real projects
 
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
-import asyncio
 
 from backend.ingestion_services.ingestion_service import ingestion_service
-from backend.kernels.librarian_kernel import librarian_kernel
 
 
 class LearningWhitelistManager:

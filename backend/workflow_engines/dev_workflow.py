@@ -1,6 +1,6 @@
 """Development Workflow - Automate development tasks"""
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float
 from sqlalchemy.sql import func
@@ -8,9 +8,6 @@ from sqlalchemy import select
 from .models import Base, async_session
 from .code_understanding import code_understanding
 from .code_generator import code_generator
-from .causal_analyzer import causal_analyzer
-from .meta_loop import meta_loop_engine
-from .hunter import hunter_engine
 
 class DevelopmentTask(Base):
     """Track development tasks and their progress"""

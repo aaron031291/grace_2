@@ -3,10 +3,9 @@ Creative Problem Solver Agent
 Advanced reasoning: reverse engineering, outside-the-box thinking, terminology extraction
 """
 
-import asyncio
 import logging
 import re
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List
 from datetime import datetime
 import yaml
 from pathlib import Path

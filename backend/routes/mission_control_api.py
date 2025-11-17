@@ -22,7 +22,7 @@ from datetime import datetime
 from backend.auth.auth_handler import get_current_user
 from backend.mission_control.schemas import (
     MissionPackage, MissionStatus, Severity, MissionContext,
-    WorkspaceInfo, AcceptanceCriteria, TrustRequirements, TestResult, MetricObservation
+    WorkspaceInfo, AcceptanceCriteria, TrustRequirements
 )
 from backend.mission_control.hub import mission_control_hub
 from backend.mission_control.autonomous_coding_pipeline import autonomous_coding_pipeline

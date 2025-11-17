@@ -10,10 +10,9 @@ Provides access to:
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import sqlite3
-import json
 
 router = APIRouter(prefix="/business", tags=["Business Intelligence"])
 

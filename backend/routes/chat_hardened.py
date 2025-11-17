@@ -26,7 +26,7 @@ from ..hunter import hunter
 from ..models import ChatMessage, async_session
 from ..agentic_error_handler import agentic_error_handler
 from ..memory_learning_pipeline import memory_learning_pipeline
-from ..safe_helpers import safe_publish, safe_log
+from ..safe_helpers import safe_publish
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 logger = logging.getLogger(__name__)

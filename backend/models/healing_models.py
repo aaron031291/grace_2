@@ -4,7 +4,6 @@ Complete tracking of all autonomous healing activities
 """
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, Text, JSON
-from sqlalchemy.sql import func
 from datetime import datetime
 
 from .base_models import Base

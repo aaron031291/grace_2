@@ -5,17 +5,15 @@ import os
 import re
 import asyncio
 import tempfile
-import shutil
 import time
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from dataclasses import dataclass, asdict
 
 from .execution_config import (
     get_language_config,
     get_execution_preset,
     apply_preset_to_config,
-    SHELL_WHITELIST,
     SHELL_BLACKLIST,
     LanguageConfig
 )

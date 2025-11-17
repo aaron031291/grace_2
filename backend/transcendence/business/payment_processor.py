@@ -4,11 +4,10 @@ Real Stripe integration for invoicing, payments, and subscriptions.
 All transactions are verified and logged with governance approval.
 """
 
-import os
 import hashlib
 import json
-from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
+from datetime import datetime
 try:
     import stripe
 except ImportError:

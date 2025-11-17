@@ -11,12 +11,11 @@ Provides visibility into autonomy progression and rollback capability.
 """
 
 from __future__ import annotations
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 from sqlalchemy import Column, String, JSON, DateTime, Float, Integer, Boolean
-from sqlalchemy.orm import declarative_base
 
 from .models import Base, async_session
 from .immutable_log import immutable_log

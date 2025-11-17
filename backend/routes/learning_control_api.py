@@ -3,9 +3,9 @@ Learning Control API
 Endpoints for whitelist, HTM tasks, and learning outcomes
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import Optional
 from datetime import datetime
 import uuid
 

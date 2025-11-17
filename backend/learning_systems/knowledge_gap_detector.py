@@ -3,12 +3,11 @@ Knowledge Gap Detection - Confidence-Based Gap Analysis
 Identifies knowledge gaps through confidence scoring, query analysis, and gap prioritization
 """
 
-import asyncio
 import logging
 import re
-from typing import Dict, Any, List, Optional, Tuple, Set
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
-from collections import defaultdict, Counter
+from collections import Counter
 import statistics
 
 from backend.logging.immutable_log import immutable_log

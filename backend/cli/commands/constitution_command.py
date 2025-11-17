@@ -13,7 +13,6 @@ sys.path.append("../..")
 
 from ...constitutional_verifier import constitutional_verifier
 from ...constitutional_engine import constitutional_engine
-from ...clarifier import clarifier
 from ...models import async_session
 from ...constitutional_models import ConstitutionalPrinciple, ConstitutionalViolation, ClarificationRequest
 from sqlalchemy import select, desc

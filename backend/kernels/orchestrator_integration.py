@@ -3,7 +3,7 @@ Orchestrator Integration for Librarian Kernel
 Registers Librarian as a Data Orchestrator component in the stage list
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 from datetime import datetime
 

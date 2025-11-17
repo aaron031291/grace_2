@@ -1,8 +1,7 @@
 import asyncio
-from typing import Dict, Set, Callable, Any, Optional
+from typing import Dict, Set, Callable, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
 import uuid
 
 @dataclass
@@ -121,7 +120,6 @@ async def setup_subscriptions():
     
     async def on_governance_event(event: TriggerEvent):
         if event.payload.get("decision") in ["block", "review"]:
-            from .learning import learning_engine
             print(f"📋 Governance blocked action - could create task here")
     async def on_autonomy_event(event: TriggerEvent):
         """Update metrics based on autonomy plan outcomes"""

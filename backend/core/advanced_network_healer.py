@@ -4,13 +4,11 @@ Comprehensive healing for ALL networking issues
 Goes beyond ports - handles APIs, connections, protocols, performance
 """
 
-import asyncio
 import logging
 import socket
 import psutil
-import requests
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List, Any
+from datetime import datetime
 from pathlib import Path
 import json
 import time

@@ -3,7 +3,7 @@ Librarian API
 Knowledge management, file organization, and schema proposals
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
@@ -118,7 +118,6 @@ async def get_file_operations(limit: int = Query(20, le=100)) -> Dict[str, Any]:
 @router.get("/organization-suggestions")
 async def get_organization_suggestions() -> Dict[str, Any]:
     """Get file organization suggestions"""
-    import random
     
     suggestions = [
         {

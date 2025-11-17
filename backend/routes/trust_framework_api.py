@@ -21,7 +21,6 @@ from backend.trust_framework import (
     stress_test_harness,
     trustscore_gate,
     uncertainty_reporting,
-    create_mission_from_query,
     RollbackReason
 )
 from backend.model_categorization import MODEL_REGISTRY, get_summary

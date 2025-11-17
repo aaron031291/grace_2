@@ -4,11 +4,9 @@ Backup, restore, and failover procedures
 """
 
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from pathlib import Path
 from enum import Enum
-import json
 
 class BackupStatus(str, Enum):
     """Backup status"""

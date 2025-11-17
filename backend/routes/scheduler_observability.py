@@ -9,7 +9,6 @@ Provides real-time visibility into scheduler behavior:
 """
 
 from __future__ import annotations
-from typing import Dict, Any
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 

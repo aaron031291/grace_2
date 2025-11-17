@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select
 from .models import CausalEvent, ChatMessage, async_session
 from datetime import datetime, timedelta
 

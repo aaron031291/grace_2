@@ -10,11 +10,8 @@ Benefits:
 - Full correlation across logs, events, and metrics
 """
 
-import logging
 import structlog
-from typing import Optional, Dict, Any
-from datetime import datetime, timezone
-from contextlib import contextmanager
+from typing import Optional
 import time
 
 # Prometheus metrics (optional dependency)

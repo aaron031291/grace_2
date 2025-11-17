@@ -6,8 +6,7 @@ without overwhelming with internal details. Provides auditable trail of
 agentic behavior for humans to understand, monitor, and intervene.
 """
 
-import asyncio
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -16,7 +15,6 @@ from sqlalchemy.sql import func
 
 from .models import Base, async_session
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from .immutable_log import immutable_log
 
 
 class DecisionPhase(Enum):

@@ -1,9 +1,7 @@
 """Signature-wrapped ML training pipeline"""
 
 import hashlib
-import json
 import uuid
-import pickle
 import numpy as np
 from datetime import datetime
 from pathlib import Path

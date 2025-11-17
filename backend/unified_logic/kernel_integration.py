@@ -10,7 +10,6 @@ Every kernel:
 - Participates in mission progress tracking
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field

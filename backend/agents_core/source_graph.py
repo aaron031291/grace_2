@@ -10,7 +10,7 @@ import ast
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Set, Any, Optional
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from collections import defaultdict

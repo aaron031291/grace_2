@@ -8,11 +8,6 @@ from ..knowledge import knowledge_manager
 from ..verification_middleware import verify_action
 from ..models import async_session
 from ..knowledge_models import KnowledgeArtifact, KnowledgeRevision, KnowledgeTombstone
-from ..schemas import (
-    KnowledgeQueryResponse, SuccessResponse, KnowledgeRevisionListResponse,
-    KnowledgeRenameResponse, KnowledgeDeleteResponse, KnowledgeRestoreResponse,
-    KnowledgeExportResponse, KnowledgeDiscoveryResponse, KnowledgeSearchResponse
-)
 
 # Metrics publishing (async)
 try:

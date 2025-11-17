@@ -12,12 +12,11 @@ Collects:
 """
 
 import json
-import time
 import psutil
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 import logging
 
 logger = logging.getLogger(__name__)
@@ -208,7 +207,6 @@ class DiagnosticsCollector:
     async def verify_immutable_log_continuity(self) -> ConsistencyVerification:
         """Verify immutable log sequence has no gaps"""
         try:
-            from backend.core import immutable_log
             
             # Check for sequence gaps
             violations = []

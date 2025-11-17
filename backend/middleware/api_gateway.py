@@ -9,7 +9,6 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from collections import defaultdict
 import time
-import asyncio
 
 class RateLimiter:
     """Token bucket rate limiter"""

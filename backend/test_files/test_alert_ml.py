@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-from datetime import datetime
 
 from backend.models import init_db
 from backend.hunter import hunter

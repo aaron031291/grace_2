@@ -6,7 +6,7 @@ Routes for managing ingestion jobs that populate Memory Tables
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 import logging
 from pathlib import Path
 

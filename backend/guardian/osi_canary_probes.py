@@ -8,7 +8,7 @@ import socket
 import subprocess
 import platform
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -317,7 +317,6 @@ class OSICanaryProbes:
         try:
             # Test HTTP by making a request to localhost (if server is running)
             # Otherwise just verify HTTP libraries load
-            import http.client
             
             latency = (datetime.now() - start).total_seconds() * 1000
             

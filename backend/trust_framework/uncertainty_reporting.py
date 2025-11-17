@@ -5,7 +5,7 @@ Calibrated confidence scores + what's needed to close the gap
 Converts residual risk into actionable data requirements
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

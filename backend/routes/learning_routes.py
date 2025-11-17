@@ -5,9 +5,8 @@ NOTE: This is a stub router that will be enhanced once backend.routes.learning e
 For now, provides basic learning endpoints without conflicts.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import Optional
 from ..auth import get_current_user
 from ..schemas_extended import LearningStatsResponse, LearningStatusResponse
 

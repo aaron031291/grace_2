@@ -15,7 +15,7 @@ from .immutable_log import immutable_log
 from .clarity_framework import clarity_framework, DecisionType, ClarityLevel
 from .schemas import (
     MessageType, BusMessage, create_kernel_message,
-    GovernanceDecisionPayload, ProposalPayload, TrustLevel
+    TrustLevel
 )
 
 logger = logging.getLogger(__name__)

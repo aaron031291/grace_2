@@ -4,7 +4,7 @@ Tracks who's viewing/editing what in real-time
 """
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Set
 from datetime import datetime, timedelta
 from collections import defaultdict
 

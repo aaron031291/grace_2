@@ -2,15 +2,10 @@
 
 import hashlib
 import json
-from datetime import datetime
 from typing import Dict, Any, Tuple
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
-from cryptography.hazmat.primitives import serialization
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
-from sqlalchemy.sql import func
-from backend.models import Base, async_session
-from ..models.verification_models import VerificationArtifact, VerificationEnvelope
-from ..logging.immutable_log import immutable_log
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from backend.models import async_session
+from ..models.verification_models import VerificationEnvelope
 
 class VerificationEngine:
     """Sign and verify all actions cryptographically"""

@@ -10,7 +10,6 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log

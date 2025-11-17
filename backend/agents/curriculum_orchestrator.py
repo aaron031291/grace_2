@@ -5,7 +5,7 @@ Makes Grace aware of all curricula and orchestrates autonomous learning
 
 import asyncio
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
 import yaml

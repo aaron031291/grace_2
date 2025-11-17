@@ -15,15 +15,8 @@ from typing import Dict, Any, Optional
 sys.path.insert(0, str(Path(__file__).parent))
 
 
-def get_guardian_allocated_port(boot_result: Dict[str, Any]) -> Optional[int]:
-    """
-    Get the port that Guardian allocated during boot
-    Guardian boots FIRST and allocates port in Phase 3
-    """
-    try:
-        return boot_result['phases']['phase3_ports']['port']
-    except:
-        return None
+# Removed: Guardian no longer allocates ports
+# System uses single port from GRACE_PORT environment variable
 
 
 async def boot_grace_minimal():
@@ -47,24 +40,8 @@ async def boot_grace_minimal():
     print()
     
     try:
-        # PRE-BOOT: Cleanup stale port allocations
-        print("[PRE-BOOT] Cleaning up stale port allocations...")
-        from backend.core.port_manager import port_manager
-        
-        allocations_before = len(port_manager.get_all_allocations())
-        
-        # Force cleanup of stale ports
-        for alloc in port_manager.get_all_allocations():
-            if alloc['health_status'] in ['dead', 'not_listening', 'unreachable']:
-                port_manager.release_port(alloc['port'])
-        
-        allocations_after = len(port_manager.get_all_allocations())
-        cleaned = allocations_before - allocations_after
-        
-        if cleaned > 0:
-            print(f"  [OK] Cleaned {cleaned} stale port allocations")
-        else:
-            print(f"  [OK] No stale ports found")
+        # PRE-BOOT: Simple port check (no complex port manager)
+        print("[PRE-BOOT] Checking port availability...")
         
         # Import orchestrator
         from backend.core.guardian_boot_orchestrator import boot_orchestrator, BootChunk
@@ -75,7 +52,6 @@ async def boot_grace_minimal():
             print("[CHUNK 0] Guardian Kernel Boot...")
             boot_result = await guardian.boot()
             print(f"  [OK] Guardian: Online")
-            print(f"  [OK] Port: {boot_result['phases']['phase3_ports']['port']}")
             print(f"  [OK] Network: {boot_result['phases']['phase2_diagnostics']['status']}")
             print(f"  [OK] Watchdog: Active")
             return boot_result
@@ -542,13 +518,11 @@ if __name__ == "__main__":
             input("\nPress Enter to exit...")
         sys.exit(1)
     
-    # Get port: GRACE_PORT env var takes precedence, then Guardian's allocation
+    # Get port: Use GRACE_PORT environment variable (default 8000)
     from backend.config.environment import GRACE_PORT
-    port = GRACE_PORT if GRACE_PORT != 8000 else get_guardian_allocated_port(boot_result)
+    port = GRACE_PORT
     
-    if not port:
-        print("[ERROR] Guardian did not allocate a port")
-        sys.exit(1)
+    print(f"[PORT] Using port: {port}")
     
     # Start server
     print("=" * 80)
@@ -575,78 +549,24 @@ if __name__ == "__main__":
     print("=" * 80)
     print()
     
-    # Try to start server, if port fails, try next one automatically
-    max_retries = 10
-    for retry in range(max_retries):
-        try:
-            # Register PID with port manager
-            import os
-            try:
-                from backend.core.port_manager import port_manager
-                port_manager.register_pid(port, os.getpid())
-                print(f"[PORT-MANAGER] Registered PID {os.getpid()} for port {port}")
-            except:
-                pass
-            
-            # Start server
-            print(f"\n[STARTING] Attempting to bind to port {port}...")
-            uvicorn.run(
-                "backend.main:app",
-                host="0.0.0.0",
-                port=port,
-                log_level="info",
-                reload=False  # Disable reload to avoid issues
-            )
-            break  # Success!
-            
-        except OSError as e:
-            if 'address already in use' in str(e).lower() or '10048' in str(e):
-                print(f"\n[WARN]️  Port {port} in use! Trying next port...")
-                
-                # Release this port in manager
-                try:
-                    from backend.core.port_manager import port_manager
-                    port_manager.release_port(port)
-                except:
-                    pass
-                
-                # Try next port
-                port += 1
-                if port > 8100:
-                    port = 8000  # Wrap around
-                
-                # Allocate new port
-                try:
-                    from backend.core.port_manager import port_manager
-                    allocation = port_manager.allocate_port(
-                        service_name="grace_backend",
-                        started_by="serve.py",
-                        purpose="Main Grace API server (retry)",
-                        preferred_port=port
-                    )
-                    if 'port' in allocation:
-                        port = allocation['port']
-                        print(f"✅ Trying port {port} instead...")
-                except:
-                    pass
-                
-                if retry == max_retries - 1:
-                    print(f"\n[ERROR] Could not bind to any port after {max_retries} tries!")
-                    print("Run: python kill_grace.py")
-                    sys.exit(1)
-            else:
-                raise
-                
-        except KeyboardInterrupt:
-            print("\n\nGrace shutdown requested...")
-            
-            # Release port
-            try:
-                from backend.core.port_manager import port_manager
-                port_manager.release_port(port)
-                print(f"[PORT-MANAGER] Released port {port}")
-            except:
-                pass
-            
-            print("Goodbye! 👋")
-            break
+    # Start server on single fixed port
+    try:
+        print(f"\n[STARTING] Starting Grace on port {port}...")
+        uvicorn.run(
+            "backend.main:app",
+            host="0.0.0.0",
+            port=port,
+            log_level="info",
+            reload=False
+        )
+    except KeyboardInterrupt:
+        print("\n\nGrace shutdown requested...")
+        print("Goodbye!")
+    except OSError as e:
+        if 'address already in use' in str(e).lower() or '10048' in str(e):
+            print(f"\n[ERROR] Port {port} already in use!")
+            print(f"Set GRACE_PORT environment variable to use different port:")
+            print(f"  Example: set GRACE_PORT=8001 && python serve.py")
+            sys.exit(1)
+        else:
+            raise

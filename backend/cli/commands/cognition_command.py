@@ -7,11 +7,7 @@ import asyncio
 import httpx
 from rich.console import Console
 from rich.table import Table
-from rich.live import Live
-from rich.layout import Layout
 from rich.panel import Panel
-from datetime import datetime
-from typing import Dict, Any
 
 console = Console()
 API_BASE = "http://localhost:8000"

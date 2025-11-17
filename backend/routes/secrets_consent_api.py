@@ -9,11 +9,10 @@ Provides:
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime
 
-from backend.security.secrets_consent_flow import secrets_consent_flow, ConsentStatus
+from backend.security.secrets_consent_flow import secrets_consent_flow
 from backend.core.message_bus import message_bus, MessagePriority
 
 

@@ -7,13 +7,6 @@ from ..governance import governance_engine
 from ..hunter import hunter
 from ..remedy import remedy_inference
 from ..verification_middleware import verify_action
-from ..schemas_extended import (
-    SandboxFilesListResponse,
-    SandboxFileReadResponse,
-    SandboxFileWriteResponse,
-    SandboxRunResponse,
-    SandboxResetResponse
-)
 
 router = APIRouter(prefix="/api/sandbox", tags=["sandbox"])
 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, constr, SecretStr
+from pydantic import BaseModel, constr
 from datetime import timedelta
 from sqlalchemy import select
 from ..models import User, async_session

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime
@@ -7,12 +7,6 @@ from ..models import async_session
 from ..temporal_reasoning import temporal_reasoner
 from ..simulation_engine import simulation_engine
 from ..temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly
-from ..schemas import (
-    TemporalPredictionResponse, TemporalSimulationResponse, TemporalPatternsResponse,
-    TemporalPlanResponse, TemporalDurationEstimateResponse, TemporalDurationsResponse,
-    TemporalAnomaliesResponse, TemporalPeakLoadResponse, TemporalPreventiveActionsResponse,
-    TemporalScenariosResponse, TemporalSimulationDetailResponse, TemporalActualOutcomeResponse
-)
 
 router = APIRouter(prefix="/api/temporal", tags=["temporal"])
 

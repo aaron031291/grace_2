@@ -3,7 +3,7 @@ RAG Evaluation Harness
 Measures retrieval quality with Precision@K metrics
 """
 
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime
 import json

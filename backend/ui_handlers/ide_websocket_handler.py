@@ -1,9 +1,6 @@
 """Transcendence IDE WebSocket Handler - Complete Integration"""
 
 from pathlib import Path
-from typing import Dict, Optional, Tuple
-import asyncio
-import json
 from datetime import datetime
 
 class IDEWebSocketHandler:
@@ -44,7 +41,6 @@ class IDEWebSocketHandler:
     async def file_open(self, user: str, message: dict) -> dict:
         """Load file content with verification"""
         from backend.sandbox_manager import sandbox_manager
-        from backend.verification_integration import verification_integration
         
         file_path = message.get("path")
         if not file_path:
@@ -70,7 +66,6 @@ class IDEWebSocketHandler:
         """Save file with verification + governance"""
         from backend.sandbox_manager import sandbox_manager
         from backend.governance import governance_engine
-        from backend.verification_integration import verification_integration
         from backend.verification import verify_action
         
         file_path = message.get("path")

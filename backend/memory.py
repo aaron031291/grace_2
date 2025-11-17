@@ -3,7 +3,6 @@ Persistent Memory Module
 Simple memory storage for chat messages
 """
 
-from typing import Optional
 from backend.models import ChatMessage, async_session
 
 

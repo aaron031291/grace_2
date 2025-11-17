@@ -5,7 +5,6 @@ Connects Memory Tables to ingestion pipelines and learning systems
 """
 
 import logging
-from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
@@ -76,7 +75,6 @@ class MemoryTablesLearningBridge:
         """Send data to the ingestion pipeline"""
         try:
             # Try to use existing ingestion routes
-            from backend.routes import ingestion_api
             
             # Create ingestion job
             job_data = {

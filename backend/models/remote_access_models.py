@@ -2,7 +2,7 @@
 Database models for the Remote Access API.
 """
 
-from sqlalchemy import Column, String, DateTime, JSON, Integer, ForeignKey
+from sqlalchemy import Column, String, DateTime, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 

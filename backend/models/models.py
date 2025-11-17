@@ -1,27 +1,12 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 
 # Import Base, engine, async_session from base_models (foundation layer)
-from .base_models import Base, engine, async_session, ImmutableLogEntry
+from .base_models import Base
 
-from .sandbox_models import SandboxRun, SandboxFile
-from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest, SecurityEvent, SecurityRule, HealthCheck, HealingAction
-from backend.execution.task_executor import ExecutionTask
-from .issue_models import IssueReport
-from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
-from backend.ml_training.mldl import MLEvent
-from backend.misc.avn_avm import VerificationEvent
-from backend.workflow_engines.meta_loop import MetaLoopConfig, MetaAnalysis, MetaMetaEvaluation
-from .knowledge_models import KnowledgeArtifact
-from .lightning_fusion_models import CryptoIdentity, FusionMemoryFragment, LightningMemoryCache, ComponentCryptoRegistration, DiagnosticTrace, VerificationAuditLog
-from backend.knowledge.trusted_sources import TrustedSource
-from backend.ml_training.ml_models_table import MLModel, TrainingRun
-from .temporal_models import EventPattern, Simulation, DurationEstimate, TemporalAnomaly, PredictionRecord
 # Temporarily commented out due to deep dependency chain issues:
 # from backend.cognition.models import MemoryArtifact as CognitionMemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
 # from backend.transcendence.business.models import StripeTransaction, StripeWebhook, PaymentMethod, MarketplaceJob, MarketplaceProposal, MarketplaceMessage, MarketplaceDeliverable
-from .goal_models import GoalDependency, GoalEvaluation
 
 class User(Base):
     __tablename__ = "users"

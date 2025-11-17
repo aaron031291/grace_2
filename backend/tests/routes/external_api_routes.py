@@ -4,7 +4,7 @@ FastAPI routes for GitHub, Slack, AWS, and Secrets Vault operations.
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Body
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 
 from ..external_apis.github_connector import GitHubClient

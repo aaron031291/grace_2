@@ -3,7 +3,7 @@ Code Understanding Module for Elite Coding Agent
 Provides code analysis, comprehension, and insight capabilities
 """
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

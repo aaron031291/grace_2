@@ -5,7 +5,7 @@ Grace builds real projects in sandbox to learn, using local open-source LLMs
 
 import asyncio
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 import json

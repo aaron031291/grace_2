@@ -6,7 +6,6 @@ Real-time stream of Grace's activities
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import asyncio
-import json
 
 from ..activity_monitor import activity_monitor
 

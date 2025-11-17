@@ -4,13 +4,11 @@ Grace autonomously identifies and proposes improvements
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, List
+from datetime import datetime
 import logging
 
 from .grace_self_analysis import grace_self_analysis
-from .grace_log_reader import grace_log_reader
-from .healing_analytics import healing_analytics
 from .unified_logger import unified_logger
 from .governance_framework import governance_framework
 from .trigger_mesh import trigger_mesh, TriggerEvent

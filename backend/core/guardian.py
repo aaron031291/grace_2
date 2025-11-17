@@ -15,11 +15,9 @@ Responsibilities (in order):
 Guardian prevents problems from occurring, not just responding to them.
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-from pathlib import Path
 
 from .port_manager import port_manager
 from .port_watchdog import port_watchdog

@@ -3,7 +3,7 @@ Meta-Loop Approval Queue System
 Manages approval workflow for meta-loop recommendations
 """
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, JSON, select
 from sqlalchemy.sql import func
 from .models import Base, async_session

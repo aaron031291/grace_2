@@ -90,7 +90,6 @@ class LightningDiagnosticEngine:
         
         # Query immutable log for related operations
         try:
-            from backend.immutable_log import immutable_log
             
             problem_indicators = diagnostic_request.get("problem_indicators", [])
             

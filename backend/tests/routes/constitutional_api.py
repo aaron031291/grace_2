@@ -6,7 +6,7 @@ and clarification requests.
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, desc
 

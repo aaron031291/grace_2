@@ -6,10 +6,9 @@ modules to load. In a real application, this would be replaced with a
 proper authentication system (e.g., OAuth2 with JWTs).
 """
 
-from fastapi import Depends
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
+from jose import jwt
 
 SECRET_KEY = "a_very_secret_key"
 ALGORITHM = "HS256"

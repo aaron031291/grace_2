@@ -2,9 +2,8 @@
 Complete Memory API - Files, Tables, Schemas, Upload
 Connects Memory Studio frontend to backend
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
-from fastapi.responses import FileResponse
-from typing import List, Dict, Any, Optional
+from fastapi import APIRouter, HTTPException, UploadFile, File
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 import os
 import json

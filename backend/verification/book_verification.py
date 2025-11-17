@@ -3,10 +3,9 @@ Book Verification System - Trust scoring and QA for ingested books
 Handles: comprehension testing, content validation, trust score updates
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 import json
-import random
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db

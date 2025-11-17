@@ -3,7 +3,7 @@ File Organizer API - Endpoints for intelligent file organization and undo
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pathlib import Path
 from pydantic import BaseModel
 

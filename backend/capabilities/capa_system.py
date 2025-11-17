@@ -429,7 +429,6 @@ class CAPASystem:
             for action in record["preventive_actions"]:
                 if action.get("type") == "governance_policy":
                     try:
-                        from backend.governance import governance_engine
                         
                         # Create new policy based on CAPA learning
                         # (In production, this would create actual policy)

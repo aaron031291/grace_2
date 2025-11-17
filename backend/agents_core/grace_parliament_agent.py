@@ -4,13 +4,11 @@ Grace as an autonomous voting member of the Parliament system.
 Uses reflection, causal reasoning, Hunter alerts, and verification history.
 """
 
-from typing import Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, Any
 
 from .parliament_engine import parliament_engine
 from .reflection import reflection_engine
 from .causal_analyzer import causal_analyzer
-from .hunter import hunter_engine
 from .verification import verification_engine
 
 

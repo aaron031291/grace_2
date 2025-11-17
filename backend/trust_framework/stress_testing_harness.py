@@ -14,10 +14,9 @@ Stores in model_health_registry for orchestration routing decisions
 import asyncio
 import time
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
-import numpy as np
 import json
 from pathlib import Path
 

@@ -15,7 +15,6 @@ import logging
 from typing import Dict, Any, Optional, List, Literal
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
-from pathlib import Path
 import uuid
 
 logger = logging.getLogger(__name__)

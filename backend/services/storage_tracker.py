@@ -4,12 +4,10 @@ Tracks MB, GB, TB of data Grace ingests for learning
 Monitors storage capacity and optimizes usage
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
-import os
 
 logger = logging.getLogger(__name__)
 

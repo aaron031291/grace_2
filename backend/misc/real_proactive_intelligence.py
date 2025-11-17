@@ -3,20 +3,17 @@ Real Proactive Intelligence - Consumes Real Telemetry
 Replaces stubbed version with actual metric-driven decision making
 """
 
-import asyncio
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, timezone
 import logging
 
-from .telemetry_schemas import MetricEvent, MetricBand, PlaybookDefinition
+from .telemetry_schemas import PlaybookDefinition
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .logging_utils import log_event
 from .governance_framework import governance_framework
-from .policy_engine import policy_engine
 from .causal_playbook_reinforcement import causal_rl_agent
-from .temporal_forecasting import temporal_forecaster, ForecastRequest
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ Orchestrates memory workspace, schema management, ingestion, and trust curation
 """
 
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 import asyncio
 import logging

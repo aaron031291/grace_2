@@ -15,7 +15,7 @@ Features:
 
 import asyncio
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, List, Optional
 from enum import Enum
 from collections import deque
 import heapq

@@ -5,7 +5,6 @@ View and control Grace's learning from curricula
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 

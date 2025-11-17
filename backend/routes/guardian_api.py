@@ -3,7 +3,7 @@ Guardian API - Stats and monitoring for healing playbooks
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 
 router = APIRouter(prefix="/api/guardian", tags=["guardian"])

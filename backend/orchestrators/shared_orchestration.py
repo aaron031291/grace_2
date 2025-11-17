@@ -13,11 +13,10 @@ Features:
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from enum import Enum
-import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log

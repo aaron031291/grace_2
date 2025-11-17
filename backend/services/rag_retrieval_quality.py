@@ -3,11 +3,9 @@ RAG Retrieval Quality - Evaluation Harness & Precision Metrics
 Builds evaluation harness with synthetic Q/A pairs, measures Precision@5/10, implements hard-negative mining
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from datetime import datetime
-import json
 import random
 import statistics
 

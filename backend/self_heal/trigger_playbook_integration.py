@@ -17,7 +17,6 @@ from typing import Dict, Any, Optional
 
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.self_heal.auto_healing_playbooks import playbook_registry
-from backend.self_heal.trigger_system import trigger_manager
 
 
 class TriggerPlaybookIntegration:

@@ -319,7 +319,6 @@ class AnomalyWatchdog:
         logger.info("Verifying healing with re-test")
         
         # Re-run relevant stress test
-        from backend.stress_test_suite import stress_tester
         
         # For MVP, assume verification passed
         return {

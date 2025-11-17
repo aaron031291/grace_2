@@ -5,7 +5,7 @@ Model switching based on task
 """
 
 import os
-from typing import Dict, Any, List, Optional, Literal
+from typing import Dict, Any, Optional, Literal
 import logging
 from datetime import datetime
 

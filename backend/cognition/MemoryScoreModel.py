@@ -4,8 +4,6 @@ Computes trust scores from multiple signals and applies configurable decay curve
 """
 
 import math
-from typing import Dict, Optional
-from datetime import datetime, timedelta
 from dataclasses import dataclass
 from enum import Enum
 

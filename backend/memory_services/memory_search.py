@@ -5,9 +5,7 @@ Full-text, semantic, and metadata-based search across Grace's memory
 
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-import json
 import re
-from pathlib import Path
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
 

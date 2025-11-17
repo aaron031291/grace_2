@@ -13,7 +13,6 @@ This creates a two-tier knowledge system:
 - World model: Curated facts with metadata for structured queries
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime

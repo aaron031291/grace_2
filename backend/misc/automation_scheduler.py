@@ -3,11 +3,10 @@ Automation Scheduler
 Handles scheduled pipelines, watchers, and automated workflows
 """
 
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from enum import Enum
 import asyncio
-import json
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
 

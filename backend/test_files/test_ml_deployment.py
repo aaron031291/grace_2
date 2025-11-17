@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import select
 from grace_rebuild.backend.models import async_session, init_db
 from grace_rebuild.backend.knowledge_models import KnowledgeArtifact

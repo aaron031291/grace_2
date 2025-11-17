@@ -97,7 +97,6 @@ async def get_detailed_health() -> Dict[str, Any]:
 async def get_realtime_metrics() -> Dict[str, Any]:
     """Get real-time metrics for monitoring"""
     
-    from ..healing_analytics import healing_analytics
     from ..models import async_session
     from ..healing_models import DataCubeEntry
     from sqlalchemy import select, func

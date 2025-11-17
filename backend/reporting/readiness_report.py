@@ -5,7 +5,6 @@ Generates comprehensive Markdown and PDF reports when Grace hits 90%
 
 import logging
 from datetime import datetime
-from typing import Dict, Any, List
 from pathlib import Path
 
 from .cognition_metrics import get_metrics_engine

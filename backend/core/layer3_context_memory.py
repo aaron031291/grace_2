@@ -24,7 +24,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from collections import defaultdict
 import sqlite3
 
 from backend.core.message_bus import message_bus, MessagePriority

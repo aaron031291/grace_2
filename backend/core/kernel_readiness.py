@@ -10,9 +10,8 @@ Features:
 - Health endpoints
 """
 
-import asyncio
 import logging
-from typing import Dict, Optional
+from typing import Dict
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

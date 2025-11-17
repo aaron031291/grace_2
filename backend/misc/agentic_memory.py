@@ -21,15 +21,13 @@ the agentic layer, which applies policy, context, and governance.
 """
 
 from __future__ import annotations
-import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 import json
 
 from .immutable_log import immutable_log
-from .trigger_mesh import trigger_mesh, TriggerEvent
 
 
 class MemoryAccessLevel(Enum):

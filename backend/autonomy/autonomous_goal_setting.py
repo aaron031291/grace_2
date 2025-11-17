@@ -4,14 +4,13 @@ Grace sets her own goals based on performance analysis, user needs, and system e
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, timedelta
 import logging
 
 from .models import async_session, Goal
-from .goal_models import GoalDependency, GoalEvaluation
+from .goal_models import GoalEvaluation
 from .grace_self_analysis import grace_self_analysis
-from .healing_analytics import healing_analytics
 from .unified_logger import unified_logger
 from .governance_framework import governance_framework
 from .trigger_mesh import trigger_mesh, TriggerEvent

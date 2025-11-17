@@ -1,14 +1,12 @@
 """Enhanced HTM - Full Task Tracking with Timing and Retry Support"""
 import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 from enum import Enum
 from collections import deque
 from dataclasses import dataclass, field
 
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.models.htm_models import HTMTask, HTMTaskAttempt, HTMMetrics
-from backend.models.base_models import async_session
 
 
 class TaskPriority(str, Enum):

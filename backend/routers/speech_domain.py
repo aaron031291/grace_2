@@ -13,7 +13,7 @@ Canonical Verbs: transcribe, synthesize, detect, transform, diarize
 """
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 
 from ..auth import get_current_user

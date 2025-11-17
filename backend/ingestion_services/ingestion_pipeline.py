@@ -6,11 +6,10 @@ Handles: chunking, embedding, metadata extraction, learning jobs
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum
-import json
 import asyncio
 from pathlib import Path
 
-from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event, TrustLevel
+from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
 
 
 class PipelineStage(str, Enum):

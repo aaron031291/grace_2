@@ -3,7 +3,6 @@ RAG Ingestion Quality - PRODUCTION HARDENED
 Deterministic chunking, deduplication pipeline, PII scrubbing with regression tests
 """
 
-import asyncio
 import logging
 import hashlib
 import json
@@ -11,7 +10,6 @@ import re
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 from datetime import datetime
-import difflib
 
 from backend.logging.immutable_log import immutable_log
 

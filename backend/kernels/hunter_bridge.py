@@ -16,7 +16,6 @@ import hashlib
 import json
 import sqlite3
 import logging
-import re
 import ssl
 import socket
 from urllib.parse import urlparse

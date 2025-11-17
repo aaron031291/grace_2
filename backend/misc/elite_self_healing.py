@@ -16,10 +16,9 @@ Features:
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
@@ -30,7 +29,6 @@ from .immutable_log import immutable_log
 # from .autonomous_code_healer import code_healer
 # from .log_based_healer import log_based_healer
 # from .self_heal.meta_coordinated_healing import MetaCoordinatedHealing
-from .models import async_session
 
 logger = logging.getLogger(__name__)
 

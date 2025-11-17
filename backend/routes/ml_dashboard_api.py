@@ -4,8 +4,8 @@ Real-time monitoring and visualization for ML/AI systems
 """
 
 from fastapi import APIRouter, Query
-from typing import Dict, Any, List
-from datetime import datetime, timezone, timedelta
+from typing import Dict, List
+from datetime import datetime
 
 from ..causal_playbook_reinforcement import causal_rl_agent
 from ..temporal_forecasting import temporal_forecaster
@@ -13,9 +13,7 @@ from ..automated_ml_training import automated_training
 from ..forecast_scheduler import forecast_scheduler
 from ..ml_performance_analytics import ml_performance_analytics
 from ..incident_predictor import incident_predictor
-from ..models import async_session
 
-from sqlalchemy import select, func
 
 router = APIRouter(prefix="/api/ml/dashboard", tags=["ml_dashboard"])
 

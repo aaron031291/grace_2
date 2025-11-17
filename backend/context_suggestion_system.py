@@ -4,7 +4,7 @@ Grace detects when context would be helpful and suggests it
 """
 
 from typing import Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class ContextSuggestionSystem:
     """

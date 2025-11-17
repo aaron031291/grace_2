@@ -1,5 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from ..models.models import ChatMessage
 from ..models.memory_models import async_session
 

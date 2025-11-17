@@ -10,15 +10,12 @@ Grace's complete learning loop:
 5. Measure KPIs and trust scores
 """
 
-import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
 from pathlib import Path
 
-from backend.integrations.journalclub_integration import journalclub_integration
 from backend.model_orchestrator import model_orchestrator
 from backend.ingestion_services.ingestion_service import ingestion_service
-from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
 from backend.logging.immutable_log import immutable_log
 
 

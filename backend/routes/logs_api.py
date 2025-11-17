@@ -9,11 +9,10 @@ Provides:
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 import asyncio
 import logging
 
-from backend.domains import domain_event_bus
 
 router = APIRouter(prefix="/api/logs", tags=["logs"])
 logger = logging.getLogger(__name__)

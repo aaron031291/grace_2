@@ -7,7 +7,7 @@ import asyncio
 import logging
 import socket
 import psutil
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 from pathlib import Path
 import json

@@ -1,7 +1,7 @@
 """
 Collaboration System Database Models
 """
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON
 from sqlalchemy.sql import func
 from backend.base_models import Base
 

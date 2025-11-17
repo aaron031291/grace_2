@@ -4,8 +4,7 @@ Coordinates multiple specialists (reflection, hunter, meta, causal, MLDL)
 and reaches consensus through trust-weighted voting.
 """
 
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+from typing import Dict, List, Tuple
 import math
 import logging
 
@@ -13,7 +12,6 @@ from .models import (
     DecisionTask, ConsensusDecision, SpecialistProposal,
     DecisionStrategy, RiskLevel
 )
-from .GraceLoopOutput import GraceLoopOutput
 
 logger = logging.getLogger(__name__)
 

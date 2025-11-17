@@ -12,14 +12,13 @@ Major platform integrations:
 Grace becomes the central intelligence connecting all your tools.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 
 from ..secrets_vault import secrets_vault
 from ..governance import GovernanceEngine
 from ..hunter import HunterEngine
 from ..verification import VerificationEngine
-from ..parliament_engine import parliament_engine
 
 class GoogleDriveConnector:
     """
@@ -217,7 +216,6 @@ class GitHubEnhancedConnector:
         # git clone {repo_url}
         # Parse with code_memory.parse_codebase()
         
-        from ..code_memory import code_memory
         
         print("  ✓ Repository cloned")
         print("  ✓ Parsing codebase...")

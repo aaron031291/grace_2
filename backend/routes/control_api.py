@@ -3,11 +3,11 @@ Grace Control API
 Endpoints for pause/resume/stop controls
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 
-from ..grace_control_center import grace_control, SystemState
+from ..grace_control_center import grace_control
 
 router = APIRouter(prefix="/api/control", tags=["Control"])
 

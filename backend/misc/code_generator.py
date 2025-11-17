@@ -4,9 +4,7 @@ import ast
 import re
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from sqlalchemy import select
-from backend.models.base_models import async_session
-from .code_memory import code_memory, CodePattern
+from .code_memory import code_memory
 from backend.agents_core.governance import governance_engine
 from backend.agents_core.hunter import hunter_engine
 

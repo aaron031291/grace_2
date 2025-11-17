@@ -14,12 +14,11 @@ Features:
 """
 
 import asyncio
-import subprocess
 import json
 import yaml
 import logging
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 from enum import Enum
@@ -372,7 +371,6 @@ class AdvancedPlaybookEngine:
         target_workers = params.get('target_workers', '+2')
         
         try:
-            from .control_plane import control_plane
             
             # Parse target ("+2", "-1", or absolute number)
             if isinstance(target_workers, str) and target_workers.startswith(('+', '-')):

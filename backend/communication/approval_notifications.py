@@ -11,10 +11,8 @@ Benefits:
 """
 
 import asyncio
-from typing import Dict, Set, Optional, AsyncGenerator
+from typing import Dict, Set, AsyncGenerator
 from datetime import datetime, timezone
-from fastapi import Request
-from fastapi.responses import StreamingResponse
 import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent

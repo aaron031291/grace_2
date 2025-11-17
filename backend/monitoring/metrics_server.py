@@ -6,7 +6,6 @@ Runs independently of main backend to avoid circular import issues
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-import asyncio
 
 # Create FastAPI app
 app = FastAPI(

@@ -12,7 +12,6 @@ Components:
 All queryable via RAG, exposed via MCP
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime

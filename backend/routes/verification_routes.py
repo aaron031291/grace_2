@@ -11,10 +11,9 @@ Provides UI visibility into Grace's autonomy and safety mechanisms.
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, Optional, List
+from typing import Optional
 from datetime import datetime, timezone
 
-from ..action_contract import contract_verifier
 from ..self_heal.safe_hold import snapshot_manager, SafeHoldSnapshot
 from ..benchmarks import benchmark_suite
 from ..progression_tracker import progression_tracker

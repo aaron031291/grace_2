@@ -4,8 +4,7 @@ Real-time updates for file changes, Grace actions, pipeline progress
 """
 
 from fastapi import WebSocket, WebSocketDisconnect
-from typing import Set, Dict, Any, List
-import asyncio
+from typing import Set, Dict, Any
 import json
 from datetime import datetime
 

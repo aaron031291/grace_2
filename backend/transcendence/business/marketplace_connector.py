@@ -4,12 +4,9 @@ Automated job discovery, proposal generation, and client communication.
 Integrates with Hunter for job analysis and Parliament for approval.
 """
 
-import os
-import json
 from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import select, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...models import async_session
 from .models import (

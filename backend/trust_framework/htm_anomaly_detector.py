@@ -7,7 +7,7 @@ Based on Numenta's HTM theory for temporal sequence prediction.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import deque

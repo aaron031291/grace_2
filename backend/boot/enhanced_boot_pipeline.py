@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any
 import logging
 
 # Add parent directory to path for imports
@@ -311,7 +311,6 @@ class EnhancedBootPipeline:
         try:
             sys.path.insert(0, str(self.project_root))
             
-            from backend.trigger_mesh import trigger_mesh
             # Skip metrics_collector - will load with main app
             
             print("[OK]")

@@ -9,18 +9,17 @@ Provides:
 - Violation alerts
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 
-from backend.models.htm_models import HTMTask, HTMTaskAttempt, HTMMetrics
+from backend.models.htm_models import HTMTask, HTMMetrics
 from backend.models.base_models import async_session
 from backend.core.htm_sla_enforcer import htm_sla_enforcer
 from backend.core.htm_size_metrics import htm_size_metrics
 from backend.core.htm_size_tracker import format_bytes
-from sqlalchemy import select, func, and_, or_
-from collections import defaultdict
+from sqlalchemy import select, func
 import statistics
 
 

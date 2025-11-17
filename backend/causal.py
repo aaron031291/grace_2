@@ -2,7 +2,6 @@
 Causal Tracker - Tracks cause-effect relationships in interactions
 """
 
-from typing import Any
 
 
 class CausalTracker:

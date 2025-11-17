@@ -2,8 +2,7 @@
 Security Models - Database models for security features
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text
 from datetime import datetime
 
 from backend.models.base_models import Base

@@ -3,7 +3,7 @@ Learning API - Knowledge gap detection and autonomous learning
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 
 router = APIRouter(prefix="/api/learning", tags=["learning"])

@@ -4,8 +4,6 @@ Integration hooks that publish KPIs from existing systems
 """
 
 import logging
-from typing import Dict, Any
-from datetime import datetime
 
 try:
     from backend.metrics_service import publish_metric, publish_batch

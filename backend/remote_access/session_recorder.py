@@ -3,7 +3,6 @@ Session Recorder
 Records all remote access sessions for audit and SIEM forwarding
 """
 
-import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pathlib import Path

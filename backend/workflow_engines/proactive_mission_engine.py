@@ -13,7 +13,7 @@ Features:
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass
 from enum import Enum

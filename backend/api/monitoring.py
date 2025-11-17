@@ -4,8 +4,8 @@ Real incident tracking with database integration
 """
 
 from fastapi import APIRouter, Query
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
+from datetime import datetime
 
 router = APIRouter(prefix="/monitoring", tags=["Monitoring"])
 

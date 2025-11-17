@@ -6,7 +6,7 @@ INTEGRATED with Guardian for auto-remediation
 
 import asyncio
 import logging
-from typing import Dict, List, Any
+from typing import Dict, Any
 from datetime import datetime
 import requests
 

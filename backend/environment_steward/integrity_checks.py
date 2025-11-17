@@ -3,9 +3,7 @@ Automated Integrity Checks
 Scheduled jobs for import auditing, schema validation, config linting
 """
 
-import asyncio
 import importlib
-import sys
 from typing import Dict, Any, List
 from datetime import datetime
 from pathlib import Path
@@ -228,7 +226,6 @@ class ConfigSecretValidator:
     async def _check_vault_entries(self) -> Dict[str, Any]:
         """Check secrets vault accessibility"""
         try:
-            from backend.security.secrets_vault import secrets_vault
             return {
                 'status': 'healthy',
                 'accessible': True

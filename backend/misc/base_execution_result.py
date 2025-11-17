@@ -11,7 +11,7 @@ Consistent fields for serialization to immutable log, contracts, and analytics.
 """
 
 from dataclasses import dataclass, asdict
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from enum import Enum
 

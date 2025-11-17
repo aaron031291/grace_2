@@ -10,7 +10,7 @@ Stores vector embeddings with metadata for:
 Supports semantic search and RAG retrieval
 """
 
-from sqlalchemy import Column, String, DateTime, Text, Integer, Float, Boolean, JSON, ARRAY
+from sqlalchemy import Column, String, DateTime, Text, Integer, Float, Boolean, JSON
 from sqlalchemy.sql import func
 from .base_models import Base
 

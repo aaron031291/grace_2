@@ -14,11 +14,11 @@ from typing import Dict, Any, List, Optional
 from collections import defaultdict
 import statistics
 
-from backend.models.htm_models import HTMTask, HTMMetrics
+from backend.models.htm_models import HTMTask
 from backend.models.base_models import async_session
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.core.htm_size_tracker import format_bytes, classify_task_size, calculate_throughput
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, and_
 
 
 class HTMSizeMetricsAggregator:

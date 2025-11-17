@@ -6,7 +6,7 @@ and clarification requests.
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from sqlalchemy import select, func, desc
 
@@ -19,20 +19,6 @@ from ..constitutional_models import (
 from ..constitutional_engine import constitutional_engine
 from ..constitutional_verifier import constitutional_verifier
 from ..clarifier import clarifier
-from ..schemas_extended import (
-    ConstitutionalPrinciplesResponse,
-    ConstitutionalPrincipleResponse,
-    ConstitutionalViolationsResponse,
-    ConstitutionalViolationStatsResponse,
-    ConstitutionalComplianceResponse,
-    ConstitutionalCheckResponse,
-    ConstitutionalReportResponse,
-    ConstitutionalClarificationsResponse,
-    ConstitutionalClarificationResponse,
-    ConstitutionalStatsResponse,
-    ConstitutionalTenetsResponse,
-    SuccessResponse
-)
 
 
 router = APIRouter(prefix="/api/constitution", tags=["constitutional"])

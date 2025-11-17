@@ -3,9 +3,8 @@ WebSocket endpoint for real-time telemetry streaming
 Pushes live updates to dashboards for Layer 1-4 views
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import Dict, List, Set
+from typing import Dict, Set
 import asyncio
-import json
 from datetime import datetime
 from backend.kernels.kernel_registry import KernelRegistry
 from backend.memory_services.htm_queue import HTMQueue

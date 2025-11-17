@@ -4,18 +4,13 @@ Grace discovers free APIs that can help her learn and expand her capabilities
 Tests in sandbox, stores keys in secrets vault, promotes to production if safe
 """
 
-import asyncio
 import aiohttp
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
-import json
 
 from .governance_framework import governance_framework
-from .constitutional_engine import constitutional_engine
-from .knowledge_provenance import provenance_tracker
 from .unified_logger import unified_logger
-from .secrets_vault import secrets_vault
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from .event_bus import EventBus, get_event_bus
+from .event_bus import get_event_bus
 
 
 class TriggerMeshLoader:

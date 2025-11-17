@@ -5,7 +5,6 @@ Initializes ACL and resource pressure monitors during boot
 Called by orchestrator to ensure safeguards are active
 """
 
-import asyncio
 import logging
 
 logger = logging.getLogger(__name__)

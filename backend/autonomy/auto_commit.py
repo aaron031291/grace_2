@@ -4,8 +4,7 @@ Grace automatically commits her code fixes to Git with governance approval
 """
 
 import subprocess
-from typing import Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, Any
 import logging
 
 from .governance_framework import governance_framework

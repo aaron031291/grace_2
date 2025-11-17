@@ -5,10 +5,7 @@ Automatically installs and configures free crypto trading APIs
 
 import asyncio
 import logging
-import subprocess
-from typing import Dict, Any, List
-from datetime import datetime
-from pathlib import Path
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

@@ -3,8 +3,7 @@ Verification Mesh - PRODUCTION IMPLEMENTATION
 Role-based consensus with quorum voting, not just model count
 """
 
-import asyncio
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -12,7 +11,7 @@ import numpy as np
 
 from .htm_anomaly_detector import htm_detector_pool
 from .trust_score import calculate_trust_score, TrustScore
-from ..model_categorization import MODEL_REGISTRY, get_model_for_task
+from ..model_categorization import get_model_for_task
 
 
 class VerificationRole(Enum):

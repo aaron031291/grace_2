@@ -6,9 +6,7 @@ Encrypt-at-rest, retention policies, revision history with automated backup/rest
 import asyncio
 import logging
 import json
-import os
 import hashlib
-import secrets
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -753,7 +751,6 @@ class BackupRestoreManager:
             # Restore revisions if present
             if "revision_history" in backup_data:
                 try:
-                    from backend.services.rag_persistence_security_production import knowledge_revision_manager
 
                     for entry_id, revisions in backup_data["revision_history"].items():
                         # Reconstruct revision history

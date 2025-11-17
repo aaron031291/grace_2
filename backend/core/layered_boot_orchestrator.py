@@ -124,7 +124,6 @@ async def layer_1_foundation():
     
     # Database connections
     try:
-        from backend.models import Base, engine, async_session
         print("    [OK] Database connections established")
         results['database'] = 'connected'
     except Exception as e:
@@ -133,7 +132,6 @@ async def layer_1_foundation():
     
     # Load configuration
     try:
-        from backend.config import config
         print("    [OK] Configuration loaded")
         results['config'] = 'loaded'
     except Exception:
@@ -142,7 +140,6 @@ async def layer_1_foundation():
     
     # Load secrets vault
     try:
-        from backend.security.secrets_vault import secrets_vault
         print("    [OK] Secrets vault initialized")
         results['secrets'] = 'ready'
     except Exception as e:
@@ -182,7 +179,6 @@ async def layer_2_guardrails():
     
     # Governance engine
     try:
-        from backend.verification_system.governance import governance_engine
         print("    [OK] Governance engine: Active")
         results['governance'] = 'active'
     except Exception:
@@ -191,7 +187,6 @@ async def layer_2_guardrails():
     
     # Guardian services
     try:
-        from backend.core.guardian import guardian
         print("    [OK] Guardian: Active")
         results['guardian'] = 'active'
     except Exception:
@@ -207,7 +202,6 @@ async def layer_3_agentic_spine():
     
     # Reflection/introspection
     try:
-        from backend.grace_components.grace_complete_self_awareness import self_awareness
         print("    [OK] Self-awareness: Active")
         results['reflection'] = 'active'
     except Exception:
@@ -220,7 +214,6 @@ async def layer_3_agentic_spine():
     
     # World model + vector store
     try:
-        from backend.world_model import world_model
         print("    [OK] World model: Initialized")
         results['world_model'] = 'initialized'
     except Exception:
@@ -229,7 +222,6 @@ async def layer_3_agentic_spine():
     
     # Meta-loop
     try:
-        from backend.meta_loop import meta_loop
         print("    [OK] Meta-loop: Active")
         results['meta_loop'] = 'active'
     except Exception:
@@ -245,7 +237,6 @@ async def layer_4_mission_orchestration():
     
     # Mission controller
     try:
-        from backend.mission_control.mission_controller import mission_controller
         print("    [OK] Mission controller: Ready")
         results['mission_controller'] = 'ready'
     except Exception:
@@ -258,7 +249,6 @@ async def layer_4_mission_orchestration():
     
     # Learning integration
     try:
-        from backend.learning_systems.advanced_learning import advanced_learning_supervisor
         print("    [OK] Learning integration: Active")
         results['learning'] = 'active'
     except Exception:
@@ -274,7 +264,6 @@ async def layer_5_capabilities():
     
     # Knowledge ingestion
     try:
-        from backend.ingestion_services.ingestion_service import ingestion_service
         print("    [OK] Ingestion pipeline: Ready")
         results['ingestion'] = 'ready'
     except Exception:

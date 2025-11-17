@@ -13,14 +13,11 @@ Canonical Verbs: schedule, timer, expire, snapshot, rollback, rewind
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
-from datetime import datetime, timedelta
 
 from ..auth import get_current_user
 from ..temporal_reasoning import temporal_forecaster
-from ..benchmark_scheduler import benchmark_scheduler
-from ..knowledge_discovery_scheduler import discovery_scheduler
 
 router = APIRouter(prefix="/api/temporal", tags=["Temporal Domain"])
 

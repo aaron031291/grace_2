@@ -12,7 +12,7 @@ Features:
 import asyncio
 import logging
 import shutil
-from typing import Dict, List
+from typing import Dict
 from datetime import datetime, timedelta
 from pathlib import Path
 

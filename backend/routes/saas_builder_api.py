@@ -5,7 +5,7 @@ Grace builds complete SaaS applications autonomously
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 import logging
 

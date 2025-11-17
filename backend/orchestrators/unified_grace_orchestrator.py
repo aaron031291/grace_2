@@ -8,23 +8,20 @@ Manages ALL Grace subsystems across ALL platforms (Windows/macOS/Linux)
 import asyncio
 import logging
 import json
-import os
 import sys
 import platform
 import subprocess
 import traceback
 import signal
-import psutil
 import argparse
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 from contextlib import asynccontextmanager
 
 # FastAPI and web framework
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 # Grace system imports - COMPLETE INTEGRATION (ALL SUBSYSTEMS)
 IMPORTS_SUCCESSFUL = True
@@ -1100,17 +1097,6 @@ async def get_memory_service_status():
 async def list_all_kernels():
     """List all 9 domain kernels"""
     try:
-        from backend.kernels.all_kernels_clarity import (
-            ClarityMemoryKernel,
-            ClarityCoreKernel,
-            ClarityCodeKernel,
-            ClarityGovernanceKernel,
-            ClarityVerificationKernel,
-            ClarityIntelligenceKernel,
-            ClarityInfrastructureKernel,
-            ClarityFederationKernel,
-            ClarityMLKernel
-        )
         
         kernels = [
             {"name": "Memory", "domain": "memory", "type": "ClarityMemoryKernel"},

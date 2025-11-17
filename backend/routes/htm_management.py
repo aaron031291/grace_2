@@ -2,7 +2,7 @@
 HTM Management API - MVP
 Simple endpoints for HTM queue control, priority management, and auto-scaling rules
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 

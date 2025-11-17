@@ -12,7 +12,6 @@ Guardian focuses on: network, ports, boot sequence
 Then works in synergy with specialists for their domains.
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime
@@ -434,7 +433,6 @@ class GuardianBootOrchestrator:
         """Fix a network-related issue (Guardian's domain)"""
         
         try:
-            from .network_hardening import network_hardening
             
             # Example fixes
             if 'ipv6' in issue.lower():

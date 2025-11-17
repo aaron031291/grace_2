@@ -664,7 +664,6 @@ class HardenedBootOrchestrator:
             
             # 1. Import test
             try:
-                from .models import Base
                 smoke_results["import_test"] = True
                 logger.info("[STAGE 6] ✓ Import test")
             except Exception as e:

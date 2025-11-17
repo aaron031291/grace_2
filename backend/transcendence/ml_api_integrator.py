@@ -10,10 +10,8 @@ External APIs are ONLY for:
 - NOT for LLM generation (Grace does that herself)
 """
 
-import asyncio
 import aiohttp
 from typing import Dict, List, Any, Optional
-from datetime import datetime
 import logging
 
 from ..models import async_session

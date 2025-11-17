@@ -14,7 +14,6 @@ import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from pathlib import Path
 
 from backend.execution.immutable_log import immutable_log
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent

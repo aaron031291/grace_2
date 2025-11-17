@@ -5,7 +5,6 @@ Integrates with system keyring and supports multiple backend stores.
 """
 
 import os
-import json
 import hashlib
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
@@ -569,7 +568,7 @@ class SecretsVault:
         
         async with async_session() as session:
             from sqlalchemy import select, and_
-            from datetime import datetime, timedelta
+            from datetime import datetime
             
             # Find secrets due for rotation
             query = select(SecretEntry).where(

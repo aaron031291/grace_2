@@ -11,10 +11,9 @@ Benefits:
 """
 
 import asyncio
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, func, and_, desc
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import async_session
 from .immutable_log import ImmutableLog

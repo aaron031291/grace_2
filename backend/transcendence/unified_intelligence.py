@@ -249,7 +249,7 @@ class TranscendenceUnified:
         """
         
         async with async_session() as session:
-            from sqlalchemy import select, update
+            from sqlalchemy import select
             
             result = await session.execute(
                 select(CollaborativeDecision).where(

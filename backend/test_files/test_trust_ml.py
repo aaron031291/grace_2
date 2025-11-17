@@ -3,11 +3,10 @@
 import asyncio
 import sys
 from training_pipeline import training_pipeline
-from ml_classifiers import trust_classifier_manager, TrustScoreClassifier
+from ml_classifiers import TrustScoreClassifier
 from ingestion_service import ingestion_service
 from models import async_session, init_db
 from knowledge_models import KnowledgeArtifact
-from sqlalchemy import select
 import numpy as np
 
 async def test_feature_extraction():

@@ -4,9 +4,9 @@ from sqlalchemy import select, and_
 from collections import defaultdict
 
 if TYPE_CHECKING:
-    from .models import Task, ChatMessage, CausalEvent
+    from .models import CausalEvent
 
-from .causal_graph import CausalGraph, CausalNode
+from .causal_graph import CausalGraph
 
 class CausalAnalyzer:
     """High-level causal analysis for system optimization"""

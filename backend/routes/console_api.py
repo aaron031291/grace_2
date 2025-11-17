@@ -4,8 +4,7 @@ Console API - Unified endpoints for Console UI
 Aggregates data from multiple sources for the console interface
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
+from fastapi import APIRouter
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/api/console", tags=["console"])
@@ -20,7 +19,6 @@ async def get_console_overview():
     """
     try:
         # Get missions
-        from backend.routes.mission_control_api import router as mission_router
         # Import mission data functions
         
         # Get recent logs count

@@ -3,7 +3,6 @@ Alert Notification System
 Grace sends alerts for critical events and system changes
 """
 
-import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum

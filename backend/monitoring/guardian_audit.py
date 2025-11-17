@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime
-import inspect
 import json
 
 # Add project root
@@ -69,11 +68,7 @@ class GuardianAuditor:
         
         try:
             from backend.self_heal.network_healing_playbooks import (
-                NetworkPlaybookRegistry,
-                RestartComponentPlaybook,
-                ClearPortPlaybook,
-                DiagnoseNetworkPlaybook,
-                RebindPortPlaybook
+                NetworkPlaybookRegistry
             )
             
             registry = NetworkPlaybookRegistry()

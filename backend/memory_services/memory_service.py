@@ -4,7 +4,6 @@ from typing import Optional, List
 from sqlalchemy import select
 from .memory_models import MemoryArtifact, MemoryOperation, MemoryEvent
 from .models import async_session
-from datetime import datetime
 
 class MemoryService:
     """Unified memory management with immutable audit trail"""

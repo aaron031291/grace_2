@@ -12,11 +12,9 @@ Features:
 - Learning events
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, Set
 from datetime import datetime, timezone
-import json
 
 from .websocket_handler import websocket_manager
 from .trigger_mesh import trigger_mesh, TriggerEvent

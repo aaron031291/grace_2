@@ -5,7 +5,6 @@ Only promotes to production if tests pass all KPIs and governance
 """
 
 import asyncio
-import aiohttp
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging

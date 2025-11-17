@@ -6,7 +6,6 @@ Proactively predicts incidents before they occur
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Dict, List
 from .temporal_forecasting import temporal_forecaster, ForecastRequest
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log

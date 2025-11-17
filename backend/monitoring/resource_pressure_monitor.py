@@ -8,7 +8,7 @@ Fixes Gap: S03_cpu_spike scenario had no watcher
 import asyncio
 import logging
 import psutil
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 from collections import deque
 

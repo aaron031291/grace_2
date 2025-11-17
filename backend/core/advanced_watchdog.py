@@ -21,14 +21,12 @@ import asyncio
 import time
 import psutil
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import deque
 from enum import Enum
 import numpy as np
-import json
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

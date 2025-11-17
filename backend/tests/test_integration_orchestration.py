@@ -15,7 +15,7 @@ import pytest
 import asyncio
 from datetime import datetime, timezone
 
-from backend.crypto_key_manager import crypto_key_manager, SignedMessage
+from backend.crypto_key_manager import crypto_key_manager
 from backend.integration_orchestrator import integration_orchestrator
 
 

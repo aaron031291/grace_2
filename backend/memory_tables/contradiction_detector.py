@@ -2,9 +2,8 @@
 Contradiction Detection System
 Detects conflicting information across memory tables and flags for review
 """
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List
 from datetime import datetime
 from collections import defaultdict
 

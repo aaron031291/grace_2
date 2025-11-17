@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, select
 from sqlalchemy.sql import func
 from backend.models.base_models import Base, async_session

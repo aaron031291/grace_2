@@ -16,7 +16,7 @@ This is Amp-like, but Grace-aware.
 import asyncio
 from grace_architect_agent import grace_architect
 from parliament_engine import parliament_engine
-from models import async_session, Base, engine
+from models import Base, engine
 
 async def demo():
     """

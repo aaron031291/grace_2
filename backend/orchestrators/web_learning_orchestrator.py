@@ -5,7 +5,6 @@ Orchestrates: Web Scraping → GitHub Mining → YouTube → Remote Access → S
 All controlled by Hunter Protocol, Governance, Constitutional AI, with full traceability
 """
 
-import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
@@ -13,12 +12,10 @@ import logging
 from .safe_web_scraper import safe_web_scraper
 from .github_knowledge_miner import github_miner
 from .youtube_learning import youtube_learning
-from .reddit_learning import reddit_learning
 from .remote_computer_access import remote_access
 from .knowledge_provenance import provenance_tracker
 from .knowledge_application_sandbox import knowledge_sandbox
 from .unified_logger import unified_logger
-from .governance_framework import governance_framework
 
 logger = logging.getLogger(__name__)
 

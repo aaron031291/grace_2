@@ -29,7 +29,7 @@ Flow:
 
 import asyncio
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from backend.core.message_bus import message_bus, MessagePriority
 

@@ -22,7 +22,6 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 
 from ..trigger_mesh import trigger_mesh, TriggerEvent
 from ..immutable_log import immutable_log
@@ -278,7 +277,7 @@ class MetaCoordinatedHealing:
         """
         try:
             from ..models import async_session
-            from sqlalchemy import select, func
+            from sqlalchemy import select
             from ..base_models import ImmutableLogEntry as ImmutableEntry
             
             # Analyze recent system behavior (last 5 minutes)

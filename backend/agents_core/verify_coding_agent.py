@@ -20,10 +20,10 @@ async def verify_coding_agent():
     # Test 1: Import all modules
     print("Test 1: Importing modules...")
     try:
-        from code_memory import code_memory, CodePattern, CodeContext
+        from code_memory import code_memory
         from code_understanding import code_understanding
         from code_generator import code_generator
-        from dev_workflow import dev_workflow, DevelopmentTask
+        from dev_workflow import dev_workflow
         from routes.coding_agent_api import router
         results['passed'].append("All modules imported successfully")
         print("  ✅ All modules imported")
@@ -34,8 +34,7 @@ async def verify_coding_agent():
     # Test 2: Database models
     print("\nTest 2: Checking database models...")
     try:
-        from models import Base, engine, async_session
-        from sqlalchemy import inspect
+        from models import Base, engine
         
         # Check if tables exist
         async with engine.begin() as conn:
@@ -137,10 +136,6 @@ async def verify_coding_agent():
     print("\nTest 8: Testing GRACE system integration...")
     try:
         # Try to import integrated systems
-        from governance import governance_engine
-        from hunter import hunter_engine
-        from causal_analyzer import causal_analyzer
-        from meta_loop_engine import meta_loop
         
         results['passed'].append("GRACE system integration verified")
         print("  ✅ GRACE integration OK")

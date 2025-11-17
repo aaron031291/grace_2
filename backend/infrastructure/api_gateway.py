@@ -12,13 +12,13 @@ Integrates with:
 import asyncio
 import logging
 from typing import Dict, Any, Optional, List, TYPE_CHECKING
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import deque
 import httpx
 import time
 
 if TYPE_CHECKING:
-    from .service_discovery import ServiceInstance
+    pass
 
 logger = logging.getLogger(__name__)
 

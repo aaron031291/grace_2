@@ -4,7 +4,7 @@ View and manage port allocations with network hardening
 """
 
 from fastapi import APIRouter
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from ..core.port_manager import port_manager
 from ..core.port_watchdog import port_watchdog

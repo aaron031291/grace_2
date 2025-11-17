@@ -15,7 +15,6 @@ Features:
 - Citation tracking
 """
 
-import asyncio
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 

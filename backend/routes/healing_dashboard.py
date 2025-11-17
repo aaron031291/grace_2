@@ -40,7 +40,6 @@ async def get_healing_status() -> Dict[str, Any]:
 async def get_recent_fixes(limit: int = 20) -> Dict[str, Any]:
     """Get recently applied fixes from all healing systems"""
     
-    from ..immutable_log import ImmutableLog
     from ..models import async_session
     from ..base_models import ImmutableLogEntry
     from sqlalchemy import select, desc, or_
@@ -83,7 +82,6 @@ async def get_recent_fixes(limit: int = 20) -> Dict[str, Any]:
 async def get_detected_errors(limit: int = 50) -> Dict[str, Any]:
     """Get errors detected by healing systems"""
     
-    from ..immutable_log import ImmutableLog
     from ..models import async_session
     from ..base_models import ImmutableLogEntry
     from sqlalchemy import select, desc

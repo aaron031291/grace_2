@@ -14,13 +14,10 @@ Provides unified interface for:
 - Batch operations
 """
 
-import asyncio
-import json
 import numpy as np
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-import os
 
 try:
     import faiss
@@ -29,7 +26,6 @@ except ImportError:
 
 from backend.models.vector_models import VectorEmbedding, VectorIndex, VectorSearchQuery
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
 from sqlalchemy import select, update as sql_update
 
 

@@ -1,7 +1,5 @@
 """GitHub integration for repository monitoring and automated actions"""
 
-import asyncio
-import json
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from backend.trigger_mesh import trigger_mesh, TriggerEvent

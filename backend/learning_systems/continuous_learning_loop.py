@@ -14,7 +14,7 @@ Features:
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
@@ -335,12 +335,10 @@ class ContinuousLearningLoop:
             # Determine which knowledge base to update
             if learning.source == "mission" and learning.success:
                 # Add to Elite Self-Healing knowledge
-                from .elite_self_healing import elite_self_healing
                 # Would add knowledge entry here
                 pass
             elif learning.source == "coding" and learning.success:
                 # Add to Elite Coding Agent knowledge
-                from .elite_coding_agent import elite_coding_agent
                 # Would add knowledge entry here
                 pass
         except Exception as e:

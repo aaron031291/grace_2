@@ -3,14 +3,10 @@ Playbook Executor - Executes Real Remedial Actions
 No stubs - actual infrastructure actions
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, Optional
-from datetime import datetime, timezone
+from typing import Dict, Any
 
-from .telemetry_schemas import PlaybookDefinition
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from .logging_utils import log_event
 from .immutable_log import immutable_log
 from .causal_playbook_reinforcement import causal_rl_agent, PlaybookExperience
 
@@ -202,7 +198,6 @@ class PlaybookExecutor:
         """Reduce learning session frequency"""
         logger.info("[PLAYBOOK] Throttling learning...")
         
-        from .web_learning_orchestrator import web_learning_orchestrator
         
         # Increase interval between learning sessions
         # This is a REAL action that affects behavior
@@ -230,8 +225,6 @@ class PlaybookExecutor:
         """Run ML trust analysis on sources"""
         logger.info("[PLAYBOOK] Running trust analysis...")
         
-        from .trusted_sources import trust_manager
-        from .ml_healing import ml_healing
         
         # Trigger trust score recalculation
         # This is REAL ML analysis
@@ -259,7 +252,6 @@ class PlaybookExecutor:
         """Reduce autonomy level for safety"""
         logger.warning("[PLAYBOOK] Downgrading autonomy tier...")
         
-        from .autonomy_tiers import autonomy_manager
         
         # Reduce autonomy tier - REAL safety action
         

@@ -21,7 +21,6 @@ from dataclasses import dataclass, field
 from .crypto_key_manager import crypto_key_manager, SignedMessage
 from .immutable_log import immutable_log
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from .models import async_session
 
 logger = logging.getLogger(__name__)
 

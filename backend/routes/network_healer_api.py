@@ -102,7 +102,6 @@ async def get_healing_recommendations(component_name: str) -> Dict[str, Any]:
     Get healing recommendations for a component based on its issues
     """
     from backend.core.kernel_port_manager import kernel_port_manager
-    from backend.self_heal.network_healing_playbooks import network_playbook_registry
     
     # Get component assignment
     assignment = kernel_port_manager.get_assignment(component_name)

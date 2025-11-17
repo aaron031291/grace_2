@@ -8,7 +8,7 @@ from datetime import datetime
 import asyncio
 
 from backend.core.kernel_sdk import KernelSDK
-from backend.core.message_bus import message_bus, MessagePriority
+from backend.core.message_bus import message_bus
 from .base_kernel import KernelIntent, KernelPlan, KernelResponse
 from ..memory_services.memory import PersistentMemory
 from ..schemas import ExecutionStep, DataProvenance

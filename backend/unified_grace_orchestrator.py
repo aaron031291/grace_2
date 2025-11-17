@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile
+from fastapi import FastAPI, HTTPException, UploadFile
 from datetime import datetime
 import asyncio
 
@@ -53,7 +53,6 @@ async def update_self_healing_playbook(playbook_id: str, playbook_data: dict):
 async def run_self_healing_playbook(playbook_id: str, run_params: dict = None):
     """Execute a self-healing playbook"""
     try:
-        from backend.self_heal.adapter import self_healing_adapter
         from backend.memory_tables.registry import table_registry
         
         # Get playbook details

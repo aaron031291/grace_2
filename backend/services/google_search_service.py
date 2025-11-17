@@ -4,7 +4,6 @@ Enables web search capabilities with governance and safety controls
 With trust scoring, KPI tracking, and whitelist management
 """
 
-import asyncio
 import logging
 import json
 from typing import Dict, Any, List, Optional
@@ -12,7 +11,6 @@ from datetime import datetime
 from pathlib import Path
 import aiohttp
 from bs4 import BeautifulSoup
-import re
 
 logger = logging.getLogger(__name__)
 

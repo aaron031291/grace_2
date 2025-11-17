@@ -14,7 +14,6 @@ Endpoints:
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, List, Any
 from datetime import datetime
 
 router = APIRouter(prefix="/operator", tags=["Operator Dashboard"])

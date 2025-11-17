@@ -3,7 +3,7 @@
 Memory Tables API - Routes through Unified Logic Hub
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging

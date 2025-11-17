@@ -17,7 +17,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 
 from ...transcendence.ml_api_integrator import ml_api_integrator
-from ...transcendence.llm_provider_router import llm_router, grace_llm
+from ...transcendence.llm_provider_router import llm_router
 from ...unified_logger import unified_logger
 from ...activity_monitor import activity_monitor
 

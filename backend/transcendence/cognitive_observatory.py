@@ -19,7 +19,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, Boo
 from sqlalchemy.sql import func
 
 from ..models import Base, async_session
-from ..cognition.GraceLoopOutput import GraceLoopOutput, OutputType
 
 class CognitiveStep(Base):
     """Single step in Grace's cognitive process"""

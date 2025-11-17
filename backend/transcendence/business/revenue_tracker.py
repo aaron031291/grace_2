@@ -4,9 +4,9 @@ Tracks income, expenses, profits, forecasts revenue using ML,
 analyzes revenue sources, and suggests optimizations.
 """
 
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
-from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, Boolean, ForeignKey, select, func
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, select
 from sqlalchemy.sql import func as sql_func
 from collections import defaultdict
 import statistics
@@ -547,7 +547,6 @@ class RevenueTracker:
         now = datetime.utcnow()
         period = now.strftime("%Y-%m")
         
-        import uuid
         metric_id = f"METRIC-{business}-{period}"
         
         async with async_session() as session:

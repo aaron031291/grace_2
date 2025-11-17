@@ -3,7 +3,7 @@ Notification & Alert System
 Real-time alerts for Memory Studio events
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 import asyncio

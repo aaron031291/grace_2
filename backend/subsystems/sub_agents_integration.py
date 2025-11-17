@@ -2,7 +2,6 @@
 Sub-Agents Subsystem Integration with Memory Tables
 Tracks agent configurations, status, and performance to memory_sub_agents
 """
-import asyncio
 import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime

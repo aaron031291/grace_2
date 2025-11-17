@@ -1,6 +1,5 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from ..websocket_manager import ws_manager
-from ..auth import get_current_user
 
 router = APIRouter()
 

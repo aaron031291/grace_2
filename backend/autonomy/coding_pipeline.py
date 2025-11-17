@@ -4,7 +4,7 @@ End-to-end pipeline for autonomous software development with human oversight
 """
 
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import asyncio

@@ -9,12 +9,11 @@ import aiohttp
 import signal
 import shutil
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 import logging
 import platform
-import subprocess
 
 @dataclass
 class ProcessInfo:

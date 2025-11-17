@@ -4,13 +4,11 @@ Handles resumable uploads for TB-scale files
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import List
 from pathlib import Path
 import hashlib
 import shutil
-import json
 from datetime import datetime, timedelta
 import logging
 

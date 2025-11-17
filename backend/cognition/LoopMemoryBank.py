@@ -6,12 +6,12 @@ Manages memory storage, retrieval, and garbage collection with trust-based ranki
 import json
 import uuid
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from dataclasses import dataclass
-from sqlalchemy import select, and_, or_, desc
+from sqlalchemy import select
 
 from .GraceLoopOutput import GraceLoopOutput, OutputType
-from .MemoryScoreModel import MemoryScoreModel, DecayCurve, TrustSignals
+from .MemoryScoreModel import MemoryScoreModel, DecayCurve
 from .memory_models import MemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog
 from backend.models.base_models import async_session
 

@@ -10,7 +10,7 @@ Exposes concurrent executor capabilities:
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 
 from ..concurrent_executor import concurrent_executor
 from ..auth import get_current_user

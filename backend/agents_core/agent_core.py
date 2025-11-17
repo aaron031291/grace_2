@@ -10,7 +10,7 @@ GRACE's autonomous capabilities.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -400,7 +400,7 @@ class AgentCore:
     
     async def _assign_shard(self, adapter: DomainAdapter):
         """Assign domain to a shard for distributed processing"""
-        from .multi_agent_shards import shard_coordinator, ShardType, ShardScope, CapabilityType
+        from .multi_agent_shards import shard_coordinator, ShardType, ShardScope
         from .agentic_config import agentic_config
         
         if not agentic_config.is_enabled("sharding"):

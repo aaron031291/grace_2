@@ -3,7 +3,7 @@ Verification Kernel - Contracts & Benchmarks AI Agent
 Manages: verification contracts, snapshots, benchmarks, mission tracking
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

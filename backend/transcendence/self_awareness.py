@@ -12,9 +12,8 @@ Grace understands her complete internal world:
 Complete introspection and self-knowledge.
 """
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float, Boolean
+from typing import Dict, Any
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Float
 from sqlalchemy.sql import func
 
 from ..models import Base, async_session
@@ -139,7 +138,6 @@ class GraceSelfAwareness:
         print()
         
         from pathlib import Path
-        import ast
         
         grace_root = Path(__file__).parent.parent.parent.parent
         backend_root = grace_root / 'grace_rebuild' / 'backend'

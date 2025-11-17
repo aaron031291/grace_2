@@ -8,8 +8,7 @@ import asyncio
 import httpx
 import time
 from datetime import datetime
-from typing import Dict, Any, List, Optional
-from pathlib import Path
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

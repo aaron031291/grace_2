@@ -3,7 +3,7 @@ Kernel Management API
 Provides kernel status, actions, config, and log streaming per layer
 """
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 import asyncio
 

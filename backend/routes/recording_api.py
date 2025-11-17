@@ -3,11 +3,11 @@ Recording API
 Screen sharing, video calls, and voice notes with consent management
 """
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
-from backend.services.recording_service import recording_service, RecordingType
+from backend.services.recording_service import recording_service
 
 
 router = APIRouter(prefix="/api/recordings", tags=["recordings"])

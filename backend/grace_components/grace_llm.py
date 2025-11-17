@@ -7,7 +7,6 @@ for intelligence rather than external APIs.
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from .memory import PersistentMemory
-from .causal import causal_tracker
 
 class GraceLLM:
     """

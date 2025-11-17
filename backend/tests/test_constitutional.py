@@ -15,8 +15,7 @@ from sqlalchemy import select
 
 from backend.models import async_session, engine, Base
 from backend.constitutional_models import (
-    ConstitutionalPrinciple, ConstitutionalViolation,
-    ClarificationRequest, ConstitutionalCompliance
+    ConstitutionalPrinciple, ConstitutionalViolation
 )
 from backend.constitutional_engine import constitutional_engine
 from backend.constitutional_verifier import constitutional_verifier

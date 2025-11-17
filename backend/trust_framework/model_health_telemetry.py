@@ -5,9 +5,9 @@ Token-level metrics, execution windows, grey zone detection
 
 import time
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import deque
 import json
 from pathlib import Path

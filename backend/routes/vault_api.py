@@ -10,7 +10,7 @@ Provides:
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 try:
     from ..security.secrets_vault import secrets_vault

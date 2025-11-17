@@ -7,11 +7,9 @@ Computes trust scores based on multiple factors:
 - Cross-validation with other tables
 - Contradiction detection results
 """
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
-from collections import defaultdict
+from typing import Dict, Any
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 

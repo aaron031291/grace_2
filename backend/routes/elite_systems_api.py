@@ -25,7 +25,7 @@ from ..auth import get_current_user
 def get_elite_systems():
     """Lazy load elite systems"""
     try:
-        from ..elite_self_healing import elite_self_healing, HealingDomain, HealingCapability
+        from ..elite_self_healing import elite_self_healing, HealingDomain
         from ..elite_coding_agent import elite_coding_agent, CodingTaskType, ExecutionMode
         from ..shared_orchestration import shared_orchestrator, AgentType, TaskPriority
         return elite_self_healing, elite_coding_agent, shared_orchestrator, HealingDomain, CodingTaskType, ExecutionMode, AgentType, TaskPriority

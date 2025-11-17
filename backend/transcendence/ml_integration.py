@@ -4,8 +4,7 @@ Connects multi-modal memory -> ML training -> model deployment
 Grace learns from ANY data you approve, builds domain-specific models.
 """
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any
 from sqlalchemy import select
 
 from ..models import async_session
@@ -13,7 +12,7 @@ from ..training_pipeline import training_pipeline
 from ..ml_runtime import model_registry
 from ..auto_retrain import auto_retrain_engine
 from .multi_modal_memory import MultiModalArtifact
-from .unified_intelligence import TrustedSource, AgenticLearningCycle
+from .unified_intelligence import AgenticLearningCycle
 
 class TranscendenceMLEngine:
     """

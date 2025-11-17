@@ -4,14 +4,12 @@ Tracks and analyzes ML/AI system performance over time
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 from collections import defaultdict
 
-from .models import async_session
 from .immutable_log import immutable_log
 from .grace_training_storage import training_storage
-from sqlalchemy import select, func
 
 logger = logging.getLogger(__name__)
 

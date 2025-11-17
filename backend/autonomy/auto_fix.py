@@ -1,8 +1,6 @@
 """Auto-fix engine for security issues"""
 import re
-import json
-from typing import Dict, Any, Optional, List
-from pathlib import Path
+from typing import Dict, Any, List
 
 
 class AutoFix:
