@@ -111,6 +111,12 @@ try:
 except ImportError as e:
     print(f"[WARN] Learning control disabled: {e}")
 
+try:
+    from backend.routes.agentic_api import router as agentic_router
+    app.include_router(agentic_router)
+except ImportError as e:
+    print(f"[WARN] Agentic API disabled: {e}")
+
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:
     from backend.routes.autonomous_web_learning import router as web_learning_router
@@ -300,6 +306,30 @@ async def startup_unified_llm():
         except Exception:
             # app.state may not be available in some edge cases, ignore
             pass
+
+@app.on_event("startup")
+async def startup_agentic_organism():
+    """Initialize Grace's unified agentic organism"""
+    try:
+        from backend.event_bus import event_bus
+        from backend.action_gateway import action_gateway
+        from backend.reflection_loop import reflection_loop
+        
+        print("[OK] Event Bus initialized (unified communication layer)")
+        print("[OK] Action Gateway initialized (governance enforcement)")
+        print("[OK] Reflection Loop initialized (continuous learning)")
+        
+        # Register core skills
+        from backend.skills.core_skills import register_core_skills
+        register_core_skills()
+        print("[OK] Core skills registered (5 skills available)")
+        
+        print("[AGENTIC] Grace's unified organism is operational")
+        
+    except Exception as e:
+        print(f"[WARN] Agentic organism initialization degraded: {e}")
+        import traceback
+        traceback.print_exc()
 
 @app.on_event("startup")
 async def startup_advanced_learning():
