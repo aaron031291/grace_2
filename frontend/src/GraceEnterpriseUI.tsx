@@ -4,6 +4,7 @@ import { ExecutionTracePanel } from './components/ExecutionTracePanel';
 import { HealthBar } from './components/HealthBar';
 import { LeftSidebar } from './components/LeftSidebar';
 import { ChatView } from './components/ChatView';
+import { GlobalSearch } from './components/GlobalSearch';
 import { GuardianWorkspace } from './components/workspaces/GuardianWorkspace';
 import { CopilotWorkspace } from './components/workspaces/CopilotWorkspace';
 import { GovernanceWorkspace } from './components/workspaces/GovernanceWorkspace';
@@ -60,6 +61,7 @@ export interface HealthMetrics {
 export default function GraceEnterpriseUI() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [executionTracePanelOpen, setExecutionTracePanelOpen] = useState(false);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [selectedTrace, setSelectedTrace] = useState<ExecutionTrace | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
@@ -77,6 +79,11 @@ export default function GraceEnterpriseUI() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
+        setGlobalSearchOpen(prev => !prev);
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
         setCommandPaletteOpen(prev => !prev);
       }
       
@@ -88,6 +95,7 @@ export default function GraceEnterpriseUI() {
       if (e.key === 'Escape') {
         setCommandPaletteOpen(false);
         setExecutionTracePanelOpen(false);
+        setGlobalSearchOpen(false);
       }
     };
 
@@ -215,8 +223,10 @@ export default function GraceEnterpriseUI() {
           <div className="global-search">
             <input 
               type="text" 
-              placeholder="Search chats, files, knowledge..." 
+              placeholder="Search chats, files, knowledge... (⌘K)" 
               className="search-input"
+              onClick={() => setGlobalSearchOpen(true)}
+              readOnly
             />
           </div>
         </div>
@@ -273,6 +283,15 @@ export default function GraceEnterpriseUI() {
           onClose={() => setExecutionTracePanelOpen(false)}
         />
       )}
+
+      {/* Global Search */}
+      <GlobalSearch
+        isOpen={globalSearchOpen}
+        onClose={() => setGlobalSearchOpen(false)}
+        onSelect={(result) => {
+          console.log('Selected:', result);
+        }}
+      />
     </div>
   );
 }
