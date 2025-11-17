@@ -220,12 +220,11 @@ PORT = int(os.getenv("GRACE_PORT", "8001"))
             content = client_py.read_text()
             if "BASE_URL" in content and "GRACE_PORT" not in content:
                 # Update BASE_URL to use GRACE_PORT
-                port_var = 'PORT = os.getenv("GRACE_PORT", "8001")'
-                base_url_update = f'BASE_URL = f"http://localhost:{port_var.split("=")[1].strip()}"'
-
+                grace_port = 'os.getenv("GRACE_PORT", "8001")'
+                
                 content = content.replace(
                     'BASE_URL = "http://localhost:8001"',
-                    f'PORT = os.getenv("GRACE_PORT", "8001")\nBASE_URL = f"http://localhost:{PORT}"'
+                    f'import os\nPORT = {grace_port}\nBASE_URL = f"http://localhost:{{PORT}}"'
                 )
                 client_py.write_text(content)
                 self.issues_resolved.append("Updated remote_access_client.py to use GRACE_PORT")
