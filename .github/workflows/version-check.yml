@@ -1,0 +1,85 @@
+name: Version Consistency Check
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check version consistency
+        run: |
+          echo "Checking version consistency across files..."
+          
+          # Read VERSION file
+          VERSION=$(cat VERSION)
+          echo "VERSION file: $VERSION"
+          
+          # Check pyproject.toml
+          PYPROJECT_VERSION=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "pyproject.toml: $PYPROJECT_VERSION"
+          
+          # Check __version__.py
+          BACKEND_VERSION=$(grep '__version__ = ' backend/__version__.py | sed 's/.*"\(.*\)".*/\1/')
+          echo "backend/__version__.py: $BACKEND_VERSION"
+          
+          # Check main.py
+          MAIN_VERSION=$(grep 'version=' backend/misc/main.py | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "backend/misc/main.py: $MAIN_VERSION"
+          
+          # Verify all match
+          if [ "$VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "ERROR: VERSION file ($VERSION) does not match pyproject.toml ($PYPROJECT_VERSION)"
+            exit 1
+          fi
+          
+          if [ "$VERSION" != "$BACKEND_VERSION" ]; then
+            echo "ERROR: VERSION file ($VERSION) does not match __version__.py ($BACKEND_VERSION)"
+            exit 1
+          fi
+          
+          if [ "$VERSION" != "$MAIN_VERSION" ]; then
+            echo "ERROR: VERSION file ($VERSION) does not match main.py ($MAIN_VERSION)"
+            exit 1
+          fi
+          
+          echo "SUCCESS: All versions match $VERSION"
+
+      - name: Check CHANGELOG updated
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Checking if CHANGELOG.md was updated..."
+          
+          # Check if CHANGELOG.md has changes
+          git fetch origin main
+          CHANGED=$(git diff origin/main...HEAD --name-only | grep CHANGELOG.md || true)
+          
+          if [ -z "$CHANGED" ]; then
+            echo "WARNING: CHANGELOG.md not updated in this PR"
+            echo "Consider adding release notes"
+          else
+            echo "OK: CHANGELOG.md was updated"
+          fi
+
+      - name: Validate version format
+        run: |
+          VERSION=$(cat VERSION)
+          
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ERROR: Invalid version format: $VERSION"
+            echo "Must be: MAJOR.MINOR.PATCH (e.g., 2.1.0)"
+            exit 1
+          fi
+          
+          echo "OK: Version format valid: $VERSION"
