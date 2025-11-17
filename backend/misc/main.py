@@ -504,15 +504,23 @@ async def shutdown_server():
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
+    from backend.__version__ import __version__
+    
     return {
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "version": "1.0.0",
+        "version": __version__,
         "services": {
             "database": "connected",
             "api": "running"
         }
     }
+
+@app.get("/version")
+async def get_version():
+    """Get detailed version information"""
+    from backend.__version__ import get_version_info
+    return get_version_info()
 
 # Add process info endpoint
 @app.get("/api/process/info")
