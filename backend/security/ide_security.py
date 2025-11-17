@@ -4,8 +4,8 @@ import json
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from .hunter import hunter
-from .governance_models import SecurityRule
-from .models import async_session
+from backend.models.governance_models import SecurityRule
+from backend.models import async_session
 from sqlalchemy import select
 
 
