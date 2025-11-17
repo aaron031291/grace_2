@@ -1,0 +1,246 @@
+{
+  "audit_time": "2025-11-17T15:18:07.118424",
+  "total_playbooks": 10,
+  "playbooks": [
+    {
+      "name": "restart_component",
+      "class_name": "RestartComponentPlaybook",
+      "module": "network_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "restart_kernel",
+      "class_name": "RestartKernelPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "restart_service",
+      "class_name": "RestartServicePlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "performance_optimization",
+      "class_name": "PerformanceOptimizationPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "resource_cleanup",
+      "class_name": "ResourceCleanupPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "rollback_deployment",
+      "class_name": "RollbackDeploymentPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "quarantine_artifacts",
+      "class_name": "QuarantineArtifactsPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "run_diagnostics",
+      "class_name": "RunDiagnosticsPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "daily_health_check",
+      "class_name": "DailyHealthCheckPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    },
+    {
+      "name": "rotate_secrets",
+      "class_name": "RotateSecretsPlaybook",
+      "module": "auto_healing_playbooks",
+      "has_execute_method": true,
+      "has_verify_method": false,
+      "has_rollback_method": false,
+      "has_dry_run_support": false,
+      "execution_count": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 0,
+      "last_execution": "never",
+      "issues": [
+        "Missing verify() method for post-action validation",
+        "Missing rollback() method for failure recovery"
+      ],
+      "recommendations": [
+        "Add verify() method to validate healing success",
+        "Add rollback() method to undo changes on failure",
+        "Add dry_run() method for testing without side effects"
+      ],
+      "status": "warning"
+    }
+  ]
+}
