@@ -4,7 +4,7 @@ Tenant isolation, per-tenant metrics, and resource management
 """
 
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from enum import Enum
 import uuid
