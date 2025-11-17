@@ -32,7 +32,6 @@ export function LeftSidebar({
   onCapabilityClick,
   onWorkspaceClick,
   onWorkspaceClose,
-  onCreateWorkspace,
   onCommandPaletteOpen,
 }: LeftSidebarProps) {
   return (
