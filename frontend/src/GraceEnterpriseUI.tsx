@@ -13,6 +13,7 @@ import { MissionWorkspace } from './components/workspaces/MissionWorkspace';
 import { MemoryWorkspace } from './components/workspaces/MemoryWorkspace';
 import { ObservatoryWorkspace } from './components/workspaces/ObservatoryWorkspace';
 import { TerminalWorkspace } from './components/workspaces/TerminalWorkspace';
+import { AgenticWorkspace } from './components/workspaces/AgenticWorkspace';
 import './GraceEnterpriseUI.css';
 
 export type Capability = 
@@ -25,7 +26,8 @@ export type Capability =
   | 'mission-control' 
   | 'observatory' 
   | 'memory' 
-  | 'terminal';
+  | 'terminal'
+  | 'agentic';
 
 export interface Workspace {
   id: string;
@@ -176,6 +178,26 @@ export default function GraceEnterpriseUI() {
           return <ObservatoryWorkspace workspace={activeWorkspace} />;
         case 'terminal':
           return <TerminalWorkspace workspace={activeWorkspace} />;
+        case 'agentic':
+          return <AgenticWorkspace workspace={activeWorkspace} onShowTrace={(traceId) => {
+            fetch(`http://localhost:8000/api/agentic/trace/${traceId}`)
+              .then(res => res.json())
+              .then(data => {
+                setSelectedTrace({
+                  request_id: traceId,
+                  steps: data.events.map((e: any) => ({
+                    component: e.source,
+                    action: e.event_type,
+                    duration_ms: 0,
+                    result: e.data
+                  })),
+                  duration_ms: 0,
+                  data_sources_used: [],
+                  agents_involved: data.actions.map((a: any) => a.agent)
+                });
+                setExecutionTracePanelOpen(true);
+              });
+          }} />;
         default:
           return <ChatView onShowTrace={showExecutionTrace} />;
       }
@@ -307,7 +329,8 @@ function getCapabilityTitle(capability: Capability): string {
     'mission-control': 'Mission Control',
     'observatory': 'Observatory',
     'memory': 'Memory',
-    'terminal': 'Terminal'
+    'terminal': 'Terminal',
+    'agentic': 'Agentic Organism'
   };
   return titles[capability] || capability;
 }
