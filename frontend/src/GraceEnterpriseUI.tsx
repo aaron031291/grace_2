@@ -180,25 +180,31 @@ export default function GraceEnterpriseUI() {
         case 'terminal':
           return <TerminalWorkspace workspace={activeWorkspace} />;
         case 'world-model':
-          return <WorldModelHub workspace={activeWorkspace} onShowTrace={(traceId) => {
-            fetch(`http://localhost:8054/api/world_model_hub/trace/${traceId}`)
-              .then(res => res.json())
-              .then(data => {
-                setSelectedTrace({
-                  request_id: traceId,
-                  steps: data.events.map((e: any) => ({
-                    component: e.source,
-                    action: e.event_type,
+          return <WorldModelHub 
+            workspace={activeWorkspace} 
+            onShowTrace={(traceId) => {
+              fetch(`http://localhost:8054/api/world_model_hub/trace/${traceId}`)
+                .then(res => res.json())
+                .then(data => {
+                  setSelectedTrace({
+                    request_id: traceId,
+                    steps: data.events.map((e: any) => ({
+                      component: e.source,
+                      action: e.event_type,
+                      duration_ms: 0,
+                      result: e.data
+                    })),
                     duration_ms: 0,
-                    result: e.data
-                  })),
-                  duration_ms: 0,
-                  data_sources_used: [],
-                  agents_involved: data.actions.map((a: any) => a.agent)
+                    data_sources_used: [],
+                    agents_involved: data.actions.map((a: any) => a.agent)
+                  });
+                  setExecutionTracePanelOpen(true);
                 });
-                setExecutionTracePanelOpen(true);
-              });
-          }} />;
+            }}
+            onCreateWorkspace={(type: string, context?: any) => {
+              createWorkspace(type as Capability, context);
+            }}
+          />;
         case 'agentic':
           return <AgenticWorkspace workspace={activeWorkspace} onShowTrace={(traceId) => {
             fetch(`http://localhost:8054/api/agentic/trace/${traceId}`)
