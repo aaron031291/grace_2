@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "grace"
-version = "1.0.0"
+version = "2.1.0"
 description = "Grace Unified AI System"
 authors = [{name = "Grace Team", email = "team@grace.ai"}]
 license = {text = "MIT"}
