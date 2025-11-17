@@ -1,0 +1,250 @@
+# GRACE Metrics & Telemetry Catalog
+
+This catalog defines the first production-ready metric set for Grace’s autonomous
+systems, along with the schemas used to publish, persist, and act on telemetry.
+It is intentionally opinionated so collectors, proactive intelligence, and playbook
+executors all speak the same language.
+
+---
+
+## 1. Metric Categories & Signals
+
+Each metric entry defines:
+
+| Field | Meaning |
+| ----- | ------- |
+| `metric_id` | Globally unique identifier (`category.metric`) |
+| `source` | System producing the data (Prometheus, CloudWatch, internal service) |
+| `resource_scope` | Logical entity being measured (service, queue, shard, subsystem) |
+| `interval` | Recommended scrape/publish cadence |
+| `unit` | Canonical unit for values |
+| `aggregation` | How values are summarised over time (avg, p95, max, sum) |
+| `thresholds` | [good, warning, critical] boundaries; used by planner & dashboards |
+| `playbooks` | Actions or alerts tied to threshold breaches |
+
+### 1.1 API & Gateway Health
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds (good / warn / critical) | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ----------------------------------- | --------- |
+| `api.latency_p95` | 95th percentile response latency for the public FastAPI gateway | Prometheus `histogram_quantile` | `service` (e.g. `grace-api`) | 60s | milliseconds | p95 per scrape | `<350 / 350–500 / >500` | Warn: scale app shard; Critical: failover plan |
+| `api.error_rate` | 5xx responses ÷ total requests | Prometheus `rate` | `service` | 60s | ratio (0–1) | avg | `<0.01 / 0.01–0.03 / >0.03` | Warn: restart workers; Critical: engage remediation |
+| `api.request_rate` | Requests per second | Prometheus `rate` | `service` | 60s | req/s | avg | `<200 / 200–400 / >400` (per shard) | Warn: pre-scale; Critical: activate autoscaling playbook |
+| `api.saturation` | Gunicorn/Uvicorn worker saturation | Prometheus | `service` | 60s | percent | max | `<70 / 70–85 / >85` | Warn: spawn extra workers; Critical: shed load |
+
+### 1.2 Background Execution & Queues
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `executor.queue_depth` | Pending tasks in `execution_tasks` | Internal SQL collector | `queue` | 30s | count | max | `<25 / 25–75 / >75` | Warn: scale workers; Critical: spawn emergency shard |
+| `executor.task_latency` | Age of oldest queued task | Internal SQL | `queue` | 30s | seconds | max | `<60 / 60–180 / >180` | Warn: increase workers; Critical: escalate to human |
+| `executor.worker_utilization` | Active workers ÷ total workers | Internal telemetry | `worker_pool` | 30s | percent | avg | `<70 / 70–90 / >90` | Warn: spawn additional worker; Critical: block new submissions |
+
+### 1.3 Learning & Ingestion Pipeline
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `learning.sessions_started` | Learning sessions kicked off | Web Learning Orchestrator | `subsystem` (`web_learning`) | 5m | count | sum | `<3 / 3–6 / >6` per 5m | Warn: throttle if high; Critical: review governance load |
+| `learning.sources_verified` | Percentage of learned sources passing governance/constitutional checks | Provenance tracker | `subsystem` | 5m | percent | avg | `>85 / 70–85 / <70` | Warn: run trust analysis; Critical: stop ingestion cycle |
+| `learning.sandbox_pass_rate` | Sandbox applications that pass tests | Knowledge sandbox | `subsystem` | 5m | percent | avg | `>80 / 60–80 / <60` | Warn: re-run with stricter policies; Critical: disable auto-application |
+| `learning.governance_blocks` | Count of ingestion attempts blocked by governance | Governance framework | `subsystem` | 5m | count | sum | `<2 / 2–5 / >5` | Warn: audit rules; Critical: require human review |
+| `learning.source_freshness_ratio` | Share of new sources vs. duplicates in last cycle | Provenance tracker | `subsystem` | 5m | percent | avg | `>80 / 60–80 / <60` | Warn: expand discovery seeds; Critical: refresh learning targets |
+| `learning.collector_health` | Time since last successful collector publish | Collector heartbeat | `collector` (`web`, `github`, `reddit`, etc.) | 1m | seconds | max | `<120 / 120–300 / >300` | Warn: restart collector; Critical: fail ingestion cycle |
+
+### 1.4 Autonomy & Decision Quality
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `autonomy.plan_success_rate` | Percentage of recovery plans completing without rollback | Agentic spine | `subsystem` (`agentic_spine`) | 5m | percent | avg | `>90 / 75–90 / <75` | Warn: tighten guardrails; Critical: downgrade autonomy tier |
+| `autonomy.approvals_pending` | High-risk actions awaiting approval | Governance engine | `subsystem` | 1m | count | max | `<3 / 3–7 / >7` | Warn: notify reviewers; Critical: pause new high-risk plans |
+| `autonomy.autonomy_ratio` | Actions executed autonomously ÷ total actions | Agentic spine | `subsystem` | 10m | percent | avg | Target 70–85; `<60` triggers capability review, `>90` triggers trust check | Review thresholds |
+| `autonomy.rollback_rate` | Plans rolled back after execution | Agentic spine | `subsystem` | 5m | percent | avg | `<5 / 5–10 / >10` | Warn: run post-mortem; Critical: lock planner to supervised mode |
+
+### 1.5 Trust & Governance Signals
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `trust.policy_alignment_score` | Average score from trust-core policy evaluations | Trust core partner | `subsystem` (`trust_core`) | 5m | percent | avg | `>90 / 80–90 / <80` | Warn: tighten policy heuristics; Critical: force human approvals |
+| `trust.bias_index` | Bias indicator from ethics sentinel (0 = neutral) | Ethics sentinel | `subsystem` | 10m | ratio | avg | `<0.2 / 0.2–0.35 / >0.35` | Warn: trigger ethics review; Critical: halt autonomous actions |
+| `trust.verification_pass_rate` | Percentage of post-action verifications passing | Verification engine | `subsystem` | 5m | percent | avg | `>95 / 85–95 / <85` | Warn: increase verification depth; Critical: escalate failures |
+| `trust.governance_latency` | Time to resolve approval requests | Governance engine | `subsystem` | 5m | seconds | max | `<120 / 120–300 / >300` | Warn: alert approvers; Critical: reassign approvals |
+
+### 1.5 Infrastructure & Host Health
+
+### 1.5 Infrastructure & Host Health
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `infra.cpu_utilization` | CPU usage per host/shard | Prometheus / Cloud provider | `host` | 30s | percent | avg | `<70 / 70–85 / >85` | Warn: shift load; Critical: scale nodes |
+| `infra.memory_utilization` | Memory usage per host/shard | Prometheus | `host` | 30s | percent | avg | `<75 / 75–90 / >90` | Warn: restart non-critical services; Critical: migrate workloads |
+| `infra.disk_usage` | Disk utilisation for critical volumes | Prometheus | `volume` | 5m | percent | max | `<70 / 70–85 / >85` | Warn: cleanup tasks; Critical: trigger disk expansion |
+| `infra.pod_ready_ratio` | Ready pods ÷ desired pods (k8s) | Kubernetes API | `service` | 30s | percent | avg | `>95 / 90–95 / <90` | Warn: reschedule pods; Critical: escalate to infra team |
+
+### 1.7 Event Fabric & Collector Reliability
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `telemetry.collector_uptime` | Collector heartbeat success rate | Collector supervisors | `collector` | 1m | percent | avg | `>99 / 95–99 / <95` | Warn: restart collector service; Critical: switch to backup |
+| `telemetry.publish_latency` | Latency from metric scrape to trigger mesh publish | Collector instrumentation | `collector` | 1m | milliseconds | avg | `<1000 / 1000–3000 / >3000` | Warn: investigate network bottleneck; Critical: pause dependent playbooks |
+| `telemetry.schema_failures` | Count of metric events rejected due to schema validation errors | Metric ingestion validator | `collector` | 1m | count | sum | `=0 / 1–3 / >3` | Warn: review collector payload; Critical: disable collector auto-optimisation |
+| `trigger.mesh_queue_depth` | Events awaiting routing in trigger mesh | Trigger mesh | `subsystem` (`trigger_mesh`) | 30s | count | max | `<50 / 50–150 / >150` | Warn: scale router; Critical: shed non-critical events |
+| `trigger.handler_error_rate` | Percentage of handler invocations raising errors | Trigger mesh | `subsystem` | 1m | percent | avg | `<1 / 1–3 / >3` | Warn: isolate faulty handler; Critical: disable handler and alert team |
+
+### 1.6 Business & Experience KPIs
+
+| metric_id | Description | source | resource_scope | interval | unit | aggregation | thresholds | playbooks |
+| --------- | ----------- | ------ | --------------- | -------- | ---- | ----------- | ---------- | --------- |
+| `kpi.task_cycle_time` | Average time to complete autonomous tasks | Task executor / memory | `subsystem` (`agentic_spine`) | 10m | seconds | avg | `<600 / 600–1200 / >1200` | Warn: review playbooks; Critical: add human oversight |
+| `kpi.issue_resolution_rate` | Percentage of issues resolved without escalation | Issue tracker | `subsystem` | 10m | percent | avg | `>85 / 70–85 / <70` | Warn: refine remediation; Critical: notify ops |
+| `kpi.learning_applications_per_day` | Successful knowledge applications in last 24h | Provenance tracker | `subsystem` (`web_learning`) | 1h | count | sum | `>20 / 10–20 / <10` | Warn: reassess ingestion sources; Critical: boost learning focus |
+| `kpi.user_feedback_score` | Average satisfaction rating (if available) | Frontend / surveys | `tenant` or `global` | 1h | score (1–5) | avg | `>4.2 / 3.5–4.2 / <3.5` | Warn: gather feedback; Critical: pause automation impacting users |
+
+---
+
+## 2. Event & Persistence Schemas
+
+### 2.1 `MetricEvent`
+
+Used by collectors when publishing into the trigger mesh.
+
+```jsonc
+{
+  "event_type": "metrics.api.latency_p95",      // event type MUST be `metrics.{metric_id}`
+  "source": "prometheus",                       // collector identifier
+  "actor": "metrics_collector",                 // service account
+  "resource": {
+    "scope": "service",
+    "id": "grace-api"
+  },
+  "payload": {
+    "metric_id": "api.latency_p95",
+    "value": 412.5,
+    "unit": "ms",
+    "aggregation": "p95",
+    "interval_seconds": 60,
+    "observed_at": "2025-11-09T14:03:00Z",
+    "thresholds": {
+      "good": "<350",
+      "warning": "350-500",
+      "critical": ">500"
+    },
+    "computed_band": "warning",
+    "trend": "increasing",                      // optional: increasing|decreasing|steady
+    "annotations": {
+      "prometheus_query": "histogram_quantile(0.95, ...)"
+    }
+  },
+  "timestamp": "2025-11-09T14:03:02Z"
+}
+```
+
+Validation rules:
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `payload.metric_id` | string | Must match catalog entry |
+| `payload.value` | number | Raw numeric value |
+| `payload.unit` | enum | `ms`, `percent`, `ratio`, `count`, `req_per_sec`, `seconds` |
+| `payload.computed_band` | enum | `good`, `warning`, `critical` |
+| `payload.trend` | enum | optional, default `steady` |
+
+### 2.2 `MetricsSnapshot`
+
+Periodic aggregation stored for dashboards or anomaly detection.
+
+```jsonc
+{
+  "snapshot_id": "grace-api:2025-11-09T14:05:00Z:api.latency_p95",
+  "metric_id": "api.latency_p95",
+  "resource_scope": "service",
+  "resource_id": "grace-api",
+  "window_start": "2025-11-09T14:00:00Z",
+  "window_end": "2025-11-09T14:05:00Z",
+  "stats": {
+    "min": 280.5,
+    "max": 612.0,
+    "avg": 410.2,
+    "p95": 498.3,
+    "sample_count": 5
+  },
+  "bands": {
+    "good_samples": 3,
+    "warning_samples": 1,
+    "critical_samples": 1
+  },
+  "latest_band": "critical",
+  "derived_actions": [
+    {
+      "action_type": "playbook_recommendation",
+      "playbook_id": "scale-api-shard",
+      "confidence": 0.8
+    }
+  ],
+  "created_at": "2025-11-09T14:05:02Z"
+}
+```
+
+Recommended persistence table (`metrics_snapshots`):
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `snapshot_id` | TEXT PK | deterministic ID as above |
+| `metric_id` | TEXT | FK to catalog |
+| `resource_scope` | TEXT | `service`, `queue`, `host`, etc. |
+| `resource_id` | TEXT | identifier of measured entity |
+| `window_start`, `window_end` | TIMESTAMP | aggregation window |
+| `stats` | JSON | aggregate statistics |
+| `bands` | JSON | counts per band |
+| `latest_band` | TEXT | `good|warning|critical` |
+| `derived_actions` | JSON | optional recommended actions |
+| `created_at` | TIMESTAMP | insertion time |
+
+### 2.3 Catalog Reference Schema (YAML / JSON)
+
+The catalog can be stored in a YAML file (`config/metrics_catalog.yaml`) mirroring the tables above:
+
+```yaml
+metrics:
+  - metric_id: api.latency_p95
+    category: api
+    description: "95th percentile FastAPI latency"
+    unit: ms
+    aggregation: p95
+    thresholds:
+      good: { upper: 350 }
+      warning: { lower: 350, upper: 500 }
+      critical: { lower: 500 }
+    playbooks:
+      - scale-api-shard
+      - failover-gateway
+    recommended_interval_seconds: 60
+    source: prometheus
+    resource_scope: service
+    tags: [production, customer-facing]
+```
+
+Collectors should fetch this catalog at startup to ensure metric IDs, units, and thresholds remain in sync with the central definition.
+
+---
+
+## 3. Implementation Guidance
+
+1. **Catalog First** – record agreed metrics in `config/metrics_catalog.yaml` using the schema above. Update the proactive intelligence thresholds in `config/agentic_config.yaml` to match these values.
+2. **Collector Development** – implement collectors (Prometheus, CloudWatch, custom SQL) that emit `MetricEvent` objects. Each collector should:
+   - Load metric definitions (queries, thresholds) from the catalog.
+   - Normalise values to canonical units.
+   - Compute the band (`good|warning|critical`) before publishing to the trigger mesh.
+3. **Proactive Intelligence** – update the proactive intelligence service to subscribe to `metrics.*` events, maintain rolling windows, emit `MetricsSnapshot` records, and hand off to the planner when thresholds are breached.
+4. **Dynamic Optimisation (Optional)** – after collectors are reliable, allow Grace to propose threshold adjustments by:
+   - Computing recommended bands from recent `MetricsSnapshot` data (e.g. 7-day windows).
+   - Emitting a governance decision request (`metrics.threshold_change`) with the proposed new values, confidence, and impacted playbooks.
+   - Requiring an approval response before committing updates to `metrics_catalog.yaml`.
+5. **Snapshot Rollback** – ensure every committed catalog change stores the previous snapshot (e.g. `metrics_catalog.yaml.bak`) so you can revert instantly if a new threshold misbehaves.
+6. **Baseline Verification** – extend `scripts/bootstrap_verification.py` to capture the current healthy snapshot set and fail the bootstrap if new deployments breach approved bands.
+7. **Configuration Cohesion** – version `metrics_catalog.yaml` alongside `config/agentic_config.yaml` so metric thresholds, autonomy risk gates, and playbooks evolve together and pass through the same review.
+8. **Immutable Audit Trail** – log every catalog update and optimisation proposal to the immutable log (`metrics.threshold_change` actions) to keep a forensic record of why thresholds moved.
+9. **Resilience Drills** – schedule periodic simulations that replay stored snapshots, trigger the related playbooks, and verify rollback/approval paths without waiting for live failures.
+10. **Playbook Binding** – ensure playbooks referenced in the catalog exist (e.g. `scale-api-shard`, `spawn-executor-worker`) and include risk levels consistent with the thresholds.
+11. **Dashboards and Alerts** – surface the snapshot data in the frontend dashboards and configure alerting (Slack/email) for critical bands.
+
+With this catalog and schema in place, Grace can reason over live metrics, predict incidents, and execute governed responses using consistent data throughout the stack.
+
