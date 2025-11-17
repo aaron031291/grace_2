@@ -9,6 +9,7 @@ Provides:
 """
 
 from .grace_world_model import grace_world_model, GraceWorldModel, WorldKnowledge
+from .world_model_service import world_model_service, WorldModelService
 from .mcp_integration import mcp_integration, MCPIntegration
 from .world_model_summary_pipeline import (
     world_model_summary_pipeline,
@@ -23,6 +24,8 @@ __all__ = [
     'grace_world_model',
     'GraceWorldModel',
     'WorldKnowledge',
+    'world_model_service',
+    'WorldModelService',
     'mcp_integration',
     'MCPIntegration',
     'world_model_summary_pipeline',
@@ -42,6 +45,9 @@ async def initialize_world_model():
     # Initialize core world model
     await grace_world_model.initialize()
     
+    # Initialize world model service
+    await world_model_service.initialize()
+    
     # Initialize MCP integration
     await mcp_integration.initialize()
     
@@ -50,6 +56,7 @@ async def initialize_world_model():
     
     return {
         'world_model': 'initialized',
+        'world_model_service': 'initialized',
         'mcp': 'initialized',
         'summary_pipeline': 'initialized'
     }
