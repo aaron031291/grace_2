@@ -22,6 +22,11 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 import os
 
+try:
+    import faiss
+except ImportError:
+    faiss = None
+
 from backend.models.vector_models import VectorEmbedding, VectorIndex, VectorSearchQuery
 from backend.models.base_models import async_session
 from backend.logging_utils import log_event
@@ -640,7 +645,7 @@ class VectorStore:
             
             result = await session.execute(
                 select(func.count(VectorEmbedding.id))
-                .where(VectorEmbedding.indexed == True)
+                .where(VectorEmbedding.indexed)
             )
             indexed_count = result.scalar()
             

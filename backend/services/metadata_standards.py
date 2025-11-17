@@ -317,7 +317,7 @@ def create_artifact_metadata(
 
 
 def create_knowledge_metadata(
-    domain,
+    domain_id,
     knowledge_type: str,
     confidence: float = 0.8,
     tags: Optional[List[str]] = None,

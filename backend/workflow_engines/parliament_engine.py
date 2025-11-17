@@ -10,9 +10,9 @@ from typing import Optional, Dict, Any, List
 from sqlalchemy import select, and_, update
 from backend.models import async_session
 from ..models.parliament_models import (
-    GovernanceSession as ParliamentarySession,
-    GovernanceVote as ParliamentaryVote,
-    GovernanceMember as ParliamentaryMember,
+    GovernanceSession,
+    GovernanceVote,
+    GovernanceMember,
     CommitteeDefinition,
     ParliamentConfig,
 )

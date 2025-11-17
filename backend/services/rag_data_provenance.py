@@ -6,6 +6,7 @@ Ensures 100% citation, confidence scoring, source validation, and provenance tra
 import asyncio
 import logging
 import hashlib
+import re
 from typing import Dict, Any, List, Optional, Tuple, Set
 from datetime import datetime
 from dataclasses import dataclass, field

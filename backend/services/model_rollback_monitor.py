@@ -5,7 +5,7 @@ Integrates with self-healing
 """
 
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 
 
