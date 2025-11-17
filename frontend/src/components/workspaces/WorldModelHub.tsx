@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Workspace } from '../../GraceEnterpriseUI';
+import { orbApi, type OrbSession } from '../../lib/orbApi';
 import './WorkspaceCommon.css';
 import './WorldModelHub.css';
 
@@ -35,18 +36,54 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [context, setContext] = useState<ContextData | null>(null);
+  const [orbSession, setOrbSession] = useState<OrbSession | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [activeMediaSessions, setActiveMediaSessions] = useState<{
+    screenShare?: string;
+    recording?: string;
+  }>({});
   const previousContextRef = useRef<ContextData | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const seenArtifactsRef = useRef<Set<string>>(new Set());
   const seenMissionsRef = useRef<Set<string>>(new Set());
   const seenApprovalsRef = useRef<Set<string>>(new Set());
   const autoCreatedTabsRef = useRef<Set<string>>(new Set());
+  const sessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    initializeOrbSession();
     fetchContext();
-    const interval = setInterval(fetchContext, 3000); // 3 second polling
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      fetchContext();
+      updateSessionInfo();
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+      if (sessionIdRef.current) {
+        orbApi.closeSession(sessionIdRef.current).catch(console.error);
+      }
+    };
   }, []);
+
+  const initializeOrbSession = async () => {
+    try {
+      const response = await orbApi.createSession('user');
+      sessionIdRef.current = response.session_id;
+      updateSessionInfo();
+    } catch (error) {
+      console.error('Failed to create Orb session:', error);
+    }
+  };
+
+  const updateSessionInfo = async () => {
+    if (!sessionIdRef.current) return;
+    try {
+      const info = await orbApi.getSessionInfo(sessionIdRef.current);
+      setOrbSession(info);
+    } catch (error) {
+      console.error('Failed to update session info:', error);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -208,7 +245,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
     }
   };
 
-  const handleSlashCommand = (command: string) => {
+  const handleSlashCommand = async (command: string) => {
     const parts = command.slice(1).split(' ');
     const cmd = parts[0].toLowerCase();
     const arg = parts[1]?.toLowerCase();
@@ -223,7 +260,9 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         'observatory': 'observatory',
         'terminal': 'terminal',
         'copilot': 'copilot',
-        'learning': 'learning'
+        'learning': 'learning',
+        'orb': 'orb',
+        'sandbox': 'sandbox'
       };
 
       const workspaceType = workspaceTypeMap[arg];
@@ -243,12 +282,121 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
           timestamp: new Date().toISOString()
         }]);
       }
+    } else if (cmd === 'voice') {
+      const enable = arg === 'on';
+      try {
+        const result = await orbApi.toggleVoice('user', enable);
+        setVoiceEnabled(result.voice_enabled);
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: `🎤 ${result.message}`,
+          timestamp: new Date().toISOString()
+        }]);
+      } catch (error) {
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: `❌ Failed to toggle voice: ${error}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    } else if (cmd === 'share') {
+      if (arg === 'start') {
+        try {
+          const result = await orbApi.startScreenShare('user');
+          setActiveMediaSessions(prev => ({ ...prev, screenShare: result.session_id }));
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `📺 ${result.message} (Session: ${result.session_id})`,
+            timestamp: new Date().toISOString()
+          }]);
+        } catch (error) {
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to start screen share: ${error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      } else if (arg === 'stop' && activeMediaSessions.screenShare) {
+        try {
+          await orbApi.stopScreenShare(activeMediaSessions.screenShare);
+          setActiveMediaSessions(prev => ({ ...prev, screenShare: undefined }));
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `📺 Screen sharing stopped`,
+            timestamp: new Date().toISOString()
+          }]);
+        } catch (error) {
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to stop screen share: ${error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      }
+    } else if (cmd === 'record') {
+      if (arg === 'start') {
+        try {
+          const result = await orbApi.startRecording('user', 'screen_recording');
+          setActiveMediaSessions(prev => ({ ...prev, recording: result.session_id }));
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `🎥 ${result.message} (Session: ${result.session_id})`,
+            timestamp: new Date().toISOString()
+          }]);
+        } catch (error) {
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to start recording: ${error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      } else if (arg === 'stop' && activeMediaSessions.recording) {
+        try {
+          const result = await orbApi.stopRecording(activeMediaSessions.recording);
+          setActiveMediaSessions(prev => ({ ...prev, recording: undefined }));
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `🎥 Recording stopped (${result.duration}s, saved to ${result.file_path})`,
+            timestamp: new Date().toISOString()
+          }]);
+        } catch (error) {
+          setMessages(prev => [...prev, {
+            id: `cmd-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to stop recording: ${error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      }
+    } else if (cmd === 'sandbox') {
+      if (onCreateWorkspace) {
+        onCreateWorkspace('sandbox');
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: `📌 Opened Sandbox workspace`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
     } else if (cmd === 'help') {
       setMessages(prev => [...prev, {
         id: `cmd-${Date.now()}`,
         role: 'system',
         content: `Available commands:
-/spawn <workspace> - Open a workspace tab (guardian, mission, memory, governance, observatory, terminal, copilot, learning)
+/spawn <workspace> - Open a workspace tab (guardian, mission, memory, governance, observatory, terminal, copilot, learning, orb, sandbox)
+/voice on|off - Toggle voice control
+/share start|stop - Start/stop screen sharing
+/record start|stop - Start/stop recording
+/sandbox - Open Sandbox workspace
 /help - Show this help message`,
         timestamp: new Date().toISOString()
       }]);
@@ -414,9 +562,48 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
     <div className="world-model-hub simplified">
       <div className="conversation-container">
         <div className="conversation-header">
-          <h2>💬 Grace World Model</h2>
-          <p className="subtitle">Unified conversation with Grace's internal world</p>
-          <p className="hint">💡 Tip: Use /spawn &lt;workspace&gt; or click system cards to open tabs</p>
+          <div className="header-top">
+            <div className="header-title">
+              <h2>💬 Grace World Model</h2>
+              <p className="subtitle">Unified conversation with Grace's internal world</p>
+            </div>
+            {orbSession && (
+              <div className="session-pill">
+                <span className="session-icon">⏱️</span>
+                <span className="session-duration">{orbSession.duration_formatted}</span>
+                <span className="session-messages">{orbSession.message_count} msgs</span>
+                {orbSession.key_topics.length > 0 && (
+                  <span className="session-topics">
+                    {orbSession.key_topics.slice(0, 3).map(t => t.topic).join(', ')}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="header-controls">
+            <button 
+              className={`control-btn ${voiceEnabled ? 'active' : ''}`}
+              onClick={() => handleSlashCommand(voiceEnabled ? '/voice off' : '/voice on')}
+              title="Toggle voice control"
+            >
+              🎤 {voiceEnabled ? 'Voice On' : 'Voice Off'}
+            </button>
+            <button 
+              className={`control-btn ${activeMediaSessions.screenShare ? 'active' : ''}`}
+              onClick={() => handleSlashCommand(activeMediaSessions.screenShare ? '/share stop' : '/share start')}
+              title="Toggle screen sharing"
+            >
+              📺 {activeMediaSessions.screenShare ? 'Sharing' : 'Share'}
+            </button>
+            <button 
+              className={`control-btn ${activeMediaSessions.recording ? 'active recording' : ''}`}
+              onClick={() => handleSlashCommand(activeMediaSessions.recording ? '/record stop' : '/record start')}
+              title="Toggle recording"
+            >
+              🎥 {activeMediaSessions.recording ? 'Recording' : 'Record'}
+            </button>
+          </div>
+          <p className="hint">💡 Tip: Use /spawn &lt;workspace&gt;, /voice, /share, /record, or click system cards</p>
         </div>
 
         <div className="messages-container">
