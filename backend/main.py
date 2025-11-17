@@ -19,6 +19,8 @@ from backend.routes.port_manager_api import router as port_manager_router
 from backend.routes.guardian_api import router as guardian_router
 from backend.routes.ingest import router as ingest_router
 from backend.routes.vault_api import router as vault_router
+from backend.routes.memory_api import router as memory_router
+from backend.routes.chat import router as chat_router
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -67,6 +69,12 @@ app.include_router(ingest_router)
 
 # Register vault API (secrets management)
 app.include_router(vault_router)
+
+# Register memory API (files, tables, schemas)
+app.include_router(memory_router)
+
+# Register chat API
+app.include_router(chat_router)
 
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:
