@@ -572,4 +572,4 @@ class ProvenanceMetricsDashboard:
 # Global instances
 citation_guarantee_middleware = CitationGuaranteeMiddleware()
 provenance_visualization_api = ProvenanceVisualizationAPI()
-provenance_metrics_dashboard = ProvenanceMetricsDashboard()</code></edit_file>
+provenance_metrics_dashboard = ProvenanceMetricsDashboard()

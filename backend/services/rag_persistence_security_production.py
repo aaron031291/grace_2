@@ -821,4 +821,4 @@ class BackupRestoreManager:
 encrypt_at_rest = EncryptAtRest()
 retention_policy_manager = RetentionPolicyManager()
 knowledge_revision_manager = KnowledgeRevisionManager()
-backup_restore_manager = BackupRestoreManager()</code></edit_file>
+backup_restore_manager = BackupRestoreManager()
