@@ -215,7 +215,55 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8018": {
+      "port": 8018,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:22:27.640105",
+      "last_health_check": "2025-11-17T12:22:27.640105",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8019": {
+      "port": 8019,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:26:16.237195",
+      "last_health_check": "2025-11-17T12:26:16.237195",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8020": {
+      "port": 8020,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:27:31.241581",
+      "last_health_check": "2025-11-17T12:27:31.241581",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8021": {
+      "port": 8021,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:29:57.518588",
+      "last_health_check": "2025-11-17T12:29:57.518588",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-17T10:25:51.487888"
+  "last_updated": "2025-11-17T12:29:57.518588"
 }

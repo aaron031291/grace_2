@@ -1,125 +1,119 @@
 /**
  * Notification Toast Component
- * Displays real-time notifications for book ingestion and other events
+ * Shows visual notifications with optional vibration
  */
 
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, Info, AlertTriangle, AlertCircle } from 'lucide-react';
-import { notifications, Notification, setupBookEventListeners } from '../utils/notifications';
+import { useEffect, useState } from 'react';
+import './NotificationToast.css';
 
-export function NotificationToast() {
-  const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
+export interface Toast {
+  id: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'grace';
+  duration?: number; // ms, 0 = permanent until clicked
+  onClick?: () => void;
+  vibrate?: boolean;
+}
 
+interface NotificationToastProps {
+  toasts: Toast[];
+  onDismiss: (id: string) => void;
+}
+
+export default function NotificationToast({ toasts, onDismiss }: NotificationToastProps) {
   useEffect(() => {
-    // Subscribe to notifications
-    const unsubscribe = notifications.subscribe((notification) => {
-      setActiveNotifications(prev => [...prev, notification]);
+    toasts.forEach(toast => {
+      // Vibrate if supported and enabled
+      if (toast.vibrate && 'vibrate' in navigator) {
+        navigator.vibrate([50, 20, 50]);
+      }
 
-      // Auto-dismiss after duration
-      if (notification.duration) {
-        setTimeout(() => {
-          dismissNotification(notification.id);
-        }, notification.duration);
+      // Auto-dismiss if duration is set
+      if (toast.duration && toast.duration > 0) {
+        const timer = setTimeout(() => {
+          onDismiss(toast.id);
+        }, toast.duration);
+
+        return () => clearTimeout(timer);
       }
     });
+  }, [toasts, onDismiss]);
 
-    // Setup book event listeners
-    const cleanup = setupBookEventListeners();
+  if (toasts.length === 0) return null;
 
-    return () => {
-      unsubscribe();
-      cleanup();
-    };
-  }, []);
-
-  const dismissNotification = (id: string) => {
-    setActiveNotifications(prev => prev.filter(n => n.id !== id));
-    notifications.dismiss(id);
-  };
-
-  const getIcon = (type: Notification['type']) => {
+  const getIcon = (type: string) => {
     switch (type) {
-      case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-400" />;
-      case 'info':
-        return <Info className="w-5 h-5 text-blue-400" />;
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-400" />;
-    }
-  };
-
-  const getBorderColor = (type: Notification['type']) => {
-    switch (type) {
-      case 'success':
-        return 'border-green-500/50';
-      case 'info':
-        return 'border-blue-500/50';
-      case 'warning':
-        return 'border-yellow-500/50';
-      case 'error':
-        return 'border-red-500/50';
+      case 'success': return '✅';
+      case 'warning': return '⚠️';
+      case 'error': return '❌';
+      case 'grace': return '🤖';
+      default: return '💬';
     }
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
-      {activeNotifications.map((notification, index) => (
+    <div className="notification-toast-container">
+      {toasts.map(toast => (
         <div
-          key={notification.id}
-          className={`bg-gray-900 border-l-4 ${getBorderColor(notification.type)} rounded-lg shadow-2xl p-4 animate-slide-in`}
-          style={{
-            animation: `slideIn 0.3s ease-out ${index * 0.1}s both`,
+          key={toast.id}
+          className={`notification-toast toast-${toast.type}`}
+          onClick={() => {
+            if (toast.onClick) toast.onClick();
+            onDismiss(toast.id);
           }}
         >
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              {getIcon(notification.type)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white">
-                {notification.title}
-              </p>
-              <p className="text-sm text-gray-400 mt-1">
-                {notification.message}
-              </p>
-              {notification.action && (
-                <button
-                  onClick={notification.action.onClick}
-                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 font-medium"
-                >
-                  {notification.action.label}
-                </button>
-              )}
-            </div>
-            <button
-              onClick={() => dismissNotification(notification.id)}
-              className="flex-shrink-0 text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          <div className="toast-icon">{getIcon(toast.type)}</div>
+          <div className="toast-message">{toast.message}</div>
+          <button
+            className="toast-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismiss(toast.id);
+            }}
+          >
+            ×
+          </button>
         </div>
       ))}
-
-      <style>{`
-        @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slide-in {
-          animation: slideIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
 
-export default NotificationToast;
+// Hook for managing toasts
+export function useToast() {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const showToast = (
+    message: string,
+    type: Toast['type'] = 'info',
+    options: Partial<Toast> = {}
+  ) => {
+    const id = `toast-${Date.now()}-${Math.random()}`;
+    const newToast: Toast = {
+      id,
+      message,
+      type,
+      duration: 5000, // Default 5 seconds
+      vibrate: type === 'grace' || type === 'warning', // Vibrate for Grace messages and warnings
+      ...options,
+    };
+
+    setToasts(prev => [...prev, newToast]);
+    return id;
+  };
+
+  const dismissToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const clearAll = () => {
+    setToasts([]);
+  };
+
+  return {
+    toasts,
+    showToast,
+    dismissToast,
+    clearAll,
+  };
+}
