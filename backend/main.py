@@ -21,6 +21,7 @@ from backend.routes.ingest import router as ingest_router
 from backend.routes.vault_api import router as vault_router
 from backend.routes.memory_api import router as memory_router
 from backend.routes.chat import router as chat_router
+from backend.routes.learning_control_api import router as learning_control_router
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -75,6 +76,9 @@ app.include_router(memory_router)
 
 # Register chat API
 app.include_router(chat_router)
+
+# Register learning control (whitelist, HTM tasks, outcomes)
+app.include_router(learning_control_router)
 
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:
