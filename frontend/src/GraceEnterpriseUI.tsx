@@ -108,7 +108,7 @@ export default function GraceEnterpriseUI() {
   useEffect(() => {
     const fetchHealth = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/metrics/summary');
+        const response = await fetch('http://localhost:8054/api/metrics/summary');
         const data = await response.json();
         if (data.success) {
           setSystemHealth({
@@ -180,7 +180,7 @@ export default function GraceEnterpriseUI() {
           return <TerminalWorkspace workspace={activeWorkspace} />;
         case 'agentic':
           return <AgenticWorkspace workspace={activeWorkspace} onShowTrace={(traceId) => {
-            fetch(`http://localhost:8000/api/agentic/trace/${traceId}`)
+            fetch(`http://localhost:8054/api/agentic/trace/${traceId}`)
               .then(res => res.json())
               .then(data => {
                 setSelectedTrace({
