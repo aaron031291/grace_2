@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "question_id": "q001",
+      "question": "How does Grace handle self-healing?",
+      "ground_truth_answer": "Grace uses Guardian playbooks to detect and remediate issues automatically",
+      "relevant_doc_ids": [
+        "doc_guardian",
+        "doc_self_heal",
+        "doc_playbooks"
+      ],
+      "domain": "core",
+      "difficulty": "medium"
+    },
+    {
+      "question_id": "q002",
+      "question": "What is the governance approval process?",
+      "ground_truth_answer": "Tier 2/3 actions require whitelist approval before execution",
+      "relevant_doc_ids": [
+        "doc_governance",
+        "doc_whitelist",
+        "doc_constitutional"
+      ],
+      "domain": "governance",
+      "difficulty": "easy"
+    },
+    {
+      "question_id": "q003",
+      "question": "How does RAG ingestion work?",
+      "ground_truth_answer": "Content is chunked, embedded, and stored with provenance tracking",
+      "relevant_doc_ids": [
+        "doc_rag",
+        "doc_ingestion",
+        "doc_embeddings"
+      ],
+      "domain": "knowledge",
+      "difficulty": "medium"
+    },
+    {
+      "question_id": "q004",
+      "question": "What metrics does Grace track?",
+      "ground_truth_answer": "Grace tracks health, trust, confidence across 10 domains",
+      "relevant_doc_ids": [
+        "doc_metrics",
+        "doc_cognition",
+        "doc_domains"
+      ],
+      "domain": "cognition",
+      "difficulty": "easy"
+    },
+    {
+      "question_id": "q005",
+      "question": "How does autonomous learning work?",
+      "ground_truth_answer": "Grace detects knowledge gaps and learns from whitelisted sources with approval gates",
+      "relevant_doc_ids": [
+        "doc_learning",
+        "doc_whitelist",
+        "doc_autonomy"
+      ],
+      "domain": "transcendence",
+      "difficulty": "hard"
+    }
+  ]
+}

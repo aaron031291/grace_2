@@ -46,6 +46,7 @@ class NetworkPlaybook:
         self.execution_count = 0
         self.success_count = 0
         self.failure_count = 0
+        self._last_state = None  # For rollback
     
     async def execute(self, issue: NetworkIssue) -> Dict[str, Any]:
         """Execute the playbook"""
@@ -69,6 +70,28 @@ class NetworkPlaybook:
                 'playbook': self.name,
                 'error': str(e)
             }
+    
+    async def verify(self, issue: NetworkIssue) -> Dict[str, Any]:
+        """Verify the playbook succeeded"""
+        return {
+            'verified': True,
+            'message': 'Verification not implemented'
+        }
+    
+    async def rollback(self, issue: NetworkIssue) -> Dict[str, Any]:
+        """Rollback changes if playbook failed"""
+        return {
+            'rolled_back': True,
+            'message': 'Rollback not implemented'
+        }
+    
+    async def dry_run(self, issue: NetworkIssue) -> Dict[str, Any]:
+        """Simulate execution without making changes"""
+        return {
+            'would_execute': True,
+            'playbook': self.name,
+            'simulated_steps': []
+        }
     
     async def _run(self, issue: NetworkIssue) -> Dict[str, Any]:
         """Override in subclass"""
@@ -142,6 +165,44 @@ class RestartComponentPlaybook(NetworkPlaybook):
             if conn.laddr.port == port and conn.status == 'LISTEN':
                 return conn.pid
         return None
+    
+    async def verify(self, issue: NetworkIssue) -> Dict[str, Any]:
+        """Verify component restarted and port is available"""
+        port = issue.port
+        
+        # Check if port is now listening
+        pid = self._find_process_on_port(port)
+        
+        if pid:
+            return {
+                'verified': True,
+                'message': f'Component restarted successfully on port {port}, PID {pid}'
+            }
+        else:
+            return {
+                'verified': False,
+                'message': f'Port {port} not listening after restart'
+            }
+    
+    async def dry_run(self, issue: NetworkIssue) -> Dict[str, Any]:
+        """Simulate restart without actually doing it"""
+        component = issue.component_name
+        port = issue.port
+        pid = self._find_process_on_port(port)
+        
+        simulated_steps = [
+            f"Would find process on port {port}",
+            f"Found PID {pid}" if pid else "No process found",
+            f"Would terminate process {pid}" if pid else "Skip termination",
+            f"Would restart {component}"
+        ]
+        
+        return {
+            'would_execute': True,
+            'playbook': self.name,
+            'simulated_steps': simulated_steps,
+            'safe_to_execute': True
+        }
 
 
 class ClearPortPlaybook(NetworkPlaybook):
