@@ -74,6 +74,13 @@ try:
 except ImportError:
     pass  # Navigator optional
 
+# Register future projects learning (proactive domain mastery)
+try:
+    from backend.routes.future_projects_api import router as future_projects_router
+    app.include_router(future_projects_router)
+except ImportError:
+    pass  # Future projects optional
+
 # Register Console UI APIs (NEW - for Unified Console)
 try:
     from backend.routes.logs_api import router as logs_router
@@ -268,6 +275,14 @@ async def startup_advanced_learning():
         print("[OK] Real data ingestion initialized (terms→docs/code/datasets→full understanding)")
     except Exception as e:
         print(f"[WARN] Real data ingestion initialization degraded: {e}")
+    
+    # Initialize future projects learner (proactive learning: blockchain, CRM, ecommerce, etc.)
+    try:
+        from backend.agents.future_projects_learner import future_projects_learner
+        await future_projects_learner.initialize()
+        print("[OK] Future projects learner started (blockchain, CRM, ecommerce, APIs, distributed)")
+    except Exception as e:
+        print(f"[WARN] Future projects learner initialization degraded: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_advanced_learning():
