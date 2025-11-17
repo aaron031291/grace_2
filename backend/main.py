@@ -210,6 +210,13 @@ try:
 except ImportError:
     pass  # World model optional for now
 
+# Register World Model Hub (NEW - Phase 1: Unified command center)
+try:
+    from backend.routes.world_model_hub_api import router as world_model_hub_router
+    app.include_router(world_model_hub_router)
+except ImportError:
+    pass  # World Model Hub optional for now
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
