@@ -366,9 +366,25 @@ class OSICanaryProbes:
                 if len(self.probe_history[layer]) > self.max_history:
                     self.probe_history[layer] = self.probe_history[layer][-self.max_history:]
                 
-                # Log failures
+                # Log and alert on failures
                 if result.status in [ProbeStatus.FAILED, ProbeStatus.DEGRADED]:
                     logger.warning(f"[OSI-PROBE] {layer.name} {result.status.value}: {result.message}")
+                    
+                    # Send alert
+                    try:
+                        from backend.trust_framework.alert_system import alert_system
+                        await alert_system.send_alert(
+                            level="warning" if result.status == ProbeStatus.DEGRADED else "error",
+                            title=f"OSI {layer.name} {result.status.value}",
+                            message=result.message,
+                            metadata={
+                                "layer": layer.name,
+                                "latency_ms": result.latency_ms,
+                                "details": result.details
+                            }
+                        )
+                    except Exception as e:
+                        logger.debug(f"[OSI-PROBE] Alert system unavailable: {e}")
             
             except Exception as e:
                 logger.error(f"[OSI-PROBE] Failed to probe {layer.name}: {e}")

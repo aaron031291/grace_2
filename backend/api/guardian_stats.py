@@ -81,10 +81,11 @@ async def get_guardian_stats():
     
     success_rate = (total_successes / total_executions * 100) if total_executions > 0 else 0
     
-    # Mock MTTR calculation (would need real incident data)
-    # For now, use a placeholder based on average remediation time
-    mttr_seconds = 45.0  # Placeholder: 45 seconds average
-    mttr_minutes = mttr_seconds / 60
+    # Real MTTR calculation from incident log
+    from backend.guardian.incident_log import incident_log
+    mttr_data = incident_log.calculate_mttr(hours=24)
+    mttr_seconds = mttr_data["mttr_seconds"] if mttr_data["incident_count"] > 0 else 0
+    mttr_minutes = mttr_data["mttr_minutes"] if mttr_data["incident_count"] > 0 else 0
     
     # Get last 5 runs (mock data for now - would come from incident log)
     last_5_runs = []

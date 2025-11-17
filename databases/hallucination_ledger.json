@@ -1,21 +1,21 @@
 {
   "model_stats": {
     "unknown": {
-      "total_hallucinations": 2,
+      "total_hallucinations": 4,
       "by_severity": {
         "minor": 0,
         "moderate": 0,
         "major": 0,
-        "critical": 2
+        "critical": 4
       },
       "by_type": {
-        "security_bypass": 2
+        "security_bypass": 4
       },
       "avg_context_window": 0,
-      "retraining_priority": 9,
-      "trust_adjustment": -0.4
+      "retraining_priority": 10,
+      "trust_adjustment": -0.8
     }
   },
   "total_entries": 2,
-  "last_updated": "2025-11-17T16:31:49.248037"
+  "last_updated": "2025-11-17T16:38:36.453618"
 }
