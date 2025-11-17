@@ -1,4 +1,4 @@
-import { Capability, Workspace } from '../GraceEnterpriseUI';
+import type { Capability, Workspace } from '../GraceEnterpriseUI';
 import './LeftSidebar.css';
 
 interface LeftSidebarProps {
