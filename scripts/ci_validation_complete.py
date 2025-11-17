@@ -595,4 +595,4 @@ async def main():
     await validator.run_complete_validation()
 
 if __name__ == "__main__":
-    asyncio.run(main())</code></edit_file>
+    asyncio.run(main())
