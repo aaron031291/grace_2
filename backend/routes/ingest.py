@@ -3,13 +3,13 @@ from pydantic import BaseModel
 from typing import Optional, List
 from sqlalchemy import select, exists
 
-from ..auth import get_current_user
-from ..ingestion_service import ingestion_service
-from ..trusted_sources import trust_manager
-from ..verification import verification_engine
-from ..verification_middleware import verify_action
-from ..knowledge_models import KnowledgeTombstone
-from ..schemas_extended import (
+from ..security.auth import get_current_user
+from ..ingestion_services.ingestion_service import ingestion_service
+from ..knowledge.trusted_sources import trust_manager
+from ..verification_system.verification import verification_engine
+from ..verification_system.verification_middleware import verify_action
+from ..models.knowledge_models import KnowledgeTombstone
+from ..models.schemas_extended import (
     IngestTextResponse,
     IngestUrlResponse,
     IngestFileResponse,
@@ -120,6 +120,34 @@ async def ingest_file(
     current_user: str = Depends(get_current_user)
 ):
     """Ingest uploaded file (supports txt, md, pdf, images, audio, video)"""
+    try:
+        file_content = await file.read()
+        
+        artifact_id = await ingestion_service.ingest_file(
+            file_content=file_content,
+            filename=file.filename,
+            actor=current_user
+        )
+        
+        return {
+            "status": "ingested",
+            "artifact_id": artifact_id,
+            "filename": file.filename,
+            "size": len(file_content)
+        }
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/upload")
+@verify_action("file_ingest", lambda data: data.get("filename", "unknown"))
+async def ingest_upload(
+    file: UploadFile = File(...),
+    domain: str = Form("uploads"),
+    current_user: str = Depends(get_current_user)
+):
+    """Alias for /file endpoint - ingest uploaded file (supports txt, md, pdf, images, audio, video)"""
     try:
         file_content = await file.read()
         

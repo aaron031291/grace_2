@@ -140,12 +140,21 @@ function buildQueryString(filters: MissionFilters): string {
  * Fetch missions list with optional filtering
  */
 export async function fetchMissions(filters: MissionFilters = {}): Promise<MissionsResponse> {
-  const queryString = buildQueryString(filters);
-  const response = await fetch(`${API_BASE}/mission-control/missions${queryString}`, {
-    headers: getAuthHeaders(),
-  });
+  try {
+    const queryString = buildQueryString(filters);
+    const response = await fetch(`${API_BASE}/mission-control/missions${queryString}`, {
+      headers: getAuthHeaders(),
+    });
 
-  return handleResponse<MissionsResponse>(response);
+    return handleResponse<MissionsResponse>(response);
+  } catch (error) {
+    // Gracefully handle endpoint not found
+    if (error instanceof MissionApiError && error.status === 404) {
+      console.warn('[Mission API] Missions endpoint not available (404)');
+      return { total: 0, missions: [] };
+    }
+    throw error;
+  }
 }
 
 /**

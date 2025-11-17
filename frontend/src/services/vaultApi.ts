@@ -63,15 +63,22 @@ export async function listSecrets(filters?: {
   tags?: string[];
 }): Promise<Secret[]> {
   const params = new URLSearchParams();
-  if (filters?.domain) params.append('domain', filters.domain);
+  if (filters?.domain) params.append('service', filters.domain); // Backend uses 'service' param
   if (filters?.type) params.append('type', filters.type);
   if (filters?.tags) filters.tags.forEach(tag => params.append('tags', tag));
 
   const response = await fetch(`${API_BASE}/api/vault/secrets?${params}`, {
     headers: getAuthHeaders(),
+  }).catch(() => {
+    // Gracefully handle 404 or network errors
+    console.warn('[Vault API] listSecrets endpoint not available');
+    return new Response(JSON.stringify({ secrets: [], count: 0 }), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   });
 
-  const data = await handleResponse<{ secrets: Secret[] }>(response);
+  const data = await handleResponse<{ secrets: Secret[]; count?: number }>(response);
   return data.secrets || [];
 }
 

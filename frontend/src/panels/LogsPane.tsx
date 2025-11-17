@@ -1,21 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { fetchRecentLogs, fetchLogDomains, type LogEntry, type LogsResponse } from '../services/logsApi';
 import './LogsPane.css';
-
-interface LogEntry {
-  timestamp: string;
-  level: 'info' | 'success' | 'warning' | 'error';
-  domain: string;
-  message: string;
-  metadata?: Record<string, any>;
-}
-
-interface LogsResponse {
-  logs: LogEntry[];
-  total: number;
-  limit: number;
-}
-
-const API_BASE = 'http://localhost:8017';
 
 export default function LogsPane() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -24,28 +9,29 @@ export default function LogsPane() {
   const [selectedDomain, setSelectedDomain] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [endpointMissing, setEndpointMissing] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     try {
-      const params = new URLSearchParams();
-      params.append('limit', '100');
-      if (selectedLevel) params.append('level', selectedLevel);
-      if (selectedDomain) params.append('domain', selectedDomain);
-      if (searchQuery) params.append('search', searchQuery);
-
-      const response = await fetch(`${API_BASE}/api/logs/recent?${params}`);
-      const data: LogsResponse = await response.json();
+      const data = await fetchRecentLogs({
+        limit: 100,
+        level: selectedLevel || undefined,
+        domain: selectedDomain || undefined,
+        search: searchQuery || undefined,
+      });
+      
       setLogs(data.logs);
+      setEndpointMissing(data.logs.length === 0 && data.total === 0);
     } catch (error) {
       console.error('Failed to fetch logs:', error);
+      setEndpointMissing(true);
     }
   }, [selectedLevel, selectedDomain, searchQuery]);
 
   const fetchDomains = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/logs/domains`);
-      const data = await response.json();
-      setDomains(data.domains);
+      const domainsList = await fetchLogDomains();
+      setDomains(domainsList);
     } catch (error) {
       console.error('Failed to fetch domains:', error);
     }
@@ -130,7 +116,14 @@ export default function LogsPane() {
       </div>
 
       <div className="logs-container">
-        {logs.length === 0 ? (
+        {endpointMissing ? (
+          <div className="logs-empty" style={{ color: '#ff8800' }}>
+            ⚠️ Endpoint missing: /api/logs/recent
+            <div style={{ fontSize: '0.9em', marginTop: '8px', opacity: 0.8 }}>
+              The logs endpoint is not available. Check backend configuration.
+            </div>
+          </div>
+        ) : logs.length === 0 ? (
           <div className="logs-empty">No logs to display</div>
         ) : (
           logs.map((log, idx) => (
