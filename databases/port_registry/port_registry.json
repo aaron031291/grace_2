@@ -263,7 +263,43 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8022": {
+      "port": 8022,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:31:50.904779",
+      "last_health_check": "2025-11-17T12:31:50.904779",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8023": {
+      "port": 8023,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:32:11.558766",
+      "last_health_check": "2025-11-17T12:32:11.558768",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8024": {
+      "port": 8024,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-17T12:33:08.326398",
+      "last_health_check": "2025-11-17T12:33:08.326399",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-17T12:29:57.518588"
+  "last_updated": "2025-11-17T12:33:08.326422"
 }

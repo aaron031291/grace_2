@@ -300,6 +300,58 @@ async def delete_file(path: str):
         raise HTTPException(status_code=500, detail=f"Failed to delete: {str(e)}")
 
 
+@router.get("/artifacts")
+async def list_artifacts(
+    domain: Optional[str] = None,
+    artifact_type: Optional[str] = None,
+    limit: int = 50,
+):
+    """
+    List knowledge artifacts (for memory explorer)
+    Queries the ingestion system for stored artifacts
+    """
+    try:
+        # Try to get artifacts from ingestion system
+        try:
+            from ..ingestion_services.ingestion_service import ingestion_service
+            from ..models import async_session
+            from ..knowledge_models import KnowledgeArtifact
+            from sqlalchemy import select
+            
+            async with async_session() as session:
+                query = select(KnowledgeArtifact).order_by(KnowledgeArtifact.created_at.desc())
+                
+                if domain:
+                    query = query.where(KnowledgeArtifact.domain == domain)
+                if artifact_type:
+                    query = query.where(KnowledgeArtifact.artifact_type == artifact_type)
+                
+                query = query.limit(limit)
+                result = await session.execute(query)
+                
+                artifacts = [
+                    {
+                        "id": a.id,
+                        "path": a.path,
+                        "title": a.title,
+                        "type": a.artifact_type,
+                        "domain": a.domain,
+                        "source": a.source,
+                        "size_bytes": a.size_bytes,
+                        "created_at": a.created_at.isoformat() if a.created_at else None,
+                    }
+                    for a in result.scalars().all()
+                ]
+                
+                return {"artifacts": artifacts, "count": len(artifacts)}
+        except ImportError:
+            # Fallback if knowledge models not available
+            return {"artifacts": [], "count": 0}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list artifacts: {str(e)}")
+
+
 @router.get("/tables/list")
 async def list_tables():
     """List all available memory tables"""
