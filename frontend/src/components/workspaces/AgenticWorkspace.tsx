@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Workspace } from '../../GraceEnterpriseUI';
-import { agenticApi, AgenticEvent, AgenticAction, AgenticReflection, Skill, SkillStats, AgenticHealth } from '../../api/agenticApi';
+import { agenticApi } from '../../api/agenticApi';
+import type { AgenticEvent, AgenticAction, AgenticReflection, Skill, SkillStats, AgenticHealth } from '../../api/agenticApi';
 import './WorkspaceCommon.css';
 import './AgenticWorkspace.css';
 
