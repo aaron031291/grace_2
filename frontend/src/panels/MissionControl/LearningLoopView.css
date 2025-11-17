@@ -1,0 +1,125 @@
+.learning-loop-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.learning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.learning-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.learning-stats .stat {
+  padding: 12px 20px;
+  background: rgba(50, 50, 70, 0.3);
+  border: 1px solid rgba(100, 100, 150, 0.3);
+  border-radius: 8px;
+}
+
+.learning-stats .stat strong {
+  font-size: 20px;
+  color: #64ff96;
+  margin-right: 8px;
+}
+
+.outcomes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.outcome-card {
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(100, 255, 150, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.outcome-card:hover {
+  background: rgba(40, 40, 50, 0.8);
+  border-color: rgba(100, 255, 150, 0.4);
+}
+
+.outcome-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.outcome-type {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 600;
+}
+
+.outcome-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-success {
+  background: rgba(0, 170, 68, 0.3);
+  color: #00aa44;
+}
+
+.status-in_progress {
+  background: rgba(0, 204, 255, 0.3);
+  color: #00ccff;
+}
+
+.status-failed {
+  background: rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+}
+
+.outcome-title {
+  margin: 0 0 8px 0;
+  color: #64ff96;
+  font-size: 16px;
+}
+
+.outcome-description {
+  margin: 0 0 12px 0;
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.outcome-time {
+  font-size: 12px;
+  color: #777;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-message {
+  font-size: 18px;
+  color: #ddd;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: #999;
+}
