@@ -26,6 +26,26 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.conversation-header .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.conversation-header .header-title h2 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.conversation-header .header-title .subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 .conversation-header h2 {
   margin: 0 0 4px 0;
   font-size: 18px;
@@ -37,6 +57,98 @@
   margin: 0;
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+.session-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.session-pill .session-icon {
+  font-size: 14px;
+}
+
+.session-pill .session-duration {
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.session-pill .session-messages {
+  color: var(--text-secondary);
+}
+
+.session-pill .session-topics {
+  color: var(--text-secondary);
+  font-style: italic;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.control-btn {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+.control-btn.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+.control-btn.recording {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.conversation-header .subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.conversation-header .hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 .messages-container {
