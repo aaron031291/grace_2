@@ -1,4 +1,10 @@
-"""Generic Alembic init template."""
+"""Add remote access models"""
+
+revision = 'b60b320cde26'
+down_revision = None
+branch_labels = None
+depends_on = None
+
 from alembic import op
 import sqlalchemy as sa
 

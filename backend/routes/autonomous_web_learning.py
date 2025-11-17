@@ -39,11 +39,24 @@ class WebLearningResponse(BaseModel):
 @router.post("/search", response_model=WebLearningResponse)
 async def search_web(request: SearchRequest):
     """
-    Search the web freely - no restrictions
-    Grace can search for anything to expand her knowledge
+    Search the web with governance controls
+    Grace can search for approved topics to expand her knowledge
     """
     try:
         from backend.services.google_search_service import google_search_service
+        from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
+        
+        if learning_whitelist_manager.requires_approval("web_search"):
+            raise HTTPException(
+                status_code=403,
+                detail="Web search requires approval. Please submit an approval request."
+            )
+        
+        if not learning_whitelist_manager.is_allowed("web_search", request.query):
+            raise HTTPException(
+                status_code=403,
+                detail=f"Web search not allowed for query: {request.query}"
+            )
         
         if request.extract_content:
             result = await google_search_service.search_and_extract(
@@ -76,12 +89,25 @@ async def search_web(request: SearchRequest):
 @router.post("/learn-topic", response_model=WebLearningResponse)
 async def learn_topic(request: LearnTopicRequest):
     """
-    Autonomous learning on any topic
-    Grace searches, extracts, analyzes, and saves knowledge
+    Autonomous learning with governance controls
+    Grace searches, extracts, analyzes, and saves knowledge for approved topics
     """
     try:
         from backend.services.google_search_service import google_search_service
         from backend.services.closed_loop_learning import closed_loop_learning
+        from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
+        
+        if learning_whitelist_manager.requires_approval("learn_topic"):
+            raise HTTPException(
+                status_code=403,
+                detail="Topic learning requires approval. Please submit an approval request."
+            )
+        
+        if not learning_whitelist_manager.is_allowed("learn_topic", request.topic):
+            raise HTTPException(
+                status_code=403,
+                detail=f"Topic learning not allowed for: {request.topic}"
+            )
         
         # Search for the topic
         search_result = await google_search_service.search_and_extract(
@@ -147,11 +173,24 @@ async def learn_topic(request: LearnTopicRequest):
 @router.get("/explore/{domain}")
 async def explore_domain(domain: str, depth: int = 3):
     """
-    Freely explore a domain (programming, AI, business, etc.)
-    Grace autonomously discovers and learns related topics
+    Explore a domain with governance controls (programming, AI, business, etc.)
+    Grace autonomously discovers and learns related topics within approved domains
     """
     try:
         from backend.services.google_search_service import google_search_service
+        from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
+        
+        if learning_whitelist_manager.requires_approval("explore_domain"):
+            raise HTTPException(
+                status_code=403,
+                detail="Domain exploration requires approval. Please submit an approval request."
+            )
+        
+        if not learning_whitelist_manager.is_allowed("explore_domain", domain):
+            raise HTTPException(
+                status_code=403,
+                detail=f"Domain exploration not allowed for: {domain}"
+            )
         
         exploration_queries = [
             f"{domain} fundamentals",
@@ -186,13 +225,27 @@ async def explore_domain(domain: str, depth: int = 3):
 @router.post("/autonomous-research")
 async def start_autonomous_research(topics: List[str], duration_minutes: int = 60):
     """
-    Start autonomous research session
-    Grace continuously learns on specified topics
+    Start autonomous research session with governance controls
+    Grace continuously learns on approved topics
     """
     try:
         import asyncio
         from backend.services.google_search_service import google_search_service
         from backend.services.closed_loop_learning import closed_loop_learning
+        from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
+        
+        if learning_whitelist_manager.requires_approval("autonomous_research"):
+            raise HTTPException(
+                status_code=403,
+                detail="Autonomous research requires approval. Please submit an approval request."
+            )
+        
+        for topic in topics:
+            if not learning_whitelist_manager.is_allowed("autonomous_research", topic):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Autonomous research not allowed for topic: {topic}"
+                )
         
         session_id = f"research-{datetime.utcnow().timestamp()}"
         research_results = {
