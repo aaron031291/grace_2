@@ -538,7 +538,8 @@ if __name__ == "__main__":
     
     if not boot_result or isinstance(boot_result, bool) and not boot_result:
         print("Failed to boot Grace. Exiting.")
-        input("\nPress Enter to exit...")
+        if sys.stdin.isatty():
+            input("\nPress Enter to exit...")
         sys.exit(1)
     
     # Get port from Guardian's boot result

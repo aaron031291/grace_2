@@ -185,9 +185,11 @@ class MemoryService:
         self,
         domain: str = None,
         category: str = None,
-        status: str = None
+        status: str = None,
+        limit: int = 100,
+        offset: int = 0
     ) -> List[dict]:
-        """List artifacts with optional filters"""
+        """List artifacts with optional filters and pagination"""
         async with async_session() as session:
             query = select(MemoryArtifact).where(MemoryArtifact.is_deleted == False)
             if domain:
@@ -197,7 +199,8 @@ class MemoryService:
             if status:
                 query = query.where(MemoryArtifact.status == status)
             
-            result = await session.execute(query.order_by(MemoryArtifact.path))
+            query = query.order_by(MemoryArtifact.path).limit(limit).offset(offset)
+            result = await session.execute(query)
             return [
                 {
                     "id": a.id,
@@ -210,16 +213,17 @@ class MemoryService:
                     "created_by": a.created_by,
                     "updated_at": a.updated_at
                 }
-                for a in result.scalars().all()
+                for a in result.scalars()
             ]
     
-    async def get_audit_trail(self, artifact_id: int) -> List[dict]:
+    async def get_audit_trail(self, artifact_id: int, limit: int = 1000) -> List[dict]:
         """Get complete audit history for an artifact"""
         async with async_session() as session:
             result = await session.execute(
                 select(MemoryOperation)
                 .where(MemoryOperation.artifact_id == artifact_id)
                 .order_by(MemoryOperation.timestamp.desc())
+                .limit(limit)
             )
             return [
                 {
@@ -230,18 +234,19 @@ class MemoryService:
                     "previous_hash": op.previous_operation_hash,
                     "timestamp": op.timestamp
                 }
-                for op in result.scalars().all()
+                for op in result.scalars()
             ]
     
-    async def verify_chain(self, artifact_id: int) -> dict:
+    async def verify_chain(self, artifact_id: int, max_operations: int = 10000) -> dict:
         """Verify hash chain integrity"""
         async with async_session() as session:
             result = await session.execute(
                 select(MemoryOperation)
                 .where(MemoryOperation.artifact_id == artifact_id)
                 .order_by(MemoryOperation.timestamp.asc())
+                .limit(max_operations)
             )
-            operations = result.scalars().all()
+            operations = list(result.scalars())
             
             for i, op in enumerate(operations):
                 if i > 0:
