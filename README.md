@@ -7,7 +7,7 @@
 ## Start Grace
 
 ```bash
-python serve.py
+python server.py
 ```
 
 Guardian boots **FIRST** - heals ALL network issues across OSI Layers 2-7!
@@ -205,7 +205,7 @@ Guardian → Self-Healing → Coding Agent = **Complete system protection**
 
 ---
 
-**Start:** `python serve.py`
+**Start:** `python server.py`
 
 Guardian handles network, self-healing handles runtime, coding agent handles code!
 
