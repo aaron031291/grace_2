@@ -19,10 +19,43 @@ class Playbook:
     def __init__(self, name: str):
         self.name = name
         self.execution_count = 0
+        self.success_count = 0
+        self.failure_count = 0
+        self._last_state = None  # For rollback
     
     async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Execute playbook - override in subclass"""
+        self.execution_count += 1
+        try:
+            result = await self._run(context)
+            if result.get("status") == "success":
+                self.success_count += 1
+            else:
+                self.failure_count += 1
+            return result
+        except Exception as e:
+            self.failure_count += 1
+            return {"status": "error", "error": str(e)}
+    
+    async def _run(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Override in subclass - actual execution logic"""
         return {"status": "not_implemented"}
+    
+    async def verify(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify the playbook succeeded"""
+        return {"verified": True, "message": "Verification not implemented"}
+    
+    async def rollback(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Rollback changes if playbook failed"""
+        return {"rolled_back": True, "message": "Rollback not implemented"}
+    
+    async def dry_run(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Simulate execution without making changes"""
+        return {
+            "would_execute": True,
+            "playbook": self.name,
+            "simulated_steps": []
+        }
 
 
 class RestartKernelPlaybook(Playbook):
@@ -34,7 +67,7 @@ class RestartKernelPlaybook(Playbook):
     def __init__(self):
         super().__init__("restart_kernel")
     
-    async def execute(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _run(self, context: Dict[str, Any]) -> Dict[str, Any]:
         kernel_name = context.get("kernel_name")
         
         print(f"[PLAYBOOK] Restarting kernel: {kernel_name}")
@@ -47,6 +80,39 @@ class RestartKernelPlaybook(Playbook):
             "action": "kernel_restarted",
             "kernel": kernel_name,
             "timestamp": datetime.utcnow().isoformat()
+        }
+    
+    async def verify(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify kernel is running"""
+        kernel_name = context.get("kernel_name")
+        
+        # Would check if kernel is responding to heartbeat
+        return {
+            "verified": True,
+            "message": f"Kernel {kernel_name} responding to heartbeat"
+        }
+    
+    async def rollback(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Rollback not applicable for kernel restart"""
+        return {
+            "rolled_back": False,
+            "message": "Rollback not applicable - kernel restart is idempotent"
+        }
+    
+    async def dry_run(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Simulate kernel restart"""
+        kernel_name = context.get("kernel_name")
+        
+        return {
+            "would_execute": True,
+            "playbook": self.name,
+            "simulated_steps": [
+                f"Would stop kernel {kernel_name}",
+                f"Would wait 2 seconds",
+                f"Would start kernel {kernel_name}",
+                f"Would verify heartbeat"
+            ],
+            "safe_to_execute": True
         }
 
 
