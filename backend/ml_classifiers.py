@@ -1,5 +1,14 @@
 """ML Classifiers - Re-export from ml_training module"""
 
+from typing import Any as _Any
+
+TrustScoreClassifier: _Any
+TrustClassifierManager: _Any
+trust_classifier_manager: _Any
+AlertSeverityPredictor: _Any
+alert_severity_predictor: _Any
+
+
 # Lazy imports to avoid circular dependencies
 def __getattr__(name):
     if name == 'TrustScoreClassifier':
@@ -19,9 +28,10 @@ def __getattr__(name):
         return alert_severity_predictor
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
+
 __all__ = [
     'TrustScoreClassifier',
-    'TrustClassifierManager', 
+    'TrustClassifierManager',
     'trust_classifier_manager',
     'AlertSeverityPredictor',
     'alert_severity_predictor'
