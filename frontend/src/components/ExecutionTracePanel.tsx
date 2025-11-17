@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExecutionTrace } from '../GraceEnterpriseUI';
+import type { ExecutionTrace } from '../GraceEnterpriseUI';
 import './ExecutionTracePanel.css';
 
 interface ExecutionTracePanelProps {
