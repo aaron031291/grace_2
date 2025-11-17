@@ -657,4 +657,4 @@ class CIQualityGate:
 # Global instances
 benchmark_dataset = BenchmarkDataset()
 retrieval_evaluation_runner = RetrievalEvaluationRunner(benchmark_dataset)
-ci_quality_gate = CIQualityGate(retrieval_evaluation_runner)</code></edit_file>
+ci_quality_gate = CIQualityGate(retrieval_evaluation_runner)
