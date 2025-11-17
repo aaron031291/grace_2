@@ -13,7 +13,7 @@ from .routers.cognition import router as cognition_router
 from .routers.core_domain import router as core_domain_router
 from .routers.transcendence_domain import router as transcendence_domain_router
 from .routers.security_domain import router as security_domain_router
-from .metrics_service import init_metrics_collector
+from backend.metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
 

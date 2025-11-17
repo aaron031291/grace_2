@@ -9,8 +9,8 @@ from datetime import datetime
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from .cognition_metrics import get_metrics_engine
-from .metrics_service import get_metrics_collector
+from backend.cognition_metrics import get_metrics_engine
+from backend.metrics_service import get_metrics_collector
 from .trigger_mesh import trigger_mesh
 
 logger = logging.getLogger(__name__)

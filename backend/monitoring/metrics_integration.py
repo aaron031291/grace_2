@@ -43,7 +43,7 @@ async def safe_publish_metric(domain: str, kpi: str, value: float, metadata: Opt
         metadata: Optional metadata
     """
     try:
-        from .metrics_service import publish_metric
+        from backend.metrics_service import publish_metric
         await publish_metric(domain, kpi, value, metadata)
     except ImportError as e:
         logger.warning(f"Metrics service not available: {e}")

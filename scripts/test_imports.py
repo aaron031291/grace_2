@@ -12,7 +12,7 @@ print("Testing core imports...")
 
 try:
     print("1. Importing metrics_service...", end=" ")
-    from backend.monitoring.metrics_service import get_metrics_collector, publish_metric
+    from backend.metrics_service import get_metrics_collector, publish_metric
     print("OK")
 except Exception as e:
     print(f"FAIL {e}")
@@ -20,7 +20,7 @@ except Exception as e:
 
 try:
     print("2. Importing cognition_metrics...", end=" ")
-    from backend.misc.cognition_metrics import get_metrics_engine
+    from backend.cognition_metrics import get_metrics_engine
     print("OK")
 except Exception as e:
     print(f"FAIL {e}")
