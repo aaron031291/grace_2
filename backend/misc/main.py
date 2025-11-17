@@ -30,7 +30,7 @@ from backend.metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
 
-app = FastAPI(title="Grace API", version="2.0.0")
+app = FastAPI(title="Grace API", version="2.1.0")
 
 app.add_middleware(
     CORSMiddleware,
