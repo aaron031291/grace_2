@@ -30,7 +30,7 @@ from backend.metrics_service import init_metrics_collector
 from .request_id_middleware import RequestIDMiddleware
 from .logging_utils import ensure_utf8_console
 
-app = FastAPI(title="Grace API", version="2.1.0")
+app = FastAPI(title="Grace API", version="2.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -660,6 +660,18 @@ app.include_router(memory_api.router)
 # Guardian API - Stats and MTTR tracking
 from backend.routes import guardian_api
 app.include_router(guardian_api.router)
+
+# Learning API - Knowledge gaps and autonomous learning
+from backend.routes import learning_api
+app.include_router(learning_api.router)
+
+# Coding Pipeline API - Autonomous software development
+from backend.routes import coding_pipeline_api
+app.include_router(coding_pipeline_api.router)
+
+# Enterprise API - Tenancy, Billing, RBAC, Templates, DR
+from backend.routes import enterprise_api
+app.include_router(enterprise_api.router)
 app.include_router(health_routes.router)
 # Conditionally include unified health/triage endpoints (observe-only by default)
 try:
