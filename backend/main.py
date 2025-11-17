@@ -338,6 +338,19 @@ async def startup_agentic_organism():
         traceback.print_exc()
 
 @app.on_event("startup")
+async def startup_guardian_metrics():
+    """Start Guardian metrics publisher"""
+    try:
+        from backend.guardian.metrics_publisher import start_metrics_publisher
+        import asyncio
+        
+        # Start metrics publisher in background
+        asyncio.create_task(start_metrics_publisher(interval_seconds=60))
+        print("[GUARDIAN-METRICS] Started auto-publish (60s interval)")
+    except Exception as e:
+        print(f"[WARN] Guardian metrics auto-publish disabled: {e}")
+
+@app.on_event("startup")
 async def startup_advanced_learning():
     """Starts the advanced learning supervisor and its sub-agents."""
     if advanced_learning_supervisor:
