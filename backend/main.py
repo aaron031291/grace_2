@@ -81,6 +81,41 @@ try:
 except ImportError:
     pass  # Future projects optional
 
+# Register storage tracking (monitor TB of learning data)
+try:
+    from backend.routes.storage_api import router as storage_router
+    app.include_router(storage_router)
+except ImportError:
+    pass  # Storage tracking optional
+
+# Register competitor tracking (monitor competitor campaigns)
+try:
+    from backend.routes.competitor_api import router as competitor_router
+    app.include_router(competitor_router)
+except ImportError:
+    pass  # Competitor tracking optional
+
+# Register crypto trading APIs
+try:
+    from backend.routes.crypto_api import router as crypto_router
+    app.include_router(crypto_router)
+except ImportError:
+    pass  # Crypto APIs optional
+
+# Register SaaS builder (autonomous SaaS app builder)
+try:
+    from backend.routes.saas_builder_api import router as saas_builder_router
+    app.include_router(saas_builder_router)
+except ImportError:
+    pass  # SaaS builder optional
+
+# Register curriculum orchestrator API
+try:
+    from backend.routes.curriculum_api import router as curriculum_router
+    app.include_router(curriculum_router)
+except ImportError:
+    pass  # Curriculum API optional
+
 # Register Console UI APIs (NEW - for Unified Console)
 try:
     from backend.routes.logs_api import router as logs_router
@@ -280,9 +315,54 @@ async def startup_advanced_learning():
     try:
         from backend.agents.future_projects_learner import future_projects_learner
         await future_projects_learner.initialize()
-        print("[OK] Future projects learner started (blockchain, CRM, ecommerce, APIs, distributed)")
+        print("[OK] Future projects learner started (18 domains: web, mobile, marketing, sales, finance, AI)")
     except Exception as e:
         print(f"[WARN] Future projects learner initialization degraded: {e}")
+    
+    # Initialize storage tracker (monitor TB of learning data)
+    try:
+        from backend.services.storage_tracker import storage_tracker
+        await storage_tracker.initialize()
+        storage_metrics = await storage_tracker.get_metrics()
+        print(f"[OK] Storage tracker initialized ({storage_metrics['total_used_gb']:.2f} GB used, {storage_metrics['remaining_tb']:.3f} TB remaining)")
+    except Exception as e:
+        print(f"[WARN] Storage tracker initialization degraded: {e}")
+    
+    # Initialize competitor tracker (monitor competitor campaigns and extract winning patterns)
+    try:
+        from backend.agents.competitor_tracker import competitor_tracker
+        await competitor_tracker.initialize()
+        print("[OK] Competitor tracker initialized (Meta ads, TikTok, Amazon, Etsy, Shopify)")
+    except Exception as e:
+        print(f"[WARN] Competitor tracker initialization degraded: {e}")
+    
+    # Initialize crypto API installer (free crypto trading APIs)
+    try:
+        from backend.integrations.crypto_api_installer import crypto_api_installer
+        await crypto_api_installer.initialize()
+        crypto_metrics = await crypto_api_installer.get_metrics()
+        print(f"[OK] Crypto APIs initialized ({crypto_metrics['apis_installed']}/{crypto_metrics['total_apis_configured']} installed)")
+    except Exception as e:
+        print(f"[WARN] Crypto API installer initialization degraded: {e}")
+    
+    # Initialize SaaS builder (autonomous SaaS application builder)
+    try:
+        from backend.agents.saas_builder import saas_builder
+        await saas_builder.initialize()
+        print("[OK] SaaS Builder initialized (can build+deploy complete AI/blockchain/secure SaaS apps)")
+    except Exception as e:
+        print(f"[WARN] SaaS Builder initialization degraded: {e}")
+    
+    # Initialize curriculum orchestrator (makes Grace aware of ALL curricula and starts learning)
+    try:
+        from backend.agents.curriculum_orchestrator import curriculum_orchestrator
+        await curriculum_orchestrator.initialize()
+        status = await curriculum_orchestrator.get_learning_status()
+        print(f"[OK] Curriculum Orchestrator initialized - Grace discovered {status['curricula_discovered']} curricula")
+        print(f"[OK] Grace is now learning {status['total_domains']} domains from: {', '.join([c['name'] for c in status['curricula_list'][:3]])}...")
+        print(f"[OK] Active learning sessions: {status['active_sessions']}")
+    except Exception as e:
+        print(f"[WARN] Curriculum orchestrator initialization degraded: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_advanced_learning():

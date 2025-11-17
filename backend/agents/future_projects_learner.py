@@ -27,11 +27,36 @@ class FutureProjectsLearner:
     def __init__(self):
         self.curriculum = None
         self.domain_progress = {
+            'saas_development': {'learned': 0, 'tested': 0, 'mastered': False},  # PRIORITY #1
+            'cybersecurity': {'learned': 0, 'tested': 0, 'mastered': False},  # PRIORITY #2
+            'web_design_development': {'learned': 0, 'tested': 0, 'mastered': False},
+            'mobile_development': {'learned': 0, 'tested': 0, 'mastered': False},
+            'content_creation': {'learned': 0, 'tested': 0, 'mastered': False},
+            'digital_marketing': {'learned': 0, 'tested': 0, 'mastered': False},
+            'image_generation': {'learned': 0, 'tested': 0, 'mastered': False},
+            'video_generation': {'learned': 0, 'tested': 0, 'mastered': False},
+            'crypto_trading': {'learned': 0, 'tested': 0, 'mastered': False},
+            'customer_acquisition': {'learned': 0, 'tested': 0, 'mastered': False},
+            'customer_behavior': {'learned': 0, 'tested': 0, 'mastered': False},
+            'e2e_sales_process': {'learned': 0, 'tested': 0, 'mastered': False},
+            'full_sales_process': {'learned': 0, 'tested': 0, 'mastered': False},
+            'sales_funnels': {'learned': 0, 'tested': 0, 'mastered': False},
+            'sales_psychology': {'learned': 0, 'tested': 0, 'mastered': False},
+            'business_leadership': {'learned': 0, 'tested': 0, 'mastered': False},
+            'banking_finance': {'learned': 0, 'tested': 0, 'mastered': False},
+            'wealth_creation': {'learned': 0, 'tested': 0, 'mastered': False},
+            'day_trading': {'learned': 0, 'tested': 0, 'mastered': False},
             'blockchain': {'learned': 0, 'tested': 0, 'mastered': False},
             'crm': {'learned': 0, 'tested': 0, 'mastered': False},
             'ecommerce': {'learned': 0, 'tested': 0, 'mastered': False},
             'api_tracking_analysis': {'learned': 0, 'tested': 0, 'mastered': False},
             'distributed_compute': {'learned': 0, 'tested': 0, 'mastered': False}
+        }
+        self.storage_tracking = {
+            'total_capacity_tb': 1.0,  # 1TB available
+            'used_gb': 0.0,
+            'downloaded_resources': 0,
+            'avg_resource_size_mb': 0.0
         }
         self.learning_sessions = 0
         self.resources_ingested = 0

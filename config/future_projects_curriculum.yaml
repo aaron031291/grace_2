@@ -16,6 +16,391 @@ description: |
 
 domains:
   
+  web_design_development:
+    priority: "critical"
+    description: "Full-stack web development, UI/UX, modern frameworks"
+    
+    learning_objectives:
+      - "Master React, Vue, Svelte, Next.js frameworks"
+      - "Learn responsive design and CSS frameworks"
+      - "Understand modern UI/UX principles"
+      - "Build production web applications"
+      - "Learn web accessibility (WCAG)"
+      - "Master SEO optimization"
+    
+    search_terms:
+      - "React hooks tutorial"
+      - "Next.js full stack app"
+      - "Tailwind CSS responsive design"
+      - "modern UI/UX best practices"
+      - "web accessibility standards"
+      - "SEO optimization techniques"
+    
+    real_data_to_ingest:
+      documentation:
+        - "reactjs.org"
+        - "nextjs.org"
+        - "tailwindcss.com"
+      code_repos:
+        - "github.com/vercel/next.js"
+        - "github.com/facebook/react"
+      examples:
+        - "Complete web app templates"
+        - "UI component libraries"
+  
+  mobile_development:
+    priority: "critical"
+    description: "iOS, Android, cross-platform mobile apps"
+    
+    learning_objectives:
+      - "Learn React Native and Flutter"
+      - "Master iOS and Android development"
+      - "Build cross-platform apps"
+      - "Understand mobile UX patterns"
+      - "Learn app deployment (App Store, Play Store)"
+    
+    search_terms:
+      - "React Native tutorial"
+      - "Flutter app development"
+      - "iOS Swift development"
+      - "Android Kotlin tutorial"
+      - "mobile app deployment guide"
+  
+  sales_funnels:
+    priority: "high"
+    description: "Sales funnel design, conversion optimization, marketing automation"
+    
+    learning_objectives:
+      - "Understand funnel stages (TOFU, MOFU, BOFU)"
+      - "Learn conversion rate optimization"
+      - "Master email marketing automation"
+      - "Build high-converting landing pages"
+      - "Study A/B testing and analytics"
+    
+    search_terms:
+      - "sales funnel optimization"
+      - "conversion rate optimization guide"
+      - "landing page best practices"
+      - "email marketing automation"
+      - "A/B testing strategies"
+  
+  sales_psychology:
+    priority: "high"
+    description: "Sales psychology, persuasion, copywriting, customer psychology"
+    
+    learning_objectives:
+      - "Understand buyer psychology and decision-making"
+      - "Learn persuasion principles (Cialdini)"
+      - "Master copywriting techniques"
+      - "Study sales objection handling"
+      - "Learn value proposition design"
+    
+    search_terms:
+      - "sales psychology principles"
+      - "persuasive copywriting techniques"
+      - "buyer psychology insights"
+      - "objection handling strategies"
+      - "value proposition canvas"
+  
+  business_leadership:
+    priority: "high"
+    description: "CEO/CTO/COO thinking, strategy, operations, leadership"
+    
+    learning_objectives:
+      - "Think like CEO (vision, strategy, growth)"
+      - "Think like CTO (technology, architecture, teams)"
+      - "Think like COO (operations, efficiency, execution)"
+      - "Learn strategic planning frameworks"
+      - "Understand business model design"
+    
+    search_terms:
+      - "CEO strategic thinking framework"
+      - "CTO technology leadership"
+      - "COO operational excellence"
+      - "business model canvas"
+      - "startup growth strategies"
+  
+  banking_finance:
+    priority: "high"
+    description: "Banking, financial systems, corporate finance"
+    
+    learning_objectives:
+      - "Understand banking systems and regulations"
+      - "Learn corporate finance fundamentals"
+      - "Study financial modeling and analysis"
+      - "Master accounting principles"
+      - "Learn risk management"
+    
+    search_terms:
+      - "corporate finance fundamentals"
+      - "financial modeling tutorial"
+      - "banking system explained"
+      - "financial analysis techniques"
+      - "risk management strategies"
+  
+  wealth_creation:
+    priority: "high"
+    description: "Wealth building, investing, passive income, financial independence"
+    
+    learning_objectives:
+      - "Learn wealth-building strategies"
+      - "Understand investment vehicles (stocks, real estate, businesses)"
+      - "Study passive income generation"
+      - "Master tax optimization strategies"
+      - "Learn financial independence principles"
+    
+    search_terms:
+      - "wealth building strategies"
+      - "passive income ideas"
+      - "investment portfolio management"
+      - "FIRE movement principles"
+      - "tax optimization strategies"
+  
+  day_trading:
+    priority: "medium"
+    description: "Day trading, technical analysis, market psychology"
+    
+    learning_objectives:
+      - "Learn technical analysis (charts, indicators)"
+      - "Understand trading psychology"
+      - "Master risk management for trading"
+      - "Study market patterns and trends"
+      - "Learn trading strategies and systems"
+    
+    search_terms:
+      - "day trading strategies"
+      - "technical analysis tutorial"
+      - "trading psychology principles"
+      - "risk management trading"
+      - "candlestick patterns guide"
+  
+  crypto_trading:
+    priority: "high"
+    description: "Cryptocurrency trading, DeFi, blockchain finance"
+    
+    learning_objectives:
+      - "Master crypto market analysis"
+      - "Learn to use CCXT library (100+ exchanges)"
+      - "Understand DeFi protocols and yield farming"
+      - "Study crypto technical analysis"
+      - "Learn trading bot development"
+      - "Master risk management for crypto volatility"
+    
+    search_terms:
+      - "cryptocurrency trading strategies"
+      - "CCXT Python tutorial"
+      - "Binance API trading bot"
+      - "crypto technical analysis"
+      - "DeFi yield farming guide"
+      - "crypto trading bot development"
+    
+    apis_to_integrate:
+      - "CCXT (unified crypto exchange API)"
+      - "python-binance (Binance API)"
+      - "coinbase-python (Coinbase API)"
+      - "pycoingecko (market data)"
+      - "cryptocompare API"
+  
+  customer_acquisition:
+    priority: "critical"
+    description: "Customer acquisition strategies, channels, optimization"
+    
+    learning_objectives:
+      - "Master multi-channel acquisition strategies"
+      - "Learn customer acquisition cost (CAC) optimization"
+      - "Understand attribution modeling"
+      - "Study growth hacking tactics"
+      - "Learn viral loops and referral programs"
+    
+    search_terms:
+      - "customer acquisition strategies"
+      - "CAC optimization tactics"
+      - "growth hacking playbook"
+      - "viral marketing loops"
+      - "referral program design"
+  
+  customer_behavior:
+    priority: "critical"
+    description: "Customer behavior analysis, psychology, journey mapping"
+    
+    learning_objectives:
+      - "Master analytics tools (Mixpanel, Amplitude, Heap)"
+      - "Learn behavior tracking and session replay"
+      - "Understand customer journey mapping"
+      - "Study purchase behavior psychology"
+      - "Learn cohort analysis and segmentation"
+    
+    search_terms:
+      - "customer behavior analytics"
+      - "Mixpanel tutorial"
+      - "customer journey mapping"
+      - "purchase behavior psychology"
+      - "cohort analysis techniques"
+  
+  e2e_sales_process:
+    priority: "critical"
+    description: "Complete end-to-end online sales process"
+    
+    learning_objectives:
+      - "Master COMPLETE funnel: Traffic → Lead → Customer → Advocate"
+      - "Learn every touchpoint and conversion point"
+      - "Understand funnel optimization at each stage"
+      - "Study customer lifecycle management"
+      - "Master metrics and KPIs for each stage"
+    
+    search_terms:
+      - "end-to-end sales funnel guide"
+      - "complete customer journey"
+      - "funnel optimization strategies"
+      - "customer lifecycle management"
+      - "sales funnel metrics and KPIs"
+  
+  saas_development:
+    priority: "CRITICAL"
+    description: "Complete SaaS application lifecycle - BUILD, DEPLOY, SCALE"
+    
+    learning_objectives:
+      - "Master full-stack SaaS development"
+      - "Learn cloud deployment and hosting"
+      - "Implement enterprise security"
+      - "Integrate AI/ML capabilities"
+      - "Add blockchain/Web3 features"
+      - "Setup monitoring and observability"
+      - "Optimize and scale infrastructure"
+    
+    search_terms:
+      - "SaaS application architecture"
+      - "Next.js FastAPI full stack"
+      - "deploy SaaS to cloud"
+      - "SaaS security best practices"
+      - "multi-tenant SaaS design"
+      - "SaaS monitoring and analytics"
+      - "scaling SaaS infrastructure"
+    
+    tech_stack_to_master:
+      - "Next.js (frontend)"
+      - "FastAPI (backend)"
+      - "PostgreSQL (database)"
+      - "Redis (caching)"
+      - "Docker (containers)"
+      - "GitHub Actions (CI/CD)"
+      - "Vercel/Railway (hosting)"
+      - "OpenAI API (AI features)"
+      - "Web3.py (blockchain)"
+      - "Sentry (monitoring)"
+  
+  cybersecurity:
+    priority: "CRITICAL"
+    description: "Enterprise-grade security and penetration testing"
+    
+    learning_objectives:
+      - "Master OWASP Top 10 prevention"
+      - "Learn penetration testing techniques"
+      - "Implement zero-trust architecture"
+      - "Setup SOC 2 compliance"
+      - "Master encryption and secrets management"
+      - "Learn security auditing"
+    
+    search_terms:
+      - "OWASP Top 10 prevention guide"
+      - "penetration testing tutorial"
+      - "zero-trust architecture"
+      - "SOC 2 compliance checklist"
+      - "secrets management best practices"
+      - "security audit procedures"
+  
+  content_creation:
+    priority: "critical"
+    description: "Content creation, copywriting, media production"
+    
+    learning_objectives:
+      - "Learn content strategy and planning"
+      - "Master copywriting for different formats"
+      - "Understand content distribution channels"
+      - "Study viral content patterns"
+      - "Learn content repurposing strategies"
+    
+    search_terms:
+      - "content marketing strategy"
+      - "copywriting best practices"
+      - "viral content creation"
+      - "content distribution channels"
+      - "content repurposing strategies"
+  
+  digital_marketing:
+    priority: "critical"
+    description: "Digital marketing, SEO, PPC, social media, analytics"
+    
+    learning_objectives:
+      - "Master Google Ads and Facebook Ads"
+      - "Learn SEO optimization (on-page, off-page, technical)"
+      - "Understand social media marketing strategies"
+      - "Study marketing analytics and attribution"
+      - "Learn email marketing automation"
+    
+    search_terms:
+      - "Google Ads optimization guide"
+      - "SEO best practices 2025"
+      - "Facebook Ads targeting strategies"
+      - "social media marketing tactics"
+      - "marketing analytics attribution"
+  
+  image_generation:
+    priority: "high"
+    description: "AI image generation, graphic design, visual content"
+    
+    learning_objectives:
+      - "Learn Midjourney, Stable Diffusion, DALL-E"
+      - "Master prompt engineering for images"
+      - "Understand AI art techniques"
+      - "Learn image editing and optimization"
+      - "Study visual design principles"
+    
+    search_terms:
+      - "Midjourney prompt engineering"
+      - "Stable Diffusion tutorial"
+      - "AI image generation best practices"
+      - "prompt engineering for AI art"
+      - "visual design principles"
+  
+  video_generation:
+    priority: "high"
+    description: "Video creation, AI video, editing, production"
+    
+    learning_objectives:
+      - "Learn AI video generation tools"
+      - "Master video editing techniques"
+      - "Understand video marketing strategies"
+      - "Study YouTube algorithm and growth"
+      - "Learn short-form video (TikTok, Reels)"
+    
+    search_terms:
+      - "AI video generation tools"
+      - "video editing best practices"
+      - "YouTube growth strategies"
+      - "TikTok algorithm explained"
+      - "video marketing tactics"
+  
+  full_sales_process:
+    priority: "critical"
+    description: "Complete sales cycle from prospecting to close"
+    
+    learning_objectives:
+      - "Learn prospecting and lead generation"
+      - "Master discovery calls and qualification"
+      - "Understand needs analysis and solution selling"
+      - "Learn proposal creation and presentation"
+      - "Master negotiation and closing techniques"
+      - "Study post-sale onboarding and retention"
+    
+    search_terms:
+      - "B2B sales process framework"
+      - "solution selling methodology"
+      - "sales discovery questions"
+      - "negotiation techniques"
+      - "sales closing strategies"
+      - "customer onboarding best practices"
+  
   blockchain:
     priority: "high"
     description: "Blockchain, smart contracts, Web3, DeFi"
@@ -116,19 +501,25 @@ domains:
       - "Generate analytics reports"
   
   ecommerce:
-    priority: "high"
+    priority: "critical"
     description: "E-commerce platforms, payments, inventory, analytics"
     
     learning_objectives:
-      - "Understand e-commerce architecture"
+      - "Master TikTok Shop setup and optimization"
+      - "Learn Shopify store development and themes"
+      - "Understand Amazon FBA and seller strategies"
+      - "Master Etsy shop optimization and SEO"
       - "Learn Stripe payment integration"
-      - "Master Shopify/WooCommerce APIs"
       - "Study inventory management systems"
       - "Learn order fulfillment workflows"
       - "Understand payment security (PCI-DSS)"
       - "Build product recommendation engines"
     
     search_terms:
+      - "TikTok Shop tutorial"
+      - "Shopify theme development"
+      - "Amazon FBA strategy"
+      - "Etsy SEO optimization"
       - "Stripe payment integration Python"
       - "Shopify API development"
       - "e-commerce platform architecture"

@@ -1,0 +1,452 @@
+---
+# End-to-End Online Sales Process Curriculum
+# Complete sales journey from stranger to repeat customer
+
+name: "Complete E2E Online Sales Mastery"
+version: "1.0.0"
+priority: "critical"
+
+description: |
+  Grace learns the COMPLETE online sales process:
+  Traffic → Lead → Prospect → Customer → Repeat Buyer → Advocate
+  
+  Every touchpoint, every conversion, every optimization.
+
+# ============================================
+# COMPLETE SALES FUNNEL STAGES
+# ============================================
+
+sales_stages:
+  
+  stage_1_awareness:
+    name: "Awareness - Cold Traffic"
+    goal: "Get attention from strangers"
+    
+    tactics:
+      - "Paid advertising (Meta, Google, TikTok)"
+      - "SEO and organic content"
+      - "Social media presence"
+      - "Influencer partnerships"
+      - "PR and media coverage"
+      - "Viral content creation"
+    
+    key_metrics:
+      - "Impressions"
+      - "Reach"
+      - "CPM (Cost per 1000 impressions)"
+      - "Click-through rate (CTR)"
+      - "Traffic volume"
+    
+    learning_focus:
+      - "Attention-grabbing hooks"
+      - "Thumb-stopping creative"
+      - "Viral content patterns"
+      - "Platform algorithms"
+      - "Targeting strategies"
+    
+    search_terms:
+      - "cold traffic strategies"
+      - "viral marketing tactics"
+      - "attention-grabbing ad hooks"
+      - "Facebook ads cold audience"
+      - "TikTok viral content formula"
+  
+  stage_2_interest:
+    name: "Interest - Lead Generation"
+    goal: "Convert traffic to leads"
+    
+    tactics:
+      - "Lead magnets (ebooks, checklists, webinars)"
+      - "Landing page optimization"
+      - "Email opt-in forms"
+      - "Chatbot engagement"
+      - "Quiz funnels"
+      - "Free tools/calculators"
+    
+    key_metrics:
+      - "Conversion rate (visitor to lead)"
+      - "Cost per lead (CPL)"
+      - "Lead quality score"
+      - "Time on page"
+      - "Form completion rate"
+    
+    learning_focus:
+      - "High-converting landing pages"
+      - "Irresistible lead magnet ideas"
+      - "Form optimization"
+      - "Trust-building elements"
+      - "Value proposition clarity"
+    
+    search_terms:
+      - "high-converting landing page examples"
+      - "lead magnet ideas that work"
+      - "landing page optimization guide"
+      - "form conversion optimization"
+      - "trust signals for landing pages"
+  
+  stage_3_consideration:
+    name: "Consideration - Nurture & Qualify"
+    goal: "Warm up leads and qualify prospects"
+    
+    tactics:
+      - "Email nurture sequences"
+      - "Retargeting campaigns"
+      - "Educational content series"
+      - "Case studies and testimonials"
+      - "Product demos and trials"
+      - "Webinars and workshops"
+    
+    key_metrics:
+      - "Email open rate"
+      - "Email click rate"
+      - "Engagement score"
+      - "Lead score progression"
+      - "MQL (Marketing Qualified Lead) rate"
+    
+    learning_focus:
+      - "Email sequence templates"
+      - "Retargeting strategies"
+      - "Lead scoring models"
+      - "Educational content that converts"
+      - "Social proof effectiveness"
+    
+    search_terms:
+      - "email nurture sequence examples"
+      - "lead scoring best practices"
+      - "retargeting campaign strategies"
+      - "educational email series"
+      - "case study templates that convert"
+  
+  stage_4_purchase:
+    name: "Purchase - Conversion"
+    goal: "Convert prospect to paying customer"
+    
+    tactics:
+      - "Sales calls/demos"
+      - "Proposal and pricing presentation"
+      - "Limited-time offers"
+      - "Cart abandonment recovery"
+      - "Payment plan options"
+      - "Risk reversal (guarantees)"
+    
+    key_metrics:
+      - "Conversion rate (prospect to customer)"
+      - "Average order value (AOV)"
+      - "Cart abandonment rate"
+      - "Time to purchase"
+      - "Close rate"
+    
+    learning_focus:
+      - "Objection handling"
+      - "Urgency and scarcity tactics"
+      - "Pricing psychology"
+      - "Checkout optimization"
+      - "Trust and security signals"
+    
+    search_terms:
+      - "sales objection handling scripts"
+      - "checkout optimization tactics"
+      - "cart abandonment recovery strategies"
+      - "pricing psychology techniques"
+      - "limited-time offer strategies"
+  
+  stage_5_delivery:
+    name: "Delivery - Onboarding"
+    goal: "Deliver value and ensure success"
+    
+    tactics:
+      - "Welcome email series"
+      - "Product onboarding"
+      - "Customer success outreach"
+      - "Tutorial and training content"
+      - "Quick wins setup"
+    
+    key_metrics:
+      - "Activation rate"
+      - "Time to first value"
+      - "Feature adoption"
+      - "Support ticket volume"
+      - "Customer satisfaction (CSAT)"
+    
+    learning_focus:
+      - "Onboarding best practices"
+      - "Customer success frameworks"
+      - "Training content creation"
+      - "Reducing time to value"
+    
+    search_terms:
+      - "customer onboarding best practices"
+      - "SaaS onboarding examples"
+      - "product activation strategies"
+      - "customer success playbook"
+  
+  stage_6_retention:
+    name: "Retention - Keep Customers"
+    goal: "Maximize lifetime value"
+    
+    tactics:
+      - "Ongoing value delivery"
+      - "Engagement campaigns"
+      - "Loyalty programs"
+      - "Exclusive content/offers"
+      - "Community building"
+      - "Regular check-ins"
+    
+    key_metrics:
+      - "Churn rate"
+      - "Customer lifetime value (CLV)"
+      - "Retention rate"
+      - "Net Promoter Score (NPS)"
+      - "Engagement frequency"
+    
+    learning_focus:
+      - "Churn reduction strategies"
+      - "Loyalty program design"
+      - "Re-engagement campaigns"
+      - "Community building tactics"
+    
+    search_terms:
+      - "customer retention strategies"
+      - "churn reduction tactics"
+      - "loyalty program best practices"
+      - "re-engagement campaign examples"
+  
+  stage_7_expansion:
+    name: "Expansion - Upsell/Cross-sell"
+    goal: "Increase customer value"
+    
+    tactics:
+      - "Upsell offers"
+      - "Cross-sell recommendations"
+      - "Premium tier upgrades"
+      - "Add-on products"
+      - "Bundle deals"
+    
+    key_metrics:
+      - "Upsell rate"
+      - "Cross-sell rate"
+      - "Expansion revenue"
+      - "Average revenue per user (ARPU)"
+    
+    learning_focus:
+      - "Upsell timing and triggers"
+      - "Product recommendation engines"
+      - "Pricing tier strategies"
+      - "Bundle optimization"
+    
+    search_terms:
+      - "upsell strategies that work"
+      - "cross-sell best practices"
+      - "SaaS expansion revenue tactics"
+      - "product bundling strategies"
+  
+  stage_8_advocacy:
+    name: "Advocacy - Turn Customers into Promoters"
+    goal: "Generate referrals and testimonials"
+    
+    tactics:
+      - "Referral programs"
+      - "Review/testimonial requests"
+      - "Case study creation"
+      - "Affiliate programs"
+      - "User-generated content"
+    
+    key_metrics:
+      - "Referral rate"
+      - "Net Promoter Score (NPS)"
+      - "Review count and rating"
+      - "Affiliate revenue"
+      - "Viral coefficient"
+    
+    learning_focus:
+      - "Referral program design"
+      - "Getting testimonials"
+      - "Affiliate program structure"
+      - "Creating brand advocates"
+    
+    search_terms:
+      - "referral program examples"
+      - "getting customer testimonials"
+      - "affiliate program setup"
+      - "turning customers into advocates"
+
+# ============================================
+# CUSTOMER BEHAVIOR TRACKING
+# ============================================
+
+behavior_tracking:
+  
+  tools_to_master:
+    analytics:
+      - "Google Analytics 4"
+      - "Mixpanel"
+      - "Amplitude"
+      - "Heap"
+    
+    heatmaps:
+      - "Hotjar"
+      - "Crazy Egg"
+      - "FullStory"
+    
+    session_recording:
+      - "FullStory"
+      - "LogRocket"
+      - "Smartlook"
+    
+    attribution:
+      - "Segment"
+      - "Adjust"
+      - "AppsFlyer"
+  
+  behaviors_to_track:
+    on_website:
+      - "Page views and navigation paths"
+      - "Time on page and scroll depth"
+      - "Click patterns and heatmaps"
+      - "Form interactions"
+      - "Cart additions and removals"
+      - "Exit points and drop-offs"
+    
+    in_email:
+      - "Open rates"
+      - "Click-through rates"
+      - "Link click patterns"
+      - "Unsubscribe triggers"
+      - "Engagement over time"
+    
+    with_ads:
+      - "Ad click behavior"
+      - "Landing page actions"
+      - "Conversion paths"
+      - "Attribution touchpoints"
+    
+    post_purchase:
+      - "Product usage patterns"
+      - "Feature adoption"
+      - "Support interactions"
+      - "Repeat purchase timing"
+  
+  insights_to_extract:
+    - "Where do customers drop off?"
+    - "What pages convert best?"
+    - "Which traffic sources are highest quality?"
+    - "What messaging resonates?"
+    - "When do customers buy?"
+    - "What triggers upgrades?"
+    - "What causes churn?"
+
+# ============================================
+# CRYPTO TRADING INTEGRATION
+# ============================================
+
+crypto_trading:
+  
+  free_apis_to_integrate:
+    ccxt:
+      url: "docs.ccxt.com"
+      description: "Unified API for 100+ crypto exchanges"
+      trust_score: 1.0
+      features:
+        - "Connect to any exchange"
+        - "Fetch market data"
+        - "Place trades"
+        - "Manage orders"
+      install: "pip install ccxt"
+    
+    coinbase:
+      url: "docs.cloud.coinbase.com"
+      description: "Coinbase Pro API"
+      trust_score: 1.0
+      features:
+        - "Real-time market data"
+        - "Advanced trading"
+        - "Wallet management"
+      install: "pip install coinbase"
+    
+    binance:
+      url: "python-binance.readthedocs.io"
+      description: "Binance API wrapper"
+      trust_score: 0.95
+      features:
+        - "Spot trading"
+        - "Futures trading"
+        - "Market data streaming"
+      install: "pip install python-binance"
+    
+    coingecko:
+      url: "coingecko.com/api"
+      description: "Free crypto market data"
+      trust_score: 0.9
+      features:
+        - "Price data for 10,000+ coins"
+        - "Market cap rankings"
+        - "Historical data"
+        - "No API key required (free tier)"
+      install: "pip install pycoingecko"
+    
+    cryptocompare:
+      url: "min-api.cryptocompare.com"
+      description: "Crypto market data and news"
+      trust_score: 0.85
+      features:
+        - "Price aggregation"
+        - "Historical OHLCV"
+        - "News and social data"
+      install: "requests library (REST API)"
+  
+  learning_objectives:
+    - "Master crypto market analysis"
+    - "Learn technical indicators for crypto"
+    - "Understand blockchain fundamentals"
+    - "Study DeFi protocols and opportunities"
+    - "Learn risk management for volatile assets"
+    - "Master trading bot development"
+  
+  search_terms:
+    - "crypto trading strategies"
+    - "CCXT library tutorial"
+    - "Binance API Python guide"
+    - "cryptocurrency technical analysis"
+    - "crypto trading bot development"
+    - "DeFi yield strategies"
+    - "crypto risk management"
+
+# ============================================
+# COMPLETE E2E SALES PROCESS
+# ============================================
+
+e2e_sales_process:
+  
+  pre_sale:
+    - "Market research and targeting"
+    - "Competitor analysis"
+    - "Value proposition development"
+    - "Marketing campaign creation"
+    - "Lead generation setup"
+  
+  during_sale:
+    - "Lead qualification"
+    - "Discovery and needs analysis"
+    - "Solution presentation"
+    - "Objection handling"
+    - "Negotiation"
+    - "Closing"
+  
+  post_sale:
+    - "Onboarding and activation"
+    - "Customer success"
+    - "Upsell/cross-sell"
+    - "Retention campaigns"
+    - "Referral generation"
+    - "Lifetime value optimization"
+  
+  continuous:
+    - "Performance tracking"
+    - "A/B testing"
+    - "Funnel optimization"
+    - "Customer feedback loops"
+    - "Data-driven iteration"
+
+---
+
+# Grace: Master the complete sales journey + crypto trading! 💰📈🚀
