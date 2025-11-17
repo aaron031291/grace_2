@@ -79,6 +79,131 @@ async def run_tests_handler(params: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         return {"error": str(e)}
 
+async def start_screen_share_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Start screen sharing"""
+    try:
+        from backend.world_model import world_model_service
+        
+        user_id = params.get("user_id", "user")
+        quality_settings = params.get("quality_settings", {})
+        
+        session_id = await world_model_service.start_screen_share(
+            user_id=user_id,
+            quality_settings=quality_settings
+        )
+        
+        return {
+            "session_id": session_id,
+            "status": "active",
+            "message": "Screen sharing started"
+        }
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
+
+async def stop_screen_share_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Stop screen sharing"""
+    try:
+        from backend.world_model import world_model_service
+        
+        session_id = params.get("session_id", "")
+        
+        success = await world_model_service.stop_screen_share(session_id)
+        
+        return {
+            "success": success,
+            "session_id": session_id,
+            "message": "Screen sharing stopped" if success else "Session not found"
+        }
+    except Exception as e:
+        return {"error": str(e), "success": False}
+
+async def start_recording_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Start recording"""
+    try:
+        from backend.world_model import world_model_service
+        
+        user_id = params.get("user_id", "user")
+        media_type = params.get("media_type", "screen_recording")
+        metadata = params.get("metadata", {})
+        
+        session_id = await world_model_service.start_recording(
+            user_id=user_id,
+            media_type=media_type,
+            metadata=metadata
+        )
+        
+        return {
+            "session_id": session_id,
+            "status": "recording",
+            "message": f"{media_type} started"
+        }
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
+
+async def stop_recording_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Stop recording"""
+    try:
+        from backend.world_model import world_model_service
+        
+        session_id = params.get("session_id", "")
+        
+        result = await world_model_service.stop_recording(session_id)
+        
+        if result:
+            return {
+                "success": True,
+                "session_id": session_id,
+                "file_path": result.get("file_path"),
+                "duration": result.get("duration"),
+                "message": "Recording stopped"
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Session not found"
+            }
+    except Exception as e:
+        return {"error": str(e), "success": False}
+
+async def toggle_voice_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Toggle voice control"""
+    try:
+        from backend.world_model import world_model_service
+        
+        user_id = params.get("user_id", "user")
+        enable = params.get("enable", True)
+        
+        enabled = await world_model_service.toggle_voice(user_id, enable)
+        
+        return {
+            "voice_enabled": enabled,
+            "user_id": user_id,
+            "message": f"Voice {'enabled' if enabled else 'disabled'}"
+        }
+    except Exception as e:
+        return {"error": str(e), "voice_enabled": False}
+
+async def create_background_task_handler(params: Dict[str, Any]) -> Dict[str, Any]:
+    """Create background task"""
+    try:
+        from backend.world_model import world_model_service
+        
+        task_type = params.get("task_type", "general")
+        metadata = params.get("metadata", {})
+        
+        task_id = await world_model_service.create_background_task(
+            task_type=task_type,
+            metadata=metadata
+        )
+        
+        return {
+            "task_id": task_id,
+            "status": "pending",
+            "message": "Background task created"
+        }
+    except Exception as e:
+        return {"error": str(e), "status": "failed"}
+
 def register_core_skills():
     """Register all core skills"""
     
@@ -169,4 +294,106 @@ def register_core_skills():
         capability_tags=["code", "testing", "verification"]
     ))
     
-    print("[CoreSkills] Registered 5 core skills")
+    skill_registry.register(Skill(
+        name="start_screen_share",
+        category=SkillCategory.SYSTEM,
+        description="Start screen sharing session",
+        input_schema={
+            "user_id": {"type": "string", "required": True},
+            "quality_settings": {"type": "object", "default": {}}
+        },
+        output_schema={
+            "session_id": {"type": "string"},
+            "status": {"type": "string"}
+        },
+        handler=start_screen_share_handler,
+        governance_action_type="multimodal_operation",
+        capability_tags=["orb", "multimodal", "screen-share"]
+    ))
+    
+    skill_registry.register(Skill(
+        name="stop_screen_share",
+        category=SkillCategory.SYSTEM,
+        description="Stop screen sharing session",
+        input_schema={
+            "session_id": {"type": "string", "required": True}
+        },
+        output_schema={
+            "success": {"type": "boolean"},
+            "message": {"type": "string"}
+        },
+        handler=stop_screen_share_handler,
+        governance_action_type="multimodal_operation",
+        capability_tags=["orb", "multimodal", "screen-share"]
+    ))
+    
+    skill_registry.register(Skill(
+        name="start_recording",
+        category=SkillCategory.SYSTEM,
+        description="Start recording session (video/audio/screen)",
+        input_schema={
+            "user_id": {"type": "string", "required": True},
+            "media_type": {"type": "string", "default": "screen_recording"},
+            "metadata": {"type": "object", "default": {}}
+        },
+        output_schema={
+            "session_id": {"type": "string"},
+            "status": {"type": "string"}
+        },
+        handler=start_recording_handler,
+        governance_action_type="multimodal_operation",
+        capability_tags=["orb", "multimodal", "recording"]
+    ))
+    
+    skill_registry.register(Skill(
+        name="stop_recording",
+        category=SkillCategory.SYSTEM,
+        description="Stop recording session",
+        input_schema={
+            "session_id": {"type": "string", "required": True}
+        },
+        output_schema={
+            "success": {"type": "boolean"},
+            "file_path": {"type": "string"},
+            "duration": {"type": "number"}
+        },
+        handler=stop_recording_handler,
+        governance_action_type="multimodal_operation",
+        capability_tags=["orb", "multimodal", "recording"]
+    ))
+    
+    skill_registry.register(Skill(
+        name="toggle_voice",
+        category=SkillCategory.SYSTEM,
+        description="Toggle voice control on/off",
+        input_schema={
+            "user_id": {"type": "string", "required": True},
+            "enable": {"type": "boolean", "required": True}
+        },
+        output_schema={
+            "voice_enabled": {"type": "boolean"},
+            "message": {"type": "string"}
+        },
+        handler=toggle_voice_handler,
+        governance_action_type="multimodal_operation",
+        capability_tags=["orb", "multimodal", "voice"]
+    ))
+    
+    skill_registry.register(Skill(
+        name="create_background_task",
+        category=SkillCategory.SYSTEM,
+        description="Create a background task",
+        input_schema={
+            "task_type": {"type": "string", "required": True},
+            "metadata": {"type": "object", "default": {}}
+        },
+        output_schema={
+            "task_id": {"type": "string"},
+            "status": {"type": "string"}
+        },
+        handler=create_background_task_handler,
+        governance_action_type="system_operation",
+        capability_tags=["orb", "tasks", "background"]
+    ))
+    
+    print("[CoreSkills] Registered 11 core skills (5 base + 6 Orb)")
