@@ -118,26 +118,33 @@ class ResearchWhitelist:
         """Get sources due for scanning"""
         
         from datetime import timedelta
+        from sqlalchemy import or_, and_
         
-        sources = self.db.query(ResearchSource).filter_by(approved=True, auto_ingest=True).all()
-        
-        due_sources = []
         now = datetime.utcnow()
         
-        for source in sources:
-            # Check if scan is due
-            if not source.last_scan:
-                due_sources.append(source)
-                continue
-            
-            time_since_scan = now - source.last_scan
-            
-            if source.scan_frequency == 'daily' and time_since_scan > timedelta(days=1):
-                due_sources.append(source)
-            elif source.scan_frequency == 'weekly' and time_since_scan > timedelta(days=7):
-                due_sources.append(source)
-            elif source.scan_frequency == 'monthly' and time_since_scan > timedelta(days=30):
-                due_sources.append(source)
+        daily_cutoff = now - timedelta(days=1)
+        weekly_cutoff = now - timedelta(days=7)
+        monthly_cutoff = now - timedelta(days=30)
+        
+        sources = self.db.query(ResearchSource).filter(
+            ResearchSource.approved.is_(True),
+            ResearchSource.auto_ingest.is_(True),
+            or_(
+                ResearchSource.last_scan.is_(None),
+                and_(
+                    ResearchSource.scan_frequency == 'daily',
+                    ResearchSource.last_scan < daily_cutoff
+                ),
+                and_(
+                    ResearchSource.scan_frequency == 'weekly',
+                    ResearchSource.last_scan < weekly_cutoff
+                ),
+                and_(
+                    ResearchSource.scan_frequency == 'monthly',
+                    ResearchSource.last_scan < monthly_cutoff
+                )
+            )
+        ).all()
         
         return [{
             'id': s.id,
@@ -146,7 +153,7 @@ class ResearchWhitelist:
             'url': s.url,
             'scan_frequency': s.scan_frequency,
             'last_scan': s.last_scan.isoformat() if s.last_scan else None
-        } for s in due_sources]
+        } for s in sources]
     
     def update_scan_status(self, source_id: int, items_found: int):
         """Update scan status after research sweep"""
