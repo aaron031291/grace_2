@@ -301,50 +301,89 @@ Grace is currently operational with all core pillars in place. This roadmap outl
 
 ## Phase 5: World Builder UI (Weeks 11-12)
 
-**Goal:** Enable users to orchestrate Grace through intuitive UI
+**Goal:** Transform Grace into a ChatGPT-style enterprise interface with advanced UX
+
+**Reference:** See `docs/UI_ENHANCEMENT_SPECIFICATION.md` for complete design details
 
 ### Objectives
 
-#### 5.1 World Model Management
-- Build UI to curate world model entries
-- Add tag/source/confidence editing
-- Implement knowledge approval workflow
-- Add knowledge search and filtering
-- Create knowledge visualization (graph view)
+#### 5.1 ChatGPT-Style Layout & Navigation
+- **Left Sidebar (260px)**: Grace capabilities, workspaces, chat history
+- **Main Content Area**: Centered chat/workspace view (max-width: 800px)
+- **Top Bar**: Health status, global search, user menu
+- **Bottom Bar**: Context-aware input with voice, attachments, @ mentions
+- **Responsive Design**: Mobile-friendly, collapsible panels
 
-#### 5.2 Mission Designer
-- Build mission composition UI
-- Add ActionContract linking
-- Implement verification hook visualization
-- Add rollback procedure editor
-- Create mission templates library
+#### 5.2 Quick Wins (High Impact, Low Effort)
+- **Command Palette (Ctrl-K)**: Fuzzy search across all actions
+- **ExecutionTrace Panel**: Slide-over showing reasoning steps
+- **Health Bar**: Always-visible system status (Health/Trust/Confidence)
+- **Inline Action Cards**: Approve/Simulate/Reject buttons for proposals
+- **Drag-Drop Upload**: Files directly into chat or Memory
 
-#### 5.3 Live Observatory
-- Build real-time Guardian/Self-Heal dashboard
-- Add learning job monitoring
-- Implement clarity decision viewer
-- Add system health overview
-- Create alert management UI
+#### 5.3 Workspaces (Domain Morphic)
+- **Concept**: Conversations spawn focused workspaces for specific domains
+- **Detection**: Suggest workspace when domain keywords detected
+- **Types**: Guardian, Copilot, Governance, Learning, Mission, Memory, Observatory
+- **Features**: Dedicated context, domain tools, KPI dashboard, quick actions
+- **Management**: Create, close, merge, save layouts
 
-#### 5.4 Governance Console
-- Build approval queue UI
-- Add policy management interface
-- Implement audit log viewer
-- Add user role management
-- Create governance analytics dashboard
+#### 5.4 Memory Pro Features
+- **Dual-Pane File Manager**: Tree view + file list/preview
+- **Version History**: Diff view, restore previous versions
+- **Preview**: Code (Monaco), Markdown, Images, PDF, JSON/YAML
+- **Search**: Full-text, regex, filter by type/date/size
+- **Quick Actions**: Save to World Model, Pin as Source, Share, Export
+
+#### 5.5 Secrets Vault (Enterprise-Grade)
+- **Namespaced Secrets**: Global, per-env, per-tenant, per-agent
+- **Test Connection Wizards**: OpenAI, GitHub, Slack, AWS, etc.
+- **Masked Values**: Click to reveal, auto-hide after 10s
+- **Rotation Reminders**: Alert when secret > 90 days old
+- **Usage Logs**: Track which agents accessed secrets
+- **Policy Enforcement**: Prevent exfiltration to non-whitelisted agents
+
+#### 5.6 Mission Designer Canvas
+- **Visual DAG Editor**: Drag-drop ActionContracts
+- **Node Types**: Action, Verification, Decision, SafeHold, Rollback
+- **Features**: Connect nodes, edit properties, simulate, estimate cost/time
+- **Templates**: Save/load mission templates
+- **Export**: YAML format
+
+#### 5.7 Approval Inbox
+- **Consolidated Queue**: All pending approvals in one place
+- **Filters**: Status, Tier, Domain, Risk
+- **Compare Plans**: View alternatives side-by-side
+- **Bulk Actions**: Approve/reject multiple
+- **Notifications**: Email/Slack with deep links
+
+#### 5.8 Advanced Features
+- **Global Search**: Across chats, files, World Model, missions, playbooks
+- **Keyboard Shortcuts**: Ctrl-K, Ctrl-F, Ctrl-N, Ctrl-B, etc.
+- **Live Co-Presence**: See who else is viewing/editing
+- **Review Mode**: Annotate steps, suggest edits
+- **Learning Jobs Dashboard**: Queue, progress, failed-job triage
 
 ### Success Criteria
 - 95% of routine operations doable from UI (no shell required)
-- User can add/curate domain knowledge from UI
-- User can launch mission and track progress from UI
-- User can approve Tier 3 policy changes from UI
-- Full audit trail visible for all actions
+- Command Palette usage ≥ 40% of power users
+- Workspace creation ≥ 3 per user per week
+- Task completion time reduced by 50%
+- User satisfaction score ≥ 4.5/5
+- Page load time < 2s, interaction response < 100ms
 
 ### Deliverables
-- World Model Management UI
-- Mission Designer UI
-- Live Observatory Dashboard
-- Governance Console
+- ChatGPT-style UI with left sidebar navigation
+- Command Palette (Ctrl-K)
+- ExecutionTrace Panel
+- Health Bar (always-on)
+- Workspaces (domain morphic)
+- Secrets Vault (enterprise-grade)
+- Mission Designer Canvas
+- Memory Pro (dual-pane file manager)
+- Approval Inbox
+- Global Search
+- Keyboard shortcuts system
 - User documentation and tutorials
 
 ---
