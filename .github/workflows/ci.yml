@@ -36,6 +36,14 @@ jobs:
         run: |
           python scripts/test_imports.py
 
+      - name: Run boot probe
+        env:
+          OFFLINE_MODE: true
+          DRY_RUN: true
+          CI: true
+        run: |
+          python scripts/test_boot_probe.py
+
       - name: Lint check
         run: |
           pip install ruff
