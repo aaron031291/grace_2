@@ -66,7 +66,7 @@ async def ingest_url(
         raise HTTPException(status_code=403, detail=f"Low trust source (score: {trust_score}). Blocked.")
     
     if not auto_approve:
-        from ..governance_models import ApprovalRequest
+        from ..models.governance_models import ApprovalRequest
         from ..models import async_session
         
         async with async_session() as session:
