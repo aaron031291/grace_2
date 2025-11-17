@@ -16,10 +16,10 @@ import base64
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON
 from sqlalchemy.sql import func
-from .models import Base, async_session
-from .verification import VerificationEngine
-from .immutable_log import ImmutableLog
-from .governance import GovernanceEngine
+from backend.models import Base, async_session
+from backend.verification_system.verification import VerificationEngine
+from backend.core.immutable_log import ImmutableLog
+from backend.verification_system.governance import GovernanceEngine
 
 class SecretEntry(Base):
     """Encrypted secret storage"""

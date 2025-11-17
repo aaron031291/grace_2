@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from typing import Optional
-from ..auth import get_current_user
-from ..memory import PersistentMemory
-from ..grace import GraceAutonomous
-from ..causal import causal_tracker
-from ..hunter import hunter
-from ..models import ChatMessage, async_session
+from backend.auth import get_current_user
+from backend.memory import PersistentMemory
+from backend.grace import GraceAutonomous
+from backend.causal import causal_tracker
+from backend.hunter import hunter
+from backend.models import ChatMessage, async_session
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 class ChatRequest(BaseModel):
