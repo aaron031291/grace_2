@@ -244,7 +244,7 @@ export function WorldModelHub({ workspace, onShowTrace }: WorldModelHubProps) {
                 onClick={() => setSelectedTab('approvals')}
               >
                 Approvals
-                {context && context.pending_approvals.length > 0 && (
+                {context && context.pending_approvals && context.pending_approvals.length > 0 && (
                   <span className="badge">{context.pending_approvals.length}</span>
                 )}
               </button>
@@ -265,7 +265,7 @@ export function WorldModelHub({ workspace, onShowTrace }: WorldModelHubProps) {
             {context && selectedTab === 'artifacts' && (
               <div className="artifacts-list">
                 <h3>Recent Artifacts</h3>
-                {context.recent_artifacts.length === 0 ? (
+                {!context.recent_artifacts || context.recent_artifacts.length === 0 ? (
                   <p className="empty-message">No recent artifacts</p>
                 ) : (
                   context.recent_artifacts.map((artifact, idx) => (
@@ -299,7 +299,7 @@ export function WorldModelHub({ workspace, onShowTrace }: WorldModelHubProps) {
             {context && selectedTab === 'missions' && (
               <div className="missions-list">
                 <h3>Active Missions</h3>
-                {context.active_missions.length === 0 ? (
+                {!context.active_missions || context.active_missions.length === 0 ? (
                   <p className="empty-message">No active missions</p>
                 ) : (
                   context.active_missions.map((mission, idx) => (
@@ -315,7 +315,7 @@ export function WorldModelHub({ workspace, onShowTrace }: WorldModelHubProps) {
             {context && selectedTab === 'approvals' && (
               <div className="approvals-list">
                 <h3>Pending Approvals</h3>
-                {context.pending_approvals.length === 0 ? (
+                {!context.pending_approvals || context.pending_approvals.length === 0 ? (
                   <p className="empty-message">No pending approvals</p>
                 ) : (
                   context.pending_approvals.map((approval, idx) => (
