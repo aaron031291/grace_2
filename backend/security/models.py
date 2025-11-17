@@ -10,7 +10,7 @@ from backend.models.base_models import Base
 
 class SecurityEvent(Base):
     """Security event logging"""
-    __tablename__ = "security_events"
+    __tablename__ = "security_event_logs"
     
     id = Column(Integer, primary_key=True)
     event_type = Column(String(100), nullable=False, index=True)
@@ -20,7 +20,7 @@ class SecurityEvent(Base):
     user_id = Column(String(100), nullable=True, index=True)
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(Text, nullable=True)
-    metadata = Column(Text, nullable=True)  # JSON metadata
+    event_metadata = Column(Text, nullable=True)  # JSON metadata (renamed to avoid SQLAlchemy conflict)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     
     def to_dict(self):
