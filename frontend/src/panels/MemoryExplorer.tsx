@@ -1,204 +1,295 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  listArtifacts,
-  getArtifactDetails,
-  uploadFile,
-  ingestText,
-  reingestArtifact,
-  deleteArtifact,
-  downloadArtifact,
-  getDomains,
-  type Artifact,
-  type ArtifactDetail,
-  type ArtifactFilters,
-  type UploadProgress,
-} from '../services/memoryApi';
-import './MemoryExplorer.enhanced.css';
+/**
+ * Complete Memory Explorer
+ * Full implementation with governance, multi-modal upload, and workspace integration
+ */
 
-const CATEGORIES = [
+import { useState, useRef } from 'react';
+import { useMemoryArtifacts, useArtifactDetails } from '../hooks/useMemoryArtifacts';
+import type { 
+  MemoryArtifact, 
+  ArtifactCategory,
+  EmbeddingStatus,
+  IngestTextRequest,
+  UploadFileRequest,
+  UploadVoiceRequest,
+} from '../types/memory.types';
+import './MemoryExplorer.complete.css';
+
+interface MemoryExplorerProps {
+  onOpenWorkspace?: (artifact: MemoryArtifact) => void;
+}
+
+const CATEGORIES: Array<{ id: ArtifactCategory | 'all'; label: string; icon: string }> = [
   { id: 'all', label: 'All Artifacts', icon: '📦' },
-  { id: 'documents', label: 'Documents', icon: '📄' },
-  { id: 'code', label: 'Code', icon: '💻' },
-  { id: 'conversations', label: 'Conversations', icon: '💬' },
-  { id: 'training', label: 'Training Data', icon: '🎓' },
   { id: 'knowledge', label: 'Knowledge Base', icon: '🧠' },
+  { id: 'documents', label: 'Documents', icon: '📄' },
+  { id: 'recordings', label: 'Recordings', icon: '🎤' },
+  { id: 'retrospectives', label: 'Retrospectives', icon: '🔄' },
+  { id: 'mission-outcomes', label: 'Mission Outcomes', icon: '🎯' },
+  { id: 'conversations', label: 'Conversations', icon: '💬' },
+  { id: 'training-data', label: 'Training Data', icon: '🎓' },
+  { id: 'code-snippets', label: 'Code Snippets', icon: '💻' },
 ];
 
-const SORT_OPTIONS = [
-  { value: 'date_desc', label: 'Newest First' },
-  { value: 'date_asc', label: 'Oldest First' },
-  { value: 'name_asc', label: 'Name (A-Z)' },
-  { value: 'name_desc', label: 'Name (Z-A)' },
-  { value: 'size_desc', label: 'Largest First' },
-  { value: 'size_asc', label: 'Smallest First' },
+const EMBEDDING_STATUSES: Array<{ value: EmbeddingStatus; label: string; color: string }> = [
+  { value: 'indexed', label: 'Indexed', color: '#00ff88' },
+  { value: 'processing', label: 'Processing', color: '#00ccff' },
+  { value: 'pending', label: 'Pending', color: '#ffaa00' },
+  { value: 'failed', label: 'Failed', color: '#ff4444' },
+  { value: 'stale', label: 'Stale', color: '#888' },
 ];
 
-export default function MemoryExplorer() {
-  // State
-  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
-  const [selectedArtifact, setSelectedArtifact] = useState<ArtifactDetail | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+export default function MemoryExplorer({ onOpenWorkspace }: MemoryExplorerProps) {
+  // Filters state
+  const [selectedCategories, setSelectedCategories] = useState<ArtifactCategory[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<EmbeddingStatus[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('date_desc');
-  const [loading, setLoading] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
-  // Upload state
+  // UI state
+  const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [uploadMode, setUploadMode] = useState<'text' | 'file' | 'voice'>('file');
   const [dragActive, setDragActive] = useState(false);
+  
+  // Upload form state
+  const [textTitle, setTextTitle] = useState('');
+  const [textContent, setTextContent] = useState('');
+  const [voiceTitle, setVoiceTitle] = useState('');
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
-  /**
-   * Fetch artifacts
-   */
-  const fetchArtifacts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // Data hook
+  const {
+    artifacts,
+    total,
+    availableTags,
+    stats,
+    loading,
+    error,
+    isEmpty,
+    uploading,
+    uploadProgress,
+    refresh,
+    setFilters,
+    searchSemantic,
+    uploadTextArtifact,
+    uploadFileArtifact,
+    uploadVoiceArtifact,
+    reingestArtifact,
+    deleteArtifact,
+  } = useMemoryArtifacts({
+    filters: {
+      category: selectedCategories.length > 0 ? selectedCategories : undefined,
+      embedding_status: selectedStatuses.length > 0 ? selectedStatuses : undefined,
+      search: searchQuery || undefined,
+      tags: selectedTags.length > 0 ? selectedTags : undefined,
+      date_from: dateFrom || undefined,
+      date_to: dateTo || undefined,
+      sort_by: sortBy,
+      sort_order: sortOrder,
+      limit: 100,
+    },
+    autoRefresh: false,
+    onError: (err) => {
+      console.error('[Memory Explorer] Error:', err);
+    },
+    onUploadComplete: (artifactId) => {
+      console.log('[Memory Explorer] Upload complete:', artifactId);
+      setShowUpload(false);
+      setTextTitle('');
+      setTextContent('');
+      setVoiceTitle('');
+      setAudioBlob(null);
+    },
+  });
+
+  // Artifact details hook
+  const {
+    artifact: selectedArtifact,
+    loading: detailLoading,
+    error: detailError,
+    refresh: refreshDetails,
+  } = useArtifactDetails(selectedArtifactId);
+
+  // Category toggle
+  const toggleCategory = (category: ArtifactCategory) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Status toggle
+  const toggleStatus = (status: EmbeddingStatus) => {
+    setSelectedStatuses(prev =>
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
+
+  // Tag toggle
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  // Upload handlers
+  const handleTextUpload = async () => {
+    if (!textTitle.trim() || !textContent.trim()) {
+      alert('Please provide both title and content');
+      return;
+    }
 
     try {
-      const filters: ArtifactFilters = {
-        search: searchQuery || undefined,
-        domain: selectedCategory !== 'all' ? selectedCategory : undefined,
-        limit: 100,
+      const request: IngestTextRequest = {
+        text: textContent,
+        title: textTitle,
+        category: selectedCategories[0] || 'knowledge',
+        tags: selectedTags,
+        source: 'console-text-input',
       };
 
-      let results = await listArtifacts(filters);
-
-      // Sort
-      results = sortArtifacts(results, sortBy);
-
-      setArtifacts(results);
+      await uploadTextArtifact(request);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch artifacts'));
-      console.error('Failed to fetch artifacts:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, selectedCategory, sortBy]);
-
-  useEffect(() => {
-    fetchArtifacts();
-  }, [fetchArtifacts]);
-
-  /**
-   * Load artifact details
-   */
-  const loadArtifactDetails = async (artifact: Artifact) => {
-    setDetailLoading(true);
-    try {
-      const details = await getArtifactDetails(artifact.id);
-      setSelectedArtifact(details);
-    } catch (err) {
-      console.error('Failed to load artifact details:', err);
-      // Fallback to basic artifact data
-      setSelectedArtifact(artifact as ArtifactDetail);
-    } finally {
-      setDetailLoading(false);
+      console.error('Text upload failed:', err);
     }
   };
 
-  /**
-   * Handle artifact selection
-   */
-  const handleSelectArtifact = (artifact: Artifact) => {
-    loadArtifactDetails(artifact);
-  };
-
-  /**
-   * Handle file upload
-   */
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    setUploadProgress({ status: 'uploading', progress: 0 });
 
     try {
-      await uploadFile(file, selectedCategory !== 'all' ? selectedCategory : undefined, setUploadProgress);
-      
-      setUploadProgress(null);
-      setShowUpload(false);
-      await fetchArtifacts();
+      const request: UploadFileRequest = {
+        file,
+        category: selectedCategories[0] || 'documents',
+        tags: selectedTags,
+        metadata: {
+          original_name: file.name,
+          size: file.size,
+          type: file.type,
+        },
+      };
+
+      await uploadFileArtifact(request);
     } catch (err) {
-      console.error('Upload failed:', err);
-      setUploadProgress({ status: 'failed', progress: 0, message: (err as Error).message });
+      console.error('File upload failed:', err);
     }
   };
 
-  /**
-   * Handle text ingestion
-   */
-  const handleTextIngest = async (text: string, title: string) => {
-    setUploadProgress({ status: 'processing', progress: 50 });
-
+  const startVoiceRecording = async () => {
     try {
-      await ingestText(text, title, selectedCategory !== 'all' ? selectedCategory : undefined);
-      
-      setUploadProgress(null);
-      setShowUpload(false);
-      await fetchArtifacts();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        setAudioBlob(blob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setRecording(true);
     } catch (err) {
-      console.error('Text ingestion failed:', err);
-      setUploadProgress({ status: 'failed', progress: 0, message: (err as Error).message });
+      alert('Microphone access denied');
     }
   };
 
-  /**
-   * Handle re-ingest
-   */
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+  const handleVoiceUpload = async () => {
+    if (!audioBlob || !voiceTitle.trim()) {
+      alert('Please record audio and provide a title');
+      return;
+    }
+
+    try {
+      const request: UploadVoiceRequest = {
+        audio: audioBlob,
+        title: voiceTitle,
+        category: selectedCategories[0] || 'recordings',
+        transcribe: true,
+        tags: selectedTags,
+      };
+
+      await uploadVoiceArtifact(request);
+    } catch (err) {
+      console.error('Voice upload failed:', err);
+    }
+  };
+
+  // Actions
   const handleReingest = async () => {
     if (!selectedArtifact) return;
 
+    if (!confirm(`Re-ingest "${selectedArtifact.name}"? This will rebuild embeddings.`)) {
+      return;
+    }
+
     try {
       await reingestArtifact(selectedArtifact.id);
+      await refreshDetails();
       alert('Re-ingestion started');
-      await fetchArtifacts();
     } catch (err) {
       alert('Re-ingestion failed: ' + (err as Error).message);
     }
   };
 
-  /**
-   * Handle delete
-   */
   const handleDelete = async () => {
     if (!selectedArtifact) return;
-    if (!confirm('Are you sure you want to delete this artifact?')) return;
+
+    const reason = prompt('Reason for deletion (for audit log):');
+    if (reason === null) return;
 
     try {
-      await deleteArtifact(selectedArtifact.id);
-      setSelectedArtifact(null);
-      await fetchArtifacts();
+      await deleteArtifact(selectedArtifact.id, reason);
+      setSelectedArtifactId(null);
+      alert('Artifact deleted');
     } catch (err) {
-      alert('Delete failed: ' + (err as Error).message);
+      alert('Deletion failed: ' + (err as Error).message);
     }
   };
 
-  /**
-   * Handle download
-   */
-  const handleDownload = async () => {
+  const handleOpenInWorkspace = () => {
     if (!selectedArtifact) return;
-
-    try {
-      await downloadArtifact(selectedArtifact.id, selectedArtifact.title || 'artifact');
-    } catch (err) {
-      alert('Download failed: ' + (err as Error).message);
+    
+    if (onOpenWorkspace) {
+      onOpenWorkspace(selectedArtifact);
+    } else {
+      console.log('Open in workspace:', selectedArtifact);
     }
   };
 
-  /**
-   * Drag & drop handlers
-   */
+  // Drag & drop
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
+    setDragActive(e.type === 'dragenter' || e.type === 'dragover');
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -212,190 +303,295 @@ export default function MemoryExplorer() {
   };
 
   return (
-    <div className="memory-explorer-enhanced">
+    <div className="memory-explorer-complete">
       {/* Sidebar */}
       <div className="memory-sidebar">
-        <div className="sidebar-header">
-          <h3>Categories</h3>
-          <button 
-            className="upload-btn-icon"
+        <div className="sidebar-section">
+          <div className="section-header">
+            <h3>Categories</h3>
+            {selectedCategories.length > 0 && (
+              <button
+                className="clear-filter-btn"
+                onClick={() => setSelectedCategories([])}
+                title="Clear category filter"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="category-list">
+            {CATEGORIES.map(cat => {
+              const isSelected = cat.id === 'all' 
+                ? selectedCategories.length === 0
+                : selectedCategories.includes(cat.id as ArtifactCategory);
+              
+              const count = cat.id === 'all'
+                ? total
+                : stats?.by_category?.[cat.id] || 0;
+
+              return (
+                <button
+                  key={cat.id}
+                  className={`category-item ${isSelected ? 'active' : ''}`}
+                  onClick={() => {
+                    if (cat.id === 'all') {
+                      setSelectedCategories([]);
+                    } else {
+                      toggleCategory(cat.id as ArtifactCategory);
+                    }
+                  }}
+                >
+                  <span className="category-icon">{cat.icon}</span>
+                  <span className="category-label">{cat.label}</span>
+                  <span className="category-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="sidebar-section">
+          <div className="section-header">
+            <h3>Embedding Status</h3>
+          </div>
+          <div className="filter-chips">
+            {EMBEDDING_STATUSES.map(status => (
+              <button
+                key={status.value}
+                className={`filter-chip ${selectedStatuses.includes(status.value) ? 'active' : ''}`}
+                onClick={() => toggleStatus(status.value)}
+                style={{ borderColor: status.color }}
+              >
+                <span className="chip-dot" style={{ background: status.color }}></span>
+                {status.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {availableTags.length > 0 && (
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3>Tags</h3>
+            </div>
+            <div className="tag-list">
+              {availableTags.slice(0, 10).map(tag => (
+                <button
+                  key={tag}
+                  className={`tag-chip ${selectedTags.includes(tag) ? 'active' : ''}`}
+                  onClick={() => toggleTag(tag)}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="sidebar-section">
+          <button
+            className="upload-btn-large"
             onClick={() => setShowUpload(!showUpload)}
-            title="Upload file"
           >
-            +
+            {showUpload ? '✕ Close Upload' : '+ Add Knowledge'}
           </button>
         </div>
-
-        <div className="category-list">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              className={`category-item ${selectedCategory === cat.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              <span className="category-icon">{cat.icon}</span>
-              <span className="category-label">{cat.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {showUpload && (
-          <UploadPanel
-            onFileUpload={handleFileUpload}
-            onTextIngest={handleTextIngest}
-            uploadProgress={uploadProgress}
-            dragActive={dragActive}
-            onDrag={handleDrag}
-            onDrop={handleDrop}
-          />
-        )}
       </div>
 
       {/* Main content */}
       <div className="memory-main">
+        {/* Header */}
         <div className="memory-header">
-          <div className="header-controls">
+          <div className="header-row">
             <input
               type="text"
-              placeholder="Search artifacts..."
+              placeholder="Search artifacts by name or content..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  searchSemantic(searchQuery);
+                }
+              }}
             />
             
+            <button
+              className="semantic-search-btn"
+              onClick={() => searchQuery.trim() && searchSemantic(searchQuery)}
+              disabled={!searchQuery.trim()}
+              title="Semantic search"
+            >
+              🔍
+            </button>
+          </div>
+
+          <div className="header-row">
+            <div className="filter-summary">
+              {selectedCategories.length > 0 && (
+                <span className="filter-badge">
+                  {selectedCategories.length} category filter{selectedCategories.length > 1 ? 's' : ''}
+                </span>
+              )}
+              {selectedStatuses.length > 0 && (
+                <span className="filter-badge">
+                  {selectedStatuses.length} status filter{selectedStatuses.length > 1 ? 's' : ''}
+                </span>
+              )}
+              {selectedTags.length > 0 && (
+                <span className="filter-badge">
+                  {selectedTags.length} tag{selectedTags.length > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              value={`${sortBy}_${sortOrder}`}
+              onChange={(e) => {
+                const [by, order] = e.target.value.split('_');
+                setSortBy(by as any);
+                setSortOrder(order as any);
+              }}
               className="sort-select"
             >
-              {SORT_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
+              <option value="date_desc">Newest First</option>
+              <option value="date_asc">Oldest First</option>
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="size_desc">Largest First</option>
+              <option value="size_asc">Smallest First</option>
             </select>
 
-            <button onClick={fetchArtifacts} className="refresh-btn" disabled={loading}>
+            <button onClick={() => refresh()} className="refresh-btn" disabled={loading}>
               {loading ? '⟳' : '↻'}
             </button>
           </div>
 
-          <div className="header-stats">
-            <span className="stat-item">
-              <strong>{artifacts.length}</strong> artifacts
-            </span>
-          </div>
+          {stats && (
+            <div className="stats-row">
+              <span className="stat">{stats.total_artifacts || total} artifacts</span>
+              <span className="stat">{formatBytes(stats.total_size_bytes || 0)}</span>
+              <span className="stat">{stats.total_chunks || 0} chunks</span>
+            </div>
+          )}
         </div>
 
-        <div className="artifacts-list">
+        {/* Upload Panel */}
+        {showUpload && (
+          <UploadPanel
+            mode={uploadMode}
+            setMode={setUploadMode}
+            textTitle={textTitle}
+            setTextTitle={setTextTitle}
+            textContent={textContent}
+            setTextContent={setTextContent}
+            voiceTitle={voiceTitle}
+            setVoiceTitle={setVoiceTitle}
+            recording={recording}
+            audioBlob={audioBlob}
+            onStartRecording={startVoiceRecording}
+            onStopRecording={stopVoiceRecording}
+            onFileSelect={handleFileUpload}
+            onTextSubmit={handleTextUpload}
+            onVoiceSubmit={handleVoiceUpload}
+            uploadProgress={uploadProgress}
+            dragActive={dragActive}
+            onDrag={handleDrag}
+            onDrop={handleDrop}
+            fileInputRef={fileInputRef}
+            uploading={uploading}
+          />
+        )}
+
+        {/* Artifact List */}
+        <div className="artifacts-container">
           {loading && artifacts.length === 0 ? (
-            <div className="loading-state">
-              <div className="loading-spinner"></div>
-              <p>Loading artifacts...</p>
-            </div>
+            <LoadingState />
           ) : error ? (
-            <div className="error-state">
-              <div className="error-icon">⚠️</div>
-              <h3>Failed to load artifacts</h3>
-              <p>{error.message}</p>
-              <button onClick={fetchArtifacts} className="retry-btn">Retry</button>
-            </div>
-          ) : artifacts.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📦</div>
-              <h3>No artifacts found</h3>
-              <p>Upload a file or ingest text to get started</p>
-              <button onClick={() => setShowUpload(true)} className="upload-btn-large">
-                Upload File
-              </button>
-            </div>
+            <ErrorState error={error} onRetry={refresh} />
+          ) : isEmpty ? (
+            <EmptyState onUpload={() => setShowUpload(true)} />
           ) : (
-            artifacts.map(artifact => (
-              <ArtifactCard
-                key={artifact.id}
-                artifact={artifact}
-                isSelected={selectedArtifact?.id === artifact.id}
-                onClick={() => handleSelectArtifact(artifact)}
-              />
-            ))
+            <div className="artifacts-grid">
+              {artifacts.map(artifact => (
+                <ArtifactCard
+                  key={artifact.id}
+                  artifact={artifact}
+                  isSelected={selectedArtifactId === artifact.id}
+                  onClick={() => setSelectedArtifactId(artifact.id)}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
 
-      {/* Detail panel */}
+      {/* Detail Panel */}
       {selectedArtifact && (
         <DetailPanel
           artifact={selectedArtifact}
           loading={detailLoading}
-          onClose={() => setSelectedArtifact(null)}
+          error={detailError}
+          onClose={() => setSelectedArtifactId(null)}
           onReingest={handleReingest}
-          onDownload={handleDownload}
           onDelete={handleDelete}
+          onOpenWorkspace={handleOpenInWorkspace}
+          onRefresh={refreshDetails}
         />
       )}
     </div>
   );
 }
 
-/**
- * Artifact card component
- */
-interface ArtifactCardProps {
-  artifact: Artifact;
-  isSelected: boolean;
-  onClick: () => void;
-}
+// ========== Sub-components ==========
 
-function ArtifactCard({ artifact, isSelected, onClick }: ArtifactCardProps) {
-  const formatSize = (bytes?: number) => {
-    if (!bytes) return 'N/A';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
-  const getTypeIcon = (type: string) => {
-    if (type.includes('pdf')) return '📄';
-    if (type.includes('image')) return '🖼️';
-    if (type.includes('code')) return '💻';
-    if (type.includes('text')) return '📝';
-    return '📦';
+function ArtifactCard({ artifact, isSelected, onClick }: any) {
+  const getStatusColor = (status: EmbeddingStatus) => {
+    const statusMap: Record<EmbeddingStatus, string> = {
+      indexed: '#00ff88',
+      processing: '#00ccff',
+      pending: '#ffaa00',
+      queued: '#ffaa00',
+      failed: '#ff4444',
+      stale: '#888',
+    };
+    return statusMap[status] || '#888';
   };
 
   return (
-    <div
-      className={`artifact-card ${isSelected ? 'selected' : ''}`}
-      onClick={onClick}
-    >
-      <div className="artifact-icon">{getTypeIcon(artifact.type)}</div>
-      <div className="artifact-info">
-        <div className="artifact-title">{artifact.title || artifact.path}</div>
+    <div className={`artifact-card ${isSelected ? 'selected' : ''}`} onClick={onClick}>
+      <div className="card-header">
+        <span className="artifact-type-icon">{getTypeIcon(artifact.type)}</span>
+        <span 
+          className="embedding-status-dot" 
+          style={{ background: getStatusColor(artifact.embedding_status) }}
+          title={artifact.embedding_status}
+        ></span>
+      </div>
+      
+      <div className="card-body">
+        <div className="artifact-name">{artifact.name}</div>
+        <div className="artifact-category">{artifact.category}</div>
+        
+        {artifact.tags && artifact.tags.length > 0 && (
+          <div className="artifact-tags">
+            {artifact.tags.slice(0, 3).map(tag => (
+              <span key={tag} className="mini-tag">#{tag}</span>
+            ))}
+          </div>
+        )}
+        
         <div className="artifact-meta">
-          <span className="meta-item">{artifact.domain || 'Unknown'}</span>
-          <span className="meta-item">{formatSize(artifact.size_bytes)}</span>
-          <span className="meta-item">{formatDate(artifact.created_at)}</span>
+          <span>{formatDate(artifact.updated_at)}</span>
+          {artifact.size_bytes && <span>{formatBytes(artifact.size_bytes)}</span>}
+          {artifact.chunk_count && <span>{artifact.chunk_count} chunks</span>}
         </div>
       </div>
     </div>
   );
 }
 
-/**
- * Detail panel component
- */
-interface DetailPanelProps {
-  artifact: ArtifactDetail;
-  loading: boolean;
-  onClose: () => void;
-  onReingest: () => void;
-  onDownload: () => void;
-  onDelete: () => void;
-}
-
-function DetailPanel({ artifact, loading, onClose, onReingest, onDownload, onDelete }: DetailPanelProps) {
+function DetailPanel({ artifact, loading, error, onClose, onReingest, onDelete, onOpenWorkspace, onRefresh }: any) {
   if (loading) {
     return (
       <div className="detail-panel">
@@ -407,92 +603,101 @@ function DetailPanel({ artifact, loading, onClose, onReingest, onDownload, onDel
     );
   }
 
+  if (error) {
+    return (
+      <div className="detail-panel">
+        <div className="detail-error">
+          <p>Failed to load details</p>
+          <button onClick={onRefresh}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="detail-panel">
       <div className="detail-header">
-        <h3>{artifact.title || artifact.path}</h3>
+        <h3>{artifact.name}</h3>
         <button className="close-btn" onClick={onClose}>×</button>
       </div>
 
-      <div className="detail-body">
-        <div className="detail-section">
-          <h4>Information</h4>
-          <div className="info-grid">
-            <div className="info-row">
-              <span className="label">ID:</span>
-              <span className="value mono">{artifact.id}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Type:</span>
-              <span className="value">{artifact.type}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Domain:</span>
-              <span className="value">{artifact.domain || 'N/A'}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Source:</span>
-              <span className="value">{artifact.source || 'N/A'}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Created:</span>
-              <span className="value">{new Date(artifact.created_at).toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+      <div className="detail-scroll">
+        {/* Info */}
+        <DetailSection title="Information">
+          <InfoRow label="ID" value={artifact.id} mono />
+          <InfoRow label="Category" value={artifact.category} />
+          <InfoRow label="Type" value={artifact.type} />
+          <InfoRow label="Status" value={artifact.embedding_status} badge />
+          <InfoRow label="Created" value={new Date(artifact.created_at).toLocaleString()} />
+          <InfoRow label="Source" value={artifact.source || 'N/A'} />
+        </DetailSection>
 
+        {/* Preview */}
         {artifact.content_snippet && (
-          <div className="detail-section">
-            <h4>Preview</h4>
+          <DetailSection title="Content Preview">
             <div className="content-preview">
               <pre>{artifact.content_snippet}</pre>
             </div>
-          </div>
+          </DetailSection>
         )}
 
+        {/* Embeddings */}
         {artifact.embeddings && (
-          <div className="detail-section">
-            <h4>Embeddings</h4>
-            <div className="info-grid">
-              <div className="info-row">
-                <span className="label">Model:</span>
-                <span className="value">{artifact.embeddings.model}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Dimension:</span>
-                <span className="value">{artifact.embeddings.dimension}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Indexed:</span>
-                <span className="value">{new Date(artifact.embeddings.indexed_at).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
+          <DetailSection title="Embeddings">
+            <InfoRow label="Model" value={artifact.embeddings.model} />
+            <InfoRow label="Dimension" value={artifact.embeddings.dimension.toString()} />
+            <InfoRow label="Chunks" value={artifact.embeddings.chunk_count.toString()} />
+            <InfoRow label="Indexed" value={new Date(artifact.embeddings.indexed_at).toLocaleString()} />
+          </DetailSection>
         )}
 
-        {artifact.linked_missions && artifact.linked_missions.length > 0 && (
-          <div className="detail-section">
-            <h4>Linked Missions ({artifact.linked_missions.length})</h4>
-            <div className="linked-items">
-              {artifact.linked_missions.map(missionId => (
-                <div key={missionId} className="linked-item">
-                  🎯 {missionId}
-                </div>
+        {/* Linked Missions */}
+        {artifact.linked_missions_detail && artifact.linked_missions_detail.length > 0 && (
+          <DetailSection title={`Linked Missions (${artifact.linked_missions_detail.length})`}>
+            {artifact.linked_missions_detail.map((mission: any) => (
+              <div key={mission.mission_id} className="linked-mission">
+                🎯 {mission.mission_id}
+                <span className="mission-status">{mission.status}</span>
+              </div>
+            ))}
+          </DetailSection>
+        )}
+
+        {/* Tags */}
+        {artifact.tags && artifact.tags.length > 0 && (
+          <DetailSection title="Tags">
+            <div className="tag-pills">
+              {artifact.tags.map((tag: string) => (
+                <span key={tag} className="tag-pill">#{tag}</span>
               ))}
             </div>
-          </div>
+          </DetailSection>
+        )}
+
+        {/* Governance */}
+        {artifact.governance && (
+          <DetailSection title="Governance">
+            <InfoRow label="Access Level" value={artifact.governance.access_level} />
+            {artifact.governance.approved_by && (
+              <>
+                <InfoRow label="Approved By" value={artifact.governance.approved_by} />
+                <InfoRow label="Approved At" value={new Date(artifact.governance.approved_at!).toLocaleString()} />
+              </>
+            )}
+          </DetailSection>
         )}
       </div>
 
+      {/* Actions */}
       <div className="detail-actions">
-        <button className="action-btn primary" onClick={onDownload}>
-          📥 Download
+        <button className="action-btn primary" onClick={onOpenWorkspace}>
+          🚀 Open in Workspace
         </button>
         <button className="action-btn" onClick={onReingest}>
           ⟳ Re-ingest
         </button>
-        <button className="action-btn secondary">
-          🚀 Open in Workspace
+        <button className="action-btn">
+          📥 Download
         </button>
         <button className="action-btn danger" onClick={onDelete}>
           🗑️ Delete
@@ -502,149 +707,4 @@ function DetailPanel({ artifact, loading, onClose, onReingest, onDownload, onDel
   );
 }
 
-/**
- * Upload panel component
- */
-interface UploadPanelProps {
-  onFileUpload: (files: FileList | null) => void;
-  onTextIngest: (text: string, title: string) => void;
-  uploadProgress: UploadProgress | null;
-  dragActive: boolean;
-  onDrag: (e: React.DragEvent) => void;
-  onDrop: (e: React.DragEvent) => void;
-}
-
-function UploadPanel({ onFileUpload, onTextIngest, uploadProgress, dragActive, onDrag, onDrop }: UploadPanelProps) {
-  const [mode, setMode] = useState<'file' | 'text'>('file');
-  const [textContent, setTextContent] = useState('');
-  const [textTitle, setTextTitle] = useState('');
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleSubmitText = () => {
-    if (!textContent.trim() || !textTitle.trim()) {
-      alert('Please provide both title and content');
-      return;
-    }
-    onTextIngest(textContent, textTitle);
-    setTextContent('');
-    setTextTitle('');
-  };
-
-  return (
-    <div className="upload-panel">
-      <div className="upload-tabs">
-        <button
-          className={mode === 'file' ? 'active' : ''}
-          onClick={() => setMode('file')}
-        >
-          📁 File
-        </button>
-        <button
-          className={mode === 'text' ? 'active' : ''}
-          onClick={() => setMode('text')}
-        >
-          📝 Text
-        </button>
-      </div>
-
-      {mode === 'file' ? (
-        <div
-          className={`drop-zone ${dragActive ? 'drag-active' : ''}`}
-          onDragEnter={onDrag}
-          onDragLeave={onDrag}
-          onDragOver={onDrag}
-          onDrop={onDrop}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {uploadProgress ? (
-            <UploadProgressDisplay progress={uploadProgress} />
-          ) : (
-            <>
-              <div className="drop-zone-icon">📤</div>
-              <p>Drag & drop or click to upload</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                onChange={(e) => onFileUpload(e.target.files)}
-                style={{ display: 'none' }}
-              />
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="text-ingest-form">
-          <input
-            type="text"
-            placeholder="Title"
-            value={textTitle}
-            onChange={(e) => setTextTitle(e.target.value)}
-            className="text-title-input"
-          />
-          <textarea
-            placeholder="Paste or type content..."
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-            className="text-content-input"
-            rows={6}
-          />
-          <button
-            onClick={handleSubmitText}
-            className="submit-text-btn"
-            disabled={!textContent.trim() || !textTitle.trim() || !!uploadProgress}
-          >
-            {uploadProgress ? 'Processing...' : 'Ingest Text'}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Upload progress display
- */
-function UploadProgressDisplay({ progress }: { progress: UploadProgress }) {
-  const getStatusLabel = (status: UploadProgress['status']) => {
-    switch (status) {
-      case 'uploading': return 'Uploading...';
-      case 'processing': return 'Processing...';
-      case 'embedding': return 'Creating embeddings...';
-      case 'indexed': return 'Indexed!';
-      case 'failed': return 'Failed';
-    }
-  };
-
-  return (
-    <div className="upload-progress">
-      <div className="progress-label">{getStatusLabel(progress.status)}</div>
-      <div className="progress-bar">
-        <div className="progress-fill" style={{ width: `${progress.progress}%` }} />
-      </div>
-      {progress.message && <div className="progress-message">{progress.message}</div>}
-    </div>
-  );
-}
-
-/**
- * Sort artifacts
- */
-function sortArtifacts(artifacts: Artifact[], sortBy: string): Artifact[] {
-  const sorted = [...artifacts];
-
-  switch (sortBy) {
-    case 'date_desc':
-      return sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    case 'date_asc':
-      return sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    case 'name_asc':
-      return sorted.sort((a, b) => (a.title || a.path).localeCompare(b.title || b.path));
-    case 'name_desc':
-      return sorted.sort((a, b) => (b.title || b.path).localeCompare(a.title || a.path));
-    case 'size_desc':
-      return sorted.sort((a, b) => (b.size_bytes || 0) - (a.size_bytes || 0));
-    case 'size_asc':
-      return sorted.sort((a, b) => (a.size_bytes || 0) - (b.size_bytes || 0));
-    default:
-      return sorted;
-  }
-}
+// Continued in next file...
