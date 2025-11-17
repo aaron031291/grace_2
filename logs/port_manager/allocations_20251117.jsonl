@@ -64,3 +64,11 @@
 {"timestamp": "2025-11-17T16:57:25.754441", "action": "allocate", "port": 8073, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-17T16:57:32.819512", "action": "allocate", "port": 8074, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-17T16:57:34.849747", "action": "allocate", "port": 8075, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T16:59:19.589732", "action": "allocate", "port": 8076, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-17T16:59:21.859240", "action": "release", "port": 9999, "service_name": "test_service", "duration_seconds": 127.320624, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-17T16:59:23.891489", "action": "allocate", "port": 9999, "service_name": "test_service", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port 9999 failure"}
+{"timestamp": "2025-11-17T16:59:31.051663", "action": "allocate", "port": 8077, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T16:59:33.091785", "action": "allocate", "port": 8078, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T16:59:35.119423", "action": "allocate", "port": 8079, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T16:59:42.190019", "action": "allocate", "port": 8080, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T16:59:44.216288", "action": "allocate", "port": 8081, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
