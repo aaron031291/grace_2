@@ -526,3 +526,216 @@
   font-size: 12px;
   color: var(--text-secondary);
 }
+
+/* System Cards */
+.system-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.system-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-icon {
+  font-size: 1.2rem;
+}
+
+.card-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.card-badge {
+  padding: 0.25rem 0.5rem;
+  background: var(--accent-color);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.card-content {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.card-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.card-source {
+  font-style: italic;
+}
+
+.card-confidence {
+  font-weight: 500;
+  color: var(--accent-color);
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.card-tags .tag {
+  padding: 0.2rem 0.4rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Artifact Cards */
+.artifact-card {
+  border-left: 3px solid #3b82f6;
+}
+
+.artifact-card .card-badge {
+  background: #3b82f6;
+}
+
+/* Mission Cards */
+.mission-card {
+  border-left: 3px solid #10b981;
+}
+
+.mission-card .card-badge {
+  background: #10b981;
+}
+
+/* Approval Cards */
+.approval-card {
+  border-left: 3px solid #f59e0b;
+}
+
+.approval-card .card-badge {
+  background: #f59e0b;
+}
+
+.approval-agent {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.approval-action {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.approval-reason {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-approve,
+.btn-decline {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-approve {
+  background: #10b981;
+  color: white;
+}
+
+.btn-approve:hover {
+  background: #059669;
+}
+
+.btn-decline {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-decline:hover {
+  background: #dc2626;
+}
+
+/* Health Cards */
+.health-card {
+  border-left: 3px solid #8b5cf6;
+}
+
+.health-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.health-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.health-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.health-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+/* System message styling */
+.message.system {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+}
+
+.message.system .message-avatar {
+  margin-right: 0.75rem;
+}
+
+.message.system .message-content {
+  max-width: 100%;
+}
