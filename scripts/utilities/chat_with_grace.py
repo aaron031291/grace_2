@@ -65,6 +65,11 @@ def chat():
                 chat_multimodal(user_input, session_id)
             elif mode == "voice":
                 chat_voice(user_input, session_id)
+        except KeyboardInterrupt:
+            print("\n\nGRACE: Session interrupted. Goodbye!\n")
+            break
+        except Exception as e:
+            print(f"Error: {e}")
         
         
 def chat_normal(user_input, session_id):

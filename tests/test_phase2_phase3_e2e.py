@@ -226,7 +226,8 @@ async def test_knowledge_gap_detection():
 
     # Get overall stats
     stats = knowledge_gap_detector.get_detection_stats()
-    logger.info("📊 Gap detection statistics:"    logger.info(f"  Total analyses: {stats['gap_detection']['total_analyses']}")
+    logger.info("📊 Gap detection statistics:")
+    logger.info(f"  Total analyses: {stats['gap_detection']['total_analyses']}")
     logger.info(f"  Gaps detected: {stats['gap_detection']['gaps_detected']}")
     logger.info(f"  Average confidence: {stats['confidence_stats']['average_confidence']:.3f}")
 
@@ -399,7 +400,8 @@ async def test_world_model_updates():
 
     # Update stats
     update_stats = world_model_updater.get_update_stats()
-    logger.info("📊 Update statistics:"    logger.info(f"  Total updates: {update_stats['update_stats']['total_updates']}")
+    logger.info("📊 Update statistics:")
+    logger.info(f"  Total updates: {update_stats['update_stats']['total_updates']}")
     logger.info(f"  Accepted updates: {update_stats['update_stats']['accepted_updates']}")
     logger.info(f"  Conflicts detected: {update_stats['update_stats']['conflicts_detected']}")
 
@@ -466,7 +468,8 @@ async def test_safe_mode_learning():
 
     # Get system status
     system_status = safe_mode_learning_manager.get_system_status()
-    logger.info("📊 System status:"    logger.info(f"  Safe mode active: {system_status['safe_mode_active']}")
+    logger.info("📊 System status:")
+    logger.info(f"  Safe mode active: {system_status['safe_mode_active']}")
     logger.info(f"  Circuit breaker: {system_status['circuit_breaker_enabled']}")
     logger.info(f"  Total operations: {system_status['stats']['total_operations']}")
 

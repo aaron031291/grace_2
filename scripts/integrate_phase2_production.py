@@ -1345,4 +1345,4 @@ grace_summary_generator = GraceSummaryGenerator()'''
 
     async def integrate_evaluation_harness(self):
         """Wire evaluation harness into RAG pipeline"""
-        print("🎯 Integrating Evaluation Harness
+        print("🎯 Integrating Evaluation Harness")
