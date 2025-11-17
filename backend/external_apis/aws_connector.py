@@ -509,7 +509,7 @@ class AWSClient:
                 Payload=json.dumps(payload)
             )
             
-            response_payload = json.loads(response['Payload'].read())
+            response_payload = json.load(response['Payload'])
             
             result = {
                 "function_name": function_name,
