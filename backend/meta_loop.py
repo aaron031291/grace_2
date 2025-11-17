@@ -1,5 +1,15 @@
 """Meta Loop - Re-export from workflow_engines module"""
 
+from typing import Any as _Any
+
+MetaLoopConfig: _Any
+MetaAnalysis: _Any
+MetaMetaEvaluation: _Any
+MetaLoopEngine: _Any
+meta_loop_engine: _Any
+meta_meta_engine: _Any
+
+
 # Lazy imports to avoid circular dependencies
 def __getattr__(name):
     if name == 'MetaLoopConfig':
@@ -27,6 +37,7 @@ def __getattr__(name):
         except ImportError:
             return None
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
 
 __all__ = [
     'MetaLoopConfig',
