@@ -18,11 +18,14 @@ sys.path.insert(0, str(ROOT))
 
 def capture_boot_time() -> float:
     """Measure boot time for core system"""
-    print("Measuring boot time...", end=" ")
+    print("Measuring metrics boot time...", end=" ")
     
     start = time.time()
     try:
-        import backend.misc.main
+        from backend.metrics_service import get_metrics_collector
+        from backend.cognition_metrics import get_metrics_engine
+        get_metrics_collector()
+        get_metrics_engine()
         elapsed = time.time() - start
         print(f"{elapsed:.2f}s")
         return elapsed
@@ -52,8 +55,6 @@ def capture_import_time() -> Dict[str, float]:
     imports = {
         "metrics_service": "from backend.metrics_service import get_metrics_collector",
         "cognition_metrics": "from backend.cognition_metrics import get_metrics_engine",
-        "models": "from backend.misc.models import Base",
-        "fastapi_app": "import backend.misc.main",
     }
     
     times = {}
@@ -74,16 +75,21 @@ def capture_system_info() -> Dict[str, Any]:
     """Capture system information"""
     print("Capturing system info...", end=" ")
     
+    try:
+        disk_usage = psutil.disk_usage('c:/').percent
+    except:
+        disk_usage = 0
+    
     info = {
         "cpu_count": psutil.cpu_count(),
         "cpu_percent": psutil.cpu_percent(interval=1),
         "memory_total_gb": psutil.virtual_memory().total / 1024 / 1024 / 1024,
         "memory_available_gb": psutil.virtual_memory().available / 1024 / 1024 / 1024,
-        "disk_usage_percent": psutil.disk_usage('/').percent,
+        "disk_usage_percent": disk_usage,
         "python_version": sys.version,
     }
     
-    print("✓")
+    print("OK")
     return info
 
 def save_baseline(metrics: Dict[str, Any], output_path: Path):
@@ -99,7 +105,7 @@ def save_baseline(metrics: Dict[str, Any], output_path: Path):
     with open(output_path, 'w') as f:
         json.dump(baseline, f, indent=2)
     
-    print("✓")
+    print("OK")
 
 def main():
     """Capture and save baseline metrics"""

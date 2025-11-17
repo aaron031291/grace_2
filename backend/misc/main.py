@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from .models import Base, engine
-from .metrics_models import Base as MetricsBase
+from backend.models.models import Base, engine
+from backend.models.metrics_models import Base as MetricsBase
 import asyncio
 from .routes import chat, auth_routes, metrics, reflections, tasks, history, causal, goals, knowledge, evaluation, summaries, sandbox, executor, governance, hunter, health_routes, issues, memory_api, immutable_api, meta_api, websocket_routes, plugin_routes, ingest, trust_api, ml_api, execution, temporal_api, causal_graph_api, speech_api, parliament_api, coding_agent_api, constitutional_api, elite_systems_api, mission_control_api, integration_api, ingestion_api, comprehensive_api  # grace_memory_api temporarily disabled due to circular import
 from .routes import ml_coding_api, integrations_api

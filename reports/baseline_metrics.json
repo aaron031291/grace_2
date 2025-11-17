@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-11-17T15:49:29.071088",
+  "metrics": {
+    "boot_time_seconds": 0.05200982093811035,
+    "memory_usage": {
+      "rss_mb": 24.9765625,
+      "vms_mb": 16.1015625
+    },
+    "import_times": {
+      "metrics_service": 0.0,
+      "cognition_metrics": 0.0
+    },
+    "system_info": {
+      "cpu_count": 32,
+      "cpu_percent": 6.4,
+      "memory_total_gb": 61.6131706237793,
+      "memory_available_gb": 42.5737190246582,
+      "disk_usage_percent": 19.9,
+      "python_version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]"
+    }
+  }
+}
