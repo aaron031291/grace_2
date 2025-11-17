@@ -5,12 +5,11 @@ Grace validates code BEFORE systems start to catch errors early
 
 import ast
 import re
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from pathlib import Path
 from datetime import datetime
 import logging
 
-from .code_understanding import code_understanding
 from .immutable_log import ImmutableLog
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ Governance Kernel - Policy & Safety AI Agent
 Manages: governance, constitutional, hunter, autonomy, parliament, verification
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

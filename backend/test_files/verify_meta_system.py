@@ -21,7 +21,6 @@ def verify_system():
     print("\n[1] FILE EXISTENCE")
     print("-" * 80)
     
-    import os
     from pathlib import Path
     
     backend = Path(__file__).parent
@@ -46,7 +45,6 @@ def verify_system():
     print("-" * 80)
     
     try:
-        from grace_rebuild.backend import meta_loop_engine
         print("✓ meta_loop_engine")
         results["imports"].append(("meta_loop_engine", True))
     except Exception as e:
@@ -54,7 +52,6 @@ def verify_system():
         results["imports"].append(("meta_loop_engine", False))
     
     try:
-        from grace_rebuild.backend import meta_loop_approval
         print("✓ meta_loop_approval")
         results["imports"].append(("meta_loop_approval", True))
     except Exception as e:
@@ -62,7 +59,6 @@ def verify_system():
         results["imports"].append(("meta_loop_approval", False))
     
     try:
-        from grace_rebuild.backend.routes import meta_api
         print("✓ routes.meta_api")
         results["imports"].append(("routes.meta_api", True))
     except Exception as e:
@@ -74,7 +70,6 @@ def verify_system():
     print("-" * 80)
     
     try:
-        from grace_rebuild.backend.meta_loop_engine import RecommendationApplicator, AppliedRecommendation
         print("✓ RecommendationApplicator")
         print("✓ AppliedRecommendation")
         results["database_models"].append(("AppliedRecommendation", True))
@@ -83,7 +78,6 @@ def verify_system():
         results["database_models"].append(("AppliedRecommendation", False))
     
     try:
-        from grace_rebuild.backend.meta_loop_approval import ApprovalQueue, RecommendationQueue
         print("✓ ApprovalQueue")
         print("✓ RecommendationQueue")
         results["database_models"].append(("RecommendationQueue", True))

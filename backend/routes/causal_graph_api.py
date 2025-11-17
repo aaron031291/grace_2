@@ -4,16 +4,6 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from ..causal_graph import CausalGraph
 from ..causal_analyzer import causal_analyzer
-from ..schemas_extended import (
-    CausalGraphBuildResponse,
-    CausalCausesResponse,
-    CausalEffectsResponse,
-    CausalPathResponse,
-    CausalInfluenceResponse,
-    CausalCyclesResponse,
-    CausalVisualizeResponse,
-    CausalAnalysisResponse
-)
 
 
 router = APIRouter(prefix="/api/causal", tags=["causal_graph"])

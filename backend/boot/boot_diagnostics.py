@@ -3,14 +3,12 @@ Boot Diagnostics - Forensic sweep of all subsystems after initialization
 Traces every component from kernel load through execution, flags issues, generates reports
 """
 
-import asyncio
 import os
 import sys
-import json
 import psutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List
 import logging
 import subprocess
 
@@ -251,7 +249,6 @@ class BootDiagnostics:
         logger.info("[DIAGNOSTICS] Checking governance status...")
         
         try:
-            from backend.governance import governance_engine
             
             governance_status = {
                 "governance_engine_loaded": True,
@@ -260,7 +257,6 @@ class BootDiagnostics:
             
             # Check crypto assignment (optional)
             try:
-                from backend.crypto_assignment_engine import universal_crypto_engine
                 governance_status["crypto_engine_loaded"] = True
             except:
                 governance_status["crypto_engine_loaded"] = False

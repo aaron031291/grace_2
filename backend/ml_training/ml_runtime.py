@@ -1,6 +1,5 @@
 """ML Runtime for model storage, loading, and deployment"""
 
-import os
 import pickle
 import json
 from pathlib import Path

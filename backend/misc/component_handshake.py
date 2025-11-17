@@ -4,7 +4,7 @@ Secure onboarding for new services/versions joining Grace
 """
 
 import logging
-from typing import Dict, Any, Optional, List, Set
+from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
 import asyncio
 import uuid

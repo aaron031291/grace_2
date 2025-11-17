@@ -2,10 +2,9 @@
 Auto-Training Trigger System
 Automatically triggers training/learning when new data is ingested
 """
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, List
+from datetime import datetime
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)

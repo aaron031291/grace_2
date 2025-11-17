@@ -4,7 +4,6 @@ Base models for Memory Tables system
 """
 
 from sqlmodel import SQLModel
-from typing import Any, Dict
 
 
 class DynamicTableBase(SQLModel):

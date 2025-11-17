@@ -11,7 +11,6 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import defaultdict
-import json
 
 from .immutable_log import immutable_log
 from .trigger_mesh import trigger_mesh, TriggerEvent

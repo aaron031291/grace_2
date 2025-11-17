@@ -3,7 +3,7 @@ Core Domain API Router
 Platform operations, governance, self-healing
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Dict, Any, List
 import logging
 

@@ -14,14 +14,12 @@ All governed by 3-tier autonomy framework.
 """
 
 import asyncio
-import subprocess
-import tempfile
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from datetime import datetime, timezone
 from pathlib import Path
 from dataclasses import dataclass
 from .immutable_log import ImmutableLog
-from .autonomy_tiers import autonomy_manager, AutonomyTier
+from .autonomy_tiers import autonomy_manager
 from .trigger_mesh import trigger_mesh, TriggerEvent
 
 

@@ -4,7 +4,6 @@ Single Approval Point for Grace Development
 Instead of 6 separate approvals, provide ONE approval for all operations.
 """
 import os
-from typing import Optional
 
 class SingleApprovalManager:
     """Manage single approval point for all Grace operations"""

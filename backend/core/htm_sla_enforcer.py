@@ -16,16 +16,15 @@ Integration:
 """
 
 import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, List, Optional
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
-from collections import defaultdict
 
-from backend.models.htm_models import HTMTask, HTMTaskAttempt, HTMMetrics
+from backend.models.htm_models import HTMTask
 from backend.models.base_models import async_session
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.logging_utils import log_event
-from sqlalchemy import select, update, and_, or_, func
+from sqlalchemy import select, update, func
 
 
 @dataclass

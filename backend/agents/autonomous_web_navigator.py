@@ -3,7 +3,6 @@ Autonomous Web Navigator Agent
 Teaches Grace when and how to search the web autonomously
 """
 
-import asyncio
 import logging
 import re
 from typing import Dict, Any, List, Optional

@@ -3,11 +3,9 @@ RAG Data Provenance - Complete Citation & Source Validation
 Ensures 100% citation, confidence scoring, source validation, and provenance tracking
 """
 
-import asyncio
 import logging
-import hashlib
 import re
-from typing import Dict, Any, List, Optional, Tuple, Set
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum

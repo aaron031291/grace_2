@@ -10,9 +10,9 @@ Exposes cognition domain as the decision-making authority:
 LLM calls these endpoints instead of making decisions directly.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from ..cognition_intent import cognition_authority, CognitionIntent
@@ -88,7 +88,6 @@ async def execute_intent(
     Bypasses parsing, goes straight to planning & execution.
     """
     
-    from dataclasses import asdict
     
     # Create plan
     from ..cognition_intent import Intent

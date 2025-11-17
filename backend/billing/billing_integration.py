@@ -4,7 +4,7 @@ Stripe integration for subscriptions, usage tracking, and invoicing
 """
 
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 import uuid

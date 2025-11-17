@@ -1,7 +1,7 @@
 """Agentic dashboard API endpoints"""
 
 from fastapi import APIRouter, Depends
-from typing import List, Dict, Any
+from typing import Dict, Any
 from ..auth import get_current_user
 
 router = APIRouter()

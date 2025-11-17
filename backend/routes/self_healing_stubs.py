@@ -4,7 +4,7 @@ Prevents JSON parsing errors while system initializes
 """
 
 from fastapi import APIRouter
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 router = APIRouter()
 

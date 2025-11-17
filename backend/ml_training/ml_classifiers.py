@@ -6,14 +6,12 @@ from typing import Dict, Tuple, Optional
 from urllib.parse import urlparse
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn.metrics import precision_recall_fscore_support, accuracy_score, classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from sqlalchemy import select
 from .models import async_session
 from .ml_models_table import MLModel
 from .trusted_sources import trust_manager
-import re
-from datetime import datetime
 
 class TrustScoreClassifier:
     """ML classifier for URL trust scoring"""

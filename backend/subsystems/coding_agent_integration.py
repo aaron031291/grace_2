@@ -2,11 +2,9 @@
 Coding Agent Subsystem Integration with Memory Tables
 Logs work orders, code changes, and deployment artifacts to memory_coding_work_orders
 """
-import asyncio
 import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

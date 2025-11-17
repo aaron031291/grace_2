@@ -11,7 +11,6 @@ from typing import Dict, Any, List, Optional
 import uuid
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
-import configparser
 import logging
 from pathlib import Path
 import asyncio
@@ -26,7 +25,7 @@ from backend.models.verification_models import RegisteredDevice, DeviceAllowlist
 from backend.ingestion_services.ingestion_service import ingestion_service
 from backend.kernels.librarian_kernel import librarian_kernel
 from backend.autonomy.learning_whitelist_integration import learning_whitelist_manager
-from backend.misc.agentic_spine import agentic_spine, DecisionRecord, ConfidenceLevel
+from backend.misc.agentic_spine import agentic_spine, DecisionRecord
 from backend.model_orchestrator import model_orchestrator
 from backend.integrations.journalclub_integration import journalclub_integration
 from backend.autonomy.research_application_pipeline import research_pipeline

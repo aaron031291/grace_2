@@ -4,9 +4,8 @@ Shows multi-threaded subagent operations in real-time
 """
 
 from fastapi import APIRouter, WebSocket
-from typing import List, Dict, Any
+from typing import List, Dict
 import asyncio
-import json
 from datetime import datetime
 from ..schemas_extended import SubagentsActiveResponse, SubagentSpawnResponse
 

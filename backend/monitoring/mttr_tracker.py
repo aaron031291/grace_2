@@ -3,10 +3,9 @@ MTTR (Mean Time To Recovery) Tracker
 Tracks healing actions from detection to resolution
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
-import asyncio
 from collections import defaultdict, deque
 import statistics
 

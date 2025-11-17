@@ -6,8 +6,6 @@ User speaks naturally, Grace translates to commands
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import Optional
 import subprocess
-import asyncio
-import json
 import logging
 
 from ..grace_llm import get_grace_llm

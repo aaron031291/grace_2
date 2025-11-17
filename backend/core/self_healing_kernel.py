@@ -8,8 +8,7 @@ NOT simulated - actually heals the system
 
 import asyncio
 import yaml
-import subprocess
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 import logging
@@ -18,7 +17,6 @@ from .message_bus import message_bus, MessagePriority
 from .immutable_log import immutable_log
 from .clarity_kernel import clarity_kernel
 from .kernel_sdk import KernelSDK
-from .schemas import MessageType, IncidentPayload
 
 logger = logging.getLogger(__name__)
 

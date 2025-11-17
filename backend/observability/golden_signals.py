@@ -3,9 +3,9 @@ Golden Signals Monitoring
 Tracks Latency, Traffic, Errors, Saturation (Google SRE methodology)
 """
 
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
+from dataclasses import dataclass
+from datetime import datetime
 from collections import deque
 import time
 import statistics

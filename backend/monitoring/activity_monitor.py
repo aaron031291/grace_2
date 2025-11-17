@@ -3,7 +3,6 @@ Real-Time Activity Monitor
 Shows what Grace is doing in real-time
 """
 
-import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import logging

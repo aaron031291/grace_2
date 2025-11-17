@@ -5,7 +5,7 @@ Provides convenience functions for integrating LoopMemoryBank with existing serv
 
 from typing import Optional, List, Dict, Any
 from .GraceLoopOutput import GraceLoopOutput, OutputType
-from .LoopMemoryBank import LoopMemoryBank, MemoryHit, TrustReason, loop_memory_bank
+from .LoopMemoryBank import MemoryHit, TrustReason, loop_memory_bank
 
 
 class MemoryIntegration:

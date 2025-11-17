@@ -1,7 +1,5 @@
 from fastapi import WebSocket
 from typing import Dict, Set
-import json
-import asyncio
 
 class WebSocketManager:
     """Manage WebSocket connections for real-time updates"""

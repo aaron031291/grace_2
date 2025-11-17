@@ -19,7 +19,6 @@ from typing import Dict, List, Optional, Callable, Any
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-import subprocess
 import psutil
 
 logger = logging.getLogger(__name__)

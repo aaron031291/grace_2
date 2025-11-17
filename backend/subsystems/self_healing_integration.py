@@ -2,7 +2,6 @@
 Self-Healing Subsystem Integration with Memory Tables
 Logs playbook runs, incidents, and outcomes to memory_self_healing_playbooks
 """
-import asyncio
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime

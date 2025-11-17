@@ -14,7 +14,6 @@ Prevents:
 - Filesystem events overwhelming system
 """
 
-import asyncio
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
 from collections import defaultdict, deque
@@ -23,9 +22,8 @@ from enum import Enum
 
 from backend.models.htm_models import HTMTask
 from backend.models.base_models import async_session
-from backend.core.message_bus import message_bus, MessagePriority
 from backend.logging_utils import log_event
-from sqlalchemy import select, update as sql_update, and_, func
+from sqlalchemy import select
 
 
 class TaskOrigin(str, Enum):

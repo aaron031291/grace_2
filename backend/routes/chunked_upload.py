@@ -7,7 +7,6 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict
 import hashlib
-import os
 from pathlib import Path
 import logging
 

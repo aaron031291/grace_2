@@ -7,7 +7,6 @@ from typing import Optional, Dict
 from ..auth import get_current_user
 from ..execution_engine import execution_engine
 from ..execution_config import LANGUAGE_CONFIGS, EXECUTION_PRESETS
-from ..schemas_extended import ExecutionLanguagesResponse, ExecutionPresetsResponse, ExecutionValidateResponse
 
 router = APIRouter(prefix="/api/execute", tags=["execution"])
 

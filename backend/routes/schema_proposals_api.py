@@ -4,7 +4,7 @@ Endpoints for viewing and managing schema proposals
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 router = APIRouter(prefix="/api/memory/tables/proposals", tags=["schema-proposals"])
 

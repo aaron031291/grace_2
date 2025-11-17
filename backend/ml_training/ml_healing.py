@@ -4,16 +4,15 @@ Machine learning and deep learning for error prediction and fix optimization
 """
 
 import asyncio
-import numpy as np
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 import logging
 
 from .immutable_log import ImmutableLog
 from .models import async_session
 from .base_models import ImmutableLogEntry
-from sqlalchemy import select, desc, and_
+from sqlalchemy import select, desc
 
 logger = logging.getLogger(__name__)
 

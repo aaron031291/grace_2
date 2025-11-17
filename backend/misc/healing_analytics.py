@@ -3,15 +3,15 @@ Healing Analytics Engine
 Query and analyze healing data from tables + data cube
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, and_, or_, desc
+from sqlalchemy import select, func
 import logging
 
 from .models import async_session
 from .healing_models import (
     HealingAttempt, AgenticSpineLog, MetaLoopLog,
-    MLLearningLog, TriggerMeshLog, DataCubeEntry
+    MLLearningLog, DataCubeEntry
 )
 
 logger = logging.getLogger(__name__)

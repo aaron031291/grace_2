@@ -11,7 +11,6 @@ from ..models import async_session
 from ..auth import get_current_user
 from ..verification_middleware import verify_action, verification_middleware
 from ..logging_utils import log_event
-from ..rate_limit import rate_limited
 from ..constitutional_verifier import constitutional_verifier
 from ..governance import governance_engine
 router = APIRouter(prefix="/api/governance", tags=["governance"])

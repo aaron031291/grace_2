@@ -15,7 +15,7 @@ import asyncio
 import logging
 from typing import Dict, List, Any
 from datetime import datetime
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

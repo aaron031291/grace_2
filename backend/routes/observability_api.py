@@ -9,8 +9,8 @@ Endpoints:
 - GET /api/observability/dashboard - Complete dashboard data
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, Optional
+from fastapi import APIRouter
+from typing import Dict, Any
 
 from backend.monitoring.stress_metrics_aggregator import stress_metrics_aggregator
 from backend.core.auto_remediation import auto_remediation

@@ -6,9 +6,7 @@ Tracks all integrations with risk scores, status, and governance approval
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, Boolean
-from sqlalchemy.ext.declarative import declarative_base
 from .models import Base
-import json
 
 class MemoryVerificationEntry(Base):
     """Verification matrix entry for external integrations"""

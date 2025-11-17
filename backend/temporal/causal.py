@@ -1,7 +1,6 @@
 from sqlalchemy import select
 from backend.models.base_models import async_session
 from backend.models.models import ChatMessage, CausalEvent
-from datetime import datetime, timedelta
 
 class CausalTracker:
     """Track cause-effect relationships in conversations"""

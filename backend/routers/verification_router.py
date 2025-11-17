@@ -15,13 +15,12 @@ OpenAPI tags for frontend discovery
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, func
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime, timezone
 
 from ..models import async_session
 from ..action_contract import ActionContract
 from ..self_heal.safe_hold import SafeHoldSnapshot
-from ..auth import get_current_user
 
 # Handle Mission import (may be named MissionTimeline)
 try:

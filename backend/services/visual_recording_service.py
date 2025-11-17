@@ -13,15 +13,11 @@ Governance:
 - PII detection in screenshots
 """
 
-import asyncio
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
-import base64
+from typing import Dict, Any, List
 
 from backend.services.recording_service import recording_service, RecordingType
 from backend.services.embedding_service import embedding_service
-from backend.core.message_bus import message_bus, MessagePriority
 from backend.logging_utils import log_event
 
 

@@ -5,7 +5,7 @@ Consumes MetricEvents and produces MetricsSnapshots for dashboards
 
 import asyncio
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from collections import defaultdict
 import logging
 
@@ -15,7 +15,7 @@ from .telemetry_schemas import (
 )
 from .trigger_mesh import trigger_mesh
 from .models import async_session
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, JSON
+from sqlalchemy import Column, Integer, String, DateTime, JSON
 from sqlalchemy.sql import func
 from .base_models import Base
 

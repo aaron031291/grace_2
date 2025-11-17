@@ -203,7 +203,7 @@ class ImmutableLogAnalyzer:
         """Analyze recent events for patterns"""
         try:
             from .models import async_session
-            from sqlalchemy import select, func
+            from sqlalchemy import select
             from .base_models import ImmutableLogEntry as ImmutableEntry
             
             cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)

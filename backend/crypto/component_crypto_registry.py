@@ -202,7 +202,6 @@ class ComponentCryptoRegistry:
     async def register_all_grace_components_crypto(self) -> List[Dict[str, Any]]:
         """Register cryptographic identities for all 48 Grace components"""
         
-        from backend.crypto_assignment_engine import crypto_engine
         
         registrations = []
         

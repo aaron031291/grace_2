@@ -4,11 +4,9 @@ Grace's controlled access to local PC with security guardrails
 """
 
 import asyncio
-import subprocess
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
-from pathlib import Path
 
 from ..unified_logger import unified_logger
 from ..grace_control_center import grace_control, SystemState

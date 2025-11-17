@@ -7,7 +7,7 @@ import platform
 import psutil
 import socket
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict
 from enum import Enum
 
 from backend.core.kernel_sdk import KernelSDK

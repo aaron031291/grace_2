@@ -3,7 +3,7 @@ Federation Kernel - External Integrations AI Agent
 Manages: web learning, external APIs, GitHub, Slack, AWS, third-party integrations
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

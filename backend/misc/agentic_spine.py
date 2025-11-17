@@ -11,7 +11,6 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import json
 from collections import defaultdict
 
 from .trigger_mesh import trigger_mesh, TriggerEvent

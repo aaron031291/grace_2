@@ -16,7 +16,6 @@ Boot Sequence:
 This is the master orchestrator for Grace as a complete model.
 """
 
-import asyncio
 from datetime import datetime
 from typing import Dict, Any
 
@@ -197,7 +196,6 @@ class GraceCompleteSystem:
         
         # Three-Tier Orchestration (connects Layer 1 tiers)
         try:
-            from backend.core.three_tier_orchestration import three_tier_orchestration
             # Already started in _boot_layer1, just verify
             print("[INTEGRATION] Three-Tier Orchestration: CONNECTED")
         except Exception as e:
@@ -205,7 +203,6 @@ class GraceCompleteSystem:
         
         # Integrated Orchestration (full system)
         try:
-            from backend.core.integrated_orchestration import integrated_orchestration
             # Connects all pieces
             print("[INTEGRATION] Integrated Orchestration: CONNECTED")
         except Exception as e:

@@ -326,7 +326,6 @@ class LogicUpdateAwareness:
         }
         
         try:
-            from backend.metrics_collector import metrics_collector
             
             # Capture relevant metrics for each component
             for component in components:

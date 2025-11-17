@@ -6,7 +6,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import numpy as np
 from urllib.parse import urlparse
-import pickle
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split

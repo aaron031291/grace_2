@@ -8,12 +8,12 @@ SECURITY:
 - Governance integrated
 """
 
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from backend.security.secrets_service import secrets_service, SecretType
+from backend.security.secrets_service import secrets_service
 
 
 router = APIRouter(prefix="/api/secrets", tags=["secrets"])

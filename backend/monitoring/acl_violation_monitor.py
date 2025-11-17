@@ -7,7 +7,7 @@ Fixes Gap: S02_acl_spam scenario had no watcher
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime, timedelta
 from collections import deque, defaultdict
 

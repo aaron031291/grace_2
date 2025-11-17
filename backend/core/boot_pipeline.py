@@ -5,13 +5,11 @@ Structured startup sequence with dependency management and verification
 Part of Grace's unbreakable core - ensures clean, verifiable boot
 """
 
-import asyncio
 from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime
 from enum import Enum
 import logging
 
-from .message_bus import message_bus, MessagePriority
 from .immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)

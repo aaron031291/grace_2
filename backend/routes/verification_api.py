@@ -6,10 +6,10 @@ Includes smoke checks to ensure data integrity.
 """
 
 from fastapi import APIRouter, HTTPException, Query, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, text
+from sqlalchemy import select, text
 from ..models import async_session
 from ..auth import get_current_user
 from ..schemas_extended import (
@@ -311,7 +311,7 @@ async def get_mission_detail(
     """
     
     async with async_session() as session:
-        from backend.progression_tracker import MissionTimeline, progression_tracker
+        from backend.progression_tracker import MissionTimeline
         
         # Get mission
         result = await session.execute(

@@ -21,7 +21,6 @@ import json
 import sqlite3
 from datetime import datetime
 import logging
-import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,6 @@ except:
     logger.warning("Grace LLM not available - using stub insights")
 
 try:
-    from backend.continuous_learning_loop import continuous_learning_loop
     from backend.trigger_mesh import trigger_mesh
     LEARNING_AVAILABLE = True
 except:

@@ -2,7 +2,6 @@
 Base Agent Component
 Defines sub-agents as BaseComponents with clarity contracts
 """
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional, Callable
 from datetime import datetime

@@ -5,7 +5,7 @@ Allows Grace to freely search and learn from the internet
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 import logging
 

@@ -8,7 +8,7 @@ Every emitted event gets a retrievable audit row.
 """
 
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
+from typing import Optional
 from sqlalchemy import Column, Integer, String, DateTime, JSON, Boolean, Index
 from sqlalchemy.ext.asyncio import AsyncSession
 

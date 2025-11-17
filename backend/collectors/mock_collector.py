@@ -2,7 +2,6 @@
 
 import asyncio
 import random
-from datetime import datetime
 from backend.trigger_mesh import trigger_mesh, TriggerEvent
 
 

@@ -4,13 +4,12 @@ Setup initial self-healing data for testing
 import asyncio
 import sys
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 # Add backend to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from memory_tables.registry import table_registry
 
 async def setup_self_healing_data():
     """Add sample self-healing data"""

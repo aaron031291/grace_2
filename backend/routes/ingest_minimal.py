@@ -5,9 +5,7 @@ For testing and Grace autonomous operation
 
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import Optional
 import hashlib
-from datetime import datetime
 
 router = APIRouter(prefix="/api/ingest/minimal", tags=["minimal_ingestion"])
 

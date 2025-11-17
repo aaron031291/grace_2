@@ -3,7 +3,7 @@ Reflection Loop - Plan-Act-Reflect-Revise for continuous improvement
 Grace learns from outcomes and updates her strategies
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from datetime import datetime
 from backend.event_bus import event_bus, Event, EventType
 from backend.action_gateway import action_gateway

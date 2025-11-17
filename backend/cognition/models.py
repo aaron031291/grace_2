@@ -176,4 +176,3 @@ class RemediationAction:
     auto_executable: bool = False
 
 # Re-export memory models for convenience
-from .memory_models import MemoryArtifact, TrustEvent, MemoryIndex, GarbageCollectionLog

@@ -4,7 +4,6 @@ Centralized environment variable management for Grace
 """
 
 import os
-from typing import Optional
 
 class GraceEnvironment:
     """Environment configuration for Grace"""

@@ -6,7 +6,7 @@ All kernels speak the same language via these schemas
 """
 
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional, Literal
+from typing import Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 

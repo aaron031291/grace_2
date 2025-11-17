@@ -14,15 +14,14 @@ Features:
 import asyncio
 import random
 import json
-import subprocess
 import time
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
 from dataclasses import dataclass, asdict
 import logging
 
-from .failure_cards import FAILURE_CATALOG, FailureCard, FailureCategory
+from .failure_cards import FAILURE_CATALOG, FailureCard
 
 logger = logging.getLogger(__name__)
 
@@ -689,7 +688,6 @@ class ChaosRunner:
             
             elif step.startswith('curl'):
                 # HTTP check
-                import httpx
                 # Parse URL from step
                 return True  # Simplified
             

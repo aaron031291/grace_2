@@ -16,12 +16,10 @@ Supports:
 - Custom API endpoints
 """
 
-import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
 
 from backend.security.secrets_consent_flow import secrets_consent_flow
-from backend.services.embedding_service import embedding_service
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.logging_utils import log_event
 

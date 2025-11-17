@@ -2,13 +2,12 @@
 
 import ast
 import re
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 from datetime import datetime
 from sqlalchemy import select, and_
 from backend.models.base_models import async_session
 from .code_memory import CodePattern, CodeContext, code_memory
-from backend.temporal.causal_analyzer import causal_analyzer
 
 # Lazy import to avoid circular dependency  
 def _get_meta_loop():

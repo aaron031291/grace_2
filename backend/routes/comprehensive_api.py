@@ -3,8 +3,8 @@ Comprehensive API Routes for All Panels
 Complete JSON responses for frontend integration
 """
 
-from fastapi import APIRouter, HTTPException, Query
-from typing import Dict, Any, List, Optional
+from fastapi import APIRouter, Query
+from typing import Dict, Any
 from datetime import datetime, timedelta
 import random
 

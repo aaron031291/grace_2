@@ -10,9 +10,8 @@ Channels:
 - PagerDuty (critical only)
 """
 
-import asyncio
 import logging
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

@@ -8,20 +8,17 @@ Routes tasks based on data volume:
 - Balance bandwidth across workers
 """
 
-import asyncio
 from datetime import datetime, timezone, time
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 
 from backend.models.htm_models import HTMTask
 from backend.models.base_models import async_session
-from backend.core.message_bus import message_bus, MessagePriority
 from backend.core.htm_size_tracker import (
     TaskSizeClass, classify_task_size, format_bytes,
     get_size_recommendations
 )
-from backend.logging_utils import log_event
-from sqlalchemy import select, and_
+from sqlalchemy import select
 
 
 @dataclass

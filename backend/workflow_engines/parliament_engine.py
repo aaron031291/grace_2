@@ -14,7 +14,6 @@ from ..models.parliament_models import (
     GovernanceVote,
     GovernanceMember,
     CommitteeDefinition,
-    ParliamentConfig,
 )
 from ..logging.immutable_log import immutable_log as ImmutableLogger
 from ..verification_system.verification import VerificationEngine

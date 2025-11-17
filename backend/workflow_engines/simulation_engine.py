@@ -1,11 +1,8 @@
-import asyncio
 import random
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional
-from collections import defaultdict
+from datetime import datetime
+from typing import List, Dict, Any
 from .models import async_session
 from .temporal_models import Simulation
-from .temporal_reasoning import temporal_reasoner
 import statistics
 
 class SimulationEngine:

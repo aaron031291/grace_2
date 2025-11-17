@@ -5,7 +5,6 @@ Monitor and control proactive improvement system
 
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
-from typing import Dict, Any
 import asyncio
 from ..autonomous_improver import autonomous_improver
 from ..schemas import SuccessResponse

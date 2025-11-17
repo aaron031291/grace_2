@@ -1,9 +1,8 @@
 """Client Pipeline - CRM and Sales Funnel Management"""
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime, timedelta
-from sqlalchemy import select, update, and_, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, func
 
 from ...models import async_session
 from ...governance import governance_engine

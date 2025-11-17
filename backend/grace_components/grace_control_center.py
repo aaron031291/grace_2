@@ -4,8 +4,7 @@ Central control for Grace's automation with pause/resume/stop
 LLM co-pilot stays alive, only automation pauses
 """
 
-import asyncio
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 import logging
 from pathlib import Path

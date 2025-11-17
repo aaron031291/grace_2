@@ -8,13 +8,9 @@ This makes Grace self-extending based on business needs.
 """
 
 import asyncio
-from typing import Dict, Any, List
-from datetime import datetime, timedelta
-from pathlib import Path
+from datetime import datetime
 
-from .grace_architect_agent import grace_architect, GraceExtensionRequest
-from .models import async_session
-from sqlalchemy import select
+from .grace_architect_agent import grace_architect
 
 class AutoExtensionLoop:
     """

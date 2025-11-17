@@ -3,14 +3,10 @@ Full Autonomy Mode
 Grace operates with maximum autonomy under governance constraints
 """
 
-import asyncio
 from typing import Dict, Any
-from datetime import datetime
 import logging
 
 from .autonomous_code_healer import code_healer
-from .log_based_healer import log_based_healer
-from .ml_healing import ml_healing, dl_healing
 from .auto_commit import auto_commit
 from .governance_framework import governance_framework
 from .immutable_log import ImmutableLog

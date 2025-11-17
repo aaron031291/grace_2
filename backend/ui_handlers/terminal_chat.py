@@ -17,9 +17,7 @@ from backend.grace_llm import get_grace_llm
 from backend.memory import PersistentMemory
 from backend.transcendence.unified_intelligence import UnifiedIntelligenceEngine
 from backend.transcendence.self_awareness import SelfAwarenessLayer
-from backend.agentic_spine import AgenticSpine
 from backend.code_generator import CodeGenerator
-from backend.self_healing import SelfHealingEngine
 from backend.governance import governance_engine
 from backend.immutable_log import ImmutableLog
 from backend.governance_framework import governance_framework
@@ -449,7 +447,6 @@ class GraceTerminalChat:
     
     async def _handle_autonomy_command(self, message: str) -> str:
         """Handle autonomy control commands"""
-        from governance_framework import governance_framework
         from full_autonomy import full_autonomy
         
         msg_lower = message.lower()

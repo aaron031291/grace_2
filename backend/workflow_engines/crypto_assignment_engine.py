@@ -254,7 +254,6 @@ class UniversalCryptographicAssignmentEngine:
         
         # Trace through immutable log
         try:
-            from backend.immutable_log import immutable_log
             
             # Query all operations involving this crypto_id
             # In production, this would query the database

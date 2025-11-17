@@ -13,12 +13,6 @@ try:
 except ImportError as e:
     print(f"[WARN] Advanced learning system unavailable: {e}")
     advanced_learning_supervisor = None
-from fastapi import HTTPException, status
-from pydantic import BaseModel, constr
-from datetime import timedelta
-from sqlalchemy import select
-from backend.models import User, async_session
-from backend.auth import hash_password, verify_and_upgrade_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 # Track degraded features for Layer 2
 app = FastAPI(title="Grace API", version="2.0.0")
@@ -295,7 +289,7 @@ async def startup_unified_llm():
         print("[OK] Performance analyzer initialized (self-optimization + auto-tuning)")
         
         # NEW: Initialize Proactive Mission Generator (Autonomous Mission Creation)
-        from backend.autonomy.proactive_mission_generator import proactive_mission_generator, start_proactive_missions
+        from backend.autonomy.proactive_mission_generator import start_proactive_missions
         await start_proactive_missions()
         print("[OK] Proactive mission generator started (auto-detects issues, creates missions)")
         
@@ -317,9 +311,6 @@ async def startup_unified_llm():
 async def startup_agentic_organism():
     """Initialize Grace's unified agentic organism"""
     try:
-        from backend.event_bus import event_bus
-        from backend.action_gateway import action_gateway
-        from backend.reflection_loop import reflection_loop
         
         print("[OK] Event Bus initialized (unified communication layer)")
         print("[OK] Action Gateway initialized (governance enforcement)")

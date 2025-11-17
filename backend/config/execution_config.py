@@ -2,7 +2,7 @@
 Configuration for multi-language code execution engine
 """
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 @dataclass
 class LanguageConfig:

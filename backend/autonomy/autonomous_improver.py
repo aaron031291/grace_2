@@ -5,7 +5,6 @@ Fixes issues and commits to GitHub automatically
 """
 
 import asyncio
-import os
 import subprocess
 from datetime import datetime
 from pathlib import Path

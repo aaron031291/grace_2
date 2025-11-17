@@ -3,9 +3,9 @@ Guardian Stats API - Phase 1
 Expose Guardian healing statistics and metrics
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/guardian", tags=["guardian"])

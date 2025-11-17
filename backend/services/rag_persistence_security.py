@@ -3,7 +3,6 @@ RAG Persistence & Security - Production-Grade Data Management
 Encrypt-at-rest, retention policies, backup/restore, compliance reporting
 """
 
-import asyncio
 import logging
 import os
 import json
@@ -12,9 +11,7 @@ import base64
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timedelta
 from pathlib import Path
-import shutil
 import gzip
-import tempfile
 
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes

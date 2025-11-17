@@ -18,9 +18,9 @@ Each trigger publishes:
 
 import asyncio
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, Optional
 from enum import Enum
-from collections import defaultdict, deque
+from collections import deque
 import psutil
 
 from backend.core.message_bus import message_bus, MessagePriority

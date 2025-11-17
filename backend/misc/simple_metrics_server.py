@@ -4,7 +4,7 @@ Simple Metrics Server - Minimal, no fancy output
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 
 app = FastAPI(title="Grace Metrics", version="1.0")
 

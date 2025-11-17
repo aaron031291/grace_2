@@ -3,13 +3,10 @@ Metrics Snapshot Integration
 Connects snapshot aggregator to ML training and forecasting
 """
 
-import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Any, List
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from .automated_ml_training import automated_training
 from .temporal_forecasting import temporal_forecaster, ForecastRequest
 from .immutable_log import immutable_log
 

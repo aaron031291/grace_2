@@ -3,8 +3,7 @@ Firefox Browser Agent
 Grace's controlled internet access via Firefox
 """
 
-import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 import logging
 from pathlib import Path

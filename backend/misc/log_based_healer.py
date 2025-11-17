@@ -10,7 +10,6 @@ from pathlib import Path
 from datetime import datetime
 import logging
 
-from .autonomous_code_healer import code_healer
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
 

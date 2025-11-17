@@ -5,13 +5,13 @@ Autonomy & Shard Orchestration API Routes
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-from ..autonomy_tiers import autonomy_manager, AutonomyTier
+from ..autonomy_tiers import autonomy_manager
 from ..shard_orchestrator import shard_orchestrator
 from ..auth import get_current_user
 from ..schemas import (
     AutonomyStatusResponse, AutonomyPoliciesResponse, AutonomyCheckResponse,
     AutonomyApprovalListResponse, AutonomyApprovalResponse, ShardTaskSubmitResponse, 
-    ShardQueueResponse, AutonomyTaskStatusResponse, ShardStatusResponse
+    ShardQueueResponse
 )
 
 router = APIRouter(prefix="/api/autonomy", tags=["autonomy"])

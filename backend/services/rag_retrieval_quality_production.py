@@ -3,13 +3,12 @@ RAG Retrieval Quality Harness - PRODUCTION
 Benchmark dataset (≥100 Q/A pairs), evaluation runner, nightly CI job
 """
 
-import asyncio
 import logging
 import json
 import random
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 import statistics
 
 from backend.logging.immutable_log import immutable_log

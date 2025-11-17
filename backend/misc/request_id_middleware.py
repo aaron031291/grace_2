@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import ASGIApp
 from starlette.requests import Request
 from starlette.responses import Response
 

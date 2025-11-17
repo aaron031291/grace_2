@@ -5,10 +5,9 @@ Split into staging (analysis) and approval (governance) for safety
 """
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, List
+from datetime import datetime
 from pathlib import Path
-import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +96,6 @@ class StagingAgent:
     async def _scan_workspace(self):
         """Scan workspace for new files to analyze"""
         from backend.subsystems.sub_agents_integration import sub_agents_integration
-        from backend.memory_tables.auto_ingestion import auto_ingestion_service
         
         # Update status
         await sub_agents_integration.update_agent_status(

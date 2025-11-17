@@ -5,7 +5,6 @@ Grace can propose schema improvements and apply them through governance
 
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field
 from sqlalchemy import Column, Integer, String, DateTime, JSON, Text
 from .base_models import Base
 from .models import async_session

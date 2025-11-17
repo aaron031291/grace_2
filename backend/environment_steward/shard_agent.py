@@ -4,13 +4,12 @@ Lightweight daemon that runs on each target OS (Ubuntu, WSL, Windows, Mac)
 Reports health, dependencies, and environment status
 """
 
-import os
 import sys
 import platform
 import subprocess
 import json
 import hashlib
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 

@@ -8,7 +8,6 @@ from typing import Dict, Any, Callable, Optional, List
 from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
-import json
 
 from backend.event_bus import event_bus, Event, EventType
 from backend.action_gateway import action_gateway

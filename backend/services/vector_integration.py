@@ -10,14 +10,11 @@ Integrates vector/embedding service with:
 Automatically embeds content as it's created
 """
 
-import asyncio
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
+from typing import Dict, Any, Optional
 
 from backend.services.embedding_service import embedding_service
 from backend.services.vector_store import vector_store
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.logging_utils import log_event
 
 
 class VectorIntegration:

@@ -3,7 +3,7 @@ Memory Workspace API Routes
 Endpoints for the Memory Workspace UI panel
 """
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from typing import Optional, List
+from typing import Optional
 from pathlib import Path
 import shutil
 

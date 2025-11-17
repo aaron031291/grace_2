@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from typing import Optional, List
 import hashlib
 import json
-from datetime import datetime
 
 from ..models import async_session
 from ..knowledge_models import KnowledgeArtifact, KnowledgeRevision

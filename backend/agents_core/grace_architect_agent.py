@@ -12,7 +12,6 @@ Unlike general coding agents, this one KNOWS:
 - How to extend Grace safely
 """
 
-import ast
 from pathlib import Path
 from typing import Dict, Any, List, Optional, TYPE_CHECKING
 from datetime import datetime
@@ -23,9 +22,7 @@ from .models import Base, async_session
 
 # Lazy imports to avoid circular dependencies
 if TYPE_CHECKING:
-    from backend.misc.code_memory import CodeMemoryEngine, CodePattern
-    from backend.misc.code_understanding import CodeUnderstandingEngine
-    from backend.misc.code_generator import CodeGenerator
+    pass
 
 class GraceArchitectureKnowledge(Base):
     """Deep knowledge of Grace's architecture patterns"""

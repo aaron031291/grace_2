@@ -3,12 +3,11 @@ File Organizer Agent - Intelligent file sorting and folder management
 Analyzes content, determines domains, creates folders, and organizes files
 """
 
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 from datetime import datetime
 import json
 import shutil
-import hashlib
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db

@@ -5,7 +5,7 @@ Track self-healing code patches and coding agent work orders
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 router = APIRouter(prefix="/patches", tags=["Patches"])

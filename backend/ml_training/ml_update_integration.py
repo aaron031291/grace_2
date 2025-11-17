@@ -5,8 +5,7 @@ Feeds logic update metadata into ML models for learning and prediction
 
 import logging
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone, timedelta
-import numpy as np
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 

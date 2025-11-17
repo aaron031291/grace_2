@@ -3,7 +3,7 @@ Core Kernel - System & User Interaction AI Agent
 Manages: chat, auth, tasks, health, metrics, history, reflections, summaries, plugins, issues, speech, evaluation
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

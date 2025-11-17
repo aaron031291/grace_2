@@ -6,11 +6,10 @@ Manages per-domain whitelists, provides management UI, and validates domain acce
 import asyncio
 import logging
 import json
-from typing import Dict, Any, List, Optional, Tuple, Set
-from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime
 from dataclasses import dataclass, field
 from pathlib import Path
-import re
 
 from backend.logging.immutable_log import immutable_log
 

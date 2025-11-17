@@ -1,8 +1,8 @@
 """Automatic retraining based on new trusted knowledge"""
 
 import asyncio
-from datetime import datetime, timedelta
-from sqlalchemy import select, func
+from datetime import datetime
+from sqlalchemy import select
 from .knowledge_models import KnowledgeArtifact
 from .ml_models_table import MLModel
 from .models import async_session

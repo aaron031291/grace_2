@@ -5,9 +5,8 @@ Incremental batch loading from operational tables to analytical cube.
 Runs every 5 minutes to keep cube fresh without impacting operational DB.
 """
 
-import asyncio
 from datetime import datetime, timedelta
-from sqlalchemy import select, text
+from sqlalchemy import text
 from backend.models import async_session
 
 

@@ -4,16 +4,11 @@ Real-time visual logs of Grace's knowledge ingestion with cryptographic verifica
 Shows clickable HTTP links to sources, verification status, and complete audit trail
 """
 
-import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
 import logging
-import hashlib
 from pathlib import Path
-import json
 
-from .immutable_log import immutable_log
-from .unified_logger import unified_logger
 from .models import async_session
 from .knowledge_provenance import KnowledgeSource
 from sqlalchemy import select, desc

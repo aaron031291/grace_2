@@ -7,7 +7,7 @@ Analyzes file content and proposes appropriate database schemas
 import logging
 import json
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)

@@ -7,11 +7,9 @@ Triggered when secrets_service publishes "secrets.stored" event
 
 import asyncio
 from typing import Dict, Any, Optional
-from datetime import datetime, timezone, timedelta
 
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.security.secrets_service import secrets_service
-from backend.logging_utils import log_event
 
 
 class LibrarianSecretsWorkflow:

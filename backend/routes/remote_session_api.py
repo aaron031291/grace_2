@@ -3,7 +3,7 @@ Remote Session API
 WebSocket and REST endpoints for zero-trust remote access
 """
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 import logging

@@ -4,7 +4,7 @@ Dashboard and management endpoints for the Self-Healing Kernel
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/self-healing", tags=["Self-Healing"])

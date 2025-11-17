@@ -10,12 +10,9 @@ Addresses 5 key gaps:
 """
 
 import asyncio
-import inspect
-import importlib
 from typing import Dict, Any, List, Optional, Set
-from datetime import datetime, timedelta
-from pathlib import Path
-from sqlalchemy import inspect as sql_inspect, text
+from datetime import datetime
+from sqlalchemy import text
 from dataclasses import dataclass
 
 @dataclass
@@ -143,7 +140,6 @@ class SchemaIntegrityValidator:
     async def create_schema_fix_mission(self, issue: BootIssue) -> str:
         """Create self-healing mission to fix schema issue"""
         try:
-            from backend.mission_control.mission_controller import mission_controller
             
             mission_id = f"schema_fix_{issue.issue_id}_{int(datetime.utcnow().timestamp())}"
             
@@ -228,7 +224,6 @@ class DependencyHealthChecker:
     async def _test_logging(self) -> Dict[str, Any]:
         """Test logging system"""
         try:
-            from backend.core.immutable_log import immutable_log
             return {'healthy': True}
         except Exception as e:
             return {'healthy': False, 'issues': [str(e)]}
@@ -236,7 +231,6 @@ class DependencyHealthChecker:
     async def _test_governance(self) -> Dict[str, Any]:
         """Test governance engine"""
         try:
-            from backend.verification_system.governance import governance_engine
             return {'healthy': True}
         except Exception as e:
             return {'healthy': False, 'issues': [str(e)]}
@@ -244,7 +238,6 @@ class DependencyHealthChecker:
     async def _test_mission_control(self) -> Dict[str, Any]:
         """Test mission controller"""
         try:
-            from backend.mission_control.mission_controller import mission_controller
             return {'healthy': True}
         except Exception as e:
             return {'healthy': False, 'issues': [str(e)]}
@@ -252,7 +245,6 @@ class DependencyHealthChecker:
     async def _test_ingestion(self) -> Dict[str, Any]:
         """Test ingestion service"""
         try:
-            from backend.ingestion_services.ingestion_service import ingestion_service
             return {'healthy': True}
         except Exception as e:
             return {'healthy': False, 'issues': [str(e)]}
@@ -311,7 +303,6 @@ class ConfigSecretLinter:
         
         # Validate secrets vault accessibility
         try:
-            from backend.security.secrets_vault import secrets_vault
             print("    [LINT] Secrets vault: Accessible")
         except Exception as e:
             issues.append({

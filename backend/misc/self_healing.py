@@ -1,6 +1,6 @@
 import asyncio
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import select
 from .governance_models import HealthCheck, HealingAction
 from .models import async_session

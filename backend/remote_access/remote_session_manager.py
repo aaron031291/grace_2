@@ -4,12 +4,9 @@ WebSocket-based remote shell access with recording and governance
 """
 
 import asyncio
-import subprocess
 import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-import json
-import shlex
 
 from .zero_trust_gate import zero_trust_gate
 from .rbac_enforcer import rbac_enforcer

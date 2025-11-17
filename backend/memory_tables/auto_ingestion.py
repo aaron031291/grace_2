@@ -8,7 +8,7 @@ Full pipeline: Upload → Extract → Schema → Approve → Insert → Learn
 import asyncio
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Set
 from datetime import datetime
 import hashlib
 

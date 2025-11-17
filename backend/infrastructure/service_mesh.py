@@ -13,11 +13,11 @@ Provides:
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from .service_discovery import service_discovery
-from .api_gateway import api_gateway, CircuitBreaker, RateLimiter
+from .api_gateway import api_gateway
 from .load_balancer import load_balancer, LoadBalancingStrategy
 
 logger = logging.getLogger(__name__)

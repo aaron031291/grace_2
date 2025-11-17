@@ -7,12 +7,11 @@ Part of Layer 1 - Always running, maintains who's running and their health
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 
 from .message_bus import message_bus, MessagePriority
 from .immutable_log import immutable_log
-from .schemas import MessageType, create_kernel_message, TrustLevel
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,6 @@ Shared Domain Memory - Collective Knowledge Base
 All domains contribute to and learn from shared memory
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime

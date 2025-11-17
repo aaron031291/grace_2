@@ -8,7 +8,6 @@ from pathlib import Path
 from datetime import datetime
 import json
 import hashlib
-import asyncio
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db

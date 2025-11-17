@@ -5,7 +5,7 @@ Control and monitor the Librarian orchestration kernel
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -454,7 +454,7 @@ async def get_daily_summary():
     """
     try:
         from backend.memory_tables.registry import table_registry
-        from datetime import datetime, timedelta
+        from datetime import datetime
         
         today = datetime.utcnow().date()
         start_of_day = datetime.combine(today, datetime.min.time()).isoformat()

@@ -1,7 +1,6 @@
 """Tests for QuorumEngine - Trust-Weighted Consensus"""
 
 import pytest
-from datetime import datetime, timedelta
 
 import sys
 import os

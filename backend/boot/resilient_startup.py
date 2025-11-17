@@ -4,14 +4,11 @@ Grace catches startup errors, fixes them, and restarts automatically
 """
 
 import asyncio
-import sys
 import traceback
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, Callable
 from datetime import datetime
-from pathlib import Path
 import logging
 
-from .autonomous_code_healer import code_healer
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
 

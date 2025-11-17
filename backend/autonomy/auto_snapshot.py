@@ -3,8 +3,6 @@ Automatic Snapshot & Rollback System
 Creates snapshots before risky actions, rolls back on failure
 """
 
-import asyncio
-from datetime import datetime
 from typing import Dict, Any, Optional
 import logging
 

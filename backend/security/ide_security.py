@@ -1,9 +1,8 @@
 """IDE Security Scanner - Uses Hunter rules for file and code scanning"""
 import re
 import json
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from pathlib import Path
-from .hunter import hunter
 from backend.models.governance_models import SecurityRule
 from backend.models import async_session
 from sqlalchemy import select

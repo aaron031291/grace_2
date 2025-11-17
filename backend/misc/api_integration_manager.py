@@ -5,7 +5,7 @@ All APIs managed autonomously with governance
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 from pathlib import Path
@@ -13,8 +13,6 @@ import json
 
 from .api_discovery_engine import api_discovery
 from .api_sandbox_tester import api_sandbox_tester
-from .governance_framework import governance_framework
-from .unified_logger import unified_logger
 from .secrets_vault import secrets_vault
 
 logger = logging.getLogger(__name__)

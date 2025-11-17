@@ -3,12 +3,9 @@ RAG Data Provenance - PRODUCTION HARDENED
 Citation guarantees, UI visualization, provenance metrics
 """
 
-import asyncio
 import logging
-import json
 import re
-from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 from collections import defaultdict
 

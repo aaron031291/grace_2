@@ -5,8 +5,8 @@ Demonstrates graph building, causal reasoning, and integration
 import asyncio
 from datetime import datetime, timedelta
 from sqlalchemy import select
-from models import ChatMessage, Task, CausalEvent, async_session, Base, engine
-from causal_graph import CausalGraph, CausalNode
+from models import ChatMessage, Task, async_session, Base, engine
+from causal_graph import CausalGraph
 from causal_analyzer import causal_analyzer
 from causal import causal_tracker
 

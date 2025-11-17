@@ -3,8 +3,7 @@ Knowledge Provenance Tracking
 Complete audit trail of where Grace learned everything - fully traceable and logged
 """
 
-import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 import hashlib
 import json
@@ -12,7 +11,6 @@ import logging
 from pathlib import Path
 
 from .models import async_session
-from .healing_models import DataCubeEntry
 from .immutable_log import immutable_log
 from .unified_logger import unified_logger
 from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean, ForeignKey, JSON

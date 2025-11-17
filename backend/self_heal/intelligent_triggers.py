@@ -12,11 +12,9 @@ creating a unified, multi-source intelligent healing system.
 """
 
 from __future__ import annotations
-import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, Optional, List
+from datetime import datetime, timezone
+from typing import Dict, Any, List
 from dataclasses import dataclass
-import json
 
 from ..trigger_mesh import trigger_mesh, TriggerEvent
 from ..immutable_log import immutable_log

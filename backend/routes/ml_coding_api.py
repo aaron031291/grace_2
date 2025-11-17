@@ -3,7 +3,7 @@ ML Coding Agent API
 Endpoints for ML-powered coding assistance using Grace's internal LLM
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
 

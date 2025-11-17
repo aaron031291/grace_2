@@ -7,9 +7,8 @@ Zero-trust: authenticated channels, message signing
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable
 from datetime import datetime
-import json
 import logging
 from dataclasses import dataclass
 from enum import Enum

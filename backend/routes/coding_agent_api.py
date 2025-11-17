@@ -6,7 +6,7 @@ Integrates with Layer 3 intents, Layer 2 HTM, and Layer 4 deployment
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 
 router = APIRouter(prefix="/api/coding_agent", tags=["coding_agent"])
 

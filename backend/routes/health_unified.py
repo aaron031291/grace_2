@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Dict, Any, List
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -10,7 +10,6 @@ from ..settings import settings
 from ..health_models import Service, HealthSignal, HealthState
 from ..health.aggregator import compute_health_state
 from ..health.triage import diagnose
-from ..schemas_extended import HealthIngestSignalResponse, HealthStateResponse, TriageDiagnoseResponse
 
 router = APIRouter(tags=["health-unified"])  # prefix added conditionally in main
 

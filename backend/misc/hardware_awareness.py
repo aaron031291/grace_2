@@ -4,10 +4,8 @@ Understands internal capacity and allocates power intelligently
 """
 
 import psutil
-import platform
 from typing import Dict, Any, Optional
 from datetime import datetime
-import asyncio
 import logging
 
 logger = logging.getLogger(__name__)

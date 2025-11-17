@@ -4,7 +4,7 @@ View events, actions, reflections, and skill execution stats
 """
 
 from fastapi import APIRouter, Query
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 from backend.event_bus import event_bus

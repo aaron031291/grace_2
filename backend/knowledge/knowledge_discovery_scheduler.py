@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from .models import async_session
 from sqlalchemy import select, func

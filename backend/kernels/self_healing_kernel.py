@@ -4,11 +4,9 @@ Domain kernel for automated remediation and recovery operations.
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-from pathlib import Path
 
 from .base_kernel import BaseDomainKernel
 

@@ -3,19 +3,14 @@ Autonomous Code Healer
 Grace's self-coding capability to fix errors automatically with governance oversight
 """
 
-import os
 import re
-import ast
 import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
-from pathlib import Path
 import logging
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .code_generator import CodeGenerator
-from .code_understanding import code_understanding
-from .governance import governance_engine
 from .immutable_log import ImmutableLog
 from .ml_healing import ml_healing
 from .unified_logger import unified_logger

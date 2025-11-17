@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from ..auth import get_current_user
-from ..ml_models_table import MLModel, TrainingRun
+from ..ml_models_table import MLModel
 from ..models import async_session
 from ..training_pipeline import training_pipeline
 from ..verification_middleware import verify_action

@@ -5,12 +5,7 @@ API endpoints for autonomous Grace extension and learning.
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict, Any, List, Optional
-from ..schemas_extended import (
-    GraceArchitectLearnResponse,
-    GraceArchitectExtendResponse,
-    GraceArchitectPatternsResponse
-)
+from typing import Optional
 
 router = APIRouter(prefix="/api/architect", tags=["Grace Architect"])
 
@@ -91,7 +86,6 @@ async def get_grace_patterns(
 ):
     """Get learned Grace patterns"""
     
-    from backend.grace_architect_agent import grace_architect
     from backend.models import async_session
     from backend.grace_architect_agent import GraceArchitectureKnowledge
     from sqlalchemy import select

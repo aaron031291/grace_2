@@ -6,7 +6,7 @@ using secrets workflow integration
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel
 
 from backend.services.remote_ingestion_service import remote_ingestion

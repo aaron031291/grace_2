@@ -4,7 +4,6 @@ Integrates with AWS using boto3 with S3, Lambda, EC2 operations.
 All operations governed and verified with cost tracking.
 """
 
-import hashlib
 import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime

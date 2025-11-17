@@ -8,7 +8,6 @@ import base64
 import json
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from pathlib import Path
 
 class RemoteVisionCapture:
     """

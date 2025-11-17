@@ -12,10 +12,10 @@ import time
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 import logging
 
-from .diagnostics_collector import create_collector, ConsistencyVerification
+from .diagnostics_collector import create_collector
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +151,7 @@ class IndustryChaosRunner:
     async def _ensure_core_running(self):
         """Ensure core is running"""
         try:
-            from backend.core import message_bus, immutable_log, control_plane
+            from backend.core import message_bus, control_plane
             
             if not message_bus.running:
                 await message_bus.start()
@@ -345,7 +345,6 @@ class IndustryChaosRunner:
     
     async def _fault_total_snapshot_corruption(self, params: Dict, incident: IndustryChaosIncident):
         """Corrupt all snapshot directories"""
-        import shutil
         
         targets = params.get('targets', [])
         

@@ -3,14 +3,11 @@ Proactive Chat System - Grace initiates conversations
 Grace can send notifications, ask questions, discuss ideas
 """
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List, Dict, Any
 import asyncio
 import json
 from datetime import datetime
-from ..auth import get_current_user
-from ..models import async_session
-from sqlalchemy import select, desc
 from ..base_models import Base
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 

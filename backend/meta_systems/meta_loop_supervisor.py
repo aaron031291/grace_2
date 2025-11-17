@@ -8,16 +8,14 @@ continuously improves her own decision-making across all domains.
 """
 
 import asyncio
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from collections import defaultdict
-import json
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
-from .unified_logger import unified_logger
 
 
 class DirectiveType(Enum):

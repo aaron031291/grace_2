@@ -4,7 +4,6 @@ Detects when Grace has exhausted all free sources and needs Amp API as last reso
 Tracks what sources were tried and makes cost-effective decisions
 """
 
-import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
@@ -14,7 +13,6 @@ from .github_knowledge_miner import github_miner
 from .youtube_learning import youtube_learning
 from .reddit_learning import reddit_learning
 from .amp_api_integration import amp_api_integration
-from .unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 

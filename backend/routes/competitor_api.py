@@ -5,7 +5,7 @@ Monitor and analyze competitor marketing campaigns
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List
 from datetime import datetime
 import logging
 

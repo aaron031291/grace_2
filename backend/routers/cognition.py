@@ -12,7 +12,7 @@ try:
 except ImportError:
     # Fallback for different import contexts
     from backend.cognition_metrics import get_metrics_engine
-    from backend.metrics_service import get_metrics_collector, publish_metric
+    from backend.metrics_service import get_metrics_collector
 
 router = APIRouter(prefix="/api/cognition", tags=["cognition"])
 

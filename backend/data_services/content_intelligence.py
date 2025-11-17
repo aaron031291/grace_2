@@ -4,10 +4,8 @@ Provides duplicate detection, drift analysis, quality scoring, and recommendatio
 """
 
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
-import json
-from difflib import SequenceMatcher
 from pathlib import Path
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event

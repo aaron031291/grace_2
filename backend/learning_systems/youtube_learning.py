@@ -10,7 +10,6 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
 import re
-import json
 
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
 

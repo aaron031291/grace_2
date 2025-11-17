@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
 from collections import deque
-import asyncio
 
 @dataclass
 class DomainMetrics:

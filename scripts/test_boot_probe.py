@@ -72,9 +72,9 @@ def test_database_models():
     try:
         # Try different model locations
         try:
-            from backend.models.models import Base, engine
+            from backend.models.models import Base
         except ImportError:
-            from backend.misc.models import Base, engine
+            from backend.misc.models import Base
         
         try:
             from backend.misc.metrics_models import Base as MetricsBase

@@ -3,7 +3,7 @@ Intelligence Kernel - ML, Predictions & Causal Reasoning AI Agent
 Manages: ML, temporal reasoning, causal analysis, learning, meta-loop, cognition
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from datetime import datetime
 import asyncio
 import httpx

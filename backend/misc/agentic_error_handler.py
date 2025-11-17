@@ -9,13 +9,12 @@ Pipeline: Error Detected -> Problem Identified -> Action Planned -> Resolved/Fai
 
 import asyncio
 import traceback
-from typing import Optional, Dict, Any, Callable
+from typing import Dict, Any, Callable
 from datetime import datetime, timezone
 from functools import wraps
 from contextlib import asynccontextmanager
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
-from .autonomy_tiers import autonomy_manager
 
 
 class AgenticErrorHandler:

@@ -10,14 +10,11 @@ Flow:
 5. Learning → Outcome Tracking
 """
 
-import asyncio
-import os
-import json
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
-from backend.models.recording_models import RecordingSession, RecordingTranscript, RecordingAccess, ConsentRecord
+from backend.models.recording_models import RecordingSession, ConsentRecord
 from backend.models.base_models import async_session
 from backend.logging_utils import log_event
 from backend.core.message_bus import message_bus, MessagePriority

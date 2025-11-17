@@ -3,7 +3,7 @@ Code Healing API
 Monitor and control Grace's autonomous code fixing capabilities
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
 

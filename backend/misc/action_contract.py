@@ -18,7 +18,6 @@ import hashlib
 import json
 
 from sqlalchemy import Column, String, JSON, DateTime, Float, Boolean, Integer
-from sqlalchemy.orm import declarative_base
 
 from .models import Base
 from .immutable_log import immutable_log

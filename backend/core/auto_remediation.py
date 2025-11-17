@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from enum import Enum
 
-from backend.core.message_bus import message_bus, MessagePriority
+from backend.core.message_bus import message_bus
 from backend.core.intent_api import intent_api, Intent, IntentPriority
 from backend.logging_utils import log_event
 

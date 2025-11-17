@@ -3,9 +3,8 @@ Red-Team Chaos Drills - PRODUCTION
 Scheduled stress tests with adversarial prompts, malformed data, extreme loads
 """
 
-import asyncio
 import random
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

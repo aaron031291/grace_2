@@ -3,17 +3,15 @@ Grace Log Reader
 Grace's ability to read and understand her own logs and activity
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime, timedelta
 from sqlalchemy import select, desc, func
 import logging
 
 from .models import async_session
 from .healing_models import (
-    HealingAttempt, AgenticSpineLog, MetaLoopLog,
-    MLLearningLog, TriggerMeshLog, ShardLog, ParallelProcessLog
+    HealingAttempt, AgenticSpineLog, MLLearningLog, TriggerMeshLog, ShardLog
 )
-from .healing_analytics import healing_analytics
 
 logger = logging.getLogger(__name__)
 

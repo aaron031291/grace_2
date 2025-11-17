@@ -1,6 +1,5 @@
 from sqlalchemy import select
-from .models import Task, ChatMessage, async_session
-from datetime import datetime
+from .models import Task, async_session
 
 class LearningEngine:
     """Converts reflections into actionable tasks"""

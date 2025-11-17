@@ -13,7 +13,7 @@ Self-organizing, self-healing service mesh
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional
 from datetime import datetime
 from dataclasses import dataclass, field
 import httpx

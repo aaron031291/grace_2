@@ -6,13 +6,10 @@ Wires up: event persistence, async jobs, observability, notifications,
 aggregation, and log analytics.
 """
 
-from .event_persistence import event_persistence, ActionEvent
-from .async_jobs import async_job_queue
 from .approval_notifications import approval_notifications
 from .data_aggregation import data_aggregation
 from .immutable_log_analytics import immutable_log_analytics
 from .config_validator import validate_startup_config
-from .base_models import Base
 
 
 async def start_verification_systems():
@@ -33,11 +30,6 @@ async def start_verification_systems():
     print("[MODELS] Registering event persistence models...")
     try:
         # Import to ensure models are registered
-        import backend.event_persistence
-        import backend.action_contract
-        import backend.benchmarks
-        import backend.progression_tracker
-        import backend.self_heal.safe_hold
         print("  [OK] All verification models registered")
     except Exception as e:
         print(f"  [WARN] Model registration warning: {e}")

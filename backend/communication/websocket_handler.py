@@ -8,8 +8,6 @@ Provides real-time communication for:
 - Interactive commands
 """
 
-import asyncio
-import json
 import logging
 from typing import Dict, Set, Any, Optional
 from fastapi import WebSocket, WebSocketDisconnect

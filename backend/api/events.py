@@ -4,7 +4,7 @@ Real-time event streaming and history
 """
 
 from fastapi import APIRouter, Query
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 router = APIRouter(prefix="/events", tags=["Events"])
 

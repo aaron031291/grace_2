@@ -11,7 +11,7 @@ Uses asyncio for true concurrency with proper resource management.
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum

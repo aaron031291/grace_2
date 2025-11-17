@@ -2,7 +2,6 @@
 
 import asyncio
 import sys
-from datetime import datetime
 from sqlalchemy import select
 from models import async_session
 from ml_models_table import MLModel

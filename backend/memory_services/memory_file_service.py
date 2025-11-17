@@ -5,11 +5,10 @@ Handles file operations for Grace memory workspace
 """
 
 import asyncio
-import json
 import base64
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)

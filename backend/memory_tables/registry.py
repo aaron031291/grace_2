@@ -12,8 +12,7 @@ from sqlalchemy import Column, JSON
 from datetime import datetime
 import uuid
 from sqlmodel import SQLModel, Field, create_engine, Session, select
-from sqlalchemy import Column, DateTime, JSON, Text, Float, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, JSON
 
 logger = logging.getLogger(__name__)
 

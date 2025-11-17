@@ -7,14 +7,11 @@ NOT simulated - actually generates real code
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Dict, Any
 import logging
 
 from .message_bus import message_bus, MessagePriority
-from .immutable_log import immutable_log
 from .kernel_sdk import KernelSDK
-from .schemas import MessageType
 
 logger = logging.getLogger(__name__)
 

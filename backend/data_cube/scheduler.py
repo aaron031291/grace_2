@@ -4,7 +4,6 @@ Data Cube ETL Scheduler
 Runs incremental ETL jobs on a schedule to keep cube fresh.
 """
 
-import asyncio
 
 # Conditional import for apscheduler
 try:

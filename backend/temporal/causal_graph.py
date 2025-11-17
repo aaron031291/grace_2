@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set, Tuple, Any, TYPE_CHECKING
+from typing import Dict, List, Optional, Tuple, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
@@ -6,7 +6,7 @@ from sqlalchemy import select, and_
 import math
 
 if TYPE_CHECKING:
-    from .models import CausalEvent, ChatMessage, Task
+    pass
 
 def _get_models():
     """Lazy import to avoid circular dependency"""

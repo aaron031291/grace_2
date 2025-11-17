@@ -4,7 +4,7 @@ Tracks every verified error to adjust model trust scores dynamically
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List
 from datetime import datetime
 from enum import Enum
 import json

@@ -6,9 +6,8 @@ Validates secrets, feature flags, and environment configs continuously
 import asyncio
 import logging
 import os
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
-import json
 
 from backend.logging.immutable_log import immutable_log
 

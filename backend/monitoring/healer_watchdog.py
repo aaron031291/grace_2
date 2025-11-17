@@ -20,8 +20,8 @@ Scenarios:
 """
 
 import asyncio
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)

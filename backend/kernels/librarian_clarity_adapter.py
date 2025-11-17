@@ -3,10 +3,9 @@ Librarian Clarity Framework Adapter
 Wraps LibrarianKernel as a BaseComponent for orchestrator integration
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict
 from datetime import datetime
 import logging
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

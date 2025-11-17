@@ -3,11 +3,8 @@ Multimodal Content Processors
 Real implementations for PDF, audio, images, video processing
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from pathlib import Path
-import json
-import base64
-from datetime import datetime
 
 
 class PDFProcessor:

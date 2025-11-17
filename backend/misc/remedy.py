@@ -1,6 +1,5 @@
 import json
 import re
-from typing import Optional, Dict
 from .issue_models import IssueReport
 from .models import async_session
 from datetime import datetime

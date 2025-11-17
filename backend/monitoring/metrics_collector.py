@@ -10,12 +10,11 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 import logging
 import psutil
-from sqlalchemy import select, func, text
+from sqlalchemy import text
 
 from .telemetry_schemas import (
-    MetricEvent, MetricsSnapshot, MetricCatalogEntry, 
-    MetricResource, MetricStats, MetricBandCounts, 
-    DerivedAction, MetricBand, MetricUnit
+    MetricEvent, MetricCatalogEntry, 
+    MetricResource, MetricBand, MetricUnit
 )
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .models import async_session
@@ -128,7 +127,6 @@ class MetricsCollector:
         try:
             async with async_session() as session:
                 # Queue depth - count pending tasks
-                from .base_models import Base
                 try:
                     # Try to query execution_tasks table if it exists
                     result = await session.execute(

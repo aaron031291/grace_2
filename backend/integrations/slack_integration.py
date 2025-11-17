@@ -1,10 +1,8 @@
 """Slack integration for Grace notifications and alerts"""
 
-import asyncio
-import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
-from backend.trigger_mesh import trigger_mesh, TriggerEvent
+from backend.trigger_mesh import TriggerEvent
 
 
 class SlackIntegration:

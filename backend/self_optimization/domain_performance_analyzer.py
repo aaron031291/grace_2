@@ -13,12 +13,10 @@ Integrates with:
 - Service Mesh (for telemetry data)
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from dataclasses import dataclass, field
-from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -476,7 +474,7 @@ class DomainPerformanceAnalyzer:
             result = await self._execute_tuning_action(action)
             
             # Record outcome
-            from backend.services.closed_loop_learning import capture_execution_outcome, OutcomeType
+            from backend.services.closed_loop_learning import capture_execution_outcome
             
             await capture_execution_outcome(
                 task_description=action["action"],
@@ -538,7 +536,6 @@ class DomainPerformanceAnalyzer:
     async def _update_model_preference(self, domain_id: str, preference: str) -> Dict[str, Any]:
         """Update model selection preference for domain"""
         try:
-            from backend.model_capability_system import capability_system
             
             # Update preference in capability system
             logger.info(f"[PERF-ANALYZER] Updating {domain_id} to prefer {preference} models")

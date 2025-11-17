@@ -2,10 +2,8 @@
 Grace Co-Pilot Engine
 Context-aware AI assistance for Memory Workspace
 """
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any, List
 
 logger = logging.getLogger(__name__)
 

@@ -5,15 +5,11 @@ All background tasks run on schedule without manual triggers
 """
 
 import asyncio
-from typing import Dict, List, Any
-from datetime import datetime
 import logging
-from pathlib import Path
 
 from .grace_control_center import grace_control, SystemState
 from .research_sweeper import research_sweeper
 from .autonomous_improvement_workflow import autonomous_improvement
-from .unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 

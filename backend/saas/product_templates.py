@@ -4,7 +4,7 @@ Template system for rapid SaaS product instantiation
 """
 
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 

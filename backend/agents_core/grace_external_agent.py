@@ -6,7 +6,7 @@ Grace's needs, with Parliament voting for major operations.
 
 import asyncio
 import json
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from .external_apis.github_connector import GitHubClient

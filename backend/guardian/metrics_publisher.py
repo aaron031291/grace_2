@@ -5,8 +5,6 @@ Publish Guardian and OSI probe metrics to cognition system
 
 import asyncio
 import logging
-from typing import Dict, Any
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 

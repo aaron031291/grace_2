@@ -6,9 +6,9 @@ Bootstraps Grace with curated AI/ML/LLM expertise before live learning.
 
 import asyncio
 import json
-from typing import List, Dict, Optional
+from typing import List, Dict
 from datetime import datetime
-from .knowledge_models import KnowledgeEntity, KnowledgeRelation, KnowledgeSource
+from .knowledge_models import KnowledgeEntity, KnowledgeSource
 from .base_models import async_session
 from .immutable_log import ImmutableLog
 

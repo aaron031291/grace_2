@@ -5,7 +5,7 @@ Routes all Layer 3 intents through Unified Logic with autonomy tier checks
 Integrates with Phase 1 Charter to enforce mission priorities
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 import logging

@@ -3,7 +3,6 @@ Cognition Alert System
 Sends notifications when benchmarks cross thresholds or SaaS readiness achieved
 """
 
-import asyncio
 import logging
 from typing import Dict, Any, List
 from datetime import datetime

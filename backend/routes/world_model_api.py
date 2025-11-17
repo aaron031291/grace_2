@@ -3,7 +3,7 @@ World Model API
 Grace's internal knowledge accessible via REST and MCP
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 

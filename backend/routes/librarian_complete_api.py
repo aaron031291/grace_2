@@ -4,7 +4,7 @@ Includes: status, schema proposals, file operations, logs
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 
 router = APIRouter()

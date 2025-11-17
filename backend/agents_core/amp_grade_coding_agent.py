@@ -10,19 +10,17 @@ Integrates:
 Safe autonomous coding with 15 OSS models.
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
-from pathlib import Path
 
 from .source_graph import get_source_graph
 from .model_adapter_registry import get_model_registry, ModelCapability
-from .autonomy_gates import get_autonomy_gatekeeper, AutonomyTier
+from .autonomy_gates import get_autonomy_gatekeeper
 from .audit_loop import get_audit_loop
 from .grace_policies import get_grace_policy_engine
 from .grace_test_bundles import get_grace_test_registry
-from .grace_clarity_integration import get_clarity_integration, FiveWOneH
+from .grace_clarity_integration import get_clarity_integration
 from backend.constitutional.grace_charter import get_grace_charter
 from backend.constitutional.mission_planner import get_mission_planner
 

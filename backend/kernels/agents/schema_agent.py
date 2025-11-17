@@ -3,7 +3,7 @@ Schema Agent - Proposes and validates schema changes for new content types
 Handles: schema inference, validation, unified logic routing
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any
 from datetime import datetime
 import json
 

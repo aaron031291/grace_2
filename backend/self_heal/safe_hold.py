@@ -12,14 +12,13 @@ Enables one-click rollback to last known-good state when actions fail.
 
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from pathlib import Path
 import json
 import hashlib
 import shutil
 
 from sqlalchemy import Column, String, JSON, DateTime, Boolean, Integer, text
-from sqlalchemy.orm import declarative_base
 
 from ..models import Base, async_session
 from ..immutable_log import immutable_log

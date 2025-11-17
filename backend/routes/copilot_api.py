@@ -2,11 +2,10 @@
 Co-Pilot API - Grace's interactive AI assistant backend
 Handles chat, notifications, voice input, file uploads, and action execution
 """
-from fastapi import APIRouter, HTTPException, UploadFile, File
-from typing import Dict, List, Any, Optional
+from fastapi import APIRouter, UploadFile, File
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 from datetime import datetime
-import asyncio
 
 router = APIRouter(prefix="/api/copilot", tags=["copilot"])
 

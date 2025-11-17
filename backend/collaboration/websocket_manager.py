@@ -5,9 +5,8 @@ Real-time presence, notifications, and activity tracking
 import asyncio
 import logging
 from typing import Dict, Set, Any
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from datetime import datetime
-import json
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,6 @@ Provides user-friendly endpoints for:
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from typing import Optional
 from pydantic import BaseModel
 
 from backend.services.voice_notes_pipeline import voice_notes_pipeline

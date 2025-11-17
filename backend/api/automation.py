@@ -3,9 +3,9 @@ Automation API
 Manage automation rules and triggers
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 router = APIRouter(prefix="/automation", tags=["Automation"])

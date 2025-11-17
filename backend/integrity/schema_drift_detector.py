@@ -5,10 +5,9 @@ Compares ORM models against live database schema and auto-heals drift
 
 import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
-from sqlalchemy import inspect, text, MetaData
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy import text
 
 from backend.models.base_models import engine, Base
 from backend.logging.immutable_log import immutable_log

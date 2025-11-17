@@ -3,12 +3,10 @@ Ahead-of-User Research Loop - PRODUCTION
 Proactively fetches and stages research when topic crosses seriousness threshold
 """
 
-import asyncio
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import deque
-import numpy as np
 import json
 from pathlib import Path
 

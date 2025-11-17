@@ -3,11 +3,9 @@ Knowledge + Application Loop
 Grace's complete learn-test-apply cycle with sandbox validation
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +54,6 @@ class KnowledgeApplicationLoop:
         """
         from backend.agents.creative_problem_solver import creative_problem_solver
         from backend.agents.autonomous_web_navigator import autonomous_web_navigator
-        from backend.knowledge.knowledge_application_sandbox import knowledge_sandbox
         from backend.services.closed_loop_learning import closed_loop_learning
         
         cycle_report = {

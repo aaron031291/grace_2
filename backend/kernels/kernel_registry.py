@@ -3,9 +3,8 @@ Kernel Registry - Central Hub for All Grace Kernels
 Integrates both domain kernels and clarity framework kernels
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
-import asyncio
 
 # Import all working kernels
 from .core_kernel import core_kernel

@@ -12,7 +12,6 @@ from typing import Dict, Optional, Callable, Any
 from enum import Enum
 
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.core.kernel_sdk import KernelSDK
 
 
 class RestartReason(str, Enum):

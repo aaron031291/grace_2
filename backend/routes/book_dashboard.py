@@ -4,8 +4,7 @@ Book Dashboard API - Monitoring and metrics for book ingestion
 
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, List
-from datetime import datetime, timedelta
-import json
+from datetime import datetime
 
 from backend.memory_tables.registry import table_registry
 from backend.clarity import get_event_bus

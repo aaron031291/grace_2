@@ -15,7 +15,7 @@ Endpoints:
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from pydantic import BaseModel
 
 from ..auth import get_current_user

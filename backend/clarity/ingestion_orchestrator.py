@@ -7,7 +7,6 @@ Manages all ingestion pipelines using Clarity Framework
 import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from pathlib import Path
 
 from .base_component import BaseComponent, ComponentStatus
 from .event_bus import get_event_bus, Event

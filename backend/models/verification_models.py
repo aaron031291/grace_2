@@ -1,8 +1,6 @@
 from datetime import datetime
 from backend.models.base_models import Base
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Integer
-from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
 class RegisteredDevice(Base):

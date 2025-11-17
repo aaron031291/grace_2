@@ -6,7 +6,7 @@ Extracts features from files for schema inference and table population
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 import mimetypes
 
 logger = logging.getLogger(__name__)

@@ -14,14 +14,10 @@ This is the pilot for expanding to screen/video recordings.
 """
 
 import asyncio
-from pathlib import Path
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timezone
+from typing import Dict, Any, Optional
 
 from backend.services.recording_service import recording_service, RecordingType
-from backend.services.embedding_service import embedding_service
-from backend.services.vector_store import vector_store
-from backend.core.message_bus import message_bus, MessagePriority
+from backend.core.message_bus import message_bus
 from backend.logging_utils import log_event
 
 

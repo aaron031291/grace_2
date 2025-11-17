@@ -11,14 +11,13 @@ Responsibilities:
 """
 
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List, Any
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 import logging
 
 from .message_bus import message_bus, MessagePriority
-from .schemas import MessageType, create_kernel_message, KernelStatusPayload, TrustLevel
 
 logger = logging.getLogger(__name__)
 
@@ -585,7 +584,6 @@ class ControlPlane:
         - Live error feeds
         - Predictive failures
         """
-        import os
         from pathlib import Path
         
         print("  [SCAN] Comprehensive auto-scan (360-degree triggers)...")

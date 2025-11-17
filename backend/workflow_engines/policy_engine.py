@@ -5,9 +5,8 @@ Declarative policy engine for Grace's autonomy decisions.
 Replaces static tier rules with live, versioned policies.
 """
 
-import json
 import yaml
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 from datetime import datetime, timezone
 from pathlib import Path
 from dataclasses import dataclass

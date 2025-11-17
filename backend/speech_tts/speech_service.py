@@ -2,7 +2,6 @@
 
 import asyncio
 import hashlib
-import os
 import uuid
 from pathlib import Path
 from datetime import datetime
@@ -11,7 +10,7 @@ import aiofiles
 
 from sqlalchemy import select, update
 from .models import async_session
-from .speech_models import SpeechMessage, TextToSpeechMessage, SpeechSession, AudioQuality
+from .speech_models import SpeechMessage
 from .verification import VerificationEngine
 from .governance import GovernanceEngine
 from .hunter import HunterEngine

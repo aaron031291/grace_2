@@ -14,9 +14,9 @@ Features:
 
 import logging
 import asyncio
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import base64
 import hashlib
 import json
@@ -27,7 +27,6 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 )
 from cryptography.hazmat.primitives import serialization
 
-from backend.models.base_models import async_session
 from backend.logging.immutable_log import immutable_log
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 
@@ -411,7 +410,7 @@ class CryptoKeyManager:
     async def _load_keys_from_database(self):
         """Load existing keys from database - IMPLEMENTED"""
         try:
-            from backend.models.crypto_models import CryptoKeyStore, ComponentCryptoIdentity
+            from backend.models.crypto_models import CryptoKeyStore
             from backend.models.base_models import async_session
             from sqlalchemy import select
             
@@ -532,7 +531,6 @@ class CryptoKeyManager:
         """Encrypt private key using Fernet (symmetric encryption)"""
         try:
             from cryptography.fernet import Fernet
-            import os
             
             # Get or create master encryption key
             master_key = self._get_master_key()

@@ -9,7 +9,6 @@ from pathlib import Path
 import json
 import logging
 
-from .unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 

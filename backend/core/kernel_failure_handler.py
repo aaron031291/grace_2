@@ -381,7 +381,6 @@ class KernelFailureHandler:
         self.stats["replica_failovers"] += 1
         
         try:
-            from backend.core.fleet_manager import fleet_manager
             
             # Get healthy replica
             # replica_id = await fleet_manager.get_healthy_replica(kernel_name)

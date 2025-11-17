@@ -3,8 +3,8 @@ Agent Timeline API
 Track autonomous runs, steps, and provide correlation for logs
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import sqlite3

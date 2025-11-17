@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from ..auth import get_current_user
 from ..evaluation import confidence_evaluator
-from ..schemas_extended import EvaluateResponse
 
 router = APIRouter(prefix="/api/evaluation", tags=["evaluation"])
 

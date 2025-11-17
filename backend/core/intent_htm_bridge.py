@@ -21,8 +21,7 @@ Architecture:
 
 import asyncio
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
-from dataclasses import dataclass
+from typing import Dict, Any
 
 from backend.core.intent_api import IntentAPI, Intent, IntentStatus, IntentOutcome, IntentRecord
 from backend.core.message_bus import message_bus, MessagePriority

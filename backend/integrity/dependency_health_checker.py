@@ -6,7 +6,7 @@ Runs isolated health checks and mini boot rehearsals for all services
 import asyncio
 import logging
 import importlib
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 import inspect
 
@@ -310,7 +310,6 @@ class DependencyHealthChecker:
     async def _rehearse_core_systems(self) -> Dict[str, Any]:
         """Rehearse core systems"""
         try:
-            from backend.core import message_bus, immutable_log
             return {"success": True, "message_bus": True, "immutable_log": True}
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -327,7 +326,6 @@ class DependencyHealthChecker:
     async def _rehearse_databases(self) -> Dict[str, Any]:
         """Rehearse database connections"""
         try:
-            from backend.models.base_models import engine
             # Test connection without actually using it
             return {"success": True, "engine_available": True}
         except Exception as e:

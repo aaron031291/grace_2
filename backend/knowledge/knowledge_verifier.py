@@ -4,11 +4,9 @@ Uses Amp API to verify knowledge from free sources is correct
 Builds validated source library and learns which sources are reliable via ML/DL
 """
 
-import asyncio
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
 import logging
-import hashlib
 
 from .amp_api_integration import amp_api_integration
 from .governance_framework import governance_framework

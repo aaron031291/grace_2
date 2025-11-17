@@ -3,7 +3,6 @@ Activation API - Trigger GRACE's autonomous activities
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -44,7 +43,6 @@ async def activate_learning(request: LearningRequest):
 async def activate_self_improvement():
     """Trigger autonomous improvement cycle"""
     
-    from ..autonomous_improver import autonomous_improver
     
     try:
         # Trigger improvement scan
@@ -63,7 +61,6 @@ async def activate_self_improvement():
 async def trigger_forecast():
     """Trigger immediate forecast cycle"""
     
-    from ..forecast_scheduler import forecast_scheduler
     from ..temporal_forecasting import temporal_forecaster, ForecastRequest
     
     try:

@@ -7,12 +7,6 @@ import json
 from ..auth import get_current_user
 from ..models import Goal, async_session
 from ..goal_models import GoalDependency, GoalEvaluation
-from ..schemas_extended import (
-    GoalCriteriaResponse,
-    GoalDependencyResponse,
-    GoalGraphResponse,
-    GoalEvaluationResponse
-)
 
 router = APIRouter(prefix="/api/goals", tags=["goals"])
 

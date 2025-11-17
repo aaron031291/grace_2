@@ -10,7 +10,6 @@ Features:
 - No human review for known signatures
 """
 
-import asyncio
 import json
 import hashlib
 import logging
@@ -215,7 +214,6 @@ class ErrorRecognitionSystem:
         """Check config file changes"""
         
         try:
-            from ..triggers import config_drift_trigger
             
             # Would check config changes here
             return []

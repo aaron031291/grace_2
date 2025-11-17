@@ -5,7 +5,7 @@ Endpoints for managing ingestion workflows
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from ..auth import get_current_user
 from ..ingestion_pipeline import get_ingestion_pipeline, IngestionMetrics
 

@@ -3,9 +3,8 @@ Competitor Campaign Tracker
 Monitors competitor marketing campaigns, extracts winning patterns
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 from datetime import datetime
 import yaml
 from pathlib import Path
