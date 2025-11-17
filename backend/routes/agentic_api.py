@@ -258,3 +258,39 @@ async def get_trace(trace_id: str) -> Dict[str, Any]:
         "total_actions": len(actions),
         "total_reflections": len(reflections)
     }
+
+@router.post("/skills/execute")
+async def execute_skill(
+    skill_name: str,
+    agent: str = "ui",
+    params: Dict[str, Any] = {}
+) -> Dict[str, Any]:
+    """
+    Execute a skill and return the result with trace_id
+    
+    Args:
+        skill_name: Name of the skill to execute
+        agent: Agent executing the skill (default: "ui")
+        params: Parameters for the skill
+    """
+    try:
+        result = await skill_registry.execute_skill(
+            skill_name=skill_name,
+            agent=agent,
+            params=params
+        )
+        
+        return {
+            "success": result.success,
+            "result": result.result,
+            "error": result.error,
+            "trace_id": result.trace_id,
+            "execution_time_ms": result.execution_time_ms,
+            "metadata": result.metadata
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "trace_id": None
+        }
