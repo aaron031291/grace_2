@@ -23,6 +23,7 @@ const capabilities: Array<{ id: Capability; icon: string; label: string }> = [
   { id: 'observatory', icon: '👁️', label: 'Observatory' },
   { id: 'memory', icon: '💾', label: 'Memory' },
   { id: 'terminal', icon: '⚡', label: 'Terminal' },
+  { id: 'agentic', icon: '🤖', label: 'Agentic Organism' },
 ];
 
 export function LeftSidebar({
