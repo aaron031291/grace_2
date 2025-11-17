@@ -8,20 +8,11 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 import uuid
 
-from backend.learning_systems.advanced_learning import advanced_learning_supervisor
-from backend.routes.operator_dashboard import router as operator_router
-from backend.routes.remote_access_api import router as remote_access_router
-from backend.routes.autonomous_learning_api import router as learning_router
-from backend.routes.mission_control_api import router as mission_control_router
-from backend.routes.auth import router as auth_router
-from backend.routes.learning_visibility_api import router as learning_visibility_router
-from backend.routes.port_manager_api import router as port_manager_router
-from backend.routes.guardian_api import router as guardian_router
-from backend.routes.ingest import router as ingest_router
-from backend.routes.vault_api import router as vault_router
-from backend.routes.memory_api import router as memory_router
-from backend.routes.chat import router as chat_router
-from backend.routes.learning_control_api import router as learning_control_router
+try:
+    from backend.learning_systems.advanced_learning import advanced_learning_supervisor
+except ImportError as e:
+    print(f"[WARN] Advanced learning system unavailable: {e}")
+    advanced_learning_supervisor = None
 from fastapi import HTTPException, status
 from pydantic import BaseModel, constr
 from datetime import timedelta
@@ -41,44 +32,84 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register operator dashboard
-app.include_router(operator_router)
+# Register core routers with resilience
+try:
+    from backend.routes.operator_dashboard import router as operator_router
+    app.include_router(operator_router)
+except ImportError as e:
+    print(f"[WARN] Operator dashboard disabled: {e}")
 
-# Register remote access (zero-trust secure remote sessions)
-app.include_router(remote_access_router)
+try:
+    from backend.routes.remote_access_api import router as remote_access_router
+    app.include_router(remote_access_router)
+except ImportError as e:
+    print(f"[WARN] Remote access disabled: {e}")
 
-# Register autonomous learning
-app.include_router(learning_router)
+try:
+    from backend.routes.autonomous_learning_api import router as learning_router
+    app.include_router(learning_router)
+except ImportError as e:
+    print(f"[WARN] Autonomous learning API disabled: {e}")
 
-# Register mission control
-app.include_router(mission_control_router)
+try:
+    from backend.routes.mission_control_api import router as mission_control_router
+    app.include_router(mission_control_router)
+except ImportError as e:
+    print(f"[WARN] Mission control disabled: {e}")
 
-# Register auth routes
-app.include_router(auth_router)
+try:
+    from backend.routes.auth import router as auth_router
+    app.include_router(auth_router)
+except ImportError as e:
+    print(f"[WARN] Auth routes disabled: {e}")
 
-# Register port manager
-app.include_router(port_manager_router)
+try:
+    from backend.routes.port_manager_api import router as port_manager_router
+    app.include_router(port_manager_router)
+except ImportError as e:
+    print(f"[WARN] Port manager disabled: {e}")
 
-# Register Guardian (unified system protection)
-app.include_router(guardian_router)
+try:
+    from backend.routes.guardian_api import router as guardian_router
+    app.include_router(guardian_router)
+except ImportError as e:
+    print(f"[WARN] Guardian API disabled: {e}")
 
-# Register learning visibility & tracking
-app.include_router(learning_visibility_router)
+try:
+    from backend.routes.learning_visibility_api import router as learning_visibility_router
+    app.include_router(learning_visibility_router)
+except ImportError as e:
+    print(f"[WARN] Learning visibility disabled: {e}")
 
-# Register ingestion API
-app.include_router(ingest_router)
+try:
+    from backend.routes.ingest import router as ingest_router
+    app.include_router(ingest_router)
+except ImportError as e:
+    print(f"[WARN] Ingestion API disabled: {e}")
 
-# Register vault API (secrets management)
-app.include_router(vault_router)
+try:
+    from backend.routes.vault_api import router as vault_router
+    app.include_router(vault_router)
+except ImportError as e:
+    print(f"[WARN] Vault API disabled: {e}")
 
-# Register memory API (files, tables, schemas)
-app.include_router(memory_router)
+try:
+    from backend.routes.memory_api import router as memory_router
+    app.include_router(memory_router)
+except ImportError as e:
+    print(f"[WARN] Memory API disabled: {e}")
 
-# Register chat API
-app.include_router(chat_router)
+try:
+    from backend.routes.chat import router as chat_router
+    app.include_router(chat_router)
+except ImportError as e:
+    print(f"[WARN] Chat API disabled: {e}")
 
-# Register learning control (whitelist, HTM tasks, outcomes)
-app.include_router(learning_control_router)
+try:
+    from backend.routes.learning_control_api import router as learning_control_router
+    app.include_router(learning_control_router)
+except ImportError as e:
+    print(f"[WARN] Learning control disabled: {e}")
 
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:
@@ -273,7 +304,11 @@ async def startup_unified_llm():
 @app.on_event("startup")
 async def startup_advanced_learning():
     """Starts the advanced learning supervisor and its sub-agents."""
-    advanced_learning_supervisor.start()
+    if advanced_learning_supervisor:
+        try:
+            advanced_learning_supervisor.start()
+        except Exception as e:
+            print(f"[WARN] Advanced learning supervisor failed to start: {e}")
     
     # Initialize self-heal runner for learning capture
     try:
@@ -387,7 +422,11 @@ async def startup_advanced_learning():
 @app.on_event("shutdown")
 async def shutdown_advanced_learning():
     """Stops the advanced learning agents gracefully."""
-    advanced_learning_supervisor.stop()
+    if advanced_learning_supervisor:
+        try:
+            advanced_learning_supervisor.stop()
+        except Exception as e:
+            print(f"[WARN] Advanced learning supervisor failed to stop: {e}")
     
     # Stop self-heal runner
     try:

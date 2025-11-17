@@ -21,3 +21,10 @@ requests
 alembic
 psycopg2-binary
 websockets
+aiosqlite
+beautifulsoup4
+pyyaml
+watchdog
+docker
+lxml
+torch
