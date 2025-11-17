@@ -633,4 +633,4 @@ class IngestionQualityMetrics:
 deterministic_chunker_production = DeterministicChunker()
 content_deduplicator_production = ContentDeduplicator()
 pii_scrubber_production = PIIScrubber()
-ingestion_quality_metrics_production = IngestionQualityMetrics()</code></edit_file>
+ingestion_quality_metrics_production = IngestionQualityMetrics()
