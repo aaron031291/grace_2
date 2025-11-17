@@ -1,4 +1,4 @@
-import { Workspace } from '../../GraceEnterpriseUI';
+import type { Workspace } from '../../GraceEnterpriseUI';
 import './WorkspaceCommon.css';
 
 interface ObservatoryWorkspaceProps {
