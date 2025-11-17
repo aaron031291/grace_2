@@ -14,6 +14,7 @@ import { MemoryWorkspace } from './components/workspaces/MemoryWorkspace';
 import { ObservatoryWorkspace } from './components/workspaces/ObservatoryWorkspace';
 import { TerminalWorkspace } from './components/workspaces/TerminalWorkspace';
 import { AgenticWorkspace } from './components/workspaces/AgenticWorkspace';
+import { WorldModelHub } from './components/workspaces/WorldModelHub';
 import './GraceEnterpriseUI.css';
 
 export type Capability = 
@@ -178,6 +179,26 @@ export default function GraceEnterpriseUI() {
           return <ObservatoryWorkspace workspace={activeWorkspace} />;
         case 'terminal':
           return <TerminalWorkspace workspace={activeWorkspace} />;
+        case 'world-model':
+          return <WorldModelHub workspace={activeWorkspace} onShowTrace={(traceId) => {
+            fetch(`http://localhost:8054/api/world_model_hub/trace/${traceId}`)
+              .then(res => res.json())
+              .then(data => {
+                setSelectedTrace({
+                  request_id: traceId,
+                  steps: data.events.map((e: any) => ({
+                    component: e.source,
+                    action: e.event_type,
+                    duration_ms: 0,
+                    result: e.data
+                  })),
+                  duration_ms: 0,
+                  data_sources_used: [],
+                  agents_involved: data.actions.map((a: any) => a.agent)
+                });
+                setExecutionTracePanelOpen(true);
+              });
+          }} />;
         case 'agentic':
           return <AgenticWorkspace workspace={activeWorkspace} onShowTrace={(traceId) => {
             fetch(`http://localhost:8054/api/agentic/trace/${traceId}`)
