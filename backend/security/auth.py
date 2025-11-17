@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import bcrypt
-from .models import User, async_session
+from backend.models import User, async_session
 from .settings import settings
 
 ALGORITHM = "HS256"

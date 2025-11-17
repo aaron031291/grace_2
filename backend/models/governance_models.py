@@ -39,6 +39,7 @@ class ApprovalRequest(Base):
 
 class SecurityEvent(Base):
     __tablename__ = "security_events"
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
     actor = Column(String(64))
     action = Column(String(128))
