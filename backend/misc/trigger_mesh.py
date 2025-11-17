@@ -129,7 +129,7 @@ async def setup_subscriptions():
             if event.event_type == "autonomy.plan_outcome":
                 success = bool(event.payload.get("success", False))
                 # Publish to metrics: use transcendence.task_success as proxy for plan success
-                from .metrics_service import publish_metric
+                from backend.metrics_service import publish_metric
                 await publish_metric(
                     "transcendence",
                     "task_success",

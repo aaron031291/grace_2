@@ -8,7 +8,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 try:
-    from .metrics_service import publish_metric, publish_batch
+    from backend.metrics_service import publish_metric, publish_batch
 except ImportError:
     from metrics_service import publish_metric, publish_batch
 
