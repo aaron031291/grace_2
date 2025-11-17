@@ -11306,7 +11306,631 @@
         "auto_fixable": true,
         "healing_playbook": "restart_service"
       }
+    },
+    {
+      "knowledge_id": "ee6892e0-e57",
+      "category": "self",
+      "content": "I am Grace, an autonomous AI system",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.030348",
+      "updated_at": "2025-11-17T10:26:35.030348",
+      "access_count": 0,
+      "tags": [
+        "identity",
+        "core"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "e40dc891-f77",
+      "category": "self",
+      "content": "I have 21 specialized AI models for different tasks",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.054927",
+      "updated_at": "2025-11-17T10:26:35.054927",
+      "access_count": 0,
+      "tags": [
+        "capabilities",
+        "models"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "042e5347-259",
+      "category": "self",
+      "content": "I use domain-based architecture with service mesh for reliability",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.072113",
+      "updated_at": "2025-11-17T10:26:35.072113",
+      "access_count": 0,
+      "tags": [
+        "architecture",
+        "design"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "9c2fd654-b2c",
+      "category": "self",
+      "content": "I have collective intelligence through shared memory across domains",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.089273",
+      "updated_at": "2025-11-17T10:26:35.089273",
+      "access_count": 0,
+      "tags": [
+        "intelligence",
+        "collaboration"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "40bab6f7-388",
+      "category": "self",
+      "content": "I can self-heal using network healing playbooks and Guardian",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.108370",
+      "updated_at": "2025-11-17T10:26:35.108370",
+      "access_count": 0,
+      "tags": [
+        "capabilities",
+        "healing"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "d1997e4d-9ce",
+      "category": "self",
+      "content": "I learn from every operation and improve continuously",
+      "confidence": 1.0,
+      "source": "self_reflection",
+      "learned_at": "2025-11-17T10:26:35.127005",
+      "updated_at": "2025-11-17T10:26:35.127005",
+      "access_count": 0,
+      "tags": [
+        "learning",
+        "improvement"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "509687b9-9d7",
+      "category": "system",
+      "content": "I currently have 0 active domains",
+      "confidence": 1.0,
+      "source": "domain_discovery",
+      "learned_at": "2025-11-17T10:26:35.145056",
+      "updated_at": "2025-11-17T10:26:35.145056",
+      "access_count": 0,
+      "tags": [
+        "domains",
+        "architecture"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "e65b3c03-47c",
+      "category": "system",
+      "content": "I have 20 kernel assignments",
+      "confidence": 1.0,
+      "source": "kernel_discovery",
+      "learned_at": "2025-11-17T10:26:35.164790",
+      "updated_at": "2025-11-17T10:26:35.164790",
+      "access_count": 0,
+      "tags": [
+        "kernels",
+        "architecture"
+      ],
+      "metadata": {}
+    },
+    {
+      "knowledge_id": "abbb3ee8-02d",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:26:39.595291",
+      "updated_at": "2025-11-17T10:26:39.595291",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "6b8362ce-797",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:26:42.794370",
+      "updated_at": "2025-11-17T10:26:42.794370",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "19e86431-f3b",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:26:45.562508",
+      "updated_at": "2025-11-17T10:26:45.562508",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "c42028f6-d1b",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:31:48.352117",
+      "updated_at": "2025-11-17T10:31:48.352117",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "4271b1d2-b73",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:31:51.139188",
+      "updated_at": "2025-11-17T10:31:51.139188",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "0aab6ce6-da6",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:31:53.943133",
+      "updated_at": "2025-11-17T10:31:53.943133",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "6a754f2c-d54",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:36:56.735538",
+      "updated_at": "2025-11-17T10:36:56.735538",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "5515dbc0-eb9",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:36:59.509870",
+      "updated_at": "2025-11-17T10:36:59.509870",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "56909858-36b",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:37:02.271819",
+      "updated_at": "2025-11-17T10:37:02.271819",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "0887fa88-403",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:42:05.025373",
+      "updated_at": "2025-11-17T10:42:05.025373",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "ac6126cb-e1b",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:42:07.793137",
+      "updated_at": "2025-11-17T10:42:07.793137",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "f5431571-854",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:42:10.539834",
+      "updated_at": "2025-11-17T10:42:10.539834",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "f4cd6e49-88e",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:47:13.306038",
+      "updated_at": "2025-11-17T10:47:13.306038",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "4867c775-710",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:47:16.084178",
+      "updated_at": "2025-11-17T10:47:16.084178",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "fef21af9-cc2",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:47:18.848110",
+      "updated_at": "2025-11-17T10:47:18.848110",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "f11c5012-e91",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:52:21.616764",
+      "updated_at": "2025-11-17T10:52:21.616764",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "b9ffa9c3-e8b",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:52:24.365590",
+      "updated_at": "2025-11-17T10:52:24.365590",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "9deb3c64-6fa",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:52:27.133375",
+      "updated_at": "2025-11-17T10:52:27.133375",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "21129ff4-f8b",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:57:29.959295",
+      "updated_at": "2025-11-17T10:57:29.959295",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "7f83bf51-ae3",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:57:32.767852",
+      "updated_at": "2025-11-17T10:57:32.767852",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "56d9b7ec-28b",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T10:57:35.583666",
+      "updated_at": "2025-11-17T10:57:35.583666",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "c22c3d05-f8a",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T11:02:38.431428",
+      "updated_at": "2025-11-17T11:02:38.431428",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "9941bee2-6c3",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T11:02:41.286109",
+      "updated_at": "2025-11-17T11:02:41.286109",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "b9832594-d70",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-17T11:02:44.103266",
+      "updated_at": "2025-11-17T11:02:44.103266",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     }
   ],
-  "saved_at": "2025-11-17T10:21:00.111916"
+  "saved_at": "2025-11-17T11:02:44.104265"
 }
