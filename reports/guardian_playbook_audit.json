@@ -1,0 +1,77 @@
+{
+  "audit_timestamp": "2025-11-17T16:30:52.159205",
+  "total_playbooks": 5,
+  "playbooks": [
+    {
+      "id": "guardrail_bypassed",
+      "name": "Guardrail Bypassed",
+      "description": "Security guardrail was bypassed",
+      "trigger_pattern": "guardrail.*bypass|security.*violation",
+      "priority": 10,
+      "max_retries": 1,
+      "requires_approval": false,
+      "executions": 0,
+      "successes": 0,
+      "failures": 0,
+      "has_remediation_function": true,
+      "issues": []
+    },
+    {
+      "id": "module_not_found",
+      "name": "Module Not Found",
+      "description": "Python module import failed",
+      "trigger_pattern": "No module named|ModuleNotFoundError",
+      "priority": 6,
+      "max_retries": 1,
+      "requires_approval": false,
+      "executions": 0,
+      "successes": 0,
+      "failures": 0,
+      "has_remediation_function": true,
+      "issues": []
+    },
+    {
+      "id": "network_degradation",
+      "name": "Network Degradation",
+      "description": "Network performance degrading",
+      "trigger_pattern": "network.*degrad|TIME_WAIT|connection.*timeout",
+      "priority": 7,
+      "max_retries": 2,
+      "requires_approval": false,
+      "executions": 0,
+      "successes": 0,
+      "failures": 0,
+      "has_remediation_function": true,
+      "issues": []
+    },
+    {
+      "id": "port_not_responding",
+      "name": "Port Not Responding",
+      "description": "Service on port is not responding to health checks",
+      "trigger_pattern": "port.*not responding|port.*dead",
+      "priority": 8,
+      "max_retries": 2,
+      "requires_approval": false,
+      "executions": 0,
+      "successes": 0,
+      "failures": 0,
+      "has_remediation_function": true,
+      "issues": []
+    },
+    {
+      "id": "service_crashed",
+      "name": "Service Crashed",
+      "description": "A Grace service has crashed",
+      "trigger_pattern": "service.*crashed|process.*died|kernel.*failed",
+      "priority": 9,
+      "max_retries": 3,
+      "requires_approval": false,
+      "executions": 0,
+      "successes": 0,
+      "failures": 0,
+      "has_remediation_function": true,
+      "issues": []
+    }
+  ],
+  "issues": []
+}
