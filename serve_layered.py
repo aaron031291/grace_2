@@ -54,7 +54,8 @@ if __name__ == "__main__":
     
     if not boot_result:
         print("\n❌ Failed to boot Grace. Exiting.")
-        input("\nPress Enter to exit...")
+        if sys.stdin.isatty():
+            input("\nPress Enter to exit...")
         sys.exit(1)
     
     # Default port
