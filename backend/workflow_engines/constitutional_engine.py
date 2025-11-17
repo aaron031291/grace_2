@@ -6,7 +6,7 @@ behaves ethically, transparently, and safely with automatic clarification.
 
 import uuid
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import select
 
 from backend.models import async_session
