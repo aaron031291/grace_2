@@ -155,11 +155,24 @@ class GoogleSearchService:
         
         try:
             async with self.session.post(url, data=params, headers=headers) as response:
-                if response.status != 200:
+                # Accept both 200 and 202 status codes
+                if response.status not in [200, 202]:
                     logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo returned status {response.status}")
                     return []
                 
-                html = await response.text()
+                # For 202, wait a moment and retry if needed
+                if response.status == 202:
+                    logger.info(f"[GOOGLE-SEARCH] DuckDuckGo returned 202, retrying...")
+                    await asyncio.sleep(1)
+                    # Retry once
+                    async with self.session.post(url, data=params, headers=headers) as retry_response:
+                        if retry_response.status not in [200, 202]:
+                            logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo retry failed with status {retry_response.status}")
+                            return []
+                        html = await retry_response.text()
+                else:
+                    html = await response.text()
+                
                 soup = BeautifulSoup(html, 'html.parser')
                 
                 results = []
@@ -530,3 +543,4 @@ class GoogleSearchService:
 
 # Global instance
 google_search_service = GoogleSearchService()
+
