@@ -1,4 +1,3 @@
-import { apiUrl, WS_BASE_URL } from './config';
 /**
  * Frontend configuration
  * 
@@ -32,7 +31,7 @@ export const WS_BASE_URL =
   import.meta.env.VITE_WS_URL || 
   (typeof window !== 'undefined' 
     ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
-    : '${WS_BASE_URL}'
+    : 'ws://localhost:8000'
   );
 
 /**

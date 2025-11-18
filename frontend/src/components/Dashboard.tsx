@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 
 export function Dashboard() {
   const token = localStorage.getItem('token');

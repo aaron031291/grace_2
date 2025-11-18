@@ -1,4 +1,4 @@
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 /**
  * Factory Pattern API Client
  * Clean, type-safe API helpers for the new modular backend

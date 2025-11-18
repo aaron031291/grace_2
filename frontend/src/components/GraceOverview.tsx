@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { Activity, Book, FolderTree, CheckCircle, AlertCircle, TrendingUp, Clock, Zap } from 'lucide-react';
 
 interface SystemMetrics {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import type { ExecutionTrace } from '../GraceEnterpriseUI';
 import './ChatView.css';
 

@@ -3,7 +3,7 @@
  */
 
 import { useState, type FormEvent } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import { ModelIndicator } from '../components/ModelIndicator';
 

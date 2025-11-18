@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 
 export function KnowledgeIngestion() {
   const token = localStorage.getItem('token');

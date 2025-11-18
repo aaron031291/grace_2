@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { FolderTree, Undo, Redo, CheckCircle, AlertTriangle, Folder, FileText, Move, Trash2 } from 'lucide-react';
 
 interface FileOperation {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../../config';
 import type { Workspace } from '../../GraceEnterpriseUI';
 import { orbApi, type OrbSession } from '../../lib/orbApi';
 import BuildProgressCard from '../BuildProgressCard';

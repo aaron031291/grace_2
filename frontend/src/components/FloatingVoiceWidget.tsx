@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { Mic, MicOff, Volume2, VolumeX, X, Maximize2, Minimize2, MessageCircle } from 'lucide-react';
 import axios from 'axios';
 

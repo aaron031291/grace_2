@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import { SecurityRulesList } from './SecurityRulesList';
 import './HunterDashboard.css';

@@ -5,7 +5,7 @@
  * Links each intent to the HTM tasks generated below
  */
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import './Layer3IntentLearning.css';
 

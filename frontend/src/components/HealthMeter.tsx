@@ -107,24 +107,24 @@ export const HealthMeter: React.FC = () => {
         <h3>🏥 System Health</h3>
         <div
           className="status-indicator"
-          style={{ backgroundColor: getStatusColor(metrics.system_status) }}
+          style={{ backgroundColor: getStatusColor(metrics.system_status || 'operational') }}
         >
-          {metrics.system_status}
+          {metrics.system_status || 'operational'}
         </div>
       </div>
 
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-label">Trust Score</div>
-          <div className="metric-value" style={{ color: getScoreColor(metrics.trust_score) }}>
-            {(metrics.trust_score * 100).toFixed(0)}%
+          <div className="metric-value" style={{ color: getScoreColor(metrics.trust_score || 0) }}>
+            {((metrics.trust_score || 0) * 100).toFixed(0)}%
           </div>
           <div className="metric-bar">
             <div
               className="metric-bar-fill"
               style={{
-                width: `${metrics.trust_score * 100}%`,
-                backgroundColor: getScoreColor(metrics.trust_score),
+                width: `${(metrics.trust_score || 0) * 100}%`,
+                backgroundColor: getScoreColor(metrics.trust_score || 0),
               }}
             />
           </div>
@@ -132,15 +132,15 @@ export const HealthMeter: React.FC = () => {
 
         <div className="metric-card">
           <div className="metric-label">Confidence</div>
-          <div className="metric-value" style={{ color: getScoreColor(metrics.confidence) }}>
-            {(metrics.confidence * 100).toFixed(0)}%
+          <div className="metric-value" style={{ color: getScoreColor(metrics.confidence || 0) }}>
+            {((metrics.confidence || 0) * 100).toFixed(0)}%
           </div>
           <div className="metric-bar">
             <div
               className="metric-bar-fill"
               style={{
-                width: `${metrics.confidence * 100}%`,
-                backgroundColor: getScoreColor(metrics.confidence),
+                width: `${(metrics.confidence || 0) * 100}%`,
+                backgroundColor: getScoreColor(metrics.confidence || 0),
               }}
             />
           </div>

@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import type { HealthResponse, VerificationAuditResponse, ExecutionTrace, DataProvenance } from '../api/types';
 
 export function ConnectionTestPage() {
