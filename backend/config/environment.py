@@ -1,17 +1,12 @@
 """
-Environment Configuration
-Centralized environment variable management for Grace
+Environment Configuration - Phase 0
+OFFLINE_MODE and GRACE_PORT flags for CI determinism
 """
-
 import os
+from typing import Optional
 
 class GraceEnvironment:
-    """Environment configuration for Grace"""
-    
-    @staticmethod
-    def get_port() -> int:
-        """Get Grace API port from environment or default"""
-        return int(os.getenv("GRACE_PORT", "8000"))
+    """Grace environment configuration with CI determinism flags"""
     
     @staticmethod
     def is_offline_mode() -> bool:
@@ -26,43 +21,36 @@ class GraceEnvironment:
     @staticmethod
     def is_ci_mode() -> bool:
         """Check if running in CI environment"""
-        return os.getenv("CI", "false").lower() in ("true", "1", "yes")
+        return os.getenv("CI", "false").lower() in ("true", "1", "yes") or os.getenv("GITHUB_ACTIONS") == "true"
     
     @staticmethod
-    def get_log_level() -> str:
-        """Get logging level from environment"""
-        return os.getenv("LOG_LEVEL", "INFO").upper()
-    
-    @staticmethod
-    def get_db_path() -> str:
-        """Get database path from environment or default"""
-        return os.getenv("GRACE_DB_PATH", "databases/grace.db")
-    
-    @staticmethod
-    def get_environment() -> str:
-        """Get current environment (dev/staging/prod)"""
-        return os.getenv("GRACE_ENV", "development")
+    def get_port() -> int:
+        """Get Grace port from GRACE_PORT env var or default"""
+        try:
+            return int(os.getenv("GRACE_PORT", "8000"))
+        except ValueError:
+            return 8000
     
     @staticmethod
     def should_skip_external_calls() -> bool:
-        """Should skip external API calls (web search, LLM, etc.)"""
+        """Should skip external API calls (offline or CI mode)"""
         return GraceEnvironment.is_offline_mode() or GraceEnvironment.is_ci_mode()
+    
+    @staticmethod
+    def get_config_summary() -> dict:
+        """Get current environment configuration"""
+        return {
+            "offline_mode": GraceEnvironment.is_offline_mode(),
+            "dry_run": GraceEnvironment.is_dry_run(),
+            "ci_mode": GraceEnvironment.is_ci_mode(),
+            "grace_port": GraceEnvironment.get_port(),
+            "skip_external_calls": GraceEnvironment.should_skip_external_calls()
+        }
 
-
-# Convenience exports
-GRACE_PORT = GraceEnvironment.get_port()
+# Export for easy imports
 OFFLINE_MODE = GraceEnvironment.is_offline_mode()
 DRY_RUN = GraceEnvironment.is_dry_run()
 CI_MODE = GraceEnvironment.is_ci_mode()
-LOG_LEVEL = GraceEnvironment.get_log_level()
-GRACE_ENV = GraceEnvironment.get_environment()
+GRACE_PORT = GraceEnvironment.get_port()
 
-__all__ = [
-    'GraceEnvironment',
-    'GRACE_PORT',
-    'OFFLINE_MODE',
-    'DRY_RUN',
-    'CI_MODE',
-    'LOG_LEVEL',
-    'GRACE_ENV',
-]
+
