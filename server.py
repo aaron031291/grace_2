@@ -5,6 +5,7 @@ Run: python serve.py
 """
 
 import asyncio
+import os
 import uvicorn
 import sys
 import socket
@@ -287,10 +288,170 @@ async def boot_grace_minimal():
             guardian_validates=True,
             delegate_to="self_healing"
         ))
-        
-        # CHUNK 6: TRUST Framework + External Model Protocol (Guardian validates)
-        async def chunk_6_trust_framework():
-            print("[CHUNK 6] TRUST Framework + External Model Protocol...")
+
+        # CHUNK 6: Governed Learning Engine (Gap detection + world model)
+        async def chunk_6_governed_learning():
+            print("[CHUNK 6] Governed Learning Engine...")
+            from backend.learning.governed_learning import (
+                ApprovalGate,
+                DomainWhitelistAPI,
+                DomainWhitelistRegistry,
+                GapDetectionEngine,
+                GovernedLearningOrchestrator,
+                LearningJobDashboard,
+                LearningJobQueue,
+                LearningSimulationFramework,
+                SafeModeLearningController,
+                SandboxVerifier,
+                WorldModelUpdateManager,
+            )
+
+            whitelist_path = Path("config/autonomous_learning_whitelist.yaml")
+            registry = DomainWhitelistRegistry.from_config(whitelist_path)
+            api = DomainWhitelistAPI(registry)
+            if registry.is_empty():
+                api.create_from_template(
+                    domain="internal_docs",
+                    template_name="docs_default",
+                    overrides={"tags": ["bootstrap"], "documentation": ["https://grace/bootstrap"]},
+                )
+                api.request_domain(
+                    {
+                        "domain": "partner_repo",
+                        "allowed_actions": ["search", "clone"],
+                        "approval_required": True,
+                        "sandbox_profile": "code_review",
+                        "templates": ["repo_ml"],
+                        "max_parallel_jobs": 1,
+                        "tags": ["pending"],
+                        "documentation": ["https://partners/docs"],
+                        "repositories": ["https://github.com/partner/repo"],
+                        "datasets": [],
+                    },
+                    requested_by="guardian",
+                    justification="Need governed repo access",
+                )
+
+            gap_engine = GapDetectionEngine(target_confidence=0.9)
+            sample_queries = [
+                {
+                    "query": "mttr reduction plan",
+                    "topic": "trust",
+                    "success": 0.55,
+                    "retrieval_uncertainty": 0.5,
+                    "impact": 1.2,
+                },
+                {
+                    "query": "rag provenance citations",
+                    "topic": "memory",
+                    "success": 0.6,
+                    "retrieval_uncertainty": 0.35,
+                    "impact": 0.9,
+                },
+                {
+                    "query": "governed learning job queue",
+                    "topic": "learning",
+                    "success": 0.45,
+                    "retrieval_uncertainty": 0.62,
+                    "impact": 1.5,
+                },
+            ]
+            knowledge_snapshot = {
+                "topics": {
+                    "trust": {"confidence": 0.58},
+                    "memory": {"confidence": 0.87},
+                    "learning": {"confidence": 0.42},
+                }
+            }
+            gap_report = gap_engine.analyze_queries(sample_queries, knowledge_snapshot)
+            top_signal = gap_report.signals[0] if gap_report.signals else None
+
+            job_queue = LearningJobQueue(capacity=max(3, registry.max_parallel_jobs()))
+            sandbox = SandboxVerifier(required_checks=["unit_tests", "integration_checks"])
+            approvals = ApprovalGate(fast_track_roles=["guardian"])
+            safe_mode = SafeModeLearningController(safe_mode=os.getenv("OFFLINE_MODE", "1") == "1")
+            world_model = WorldModelUpdateManager()
+            dashboard = LearningJobDashboard()
+            simulation = LearningSimulationFramework()
+            orchestrator = GovernedLearningOrchestrator(
+                registry,
+                job_queue,
+                sandbox,
+                approvals,
+                safe_mode,
+                world_model,
+                dashboard,
+                simulation,
+            )
+
+            domains = registry.list_domains()
+            target_domain = domains[0]
+            entry = registry.get_entry(target_domain)
+            action = entry.allowed_actions[0]
+            job_payload = {
+                "domain": target_domain,
+                "action": action,
+                "approved_by": "guardian" if entry.approval_required else None,
+                "approval_token": "APPROVED-GOVERNANCE" if entry.approval_required else None,
+                "allow_network": False,
+                "sandbox_checks": ["unit_tests", "integration_checks"],
+                "priority": (top_signal.priority_score if top_signal else 0.5),
+                "impact": (top_signal.impact_score if top_signal else 0.8),
+                "world_model_update": {
+                    "source": "governed_learning_engine",
+                    "entries": [
+                        {
+                            "topic": top_signal.topic if top_signal else "learning",
+                            "content": "Gap remediation playbook",
+                            "confidence": min(0.99, 0.7 + (top_signal.confidence_delta if top_signal else 0.1)),
+                        }
+                    ],
+                    "validators": ["guardian", "codex"],
+                },
+            }
+
+            try:
+                orchestrator.submit_job(job_payload)
+                job_result = orchestrator.process_next_job()
+            except Exception as exc:
+                print(f"  [WARN] Governed learning orchestration degraded: {exc}")
+                job_result = {"error": str(exc)}
+
+            dashboard_snapshot = orchestrator.dashboard_snapshot()
+            if top_signal:
+                print(
+                    f"  [OK] Top gap: {top_signal.topic} (priority {top_signal.priority_score})"
+                )
+            if gap_report.dashboard_cards:
+                print(
+                    f"  [OK] Gap dashboard cards: {[card['title'] for card in gap_report.dashboard_cards]}"
+                )
+            print(
+                f"  [OK] Governed learning dashboard: jobs={dashboard_snapshot['total_jobs']} completed={dashboard_snapshot['completed_jobs']} pending={dashboard_snapshot['pending']}"
+            )
+            if registry.list_pending():
+                print(f"  [OK] Pending domains waiting approval: {registry.list_pending()}")
+
+            return {
+                'gap_report': gap_report.metrics,
+                'dashboard_cards': gap_report.dashboard_cards,
+                'job_result': job_result,
+                'dashboard': dashboard_snapshot,
+            }
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="governed_learning_engine",
+            name="Governed Learning & World Model Updates",
+            priority=6,
+            boot_function=chunk_6_governed_learning,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
+        # CHUNK 7: TRUST Framework + External Model Protocol (Guardian validates)
+        async def chunk_7_trust_framework():
+            print("[CHUNK 7] TRUST Framework + External Model Protocol...")
             
             results = {
                 'systems_loaded': 0,
@@ -430,18 +591,18 @@ async def boot_grace_minimal():
         boot_orchestrator.register_chunk(BootChunk(
             chunk_id="trust_framework",
             name="TRUST Framework (AI Governance)",
-            priority=6,
-            boot_function=chunk_6_trust_framework,
+            priority=7,
+            boot_function=chunk_7_trust_framework,
             can_fail=False,  # Critical - trust framework must load
             guardian_validates=True,
             delegate_to="self_healing"
         ))
-        
-        # CHUNK 7-26: All 20 Grace Kernels (Guardian validates each)
-        async def chunk_7_20_kernels():
-            print("[CHUNK 7-26] Grace Kernels (20 kernels)...")
+
+        # CHUNK 8-26: All 20 Grace Kernels (Guardian validates each)
+        async def chunk_8_20_kernels():
+            print("[CHUNK 8-26] Grace Kernels (20 kernels)...")
             from backend.unified_logic.kernel_integration import KernelIntegrator
-            
+
             integrator = KernelIntegrator()
             print(f"  -> Defined {len(integrator.kernel_registry)} kernels")
             
@@ -460,8 +621,8 @@ async def boot_grace_minimal():
         boot_orchestrator.register_chunk(BootChunk(
             chunk_id="grace_kernels",
             name="All 20 Grace Kernels (Tiered Boot)",
-            priority=7,
-            boot_function=chunk_7_20_kernels,
+            priority=8,
+            boot_function=chunk_8_20_kernels,
             can_fail=False,  # Critical - kernels must boot
             guardian_validates=True,
             delegate_to="self_healing"  # Self-healing handles kernel issues
