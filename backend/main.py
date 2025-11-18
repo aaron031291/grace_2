@@ -245,6 +245,13 @@ try:
 except ImportError:
     pass  # World Model Hub optional for now
 
+# Register Phase 6 API (Enterprise API Management & Scale)
+try:
+    from backend.routes.phase6_api import router as phase6_router
+    app.include_router(phase6_router)
+except ImportError as e:
+    print(f"[WARN] Phase 6 API disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
