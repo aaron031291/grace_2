@@ -1247,7 +1247,19 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8103": {
+      "port": 8103,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-18T11:12:18.074715",
+      "last_health_check": "2025-11-18T11:12:18.074715",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-17T18:49:00.635362"
+  "last_updated": "2025-11-18T11:12:18.074715"
 }

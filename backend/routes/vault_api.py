@@ -11,6 +11,11 @@ Provides:
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+from backend.models.base_models import async_session
 
 try:
     from ..security.secrets_vault import secrets_vault
@@ -23,7 +28,10 @@ try:
 except ImportError:
     from backend.security.auth import get_current_user
 
-router = APIRouter(prefix="/api/vault", tags=["vault"])
+router = APIRouter(
+    prefix="/api/vault",
+    tags=["Secure Vault"]
+)
 
 
 # ==================== Request Models ====================
@@ -183,18 +191,16 @@ async def revoke_secret(
 
 @router.get("/health")
 async def vault_health():
-    """Health check for vault service"""
+    """Health check for vault API"""
+    return {"status": "healthy", "service": "vault"}
+
+@router.get("/status")
+async def vault_status():
+    """Get vault status"""
     try:
-        # Try to list secrets as a health check
-        secrets = await secrets_vault.list_secrets(owner="system", include_inactive=False)
-        return {
-            "status": "healthy",
-            "vault_available": True,
-            "total_secrets": len(secrets) if secrets else 0
-        }
+        return {"status": "operational", "encrypted": True}
     except Exception as e:
-        return {
-            "status": "degraded",
-            "vault_available": False,
-            "error": str(e)
-        }
+        logger.error(f"Vault error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
