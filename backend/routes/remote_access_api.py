@@ -1476,3 +1476,4 @@ async def ingest_text_to_rag(
         "vector_id": result.get('id'),
         "message": "Content added to knowledge base"
     }
+

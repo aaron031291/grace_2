@@ -1,34 +1,46 @@
 """
-Base Models - Foundation Layer
-
-Core database models that all agentic systems build upon.
-No circular dependencies - this is the bottom of the stack.
+Base database models and session management
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, Float, Boolean
-from sqlalchemy.sql import func
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
-from backend.config.settings import settings
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import declarative_base
+import os
 
-# Database setup
-DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./databases/grace.db"
+# Database configuration
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./grace.db")
+
+# Create async engine
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    future=True,
-    connect_args={
-        "timeout": 30,
-        "check_same_thread": False
-    },
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+    future=True
 )
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-# Base class for all models
+# Create async session maker
+async_session_maker = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+# Create base class for models
 Base = declarative_base()
+
+# Export async_session for backward compatibility
+async_session = async_session_maker
+
+# Context manager for database sessions
+async def get_db_session():
+    """Get database session context manager"""
+    async with async_session_maker() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
 
 class ImmutableLogEntry(Base):
@@ -220,3 +232,4 @@ class ComponentRegistration(Base):
     # Privacy and metadata
     sensitive_data_redacted = Column(Boolean, default=False)
     meta_data = Column(Text)
+
