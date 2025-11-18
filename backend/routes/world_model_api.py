@@ -3,9 +3,12 @@ World Model API
 Grace's internal knowledge accessible via REST and MCP
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, File, UploadFile
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
+import os
+import tempfile
+from pathlib import Path
 
 from backend.world_model import grace_world_model, mcp_integration
 from backend.developer.developer_agent import developer_agent

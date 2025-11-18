@@ -38,12 +38,14 @@ interface ContextData {
   relevant_knowledge: any[];
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8107';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin.replace(':5173', ':8000') || 'http://localhost:8000';
 
 export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: WorldModelHubProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [context, setContext] = useState<ContextData | null>(null);
   const [orbSession, setOrbSession] = useState<OrbSession | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -597,6 +599,70 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+
+    for (const file of Array.from(files)) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (sessionIdRef.current) {
+          formData.append('session_id', sessionIdRef.current);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/world-model/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setMessages(prev => [...prev, {
+            id: `msg-${Date.now()}`,
+            role: 'system',
+            content: data.message || `Uploaded ${file.name}`,
+            timestamp: new Date().toISOString(),
+            system_type: 'artifact',
+            system_data: {
+              ...data.analysis,
+              artifact_id: data.artifact_id,
+              filename: data.filename,
+              content: data.analysis?.preview || ''
+            }
+          }]);
+        } else {
+          setMessages(prev => [...prev, {
+            id: `msg-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to upload ${file.name}: ${data.error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+        setMessages(prev => [...prev, {
+          id: `msg-${Date.now()}`,
+          role: 'system',
+          content: `❌ Failed to upload ${file.name}: ${error}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    }
+
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const renderSystemCard = (message: Message) => {
     const { system_type, system_data, card } = message;
 
@@ -823,11 +889,27 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         </div>
 
         <div className="input-container">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+            multiple
+            accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg,.gif,.mp4,.avi,.mov,.mp3,.wav,.m4a,.py,.js,.ts,.json,.yaml,.yml"
+          />
+          <button
+            onClick={handleAttachClick}
+            disabled={uploading || loading}
+            className="attach-button"
+            title="Upload document or media"
+          >
+            {uploading ? '⏳' : '📎'}
+          </button>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Grace anything... (or use /spawn, /help)"
+            placeholder="Ask Grace anything... (or use /spawn, /help, /build)"
             rows={3}
             disabled={loading}
           />
