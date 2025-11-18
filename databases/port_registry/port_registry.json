@@ -2003,7 +2003,43 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8166": {
+      "port": 8166,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T19:07:03.544391",
+      "last_health_check": "2025-11-18T19:07:03.544391",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8167": {
+      "port": 8167,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T19:07:10.617888",
+      "last_health_check": "2025-11-18T19:07:10.617888",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8168": {
+      "port": 8168,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T19:07:12.650950",
+      "last_health_check": "2025-11-18T19:07:12.650950",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-18T19:07:01.511994"
+  "last_updated": "2025-11-18T19:07:12.650950"
 }
