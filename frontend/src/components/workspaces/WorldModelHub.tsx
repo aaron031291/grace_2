@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Workspace } from '../../GraceEnterpriseUI';
 import { orbApi, type OrbSession } from '../../lib/orbApi';
+import BuildProgressCard from '../BuildProgressCard';
 import './WorkspaceCommon.css';
 import './WorldModelHub.css';
 
@@ -17,7 +18,15 @@ interface Message {
   timestamp: string;
   trace_id?: string;
   system_data?: any;
-  system_type?: 'artifact' | 'mission' | 'approval' | 'health';
+  system_type?: 'artifact' | 'mission' | 'approval' | 'health' | 'build';
+  card?: {
+    type: string;
+    job_id?: string;
+    status?: string;
+    spec?: string;
+    trust_score?: number;
+    approvals?: any;
+  };
 }
 
 interface ContextData {
@@ -29,12 +38,14 @@ interface ContextData {
   relevant_knowledge: any[];
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8107';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin.replace(':5173', ':8000') || 'http://localhost:8000';
 
 export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: WorldModelHubProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [context, setContext] = useState<ContextData | null>(null);
   const [orbSession, setOrbSession] = useState<OrbSession | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -192,7 +203,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
     const trimmedInput = input.trim();
 
     if (trimmedInput.startsWith('/')) {
-      handleSlashCommand(trimmedInput);
+      await handleSlashCommand(trimmedInput);
       setInput('');
       return;
     }
@@ -248,9 +259,86 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
   const handleSlashCommand = async (command: string) => {
     const parts = command.slice(1).split(' ');
     const cmd = parts[0].toLowerCase();
-    const arg = parts[1]?.toLowerCase();
+    const arg = parts.slice(1).join(' ');
 
-    if (cmd === 'spawn' && arg && onCreateWorkspace) {
+    if (cmd === 'build') {
+      const spec = arg.trim();
+      if (!spec) {
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: '❌ Please provide a specification. Usage: /build <what to build>',
+          timestamp: new Date().toISOString()
+        }]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/world-model/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: command,
+            session_id: sessionIdRef.current
+          })
+        });
+
+        const data = await response.json();
+
+        setMessages(prev => [...prev, {
+          id: `msg-${Date.now()}`,
+          role: 'assistant',
+          content: data.message || 'Build job started!',
+          timestamp: new Date().toISOString(),
+          system_type: 'build',
+          card: data.card
+        }]);
+      } catch (error) {
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: `❌ Failed to start build: ${error}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+      return;
+    }
+
+    if (cmd === 'status' || cmd === 'approve' || cmd === 'reject') {
+      try {
+        const response = await fetch(`${API_BASE_URL}/world-model/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: command,
+            session_id: sessionIdRef.current
+          })
+        });
+
+        const data = await response.json();
+
+        setMessages(prev => [...prev, {
+          id: `msg-${Date.now()}`,
+          role: 'assistant',
+          content: data.message || 'Command executed',
+          timestamp: new Date().toISOString(),
+          system_type: data.card ? 'build' : undefined,
+          card: data.card
+        }]);
+      } catch (error) {
+        setMessages(prev => [...prev, {
+          id: `cmd-${Date.now()}`,
+          role: 'system',
+          content: `❌ Failed to execute command: ${error}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+      return;
+    }
+
+    const lowerArg = parts[1]?.toLowerCase();
+
+    if (cmd === 'spawn' && lowerArg && onCreateWorkspace) {
       const workspaceTypeMap: Record<string, string> = {
         'guardian': 'guardian',
         'mission': 'mission-control',
@@ -265,25 +353,25 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         'sandbox': 'sandbox'
       };
 
-      const workspaceType = workspaceTypeMap[arg];
+      const workspaceType = workspaceTypeMap[lowerArg];
       if (workspaceType) {
         onCreateWorkspace(workspaceType);
         setMessages(prev => [...prev, {
           id: `cmd-${Date.now()}`,
           role: 'system',
-          content: `📌 Opened ${arg.charAt(0).toUpperCase() + arg.slice(1)} workspace`,
+          content: `📌 Opened ${lowerArg.charAt(0).toUpperCase() + lowerArg.slice(1)} workspace`,
           timestamp: new Date().toISOString()
         }]);
       } else {
         setMessages(prev => [...prev, {
           id: `cmd-${Date.now()}`,
           role: 'system',
-          content: `❌ Unknown workspace type: ${arg}`,
+          content: `❌ Unknown workspace type: ${lowerArg}`,
           timestamp: new Date().toISOString()
         }]);
       }
     } else if (cmd === 'voice') {
-      const enable = arg === 'on';
+      const enable = lowerArg === 'on';
       try {
         const result = await orbApi.toggleVoice('user', enable);
         setVoiceEnabled(result.voice_enabled);
@@ -302,7 +390,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         }]);
       }
     } else if (cmd === 'share') {
-      if (arg === 'start') {
+      if (lowerArg === 'start') {
         try {
           const result = await orbApi.startScreenShare('user');
           setActiveMediaSessions(prev => ({ ...prev, screenShare: result.session_id }));
@@ -320,7 +408,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
             timestamp: new Date().toISOString()
           }]);
         }
-      } else if (arg === 'stop' && activeMediaSessions.screenShare) {
+      } else if (lowerArg === 'stop' && activeMediaSessions.screenShare) {
         try {
           await orbApi.stopScreenShare(activeMediaSessions.screenShare);
           setActiveMediaSessions(prev => ({ ...prev, screenShare: undefined }));
@@ -340,7 +428,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         }
       }
     } else if (cmd === 'record') {
-      if (arg === 'start') {
+      if (lowerArg === 'start') {
         try {
           const result = await orbApi.startRecording('user', 'screen_recording');
           setActiveMediaSessions(prev => ({ ...prev, recording: result.session_id }));
@@ -358,7 +446,7 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
             timestamp: new Date().toISOString()
           }]);
         }
-      } else if (arg === 'stop' && activeMediaSessions.recording) {
+      } else if (lowerArg === 'stop' && activeMediaSessions.recording) {
         try {
           const result = await orbApi.stopRecording(activeMediaSessions.recording);
           setActiveMediaSessions(prev => ({ ...prev, recording: undefined }));
@@ -463,8 +551,134 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
     }
   };
 
+  const handleBuildApprove = async (jobId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/world-model/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `/approve ${jobId}`,
+          session_id: sessionIdRef.current
+        })
+      });
+
+      const data = await response.json();
+      
+      setMessages(prev => [...prev, {
+        id: `msg-${Date.now()}`,
+        role: 'assistant',
+        content: data.message || 'Approval granted',
+        timestamp: new Date().toISOString()
+      }]);
+    } catch (error) {
+      console.error('Failed to approve build:', error);
+    }
+  };
+
+  const handleBuildReject = async (jobId: string, reason: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/world-model/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `/reject ${jobId} ${reason}`,
+          session_id: sessionIdRef.current
+        })
+      });
+
+      const data = await response.json();
+      
+      setMessages(prev => [...prev, {
+        id: `msg-${Date.now()}`,
+        role: 'assistant',
+        content: data.message || 'Build rejected',
+        timestamp: new Date().toISOString()
+      }]);
+    } catch (error) {
+      console.error('Failed to reject build:', error);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+
+    for (const file of Array.from(files)) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (sessionIdRef.current) {
+          formData.append('session_id', sessionIdRef.current);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/world-model/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setMessages(prev => [...prev, {
+            id: `msg-${Date.now()}`,
+            role: 'system',
+            content: data.message || `Uploaded ${file.name}`,
+            timestamp: new Date().toISOString(),
+            system_type: 'artifact',
+            system_data: {
+              ...data.analysis,
+              artifact_id: data.artifact_id,
+              filename: data.filename,
+              content: data.analysis?.preview || ''
+            }
+          }]);
+        } else {
+          setMessages(prev => [...prev, {
+            id: `msg-${Date.now()}`,
+            role: 'system',
+            content: `❌ Failed to upload ${file.name}: ${data.error}`,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+        setMessages(prev => [...prev, {
+          id: `msg-${Date.now()}`,
+          role: 'system',
+          content: `❌ Failed to upload ${file.name}: ${error}`,
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    }
+
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const renderSystemCard = (message: Message) => {
-    const { system_type, system_data } = message;
+    const { system_type, system_data, card } = message;
+
+    if (system_type === 'build' && card) {
+      return (
+        <BuildProgressCard
+          jobId={card.job_id || ''}
+          spec={card.spec || ''}
+          status={card.status || 'created'}
+          trustScore={card.trust_score}
+          approvals={card.approvals}
+          onApprove={handleBuildApprove}
+          onReject={handleBuildReject}
+        />
+      );
+    }
 
     if (system_type === 'artifact') {
       return (
@@ -675,11 +889,27 @@ export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: Wor
         </div>
 
         <div className="input-container">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+            multiple
+            accept=".txt,.md,.pdf,.docx,.png,.jpg,.jpeg,.gif,.mp4,.avi,.mov,.mp3,.wav,.m4a,.py,.js,.ts,.json,.yaml,.yml"
+          />
+          <button
+            onClick={handleAttachClick}
+            disabled={uploading || loading}
+            className="attach-button"
+            title="Upload document or media"
+          >
+            {uploading ? '⏳' : '📎'}
+          </button>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Grace anything... (or use /spawn, /help)"
+            placeholder="Ask Grace anything... (or use /spawn, /help, /build)"
             rows={3}
             disabled={loading}
           />

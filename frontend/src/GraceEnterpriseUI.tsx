@@ -19,6 +19,7 @@ import { Phase8Workspace } from './components/workspaces/Phase8Workspace';
 import { MissionDesignerCanvas } from './components/MissionDesignerCanvas';
 import { ApprovalInbox } from './components/ApprovalInbox';
 import { LearningJobsDashboard } from './components/LearningJobsDashboard';
+import { FullStackDashboard } from './components/workspaces/FullStackDashboard';
 import './GraceEnterpriseUI.css';
 
 export type Capability = 
@@ -36,7 +37,8 @@ export type Capability =
   | 'phase8'
   | 'mission-designer'
   | 'approval-inbox'
-  | 'learning-jobs';
+  | 'learning-jobs'
+  | 'fullstack-dashboard';
 
 export interface Workspace {
   id: string;
@@ -241,6 +243,8 @@ export default function GraceEnterpriseUI() {
           return <ApprovalInbox />;
         case 'learning-jobs':
           return <LearningJobsDashboard />;
+        case 'fullstack-dashboard':
+          return <FullStackDashboard />;
         default:
           return <ChatView onShowTrace={showExecutionTrace} />;
       }
@@ -377,7 +381,8 @@ function getCapabilityTitle(capability: Capability): string {
     'phase8': 'Phase 8: E2E Testing & Production Readiness',
     'mission-designer': 'Mission Designer',
     'approval-inbox': 'Approval Inbox',
-    'learning-jobs': 'Learning Jobs'
+    'learning-jobs': 'Learning Jobs',
+    'fullstack-dashboard': 'Full-Stack API Dashboard'
   };
   return titles[capability] || capability;
 }
