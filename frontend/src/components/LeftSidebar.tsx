@@ -28,6 +28,7 @@ const capabilities: Array<{ id: Capability; icon: string; label: string }> = [
   { id: 'mission-designer', icon: '🎨', label: 'Mission Designer' },
   { id: 'approval-inbox', icon: '📥', label: 'Approval Inbox' },
   { id: 'learning-jobs', icon: '📚', label: 'Learning Jobs' },
+  { id: 'fullstack-dashboard', icon: '📊', label: 'Full-Stack API Dashboard' },
 ];
 
 export function LeftSidebar({
