@@ -61,3 +61,10 @@
 {"timestamp": "2025-11-18T18:49:06.439918", "action": "allocate", "port": 8146, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-18T18:49:13.510072", "action": "allocate", "port": 8147, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-18T18:49:15.545452", "action": "allocate", "port": 8148, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T19:00:45.983449", "action": "release", "port": 9999, "service_name": "test_service", "duration_seconds": 710.831658, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-18T19:00:48.018174", "action": "allocate", "port": 9999, "service_name": "test_service", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port 9999 failure"}
+{"timestamp": "2025-11-18T19:00:55.177700", "action": "allocate", "port": 8149, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T19:00:57.216979", "action": "allocate", "port": 8150, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T19:00:59.250288", "action": "allocate", "port": 8151, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T19:01:06.337194", "action": "allocate", "port": 8152, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T19:01:08.377320", "action": "allocate", "port": 8153, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
