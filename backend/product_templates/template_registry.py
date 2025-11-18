@@ -2,7 +2,7 @@
 Template Registry - Built-in product templates
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 from .models import ProductTemplate, TemplateCategory, TemplateFeature, TemplateComponent
 
 
