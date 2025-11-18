@@ -16,6 +16,7 @@ import { TerminalWorkspace } from './components/workspaces/TerminalWorkspace';
 import { AgenticWorkspace } from './components/workspaces/AgenticWorkspace';
 import { WorldModelHub } from './components/workspaces/WorldModelHub';
 import { Phase7Workspace } from './components/workspaces/Phase7Workspace';
+import { Phase8Workspace } from './components/workspaces/Phase8Workspace';
 import { MissionDesignerCanvas } from './components/MissionDesignerCanvas';
 import { ApprovalInbox } from './components/ApprovalInbox';
 import { LearningJobsDashboard } from './components/LearningJobsDashboard';
@@ -34,6 +35,7 @@ export type Capability =
   | 'terminal'
   | 'agentic'
   | 'phase7'
+  | 'phase8'
   | 'mission-designer'
   | 'approval-inbox'
   | 'learning-jobs';
@@ -235,6 +237,8 @@ export default function GraceEnterpriseUI() {
           }} />;
         case 'phase7':
           return <Phase7Workspace workspace={activeWorkspace} />;
+        case 'phase8':
+          return <Phase8Workspace workspace={activeWorkspace} />;
         case 'mission-designer':
           return <MissionDesignerCanvas />;
         case 'approval-inbox':
@@ -375,6 +379,7 @@ function getCapabilityTitle(capability: Capability): string {
     'terminal': 'Terminal',
     'agentic': 'Agentic Organism',
     'phase7': 'Phase 7: SaaS Readiness',
+    'phase8': 'Phase 8: E2E Testing & Production Readiness',
     'mission-designer': 'Mission Designer',
     'approval-inbox': 'Approval Inbox',
     'learning-jobs': 'Learning Jobs'
