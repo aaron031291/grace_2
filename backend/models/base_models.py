@@ -4,6 +4,8 @@ Base database models and session management
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Float
+from sqlalchemy.sql import func
 import os
 
 # Database configuration
