@@ -15,6 +15,9 @@ import { ObservatoryWorkspace } from './components/workspaces/ObservatoryWorkspa
 import { TerminalWorkspace } from './components/workspaces/TerminalWorkspace';
 import { AgenticWorkspace } from './components/workspaces/AgenticWorkspace';
 import { WorldModelHub } from './components/workspaces/WorldModelHub';
+import { MissionDesignerCanvas } from './components/MissionDesignerCanvas';
+import { ApprovalInbox } from './components/ApprovalInbox';
+import { LearningJobsDashboard } from './components/LearningJobsDashboard';
 import './GraceEnterpriseUI.css';
 
 export type Capability = 
@@ -28,7 +31,10 @@ export type Capability =
   | 'observatory' 
   | 'memory' 
   | 'terminal'
-  | 'agentic';
+  | 'agentic'
+  | 'mission-designer'
+  | 'approval-inbox'
+  | 'learning-jobs';
 
 export interface Workspace {
   id: string;
@@ -225,6 +231,12 @@ export default function GraceEnterpriseUI() {
                 setExecutionTracePanelOpen(true);
               });
           }} />;
+        case 'mission-designer':
+          return <MissionDesignerCanvas />;
+        case 'approval-inbox':
+          return <ApprovalInbox />;
+        case 'learning-jobs':
+          return <LearningJobsDashboard />;
         default:
           return <ChatView onShowTrace={showExecutionTrace} />;
       }
@@ -357,7 +369,10 @@ function getCapabilityTitle(capability: Capability): string {
     'observatory': 'Observatory',
     'memory': 'Memory',
     'terminal': 'Terminal',
-    'agentic': 'Agentic Organism'
+    'agentic': 'Agentic Organism',
+    'mission-designer': 'Mission Designer',
+    'approval-inbox': 'Approval Inbox',
+    'learning-jobs': 'Learning Jobs'
   };
   return titles[capability] || capability;
 }
