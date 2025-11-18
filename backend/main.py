@@ -45,6 +45,20 @@ try:
 except ImportError as e:
     print(f"[WARN] Autonomous learning API disabled: {e}")
 
+# Register Learning API (Phase 3 - Gap Detection)
+try:
+    from backend.routes.learning_api import router as learning_api_router
+    app.include_router(learning_api_router)
+except ImportError as e:
+    print(f"[WARN] Learning API disabled: {e}")
+
+# Register Learning Hub API (Phase 3 - Unified Dashboard)
+try:
+    from backend.routes.learning_hub_api import router as learning_hub_router
+    app.include_router(learning_hub_router)
+except ImportError as e:
+    print(f"[WARN] Learning Hub API disabled: {e}")
+
 try:
     from backend.routes.mission_control_api import router as mission_control_router
     app.include_router(mission_control_router)
