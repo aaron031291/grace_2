@@ -165,6 +165,14 @@ async def get_instance_metrics(instance_id: str):
 # ============================================================================
 # ============================================================================
 
+@router.get("/subscriptions", response_model=List[Subscription])
+async def list_subscriptions(tenant_id: Optional[str] = None):
+    """List all subscriptions, optionally filtered by tenant"""
+    if tenant_id:
+        return [s for s in billing_manager.subscriptions.values() if s.tenant_id == tenant_id]
+    return list(billing_manager.subscriptions.values())
+
+
 @router.post("/subscriptions", response_model=Subscription)
 async def create_subscription(
     tenant_id: str,

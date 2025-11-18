@@ -274,6 +274,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Phase 8 API disabled: {e}")
 
+# Register Metrics API
+try:
+    from backend.routes.metrics_api import router as metrics_router
+    app.include_router(metrics_router)
+except ImportError as e:
+    print(f"[WARN] Metrics API disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
