@@ -1,0 +1,159 @@
+name: Automated Backup Schedule
+
+on:
+  schedule:
+    # Daily backup at 2 AM UTC
+    - cron: '0 2 * * *'
+    # Weekly full backup on Sunday at 3 AM UTC  
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Backup type'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - incremental
+      force_cleanup:
+        description: 'Force retention cleanup'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  automated-backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install cryptography  # For encryption
+    
+    - name: Create backup directories
+      run: |
+        mkdir -p backups
+        mkdir -p reports/backup_runbooks
+        mkdir -p config
+    
+    - name: Run Automated Backup Runbook
+      env:
+        GRACE_MASTER_KEY: ${{ secrets.GRACE_MASTER_KEY }}
+        GRACE_KMS_KEY_ID: ${{ secrets.GRACE_KMS_KEY_ID }}
+        OFFLINE_MODE: "false"
+      run: |
+        python scripts/automated_backup_runbook.py
+    
+    - name: Upload Backup Artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backup-artifacts
+        path: |
+          backups/
+          reports/backup_runbooks/
+        retention-days: 30
+    
+    - name: Upload to Cloud Storage (Production)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # In production, upload to S3/Azure/GCS
+        echo "Would upload backups to cloud storage"
+        ls -la backups/
+    
+    - name: Notify on Failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const issue = {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Automated Backup Failed',
+            body: `
+            ## Backup Failure Alert
+            
+            **Workflow:** ${context.workflow}
+            **Run ID:** ${context.runId}
+            **Triggered by:** ${context.eventName}
+            **Time:** ${new Date().toISOString()}
+            
+            The automated backup process has failed. Please investigate immediately.
+            
+            **Next Steps:**
+            1. Check workflow logs for errors
+            2. Verify backup storage availability  
+            3. Run manual backup if needed
+            4. Update backup monitoring
+            
+            **Links:**
+            - [Failed Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            `,
+            labels: ['critical', 'backup', 'infrastructure']
+          };
+          
+          github.rest.issues.create(issue);
+
+  backup-verification:
+    needs: automated-backup
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Backup Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: backup-artifacts
+    
+    - name: Verify Backup Integrity
+      run: |
+        echo "🔍 Verifying backup integrity..."
+        
+        # Check if backup files exist
+        if [ -d "backups" ] && [ "$(ls -A backups)" ]; then
+          echo "✅ Backup files found"
+          ls -la backups/
+          
+          # Verify compressed files
+          for backup in backups/*.tar.gz; do
+            if [ -f "$backup" ]; then
+              echo "Testing archive: $backup"
+              tar -tzf "$backup" > /dev/null && echo "✅ Archive OK" || echo "❌ Archive corrupted"
+            fi
+          done
+        else
+          echo "❌ No backup files found"
+          exit 1
+        fi
+        
+        # Check runbook results
+        if [ -d "reports/backup_runbooks" ]; then
+          echo "📊 Backup runbook results:"
+          ls -la reports/backup_runbooks/
+          
+          # Parse latest results
+          latest_result=$(ls -t reports/backup_runbooks/*.json | head -1)
+          if [ -f "$latest_result" ]; then
+            success=$(cat "$latest_result" | python -c "import sys, json; print(json.load(sys.stdin)['success'])")
+            echo "Runbook success: $success"
+            
+            if [ "$success" != "True" ]; then
+              echo "❌ Backup runbook reported failure"
+              exit 1
+            fi
+          fi
+        fi
+        
+        echo "✅ Backup verification complete"
