@@ -44,3 +44,10 @@
 {"timestamp": "2025-11-18T15:53:56.095151", "action": "allocate", "port": 8133, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-18T15:53:58.120919", "action": "allocate", "port": 8134, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-18T15:57:35.958367", "action": "allocate", "port": 8135, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-18T17:10:29.055980", "action": "release", "port": 9999, "service_name": "test_service", "duration_seconds": 4611.306064, "request_count": 0, "error_count": 0}
+{"timestamp": "2025-11-18T17:10:31.087959", "action": "allocate", "port": 9999, "service_name": "test_service", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port 9999 failure"}
+{"timestamp": "2025-11-18T17:10:38.282295", "action": "allocate", "port": 8136, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T17:10:40.301117", "action": "allocate", "port": 8137, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T17:10:42.322705", "action": "allocate", "port": 8138, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T17:10:49.381952", "action": "allocate", "port": 8139, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-18T17:10:51.412303", "action": "allocate", "port": 8140, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
