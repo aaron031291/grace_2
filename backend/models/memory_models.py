@@ -21,7 +21,7 @@ class MemoryArtifact(Base):
     trust_score = Column(Float, default=0.5)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    metadata = Column(JSON, default=dict)
+    artifact_metadata = Column(JSON, default=dict)  # Renamed from 'metadata' (SQLAlchemy reserved)
 
 class TrustEvent(Base):
     __tablename__ = "trust_events"

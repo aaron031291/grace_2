@@ -1428,18 +1428,6 @@
       "request_count": 0,
       "error_count": 0
     },
-    "9999": {
-      "port": 9999,
-      "service_name": "test_service",
-      "started_by": "guardian_auto_remediation",
-      "purpose": "Auto-restart after port 9999 failure",
-      "pid": null,
-      "allocated_at": "2025-11-18T13:00:13.415930",
-      "last_health_check": "2025-11-18T13:00:13.415930",
-      "health_status": "active",
-      "request_count": 0,
-      "error_count": 0
-    },
     "8119": {
       "port": 8119,
       "service_name": "grace_backend",
@@ -1499,7 +1487,91 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "9999": {
+      "port": 9999,
+      "service_name": "test_service",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port 9999 failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:10.117941",
+      "last_health_check": "2025-11-18T13:03:10.117941",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8124": {
+      "port": 8124,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:17.268038",
+      "last_health_check": "2025-11-18T13:03:17.268038",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8125": {
+      "port": 8125,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:19.303261",
+      "last_health_check": "2025-11-18T13:03:19.303261",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8126": {
+      "port": 8126,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:21.332195",
+      "last_health_check": "2025-11-18T13:03:21.332195",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8127": {
+      "port": 8127,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:28.396230",
+      "last_health_check": "2025-11-18T13:03:28.396230",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8128": {
+      "port": 8128,
+      "service_name": "grace_backend",
+      "started_by": "guardian_auto_remediation",
+      "purpose": "Auto-restart after port None failure",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:03:30.422608",
+      "last_health_check": "2025-11-18T13:03:30.422608",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8129": {
+      "port": 8129,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-18T13:06:09.503671",
+      "last_health_check": "2025-11-18T13:06:09.503671",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-18T13:00:33.728535"
+  "last_updated": "2025-11-18T13:06:09.503671"
 }
