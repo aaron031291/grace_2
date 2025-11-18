@@ -18,16 +18,54 @@ env:
 
 jobs:
   # Phase 1: Fast checks (< 2 minutes)
-  # NOTE: Temporarily disabled due to GitHub Actions runner issue
-  # Fast checks logic moved to Backend Validation as first step
   fast-checks:
     name: Fast Checks
-    runs-on: ubuntu-22.04
-    timeout-minutes: 5
+    runs-on: ubuntu-latest
     
     steps:
-      - name: Placeholder (checks moved to Backend Validation)
-        run: echo "Fast checks logic temporarily moved to Backend Validation due to runner issue"
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Check VERSION consistency
+        run: |
+          python -c "
+          import re
+          from pathlib import Path
+          version_file = Path('VERSION').read_text().strip()
+          pyproject = Path('pyproject.toml').read_text()
+          pyproject_match = re.search(r'version\s*=\s*\"([^\"]+)\"', pyproject)
+          pyproject_version = pyproject_match.group(1) if pyproject_match else 'NOT FOUND'
+          print(f'VERSION file: {version_file}')
+          print(f'pyproject.toml: {pyproject_version}')
+          if version_file != pyproject_version:
+              print('ERROR: Version mismatch!')
+              exit(1)
+          print('✓ Versions match')
+          "
+      
+      - name: Verify directory structure
+        run: |
+          python -c "
+          from pathlib import Path
+          required_dirs = ['backend', 'frontend', 'tests', 'scripts', 'alembic']
+          required_files = ['alembic.ini', 'pyproject.toml', 'VERSION', 'README.md']
+          missing = []
+          for d in required_dirs:
+              if not Path(d).exists():
+                  missing.append(f'Directory: {d}')
+          for f in required_files:
+              if not Path(f).exists():
+                  missing.append(f'File: {f}')
+          if missing:
+              print('ERROR: Missing required items:')
+              for item in missing:
+                  print(f'  - {item}')
+              exit(1)
+          print('✓ All required directories and files exist')
+          "
   
   # Phase 2: Backend validation (< 5 minutes)
   backend-validation:
@@ -45,55 +83,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-      
-      - name: Fast Checks - VERSION consistency
-        run: |
-          python - <<'PY'
-          import re
-          from pathlib import Path
-          
-          # Read VERSION file
-          version_file = Path('VERSION').read_text().strip()
-          
-          # Check pyproject.toml
-          pyproject = Path('pyproject.toml').read_text()
-          pyproject_match = re.search(r'version\s*=\s*"([^"]+)"', pyproject)
-          pyproject_version = pyproject_match.group(1) if pyproject_match else 'NOT FOUND'
-          
-          print(f'VERSION file: {version_file}')
-          print(f'pyproject.toml: {pyproject_version}')
-          
-          if version_file != pyproject_version:
-              print('ERROR: Version mismatch!')
-              exit(1)
-          print('✓ Versions match')
-          PY
-      
-      - name: Fast Checks - Directory structure
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          
-          required_dirs = ['backend', 'frontend', 'tests', 'scripts', 'alembic']
-          required_files = ['alembic.ini', 'pyproject.toml', 'VERSION', 'README.md']
-          
-          missing = []
-          for d in required_dirs:
-              if not Path(d).exists():
-                  missing.append(f'Directory: {d}')
-          
-          for f in required_files:
-              if not Path(f).exists():
-                  missing.append(f'File: {f}')
-          
-          if missing:
-              print('ERROR: Missing required items:')
-              for item in missing:
-                  print(f'  - {item}')
-              exit(1)
-          
-          print('✓ All required directories and files exist')
-          PY
       
       - name: Install dependencies
         run: |
