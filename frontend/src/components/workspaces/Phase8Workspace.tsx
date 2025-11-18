@@ -3,7 +3,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { phase8Api, Phase8Status, ReadinessResult, SystemHealth, IntegrationResult } from '../../api/phase8Api';
+import { phase8Api } from '../../api/phase8Api';
+import type { Phase8Status, ReadinessResult, SystemHealth, IntegrationResult } from '../../api/phase8Api';
 import './Phase8Workspace.css';
 
 type TabType = 'overview' | 'readiness' | 'health' | 'integrations';
