@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   Bell, AlertTriangle, AlertCircle, Info, XCircle, Check,
   Clock, TrendingUp
@@ -52,7 +53,7 @@ export function AlertsPanel() {
   async function loadAlerts() {
     try {
       const url = filter === 'all'
-        ? 'http://localhost:8000/api/alerts/active'
+        ? apiUrl('/api/alerts/active'
         : `http://localhost:8000/api/alerts/active?severity=${filter}`;
       
       const response = await fetch(url);
@@ -65,7 +66,7 @@ export function AlertsPanel() {
 
   async function loadSummary() {
     try {
-      const response = await fetch('http://localhost:8000/api/alerts/summary');
+      const response = await fetch(apiUrl('/api/alerts/summary');
       const data = await response.json();
       setSummary(data);
     } catch (err) {
@@ -76,7 +77,7 @@ export function AlertsPanel() {
   async function acknowledgeAlert(alertId: string) {
     setLoading(true);
     try {
-      await fetch('http://localhost:8000/api/alerts/acknowledge', {
+      await fetch(apiUrl('/api/alerts/acknowledge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alert_id: alertId })
@@ -93,7 +94,7 @@ export function AlertsPanel() {
   async function resolveAlert(alertId: string) {
     setLoading(true);
     try {
-      await fetch('http://localhost:8000/api/alerts/resolve', {
+      await fetch(apiUrl('/api/alerts/resolve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alert_id: alertId })
@@ -111,7 +112,7 @@ export function AlertsPanel() {
   async function checkNow() {
     setLoading(true);
     try {
-      await fetch('http://localhost:8000/api/alerts/check-now', {
+      await fetch(apiUrl('/api/alerts/check-now', {
         method: 'POST'
       });
       

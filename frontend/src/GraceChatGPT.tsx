@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Send, Menu, Plus, Cpu, Trash2, MessageSquare } from 'lucide-react';
 import { http } from './api/client';
 import ReactMarkdown from 'react-markdown';
@@ -37,7 +38,7 @@ export default function GraceChatGPT() {
 
   // Check backend connection on load
   useEffect(() => {
-    fetch('http://localhost:8000/health')
+    fetch(apiUrl('/health')
       .then(res => res.json())
       .then(() => setBackendStatus('connected'))
       .catch(() => setBackendStatus('disconnected'));
@@ -101,7 +102,7 @@ export default function GraceChatGPT() {
     try {
       console.log('Sending message to backend:', userMessage.content);
       
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

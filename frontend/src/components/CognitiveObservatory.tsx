@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './CognitiveObservatory.css';
 
 interface ReasoningChain {
@@ -31,7 +32,7 @@ const CognitiveObservatory: React.FC = () => {
 
     // Setup WebSocket for real-time updates
     const token = localStorage.getItem('token');
-    const websocket = new WebSocket(`ws://localhost:8000/api/dashboard/ws/cognitive?token=${token}`);
+    const websocket = new WebSocket(`${WS_BASE_URL}/api/dashboard/ws/cognitive?token=${token}`);
     
     websocket.onmessage = (event) => {
       const update = JSON.parse(event.data);
@@ -51,7 +52,7 @@ const CognitiveObservatory: React.FC = () => {
 
   const fetchReasoningChains = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/cognitive/reasoning?limit=5', {
+    const response = await fetch(apiUrl('/api/dashboard/cognitive/reasoning?limit=5', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();

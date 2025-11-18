@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { RecommendationCard } from './RecommendationCard';
 
 interface Recommendation {
@@ -49,7 +50,7 @@ export function MetaLoopDashboard() {
     const interval = setInterval(loadData, 10000);
 
     try {
-      const socket = new WebSocket(`ws://localhost:8000/ws/meta-updates?token=${token}`);
+      const socket = new WebSocket(`${WS_BASE_URL}/ws/meta-updates?token=${token}`);
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'new_recommendation') {
@@ -77,13 +78,13 @@ export function MetaLoopDashboard() {
   async function loadData() {
     try {
       const [pendingRes, appliedRes, perfRes] = await Promise.all([
-        fetch('http://localhost:8000/api/meta/recommendations/pending', {
+        fetch(apiUrl('/api/meta/recommendations/pending', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch('http://localhost:8000/api/meta/recommendations/applied', {
+        fetch(apiUrl('/api/meta/recommendations/applied', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch('http://localhost:8000/api/meta/performance', {
+        fetch(apiUrl('/api/meta/performance', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);

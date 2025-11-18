@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { 
   Cpu, Database, Network, Activity, Settings, Terminal, Shield, 
   MessageSquare, Search, Bell, Moon, Sun, Layers, TrendingUp,
@@ -33,13 +34,13 @@ export default function GraceNexus() {
 
   useEffect(() => {
     // Fetch health data
-    fetch('http://localhost:8000/health')
+    fetch(apiUrl('/health')
       .then(r => r.json())
       .then(data => setSystemMetrics(data))
       .catch(console.error);
 
     // Fetch domain status
-    fetch('http://localhost:8000/api/cognition/status')
+    fetch(apiUrl('/api/cognition/status')
       .then(r => r.json())
       .then(data => {
         if (data.domains) {

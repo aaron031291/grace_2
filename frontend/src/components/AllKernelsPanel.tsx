@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Cpu, PlayCircle, Square, Activity, TrendingUp, AlertCircle } from 'lucide-react';
 
 interface Kernel {
@@ -32,7 +33,7 @@ export function AllKernelsPanel() {
 
   const loadKernels = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/kernels');
+      const response = await fetch(apiUrl('/api/kernels');
       if (response.ok && response.headers.get('content-type')?.includes('json')) {
         const data = await response.json();
         setStats(data);

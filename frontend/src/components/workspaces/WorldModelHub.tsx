@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import type { Workspace } from '../../GraceEnterpriseUI';
 import { orbApi, type OrbSession } from '../../lib/orbApi';
 import BuildProgressCard from '../BuildProgressCard';
@@ -38,7 +39,7 @@ interface ContextData {
   relevant_knowledge: any[];
 }
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin.replace(':5173', ':8000') || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_BASE_URL || window.location.origin.replace(':5173', ':8000') || apiUrl('';
 
 export function WorldModelHub({ workspace, onShowTrace, onCreateWorkspace }: WorldModelHubProps) {
   const [messages, setMessages] = useState<Message[]>([]);

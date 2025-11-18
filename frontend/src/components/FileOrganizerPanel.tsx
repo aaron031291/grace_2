@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { FolderTree, Undo, Redo, CheckCircle, AlertTriangle, Folder, FileText, Move, Trash2 } from 'lucide-react';
 
 interface FileOperation {
@@ -46,7 +47,7 @@ export function FileOrganizerPanel() {
 
   const fetchRecentOperations = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/librarian/file-operations?limit=20');
+      const response = await fetch(apiUrl('/api/librarian/file-operations?limit=20');
       const data = await response.json();
       setRecentOperations(data.operations || []);
     } catch (error) {
@@ -56,7 +57,7 @@ export function FileOrganizerPanel() {
 
   const fetchSuggestions = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/librarian/organization-suggestions');
+      const response = await fetch(apiUrl('/api/librarian/organization-suggestions');
       const data = await response.json();
       setSuggestions(data.suggestions || []);
     } catch (error) {
@@ -89,7 +90,7 @@ export function FileOrganizerPanel() {
   const applySuggestion = async (suggestion: OrganizationSuggestion) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/librarian/organize-file', {
+      const response = await fetch(apiUrl('/api/librarian/organize-file', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

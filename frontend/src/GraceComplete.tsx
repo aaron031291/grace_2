@@ -5,6 +5,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { 
   MessageSquare, Terminal, FolderOpen, Database, Cpu, 
   Settings, Send, Search, Plus, Zap, Shield
@@ -51,7 +52,7 @@ export default function GraceComplete() {
   // Connect to terminal WebSocket
   useEffect(() => {
     if (activeView === 'terminal' && !ws) {
-      const websocket = new WebSocket('ws://localhost:8000/ws/terminal');
+      const websocket = new WebSocket('${WS_BASE_URL}/ws/terminal');
       
       websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
@@ -97,7 +98,7 @@ export default function GraceComplete() {
 
     try {
       // Use multi-modal API for intelligent model selection
-      const response = await fetch('http://localhost:8000/api/multimodal/chat', {
+      const response = await fetch(apiUrl('/api/multimodal/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

@@ -1,4 +1,5 @@
 import { useState, type FormEvent, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { MemoryBrowser } from './components/MemoryBrowser';
 import { MemoryPanel as MemoryPanelOld } from './panels/MemoryPanel';
 import { MemoryHubPanel } from './panels/MemoryHubPanel';
@@ -43,7 +44,7 @@ export default function App() {
 
   async function login(e: FormEvent) {
     e.preventDefault();
-    const r = await fetch('http://localhost:8000/api/auth/login', {
+    const r = await fetch(apiUrl('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: user, password: pass })
@@ -64,7 +65,7 @@ export default function App() {
     const msg = inp;
     setInp('');
 
-    const r = await fetch('http://localhost:8000/api/chat', {
+    const r = await fetch(apiUrl('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ message: msg })
@@ -76,11 +77,11 @@ export default function App() {
   useEffect(() => {
     if (page === 'dash' && token) {
       const loadDash = () => {
-        fetch('http://localhost:8000/api/metrics/summary').then(r => r.json()).then(setMetrics);
-        fetch('http://localhost:8000/api/tasks/', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setTasks);
-        fetch('http://localhost:8000/api/reflections/').then(r => r.json()).then(setRefs);
-        fetch('http://localhost:8000/api/causal/patterns', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setCausal);
-        fetch('http://localhost:8000/api/executor/tasks', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(d => setExecTasks(d.tasks || []));
+        fetch(apiUrl('/api/metrics/summary').then(r => r.json()).then(setMetrics);
+        fetch(apiUrl('/api/tasks/', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setTasks);
+        fetch(apiUrl('/api/reflections/').then(r => r.json()).then(setRefs);
+        fetch(apiUrl('/api/causal/patterns', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(setCausal);
+        fetch(apiUrl('/api/executor/tasks', { headers: { Authorization: `Bearer ${token}` }}).then(r => r.json()).then(d => setExecTasks(d.tasks || []));
       };
       loadDash();
       const int = setInterval(loadDash, 5000);

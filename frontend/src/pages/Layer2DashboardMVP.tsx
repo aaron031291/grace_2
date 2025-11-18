@@ -3,6 +3,7 @@
  * HTM Console with queue management, priority controls, and kernel terminals
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import { KernelTerminal } from '../components/KernelTerminal';
 import { CoPilotPane } from '../components/CoPilotPane';
@@ -27,7 +28,7 @@ interface PriorityWeights {
   low_weight: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer2DashboardMVP: React.FC = () => {
   const [kernels, setKernels] = useState([]);

@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   MessageSquare,
   Send,
@@ -78,7 +79,7 @@ export function GraceCopilot({
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/copilot/chat', {
+      const response = await fetch(apiUrl('/api/copilot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

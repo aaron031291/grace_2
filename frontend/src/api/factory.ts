@@ -1,10 +1,11 @@
+import { apiUrl, WS_BASE_URL } from './config';
 /**
  * Factory Pattern API Client
  * Clean, type-safe API helpers for the new modular backend
  * No circular imports - each domain is independent
  */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 // ===== Helper Function =====
 

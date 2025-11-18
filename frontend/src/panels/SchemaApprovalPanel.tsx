@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   CheckCircle,
   XCircle,
@@ -43,7 +44,7 @@ export function SchemaApprovalPanel() {
 
   async function loadProposals() {
     try {
-      const response = await fetch('http://localhost:8000/api/memory/tables/proposals/pending');
+      const response = await fetch(apiUrl('/api/memory/tables/proposals/pending');
       const data = await response.json();
       setProposals(data.proposals || []);
     } catch (err) {

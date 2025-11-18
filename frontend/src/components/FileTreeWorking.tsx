@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, File } from 'lucide-react';
 
 interface FileNode {
@@ -27,7 +28,7 @@ export const FileTreeWorking: React.FC<FileTreeProps> = ({ token, onSelect, sele
 
   const loadRoot = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/memory/files?path=/', {
+      const response = await fetch(apiUrl('/api/memory/files?path=/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();

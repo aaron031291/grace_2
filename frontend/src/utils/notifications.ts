@@ -1,3 +1,4 @@
+import { apiUrl, WS_BASE_URL } from './config';
 /**
  * UI Notification System for Book Ingestion Events
  * Integrates with event bus to show toasts and co-pilot messages
@@ -161,7 +162,7 @@ export const bookNotifications = {
 
 // Event bus integration
 export function setupBookEventListeners() {
-  const eventSource = new EventSource('http://localhost:8000/api/events/stream');
+  const eventSource = new EventSource(apiUrl('/api/events/stream');
 
   eventSource.addEventListener('file.created', (event) => {
     const data = JSON.parse(event.data);

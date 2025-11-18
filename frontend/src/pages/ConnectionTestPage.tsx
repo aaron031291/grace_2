@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import type { HealthResponse, VerificationAuditResponse, ExecutionTrace, DataProvenance } from '../api/types';
 
 export function ConnectionTestPage() {
@@ -16,12 +17,12 @@ export function ConnectionTestPage() {
     async function testConnection() {
       try {
         // Test health endpoint
-        const healthRes = await fetch('http://localhost:8000/health');
+        const healthRes = await fetch(apiUrl('/health');
         const healthData = await healthRes.json();
         setHealth(healthData);
 
         // Test verification audit (no auth required)
-        const auditRes = await fetch('http://localhost:8000/api/verification/audit?limit=5');
+        const auditRes = await fetch(apiUrl('/api/verification/audit?limit=5');
         const auditData = await auditRes.json();
         setAudit(auditData);
 

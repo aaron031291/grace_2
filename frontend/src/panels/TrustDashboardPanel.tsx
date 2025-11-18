@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   Shield, AlertTriangle, TrendingUp, TrendingDown, Activity,
   CheckCircle, XCircle, AlertCircle, BarChart3, PieChart
@@ -55,7 +56,7 @@ export function TrustDashboardPanel() {
 
   async function loadTrustReport() {
     try {
-      const response = await fetch('http://localhost:8000/api/memory/tables/trust/report');
+      const response = await fetch(apiUrl('/api/memory/tables/trust/report');
       const data = await response.json();
       setTrustReport(data);
     } catch (err) {
@@ -65,7 +66,7 @@ export function TrustDashboardPanel() {
 
   async function loadContradictions() {
     try {
-      const response = await fetch('http://localhost:8000/api/memory/tables/contradictions/summary');
+      const response = await fetch(apiUrl('/api/memory/tables/contradictions/summary');
       const data = await response.json();
       setContradictions(data);
     } catch (err) {
@@ -78,7 +79,7 @@ export function TrustDashboardPanel() {
     try {
       const url = tableName
         ? `http://localhost:8000/api/memory/tables/trust/update/${tableName}`
-        : 'http://localhost:8000/api/memory/tables/trust/update-all';
+        : apiUrl('/api/memory/tables/trust/update-all';
       
       const response = await fetch(url, { method: 'POST' });
       const result = await response.json();
@@ -96,7 +97,7 @@ export function TrustDashboardPanel() {
   async function scanContradictions() {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/memory/tables/contradictions/scan', {
+      const response = await fetch(apiUrl('/api/memory/tables/contradictions/scan', {
         method: 'POST'
       });
       const result = await response.json();

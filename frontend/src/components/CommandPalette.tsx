@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Search, Book, FolderTree, Zap, Settings, FileText, CheckCircle } from 'lucide-react';
 
 interface Command {
@@ -43,7 +44,7 @@ export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
       icon: <FolderTree className="w-5 h-5" />,
       keywords: ['scan', 'organize', 'sort', 'files'],
       action: async () => {
-        await fetch('http://localhost:8000/api/librarian/scan-and-organize', {
+        await fetch(apiUrl('/api/librarian/scan-and-organize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ auto_move: false })
@@ -92,7 +93,7 @@ export function CommandPalette({ onClose, onNavigate }: CommandPaletteProps) {
       icon: <FileText className="w-5 h-5" />,
       keywords: ['logs', 'activity', 'librarian', 'history'],
       action: () => {
-        window.open('http://localhost:8000/api/books/activity', '_blank');
+        window.open(apiUrl('/api/books/activity', '_blank');
         onClose();
       }
     },

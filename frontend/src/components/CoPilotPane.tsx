@@ -4,6 +4,7 @@
  * Features: Notifications, bi-directional chat, multi-modal input, quick actions
  */
 import React, { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './CoPilotPane.css';
 
@@ -49,7 +50,7 @@ interface CoPilotPaneProps {
   onAction?: (action: string, params?: any) => void;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const CoPilotPane: React.FC<CoPilotPaneProps> = ({ currentLayer, onAction }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

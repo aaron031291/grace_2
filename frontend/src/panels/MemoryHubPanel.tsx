@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { FileTree } from '../components/FileTree';
 import { 
   Save, FilePlus, FolderPlus, Trash2, Upload, RefreshCw, 
@@ -305,7 +306,7 @@ export function MemoryHubPanel() {
     
     try {
       // TODO: Call Grace API with file context
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

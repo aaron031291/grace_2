@@ -4,6 +4,7 @@
  * Filters by origin (filesystem, remote, Hunter) and charts for avg/p95 duration vs MB processed
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './Layer2HTMConsole.css';
 
@@ -38,7 +39,7 @@ interface WorkloadPerception {
   workload_status: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer2HTMConsole: React.FC = () => {
   const [queueStatus, setQueueStatus] = useState<HTMQueueStatus | null>(null);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './TranscendenceDashboard.css';
 
 interface CognitiveState {
@@ -62,7 +63,7 @@ const TranscendenceDashboard: React.FC = () => {
 
     // Setup WebSocket for real-time updates
     const token = localStorage.getItem('token');
-    const websocket = new WebSocket(`ws://localhost:8000/api/dashboard/ws/cognitive?token=${token}`);
+    const websocket = new WebSocket(`${WS_BASE_URL}/api/dashboard/ws/cognitive?token=${token}`);
     
     websocket.onmessage = (event) => {
       const update = JSON.parse(event.data);
@@ -82,7 +83,7 @@ const TranscendenceDashboard: React.FC = () => {
 
   const fetchCognitiveState = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/cognitive/current', {
+    const response = await fetch(apiUrl('/api/dashboard/cognitive/current', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();
@@ -91,7 +92,7 @@ const TranscendenceDashboard: React.FC = () => {
 
   const fetchProposals = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/proposals/pending', {
+    const response = await fetch(apiUrl('/api/dashboard/proposals/pending', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();
@@ -100,7 +101,7 @@ const TranscendenceDashboard: React.FC = () => {
 
   const fetchRevenueData = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/business/revenue', {
+    const response = await fetch(apiUrl('/api/dashboard/business/revenue', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();

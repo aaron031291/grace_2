@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   AlertCircle, CheckCircle, Clock, Zap, X, ChevronDown, TrendingUp, Activity
 } from 'lucide-react';
@@ -38,7 +39,7 @@ export function HealthDashboard() {
       // Try real monitoring API first
       let incidents;
       try {
-        const res = await fetch('http://localhost:8000/api/monitoring/incidents?limit=20');
+        const res = await fetch(apiUrl('/api/monitoring/incidents?limit=20');
         if (res.ok) {
           incidents = await res.json();
         } else {

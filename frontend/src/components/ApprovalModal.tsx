@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './ApprovalModal.css';
@@ -35,7 +36,7 @@ export function ApprovalModal({ isOpen, onClose, token }: ApprovalModalProps) {
 
   const fetchApprovals = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/autonomy/approvals', {
+      const res = await fetch(apiUrl('/api/autonomy/approvals', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -48,7 +49,7 @@ export function ApprovalModal({ isOpen, onClose, token }: ApprovalModalProps) {
   const handleDecision = async (approvalId: string, approved: boolean) => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/autonomy/approve', {
+      const res = await fetch(apiUrl('/api/autonomy/approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

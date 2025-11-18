@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './GraceAgentic.css';
 import { setAuthToken } from './api/client';
 
@@ -53,7 +54,7 @@ export default function GraceAgentic() {
   }, []);
 
   const initializeWebSocket = (token: string) => {
-    const websocket = new WebSocket(`ws://localhost:8000/ws/cognition?token=${token}`);
+    const websocket = new WebSocket(`${WS_BASE_URL}/ws/cognition?token=${token}`);
     
     websocket.onopen = () => {
       addSystemMessage('🟢 Connected to Grace event stream', 'core');
@@ -113,7 +114,7 @@ export default function GraceAgentic() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -140,7 +141,7 @@ export default function GraceAgentic() {
   const handleRegister = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
+      const response = await fetch(apiUrl('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -189,7 +190,7 @@ export default function GraceAgentic() {
 
     try {
       const token = localStorage.getItem('grace_token');
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -225,11 +226,11 @@ export default function GraceAgentic() {
 
     try {
       if (command === 'status' || command === 'health') {
-        const res = await fetch('http://localhost:8000/health', { headers });
+        const res = await fetch(apiUrl('/health', { headers });
         const data = await res.json();
         addSystemMessage(`✅ Status: ${JSON.stringify(data, null, 2)}`, 'core');
       } else if (command === 'meta') {
-        const res = await fetch('http://localhost:8000/api/meta/focus', { headers });
+        const res = await fetch(apiUrl('/api/meta/focus', { headers });
         const data = await res.json();
         addSystemMessage(`🧠 Meta Focus: ${JSON.stringify(data, null, 2)}`, 'meta_loop');
       } else if (command === 'playbook') {
@@ -337,7 +338,7 @@ export default function GraceAgentic() {
           <div className="header-actions">
             <button className="icon-btn" title="Clear conversation" onClick={() => setMessages([])}>🗑️</button>
             <button className="icon-btn" title="Export logs">📥</button>
-            <a href="http://localhost:8000/docs" target="_blank" className="icon-btn" title="API Docs">📖</a>
+            <a href=apiUrl("/docs" target="_blank" className="icon-btn" title="API Docs">📖</a>
           </div>
         </header>
 

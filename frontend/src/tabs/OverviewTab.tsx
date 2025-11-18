@@ -3,9 +3,10 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 const s = {
   bg: '#0a0a0a',
@@ -145,7 +146,7 @@ export default function OverviewTab() {
           <h2 style={{ color: s.ac, marginBottom: '1.5rem' }}>Quick Actions</h2>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <a
-              href="http://localhost:8000/docs"
+              href=apiUrl("/docs"
               target="_blank"
               rel="noopener noreferrer"
               style={{ background: s.ac, color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}
@@ -153,7 +154,7 @@ export default function OverviewTab() {
               📚 API Documentation
             </a>
             <a
-              href="http://localhost:8000/health"
+              href=apiUrl("/health"
               target="_blank"
               rel="noopener noreferrer"
               style={{ background: '#10b981', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}

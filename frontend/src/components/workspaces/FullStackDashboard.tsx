@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './FullStackDashboard.css';
 
 interface EndpointStatus {
@@ -30,7 +31,7 @@ export const FullStackDashboard: React.FC = () => {
 
   const loadEndpointStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/openapi.json');
+      const response = await fetch(apiUrl('/openapi.json');
       const spec = await response.json();
 
       const byTag: Record<string, EndpointStatus[]> = {};

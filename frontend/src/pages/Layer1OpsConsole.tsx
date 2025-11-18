@@ -4,6 +4,7 @@
  * Controls to start/stop kernels, view stress logs, and inspect ingestion jobs
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './Layer1OpsConsole.css';
 
@@ -48,7 +49,7 @@ interface IngestionThroughput {
   throughput_mb_per_hour: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer1OpsConsole: React.FC = () => {
   const [kernelMetrics, setKernelMetrics] = useState<KernelMetrics | null>(null);

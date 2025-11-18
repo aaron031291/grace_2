@@ -3,6 +3,7 @@
  * Operations Console with kernel terminals and co-pilot
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import { KernelTerminal } from '../components/KernelTerminal';
 import { CoPilotPane } from '../components/CoPilotPane';
@@ -30,7 +31,7 @@ interface TelemetryMetrics {
   avg_boot_time_ms: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer1DashboardMVP: React.FC = () => {
   const [kernels, setKernels] = useState<Kernel[]>([]);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 interface Notification {
   notification_id: string;
@@ -61,7 +62,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ token, o
 
   const markAllAsRead = async () => {
     try {
-      await fetch('http://localhost:8000/api/collaboration/notifications/mark-all-read', {
+      await fetch(apiUrl('/api/collaboration/notifications/mark-all-read', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

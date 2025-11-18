@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { FileTree } from './FileTree';
 import { 
   Save, 
@@ -23,7 +24,7 @@ import { LibrarianChat } from './LibrarianChat';
 import { LibrarianSuggestions } from './LibrarianSuggestions';
 import { StatusBadge } from './StatusBadge';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface FileNode {
   id: string;

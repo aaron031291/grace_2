@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './AppModern.css';
 
 // Lazy load components to avoid import errors
@@ -49,7 +50,7 @@ export default function GraceClean() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMsg })

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 export function KnowledgeIngestion() {
   const token = localStorage.getItem('token');
@@ -14,7 +15,7 @@ export function KnowledgeIngestion() {
     setResult(null);
     
     try {
-      const response = await fetch('http://localhost:8000/api/ingest/url', {
+      const response = await fetch(apiUrl('/api/ingest/url', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ export function KnowledgeIngestion() {
     if (!token) return;
     
     try {
-      const response = await fetch('http://localhost:8000/api/ingest/artifacts?limit=10', {
+      const response = await fetch(apiUrl('/api/ingest/artifacts?limit=10', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

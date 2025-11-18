@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import { SecurityRulesList } from './SecurityRulesList';
 import './HunterDashboard.css';
@@ -33,7 +34,7 @@ export function HunterDashboard() {
         try {
             setIsLoading(true);
             setError('');
-            const response = await axios.get('http://localhost:8000/api/hunter/alerts?limit=50');
+            const response = await axios.get(apiUrl('/api/hunter/alerts?limit=50');
             setAlerts(response.data);
             setIsLoading(false);
         } catch (err) {
@@ -65,7 +66,7 @@ export function HunterDashboard() {
                 priority: alert.severity
             };
 
-            await axios.post('http://localhost:8000/api/tasks', task);
+            await axios.post(apiUrl('/api/tasks', task);
             setTaskCreated(`Task created for alert #${alert.id}`);
             setTimeout(() => setTaskCreated(''), 3000);
         } catch (err) {

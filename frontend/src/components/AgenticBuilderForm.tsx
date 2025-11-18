@@ -3,6 +3,7 @@
  * Let users describe coding tasks for Grace's autonomous code generation
  */
 import React, { useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './AgenticBuilderForm.css';
 
@@ -10,7 +11,7 @@ interface AgenticBuilderFormProps {
   onBuildCreated: () => void;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const AgenticBuilderForm: React.FC<AgenticBuilderFormProps> = ({ onBuildCreated }) => {
   const [formData, setFormData] = useState({

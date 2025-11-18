@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Sparkles, Send, Minimize2, Maximize2, BookOpen, FolderTree, CheckCircle } from 'lucide-react';
 
 interface Suggestion {
@@ -27,7 +28,7 @@ export function LibrarianCopilot() {
       icon: <FolderTree className="w-4 h-4" />,
       action: async () => {
         try {
-          const response = await fetch('http://localhost:8000/api/librarian/scan-and-organize', {
+          const response = await fetch(apiUrl('/api/librarian/scan-and-organize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ auto_move: false })
@@ -45,7 +46,7 @@ export function LibrarianCopilot() {
       icon: <BookOpen className="w-4 h-4" />,
       action: async () => {
         try {
-          const response = await fetch('http://localhost:8000/api/books/stats');
+          const response = await fetch(apiUrl('/api/books/stats');
           const data = await response.json();
           addMessage('assistant', `You have ${data.total_books} books. ${data.trust_levels.high} have high trust scores.`);
         } catch (error) {
@@ -59,7 +60,7 @@ export function LibrarianCopilot() {
       icon: <CheckCircle className="w-4 h-4" />,
       action: async () => {
         try {
-          const response = await fetch('http://localhost:8000/api/librarian/file-operations?limit=5');
+          const response = await fetch(apiUrl('/api/librarian/file-operations?limit=5');
           const data = await response.json();
           if (data.operations && data.operations.length > 0) {
             addMessage('assistant', `Recent operations:\n${data.operations.map((op: any) => `• ${op.operation_type}: ${op.source_path?.split('/').pop()}`).join('\n')}\n\nGo to File Organizer tab to undo.`);

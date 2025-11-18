@@ -1,9 +1,10 @@
+import { apiUrl, WS_BASE_URL } from './config';
 /**
  * Librarian API Helper Functions
  * Handles all Librarian kernel API calls with proper error handling
  */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export interface LibrarianStatus {
   kernel: {

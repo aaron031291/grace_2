@@ -422,6 +422,11 @@ async def startup_agentic_organism():
 @app.on_event("startup")
 async def startup_guardian_metrics():
     """Start Guardian metrics publisher"""
+    # Skip background jobs in CI/test environments
+    if os.getenv("CI") == "true" or os.getenv("DISABLE_LEARNING_JOBS") == "true":
+        print("[GUARDIAN-METRICS] Skipped in CI/test mode")
+        return
+    
     try:
         from backend.guardian.metrics_publisher import start_metrics_publisher
         import asyncio
@@ -435,6 +440,11 @@ async def startup_guardian_metrics():
 @app.on_event("startup")
 async def startup_advanced_learning():
     """Starts the advanced learning supervisor and its sub-agents."""
+    # Skip background jobs in CI/test environments
+    if os.getenv("CI") == "true" or os.getenv("DISABLE_LEARNING_JOBS") == "true":
+        print("[ADVANCED-LEARNING] Skipped in CI/test mode")
+        return
+    
     if advanced_learning_supervisor:
         try:
             advanced_learning_supervisor.start()
