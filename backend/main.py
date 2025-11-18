@@ -260,6 +260,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Phase 6 API disabled: {e}")
 
+# Register Phase 7 API (SaaS Readiness & Business Workflows)
+try:
+    from backend.routes.phase7_api import router as phase7_router
+    app.include_router(phase7_router)
+except ImportError as e:
+    print(f"[WARN] Phase 7 API disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
