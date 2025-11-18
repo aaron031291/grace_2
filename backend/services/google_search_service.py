@@ -37,6 +37,14 @@ class GoogleSearchService:
         self.blocked_domains = set()  # Blocked domains
         self.domain_trust_scores = {}  # Domain -> trust score (0.0-1.0)
         
+        # Rate limiting
+        self.last_search_time = 0
+        self.min_search_interval = 2.0  # 2 seconds between searches
+        
+        # Search result cache (24 hour TTL)
+        self.search_cache = {}  # query -> (results, timestamp)
+        self.cache_ttl = 86400  # 24 hours in seconds
+        
     async def initialize(self):
         """Initialize search service with governance"""
         if self._initialized:
@@ -65,6 +73,41 @@ class GoogleSearchService:
         self._initialized = True
         logger.info(f"[GOOGLE-SEARCH] Search service initialized with {len(self.trusted_domains)} trusted domains")
     
+    async def _check_cache(self, query: str) -> Optional[List[Dict[str, Any]]]:
+        """Check if query results are in cache"""
+        import time
+        
+        if query in self.search_cache:
+            results, timestamp = self.search_cache[query]
+            age = time.time() - timestamp
+            
+            if age < self.cache_ttl:
+                logger.info(f"[GOOGLE-SEARCH] Cache hit for: {query} (age: {age/3600:.1f}h)")
+                return results
+            else:
+                # Cache expired
+                del self.search_cache[query]
+        
+        return None
+    
+    async def _update_cache(self, query: str, results: List[Dict[str, Any]]):
+        """Update search cache"""
+        import time
+        self.search_cache[query] = (results, time.time())
+        logger.debug(f"[GOOGLE-SEARCH] Cached results for: {query}")
+    
+    async def _rate_limit(self):
+        """Apply rate limiting between searches"""
+        import time
+        
+        elapsed = time.time() - self.last_search_time
+        if elapsed < self.min_search_interval:
+            wait_time = self.min_search_interval - elapsed
+            logger.debug(f"[GOOGLE-SEARCH] Rate limiting: waiting {wait_time:.2f}s")
+            await asyncio.sleep(wait_time)
+        
+        self.last_search_time = time.time()
+    
     async def search(
         self,
         query: str,
@@ -85,17 +128,36 @@ class GoogleSearchService:
         if not self._initialized:
             await self.initialize()
         
+        # Check cache first
+        cached_results = await self._check_cache(query)
+        if cached_results is not None:
+            return cached_results
+        
+        # Apply rate limiting
+        await self._rate_limit()
+        
         self.search_count += 1
+        
+        results = []
         
         # Try API first if available
         if self.use_api:
             try:
-                return await self._search_with_api(query, num_results, safe_search)
+                results = await self._search_with_api(query, num_results, safe_search)
+                if results:
+                    await self._update_cache(query, results)
+                    return results
             except Exception as e:
-                logger.warning(f"[GOOGLE-SEARCH] API search failed, falling back: {e}")
+                logger.warning(f"[GOOGLE-SEARCH] API search failed, falling back to DuckDuckGo: {e}")
         
         # Fallback to DuckDuckGo HTML scraping
-        return await self._search_with_duckduckgo(query, num_results)
+        results = await self._search_with_duckduckgo(query, num_results)
+        
+        # Cache results if successful
+        if results:
+            await self._update_cache(query, results)
+        
+        return results
     
     async def _search_with_api(
         self,
