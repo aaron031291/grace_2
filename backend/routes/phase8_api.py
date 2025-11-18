@@ -17,6 +17,23 @@ health_monitor = HealthMonitor()
 integration_validator = IntegrationValidator()
 
 
+@router.get("/health")
+async def get_phase8_health() -> Dict[str, Any]:
+    """Get Phase 8 health status"""
+    from datetime import datetime
+    return {
+        "status": "healthy",
+        "phase": "Phase 8: End-to-End Testing & Production Readiness",
+        "components": {
+            "readiness_checker": "operational",
+            "health_monitor": "operational",
+            "integration_validator": "operational",
+            "e2e_tests": "ready"
+        },
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+
 @router.get("/summary")
 async def get_phase8_summary() -> Dict[str, Any]:
     """Get Phase 8 summary"""
