@@ -5,6 +5,8 @@ Monitors storage capacity and optimizes usage
 """
 
 import logging
+import shutil
+import os
 from typing import Dict, Any
 from datetime import datetime
 from pathlib import Path
@@ -19,7 +21,25 @@ class StorageTracker:
     """
     
     def __init__(self):
-        self.total_capacity_tb = 1.0  # 1TB available (configurable)
+        # Auto-detect actual disk capacity
+        try:
+            root_path = Path(__file__).parent.parent.parent
+            usage = shutil.disk_usage(root_path)
+            self.total_capacity_tb = usage.total / (1024 ** 4)  # Convert bytes to TB
+            logger.info(f"[STORAGE] Detected {self.total_capacity_tb:.2f} TB total disk capacity")
+        except Exception as e:
+            logger.warning(f"[STORAGE] Could not auto-detect disk space: {e}, using default")
+            self.total_capacity_tb = 1.0  # Fallback
+        
+        # Allow environment variable override
+        env_capacity = os.getenv('GRACE_STORAGE_CAPACITY_TB')
+        if env_capacity:
+            try:
+                self.total_capacity_tb = float(env_capacity)
+                logger.info(f"[STORAGE] Using environment override: {self.total_capacity_tb} TB")
+            except ValueError:
+                pass
+        
         self._initialized = False
         
         # Directories to track
