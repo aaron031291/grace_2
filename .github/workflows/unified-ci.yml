@@ -17,62 +17,11 @@ env:
   CI: 'true'
 
 jobs:
-  # Phase 1: Fast checks (< 2 minutes)
-  fast-checks:
-    name: Fast Checks
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Check VERSION consistency
-        run: |
-          python -c "
-          import re
-          from pathlib import Path
-          version_file = Path('VERSION').read_text().strip()
-          pyproject = Path('pyproject.toml').read_text()
-          pyproject_match = re.search(r'version\s*=\s*\"([^\"]+)\"', pyproject)
-          pyproject_version = pyproject_match.group(1) if pyproject_match else 'NOT FOUND'
-          print(f'VERSION file: {version_file}')
-          print(f'pyproject.toml: {pyproject_version}')
-          if version_file != pyproject_version:
-              print('ERROR: Version mismatch!')
-              exit(1)
-          print('✓ Versions match')
-          "
-      
-      - name: Verify directory structure
-        run: |
-          python -c "
-          from pathlib import Path
-          required_dirs = ['backend', 'frontend', 'tests', 'scripts', 'alembic']
-          required_files = ['alembic.ini', 'pyproject.toml', 'VERSION', 'README.md']
-          missing = []
-          for d in required_dirs:
-              if not Path(d).exists():
-                  missing.append(f'Directory: {d}')
-          for f in required_files:
-              if not Path(f).exists():
-                  missing.append(f'File: {f}')
-          if missing:
-              print('ERROR: Missing required items:')
-              for item in missing:
-                  print(f'  - {item}')
-              exit(1)
-          print('✓ All required directories and files exist')
-          "
-  
-  # Phase 2: Backend validation (< 5 minutes)
+  # Phase 1: Backend validation (includes fast checks)
   backend-validation:
     name: Backend Validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: fast-checks
     
     steps:
       - name: Checkout code
@@ -180,12 +129,11 @@ jobs:
           pytest tests/test_guardian_playbooks.py tests/test_phase2_rag.py tests/test_failure_mode_01.py tests/test_failure_mode_02.py -v --tb=short
         continue-on-error: false
   
-  # Phase 3: Alembic validation
+  # Phase 2: Alembic validation
   alembic-validation:
     name: Alembic Migrations
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: fast-checks
     
     steps:
       - name: Checkout code
@@ -243,12 +191,11 @@ jobs:
           print(f'✓ Migration chain is linear ({len(revisions)} migrations)')
           "
   
-  # Phase 4: Frontend validation (parallel with backend)
+  # Phase 3: Frontend validation (parallel with backend)
   frontend-validation:
     name: Frontend Validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: fast-checks
     
     steps:
       - name: Checkout code
@@ -283,7 +230,7 @@ jobs:
           cd frontend
           npm run build
   
-  # Phase 5: Integration tests (after all validation passes)
+  # Phase 4: Integration tests (after all validation passes)
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
@@ -331,11 +278,11 @@ jobs:
           curl -f http://localhost:8000/api/guardian/health || echo "Guardian API unavailable"
         continue-on-error: true
   
-  # Phase 6: Summary and status
+  # Phase 5: Summary and status
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [fast-checks, backend-validation, frontend-validation, alembic-validation, integration-tests]
+    needs: [backend-validation, frontend-validation, alembic-validation, integration-tests]
     if: always()
     
     steps:
@@ -344,7 +291,6 @@ jobs:
           echo "=========================================="
           echo "CI Pipeline Summary"
           echo "=========================================="
-          echo "Fast Checks: ${{ needs.fast-checks.result }}"
           echo "Backend Validation: ${{ needs.backend-validation.result }}"
           echo "Frontend Validation: ${{ needs.frontend-validation.result }}"
           echo "Alembic Validation: ${{ needs.alembic-validation.result }}"
@@ -352,8 +298,7 @@ jobs:
           echo "=========================================="
           
           # Fail if any required job failed
-          if [ "${{ needs.fast-checks.result }}" != "success" ] || \
-             [ "${{ needs.backend-validation.result }}" != "success" ] || \
+          if [ "${{ needs.backend-validation.result }}" != "success" ] || \
              [ "${{ needs.frontend-validation.result }}" != "success" ]; then
             echo "❌ CI Pipeline FAILED"
             exit 1
