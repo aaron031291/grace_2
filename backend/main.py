@@ -289,6 +289,18 @@ try:
 except ImportError as e:
     print(f"[WARN] Developer API disabled: {e}")
 
+# Register Health Monitoring APIs
+try:
+    from backend.routes.search_health_api import router as search_health_router
+    from backend.routes.learning_health_api import router as learning_health_router
+    from backend.routes.remote_health_api import router as remote_health_router
+    app.include_router(search_health_router)
+    app.include_router(learning_health_router)
+    app.include_router(remote_health_router)
+    print("[OK] Health monitoring APIs registered (search, learning, remote)")
+except ImportError as e:
+    print(f"[WARN] Health monitoring APIs disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
