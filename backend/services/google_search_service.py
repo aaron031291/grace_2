@@ -6,6 +6,7 @@ With trust scoring, KPI tracking, and whitelist management
 
 import logging
 import json
+import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from pathlib import Path
