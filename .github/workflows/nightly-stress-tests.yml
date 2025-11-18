@@ -1,0 +1,55 @@
+name: Nightly Stress Tests
+
+on:
+  schedule:
+    # Run at 2 AM UTC every night
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  stress-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: Run Heavy Load Tests
+      env:
+        OFFLINE_MODE: "true"
+        GRACE_PORT: "8080"
+        CI: "true"
+      run: |
+        python scripts/stress_tests/heavy_load_test.py
+    
+    - name: Run Memory Stress Test
+      env:
+        OFFLINE_MODE: "true"
+        GRACE_PORT: "8081"
+        CI: "true"
+      run: |
+        python scripts/stress_tests/memory_stress_test.py
+    
+    - name: Run Concurrent User Test
+      env:
+        OFFLINE_MODE: "true"
+        GRACE_PORT: "8082"
+        CI: "true"
+      run: |
+        python scripts/stress_tests/concurrent_users_test.py
+    
+    - name: Upload Stress Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: stress-test-results
+        path: reports/stress_tests/
