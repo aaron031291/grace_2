@@ -28,28 +28,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      
-      - name: Install minimal dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml
-      
-      - name: Debug - Show environment
-        run: |
-          set -x
-          python --version
-          pwd
-          ls -la
-          echo "VERSION exists?"; test -f VERSION && cat VERSION || echo "missing"
-          echo "pyproject.toml exists?"; test -f pyproject.toml && echo yes || echo no
-          echo "README.md exists?"; test -f README.md && echo yes || echo no
-          echo "alembic.ini exists?"; test -f alembic.ini && echo yes || echo no
-          echo "Directories:"; ls -d backend frontend tests scripts alembic 2>&1 || echo "some missing"
       
       - name: Check VERSION consistency
         run: |
-          python -c "
+          python - <<'PY'
           import re
           from pathlib import Path
           
@@ -58,7 +40,7 @@ jobs:
           
           # Check pyproject.toml
           pyproject = Path('pyproject.toml').read_text()
-          pyproject_match = re.search(r'version\s*=\s*\"([^\"]+)\"', pyproject)
+          pyproject_match = re.search(r'version\s*=\s*"([^"]+)"', pyproject)
           pyproject_version = pyproject_match.group(1) if pyproject_match else 'NOT FOUND'
           
           print(f'VERSION file: {version_file}')
@@ -68,11 +50,11 @@ jobs:
               print('ERROR: Version mismatch!')
               exit(1)
           print('✓ Versions match')
-          "
+          PY
       
       - name: Verify directory structure
         run: |
-          python -c "
+          python - <<'PY'
           from pathlib import Path
           
           required_dirs = ['backend', 'frontend', 'tests', 'scripts', 'alembic']
@@ -94,7 +76,7 @@ jobs:
               exit(1)
           
           print('✓ All required directories and files exist')
-          "
+          PY
   
   # Phase 2: Backend validation (< 5 minutes)
   backend-validation:
