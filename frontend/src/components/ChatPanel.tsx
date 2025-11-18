@@ -124,12 +124,12 @@ export function ChatPanel() {
         setAttachments([]);
       }
 
-      // Send chat message
-      const res = await fetch(apiUrl('/api/chat'), {
+      // Send chat message to world model
+      const res = await fetch(apiUrl('/api/world_model_hub/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: input,
+          user_message: input,
           voice_session_id: voiceSessionId,
         }),
       });
@@ -168,14 +168,19 @@ export function ChatPanel() {
     }
   };
 
-  // Handle approval
+  // Handle approval via world model
   const handleApproval = async (requestId: string, approved: boolean) => {
-    const endpoint = approved ? '/api/governance/approve' : '/api/governance/reject';
+    const endpoint = approved 
+      ? '/api/world_model_hub/approve' 
+      : '/api/world_model_hub/decline';
     
     await fetch(apiUrl(endpoint), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ request_id: requestId }),
+      body: JSON.stringify({ 
+        approval_id: requestId,
+        reason: approved ? 'User approved' : 'User declined'
+      }),
     });
 
     // Remove approval request from message
