@@ -346,17 +346,28 @@ class RealDataIngestion:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(doc['url'], timeout=10) as response:
                         if response.status == 200:
-                            content = await response.text()
+                            content_type = response.headers.get('Content-Type', '').lower()
                             
-                            # Save to file
                             term_safe = re.sub(r'[^\w\-]', '_', doc['term'])
-                            filename = self.docs_dir / f"{term_safe}_documentation.html"
                             
-                            with open(filename, 'w', encoding='utf-8') as f:
-                                f.write(content)
+                            if 'pdf' in content_type or doc['url'].endswith('.pdf'):
+                                content_bytes = await response.read()
+                                filename = self.docs_dir / f"{term_safe}_documentation.pdf"
+                                
+                                with open(filename, 'wb') as f:
+                                    f.write(content_bytes)
+                                
+                                logger.info(f"[REAL-DATA-INGEST] ✅ Saved PDF: {filename.name} (binary)")
+                            else:
+                                content = await response.text()
+                                filename = self.docs_dir / f"{term_safe}_documentation.html"
+                                
+                                with open(filename, 'w', encoding='utf-8') as f:
+                                    f.write(content)
+                                
+                                logger.info(f"[REAL-DATA-INGEST] ✅ Saved doc: {filename.name}")
                             
                             self.documentation_saved += 1
-                            logger.info(f"[REAL-DATA-INGEST] ✅ Saved doc: {filename.name}")
             
             except Exception as e:
                 logger.warning(f"[REAL-DATA-INGEST] Failed to download {doc['url']}: {e}")

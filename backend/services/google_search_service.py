@@ -45,6 +45,17 @@ class GoogleSearchService:
         self.search_cache = {}  # query -> (results, timestamp)
         self.cache_ttl = 86400  # 24 hours in seconds
         
+        self.provider_order = ['google', 'ddg']  # Will be configured from env
+        self.current_provider = 'ddg'
+        self.consecutive_failures = 0
+        self.backoff_until = 0  # Timestamp when backoff ends
+        self.max_backoff_seconds = 300  # 5 minutes max
+        self.offline_mode = False
+        self.last_success_time = 0
+        
+        self.last_error = None
+        self.last_status_code = None
+        
     async def initialize(self):
         """Initialize search service with governance"""
         if self._initialized:
@@ -56,22 +67,32 @@ class GoogleSearchService:
         # Initialize trust scoring system
         await self._initialize_trust_system()
         
-        # Try to get API key from environment
+        # Configure provider order from environment
         try:
             import os
             self.api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
             self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
             
+            provider_order_env = os.getenv("SEARCH_PROVIDER_ORDER", "google,ddg")
+            self.provider_order = [p.strip() for p in provider_order_env.split(',')]
+            
             if self.api_key and self.search_engine_id:
                 self.use_api = True
+                self.current_provider = 'google'
                 logger.info("[GOOGLE-SEARCH] API credentials found, using Google Custom Search API")
             else:
+                self.current_provider = 'ddg'
                 logger.info("[GOOGLE-SEARCH] No API credentials, using DuckDuckGo fallback")
+            
+            # Check for offline mode threshold
+            self.offline_threshold = int(os.getenv("SEARCH_CONSECUTIVE_FAILS_FOR_OFFLINE", "5"))
+            
         except Exception as e:
             logger.warning(f"[GOOGLE-SEARCH] Could not check for API credentials: {e}")
         
         self._initialized = True
         logger.info(f"[GOOGLE-SEARCH] Search service initialized with {len(self.trusted_domains)} trusted domains")
+        logger.info(f"[GOOGLE-SEARCH] Provider order: {self.provider_order}, Offline threshold: {self.offline_threshold}")
     
     async def _check_cache(self, query: str) -> Optional[List[Dict[str, Any]]]:
         """Check if query results are in cache"""
@@ -100,6 +121,13 @@ class GoogleSearchService:
         """Apply rate limiting between searches"""
         import time
         
+        # Check if we're in backoff period
+        if time.time() < self.backoff_until:
+            remaining = self.backoff_until - time.time()
+            logger.debug(f"[GOOGLE-SEARCH] In backoff period, {remaining:.1f}s remaining")
+            await asyncio.sleep(min(remaining, 1.0))  # Sleep in 1s increments
+            return
+        
         elapsed = time.time() - self.last_search_time
         if elapsed < self.min_search_interval:
             wait_time = self.min_search_interval - elapsed
@@ -107,6 +135,62 @@ class GoogleSearchService:
             await asyncio.sleep(wait_time)
         
         self.last_search_time = time.time()
+    
+    def _calculate_backoff(self) -> float:
+        """Calculate exponential backoff with jitter"""
+        import random
+        
+        base_backoff = min(2 ** self.consecutive_failures, self.max_backoff_seconds)
+        
+        jitter = random.uniform(0.8, 1.2)
+        backoff = base_backoff * jitter
+        
+        return min(backoff, self.max_backoff_seconds)
+    
+    def _enter_backoff(self, status_code: int):
+        """Enter exponential backoff period"""
+        import time
+        
+        self.consecutive_failures += 1
+        backoff_seconds = self._calculate_backoff()
+        self.backoff_until = time.time() + backoff_seconds
+        self.last_status_code = status_code
+        
+        logger.warning(
+            f"[GOOGLE-SEARCH] Entering backoff: {backoff_seconds:.1f}s "
+            f"(failure #{self.consecutive_failures}, status: {status_code})"
+        )
+        
+        # Check if we should enter offline mode
+        if self.consecutive_failures >= self.offline_threshold:
+            self._enter_offline_mode()
+    
+    def _enter_offline_mode(self):
+        """Enter offline mode after too many failures"""
+        if not self.offline_mode:
+            self.offline_mode = True
+            logger.warning(
+                f"[GOOGLE-SEARCH] ⚠️ ENTERING OFFLINE MODE after {self.consecutive_failures} "
+                f"consecutive failures. Will use local sources only."
+            )
+    
+    def _exit_offline_mode(self):
+        """Exit offline mode after successful search"""
+        if self.offline_mode:
+            self.offline_mode = False
+            logger.info("[GOOGLE-SEARCH] ✅ EXITING OFFLINE MODE - Online search restored")
+    
+    def _reset_backoff(self):
+        """Reset backoff after successful search"""
+        import time
+        
+        if self.consecutive_failures > 0:
+            logger.info(f"[GOOGLE-SEARCH] ✅ Search successful, resetting backoff (was {self.consecutive_failures} failures)")
+        
+        self.consecutive_failures = 0
+        self.backoff_until = 0
+        self.last_success_time = time.time()
+        self._exit_offline_mode()
     
     async def search(
         self,
@@ -220,11 +304,11 @@ class GoogleSearchService:
             async with self.session.post(url, data=params, headers=headers) as response:
                 # Accept both 200 and 202 status codes
                 if response.status not in [200, 202]:
-                    # Reduce log spam for 403 (rate limiting)
-                    if response.status == 403:
-                        logger.debug(f"[GOOGLE-SEARCH] DuckDuckGo rate limited (403) - gracefully degrading")
+                    if response.status in [403, 429]:
+                        self._enter_backoff(response.status)
                     else:
                         logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo returned status {response.status}")
+                        self.consecutive_failures += 1
                     return []
                 
                 # For 202, wait a moment and retry if needed
@@ -234,11 +318,11 @@ class GoogleSearchService:
                     # Retry once
                     async with self.session.post(url, data=params, headers=headers) as retry_response:
                         if retry_response.status not in [200, 202]:
-                            # Reduce log spam for 403
-                            if retry_response.status == 403:
-                                logger.debug(f"[GOOGLE-SEARCH] DuckDuckGo rate limited on retry (403)")
+                            if retry_response.status in [403, 429]:
+                                self._enter_backoff(retry_response.status)
                             else:
                                 logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo retry failed with status {retry_response.status}")
+                                self.consecutive_failures += 1
                             return []
                         html = await retry_response.text()
                 else:
@@ -278,6 +362,10 @@ class GoogleSearchService:
                         continue
                 
                 logger.info(f"[GOOGLE-SEARCH] DuckDuckGo returned {len(results)} results for: {query}")
+                
+                if results:
+                    self._reset_backoff()
+                
                 return results
                 
         except Exception as e:
@@ -585,6 +673,8 @@ class GoogleSearchService:
     
     async def get_metrics(self) -> Dict[str, Any]:
         """Get KPIs and performance metrics"""
+        import time
+        
         total = self.search_count
         success_rate = (self.successful_searches / total * 100) if total > 0 else 0
         
@@ -602,7 +692,49 @@ class GoogleSearchService:
                 3
             ),
             "governance_active": True,
-            "api_enabled": self.use_api
+            "api_enabled": self.use_api,
+            "current_provider": self.current_provider,
+            "consecutive_failures": self.consecutive_failures,
+            "in_backoff": time.time() < self.backoff_until,
+            "backoff_remaining_seconds": max(0, self.backoff_until - time.time()),
+            "offline_mode": self.offline_mode,
+            "last_success_time": self.last_success_time,
+            "last_error": self.last_error,
+            "last_status_code": self.last_status_code
+        }
+    
+    async def get_health(self) -> Dict[str, Any]:
+        """Get health status for monitoring"""
+        import time
+        
+        metrics = await self.get_metrics()
+        
+        if self.offline_mode:
+            status = "degraded"
+            message = "OFFLINE MODE - Using local sources only"
+        elif time.time() < self.backoff_until:
+            status = "degraded"
+            remaining = self.backoff_until - time.time()
+            message = f"In backoff period ({remaining:.1f}s remaining)"
+        elif self.consecutive_failures > 0:
+            status = "warning"
+            message = f"{self.consecutive_failures} consecutive failures"
+        else:
+            status = "healthy"
+            message = "Online search operational"
+        
+        return {
+            "status": status,
+            "message": message,
+            "provider": self.current_provider,
+            "offline_mode": self.offline_mode,
+            "consecutive_failures": self.consecutive_failures,
+            "in_backoff": time.time() < self.backoff_until,
+            "backoff_remaining_seconds": max(0, self.backoff_until - time.time()),
+            "last_success_time": self.last_success_time,
+            "last_status_code": self.last_status_code,
+            "last_error": self.last_error,
+            "success_rate_pct": metrics["success_rate_pct"]
         }
     
     async def close(self):
@@ -614,6 +746,3 @@ class GoogleSearchService:
 
 # Global instance
 google_search_service = GoogleSearchService()
-
-
-
