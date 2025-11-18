@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Cpu, PlayCircle, Square, Activity, Database, Code, Shield, Brain, Network, Zap, BookOpen, Upload } from 'lucide-react';
 
 interface Kernel {
@@ -41,7 +42,7 @@ export function Complete12KernelsPanel() {
 
   const loadKernels = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/kernels');
+      const response = await fetch(apiUrl('/api/kernels');
       if (response.ok) {
         const data = await response.json();
         setKernels(data.kernels || []);

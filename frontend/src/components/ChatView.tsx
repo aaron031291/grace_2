@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import type { ExecutionTrace } from '../GraceEnterpriseUI';
 import './ChatView.css';
 
@@ -34,7 +35,7 @@ export function ChatView({ onShowTrace }: ChatViewProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8054/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input }),

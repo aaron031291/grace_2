@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { 
   Send, Menu, Plus, Cpu, Shield, Database, Code, BarChart3, 
   FileText, GitBranch, Settings, Zap, CheckCircle, AlertCircle,
@@ -94,7 +95,7 @@ export default function GraceOrb() {
 
   const loadSystemData = async () => {
     try {
-      const health = await fetch('http://localhost:8000/health').then(r => r.json());
+      const health = await fetch(apiUrl('/health').then(r => r.json());
       setSystemHealth(health);
     } catch (e) {
       console.error('Failed to load system data:', e);
@@ -116,7 +117,7 @@ export default function GraceOrb() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMessage.content, domain: 'all' })

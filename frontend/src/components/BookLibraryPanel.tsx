@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Play, CheckCircle, AlertTriangle, Book, FileText, Activity, Zap, TrendingUp } from 'lucide-react';
 
 interface BookStats {
@@ -84,7 +85,7 @@ export function BookLibraryPanel() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/books/stats');
+      const response = await fetch(apiUrl('/api/books/stats');
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -94,7 +95,7 @@ export function BookLibraryPanel() {
 
   const fetchRecentBooks = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/books/recent?limit=20');
+      const response = await fetch(apiUrl('/api/books/recent?limit=20');
       const data = await response.json();
       setRecentBooks(data);
     } catch (error) {
@@ -104,7 +105,7 @@ export function BookLibraryPanel() {
 
   const fetchActivity = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/books/activity?limit=30');
+      const response = await fetch(apiUrl('/api/books/activity?limit=30');
       const data = await response.json();
       setActivity(data);
     } catch (error) {

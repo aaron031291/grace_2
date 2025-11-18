@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './SecurityRulesList.css';
 
@@ -22,7 +23,7 @@ export function SecurityRulesList() {
         try {
             setIsLoading(true);
             setError('');
-            const response = await axios.get('http://localhost:8000/api/hunter/rules');
+            const response = await axios.get(apiUrl('/api/hunter/rules');
             setRules(response.data);
             setIsLoading(false);
         } catch (err) {

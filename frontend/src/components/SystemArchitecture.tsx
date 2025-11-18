@@ -4,10 +4,11 @@
  */
 
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './SystemArchitecture.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 export default function SystemArchitecture() {
   const [status, setStatus] = useState<any>(null);

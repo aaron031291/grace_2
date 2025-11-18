@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { 
   Activity, BarChart3, Zap, Play, Pause, CheckCircle, XCircle,
   Clock, TrendingUp, Database, FileText, Layers, Brain, BookOpen, FolderTree
@@ -104,7 +105,7 @@ export function MemoryStudioPanel() {
 
   async function loadPipelines() {
     try {
-      const response = await fetch('http://localhost:8000/api/ingestion/pipelines');
+      const response = await fetch(apiUrl('/api/ingestion/pipelines');
       const data = await response.json();
       setPipelines(data.pipelines || []);
     } catch (err) {
@@ -114,7 +115,7 @@ export function MemoryStudioPanel() {
 
   async function loadJobs() {
     try {
-      const response = await fetch('http://localhost:8000/api/ingestion/jobs');
+      const response = await fetch(apiUrl('/api/ingestion/jobs');
       const data = await response.json();
       setJobs(data.jobs || []);
     } catch (err) {
@@ -124,7 +125,7 @@ export function MemoryStudioPanel() {
 
   async function loadMetrics() {
     try {
-      const response = await fetch('http://localhost:8000/api/ingestion/metrics');
+      const response = await fetch(apiUrl('/api/ingestion/metrics');
       const data = await response.json();
       setMetrics(data);
     } catch (err) {
@@ -134,7 +135,7 @@ export function MemoryStudioPanel() {
 
   async function startPipeline(pipelineId: string, filePath: string) {
     try {
-      const response = await fetch('http://localhost:8000/api/ingestion/start', {
+      const response = await fetch(apiUrl('/api/ingestion/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

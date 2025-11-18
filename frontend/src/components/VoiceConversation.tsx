@@ -4,11 +4,12 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Mic, MicOff, Volume2, VolumeX, Pause, Play, CheckCircle } from 'lucide-react';
 import axios from 'axios';
 import { ModelIndicator } from './ModelIndicator';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface ConversationState {
   session_id: string;

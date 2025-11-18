@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './CollaborationDashboard.css';
 import { GraceCopilotSidebar } from './GraceCopilotSidebar';
 import { PresencePanel } from './PresencePanel';
@@ -31,7 +32,7 @@ export const CollaborationDashboard: React.FC<CollaborationDashboardProps> = ({ 
   }, []);
 
   const connectWebSocket = () => {
-    const websocket = new WebSocket(`ws://localhost:8000/api/collaboration/ws?token=${token}`);
+    const websocket = new WebSocket(`${WS_BASE_URL}/api/collaboration/ws?token=${token}`);
 
     websocket.onopen = () => {
       setConnected(true);
@@ -71,7 +72,7 @@ export const CollaborationDashboard: React.FC<CollaborationDashboardProps> = ({ 
 
   const fetchPresenceData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/collaboration/presence/all', {
+      const response = await fetch(apiUrl('/api/collaboration/presence/all', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -83,7 +84,7 @@ export const CollaborationDashboard: React.FC<CollaborationDashboardProps> = ({ 
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/collaboration/notifications/unread-count', {
+      const response = await fetch(apiUrl('/api/collaboration/notifications/unread-count', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

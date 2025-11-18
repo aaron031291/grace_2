@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './AppModern.css';
 
 // Domain icons and info
@@ -33,7 +34,7 @@ export default function AppModern() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: userMsg })
@@ -184,7 +185,7 @@ export default function AppModern() {
           
           <p className="input-hint">
             Grace can help with code, knowledge, security, and more. 
-            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">API Docs</a>
+            <a href=apiUrl("/docs" target="_blank" rel="noopener noreferrer">API Docs</a>
           </p>
         </div>
       </main>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './BusinessMetrics.css';
 
 interface ProfitData {
@@ -71,7 +72,7 @@ const BusinessMetrics: React.FC = () => {
 
   const fetchForecasts = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/business/forecast?months=3', {
+    const response = await fetch(apiUrl('/api/dashboard/business/forecast?months=3', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();
@@ -80,7 +81,7 @@ const BusinessMetrics: React.FC = () => {
 
   const fetchOptimizations = async () => {
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:8000/api/dashboard/business/optimizations', {
+    const response = await fetch(apiUrl('/api/dashboard/business/optimizations', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await response.json();

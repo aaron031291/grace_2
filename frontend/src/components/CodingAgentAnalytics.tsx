@@ -3,10 +3,11 @@
  * Shows success metrics, trends, and improvement recommendations
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './CodingAgentAnalytics.css';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const CodingAgentAnalytics: React.FC = () => {
   const [overview, setOverview] = useState<any>(null);

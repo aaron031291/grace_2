@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import type { NavItem } from '../GraceShell';
 
@@ -23,7 +24,7 @@ window.addEventListener('priority-badge-update', (e: any) => {
   }
 });
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface SidebarProps {
   selected: NavItem;

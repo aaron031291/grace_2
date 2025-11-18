@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Code, GitBranch, AlertTriangle, CheckCircle, Clock, ArrowRight, Zap } from 'lucide-react';
 
 export function PatchTrackingPanel() {
@@ -21,9 +22,9 @@ export function PatchTrackingPanel() {
   const loadData = async () => {
     try {
       const [ordersRes, runsRes, statsRes] = await Promise.all([
-        fetch('http://localhost:8000/patches/work-orders'),
-        fetch('http://localhost:8000/patches/runs'),
-        fetch('http://localhost:8000/patches/stats'),
+        fetch(apiUrl('/patches/work-orders'),
+        fetch(apiUrl('/patches/runs'),
+        fetch(apiUrl('/patches/stats'),
       ]);
 
       if (ordersRes.ok) setWorkOrders((await ordersRes.json()).work_orders || []);

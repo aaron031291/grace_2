@@ -3,6 +3,7 @@
  * Learning & Intent Console with kernel terminals and simple intent creation
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import { KernelTerminal } from '../components/KernelTerminal';
 import { CoPilotPane } from '../components/CoPilotPane';
@@ -26,7 +27,7 @@ interface Retrospective {
   timestamp: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer3DashboardMVP: React.FC = () => {
   const [kernels, setKernels] = useState([]);

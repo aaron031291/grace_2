@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 interface Workflow {
   workflow_id: string;
@@ -32,7 +33,7 @@ export const WorkflowManager: React.FC<WorkflowManagerProps> = ({ token, userId 
   const fetchWorkflows = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/collaboration/workflows', {
+      const response = await fetch(apiUrl('/api/collaboration/workflows', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

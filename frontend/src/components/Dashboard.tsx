@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 export function Dashboard() {
   const token = localStorage.getItem('token');
@@ -8,20 +9,20 @@ export function Dashboard() {
   const [reflections, setReflections] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/metrics/summary')
+    fetch(apiUrl('/api/metrics/summary')
       .then(r => r.json())
       .then(setMetrics);
     
     if (token) {
-      fetch('http://localhost:8000/api/causal/patterns', {
+      fetch(apiUrl('/api/causal/patterns', {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()).then(setCausal);
 
-      fetch('http://localhost:8000/api/tasks/', {
+      fetch(apiUrl('/api/tasks/', {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()).then(setTasks);
 
-      fetch('http://localhost:8000/api/reflections/')
+      fetch(apiUrl('/api/reflections/')
         .then(r => r.json())
         .then(setReflections);
     }

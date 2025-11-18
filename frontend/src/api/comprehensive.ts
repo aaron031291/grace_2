@@ -1,3 +1,4 @@
+import { apiUrl, WS_BASE_URL } from './config';
 /**
  * Comprehensive API Client
  * Type-safe API helpers for all panels
@@ -5,7 +6,7 @@
 
 // DEPRECATED: Use api/factory.ts instead for the new clean architecture
 // This file maintained for backwards compatibility
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = apiUrl('/api';
 
 // ===== TYPES =====
 

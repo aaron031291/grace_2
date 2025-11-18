@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   Folder, FolderOpen, File, ChevronRight, ChevronDown,
   FilePlus, FolderPlus, Save, Trash2, Upload, RefreshCw,
@@ -15,7 +16,7 @@ import { useState } from 'react';
 import { MemoryWorkspace } from './MemoryWorkspace';
 import { FileText, Database, Search, Settings } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface FileNode {
   name: string;

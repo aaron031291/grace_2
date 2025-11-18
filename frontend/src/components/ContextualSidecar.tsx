@@ -4,10 +4,11 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { X, ChevronRight, AlertCircle, Info, Lightbulb, FileText } from 'lucide-react';
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface ContextSuggestion {
   id: string;

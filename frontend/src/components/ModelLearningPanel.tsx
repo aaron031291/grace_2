@@ -3,9 +3,10 @@
  */
 
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 export function ModelLearningPanel() {
   const [insights, setInsights] = useState<any>(null);

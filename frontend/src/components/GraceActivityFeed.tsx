@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { 
   FileText, FolderPlus, Save, Trash2, Move, 
   Brain, Zap, CheckCircle, AlertCircle, Clock
@@ -33,7 +34,7 @@ export function GraceActivityFeed() {
 
   async function loadActions() {
     try {
-      const response = await fetch('http://localhost:8000/api/grace/memory/actions?limit=100');
+      const response = await fetch(apiUrl('/api/grace/memory/actions?limit=100');
       const data = await response.json();
       setActions(data.actions || []);
       setLoading(false);

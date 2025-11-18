@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { Brain, CheckCircle, XCircle, TrendingUp, AlertTriangle, Eye, Play } from 'lucide-react';
 
 export function ModelsPanel() {
@@ -25,7 +26,7 @@ export function ModelsPanel() {
   const loadModels = async () => {
     try {
       const url = stageFilter === 'all' 
-        ? 'http://localhost:8000/api/model-registry/models'
+        ? apiUrl('/api/model-registry/models'
         : `http://localhost:8000/api/model-registry/models?stage=${stageFilter}`;
       
       const res = await fetch(url);
@@ -40,7 +41,7 @@ export function ModelsPanel() {
 
   const loadStats = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/model-registry/stats');
+      const res = await fetch(apiUrl('/api/model-registry/stats');
       if (res.ok) {
         setStats(await res.json());
       }

@@ -5,6 +5,7 @@
  * Links each intent to the HTM tasks generated below
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './Layer3IntentLearning.css';
 
@@ -41,7 +42,7 @@ interface PolicySuggestion {
   created_at: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer3IntentLearning: React.FC = () => {
   const [intents, setIntents] = useState<Intent[]>([]);

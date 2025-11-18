@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 export function MemoryBrowser() {
   const token = localStorage.getItem('token');
@@ -8,7 +9,7 @@ export function MemoryBrowser() {
 
   useEffect(() => {
     if (token) {
-      fetch('http://localhost:8000/api/memory/tree', {
+      fetch(apiUrl('/api/memory/tree', {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(r => r.json())

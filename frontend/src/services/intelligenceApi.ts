@@ -3,8 +3,9 @@
  */
 
 import axios from 'axios';
+import { apiUrl, WS_BASE_URL } from './config';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 export interface IntelligenceStatus {
   status: string;

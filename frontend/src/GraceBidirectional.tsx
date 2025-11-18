@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './GraceAgentic.css';
 import { setAuthToken } from './api/client';
 
@@ -66,7 +67,7 @@ export default function GraceBidirectional() {
 
   const initializeConnections = (token: string) => {
     // Proactive messaging WebSocket
-    const proactive = new WebSocket(`ws://localhost:8000/api/proactive/ws?token=${token}`);
+    const proactive = new WebSocket(`${WS_BASE_URL}/api/proactive/ws?token=${token}`);
     
     proactive.onopen = () => {
       addMessage({
@@ -87,7 +88,7 @@ export default function GraceBidirectional() {
     setProactiveWs(proactive);
 
     // Subagent monitoring WebSocket
-    const subagent = new WebSocket(`ws://localhost:8000/api/subagents/ws?token=${token}`);
+    const subagent = new WebSocket(`${WS_BASE_URL}/api/subagents/ws?token=${token}`);
     
     subagent.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -162,7 +163,7 @@ export default function GraceBidirectional() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -192,7 +193,7 @@ export default function GraceBidirectional() {
   const handleRegister = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
+      const response = await fetch(apiUrl('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -237,7 +238,7 @@ export default function GraceBidirectional() {
 
     try {
       const token = localStorage.getItem('grace_token');
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

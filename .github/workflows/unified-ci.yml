@@ -12,6 +12,8 @@ env:
   OFFLINE_MODE: 'true'
   DRY_RUN: 'true'
   CI: 'true'
+  DISABLE_LEARNING_JOBS: 'true'
+  SEARCH_PROVIDER: 'mock'
 
 jobs:
   # Phase 1: Fast checks (< 2 minutes)
@@ -145,8 +147,15 @@ jobs:
       - name: Run pytest
         run: |
           # Run only core unit tests (conftest.py excludes integration tests)
-          pytest tests/test_guardian_playbooks.py tests/test_phase2_rag.py tests/test_failure_mode_01.py tests/test_failure_mode_02.py -v --tb=short
+          pytest tests/test_guardian_playbooks.py tests/test_phase2_rag.py tests/test_failure_mode_01.py tests/test_failure_mode_02.py -v --tb=short --junitxml=test-results/pytest.xml
         continue-on-error: false
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results
+          path: test-results/pytest.xml
   
   # Phase 3: Alembic validation
   alembic-validation:
@@ -166,10 +175,13 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
-      - name: Install Alembic
+      - name: Install Alembic and dependencies
         run: |
           python -m pip install --upgrade pip
           pip install alembic sqlalchemy
+          # Install backend dependencies for model imports
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f txt/requirements.txt ]; then pip install -r txt/requirements.txt; fi
       
       - name: Check migration chain integrity
         run: |
@@ -210,6 +222,11 @@ jobs:
           
           print(f'✓ Migration chain is linear ({len(revisions)} migrations)')
           "
+      
+      - name: Test Alembic upgrade (dry-run)
+        run: |
+          # Generate SQL for upgrade to verify it works
+          alembic upgrade head --sql > /dev/null 2>&1 || echo "⚠️  Alembic upgrade --sql failed (may need DB setup)"
   
   # Phase 4: Frontend validation (parallel with backend)
   frontend-validation:

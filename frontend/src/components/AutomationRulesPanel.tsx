@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 
 interface AutomationRule {
   rule_id: string;
@@ -25,7 +26,7 @@ export const AutomationRulesPanel: React.FC<AutomationRulesPanelProps> = ({ toke
   const fetchRules = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/collaboration/automation/rules', {
+      const response = await fetch(apiUrl('/api/collaboration/automation/rules', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();

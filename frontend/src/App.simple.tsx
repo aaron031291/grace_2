@@ -1,3 +1,4 @@
+import { apiUrl, WS_BASE_URL } from './config';
 // Minimal test to verify React works
 export default function App() {
   return (
@@ -10,7 +11,7 @@ export default function App() {
     }}>
       <h1 style={{ color: '#00ff88' }}>🎉 Grace React App is Working!</h1>
       <p>If you see this, React is rendering correctly.</p>
-      <p>Backend API: <a href="http://localhost:8000/health" style={{ color: '#00ff88' }}>Check Health</a></p>
+      <p>Backend API: <a href=apiUrl("/health" style={{ color: '#00ff88' }}>Check Health</a></p>
       <p>This is a minimal test. The full app will load next.</p>
     </div>
   );

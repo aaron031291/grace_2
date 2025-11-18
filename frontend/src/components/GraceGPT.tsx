@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { setAuthToken } from '../api/client';
@@ -103,7 +104,7 @@ export default function GraceGPT() {
   const pollApprovals = (token: string) => {
     const checkApprovals = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/autonomy/approvals', {
+        const res = await fetch(apiUrl('/api/autonomy/approvals', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -119,7 +120,7 @@ export default function GraceGPT() {
   };
 
   const initializeConnections = (token: string) => {
-    const proactive = new WebSocket(`ws://localhost:8000/api/proactive/ws?token=${token}`);
+    const proactive = new WebSocket(`${WS_BASE_URL}/api/proactive/ws?token=${token}`);
     
     proactive.onopen = () => {
       addMessage({
@@ -150,7 +151,7 @@ export default function GraceGPT() {
 
     setWs(proactive);
 
-    const subagent = new WebSocket(`ws://localhost:8000/api/subagents/ws?token=${token}`);
+    const subagent = new WebSocket(`${WS_BASE_URL}/api/subagents/ws?token=${token}`);
     
     subagent.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -223,7 +224,7 @@ export default function GraceGPT() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8000/api/auth/login', {
+      const res = await fetch(apiUrl('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -258,7 +259,7 @@ export default function GraceGPT() {
 
     try {
       const token = localStorage.getItem('grace_token');
-      const res = await fetch('http://localhost:8000/api/chat/', {
+      const res = await fetch(apiUrl('/api/chat/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

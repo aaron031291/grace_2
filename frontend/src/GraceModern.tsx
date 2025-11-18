@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './AppModern.css';
 
 // Import actual components (lazy loaded to avoid import errors)
@@ -59,7 +60,7 @@ export default function GraceModern() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(apiUrl('/api/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export default function GraceModern() {
       // For text files, read and ingest
       if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
         const text = await file.text();
-        const response = await fetch('http://localhost:8000/api/ingest/text', {
+        const response = await fetch(apiUrl('/api/ingest/text', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -294,7 +295,7 @@ export default function GraceModern() {
             <span>All Systems Online</span>
           </div>
           <a 
-            href="http://localhost:8000/docs" 
+            href=apiUrl("/docs" 
             target="_blank" 
             rel="noopener noreferrer"
             className="settings-btn"
@@ -407,7 +408,7 @@ export default function GraceModern() {
           
           <p className="input-hint">
             Grace can help with code, knowledge ingestion, security, governance, and more. 
-            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">
+            <a href=apiUrl("/docs" target="_blank" rel="noopener noreferrer">
               View API Docs
             </a>
           </p>

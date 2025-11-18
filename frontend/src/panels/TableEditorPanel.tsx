@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import {
   Table,
   Edit,
@@ -56,7 +57,7 @@ export function TableEditorPanel() {
 
   async function loadTables() {
     try {
-      const response = await fetch('http://localhost:8000/api/memory/tables/');
+      const response = await fetch(apiUrl('/api/memory/tables/');
       const data = await response.json();
       setTables(data.tables || []);
       

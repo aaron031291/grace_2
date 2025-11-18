@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import './GraceCopilotSidebar.css';
 
 interface Message {
@@ -79,7 +80,7 @@ export const GraceCopilotSidebar: React.FC<GraceCopilotSidebarProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/collaboration/copilot/chat', {
+      const response = await fetch(apiUrl('/api/collaboration/copilot/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

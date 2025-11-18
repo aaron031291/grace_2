@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { apiUrl, WS_BASE_URL } from './config';
 import { motion, AnimatePresence } from "framer-motion";
 import { Editor } from "@monaco-editor/react";
 import { create } from "zustand";
@@ -160,7 +161,7 @@ function graceExample() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -189,7 +190,7 @@ function graceExample() {
 
     try {
       const token = localStorage.getItem('grace_token');
-      const response = await fetch('http://localhost:8000/api/chat/', {
+      const response = await fetch(apiUrl('/api/chat/', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

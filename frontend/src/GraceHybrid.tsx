@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { http, setAuthToken } from './api/client';
 import { 
   fetchMemoryTree, 
@@ -85,7 +86,7 @@ export default function GraceHybrid() {
   };
 
   const connectWebSocket = (token: string) => {
-    const websocket = new WebSocket(`ws://localhost:8000/api/subagents/ws?token=${token}`);
+    const websocket = new WebSocket(`${WS_BASE_URL}/api/subagents/ws?token=${token}`);
     
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -165,7 +166,7 @@ export default function GraceHybrid() {
 
   const speakResponse = async (text: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/speech/tts', {
+      const response = await fetch(apiUrl('/api/speech/tts', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

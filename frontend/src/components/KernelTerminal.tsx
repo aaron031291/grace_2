@@ -4,6 +4,7 @@
  * Used across all dashboard layers (Layer 1-4)
  */
 import React, { useState, useEffect, useRef } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './KernelTerminal.css';
 
@@ -47,7 +48,7 @@ interface KernelTerminalProps {
   onConfigChange?: (kernelId: string, config: Record<string, any>) => void;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const KernelTerminal: React.FC<KernelTerminalProps> = ({
   kernel,
@@ -94,7 +95,7 @@ export const KernelTerminal: React.FC<KernelTerminalProps> = ({
   }, [kernel.config_options]);
 
   const connectWebSocket = () => {
-    const wsUrl = `ws://localhost:8000/ws/kernels/${kernel.kernel_id}/logs`;
+    const wsUrl = `${WS_BASE_URL}/ws/kernels/${kernel.kernel_id}/logs`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {

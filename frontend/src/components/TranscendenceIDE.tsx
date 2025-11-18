@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import Editor from '@monaco-editor/react';
 
 export function TranscendenceIDE() {
@@ -18,7 +19,7 @@ export function TranscendenceIDE() {
   }, [token]);
 
   const loadFiles = async () => {
-    const res = await fetch('http://localhost:8000/api/sandbox/files', {
+    const res = await fetch(apiUrl('/api/sandbox/files', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -26,7 +27,7 @@ export function TranscendenceIDE() {
   };
 
   const loadIssues = async () => {
-    const res = await fetch('http://localhost:8000/api/issues/', {
+    const res = await fetch(apiUrl('/api/issues/', {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -35,7 +36,7 @@ export function TranscendenceIDE() {
 
   const saveFile = async () => {
     const fileName = selectedFile || 'untitled.py';
-    await fetch('http://localhost:8000/api/sandbox/write', {
+    await fetch(apiUrl('/api/sandbox/write', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +54,7 @@ export function TranscendenceIDE() {
     setRunning(true);
     setOutput('Running...\n');
     
-    const res = await fetch('http://localhost:8000/api/sandbox/run', {
+    const res = await fetch(apiUrl('/api/sandbox/run', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

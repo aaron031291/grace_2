@@ -3,6 +3,7 @@
  */
 
 import { useState, type FormEvent } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import { ModelIndicator } from '../components/ModelIndicator';
 
@@ -14,7 +15,7 @@ const s = {
   ac2: '#a78bfa',
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
 
 interface Message {
   r: 'user' | 'grace';

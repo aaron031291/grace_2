@@ -5,6 +5,7 @@
  * and launching automated tests/stress runs
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './Layer4DevOSView.css';
 
@@ -39,7 +40,7 @@ interface DeploymentStatus {
   pending_tests: number;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const Layer4DevOSView: React.FC = () => {
   const [secretsStatus, setSecretsStatus] = useState<SecretsStatus | null>(null);

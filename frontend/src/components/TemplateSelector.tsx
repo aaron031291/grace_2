@@ -3,6 +3,7 @@
  * Pre-fill Agentic Builder with common project templates
  */
 import React, { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import axios from 'axios';
 import './TemplateSelector.css';
 
@@ -18,7 +19,7 @@ interface TemplateSelectorProps {
   onTemplateSelect: (template: any) => void;
 }
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = apiUrl('';
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateSelect }) => {
   const [templates, setTemplates] = useState<Template[]>([]);

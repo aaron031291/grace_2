@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl, WS_BASE_URL } from './config';
 import { CommandPalette } from './components/CommandPalette';
 import { ExecutionTracePanel } from './components/ExecutionTracePanel';
 import { HealthBar } from './components/HealthBar';
@@ -119,7 +120,7 @@ export default function GraceEnterpriseUI() {
   useEffect(() => {
     const fetchHealth = async () => {
       try {
-        const response = await fetch('http://localhost:8054/api/metrics/summary');
+        const response = await fetch(apiUrl('/api/metrics/summary');
         const data = await response.json();
         if (data.success) {
           setSystemHealth({
