@@ -59,6 +59,20 @@ try:
 except ImportError as e:
     print(f"[WARN] Learning Hub API disabled: {e}")
 
+# Register Copilot API (Phase 4 - Interactive AI Assistant)
+try:
+    from backend.routes.copilot_api import router as copilot_router
+    app.include_router(copilot_router)
+except ImportError as e:
+    print(f"[WARN] Copilot API disabled: {e}")
+
+# Register Copilot Pipeline API (Phase 4 - Autonomous Coding Pipeline)
+try:
+    from backend.routes.copilot_pipeline_api import router as copilot_pipeline_router
+    app.include_router(copilot_pipeline_router)
+except ImportError as e:
+    print(f"[WARN] Copilot Pipeline API disabled: {e}")
+
 try:
     from backend.routes.mission_control_api import router as mission_control_router
     app.include_router(mission_control_router)
@@ -238,6 +252,13 @@ try:
     print("[OK] Vector API routes loaded")
 except Exception as e:
     print(f"[WARN] Vector API disabled: {e}")
+
+# Register Phase 6 API (Enterprise API Management & Scale)
+try:
+    from backend.routes.phase6_api import router as phase6_router
+    app.include_router(phase6_router)
+except ImportError as e:
+    print(f"[WARN] Phase 6 API disabled: {e}")
 
 @app.get("/health")
 async def health_check():
