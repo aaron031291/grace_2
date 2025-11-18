@@ -24,6 +24,7 @@ const capabilities: Array<{ id: Capability; icon: string; label: string }> = [
   { id: 'memory', icon: '💾', label: 'Memory' },
   { id: 'terminal', icon: '⚡', label: 'Terminal' },
   { id: 'agentic', icon: '🤖', label: 'Agentic Organism' },
+  { id: 'phase7', icon: '🚀', label: 'Phase 7: SaaS' },
   { id: 'mission-designer', icon: '🎨', label: 'Mission Designer' },
   { id: 'approval-inbox', icon: '📥', label: 'Approval Inbox' },
   { id: 'learning-jobs', icon: '📚', label: 'Learning Jobs' },
