@@ -3,42 +3,47 @@
 **Goal:** Make RAG and memory systems production-grade with measurable quality
 
 **Started:** November 17, 2025  
-**Completed:** November 17, 2025  
-**Status:** 100% (Evaluation Framework Complete)
+**Completed:** _Not complete_
+**Status:** 25% (evaluation harness only)
 
 ## ✅ Completed Objectives
 
-### 2.2 Retrieval Quality
-- [x] Build evaluation harness with synthetic Q/A pairs (5 questions)
-- [x] Measure Precision@1, Precision@5, Precision@10, MRR
-- [x] Add retrieval quality metrics (latency, by-domain, by-difficulty)
-- [x] Mock retrieval function for testing
-- [x] Report generation (JSON output)
+### 2.2 Retrieval Quality (partial)
+- [x] Build evaluation harness with synthetic Q/A pairs (5 questions).
+- [x] Measure Precision@K and MRR for the mock retriever.
+- [x] Emit JSON metrics locally.
 
-## ❌ Not Completed (Require Production Integration)
+## ❌ Not Completed
 
 ### 2.1 Ingestion Quality
-- [ ] Deterministic chunking (requires RAG pipeline integration)
-- [ ] Deduplication (requires production data)
-- [ ] Source fingerprinting (requires production integration)
-- [ ] PII scrubbing (requires data processing pipeline)
+- [ ] Deterministic chunking.
+- [ ] Deduplication based on fingerprints.
+- [ ] Source fingerprinting for provenance.
+- [ ] PII scrubbing and detection metrics.
 
-### 2.3 Persistence & Security  
-- [ ] Encrypt-at-rest (requires crypto integration)
-- [ ] Retention policies (requires policy engine)
-- [ ] Revision history (exists in models, needs wiring)
+### 2.2 Retrieval Quality (production readiness)
+- [ ] Hard-negative mining.
+- [ ] Precision@5 ≥ 0.85 (currently 0.60 in tests).
+- [ ] Answer faithfulness measurement.
+- [ ] Latency percentiles from the real service.
+
+### 2.3 Persistence & Security
+- [ ] Encrypt-at-rest for artifacts.
+- [ ] Retention policies and enforcement hooks.
+- [ ] Revision history surfaced through APIs.
+- [ ] Backup/restore procedures tested.
 
 ### 2.4 DataProvenance
-- [ ] 100% provenance coverage (requires RAG pipeline integration)
+- [ ] Provenance included with 100% of responses.
+- [ ] Confidence scoring and citation rendering in UI.
 
 ## Success Criteria - What's Achievable
 
-- [x] Evaluation harness operational (5 tests passing)
-- [x] Metrics calculated (P@1=1.0, P@5=0.6, MRR=1.0)
-- [x] Report saved to JSON
-- [ ] Precision@5 ≥ 0.85 (currently 0.6 - needs better retrieval)
-- [ ] Answer faithfulness (needs real RAG pipeline)
-- [ ] Zero PII leaks (needs PII detection)
+- [x] Evaluation harness operational (5 tests passing).
+- [ ] Deterministic ingestion, provenance, and persistence controls implemented.
+- [ ] Precision@5 ≥ 0.85 with answer faithfulness ≥ 0.9.
+- [ ] Zero PII leaks verified by automated tests.
+- [ ] Backup/restore run completed with artifacts committed.
 
 ## Test Results (VERIFIED)
 
@@ -63,17 +68,4 @@ tests/test_phase2_rag.py::test_evaluation_report_saved PASSED
 
 ## Honest Assessment
 
-**Phase 2 Evaluation Framework: 100% Complete**
-
-What we CANNOT do without more integration:
-- Improve P@5 to 0.85 (needs real retrieval system)
-- PII detection (needs data processing)
-- Encryption (needs crypto layer)
-- Production ingestion quality
-
-What we HAVE:
-- Working evaluation framework
-- Tested and verified
-- Ready to measure real RAG system when integrated
-
-**Status: EVALUATION INFRASTRUCTURE READY**
+Only the evaluation harness exists; the ingestion, security, provenance, and persistence workstreams remain untouched. We cannot claim Phase 2 completion until the real RAG pipeline feeds metrics, provenance is enforced end-to-end, and persistence safeguards are shipped.

@@ -1,8 +1,15 @@
 # Phase 1: Pillar Hardening - Execution Plan
 
-**Start Date:** November 17, 2025  
-**Duration:** 2 weeks  
-**Status:** READY TO START
+**Start Date:** November 17, 2025
+**Duration:** 2 weeks
+**Status:** READY TO START (execution still pending)
+
+## Progress Snapshot (as of latest commit)
+
+- Guardian hardening tasks remain largely untouched—only 13/31 playbooks have smoke tests, and the OSI canary probe files do not exist.
+- Self-healing verification hooks, rollback docs, and MTTR storage have not been implemented.
+- Governance enforcement, audit trail coverage, SLO alerts, weekly health reports, and the 7-day soak test are all still unchecked TODOs.
+- No regression suite or dashboards have been captured; the plan below remains the to-do list rather than a record of completion.
 
 ---
 

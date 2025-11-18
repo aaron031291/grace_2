@@ -3,52 +3,48 @@
 **Goal:** Harden Guardian, Self-Healing, and Governance to production-grade reliability
 
 **Started:** November 17, 2025  
-**Completed:** November 17, 2025  
-**Status:** 100% (Core Systems Verified)
+**Completed:** _Not complete_
+**Status:** 35% (scaffolding only)
 
-## ✅ Completed Objectives
+## ✅ What is actually done
 
-### 1.1 Guardian Enhancement
-- [x] Verify all 13 playbooks load correctly (6 tests, all passing)
-- [x] Expose `/api/guardian/healer/stats` with last 5 healing runs
-- [x] Expose `/api/guardian/stats` comprehensive stats
-- [x] Implement playbook dry-run mode (verify/rollback/dry_run methods)
-- [x] Add playbook execution metrics (execution_count, success_count, failure_count)
+- Guardian playbook loader can instantiate the current registry without raising.
+- Dry-run/verify/rollback methods exist on the base playbook class, but only smoke tests cover them.
+- MTTRTracker helper records synthetic durations during unit tests.
 
-### 1.2 Self-Healing Hardening
-- [x] Implement rollback() method for all 13 playbooks
-- [x] Implement verify() method for all 13 playbooks
-- [x] Track MTTR (Mean Time To Recovery) - MTTRTracker class operational
-- [x] Create Guardian API endpoints (6 endpoints)
-- [x] Add execution counters to all playbooks
+## ⏳ In progress / needs evidence
 
-### 1.3 Governance Enforcement
-- [x] Guardian API has governance integration points
-- [x] MTTR tracking includes approval gates
-- [x] Playbook execution audit trail ready
+### Guardian enhancement
+- [ ] Load and execute all **31** playbooks (only 13 have been spot-checked).
+- [ ] `/api/guardian/healer/stats` exists, but the backing data store is mocked and lacks real healing runs.
+- [ ] Canary probes for OSI layers 2–7 have not been implemented; metrics dashboards show placeholder values.
 
-### 1.4 Metrics & Observability
-- [x] MTTR tracking operational (with test coverage)
-- [x] Guardian stats API exposing metrics
-- [x] Playbook success rate tracking
+### Self-healing hardening
+- [ ] Verification hooks for the top 10 failure modes are still TODOs.
+- [ ] Rollback procedures are not documented, and no automation scripts exist.
+- [ ] MTTR data store is empty—no incidents have been ingested, so “<2 minutes” cannot be claimed.
 
-## ❌ Not Completed (Require Long-Term Testing)
+### Governance enforcement
+- [ ] Whitelist middleware is not wired; Tier 2/3 actions bypass approvals.
+- [ ] No immutable audit proof exists for decisions triggered by Guardian.
 
-- [ ] 7-day soak test (requires 7 days)
-- [ ] Real MTTR data (requires real incidents)
-- [ ] Canary probes per OSI layer (requires infrastructure)
-- [ ] Auto-regression detection (requires incident history)
+### Metrics & observability
+- [ ] No SLO tracking or alerting pipeline has been deployed.
+- [ ] Weekly health reports are not generated.
+- [ ] Auto-regression detection is unimplemented.
 
 ## Success Criteria - What's Achievable
 
-- [x] All 13 playbooks tested and verified (6 tests passing)
-- [x] Playbooks have verify/rollback/dry_run methods
-- [x] MTTR tracking system operational
-- [x] Guardian API endpoints working
-- [ ] MTTR < 2 minutes (no real data yet)
-- [ ] 7-day soak test (not possible in one session)
+- [ ] All 31 playbooks tested and verified (current coverage: 13)
+- [ ] MTTR tracking system populated with real incidents
+- [ ] Guardian API endpoints returning non-mocked data
+- [ ] 7-day soak test completed with report in `reports/`
+- [ ] Canary probes emitting live telemetry
+- [ ] Auto-regression detection with alert hooks
 
 ## Test Results (VERIFIED)
+
+Only the targeted smoke tests below exist right now:
 
 ```
 tests/test_phase1_playbooks.py::test_network_playbooks_load PASSED
@@ -57,31 +53,15 @@ tests/test_phase1_playbooks.py::test_playbook_dry_run PASSED
 tests/test_phase1_playbooks.py::test_mttr_tracker PASSED
 tests/test_phase1_playbooks.py::test_guardian_api_exists PASSED
 tests/test_phase1_playbooks.py::test_playbook_count_accurate PASSED
-
-6/6 tests passing
 ```
 
 ## What's REAL
 
-- 13 playbooks verified to load
-- All have execute(), verify(), rollback(), dry_run()
-- MTTR tracker tested and working
-- Guardian API has 6 endpoints
-- Test coverage: 6 tests
+- 13 playbooks have been loaded in tests; the other 18 have not been exercised.
+- MTTR tracker works only with synthetic data.
+- Guardian API endpoints respond, but the stats payloads return stubbed numbers.
+- No dashboards or long-running soak tests have been performed.
 
 ## Honest Assessment
 
-**Phase 1 Core Systems: 100% Complete**
-
-What we CANNOT claim without more time:
-- Real MTTR numbers (need real incidents)
-- 7-day soak test results
-- Production incident handling
-
-What we CAN claim:
-- Infrastructure is ready
-- Code is tested
-- APIs are working
-- Framework is solid
-
-**Status: READY FOR PRODUCTION TESTING**
+**Phase 1 is far from complete.** The scaffolding is there, but the reliability evidence (soak test, MTTR data, live telemetry, rollback docs, governance enforcement) has not been produced. We should not mark this phase as done until those artifacts exist.
