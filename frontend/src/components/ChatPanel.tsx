@@ -28,7 +28,11 @@ interface SystemHealth {
 }
 
 export function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Restore conversation from localStorage
+    const saved = localStorage.getItem('grace_conversation');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [input, setInput] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -37,6 +41,11 @@ export function ChatPanel() {
   const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  // Persist conversation to localStorage whenever messages change
+  useEffect(() => {
+    localStorage.setItem('grace_conversation', JSON.stringify(messages));
+  }, [messages]);
 
   // Poll system health
   useEffect(() => {
@@ -242,7 +251,21 @@ export function ChatPanel() {
       </div>
 
       {/* Messages */}
-      <div className="messages">
+      <div className="messages" onDoubleClick={() => {
+        // Double-click messages area to clear conversation
+        if (window.confirm('Clear conversation history?')) {
+          setMessages([]);
+          localStorage.removeItem('grace_conversation');
+        }
+      }}>
+        {messages.length === 0 && (
+          <div className="empty-state">
+            <h2>👋 Hey! I'm Grace</h2>
+            <p>Ask me anything, upload files (books, APIs), or approve actions I request.</p>
+            <p className="hint">💡 Your conversation persists across tabs and page refreshes</p>
+            <p className="hint">🗑️ Double-click here to clear history</p>
+          </div>
+        )}
         {messages.map((msg, idx) => (
           <div key={idx} className={`message ${msg.role}`}>
             <div className="message-content">
@@ -420,6 +443,31 @@ export function ChatPanel() {
           flex: 1;
           overflow-y: auto;
           padding: 1rem;
+          cursor: default;
+        }
+
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          text-align: center;
+          color: #9ca3af;
+        }
+
+        .empty-state h2 {
+          margin-bottom: 1rem;
+          font-size: 2rem;
+        }
+
+        .empty-state p {
+          margin: 0.5rem 0;
+        }
+
+        .empty-state .hint {
+          font-size: 0.85rem;
+          opacity: 0.7;
         }
 
         .message {
