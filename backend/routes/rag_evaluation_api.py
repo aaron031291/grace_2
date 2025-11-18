@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 from pathlib import Path
 from pydantic import BaseModel
 
-from ..rag.evaluation_harness import RAGEvaluationHarness, EvaluationMetrics
+from backend.rag.evaluation_harness import RAGEvaluationHarness, EvaluationMetrics
 
 router = APIRouter(prefix="/api/rag", tags=["rag-evaluation"])
 
@@ -51,7 +51,7 @@ async def get_evaluation_dataset():
 @router.post("/evaluate")
 async def run_evaluation(request: EvaluationRequest):
     """Run RAG evaluation with mock retrieval function"""
-    from ..rag.evaluation_harness import mock_retrieval_function
+    from backend.rag.evaluation_harness import mock_retrieval_function
     
     if not harness.questions:
         harness.load_dataset()
