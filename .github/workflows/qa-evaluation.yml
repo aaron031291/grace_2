@@ -1,0 +1,93 @@
+name: Q/A Evaluation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/retrieval/**'
+      - 'config/qa_benchmark.json'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/retrieval/**'
+  schedule:
+    # Run nightly at 3 AM UTC
+    - cron: '0 3 * * *'
+
+jobs:
+  qa-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install click  # For CLI
+    
+    - name: Generate Q/A Benchmark (if missing)
+      run: |
+        if [ ! -f "config/qa_benchmark.json" ]; then
+          python -c "
+          import asyncio
+          from backend.retrieval.synthetic_qa_benchmark import qa_benchmark_generator
+          asyncio.run(qa_benchmark_generator.generate_benchmark_dataset(150))
+          asyncio.run(qa_benchmark_generator.save_benchmark())
+          "
+        fi
+    
+    - name: Run Q/A Evaluation
+      env:
+        OFFLINE_MODE: "true"
+        CI: "true"
+      run: |
+        python scripts/ci_qa_evaluation.py
+    
+    - name: Upload Evaluation Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: qa-evaluation-results
+        path: |
+          reports/qa_evaluation/
+          reports/hard_negatives/
+          ml_training/tuning_jobs/
+    
+    - name: Comment PR with Results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = 'reports/qa_evaluation/latest_results.json';
+          
+          if (fs.existsSync(path)) {
+            const results = JSON.parse(fs.readFileSync(path, 'utf8'));
+            
+            const comment = `## 🧪 Q/A Evaluation Results
+            
+            | Metric | Value |
+            |--------|-------|
+            | Precision@5 | ${results.precision_at_5?.toFixed(3) || 'N/A'} |
+            | Precision@10 | ${results.precision_at_10?.toFixed(3) || 'N/A'} |
+            | Avg Latency | ${results.avg_latency?.toFixed(3) || 'N/A'}s |
+            | Cache Hit Rate | ${results.cache_hit_rate?.toFixed(3) || 'N/A'} |
+            | Failure Cases | ${results.failure_cases || 0} |
+            
+            ${results.failure_cases > 10 ? '⚠️ High number of failure cases detected' : '✅ Quality metrics look good'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
