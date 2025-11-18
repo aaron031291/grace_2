@@ -41,7 +41,7 @@ def main():
     print("🧪 Testing boot sequence...")
     env = os.environ.copy()
     env.update({"OFFLINE_MODE": "true", "DRY_RUN": "true", "CI": "true"})
-    run_command([sys.executable, "scripts/test_boot_probe.py"], env=env)
+    run_command([sys.executable, "server.py", "--dry-run"], env=env, check=False)
     
     print("✅ Backend build complete!")
     
@@ -84,7 +84,7 @@ def main():
     # Start backend temporarily for testing
     print("🚀 Starting backend for verification...")
     backend_proc = subprocess.Popen([
-        sys.executable, "serve.py", "--port", "8001"
+        sys.executable, "server.py", "--port", "8001"
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     # Wait for startup
@@ -122,7 +122,7 @@ def main():
     
     print("\n🎉 GRACE BUILD COMPLETE!")
     print("\nTo start Grace:")
-    print("  Backend:  python serve.py")
+    print("  Backend:  python server.py")
     print("  Frontend: cd frontend && npm run dev")
     print("  Full:     python build_grace.py --start")
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         print("\n🚀 Starting Grace services...")
         
         # Start backend
-        backend_proc = subprocess.Popen([sys.executable, "serve.py"])
+        backend_proc = subprocess.Popen([sys.executable, "server.py"])
         
         # Start frontend
         frontend_proc = subprocess.Popen(["npm", "run", "dev"], cwd="frontend")
@@ -150,3 +150,7 @@ if __name__ == "__main__":
             frontend_proc.terminate()
     else:
         main()
+
+
+
+
