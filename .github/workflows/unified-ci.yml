@@ -18,10 +18,23 @@ env:
 
 jobs:
   # Phase 1: Fast checks (< 2 minutes)
+  # NOTE: Temporarily disabled due to GitHub Actions runner issue
+  # Fast checks logic moved to Backend Validation as first step
   fast-checks:
     name: Fast Checks
     runs-on: ubuntu-22.04
     timeout-minutes: 5
+    
+    steps:
+      - name: Placeholder (checks moved to Backend Validation)
+        run: echo "Fast checks logic temporarily moved to Backend Validation due to runner issue"
+  
+  # Phase 2: Backend validation (< 5 minutes)
+  backend-validation:
+    name: Backend Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: fast-checks
     
     steps:
       - name: Checkout code
@@ -31,8 +44,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
       
-      - name: Check VERSION consistency
+      - name: Fast Checks - VERSION consistency
         run: |
           python - <<'PY'
           import re
@@ -55,7 +69,7 @@ jobs:
           print('✓ Versions match')
           PY
       
-      - name: Verify directory structure
+      - name: Fast Checks - Directory structure
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -80,23 +94,6 @@ jobs:
           
           print('✓ All required directories and files exist')
           PY
-  
-  # Phase 2: Backend validation (< 5 minutes)
-  backend-validation:
-    name: Backend Validation
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: fast-checks
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       
       - name: Install dependencies
         run: |
