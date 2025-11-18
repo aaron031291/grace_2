@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import logging
 
-from .failure_detector import FailureMode
+from backend.self_healing.failure_detector import FailureMode
 
 logger = logging.getLogger(__name__)
 
