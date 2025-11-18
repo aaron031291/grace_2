@@ -158,7 +158,11 @@ class GoogleSearchService:
             async with self.session.post(url, data=params, headers=headers) as response:
                 # Accept both 200 and 202 status codes
                 if response.status not in [200, 202]:
-                    logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo returned status {response.status}")
+                    # Reduce log spam for 403 (rate limiting)
+                    if response.status == 403:
+                        logger.debug(f"[GOOGLE-SEARCH] DuckDuckGo rate limited (403) - gracefully degrading")
+                    else:
+                        logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo returned status {response.status}")
                     return []
                 
                 # For 202, wait a moment and retry if needed
@@ -168,7 +172,11 @@ class GoogleSearchService:
                     # Retry once
                     async with self.session.post(url, data=params, headers=headers) as retry_response:
                         if retry_response.status not in [200, 202]:
-                            logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo retry failed with status {retry_response.status}")
+                            # Reduce log spam for 403
+                            if retry_response.status == 403:
+                                logger.debug(f"[GOOGLE-SEARCH] DuckDuckGo rate limited on retry (403)")
+                            else:
+                                logger.warning(f"[GOOGLE-SEARCH] DuckDuckGo retry failed with status {retry_response.status}")
                             return []
                         html = await retry_response.text()
                 else:
