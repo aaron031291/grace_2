@@ -1,0 +1,152 @@
+name: Alembic Migration Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  migration-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Full history for migration chain validation
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install alembic sqlalchemy
+    
+    - name: Check migration files exist
+      run: |
+        if [ ! -d "alembic/versions" ]; then
+          echo "❌ alembic/versions directory not found"
+          exit 1
+        fi
+        echo "✅ Migration directory exists"
+    
+    - name: Validate alembic.ini
+      run: |
+        if [ ! -f "alembic.ini" ]; then
+          echo "❌ alembic.ini not found"
+          exit 1
+        fi
+        echo "✅ alembic.ini exists"
+    
+    - name: Check for migration conflicts
+      run: |
+        # Check for multiple heads (branched migration history)
+        python -c "
+        import os
+        import re
+        from pathlib import Path
+        
+        versions_dir = Path('alembic/versions')
+        migration_files = list(versions_dir.glob('*.py'))
+        
+        if not migration_files:
+            print('⚠️  No migration files found')
+            exit(0)
+        
+        # Extract down_revision from each migration
+        down_revisions = []
+        for mf in migration_files:
+            content = mf.read_text()
+            match = re.search(r\"down_revision = ['\\\"]([^'\\\"]+)['\\\"]\", content)
+            if match:
+                down_revisions.append(match.group(1))
+        
+        # Check for duplicates (would indicate branching)
+        if len(down_revisions) != len(set(down_revisions)):
+            duplicates = [dr for dr in down_revisions if down_revisions.count(dr) > 1]
+            print(f'❌ Migration conflict detected! Multiple migrations share down_revision: {duplicates}')
+            exit(1)
+        
+        print(f'✅ No migration conflicts found ({len(migration_files)} migrations)')
+        "
+    
+    - name: Check migration naming convention
+      run: |
+        python -c "
+        import os
+        import re
+        from pathlib import Path
+        
+        versions_dir = Path('alembic/versions')
+        migration_files = list(versions_dir.glob('*.py'))
+        
+        if not migration_files:
+            exit(0)
+        
+        # Check naming: should be <revision>_<description>.py
+        invalid_files = []
+        for mf in migration_files:
+            if not re.match(r'^[a-f0-9]+_[a-z0-9_]+\.py$', mf.name):
+                invalid_files.append(mf.name)
+        
+        if invalid_files:
+            print(f'⚠️  Non-standard migration filenames: {invalid_files}')
+        else:
+            print(f'✅ All {len(migration_files)} migrations follow naming convention')
+        "
+    
+    - name: Verify migration chain integrity
+      run: |
+        python -c "
+        import os
+        import re
+        from pathlib import Path
+        
+        versions_dir = Path('alembic/versions')
+        migration_files = list(versions_dir.glob('*.py'))
+        
+        if not migration_files:
+            print('⚠️  No migrations to verify')
+            exit(0)
+        
+        # Build revision map
+        revisions = {}
+        for mf in migration_files:
+            content = mf.read_text()
+            rev_match = re.search(r\"revision = ['\\\"]([^'\\\"]+)['\\\"]\", content)
+            down_match = re.search(r\"down_revision = ['\\\"]([^'\\\"]+)['\\\"]\", content)
+            
+            if rev_match and down_match:
+                revision = rev_match.group(1)
+                down_revision = down_match.group(1)
+                revisions[revision] = down_revision
+        
+        # Find heads (revisions that are not referenced as down_revision)
+        all_revisions = set(revisions.keys())
+        down_revisions = set(revisions.values()) - {'None'}
+        heads = all_revisions - down_revisions
+        
+        if len(heads) == 0:
+            print('✅ Migration chain is linear (no heads)')
+        elif len(heads) == 1:
+            print(f'✅ Migration chain is linear (1 head: {list(heads)[0][:8]}...)')
+        else:
+            print(f'❌ Multiple heads detected: {heads}')
+            print('This indicates branched migration history!')
+            exit(1)
+        
+        print(f'✅ Chain integrity verified ({len(revisions)} migrations)')
+        "
+    
+    - name: Summary
+      run: |
+        echo "=================================================="
+        echo "Alembic Migration Check Summary"
+        echo "=================================================="
+        echo "✅ All checks passed"
+        echo "✅ Migration chain is linear"
+        echo "✅ No conflicts detected"
+        echo "=================================================="
