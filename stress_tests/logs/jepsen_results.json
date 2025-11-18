@@ -1,0 +1,22 @@
+{
+  "invariants": [
+    {
+      "name": "World Model Monotonic Total Entries",
+      "passed": true,
+      "samples": 50,
+      "min_value": 768,
+      "max_value": 768
+    },
+    {
+      "name": "Health Endpoint Availability",
+      "passed": true,
+      "availability": 1.0,
+      "samples": 100
+    },
+    {
+      "name": "Idempotency",
+      "passed": true,
+      "samples": 10
+    }
+  ]
+}
