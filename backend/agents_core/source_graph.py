@@ -59,11 +59,9 @@ class SourceEdge:
     source_id: str
     target_id: str
     edge_type: str  # imports, calls, inherits, implements, wraps_model
-    weight: float = 1.0
-    
-    # Context
     file_path: str
     line_number: int
+    weight: float = 1.0
 
 
 class SourceGraph:

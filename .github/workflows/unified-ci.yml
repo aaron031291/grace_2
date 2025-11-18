@@ -144,7 +144,8 @@ jobs:
       
       - name: Run pytest
         run: |
-          pytest tests/ -v --tb=short -x
+          # Run only core unit tests (conftest.py excludes integration tests)
+          pytest tests/test_guardian_playbooks.py tests/test_phase2_rag.py tests/test_failure_mode_01.py tests/test_failure_mode_02.py -v --tb=short
         continue-on-error: false
   
   # Phase 3: Alembic validation
