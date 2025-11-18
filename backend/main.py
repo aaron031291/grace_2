@@ -98,6 +98,60 @@ except ImportError as e:
     print(f"[WARN] Guardian API disabled: {e}")
 
 try:
+    from backend.routes.chat_api import router as chat_router
+    app.include_router(chat_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Chat API disabled: {e}")
+
+try:
+    from backend.routes.unified_chat_api import router as unified_chat_router
+    app.include_router(unified_chat_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Unified Chat API disabled: {e}")
+
+try:
+    from backend.routes.metrics_api import router as metrics_router
+    app.include_router(metrics_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Metrics API disabled: {e}")
+
+try:
+    from backend.routes.governance_api import router as governance_router
+    app.include_router(governance_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Governance API disabled: {e}")
+
+try:
+    from backend.routes.voice_api import router as voice_router
+    app.include_router(voice_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Voice API disabled: {e}")
+
+try:
+    from backend.routes.voice_stream_api import router as voice_stream_router
+    app.include_router(voice_stream_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Voice Stream API disabled: {e}")
+
+try:
+    from backend.routes.vision_api import router as vision_router
+    app.include_router(vision_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Vision API disabled: {e}")
+
+try:
+    from backend.routes.remote_cockpit_api import router as remote_cockpit_router
+    app.include_router(remote_cockpit_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Remote Cockpit API disabled: {e}")
+
+try:
+    from backend.routes.notifications_api import router as notifications_router
+    app.include_router(notifications_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Notifications API disabled: {e}")
+
+try:
     from backend.api.guardian_stats import router as guardian_stats_router
     app.include_router(guardian_stats_router)
 except ImportError as e:

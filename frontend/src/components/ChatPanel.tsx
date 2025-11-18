@@ -1,664 +1,238 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { apiUrl } from '../config';
+/**
+ * Chat Panel - Main chat interface with Grace
+ * 
+ * Features:
+ * - Message history with role-based styling
+ * - Inline approval cards for pending actions
+ * - Citations display
+ * - Confidence indicators
+ * - Attachment support (future)
+ */
+
+import React, { useState, useRef, useEffect } from 'react';
+import { ChatAPI, ChatResponse, PendingApproval } from '../api/chat';
+import { useNotifications, Notification } from '../hooks/useNotifications';
+import './ChatPanel.css';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system' | 'notification';
   content: string;
   timestamp: string;
-  attachments?: File[];
-  metadata?: {
-    citations?: string[];
-    confidence?: number;
-    approval_request?: ApprovalRequest;
-  };
-}
-
-interface ApprovalRequest {
-  id: string;
-  tier: number;
-  action: string;
-  context: string;
-  timestamp: string;
-}
-
-interface SystemHealth {
-  trust_score?: number;
+  trace_id?: string;
+  citations?: string[];
   confidence?: number;
-  pending_approvals?: number;
+  actions?: any[];
+  badge?: string;
 }
 
-export function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>(() => {
-    // Restore conversation from localStorage
-    const saved = localStorage.getItem('grace_conversation');
-    return saved ? JSON.parse(saved) : [];
-  });
+export const ChatPanel: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [attachments, setAttachments] = useState<File[]>([]);
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [voiceSessionId, setVoiceSessionId] = useState<string | null>(null);
-  const [systemHealth, setSystemHealth] = useState<SystemHealth>({});
-  const [isRecording, setIsRecording] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [sessionId, setSessionId] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Subscribe to notifications
+  const { notifications, connected, listTasks, pauseLearning, resumeLearning } = useNotifications('user');
 
-  // Persist conversation to localStorage whenever messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
-    localStorage.setItem('grace_conversation', JSON.stringify(messages));
+    scrollToBottom();
   }, [messages]);
 
-  // Poll system health
+  // Add notifications to chat as they arrive
   useEffect(() => {
-    const pollHealth = async () => {
-      try {
-        const res = await fetch(apiUrl('/api/metrics/summary'));
-        if (res.ok) {
-          const data = await res.json();
-          setSystemHealth(data);
+    notifications.forEach((notif) => {
+      const notifMessage: Message = {
+        role: 'notification',
+        content: notif.message,
+        timestamp: notif.timestamp,
+        badge: notif.badge,
+      };
+      
+      setMessages((prev) => {
+        // Avoid duplicates
+        if (prev.some((m) => m.timestamp === notif.timestamp && m.content === notif.message)) {
+          return prev;
         }
-      } catch (err) {
-        console.warn('Health poll failed:', err);
-      }
-    };
+        return [...prev, notifMessage];
+      });
+    });
+  }, [notifications]);
 
-    pollHealth();
-    const interval = setInterval(pollHealth, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Toggle voice session
-  const toggleVoice = async () => {
-    if (voiceEnabled) {
-      // Stop voice
-      await fetch(apiUrl('/api/voice/stop'), { method: 'POST' });
-      setVoiceSessionId(null);
-      setVoiceEnabled(false);
-      localStorage.removeItem('voiceSessionId');
-    } else {
-      // Start voice
-      const res = await fetch(apiUrl('/api/voice/start'), { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setVoiceSessionId(data.session_id);
-        setVoiceEnabled(true);
-        localStorage.setItem('voiceSessionId', data.session_id);
-      }
-    }
-  };
-
-  // Restore voice session from localStorage
-  useEffect(() => {
-    const savedSessionId = localStorage.getItem('voiceSessionId');
-    if (savedSessionId) {
-      setVoiceSessionId(savedSessionId);
-      setVoiceEnabled(true);
-    }
-  }, []);
-
-  // Send message
-  const sendMessage = async () => {
-    if (!input.trim() && attachments.length === 0) return;
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
 
     const userMessage: Message = {
       role: 'user',
       content: input,
       timestamp: new Date().toISOString(),
-      attachments: attachments.length > 0 ? attachments : undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setLoading(true);
 
     try {
-      // Handle file uploads first
-      if (attachments.length > 0) {
-        for (const file of attachments) {
-          const formData = new FormData();
-          formData.append('file', file);
-          
-          await fetch(apiUrl('/api/upload'), {
-            method: 'POST',
-            body: formData,
-          });
-        }
-        setAttachments([]);
-      }
-
-      // Send chat message to world model
-      const res = await fetch(apiUrl('/api/world_model_hub/chat'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_message: input,
-          voice_session_id: voiceSessionId,
-        }),
+      const response: ChatResponse = await ChatAPI.sendMessage({
+        message: input,
+        session_id: sessionId || undefined,
+        user_id: 'user',
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const assistantMessage: Message = {
-          role: 'assistant',
-          content: data.response || data.message,
-          timestamp: new Date().toISOString(),
-          metadata: {
-            citations: data.citations,
-            confidence: data.confidence,
-            approval_request: data.approval_request,
-          },
-        };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-
-        // Play audio if available
-        if (data.audio_url) {
-          const audio = new Audio(apiUrl(data.audio_url));
-          audio.play();
-        }
+      if (!sessionId) {
+        setSessionId(response.session_id);
       }
-    } catch (err) {
-      console.error('Send message failed:', err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`,
-          timestamp: new Date().toISOString(),
-        },
-      ]);
-    }
-  };
 
-  // Handle approval via world model
-  const handleApproval = async (requestId: string, approved: boolean) => {
-    const endpoint = approved 
-      ? '/api/world_model_hub/approve' 
-      : '/api/world_model_hub/decline';
-    
-    await fetch(apiUrl(endpoint), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        approval_id: requestId,
-        reason: approved ? 'User approved' : 'User declined'
-      }),
-    });
-
-    // Remove approval request from message
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (msg.metadata?.approval_request?.id === requestId) {
-          return { ...msg, metadata: { ...msg.metadata, approval_request: undefined } };
-        }
-        return msg;
-      })
-    );
-  };
-
-  // Hold to talk (voice input)
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-
-      const chunks: Blob[] = [];
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        const formData = new FormData();
-        formData.append('audio', blob);
-
-        const res = await fetch(apiUrl('/api/voice/transcribe'), {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setInput(data.text);
-        }
-
-        stream.getTracks().forEach((track) => track.stop());
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: response.reply,
+        timestamp: response.timestamp,
+        trace_id: response.trace_id,
+        citations: response.citations,
+        confidence: response.confidence,
+        actions: response.actions,
       };
 
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Recording failed:', err);
+      setMessages((prev) => [...prev, assistantMessage]);
+      setPendingApprovals(response.pending_approvals || []);
+    } catch (error) {
+      const errorMessage: Message = {
+        role: 'system',
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+  const handleApproval = async (traceId: string, approved: boolean) => {
+    try {
+      await ChatAPI.approveAction({
+        trace_id: traceId,
+        approved,
+        reason: approved ? undefined : 'User rejected',
+        user_id: 'user',
+      });
+
+      setPendingApprovals((prev) => prev.filter((a) => a.trace_id !== traceId));
+
+      const systemMessage: Message = {
+        role: 'system',
+        content: approved
+          ? `✅ Action approved: ${traceId}`
+          : `❌ Action rejected: ${traceId}`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, systemMessage]);
+    } catch (error) {
+      const errorMessage: Message = {
+        role: 'system',
+        content: `Error processing approval: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
     <div className="chat-panel">
-      {/* Header with system health */}
       <div className="chat-header">
-        <div className="system-status">
-          <span>Trust: {(systemHealth.trust_score || 0).toFixed(1)}%</span>
-          <span>Confidence: {(systemHealth.confidence || 0).toFixed(1)}%</span>
-          {systemHealth.pending_approvals ? (
-            <span className="badge">⚠️ {systemHealth.pending_approvals} approvals pending</span>
-          ) : null}
-        </div>
-        
-        <button 
-          onClick={toggleVoice}
-          className={`voice-toggle ${voiceEnabled ? 'active' : ''}`}
-        >
-          {voiceEnabled ? '🔊 Voice ON' : '🔇 Voice OFF'}
-        </button>
+        <h2>💬 Chat with Grace</h2>
+        {sessionId && <span className="session-id">Session: {sessionId}</span>}
       </div>
 
-      {/* Messages */}
-      <div className="messages" onDoubleClick={() => {
-        // Double-click messages area to clear conversation
-        if (window.confirm('Clear conversation history?')) {
-          setMessages([]);
-          localStorage.removeItem('grace_conversation');
-        }
-      }}>
-        {messages.length === 0 && (
-          <div className="empty-state">
-            <h2>👋 Hey! I'm Grace</h2>
-            <p>Ask me anything, upload files (books, APIs), or approve actions I request.</p>
-            <p className="hint">💡 Your conversation persists across tabs and page refreshes</p>
-            <p className="hint">🗑️ Double-click here to clear history</p>
-          </div>
-        )}
+      <div className="messages-container">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`message ${msg.role}`}>
-            <div className="message-content">
-              {msg.content}
-              
-              {/* Attachments */}
-              {msg.attachments && (
-                <div className="attachments">
-                  {msg.attachments.map((file, i) => (
-                    <span key={i} className="attachment">📎 {file.name}</span>
-                  ))}
-                </div>
-              )}
-
-              {/* Citations */}
-              {msg.metadata?.citations && (
-                <div className="citations">
-                  <small>Sources:</small>
-                  {msg.metadata.citations.map((cite, i) => (
-                    <a key={i} href={cite} target="_blank" rel="noopener noreferrer">
-                      [{i + 1}]
-                    </a>
-                  ))}
-                </div>
-              )}
-
-              {/* Approval request */}
-              {msg.metadata?.approval_request && (
-                <div className="approval-card">
-                  <div className="approval-header">
-                    <strong>Tier {msg.metadata.approval_request.tier} Approval Required</strong>
-                  </div>
-                  <div className="approval-body">
-                    <p><strong>Action:</strong> {msg.metadata.approval_request.action}</p>
-                    <p><strong>Context:</strong> {msg.metadata.approval_request.context}</p>
-                  </div>
-                  <div className="approval-actions">
-                    <button
-                      onClick={() => handleApproval(msg.metadata!.approval_request!.id, true)}
-                      className="btn-approve"
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      onClick={() => handleApproval(msg.metadata!.approval_request!.id, false)}
-                      className="btn-reject"
-                    >
-                      ✗ Reject
-                    </button>
-                  </div>
-                </div>
-              )}
+          <div key={idx} className={`message message-${msg.role}`}>
+            <div className="message-header">
+              <span className="message-role">
+                {msg.role === 'user' ? '👤 You' : 
+                 msg.role === 'assistant' ? '🤖 Grace' : 
+                 msg.role === 'notification' ? `${msg.badge || '🔔'} Grace Notification` :
+                 '⚙️ System'}
+              </span>
+              <span className="message-timestamp">
+                {new Date(msg.timestamp).toLocaleTimeString()}
+              </span>
             </div>
-            <div className="message-meta">
-              <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
-              {msg.metadata?.confidence && (
-                <small> • {(msg.metadata.confidence * 100).toFixed(0)}% confident</small>
-              )}
-            </div>
+            <div className="message-content">{msg.content}</div>
+            {msg.confidence !== undefined && (
+              <div className="message-confidence">
+                Confidence: {(msg.confidence * 100).toFixed(0)}%
+              </div>
+            )}
+            {msg.citations && msg.citations.length > 0 && (
+              <div className="message-citations">
+                <strong>Sources:</strong> {msg.citations.join(', ')}
+              </div>
+            )}
           </div>
         ))}
-      </div>
 
-      {/* Input area */}
-      <div className="chat-input">
-        {/* Attachment preview */}
-        {attachments.length > 0 && (
-          <div className="attachment-preview">
-            {attachments.map((file, i) => (
-              <span key={i} className="attachment-chip">
-                📎 {file.name}
-                <button onClick={() => setAttachments((prev) => prev.filter((_, idx) => idx !== i))}>
-                  ✕
-                </button>
-              </span>
+        {pendingApprovals.length > 0 && (
+          <div className="approvals-section">
+            <h3>⚠️ Pending Approvals</h3>
+            {pendingApprovals.map((approval) => (
+              <div key={approval.trace_id} className="approval-card">
+                <div className="approval-header">
+                  <strong>{approval.action_type}</strong>
+                  <span className="approval-tier">{approval.governance_tier}</span>
+                </div>
+                <div className="approval-reason">{approval.reason}</div>
+                <div className="approval-actions">
+                  <button
+                    onClick={() => handleApproval(approval.trace_id, true)}
+                    className="btn-approve"
+                  >
+                    ✅ Approve
+                  </button>
+                  <button
+                    onClick={() => handleApproval(approval.trace_id, false)}
+                    className="btn-reject"
+                  >
+                    ❌ Reject
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         )}
 
-        <div className="input-row">
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            multiple
-            onChange={(e) => {
-              if (e.target.files) {
-                setAttachments((prev) => [...prev, ...Array.from(e.target.files!)]);
-              }
-            }}
-          />
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="btn-attach"
-            title="Attach files (books, APIs, etc.)"
-          >
-            📎
-          </button>
-
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            placeholder="Ask Grace anything... (upload books, APIs, ask for logs, approve actions)"
-            rows={3}
-          />
-
-          <button
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onMouseLeave={stopRecording}
-            className={`btn-voice ${isRecording ? 'recording' : ''}`}
-            title="Hold to talk"
-          >
-            {isRecording ? '🎙️' : '🎤'}
-          </button>
-
-          <button onClick={sendMessage} className="btn-send">
-            Send
-          </button>
-        </div>
+        <div ref={messagesEndRef} />
       </div>
 
-      <style jsx>{`
-        .chat-panel {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-          background: #1a1a1a;
-          color: #fff;
-        }
-
-        .chat-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1rem;
-          background: #2a2a2a;
-          border-bottom: 1px solid #444;
-        }
-
-        .system-status {
-          display: flex;
-          gap: 1rem;
-          font-size: 0.9rem;
-        }
-
-        .badge {
-          background: #ff6b6b;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          font-size: 0.85rem;
-        }
-
-        .voice-toggle {
-          padding: 0.5rem 1rem;
-          background: #444;
-          border: none;
-          color: #fff;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .voice-toggle.active {
-          background: #4caf50;
-        }
-
-        .messages {
-          flex: 1;
-          overflow-y: auto;
-          padding: 1rem;
-          cursor: default;
-        }
-
-        .empty-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          text-align: center;
-          color: #9ca3af;
-        }
-
-        .empty-state h2 {
-          margin-bottom: 1rem;
-          font-size: 2rem;
-        }
-
-        .empty-state p {
-          margin: 0.5rem 0;
-        }
-
-        .empty-state .hint {
-          font-size: 0.85rem;
-          opacity: 0.7;
-        }
-
-        .message {
-          margin-bottom: 1rem;
-          padding: 1rem;
-          border-radius: 8px;
-          max-width: 80%;
-        }
-
-        .message.user {
-          background: #2563eb;
-          margin-left: auto;
-        }
-
-        .message.assistant {
-          background: #374151;
-        }
-
-        .message-content {
-          white-space: pre-wrap;
-        }
-
-        .attachments {
-          margin-top: 0.5rem;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-
-        .attachment {
-          background: rgba(255,255,255,0.1);
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          font-size: 0.85rem;
-        }
-
-        .citations {
-          margin-top: 0.5rem;
-          font-size: 0.85rem;
-          color: #9ca3af;
-        }
-
-        .citations a {
-          margin-left: 0.5rem;
-          color: #60a5fa;
-        }
-
-        .approval-card {
-          margin-top: 1rem;
-          background: #fbbf24;
-          color: #000;
-          padding: 1rem;
-          border-radius: 8px;
-        }
-
-        .approval-header {
-          font-weight: bold;
-          margin-bottom: 0.5rem;
-        }
-
-        .approval-body {
-          margin: 0.5rem 0;
-        }
-
-        .approval-actions {
-          display: flex;
-          gap: 0.5rem;
-          margin-top: 1rem;
-        }
-
-        .btn-approve {
-          background: #10b981;
-          color: white;
-          padding: 0.5rem 1rem;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn-reject {
-          background: #ef4444;
-          color: white;
-          padding: 0.5rem 1rem;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .message-meta {
-          margin-top: 0.5rem;
-          color: #9ca3af;
-          font-size: 0.85rem;
-        }
-
-        .chat-input {
-          padding: 1rem;
-          background: #2a2a2a;
-          border-top: 1px solid #444;
-        }
-
-        .attachment-preview {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .attachment-chip {
-          background: #374151;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          font-size: 0.85rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .attachment-chip button {
-          background: none;
-          border: none;
-          color: #ef4444;
-          cursor: pointer;
-          padding: 0;
-        }
-
-        .input-row {
-          display: flex;
-          gap: 0.5rem;
-          align-items: flex-end;
-        }
-
-        .btn-attach {
-          padding: 0.75rem;
-          background: #444;
-          border: none;
-          color: #fff;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 1.2rem;
-        }
-
-        textarea {
-          flex: 1;
-          background: #374151;
-          color: #fff;
-          border: 1px solid #444;
-          border-radius: 4px;
-          padding: 0.75rem;
-          font-family: inherit;
-          resize: none;
-        }
-
-        .btn-voice {
-          padding: 0.75rem;
-          background: #444;
-          border: none;
-          color: #fff;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 1.2rem;
-        }
-
-        .btn-voice.recording {
-          background: #ef4444;
-          animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .btn-send {
-          padding: 0.75rem 1.5rem;
-          background: #2563eb;
-          border: none;
-          color: #fff;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: 600;
-        }
-
-        .btn-send:hover {
-          background: #1d4ed8;
-        }
-      `}</style>
+      <div className="chat-input-container">
+        <textarea
+          className="chat-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Ask Grace anything..."
+          rows={3}
+          disabled={loading}
+        />
+        <button
+          className="chat-send-btn"
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+        >
+          {loading ? '⏳ Sending...' : '📤 Send'}
+        </button>
+      </div>
     </div>
   );
-}
+};

@@ -1,330 +1,460 @@
 """
-Action Executor - Verified Execution Wrapper
+Action Executor - Unified execution system for Grace's actions
 
-Wraps agentic actions with comprehensive verification:
-1. Creates action contract (expected vs actual)
-2. Takes safe-hold snapshot before execution
-3. Executes action through self-heal adapter
-4. Runs benchmark to detect drift
-5. Verifies outcome matches contract
-6. Rolls back if verification fails
-
-This is the "trust but verify" layer for all high-impact actions.
+Handles execution of approved actions with:
+- Tool access (repos, CI, infrastructure)
+- Self-healing on failures
+- Audit logging
+- Rollback capabilities
 """
 
-from __future__ import annotations
-from datetime import datetime, timezone
-from typing import Dict, Any, Optional
+import os
 import asyncio
+import subprocess
+from typing import Dict, Any, Optional, Callable
+from datetime import datetime
+from enum import Enum
 
-from .action_contract import contract_verifier, ExpectedEffect
-from .self_heal.safe_hold import snapshot_manager
-from .benchmarks import benchmark_suite
-from .progression_tracker import progression_tracker
-from .immutable_log import immutable_log
-from .learning_loop import learning_loop
+from backend.action_gateway import action_gateway
+from backend.event_bus import event_bus, Event, EventType
+
+
+class ExecutionStatus(Enum):
+    """Execution status enum"""
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCESS = "success"
+    FAILED = "failed"
+    ROLLED_BACK = "rolled_back"
 
 
 class ActionExecutor:
     """
-    Executes agentic actions with full verification and rollback capability.
-    Ensures actions perform their intended effects or safely rolls back.
+    Unified action executor with tool access and self-healing
+    
+    Executes approved actions from the Action Gateway with:
+    - Repository access (git operations)
+    - CI/CD triggers
+    - Infrastructure commands
+    - Code deployment
+    - Self-healing on failures
     """
     
-    async def execute_verified_action(
-        self,
-        action_type: str,
-        playbook_id: Optional[str],
-        run_id: Optional[int],
-        expected_effect: ExpectedEffect,
-        baseline_state: Dict[str, Any],
-        tier: str = "tier_1",
-        triggered_by: Optional[str] = None,
-        mission_id: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """
-        Execute an action with full contract verification.
-        
-        Steps:
-        1. Create action contract
-        2. Take safe-hold snapshot (for tier 2+)
-        3. Execute action
-        4. Run post-execution benchmark
-        5. Verify contract
-        6. Rollback if failed
-        
-        Returns:
-            Result dict with success, contract, snapshot, and verification info
-        """
-        
-        print(f"  [EXEC] Executing verified action: {action_type} (tier: {tier})")
-        
-        # Step 1: Create action contract
-        contract = await contract_verifier.create_contract(
-            action_type=action_type,
-            expected_effect=expected_effect,
-            baseline_state=baseline_state,
-            playbook_id=playbook_id,
-            run_id=run_id,
-            triggered_by=triggered_by,
-            tier=tier
-        )
-        
-        print(f"    [CONTRACT] Created: {contract.id}")
-        
-        # Step 2: Take snapshot for tier 2+ actions
-        snapshot = None
-        if tier in ["tier_2", "tier_3"]:
-            snapshot = await snapshot_manager.create_snapshot(
-                snapshot_type="pre_action",
-                triggered_by=triggered_by,
-                action_contract_id=contract.id,
-                playbook_run_id=run_id,
-                notes=f"Pre-action snapshot for {action_type}"
-            )
-            print(f"    [SNAPSHOT] Created: {snapshot.id}")
-        
-        # Step 3: Execute action through self-heal adapter with transaction safety
-        try:
-            from .self_heal.adapter import self_healing_adapter
-            
-            # Hardening: Mark contract as executing with transaction safety
-            from .models import async_session
-            async with async_session() as session:
-                async with session.begin():
-                    db_contract = await session.get(contract.__class__, contract.id)
-                    if db_contract:
-                        db_contract.status = "executing"
-                        db_contract.executed_at = datetime.now(timezone.utc)
-                        if snapshot:
-                            db_contract.safe_hold_snapshot_id = snapshot.id
-            
-            # Hardening: Execute the action with timeout
-            execution_timeout = 60.0  # Default 60s for action execution
-            execution_result = await asyncio.wait_for(
-                self_healing_adapter.execute_action(
-                    action_type=action_type,
-                    parameters=baseline_state.get("parameters", {})
-                ),
-                timeout=execution_timeout
-            )
-            
-            print(f"    [ACTION] Executed: {execution_result.get('ok', False)}")
-            
-        except asyncio.TimeoutError:
-            print(f"    [TIMEOUT] Action execution timed out")
-            
-            # Hardening: Mark contract as failed with transaction safety
-            async with async_session() as session:
-                async with session.begin():
-                    db_contract = await session.get(contract.__class__, contract.id)
-                    if db_contract:
-                        db_contract.status = "failed"
-                        db_contract.error = "Execution timeout"
-            
-            # Rollback if snapshot exists
-            if snapshot:
-                await self._perform_rollback(snapshot.id, contract.id, mission_id)
-            
-            return {
-                "success": False,
-                "error": "Action execution timed out",
-                "contract_id": contract.id,
-                "snapshot_id": snapshot.id if snapshot else None,
-                "rolled_back": (snapshot is not None)
-            }
-            
-        except Exception as e:
-            print(f"    [ERROR] Execution failed: {str(e)}")
-            
-            # Hardening: Mark contract as failed with transaction safety
-            async with async_session() as session:
-                async with session.begin():
-                    db_contract = await session.get(contract.__class__, contract.id)
-                    if db_contract:
-                        db_contract.status = "failed"
-                        db_contract.error = str(e)[:500]
-            
-            # Rollback if snapshot exists
-            if snapshot:
-                await self._perform_rollback(snapshot.id, contract.id, mission_id)
-            
-            return {
-                "success": False,
-                "error": str(e),
-                "contract_id": contract.id,
-                "snapshot_id": snapshot.id if snapshot else None,
-                "rolled_back": (snapshot is not None)
-            }
-        
-        # Step 4: Run post-execution benchmark
-        benchmark_result = None
-        if tier in ["tier_2", "tier_3"]:
-            # Full regression suite for high-tier actions
-            benchmark_result = await benchmark_suite.run_regression_suite(
-                triggered_by=f"post_action:{contract.id}",
-                compare_to_baseline=True
-            )
-        else:
-            # Quick smoke tests for tier 1
-            benchmark_result = await benchmark_suite.run_smoke_tests(
-                triggered_by=f"post_action:{contract.id}"
-            )
-        
-        print(f"    [BENCHMARK] {'PASS' if benchmark_result['passed'] else 'FAIL'}")
-        
-        # Step 5: Capture actual state and verify contract
-        # Enriched: Copy key fields from execution and benchmark results
-        actual_state = {
-            # Core execution fields (matches expected_effect.target_state)
-            "status": execution_result.get("status", "completed" if execution_result.get("ok") else "failed"),
-            "error_resolved": execution_result.get("error_resolved", execution_result.get("ok", False)),
-            
-            # Benchmark metrics (for drift detection)
-            "benchmark_passed": benchmark_result["passed"],
-            "error_rate": benchmark_result.get("metrics", {}).get("error_rate", 0.0),
-            
-            # Full results for debugging
-            "execution_result": execution_result,
-            "benchmark_metrics": benchmark_result.get("metrics", {})
-        }
-        
-        verification_result = await contract_verifier.verify_execution(
-            contract_id=contract.id,
-            actual_state=actual_state,
-            metrics=benchmark_result.get("metrics", {})
-        )
-        
-        confidence = verification_result.get("confidence", 0.0)
-        verified_success = verification_result.get("success", False)
-        
-        print(f"    [VERIFY] confidence={confidence:.2f}, success={verified_success}")
-        
-        # Step 6: Decide on rollback
-        should_rollback = (
-            not verified_success or
-            verification_result.get("rollback_recommended", False) or
-            (benchmark_result.get("drift_detected", False) and tier in ["tier_2", "tier_3"])
-        )
-        
-        if should_rollback and snapshot:
-            print(f"    [ROLLBACK] Recommended (confidence={confidence:.2f})")
-            rollback_result = await self._perform_rollback(snapshot.id, contract.id, mission_id)
-            
-            # Record failed outcome for learning
-            await learning_loop.record_outcome(
-                action_type=action_type,
-                success=False,
-                playbook_id=playbook_id,
-                contract_id=contract.id,
-                confidence_score=confidence,
-                problem_resolved=False,
-                rolled_back=True,
-                tier=tier,
-                triggered_by=triggered_by
-            )
-            
-            return {
-                "success": False,
-                "contract_id": contract.id,
-                "snapshot_id": snapshot.id,
-                "verification": verification_result,
-                "benchmark": benchmark_result,
-                "rolled_back": True,
-                "rollback_result": rollback_result
-            }
-        
-        # Success path
-        if mission_id:
-            # Update progression tracker
-            await progression_tracker.record_action_completed(
-                mission_id=mission_id,
-                action_contract_id=contract.id,
-                success=verified_success,
-                new_safe_point_id=snapshot.id if (snapshot and verified_success) else None
-            )
-        
-        # Mark snapshot as golden if verification passed well
-        if snapshot and confidence >= 0.95:
-            await snapshot_manager.validate_snapshot(
-                snapshot_id=snapshot.id,
-                benchmark_results=benchmark_result
-            )
-        
-        # Record outcome for learning
-        await learning_loop.record_outcome(
-            action_type=action_type,
-            success=verified_success,
-            playbook_id=playbook_id,
-            contract_id=contract.id,
-            confidence_score=confidence,
-            problem_resolved=verified_success,
-            rolled_back=False,
-            tier=tier,
-            triggered_by=triggered_by
-        )
-        
-        print(f"    [SUCCESS] Action completed successfully")
-        
-        return {
-            "success": True,
-            "contract_id": contract.id,
-            "snapshot_id": snapshot.id if snapshot else None,
-            "verification": verification_result,
-            "benchmark": benchmark_result,
-            "confidence": confidence,
-            "rolled_back": False
+    def __init__(self):
+        self.execution_history: list[Dict[str, Any]] = []
+        self.active_executions: Dict[str, Dict[str, Any]] = {}
+        self.tool_registry: Dict[str, Callable] = {}
+        self._register_default_tools()
+    
+    def _register_default_tools(self):
+        """Register default tool handlers"""
+        self.tool_registry = {
+            "execute_code": self.execute_code,
+            "git_operation": self.git_operation,
+            "deploy_service": self.deploy_service,
+            "run_ci": self.run_ci,
+            "modify_file": self.modify_file,
+            "write_memory": self.write_memory,
+            "external_api_call": self.external_api_call,
         }
     
-    async def _perform_rollback(
+    async def execute_action(
         self,
-        snapshot_id: str,
-        contract_id: str,
-        mission_id: Optional[str]
+        trace_id: str,
+        action_type: str,
+        params: Dict[str, Any],
+        user_id: str = "system"
     ) -> Dict[str, Any]:
-        """Perform rollback to snapshot"""
+        """
+        Execute an approved action
         
-        print(f"    [ROLLBACK] Initiating rollback to snapshot {snapshot_id}")
+        Args:
+            trace_id: Trace ID from Action Gateway
+            action_type: Type of action to execute
+            params: Action parameters
+            user_id: User who approved the action
         
-        # Restore snapshot
-        restore_result = await snapshot_manager.restore_snapshot(
-            snapshot_id=snapshot_id,
-            dry_run=False
-        )
+        Returns:
+            Execution result
+        """
+        execution_id = f"exec_{trace_id}"
         
-        # Hardening: Update contract status with transaction safety
-        from .models import async_session
-        async with async_session() as session:
-            async with session.begin():
-                from .action_contract import ActionContract
-                contract = await session.get(ActionContract, contract_id)
-                if contract:
-                    contract.status = "rolled_back"
+        # Create execution record
+        execution = {
+            "execution_id": execution_id,
+            "trace_id": trace_id,
+            "action_type": action_type,
+            "params": params,
+            "user_id": user_id,
+            "status": ExecutionStatus.PENDING.value,
+            "started_at": datetime.now().isoformat(),
+            "completed_at": None,
+            "result": None,
+            "error": None,
+            "rollback_data": None
+        }
         
-        # Update mission progression
-        if mission_id:
-            await progression_tracker.record_rollback(
-                mission_id=mission_id,
-                rolled_back_to=snapshot_id
-            )
+        self.active_executions[execution_id] = execution
         
-        # Log rollback
-        await immutable_log.append(
-            actor="action_executor",
-            action="rollback_executed",
-            resource=contract_id,
-            subsystem="action_executor",
-            payload={
-                "contract_id": contract_id,
-                "snapshot_id": snapshot_id,
-                "mission_id": mission_id
+        # Log execution start
+        await event_bus.publish(Event(
+            event_type=EventType.AGENT_ACTION,
+            source="action_executor",
+            data={
+                "action": "execution_started",
+                "execution_id": execution_id,
+                "action_type": action_type
             },
-            result="rolled_back"
+            trace_id=trace_id
+        ))
+        
+        try:
+            # Update status to running
+            execution["status"] = ExecutionStatus.RUNNING.value
+            
+            # Get handler for action type
+            handler = self.tool_registry.get(action_type)
+            
+            if not handler:
+                raise ValueError(f"No handler registered for action type: {action_type}")
+            
+            # Execute action
+            result = await handler(params, trace_id)
+            
+            # Update execution record
+            execution["status"] = ExecutionStatus.SUCCESS.value
+            execution["result"] = result
+            execution["completed_at"] = datetime.now().isoformat()
+            
+            # Record success in Action Gateway
+            await action_gateway.record_outcome(
+                trace_id=trace_id,
+                success=True,
+                result=result
+            )
+            
+            # Log success
+            await event_bus.publish(Event(
+                event_type=EventType.LEARNING_OUTCOME,
+                source="action_executor",
+                data={
+                    "action": "execution_succeeded",
+                    "execution_id": execution_id,
+                    "action_type": action_type,
+                    "result": result
+                },
+                trace_id=trace_id
+            ))
+            
+            return {
+                "success": True,
+                "execution_id": execution_id,
+                "result": result,
+                "execution": execution
+            }
+        
+        except Exception as e:
+            # Execution failed
+            execution["status"] = ExecutionStatus.FAILED.value
+            execution["error"] = str(e)
+            execution["completed_at"] = datetime.now().isoformat()
+            
+            # Record failure in Action Gateway
+            await action_gateway.record_outcome(
+                trace_id=trace_id,
+                success=False,
+                result=None,
+                error=str(e)
+            )
+            
+            # Log failure
+            await event_bus.publish(Event(
+                event_type=EventType.LEARNING_OUTCOME,
+                source="action_executor",
+                data={
+                    "action": "execution_failed",
+                    "execution_id": execution_id,
+                    "action_type": action_type,
+                    "error": str(e)
+                },
+                trace_id=trace_id
+            ))
+            
+            # Attempt self-healing
+            if os.getenv("ENABLE_SELF_HEALING") == "true":
+                healing_result = await self.attempt_self_healing(execution, e)
+                if healing_result["healed"]:
+                    return healing_result
+            
+            return {
+                "success": False,
+                "execution_id": execution_id,
+                "error": str(e),
+                "execution": execution
+            }
+        
+        finally:
+            # Move to history
+            self.execution_history.append(execution)
+            if execution_id in self.active_executions:
+                del self.active_executions[execution_id]
+    
+    async def execute_code(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """
+        Execute code in a sandboxed environment
+        
+        Args:
+            params: {code: str, language: str, timeout: int}
+            trace_id: Trace ID
+        
+        Returns:
+            Execution result
+        """
+        code = params.get("code")
+        language = params.get("language", "python")
+        timeout = params.get("timeout", 30)
+        
+        if not code:
+            raise ValueError("Code parameter is required")
+        
+        # Sandbox execution (placeholder - use Docker/VM in production)
+        if language == "python":
+            # Run in subprocess with timeout
+            process = await asyncio.create_subprocess_exec(
+                "python", "-c", code,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(),
+                    timeout=timeout
+                )
+                
+                return {
+                    "stdout": stdout.decode(),
+                    "stderr": stderr.decode(),
+                    "returncode": process.returncode,
+                    "success": process.returncode == 0
+                }
+            except asyncio.TimeoutError:
+                process.kill()
+                raise TimeoutError(f"Code execution timed out after {timeout}s")
+        
+        else:
+            raise ValueError(f"Unsupported language: {language}")
+    
+    async def git_operation(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """
+        Perform git operation
+        
+        Args:
+            params: {operation: str, repo_path: str, args: list}
+            trace_id: Trace ID
+        
+        Returns:
+            Git operation result
+        """
+        operation = params.get("operation")  # clone, pull, push, commit, etc.
+        repo_path = params.get("repo_path", ".")
+        args = params.get("args", [])
+        
+        # Build git command
+        git_cmd = ["git", operation] + args
+        
+        # Execute git command
+        process = await asyncio.create_subprocess_exec(
+            *git_cmd,
+            cwd=repo_path,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
         
-        print(f"    [ROLLBACK] Completed")
+        stdout, stderr = await process.communicate()
         
-        return restore_result
+        return {
+            "operation": operation,
+            "stdout": stdout.decode(),
+            "stderr": stderr.decode(),
+            "returncode": process.returncode,
+            "success": process.returncode == 0
+        }
+    
+    async def deploy_service(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """
+        Deploy a service
+        
+        Args:
+            params: {service_name: str, environment: str, config: dict}
+            trace_id: Trace ID
+        
+        Returns:
+            Deployment result
+        """
+        service_name = params.get("service_name")
+        environment = params.get("environment", "staging")
+        
+        # Placeholder - integrate with actual deployment system
+        # (Kubernetes, Docker, Terraform, etc.)
+        
+        return {
+            "service_name": service_name,
+            "environment": environment,
+            "status": "deployed",
+            "message": f"Service {service_name} deployed to {environment} (mock)"
+        }
+    
+    async def run_ci(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """
+        Trigger CI/CD pipeline
+        
+        Args:
+            params: {pipeline: str, branch: str, params: dict}
+            trace_id: Trace ID
+        
+        Returns:
+            CI run result
+        """
+        pipeline = params.get("pipeline")
+        branch = params.get("branch", "main")
+        
+        # Placeholder - integrate with CI system (GitHub Actions, GitLab CI, etc.)
+        
+        return {
+            "pipeline": pipeline,
+            "branch": branch,
+            "status": "triggered",
+            "message": f"CI pipeline {pipeline} triggered for branch {branch} (mock)"
+        }
+    
+    async def modify_file(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """
+        Modify a file
+        
+        Args:
+            params: {file_path: str, content: str, operation: str}
+            trace_id: Trace ID
+        
+        Returns:
+            File modification result
+        """
+        file_path = params.get("file_path")
+        content = params.get("content")
+        operation = params.get("operation", "write")  # write, append, patch
+        
+        if not file_path:
+            raise ValueError("file_path is required")
+        
+        # Store rollback data
+        rollback_data = None
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                rollback_data = f.read()
+        
+        # Perform operation
+        if operation == "write":
+            with open(file_path, 'w') as f:
+                f.write(content)
+        elif operation == "append":
+            with open(file_path, 'a') as f:
+                f.write(content)
+        else:
+            raise ValueError(f"Unsupported operation: {operation}")
+        
+        return {
+            "file_path": file_path,
+            "operation": operation,
+            "success": True,
+            "rollback_data": rollback_data
+        }
+    
+    async def write_memory(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """Write to world model memory"""
+        from backend.world_model.grace_world_model import grace_world_model
+        
+        category = params.get("category", "general")
+        content = params.get("content")
+        source = params.get("source", "action_executor")
+        
+        if not content:
+            raise ValueError("content is required")
+        
+        await grace_world_model.add_knowledge(
+            category=category,
+            content=content,
+            source=source,
+            confidence=params.get("confidence", 0.9),
+            tags=params.get("tags", []),
+            metadata={"trace_id": trace_id}
+        )
+        
+        return {
+            "category": category,
+            "content": content,
+            "success": True
+        }
+    
+    async def external_api_call(self, params: Dict[str, Any], trace_id: str) -> Dict[str, Any]:
+        """Make external API call"""
+        import aiohttp
+        
+        url = params.get("url")
+        method = params.get("method", "GET")
+        headers = params.get("headers", {})
+        data = params.get("data")
+        
+        if not url:
+            raise ValueError("url is required")
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.request(method, url, headers=headers, json=data) as response:
+                result = await response.json() if response.content_type == "application/json" else await response.text()
+                
+                return {
+                    "url": url,
+                    "method": method,
+                    "status_code": response.status,
+                    "result": result,
+                    "success": response.status < 400
+                }
+    
+    async def attempt_self_healing(
+        self,
+        execution: Dict[str, Any],
+        error: Exception
+    ) -> Dict[str, Any]:
+        """
+        Attempt to self-heal from execution failure
+        
+        Args:
+            execution: Failed execution record
+            error: Exception that caused failure
+        
+        Returns:
+            Healing result
+        """
+        # Log healing attempt
+        await event_bus.publish(Event(
+            event_type=EventType.AGENT_ACTION,
+            source="action_executor",
+            data={
+                "action": "self_healing_attempt",
+                "execution_id": execution["execution_id"],
+                "error": str(error)
+            },
+            trace_id=execution["trace_id"]
+        ))
+        
+        # Placeholder - implement actual healing strategies
+        # - Retry with backoff
+        # - Rollback changes
+        # - Alternative approach
+        
+        return {
+            "healed": False,
+            "message": "Self-healing not yet implemented for this action type"
+        }
 
 
 # Singleton instance

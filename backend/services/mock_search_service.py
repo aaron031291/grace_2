@@ -1,67 +1,100 @@
-"""Mock search service for CI/testing environments.
+"""
+Mock Search Service - For CI/testing/offline mode
 
-Provides a drop-in replacement for real search providers (Google, DuckDuckGo)
-that returns pre-defined mock results without making external network calls.
+Returns canned responses to avoid hitting real APIs (DuckDuckGo, Google)
 """
 
-from typing import List, Dict, Any, Optional
-import logging
-
-logger = logging.getLogger(__name__)
+from typing import List, Dict, Any
+import asyncio
 
 
 class MockSearchService:
-    """Mock search service that returns canned responses."""
+    """
+    Mock search service that returns predefined results
+    
+    Use in CI or when SEARCH_PROVIDER=mock
+    """
     
     def __init__(self):
-        self.search_count = 0
-        logger.info("MockSearchService initialized (no external API calls)")
+        self.name = "mock"
+        self._call_count = 0
     
     async def search(
         self,
         query: str,
-        num_results: int = 10,
+        max_results: int = 10,
         **kwargs
     ) -> List[Dict[str, Any]]:
         """
-        Return mock search results for any query.
+        Mock search - returns canned results
         
         Args:
-            query: Search query string
-            num_results: Number of results to return
-            **kwargs: Additional search parameters (ignored)
+            query: Search query (ignored, for testing)
+            max_results: Number of results to return
+            **kwargs: Ignored
         
         Returns:
             List of mock search results
         """
-        self.search_count += 1
+        await asyncio.sleep(0.1)  # Simulate API latency
         
-        logger.info(
-            f"MockSearchService.search(query='{query}', num_results={num_results}) "
-            f"[call #{self.search_count}]"
-        )
+        self._call_count += 1
         
-        # Return generic mock results
-        results = []
-        for i in range(min(num_results, 5)):  # Cap at 5 mock results
-            results.append({
-                "title": f"Mock Result {i+1} for '{query}'",
-                "link": f"https://example.com/result_{i+1}",
-                "snippet": f"This is a mock search result snippet for query: {query}. "
-                          f"Result number {i+1} of {num_results} requested.",
+        # Return mock results that look like real search results
+        results = [
+            {
+                "title": f"Mock Result 1: {query}",
+                "link": "https://example.com/mock-1",
+                "snippet": f"This is a mock search result for '{query}'. In production, this would be real search data.",
                 "source": "mock",
-                "rank": i + 1,
-            })
+                "rank": 1
+            },
+            {
+                "title": f"Mock Result 2: Documentation for {query}",
+                "link": "https://example.com/docs/mock-2",
+                "snippet": f"Comprehensive documentation about {query}. This mock result simulates a documentation page.",
+                "source": "mock",
+                "rank": 2
+            },
+            {
+                "title": f"Mock Result 3: Tutorial on {query}",
+                "link": "https://example.com/tutorial/mock-3",
+                "snippet": f"Learn how to use {query} with this step-by-step tutorial. (Mock result)",
+                "source": "mock",
+                "rank": 3
+            }
+        ]
         
-        return results
+        return results[:max_results]
     
-    async def get_status(self) -> Dict[str, Any]:
-        """Return mock service status."""
+    async def search_news(
+        self,
+        query: str,
+        max_results: int = 5,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
+        """Mock news search"""
+        await asyncio.sleep(0.1)
+        
+        return [
+            {
+                "title": f"Breaking: {query} News Update",
+                "link": "https://example.com/news/mock-1",
+                "snippet": f"Latest news about {query}. (Mock result)",
+                "source": "mock_news",
+                "date": "2024-01-15",
+                "rank": 1
+            }
+        ][:max_results]
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get mock service stats"""
         return {
             "provider": "mock",
-            "status": "healthy",
-            "total_searches": self.search_count,
-            "note": "Mock search service - no external API calls",
+            "total_calls": self._call_count,
+            "status": "active",
+            "rate_limit": "unlimited",
+            "note": "Mock service - not hitting real APIs"
         }
 
 
@@ -69,6 +102,6 @@ class MockSearchService:
 mock_search_service = MockSearchService()
 
 
-def get_search_service() -> MockSearchService:
-    """Get the mock search service instance."""
-    return mock_search_service
+async def get_mock_search(query: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    """Convenience function for mock search"""
+    return await mock_search_service.search(query, max_results)

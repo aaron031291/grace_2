@@ -70,6 +70,15 @@ class GoogleSearchService:
         # Configure provider order from environment
         try:
             import os
+            
+            # Check for mock provider (CI/testing)
+            search_provider = os.getenv("SEARCH_PROVIDER", "").lower()
+            if search_provider == "mock" or os.getenv("CI") == "true":
+                self.current_provider = 'mock'
+                logger.info("[GOOGLE-SEARCH] Mock provider enabled (CI/offline mode)")
+                self._initialized = True
+                return
+            
             self.api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
             self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
             
@@ -211,6 +220,12 @@ class GoogleSearchService:
         """
         if not self._initialized:
             await self.initialize()
+        
+        # Use mock provider if configured
+        if self.current_provider == 'mock':
+            from backend.services.mock_search_service import mock_search_service
+            logger.info(f"[GOOGLE-SEARCH] Using mock provider for query: {query}")
+            return await mock_search_service.search(query, num_results)
         
         # Check cache first
         cached_results = await self._check_cache(query)
