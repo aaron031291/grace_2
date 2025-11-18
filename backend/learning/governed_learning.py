@@ -12,6 +12,7 @@ This module implements the systems requested for Phase 3 of the roadmap:
 
 from __future__ import annotations
 
+import asyncio
 from collections import Counter, deque
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -23,6 +24,8 @@ import statistics
 import uuid
 
 import yaml
+
+from backend.event_bus import Event, EventType, event_bus as global_event_bus
 
 
 # ---------------------------------------------------------------------------
@@ -600,12 +603,18 @@ class SafeModeLearningController:
 
 
 class WorldModelUpdateManager:
-    """Tracks world model revisions with trust scoring and provenance."""
+    """Tracks world model revisions with trust scoring, provenance, and events."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        event_bus: Optional[Any] = None,
+        event_source: str = "governed_learning.world_model",
+    ) -> None:
         self._history: List[Dict[str, Any]] = []
         self._topic_index: Dict[str, Dict[str, Any]] = {}
         self._audit_log: List[Dict[str, Any]] = []
+        self._event_bus = event_bus if event_bus is not None else global_event_bus
+        self._event_source = event_source
 
     @property
     def current_version(self) -> int:
@@ -635,6 +644,16 @@ class WorldModelUpdateManager:
                 "trust_score": trust_score,
                 "entry_count": len(resolved_entries),
             }
+        )
+        self._emit_world_model_event(
+            "apply",
+            {
+                "version": version,
+                "trust_score": trust_score,
+                "source": record["source"],
+                "entries": resolved_entries,
+                "validators": record["validators"],
+            },
         )
         return record
 
@@ -678,6 +697,14 @@ class WorldModelUpdateManager:
                 "timestamp": datetime.utcnow().isoformat(),
             }
         )
+        self._emit_world_model_event(
+            "rollback",
+            {
+                "version": version,
+                "remaining_versions": len(self._history),
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+        )
 
     def visualize(self) -> Dict[str, Any]:
         nodes = [
@@ -696,6 +723,22 @@ class WorldModelUpdateManager:
 
     def audit_log(self) -> List[Dict[str, Any]]:
         return list(self._audit_log)
+
+    def _emit_world_model_event(self, action: str, payload: Dict[str, Any]) -> None:
+        if not self._event_bus:
+            return
+        event = Event(
+            event_type=EventType.WORLD_MODEL_UPDATE,
+            source=self._event_source,
+            data={"action": action, **payload},
+        )
+        publish_coro = self._event_bus.publish(event)
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(publish_coro)
+        else:
+            loop.create_task(publish_coro)
 
 
 class LearningSimulationFramework:

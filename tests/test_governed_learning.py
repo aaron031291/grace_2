@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from typing import Any, List
+
 import pytest
 
 from backend.learning.governed_learning import (
@@ -17,6 +19,14 @@ from backend.learning.governed_learning import (
     SandboxVerifier,
     WorldModelUpdateManager,
 )
+
+
+class _StubEventBus:
+    def __init__(self) -> None:
+        self.events: List[Any] = []
+
+    async def publish(self, event: Any) -> None:
+        self.events.append(event)
 
 
 def test_gap_detection_engine_prioritizes_low_confidence_topics() -> None:
@@ -137,6 +147,30 @@ def test_world_model_manager_tracks_versions_and_rollbacks() -> None:
     assert manager.current_version == 1
     assert manager.visualize()["nodes"][0]["revision"] >= 1
     assert manager.audit_log()[-1]["event"] == "rollback"
+
+
+def test_world_model_manager_emits_event_bus_notifications() -> None:
+    bus = _StubEventBus()
+    manager = WorldModelUpdateManager(event_bus=bus, event_source="tests.world_model")
+
+    manager.apply_update(
+        {
+            "source": "unit",
+            "entries": [
+                {"topic": "governance", "content": "policy", "confidence": 0.6},
+                {"topic": "learning", "content": "playbook", "confidence": 0.7},
+            ],
+            "validators": ["guardian"],
+        }
+    )
+    assert bus.events
+    assert bus.events[-1].event_type.value == "world_model_update"
+    assert bus.events[-1].data["action"] == "apply"
+    assert bus.events[-1].data["version"] == 1
+
+    manager.rollback_to_version(0)
+    assert bus.events[-1].data["action"] == "rollback"
+    assert bus.events[-1].data["version"] == 0
 
 
 def test_safe_mode_controller_backoff_and_toggle() -> None:
