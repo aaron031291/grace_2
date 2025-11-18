@@ -48,16 +48,25 @@ export function GraceOverview() {
     try {
       // Aggregate from multiple endpoints
       const [books, librarian, activity] = await Promise.all([
-        fetch('http://localhost:8000/api/books/stats').then(r => r.json()).catch(() => ({})),
-        fetch('http://localhost:8000/api/librarian/status').then(r => r.json()).catch(() => ({})),
-        fetch('http://localhost:8000/api/books/activity?limit=10').then(r => r.json()).catch(() => []))
+        fetch('http://localhost:8000/api/books/stats')
+          .then(r => r.json())
+          .catch(() => ({})),
+        fetch('http://localhost:8000/api/librarian/status')
+          .then(r => r.json())
+          .catch(() => ({})),
+        fetch('http://localhost:8000/api/books/activity?limit=10')
+          .then(r => r.json())
+          .catch(() => [])
       ]);
 
       setMetrics({
         total_documents: books.total_books || 0,
         ingestion_backlog: (librarian.queues?.ingestion || 0) + (librarian.queues?.schema || 0),
         pending_approvals: 0, // TODO: from unified logic
-        active_agents: Object.values(librarian.active_agents || {}).reduce((sum: number, count) => sum + (count as number), 0),
+        active_agents: Object.values(librarian.active_agents || {}).reduce(
+          (sum: number, count) => sum + (count as number),
+          0
+        ),
         trust_average: books.average_trust_score || 0,
         recent_activity: Array.isArray(activity) ? activity.length : 0
       });

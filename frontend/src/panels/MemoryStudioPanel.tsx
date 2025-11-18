@@ -273,7 +273,9 @@ export function MemoryStudioPanel() {
       <div style={{ flex: 1, overflow: 'hidden' }}>
         {view === 'overview' && <GraceOverview />}
         {view === 'workspace' && <MemoryHubPanel />}
-        {view === 'pipelines' && <PipelinesView pipelines={pipelines} jobs={jobs} onStart={startPipeline} />}
+        {view === 'pipelines' && (
+          <PipelinesView pipelines={pipelines} jobs={jobs} onStart={startPipeline} />
+        )}
         {view === 'dashboard' && <DashboardView metrics={metrics} jobs={jobs} />}
         {view === 'grace' && (
           <div style={{ padding: '24px', height: '100%', overflow: 'auto' }}>
@@ -285,8 +287,7 @@ export function MemoryStudioPanel() {
         {view === 'organizer' && <FileOrganizerPanel />}
         {view === 'healing' && <SelfHealingPanel />}
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
