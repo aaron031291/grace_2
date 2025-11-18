@@ -12,7 +12,7 @@ from typing import Dict, Optional
 from datetime import datetime
 import logging
 
-from .failure_detector import FailureMode
+from backend.self_healing.failure_detector import FailureMode
 
 logger = logging.getLogger(__name__)
 
