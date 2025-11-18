@@ -26,7 +26,14 @@ class OpenAIReasoner:
     """
     
     def __init__(self):
-        self.client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            print("[WARN] OPENAI_API_KEY not set - OpenAI reasoner will fail until configured")
+            print("[WARN] Set in .env file or: export OPENAI_API_KEY=sk-your-key-here")
+            self.client = None
+        else:
+            self.client = AsyncOpenAI(api_key=api_key)
+        
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o")
         self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))
         
@@ -90,6 +97,18 @@ FORMAT YOUR RESPONSES:
             }
         """
         try:
+            # Check if client is initialized
+            if not self.client:
+                logger.error("OpenAI client not initialized - OPENAI_API_KEY not set")
+                return {
+                    "reply": "I'm unable to respond because my OpenAI API key is not configured. Please set OPENAI_API_KEY in your .env file.",
+                    "actions": [],
+                    "confidence": 0.0,
+                    "citations": [],
+                    "requires_approval": False,
+                    "error": "OPENAI_API_KEY not set"
+                }
+            
             # Build context-enriched prompt
             messages = [{"role": "system", "content": self.system_prompt}]
             
