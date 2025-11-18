@@ -102,7 +102,10 @@ async def get_system_knowledge() -> Dict[str, Any]:
 @router.get("/stats")
 async def get_world_model_stats() -> Dict[str, Any]:
     """Get world model statistics"""
-    return grace_world_model.get_stats()
+    stats = grace_world_model.get_stats()
+    if "total_knowledge" in stats and "total_entries" not in stats:
+        stats["total_entries"] = stats["total_knowledge"]
+    return stats
 
 
 # ============================================================================
