@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Software and architecture patterns - SaaS Lens</title><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="assets_root" content="/assets" /><meta name="target_state" content="software-and-architecture-patterns" /><meta name="default_state" content="software-and-architecture-patterns" /><link rel="icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="shortcut icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="canonical" href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" /><meta name="description" content="Software and architecture patterns" /><meta name="deployment_region" content="IAD" /><meta name="product" content="SaaS Lens" /><meta name="guide" content="AWS Well-Architected Framework" /><meta name="abstract" content="This paper describes the SaaS Lens for the AWS Well-Architected Framework, which enables customers to review and improve their cloud-based architectures and better understand the business impact of their design decisions." /><meta name="guide-locale" content="en_us" /><meta name="tocs" content="toc-contents.json" /><link rel="canonical" href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" /><link rel="alternative" href="https://docs.aws.amazon.com/id_id/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="id-id" /><link rel="alternative" href="https://docs.aws.amazon.com/id_id/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="id" /><link rel="alternative" href="https://docs.aws.amazon.com/de_de/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="de-de" /><link rel="alternative" href="https://docs.aws.amazon.com/de_de/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="de" /><link rel="alternative" href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="en-us" /><link rel="alternative" href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="en" /><link rel="alternative" href="https://docs.aws.amazon.com/es_es/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="es-es" /><link rel="alternative" href="https://docs.aws.amazon.com/es_es/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="es" /><link rel="alternative" href="https://docs.aws.amazon.com/fr_fr/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="fr-fr" /><link rel="alternative" href="https://docs.aws.amazon.com/fr_fr/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="fr" /><link rel="alternative" href="https://docs.aws.amazon.com/it_it/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="it-it" /><link rel="alternative" href="https://docs.aws.amazon.com/it_it/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="it" /><link rel="alternative" href="https://docs.aws.amazon.com/ja_jp/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="ja-jp" /><link rel="alternative" href="https://docs.aws.amazon.com/ja_jp/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="ja" /><link rel="alternative" href="https://docs.aws.amazon.com/ko_kr/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="ko-kr" /><link rel="alternative" href="https://docs.aws.amazon.com/ko_kr/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="ko" /><link rel="alternative" href="https://docs.aws.amazon.com/pt_br/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="pt-br" /><link rel="alternative" href="https://docs.aws.amazon.com/pt_br/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="pt" /><link rel="alternative" href="https://docs.aws.amazon.com/zh_cn/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="zh-cn" /><link rel="alternative" href="https://docs.aws.amazon.com/zh_tw/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="zh-tw" /><link rel="alternative" href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" hreflang="x-default" /><meta name="feedback-folder" content="897c6ffe-3c12-4691-9c85-dc23b20eabd4" /><meta name="this_doc_product" content="SaaS Lens" /><meta name="this_doc_guide" content="AWS Well-Architected Framework" /><head xmlns="http://www.w3.org/1999/xhtml"> <script defer="" src="/assets/r/awsdocs-doc-page.2.0.0.js"></script><link href="/assets/r/awsdocs-doc-page.2.0.0.css" rel="stylesheet"/></head>
+<script defer="" id="awsc-panorama-bundle" type="text/javascript" src="https://prod.pa.cdn.uis.awsstatic.com/panorama-nav-init.js" data-config="{'appEntity':'aws-documentation','region':'us-east-1','service':'wellarchitected'}"></script><meta id="panorama-serviceSubSection" value="AWS Well-Architected Framework" /><meta id="panorama-serviceConsolePage" value="Software and architecture patterns" /></head><body class="awsdocs awsui"><div class="awsdocs-container"><awsdocs-header></awsdocs-header><awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)"><div id="guide-toc" dom-region="navigation"><awsdocs-toc></awsdocs-toc></div><div id="main-column" dom-region="content" tabindex="-1"><awsdocs-view class="awsdocs-view"><div id="awsdocs-content"><head><title>Software and architecture patterns - SaaS Lens</title><meta name="pdf" content="/pdfs/wellarchitected/latest/saas-lens/wellarchitected-saas-lens.pdf#software-and-architecture-patterns" /><meta name="rss" content="wellarchitected-saas-lens.rss" /><meta name="forums" content="https://repost.aws/topics/TA5g9gZfzuQoWLsZ3wxihrgw" /><meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?feedback_destination_id=897c6ffe-3c12-4691-9c85-dc23b20eabd4&amp;topic_url=https://docs.aws.amazon.com/en_us/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" /><meta name="feedback-yes" content="feedbackyes.html?topic_url=https://docs.aws.amazon.com/en_us/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" /><meta name="feedback-no" content="feedbackno.html?topic_url=https://docs.aws.amazon.com/en_us/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html" /><meta name="keywords" content="sustainability,SaaS Lens" /><script type="application/ld+json">
+{
+    "@context" : "https://schema.org",
+    "@type" : "BreadcrumbList",
+    "itemListElement" : [
+      {
+        "@type" : "ListItem",
+        "position" : 1,
+        "name" : "AWS",
+        "item" : "https://aws.amazon.com"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 2,
+        "name" : "AWS Well-Architected",
+        "item" : "https://aws.amazon.com/architecture/well-architected/"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 3,
+        "name" : "AWS Well-Architected Framework",
+        "item" : "https://docs.aws.amazon.com/wellarchitected/latest/saas-lens"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 4,
+        "name" : "Pillars of the Well-Architected Framework",
+        "item" : "https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/the-pillars-of-the-well-architected-framework.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 5,
+        "name" : "Sustainability pillar",
+        "item" : "https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/sustainability.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 6,
+        "name" : "Best practices",
+        "item" : "https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/sus-best-practices.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 7,
+        "name" : "Software and architecture patterns",
+        "item" : "https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/sus-best-practices.html"
+      }
+    ]
+}
+</script></head><body><div id="main"><div style="display: none"><a href="/pdfs/wellarchitected/latest/saas-lens/wellarchitected-saas-lens.pdf#software-and-architecture-patterns" target="_blank" rel="noopener noreferrer" title="Open PDF"></a></div><div id="breadcrumbs" class="breadcrumb"><a href="/index.html">Documentation</a><a href="https://aws.amazon.com/architecture/well-architected/">AWS Well-Architected</a><a href="saas-lens.html">AWS Well-Architected Framework</a></div><div id="main-content" class="awsui-util-container"><div id="main-col-body"><awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner><h1 class="topictitle" id="software-and-architecture-patterns">Software and architecture patterns</h1><div class="awsdocs-page-header-container"><awsdocs-page-header></awsdocs-page-header><awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector></div><div class="table-container"><div class="table-contents"><table id="w770aac13c19b9c15b3"><thead>
+            <tr>
+              <th>SaaS SUS 1: How do you use deployment models (silo, bridge, pool) 
+                to align tenant consumption with resource utilization?</th>
+            </tr>
+          </thead>
+            <tr>
+              <td tabindex="-1"> </td>
+            </tr>
+          </table></div></div><div class="itemizedlist">
+         
+         
+         
+      <ul class="itemizedlist"><li class="listitem">
+          <p>
+            <b>Best Practice–01:</b> Have a good understanding of the key
+            value and principles behind the silo, pool, and bridge models, including awareness how silo 
+            and pool strategies can be applied more granularly across the layers and services of your solution.</p>
+        </li><li class="listitem">
+          <p>
+            <b>Best Practice–02:</b> Understand the operational tradeoffs
+            of each model. Build a unified onboarding, operations, and analytics experience spanning
+            any of these models.  </p>
+        </li><li class="listitem">
+          <p>
+            <b>Best Practice–03:</b> Have a complete end-to-end automated
+            tenant onboarding process that maps the tenancy models to the resources that are
+            provisioned at each architecture layer or component. Also have detailed insights into
+            the footprint and consumption costs and tradeoffs associated with each of these models
+          </p>
+        </li></ul></div><p> SaaS applications can be built using a variety of different architectural models.
+        Regulatory, competitive, strategic, cost efficiency, and market considerations all influence
+        the shape of your SaaS architecture. At the same time, there are strategies and patterns
+        that can be applied when defining the footprint of the components within a SaaS application.
+        These patterns—silo, bridge, and pool—can be applied in combinations to enable the most
+        efficient consumption of infrastructure resources.</p><p><b> AWS services recommendation:</b></p><div class="itemizedlist">
+         
+         
+         
+         
+      <ul class="itemizedlist"><li class="listitem">
+          <p> AWS WA SaaS Lens guidance on <a href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/silo-pool-and-bridge-models.html">Architectural
+              model</a>
+          </p>
+        </li><li class="listitem">
+          <p><a href="https://docs.aws.amazon.com/whitepapers/latest/saas-tenant-isolation-strategies/saas-tenant-isolation-strategies.html">SaaS Tenant Isolation Strategies whitepaper</a>
+          </p>
+        </li><li class="listitem">
+          <p> Amazon EKS SaaS reference solution <a href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/amazon-eks-saas.html">https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/amazon-eks-saas.html</a>
+          </p>
+        </li><li class="listitem">
+          <p> Serverless SaaS reference solution <a href="https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/serverless-saas.html">https://docs.aws.amazon.com/wellarchitected/latest/saas-lens/serverless-saas.html</a>
+          </p>
+        </li></ul></div><awsdocs-copyright class="copyright-print"></awsdocs-copyright><awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback></div><noscript><div><div><div><div id="js_error_message"><p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your browser.</strong></p><p>To use the Amazon Web Services Documentation, Javascript must be enabled. Please refer to your browser's Help pages for instructions.</p></div></div></div></div></noscript><div id="main-col-footer" class="awsui-util-font-size-0"><div id="doc-conventions"><a target="_top" href="/general/latest/gr/docconventions.html">Document Conventions</a></div><div class="prev-next"><div id="previous" class="prev-link" accesskey="p" href="./user-behavior-patterns.html">User behavior patterns</div><div id="next" class="next-link" accesskey="n" href="./data-patterns.html">Data patterns</div></div></div><awsdocs-page-utilities></awsdocs-page-utilities></div><div id="quick-feedback-yes" style="display: none;"><div class="title">Did this page help you? - Yes</div><div class="content"><p>Thanks for letting us know we're doing a good job!</p><p>If you've got a moment, please tell us what we did right so we can do more of it.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?feedback_destination_id=897c6ffe-3c12-4691-9c85-dc23b20eabd4&amp;topic_url=https://docs.aws.amazon.com/en_us/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html"></awsui-button></p></div></div><div id="quick-feedback-no" style="display: none;"><div class="title">Did this page help you? - No</div><div class="content"><p>Thanks for letting us know this page needs work. We're sorry we let you down.</p><p>If you've got a moment, please tell us how we can make the documentation better.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?feedback_destination_id=897c6ffe-3c12-4691-9c85-dc23b20eabd4&amp;topic_url=https://docs.aws.amazon.com/en_us/wellarchitected/latest/saas-lens/software-and-architecture-patterns.html"></awsui-button></p></div></div></div></body></div></awsdocs-view><div class="page-loading-indicator" id="page-loading-indicator"><awsui-spinner size="large"></awsui-spinner></div></div><div id="tools-panel" dom-region="tools"><awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel></div></awsui-app-layout><awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner></div></body></html>
