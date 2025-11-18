@@ -3,8 +3,7 @@
  */
 
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../config';
 
 export interface IngestionTask {
   task_id: string;
@@ -29,12 +28,12 @@ export interface IngestionStatus {
 }
 
 export async function getIngestionStatus(): Promise<IngestionStatus> {
-  const response = await axios.get(`${API_BASE}/api/ingestion/status`);
+  const response = await axios.get(`${API_BASE_URL}/ingestion/status`);
   return response.data;
 }
 
 export async function getIngestionTasks(statusFilter?: string): Promise<IngestionTask[]> {
-  const response = await axios.get(`${API_BASE}/api/ingestion/tasks`, {
+  const response = await axios.get(`${API_BASE_URL}/ingestion/tasks`, {
     params: statusFilter ? { status: statusFilter } : {}
   });
   return response.data.tasks;
@@ -44,13 +43,13 @@ export async function startIngestion(taskType: string, source: string): Promise<
   success: boolean;
   task: IngestionTask;
 }> {
-  const response = await axios.post(`${API_BASE}/api/ingestion/start`, null, {
+  const response = await axios.post(`${API_BASE_URL}/ingestion/start`, null, {
     params: { task_type: taskType, source }
   });
   return response.data;
 }
 
 export async function stopIngestion(taskId: string): Promise<{ success: boolean }> {
-  const response = await axios.post(`${API_BASE}/api/ingestion/stop/${taskId}`);
+  const response = await axios.post(`${API_BASE_URL}/ingestion/stop/${taskId}`);
   return response.data;
 }

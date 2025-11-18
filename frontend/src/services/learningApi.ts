@@ -3,8 +3,7 @@
  */
 
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../config';
 
 export interface LearningStatus {
   status: string;
@@ -13,6 +12,6 @@ export interface LearningStatus {
 }
 
 export async function getLearningStatus(): Promise<LearningStatus> {
-  const response = await axios.get(`${API_BASE}/api/learning/status`);
+  const response = await axios.get(`${API_BASE_URL}/learning/status`);
   return response.data;
 }

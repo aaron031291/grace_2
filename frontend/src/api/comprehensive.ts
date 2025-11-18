@@ -3,9 +3,11 @@
  * Type-safe API helpers for all panels
  */
 
+import { API_BASE_URL } from '../config';
+
 // DEPRECATED: Use api/factory.ts instead for the new clean architecture
 // This file maintained for backwards compatibility
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = API_BASE_URL;
 
 // ===== TYPES =====
 

@@ -4,8 +4,7 @@
  */
 
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL, BACKEND_URL } from '../config';
 
 export interface ClarityStatus {
   event_bus: {
@@ -64,7 +63,7 @@ export interface LoopOutput {
  * Get clarity framework status
  */
 export async function getClarityStatus(): Promise<ClarityStatus> {
-  const response = await axios.get(`${API_BASE}/api/clarity/status`);
+  const response = await axios.get(`${API_BASE_URL}/clarity/status`);
   return response.data;
 }
 
@@ -75,7 +74,7 @@ export async function getComponents(): Promise<{
   components: ComponentRegistration[];
   stats: any;
 }> {
-  const response = await axios.get(`${API_BASE}/api/clarity/components`);
+  const response = await axios.get(`${API_BASE_URL}/clarity/components`);
   return response.data;
 }
 
@@ -86,7 +85,7 @@ export async function getEvents(limit: number = 100): Promise<{
   events: Event[];
   total: number;
 }> {
-  const response = await axios.get(`${API_BASE}/api/clarity/events`, {
+  const response = await axios.get(`${API_BASE_URL}/clarity/events`, {
     params: { limit }
   });
   return response.data;
@@ -100,7 +99,7 @@ export async function getTriggerMesh(): Promise<{
   routing_rules: any;
   subscriber_groups: any;
 }> {
-  const response = await axios.get(`${API_BASE}/api/clarity/mesh`);
+  const response = await axios.get(`${API_BASE_URL}/clarity/mesh`);
   return response.data;
 }
 
@@ -114,7 +113,7 @@ export async function getHealth(): Promise<{
   imports_successful: boolean;
   version: string;
 }> {
-  const response = await axios.get(`${API_BASE}/health`);
+  const response = await axios.get(`${BACKEND_URL}/health`);
   return response.data;
 }
 
@@ -122,6 +121,6 @@ export async function getHealth(): Promise<{
  * Get full system status
  */
 export async function getSystemStatus(): Promise<any> {
-  const response = await axios.get(`${API_BASE}/api/status`);
+  const response = await axios.get(`${API_BASE_URL}/status`);
   return response.data;
 }

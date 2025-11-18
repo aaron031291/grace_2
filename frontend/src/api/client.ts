@@ -1,11 +1,12 @@
 // Centralized API client for Grace (Vite + TypeScript)
-// - Picks base URL from Vite env (VITE_API_BASE) or defaults to http://localhost:8000
+// - Picks base URL from config (uses Vite proxy in dev, VITE_BACKEND_URL in prod)
 // - Exposes helper methods for GET/POST/PATCH/DELETE with JWT auth header
+
+import { API_BASE_URL } from '../config';
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
-const DEFAULT_BASE = 'http://localhost:8000';
-const API_BASE = (import.meta as any)?.env?.VITE_API_BASE || DEFAULT_BASE;
+const API_BASE = API_BASE_URL;
 
 let _token: string | null = (typeof window !== 'undefined' && typeof localStorage !== 'undefined')
   ? (localStorage.getItem('token') || null)

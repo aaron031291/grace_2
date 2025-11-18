@@ -4,8 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL, BACKEND_URL } from '../config';
 
 const s = {
   bg: '#0a0a0a',
@@ -30,9 +29,9 @@ export default function OverviewTab() {
   async function loadData() {
     try {
       const [statusRes, healthRes, clarityRes] = await Promise.all([
-        axios.get(`${API_BASE}/api/status`),
-        axios.get(`${API_BASE}/health`),
-        axios.get(`${API_BASE}/api/clarity/status`),
+        axios.get(`${API_BASE_URL}/status`),
+        axios.get(`${BACKEND_URL}/health`),
+        axios.get(`${API_BASE_URL}/clarity/status`),
       ]);
 
       setStatus(statusRes.data);
@@ -145,7 +144,7 @@ export default function OverviewTab() {
           <h2 style={{ color: s.ac, marginBottom: '1.5rem' }}>Quick Actions</h2>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <a
-              href="http://localhost:8000/docs"
+              href={`${BACKEND_URL}/docs`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ background: s.ac, color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}
@@ -153,7 +152,7 @@ export default function OverviewTab() {
               📚 API Documentation
             </a>
             <a
-              href="http://localhost:8000/health"
+              href={`${BACKEND_URL}/health`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ background: '#10b981', color: '#fff', padding: '0.75rem 1.5rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}

@@ -4,7 +4,9 @@
  * No circular imports - each domain is independent
  */
 
-const API_BASE = 'http://localhost:8000';
+import { BACKEND_URL } from '../config';
+
+const API_BASE = BACKEND_URL;
 
 // ===== Helper Function =====
 

@@ -5,6 +5,7 @@
 import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { ModelIndicator } from '../components/ModelIndicator';
+import { API_BASE_URL } from '../config';
 
 const s = {
   bg: '#0a0a0a',
@@ -13,8 +14,6 @@ const s = {
   ac: '#8b5cf6',
   ac2: '#a78bfa',
 };
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 interface Message {
   r: 'user' | 'grace';
@@ -36,7 +35,7 @@ export default function ChatTab() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE}/api/chat`, { message: msg });
+      const response = await axios.post(`${API_BASE_URL}/chat`, { message: msg });
       setMsgs((m) => [...m, { r: 'grace', c: response.data.response }]);
     } catch (error) {
       setMsgs((m) => [...m, { r: 'grace', c: 'Error: Failed to send message' }]);

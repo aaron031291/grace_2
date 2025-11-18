@@ -1,6 +1,8 @@
 // API helpers for memory management endpoints
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { BACKEND_URL } from '../config';
+
+const API_BASE = BACKEND_URL;
 
 export interface FileNode {
   path: string;

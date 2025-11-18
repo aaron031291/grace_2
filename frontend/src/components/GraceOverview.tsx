@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, Book, FolderTree, CheckCircle, AlertCircle, TrendingUp, Clock, Zap } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface SystemMetrics {
   total_documents: number;
@@ -48,9 +49,9 @@ export function GraceOverview() {
     try {
       // Aggregate from multiple endpoints
       const [books, librarian, activity] = await Promise.all([
-        fetch('http://localhost:8000/api/books/stats').then(r => r.json()).catch(() => ({})),
-        fetch('http://localhost:8000/api/librarian/status').then(r => r.json()).catch(() => ({})),
-        fetch('http://localhost:8000/api/books/activity?limit=10').then(r => r.json()).catch(() => []))
+        fetch(`${API_BASE_URL}/books/stats`).then(r => r.json()).catch(() => ({})),
+        fetch(`${API_BASE_URL}/librarian/status`).then(r => r.json()).catch(() => ({})),
+        fetch(`${API_BASE_URL}/books/activity?limit=10`).then(r => r.json()).catch(() => ([]))
       ]);
 
       setMetrics({
@@ -68,7 +69,7 @@ export function GraceOverview() {
 
   const loadTimeline = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/books/activity?limit=20');
+      const response = await fetch(`${API_BASE_URL}/books/activity?limit=20`);
       const data = await response.json();
       
       if (Array.isArray(data)) {

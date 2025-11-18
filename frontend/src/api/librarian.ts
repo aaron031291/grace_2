@@ -3,7 +3,9 @@
  * Handles all Librarian kernel API calls with proper error handling
  */
 
-const API_BASE = 'http://localhost:8000';
+import { BACKEND_URL } from '../config';
+
+const API_BASE = BACKEND_URL;
 
 export interface LibrarianStatus {
   kernel: {
