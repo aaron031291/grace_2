@@ -8,6 +8,7 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 
 from backend.world_model import grace_world_model, mcp_integration
+from backend.developer.developer_agent import developer_agent
 
 router = APIRouter(prefix="/world-model", tags=["Grace's World Model"])
 
@@ -160,3 +161,158 @@ async def initialize_world_model() -> Dict[str, str]:
         'world_model': result['world_model'],
         'mcp': result['mcp']
     }
+
+
+# ============================================================================
+# ============================================================================
+
+class ChatMessage(BaseModel):
+    """Chat message with optional session context"""
+    message: str
+    session_id: Optional[str] = None
+
+
+@router.post("/chat")
+async def handle_chat(chat: ChatMessage) -> Dict[str, Any]:
+    """
+    Handle chat messages with slash command support
+    
+    Supported commands:
+    - /build <spec> - Start a new software development build
+    - /status <job_id> - Get status of a build job
+    - /approve <job_id> - Approve a build job (governance or user)
+    - /reject <job_id> - Reject a build job
+    """
+    message = chat.message.strip()
+    
+    if message.startswith("/build"):
+        spec = message[6:].strip()
+        if not spec:
+            return {
+                "type": "error",
+                "message": "Please provide a specification. Usage: /build <what to build>"
+            }
+        
+        job = await developer_agent.create_job(spec, chat.session_id)
+        
+        import asyncio
+        asyncio.create_task(developer_agent.run_pipeline_with_approvals(job))
+        
+        return {
+            "type": "build_started",
+            "job_id": job.job_id,
+            "spec": spec,
+            "message": f"Build job {job.job_id} started! I'll generate a plan and wait for your approval.",
+            "card": {
+                "type": "BuildProgressCard",
+                "job_id": job.job_id,
+                "status": "planning",
+                "spec": spec
+            }
+        }
+    
+    elif message.startswith("/status"):
+        parts = message.split()
+        if len(parts) < 2:
+            return {
+                "type": "error",
+                "message": "Please provide a job ID. Usage: /status <job_id>"
+            }
+        
+        job_id = parts[1]
+        job = developer_agent.get_job(job_id)
+        
+        if not job:
+            return {
+                "type": "error",
+                "message": f"Job {job_id} not found"
+            }
+        
+        return {
+            "type": "build_status",
+            "job": job.to_dict(),
+            "card": {
+                "type": "BuildProgressCard",
+                "job_id": job.job_id,
+                "status": job.status,
+                "spec": job.spec,
+                "trust_score": job.trust_score,
+                "approvals": job.approvals
+            }
+        }
+    
+    elif message.startswith("/approve"):
+        parts = message.split()
+        if len(parts) < 2:
+            return {
+                "type": "error",
+                "message": "Please provide a job ID. Usage: /approve <job_id>"
+            }
+        
+        job_id = parts[1]
+        job = developer_agent.get_job(job_id)
+        
+        if not job:
+            return {
+                "type": "error",
+                "message": f"Job {job_id} not found"
+            }
+        
+        if job.status == "waiting_for_governance":
+            import asyncio
+            asyncio.create_task(developer_agent.resume_after_governance_approval(job, "user"))
+            return {
+                "type": "approval_granted",
+                "stage": "governance",
+                "message": f"Governance approval granted for {job_id}. Running quality scans..."
+            }
+        elif job.status == "waiting_for_user_approval":
+            import asyncio
+            asyncio.create_task(developer_agent.resume_after_user_approval(job, "user"))
+            return {
+                "type": "approval_granted",
+                "stage": "user_final",
+                "message": f"User approval granted for {job_id}. Applying changes and opening PR..."
+            }
+        else:
+            return {
+                "type": "error",
+                "message": f"Job {job_id} is not waiting for approval (status: {job.status})"
+            }
+    
+    elif message.startswith("/reject"):
+        parts = message.split()
+        if len(parts) < 2:
+            return {
+                "type": "error",
+                "message": "Please provide a job ID. Usage: /reject <job_id> [reason]"
+            }
+        
+        job_id = parts[1]
+        reason = " ".join(parts[2:]) if len(parts) > 2 else "User rejected"
+        
+        job = developer_agent.get_job(job_id)
+        
+        if not job:
+            return {
+                "type": "error",
+                "message": f"Job {job_id} not found"
+            }
+        
+        job.status = "rejected"
+        job.add_error(f"Job rejected: {reason}")
+        
+        return {
+            "type": "job_rejected",
+            "job_id": job_id,
+            "reason": reason,
+            "message": f"Job {job_id} rejected: {reason}"
+        }
+    
+    else:
+        answer = await grace_world_model.ask_self(message)
+        return {
+            "type": "chat_response",
+            "message": answer.get("answer", "I'm not sure how to respond to that."),
+            "sources": answer.get("sources", [])
+        }
