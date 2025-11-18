@@ -285,8 +285,7 @@ export function MemoryStudioPanel() {
         {view === 'organizer' && <FileOrganizerPanel />}
         {view === 'healing' && <SelfHealingPanel />}
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
