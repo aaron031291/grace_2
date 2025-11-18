@@ -231,6 +231,14 @@ try:
 except ImportError:
     pass  # World Model Hub optional for now
 
+# Add vector API router
+try:
+    from backend.routes.vector_api import router as vector_router
+    app.include_router(vector_router)
+    print("[OK] Vector API routes loaded")
+except Exception as e:
+    print(f"[WARN] Vector API disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""
