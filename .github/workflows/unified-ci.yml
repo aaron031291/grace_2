@@ -35,6 +35,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyyaml
       
+      - name: Debug - Show environment
+        run: |
+          set -x
+          python --version
+          pwd
+          ls -la
+          echo "VERSION exists?"; test -f VERSION && cat VERSION || echo "missing"
+          echo "pyproject.toml exists?"; test -f pyproject.toml && echo yes || echo no
+          echo "README.md exists?"; test -f README.md && echo yes || echo no
+          echo "alembic.ini exists?"; test -f alembic.ini && echo yes || echo no
+          echo "Directories:"; ls -d backend frontend tests scripts alembic 2>&1 || echo "some missing"
+      
       - name: Check VERSION consistency
         run: |
           python -c "
