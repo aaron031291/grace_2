@@ -142,3 +142,4 @@
 {"timestamp": "2025-11-17T17:55:54.838419", "action": "allocate", "port": 8099, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-17T17:56:01.903844", "action": "allocate", "port": 8100, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
 {"timestamp": "2025-11-17T17:56:03.935265", "action": "allocate", "port": 8101, "service_name": "grace_backend", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port None failure"}
+{"timestamp": "2025-11-17T18:49:00.635362", "action": "allocate", "port": 8102, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
