@@ -50,7 +50,7 @@ export function GraceOverview() {
       const [books, librarian, activity] = await Promise.all([
         fetch('http://localhost:8000/api/books/stats').then(r => r.json()).catch(() => ({})),
         fetch('http://localhost:8000/api/librarian/status').then(r => r.json()).catch(() => ({})),
-        fetch('http://localhost:8000/api/books/activity?limit=10').then(r => r.json()).catch(() => []))
+        fetch('http://localhost:8000/api/books/activity?limit=10').then(r => r.json()).catch(() => [])
       ]);
 
       setMetrics({
