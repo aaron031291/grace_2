@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { X, ChevronRight, AlertCircle, Info, Lightbulb, FileText } from 'lucide-react';
 import axios from 'axios';
 

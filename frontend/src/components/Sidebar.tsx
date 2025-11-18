@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import type { NavItem } from '../GraceShell';
 

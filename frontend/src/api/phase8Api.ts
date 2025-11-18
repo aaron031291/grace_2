@@ -1,4 +1,4 @@
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 /**
  * Phase 8 API Client: End-to-End Testing & Production Readiness
  */

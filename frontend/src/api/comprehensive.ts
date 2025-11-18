@@ -1,4 +1,4 @@
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 /**
  * Comprehensive API Client
  * Type-safe API helpers for all panels

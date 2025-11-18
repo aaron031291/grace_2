@@ -3,7 +3,7 @@
  * Let users describe coding tasks for Grace's autonomous code generation
  */
 import React, { useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import './AgenticBuilderForm.css';
 

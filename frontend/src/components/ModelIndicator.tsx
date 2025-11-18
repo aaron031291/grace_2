@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';

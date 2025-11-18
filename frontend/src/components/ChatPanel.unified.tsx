@@ -12,10 +12,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChatAPI, type ChatResponse, type PendingApproval } from '../api/chat';
-import { VoiceAPI, type VoiceSession } from '../api/voice';
+import { ChatAPI, ChatResponse, PendingApproval } from '../api/chat';
 import { useNotifications } from '../hooks/useNotifications';
-import { API_BASE_URL } from '../config';
 import './ChatPanel.css';
 
 interface Message {
@@ -30,7 +28,7 @@ interface Message {
   attachments?: string[];
 }
 
-export const ChatPanel: React.FC = () => {
+export const ChatPanelUnified: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string>('');
@@ -39,7 +37,6 @@ export const ChatPanel: React.FC = () => {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [voiceSession, setVoiceSession] = useState<VoiceSession | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -89,6 +86,7 @@ export const ChatPanel: React.FC = () => {
     setLoading(true);
 
     try {
+      // TODO: Handle file uploads if attachments present
       const attachmentPaths = currentAttachments.length > 0 
         ? currentAttachments.map(f => f.name) 
         : undefined;
@@ -117,30 +115,9 @@ export const ChatPanel: React.FC = () => {
       setMessages((prev) => [...prev, assistantMessage]);
       setPendingApprovals(response.pending_approvals || []);
     } catch (error) {
-      // Automatically attach log excerpt when error occurs
-      const errorDetails = error instanceof Error ? error.message : 'Unknown error';
-      let logExcerpt = '';
-      
-      try {
-        // Fetch recent logs if available
-        const logsResponse = await fetch(`${API_BASE_URL}/api/logs?limit=10`);
-        if (logsResponse.ok) {
-          const logs = await logsResponse.json();
-          if (logs.entries && logs.entries.length > 0) {
-            logExcerpt = '\n\n**Recent Log Excerpt:**\n```\n' + 
-              logs.entries.slice(0, 5).map((l: any) => 
-                `[${l.level}] ${l.message}`
-              ).join('\n') + 
-              '\n```';
-          }
-        }
-      } catch (logError) {
-        // Silently fail if logs unavailable
-      }
-
       const errorMessage: Message = {
         role: 'system',
-        content: `Error: ${errorDetails}${logExcerpt}`,
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -149,37 +126,22 @@ export const ChatPanel: React.FC = () => {
     }
   };
 
-  const handleApproval = async (traceId: string, approved: boolean, reason?: string) => {
+  const handleApproval = async (traceId: string, approved: boolean) => {
     try {
-      // Call governance API
-      const endpoint = approved ? '/api/governance/approve' : '/api/governance/reject';
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          trace_id: traceId,
-          approved,
-          reason: reason || (approved ? undefined : 'User rejected'),
-          user_id: 'user',
-        }),
+      await ChatAPI.approveAction({
+        trace_id: traceId,
+        approved,
+        reason: approved ? undefined : 'User rejected',
+        user_id: 'user',
       });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(error.detail || 'Approval failed');
-      }
-
-      const result = await response.json();
 
       setPendingApprovals((prev) => prev.filter((a) => a.trace_id !== traceId));
 
       const systemMessage: Message = {
         role: 'system',
         content: approved
-          ? `✅ Action approved: ${result.details?.action_type || traceId}`
-          : `❌ Action rejected: ${result.details?.action_type || traceId}`,
+          ? `✅ Action approved: ${traceId}`
+          : `❌ Action rejected: ${traceId}`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, systemMessage]);
@@ -193,74 +155,17 @@ export const ChatPanel: React.FC = () => {
     }
   };
 
-  const handleVoiceToggle = async () => {
+  const handleVoiceToggle = () => {
     if (!voiceEnabled) {
-      await startVoiceSession();
+      setVoiceEnabled(true);
+      startVoiceRecognition();
     } else {
-      await stopVoiceSession();
-    }
-  };
-
-  const startVoiceSession = async () => {
-    try {
-      // Start backend voice session
-      const response = await VoiceAPI.startVoice({
-        user_id: 'user',
-        language: 'en-US',
-        continuous: true,
-      });
-
-      if (response.success) {
-        setVoiceSession(response.session);
-        setVoiceEnabled(true);
-        
-        // Start browser speech recognition
-        startBrowserSpeechRecognition();
-
-        const systemMessage: Message = {
-          role: 'system',
-          content: `🎤 Voice session started (${response.session.session_id})`,
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, systemMessage]);
-      }
-    } catch (error) {
-      const errorMessage: Message = {
-        role: 'system',
-        content: `Error starting voice: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    }
-  };
-
-  const stopVoiceSession = async () => {
-    try {
-      if (voiceSession) {
-        await VoiceAPI.stopVoice(voiceSession.session_id);
-      }
-
-      setVoiceSession(null);
       setVoiceEnabled(false);
-      stopBrowserSpeechRecognition();
-
-      const systemMessage: Message = {
-        role: 'system',
-        content: '🔇 Voice session stopped',
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, systemMessage]);
-    } catch (error) {
-      const errorMessage: Message = {
-        role: 'system',
-        content: `Error stopping voice: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      stopVoiceRecognition();
     }
   };
 
-  const startBrowserSpeechRecognition = () => {
+  const startVoiceRecognition = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
@@ -283,14 +188,11 @@ export const ChatPanel: React.FC = () => {
       
       recognition.onerror = () => {
         setIsListening(false);
+        setVoiceEnabled(false);
       };
       
       recognition.onend = () => {
         setIsListening(false);
-        // Auto-restart if voice still enabled
-        if (voiceEnabled) {
-          setTimeout(() => recognition.start(), 100);
-        }
       };
       
       recognition.start();
@@ -302,12 +204,11 @@ export const ChatPanel: React.FC = () => {
     }
   };
 
-  const stopBrowserSpeechRecognition = () => {
+  const stopVoiceRecognition = () => {
     const recognition = (window as any).__graceVoiceRecognition;
     if (recognition) {
       recognition.stop();
       setIsListening(false);
-      delete (window as any).__graceVoiceRecognition;
     }
   };
 
@@ -371,39 +272,14 @@ export const ChatPanel: React.FC = () => {
 
         {pendingApprovals.length > 0 && (
           <div className="approvals-section">
-            <h3>⚠️ Pending Approvals ({pendingApprovals.length})</h3>
+            <h3>⚠️ Pending Approvals</h3>
             {pendingApprovals.map((approval) => (
               <div key={approval.trace_id} className="approval-card">
                 <div className="approval-header">
-                  <div className="approval-title">
-                    <strong>{approval.action_type}</strong>
-                    <span className="approval-agent">by {approval.agent}</span>
-                  </div>
-                  <span 
-                    className={`approval-tier tier-${approval.governance_tier.replace('_', '-')}`}
-                  >
-                    {approval.governance_tier.replace('_', ' ').toUpperCase()}
-                  </span>
+                  <strong>{approval.action_type}</strong>
+                  <span className="approval-tier">{approval.governance_tier}</span>
                 </div>
-                
                 <div className="approval-reason">{approval.reason}</div>
-                
-                {approval.params && Object.keys(approval.params).length > 0 && (
-                  <div className="approval-params">
-                    <strong>Parameters:</strong>
-                    <pre>{JSON.stringify(approval.params, null, 2)}</pre>
-                  </div>
-                )}
-                
-                <div className="approval-meta">
-                  <span className="approval-time">
-                    {new Date(approval.timestamp).toLocaleString()}
-                  </span>
-                  <span className="approval-trace">
-                    Trace: {approval.trace_id.slice(0, 8)}...
-                  </span>
-                </div>
-                
                 <div className="approval-actions">
                   <button
                     onClick={() => handleApproval(approval.trace_id, true)}

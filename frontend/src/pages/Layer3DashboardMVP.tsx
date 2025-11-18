@@ -3,7 +3,7 @@
  * Learning & Intent Console with kernel terminals and simple intent creation
  */
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import axios from 'axios';
 import { KernelTerminal } from '../components/KernelTerminal';
 import { CoPilotPane } from '../components/CoPilotPane';

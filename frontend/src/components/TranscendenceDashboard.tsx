@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import './TranscendenceDashboard.css';
 
 interface CognitiveState {

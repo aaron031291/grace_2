@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { 
   FileText, FolderPlus, Save, Trash2, Move, 
   Brain, Zap, CheckCircle, AlertCircle, Clock

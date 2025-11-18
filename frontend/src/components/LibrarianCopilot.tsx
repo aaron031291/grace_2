@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { Sparkles, Send, Minimize2, Maximize2, BookOpen, FolderTree, CheckCircle } from 'lucide-react';
 
 interface Suggestion {

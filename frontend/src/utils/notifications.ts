@@ -1,4 +1,4 @@
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 /**
  * UI Notification System for Book Ingestion Events
  * Integrates with event bus to show toasts and co-pilot messages

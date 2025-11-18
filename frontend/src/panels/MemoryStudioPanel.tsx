@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { 
   Activity, BarChart3, Zap, Play, Pause, CheckCircle, XCircle,
   Clock, TrendingUp, Database, FileText, Layers, Brain, BookOpen, FolderTree

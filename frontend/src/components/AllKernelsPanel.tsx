@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { Cpu, PlayCircle, Square, Activity, TrendingUp, AlertCircle } from 'lucide-react';
 
 interface Kernel {

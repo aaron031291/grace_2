@@ -24,5 +24,26 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src/main.tsx",
+    "src/AppChat.tsx",
+    "src/AppChat.css",
+    "src/index.css",
+    "src/config.ts",
+    "src/components/ChatPanel.tsx",
+    "src/components/ChatPanel.css",
+    "src/components/BackgroundTasksDrawer.tsx",
+    "src/components/BackgroundTasksDrawer.css",
+    "src/components/TelemetryStrip.tsx",
+    "src/components/TelemetryStrip.css",
+    "src/components/HealthMeter.tsx",
+    "src/components/RemoteCockpit.tsx",
+    "src/api/chat.ts",
+    "src/api/config.ts",
+    "src/api/voice.ts",
+    "src/api/remote.ts",
+    "src/api/tasks.ts",
+    "src/hooks/useNotifications.ts",
+    "src/types/**/*"
+  ]
 }

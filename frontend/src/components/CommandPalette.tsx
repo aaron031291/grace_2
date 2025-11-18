@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { apiUrl, WS_BASE_URL } from './config';
+import { apiUrl, WS_BASE_URL } from '../config';
 import { Search, Book, FolderTree, Zap, Settings, FileText, CheckCircle } from 'lucide-react';
 
 interface Command {
