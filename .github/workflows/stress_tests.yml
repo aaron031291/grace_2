@@ -164,7 +164,7 @@ jobs:
   stress-summary:
     runs-on: ubuntu-latest
     needs: [layer1-boot-stress, ingestion-stress, htm-stress]
-    if: always()
+    if: always() && github.event_name != 'pull_request'
     
     steps:
       - uses: actions/checkout@v3
