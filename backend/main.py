@@ -281,6 +281,14 @@ try:
 except ImportError as e:
     print(f"[WARN] Metrics API disabled: {e}")
 
+# Register Developer API (Senior Dev Mode - Full-Stack Software Development)
+try:
+    from backend.routes.developer_api import router as developer_router
+    app.include_router(developer_router)
+    print("[OK] Developer API registered (Senior Dev Mode with approval gates)")
+except ImportError as e:
+    print(f"[WARN] Developer API disabled: {e}")
+
 @app.get("/health")
 async def health_check():
     """Simple health check endpoint"""

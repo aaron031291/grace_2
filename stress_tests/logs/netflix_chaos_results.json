@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "name": "High Load Burst",
+      "requests": 50,
+      "errors": 0,
+      "error_rate": 0.0,
+      "duration_seconds": 0.08707022666931152,
+      "passed": true
+    },
+    {
+      "name": "Concurrent Requests",
+      "requests": 100,
+      "errors": 0,
+      "error_rate": 0.0,
+      "duration_seconds": 0.1779012680053711,
+      "passed": true
+    },
+    {
+      "name": "Sustained Load",
+      "requests": 200,
+      "errors": 0,
+      "error_rate": 0.0,
+      "duration_seconds": 20.479544401168823,
+      "passed": true
+    }
+  ]
+}

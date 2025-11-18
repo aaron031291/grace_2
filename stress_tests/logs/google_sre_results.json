@@ -1,0 +1,20 @@
+{
+  "test_name": "Google SRE Load Testing",
+  "total_requests": 500,
+  "successful_requests": 500,
+  "failed_requests": 0,
+  "error_rate": 0.0,
+  "latency": {
+    "avg": 2.0647292137145996,
+    "min": 1.6021728515625,
+    "max": 6.779193878173828,
+    "p50": 2.0036697387695312,
+    "p95": 2.6468873023986816,
+    "p99": 3.1663036346435547
+  },
+  "slo_compliance": {
+    "error_rate_under_1pct": true,
+    "p95_under_400ms": true,
+    "p99_under_800ms": true
+  }
+}
