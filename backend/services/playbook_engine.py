@@ -288,8 +288,46 @@ class PlaybookEngine:
         # Simulate action execution
         if action == "clear_ingestion_cache":
             print(f"[Action] Clearing ingestion cache...")
+            # TODO: Implement actual cache clearing
+            # For now we assume it's handled by the service restart or cache expiry
+            
+        elif action == "reset_pipeline_state":
+            print(f"[Action] Resetting pipeline state...")
+            # TODO: Reset specific pipeline counters or flags
+            
         elif action == "retry_ingestion":
-            print(f"[Action] Retrying ingestion for: {context.get('file_path')}")
+            file_path = context.get("file_path")
+            if file_path:
+                print(f"[Action] Retrying ingestion for: {file_path}")
+                try:
+                    import os
+                    import aiofiles
+                    from backend.ingestion_services.ingestion_service import ingestion_service
+                    
+                    if os.path.exists(file_path):
+                        async with aiofiles.open(file_path, 'rb') as f:
+                            content = await f.read()
+                            
+                        filename = os.path.basename(file_path)
+                        
+                        # Retry with backoff logic handled in ingestion_service.ingest_with_retry
+                        # But ingest_file uses ingest_with_retry internally too
+                        await ingestion_service.ingest_file(
+                            file_content=content,
+                            filename=filename,
+                            actor="self_healing_agent"
+                        )
+                        print(f"[Action] Ingestion retry successful for {file_path}")
+                    else:
+                        print(f"[Action] File not found: {file_path}")
+                        raise FileNotFoundError(f"File not found: {file_path}")
+                        
+                except Exception as e:
+                    print(f"[Action] Ingestion retry failed: {e}")
+                    raise e
+            else:
+                print(f"[Action] No file_path provided for retry_ingestion")
+                
         elif action == "reconnect_database":
             print(f"[Action] Reconnecting to database...")
         elif action == "clear_non_critical_caches":

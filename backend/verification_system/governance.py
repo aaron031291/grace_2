@@ -37,6 +37,33 @@ class GovernanceEngine:
             'policy': None
         }
     
+    async def check_action(
+        self,
+        actor: str,
+        action: str,
+        resource: str,
+        context: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Alias for check() to match UnifiedLogicHub expectations.
+        Adapts parameters and return format.
+        """
+        # Map parameters to check()
+        result = await self.check(
+            action_type=action,
+            actor=actor,
+            resource=resource,
+            input_data=context or {}
+        )
+        
+        # Adapt return format
+        return {
+            "approved": result.get("allowed", False),
+            "reason": result.get("reason", "No reason provided"),
+            "approval_id": f"auto_approved_{action}_{resource}",
+            "checks": result
+        }
+
     async def log_decision(
         self,
         action_id: str,
