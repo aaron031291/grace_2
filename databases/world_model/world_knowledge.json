@@ -17308,13 +17308,76 @@
       }
     },
     {
-      "knowledge_id": "d097bf79-9e0",
+      "knowledge_id": "9deb7313-8e5",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T14:12:23.606499",
+      "updated_at": "2025-11-19T14:12:23.606499",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "2ba4d8cd-b84",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T14:12:26.528240",
+      "updated_at": "2025-11-19T14:12:26.528240",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "e171f2a1-cac",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T14:12:29.530801",
+      "updated_at": "2025-11-19T14:12:29.530801",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "377784ce-ecb",
       "category": "self",
       "content": "I am Grace, an autonomous AI system",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.116107",
-      "updated_at": "2025-11-19T14:09:01.116107",
+      "learned_at": "2025-11-19T14:13:07.926138",
+      "updated_at": "2025-11-19T14:13:07.926138",
       "access_count": 0,
       "tags": [
         "identity",
@@ -17323,13 +17386,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "0b09b844-6a7",
+      "knowledge_id": "4af5b81c-944",
       "category": "self",
       "content": "I have 21 specialized AI models for different tasks",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.139667",
-      "updated_at": "2025-11-19T14:09:01.139667",
+      "learned_at": "2025-11-19T14:13:07.988336",
+      "updated_at": "2025-11-19T14:13:07.988336",
       "access_count": 0,
       "tags": [
         "capabilities",
@@ -17338,13 +17401,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "b082458c-07b",
+      "knowledge_id": "63d4a4d7-b6c",
       "category": "self",
       "content": "I use domain-based architecture with service mesh for reliability",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.162731",
-      "updated_at": "2025-11-19T14:09:01.162731",
+      "learned_at": "2025-11-19T14:13:08.019652",
+      "updated_at": "2025-11-19T14:13:08.019652",
       "access_count": 0,
       "tags": [
         "architecture",
@@ -17353,13 +17416,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "aa5a0190-8e8",
+      "knowledge_id": "477359ee-8ed",
       "category": "self",
       "content": "I have collective intelligence through shared memory across domains",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.186420",
-      "updated_at": "2025-11-19T14:09:01.186420",
+      "learned_at": "2025-11-19T14:13:08.052638",
+      "updated_at": "2025-11-19T14:13:08.052638",
       "access_count": 0,
       "tags": [
         "intelligence",
@@ -17368,13 +17431,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "c9869ead-f05",
+      "knowledge_id": "7ab9f93c-70f",
       "category": "self",
       "content": "I can self-heal using network healing playbooks and Guardian",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.210615",
-      "updated_at": "2025-11-19T14:09:01.210615",
+      "learned_at": "2025-11-19T14:13:08.084354",
+      "updated_at": "2025-11-19T14:13:08.084354",
       "access_count": 0,
       "tags": [
         "capabilities",
@@ -17383,13 +17446,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "1b4011c9-bc6",
+      "knowledge_id": "dfea1003-4f1",
       "category": "self",
       "content": "I learn from every operation and improve continuously",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-19T14:09:01.236176",
-      "updated_at": "2025-11-19T14:09:01.236176",
+      "learned_at": "2025-11-19T14:13:08.114369",
+      "updated_at": "2025-11-19T14:13:08.114369",
       "access_count": 0,
       "tags": [
         "learning",
@@ -17398,13 +17461,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "67117b9f-188",
+      "knowledge_id": "7a9cc131-b5c",
       "category": "system",
       "content": "I currently have 0 active domains",
       "confidence": 1.0,
       "source": "domain_discovery",
-      "learned_at": "2025-11-19T14:09:01.260308",
-      "updated_at": "2025-11-19T14:09:01.260308",
+      "learned_at": "2025-11-19T14:13:08.145454",
+      "updated_at": "2025-11-19T14:13:08.145454",
       "access_count": 0,
       "tags": [
         "domains",
@@ -17413,13 +17476,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "baaa9834-d5b",
+      "knowledge_id": "15317aa6-f64",
       "category": "system",
       "content": "I have 20 kernel assignments",
       "confidence": 1.0,
       "source": "kernel_discovery",
-      "learned_at": "2025-11-19T14:09:01.283393",
-      "updated_at": "2025-11-19T14:09:01.283393",
+      "learned_at": "2025-11-19T14:13:08.175060",
+      "updated_at": "2025-11-19T14:13:08.175060",
       "access_count": 0,
       "tags": [
         "kernels",
@@ -17428,5 +17491,5 @@
       "metadata": {}
     }
   ],
-  "saved_at": "2025-11-19T14:09:01.284896"
+  "saved_at": "2025-11-19T14:13:08.176059"
 }
