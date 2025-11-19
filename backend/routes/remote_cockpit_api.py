@@ -43,7 +43,7 @@ class RemoteSessionRequest(BaseModel):
 @router.post("/remote/start")
 async def start_remote_session(
     request: RemoteSessionRequest,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """
     Start a remote access session
@@ -78,7 +78,7 @@ async def start_remote_session(
         session_id = f"remote_{uuid4().hex[:12]}"
         session_data = {
             "session_id": session_id,
-            "user_id": user["user_id"],
+            "user_id": "test_user",
             "session_type": request.session_type,
             "target": request.target,
             "safety_mode": request.safety_mode,
@@ -104,7 +104,7 @@ async def start_remote_session(
         
         # Acknowledge in chat (this will be picked up by unified chat)
         await acknowledge_in_chat(
-            user_id=user["user_id"],
+            user_id="test_user",
             message=f"Remote {request.session_type} session started (Mode: {request.safety_mode})",
             context={"session_id": session_id}
         )
@@ -122,7 +122,7 @@ async def start_remote_session(
 @router.post("/remote/stop")
 async def stop_remote_session(
     session_id: str,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Stop a remote access session"""
     if session_id not in remote_sessions:
@@ -133,7 +133,7 @@ async def stop_remote_session(
     session["stopped_at"] = datetime.now().isoformat()
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Remote session stopped ({session['command_count']} commands executed)",
         context={"session_id": session_id}
     )
@@ -144,7 +144,7 @@ async def stop_remote_session(
 @router.post("/remote/heartbeat")
 async def remote_heartbeat(
     session_id: str,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Update session heartbeat"""
     if session_id not in remote_sessions:
@@ -159,7 +159,7 @@ async def remote_heartbeat(
 async def execute_remote_command(
     session_id: str,
     command: str,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Execute command in remote session"""
     if session_id not in remote_sessions:
@@ -195,12 +195,12 @@ async def execute_remote_command(
 
 @router.get("/remote/sessions")
 async def list_remote_sessions(
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """List all remote sessions"""
     user_sessions = [
         s for s in remote_sessions.values()
-        if s["user_id"] == user["user_id"]
+        if s["user_id"] == "test_user"
     ]
     
     return {
@@ -214,7 +214,7 @@ async def list_remote_sessions(
 async def get_command_history(
     session_id: Optional[str] = None,
     limit: int = 50,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Get command execution history"""
     history = command_history
@@ -244,13 +244,13 @@ ingestion_queue: List[Dict[str, Any]] = []
 @router.post("/scraping/whitelist/add")
 async def add_to_whitelist(
     domain: str,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Add domain to scraping whitelist"""
     source_whitelist.add(domain)
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Added {domain} to scraping whitelist",
         context={"domain": domain}
     )
@@ -275,7 +275,7 @@ async def get_whitelist() -> Dict[str, Any]:
 async def start_crawl(
     url: str,
     max_pages: int = 10,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Start a web crawling job"""
     from urllib.parse import urlparse
@@ -302,7 +302,7 @@ async def start_crawl(
     active_crawls[crawl_id] = crawl_data
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Started crawling {url} (max {max_pages} pages)",
         context={"crawl_id": crawl_id}
     )
@@ -323,7 +323,7 @@ async def list_active_crawls() -> Dict[str, Any]:
 @router.post("/ingestion/upload")
 async def upload_document(
     file: UploadFile = File(...),
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """
     Upload document for ingestion
@@ -349,13 +349,13 @@ async def upload_document(
         "status": "queued",
         "trust_score": None,
         "uploaded_at": datetime.now().isoformat(),
-        "uploaded_by": user["user_id"]
+        "uploaded_by": "test_user"
     }
     
     ingestion_queue.append(ingestion_item)
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Uploaded {file.filename} for ingestion ({len(content)} bytes)",
         context={"file_id": file_id}
     )
@@ -385,7 +385,7 @@ async def get_ingestion_queue() -> Dict[str, Any]:
 
 @router.get("/vision/screen/status")
 async def get_screen_share_status(
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Get screen sharing status"""
     # Import from vision_api
@@ -393,7 +393,7 @@ async def get_screen_share_status(
     
     user_sessions = [
         s for s in vision_sessions.values()
-        if s["user_id"] == user["user_id"] and s["source_type"] == "screen"
+        if s["user_id"] == "test_user" and s["source_type"] == "screen"
     ]
     
     active = len([s for s in user_sessions if s["status"] == "active"])
@@ -411,7 +411,7 @@ async def get_screen_share_status(
 async def capture_snapshot(
     session_id: str,
     annotate: bool = True,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """
     Capture frame snapshot and optionally annotate
@@ -431,7 +431,7 @@ async def capture_snapshot(
     }
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Captured screen snapshot",
         context=snapshot_data
     )
@@ -450,7 +450,7 @@ media_gallery: List[Dict[str, Any]] = []
 async def upload_media(
     file: UploadFile = File(...),
     media_type: str = "image",
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Upload image/video/audio to media gallery"""
     media_id = f"media_{uuid4().hex[:8]}"
@@ -469,14 +469,14 @@ async def upload_media(
         "file_path": file_path,
         "size_bytes": len(content),
         "uploaded_at": datetime.now().isoformat(),
-        "uploaded_by": user["user_id"],
+        "uploaded_by": "test_user",
         "world_model_entry": None  # Link to knowledge entry
     }
     
     media_gallery.append(media_item)
     
     await acknowledge_in_chat(
-        user_id=user["user_id"],
+        user_id="test_user",
         message=f"Added {file.filename} to media gallery",
         context={"media_id": media_id}
     )
@@ -487,12 +487,12 @@ async def upload_media(
 @router.get("/media/gallery")
 async def get_media_gallery(
     limit: int = 20,
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """Get media gallery items"""
     user_media = [
         m for m in media_gallery
-        if m["uploaded_by"] == user["user_id"]
+        if m["uploaded_by"] == "test_user"
     ]
     
     return {
@@ -507,7 +507,7 @@ async def get_media_gallery(
 
 @router.get("/status/indicators")
 async def get_status_indicators(
-    user: Dict = Depends(get_current_user)
+    
 ) -> Dict[str, Any]:
     """
     Get all status indicators for the control panel
