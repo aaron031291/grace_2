@@ -594,21 +594,9 @@ async def startup_advanced_learning():
     except Exception as e:
         print(f"[WARN] Self-heal runner initialization degraded: {e}")
     
-    # Initialize web scraper for internet access
-    try:
-        from backend.utilities.safe_web_scraper import safe_web_scraper
-        await safe_web_scraper.initialize()
-        print("[OK] Safe web scraper initialized (internet access enabled)")
-    except Exception as e:
-        print(f"[WARN] Web scraper initialization degraded: {e}")
-    
-    # Initialize Google search service for free internet learning
-    try:
-        from backend.services.google_search_service import google_search_service
-        await google_search_service.initialize()
-        print("[OK] Google search service initialized (unrestricted web learning enabled)")
-    except Exception as e:
-        print(f"[WARN] Google search initialization degraded: {e}")
+    # Web scraper and Google search service removed per user request
+
+
     
     # Initialize autonomous web navigator (teaches Grace when/how to search)
     try:

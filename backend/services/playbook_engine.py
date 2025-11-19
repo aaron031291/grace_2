@@ -160,20 +160,6 @@ class PlaybookEngine:
             requires_code_patch=True
         )
         
-        # 7. Search Quota Exhaustion (Config Change)
-        self.playbooks["search_quota_exhaustion"] = Playbook(
-            playbook_id="search_quota_exhaustion",
-            name="Search Quota Exhaustion Recovery",
-            description="Switch search providers when quota is exhausted",
-            playbook_type=PlaybookType.DATA_FIX,
-            steps=[
-                {"action": "check_quota_status", "description": "Verify quota is actually exhausted"},
-                {"action": "switch_to_backup_provider", "description": "Switch to backup search provider"},
-                {"action": "verify_search_functionality", "description": "Verify search works with new provider"},
-                {"action": "notify_admin_quota", "description": "Notify admin about quota usage"},
-            ],
-            requires_code_patch=False
-        )
 
         # 8. TypeScript Build Fix (Clean Build)
         self.playbooks["typescript_build_fix"] = Playbook(
