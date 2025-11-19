@@ -332,10 +332,10 @@ class UnifiedLogicHub:
                     "version": package.version,
                     "risk_level": package.risk_level,
                     "governance_approval": package.governance_approval_id,
-                    "crypto_id": package.crypto_id
+                    "crypto_id": package.crypto_id,
+                    "signature": package.crypto_signature
                 },
-                result="proposed",
-                signature=package.crypto_signature
+                result="proposed"
             )
             
             package.immutable_log_sequence = entry_id
@@ -505,10 +505,10 @@ class UnifiedLogicHub:
                     "component_targets": package.component_targets,
                     "checksum": package.checksum,
                     "trigger_event_id": package.trigger_mesh_event_id,
-                    "validation_results": package.validation_results
+                    "validation_results": package.validation_results,
+                    "signature": package.crypto_signature
                 },
-                result="distributed",
-                signature=package.crypto_signature
+                result="distributed"
             )
             
             logger.info(f"[IMMUTABLE_LOG] ✓ Logged distribution complete")
