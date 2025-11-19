@@ -87,28 +87,28 @@ async def boot_grace_minimal():
             guardian_validates=True
         ))
 
-        # CHUNK 0.8: Elite Coding Agent (Guardian validates)
-        async def chunk_0c_elite_coding():
-            print("[CHUNK 0.8] Elite Coding Agent...")
-            from backend.agents_core.elite_coding_agent import elite_coding_agent
+        # CHUNK 0.6: Self-Healing Agent (Guardian validates)
+        async def chunk_0d_self_healing():
+            print("[CHUNK 0.6] Self-Healing Agent...")
+            from backend.self_heal.runner import runner
             
             # Start the agent
-            await elite_coding_agent.start()
+            await runner.start()
             
-            print("  [OK] Elite Coding Agent: Online (Parallel Orchestration)")
-            print(f"  [OK] Knowledge Base: {len(elite_coding_agent.knowledge_base)} entries")
+            print("  [OK] Self-Healing Agent: Online (Automated remediation)")
+            print("  [OK] Playbook execution: Active (15s intervals)")
             
             return {
                 "status": "online", 
-                "knowledge_entries": len(elite_coding_agent.knowledge_base),
+                "poll_interval": 15,
                 "mode": "active"
             }
 
         boot_orchestrator.register_chunk(BootChunk(
-            chunk_id="elite_coding_agent",
-            name="Elite Coding Agent",
-            priority=0.8,
-            boot_function=chunk_0c_elite_coding,
+            chunk_id="self_healing_agent",
+            name="Self-Healing Agent",
+            priority=0.6,
+            boot_function=chunk_0d_self_healing,
             can_fail=True, # Can fail but highly desired
             guardian_validates=True,
             delegate_to="self_healing"
