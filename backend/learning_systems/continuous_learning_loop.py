@@ -18,10 +18,10 @@ from typing import Dict, Any, List
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
-from .trigger_mesh import trigger_mesh, TriggerEvent
-from .immutable_log import immutable_log
-from .mission_control.hub import mission_control_hub
-from .fusion_memory import fusion_memory
+from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
+from backend.core.immutable_log import immutable_log
+from backend.mission_control.hub import mission_control_hub
+from backend.memory_services.fusion_memory import fusion_memory
 
 logger = logging.getLogger(__name__)
 

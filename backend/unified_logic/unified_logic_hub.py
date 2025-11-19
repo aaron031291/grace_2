@@ -457,7 +457,7 @@ class UnifiedLogicHub:
         self._update_status(package, "distribution")
         
         try:
-            from backend.trigger_mesh import trigger_mesh, TriggerEvent
+            from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
             self._trigger_mesh = trigger_mesh
             
             event = TriggerEvent(
