@@ -25,11 +25,12 @@ from ..auth import get_current_user
 def get_elite_systems():
     """Lazy load elite systems"""
     try:
-        from ..elite_self_healing import elite_self_healing, HealingDomain
-        from ..elite_coding_agent import elite_coding_agent, CodingTaskType, ExecutionMode
-        from ..shared_orchestration import shared_orchestrator, AgentType, TaskPriority
+        from ..misc.elite_self_healing import elite_self_healing, HealingDomain
+        from ..agents_core.elite_coding_agent import elite_coding_agent, CodingTaskType, ExecutionMode
+        from ..orchestrators.shared_orchestration import shared_orchestrator, AgentType, TaskPriority
         return elite_self_healing, elite_coding_agent, shared_orchestrator, HealingDomain, CodingTaskType, ExecutionMode, AgentType, TaskPriority
     except Exception as e:
+        # print(f"Error loading elite systems: {e}")
         return None, None, None, None, None, None, None, None
 
 router = APIRouter(prefix="/elite", tags=["Elite Systems"])

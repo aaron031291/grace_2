@@ -413,13 +413,25 @@ class GuardianBootOrchestrator:
                         fixes.append(issue)
             
             elif delegate_to == "coding_agent":
-                # Import and use coding agent
-                from ..subsystems.coding_agent_integration import coding_agent
+                # Import and use Elite Coding Agent
+                from backend.agents_core.elite_coding_agent import elite_coding_agent, CodingTask, CodingTaskType, ExecutionMode
                 
                 for issue in chunk.issues_found:
-                    result = await coding_agent.handle_issue(issue)
-                    if result.get('fixed'):
-                        fixes.append(issue)
+                    logger.info(f"      Creating task for Elite Coding Agent: {issue}")
+                    
+                    # Create and submit task
+                    task = CodingTask(
+                        task_id=f"boot_fix_{int(datetime.utcnow().timestamp())}_{hash(issue) % 10000}",
+                        task_type=CodingTaskType.FIX_BUG,
+                        description=f"Fix boot issue: {issue}",
+                        requirements={"issue": issue, "context": "boot_sequence"},
+                        execution_mode=ExecutionMode.AUTO,
+                        priority=10,
+                        created_at=datetime.utcnow()
+                    )
+                    
+                    await elite_coding_agent.submit_task(task)
+                    fixes.append(f"{issue} (task_submitted)")
             
             else:
                 logger.warning(f"Unknown delegate: {delegate_to}")

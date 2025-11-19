@@ -243,6 +243,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Agentic API disabled: {e}")
 
+# Register Elite Systems API (Elite Self-Healing & Coding Agent)
+try:
+    from backend.routes.elite_systems_api import router as elite_systems_router
+    app.include_router(elite_systems_router)
+except ImportError as e:
+    print(f"[WARN] Elite Systems API disabled: {e}")
+
 # Register autonomous web learning (NEW - unrestricted internet access)
 try:
     from backend.routes.autonomous_web_learning import router as web_learning_router
