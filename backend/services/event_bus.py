@@ -153,7 +153,16 @@ async def trigger_healing_on_failure(event: Dict[str, Any]):
         }
         
         # Select appropriate playbook
-        playbook_id = "pipeline_timeout_fix" if "timeout" in payload.get('line', '').lower() else "verification_fix"
+        line_lower = payload.get('line', '').lower()
+        
+        if "timeout" in line_lower:
+            playbook_id = "pipeline_timeout_fix"
+        elif "search failed" in line_lower or "quota exceeded" in line_lower or "429" in line_lower:
+            playbook_id = "search_quota_exhaustion"
+        elif "build failed" in line_lower or "typescript" in line_lower:
+            playbook_id = "typescript_build_fix"
+        else:
+            playbook_id = "verification_fix"
         
         result = await playbook_engine.execute_playbook(playbook_id, context)
         print(f"[Self-Healing] Playbook {playbook_id} executed: {result.get('status')}")
