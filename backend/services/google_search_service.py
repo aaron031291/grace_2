@@ -7,7 +7,6 @@ class GoogleSearchService:
         print("[GoogleSearch] Service permanently disabled.")
 
     async def search(self, *args, **kwargs):
-        print("[GoogleSearch] Search attempted but service is disabled.")
         return []
 
 google_search_service = GoogleSearchService()

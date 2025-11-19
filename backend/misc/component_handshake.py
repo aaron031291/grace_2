@@ -171,7 +171,7 @@ class ComponentHandshake:
         """Validate crypto signature and assign identity"""
         
         try:
-            from backend.crypto_assignment_engine import crypto_engine
+            from backend.workflow_engines.crypto_assignment_engine import crypto_engine
             self._crypto_engine = crypto_engine
             
             # Assign crypto identity if not provided
@@ -200,8 +200,8 @@ class ComponentHandshake:
             
             logger.info(f"[HANDSHAKE] Crypto validated: {handshake['handshake_id']}")
             
-        except ImportError:
-            logger.debug(f"[HANDSHAKE] Crypto engine not available - skipping validation")
+        except Exception as e:
+            logger.warning(f"[HANDSHAKE] Crypto validation failed or engine not available: {e}")
     
     async def _log_handshake_request(self, handshake: Dict[str, Any]):
         """Log handshake request to immutable log"""

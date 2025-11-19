@@ -83,63 +83,6 @@ class RealDataIngestion:
         
         logger.info(f"[REAL-DATA-INGEST] Ingestion disabled per user request.")
         return ingestion_report
-
-        # logger.info(f"[REAL-DATA-INGEST] 📥 Ingesting real data for {len(terms)} terms")
-        
-        # for term in terms[:10]:  # Limit to prevent overload
-            logger.info(f"[REAL-DATA-INGEST] Processing term: {term}")
-            
-            # 1. Find official documentation
-            docs = await self._find_official_docs(term, google_search_service)
-            if docs:
-                ingestion_report['documentation_found'].extend(docs)
-            
-            # 2. Find code examples
-            code = await self._find_code_examples(term, google_search_service)
-            if code:
-                ingestion_report['code_examples_found'].extend(code)
-            
-            # 3. Find datasets
-            datasets = await self._find_datasets(term, google_search_service)
-            if datasets:
-                ingestion_report['datasets_found'].extend(datasets)
-            
-            # 4. Find GitHub repos
-            repos = await self._find_github_repos(term)
-            if repos:
-                ingestion_report['repos_found'].extend(repos)
-            
-            # 5. Find API specifications
-            api_specs = await self._find_api_specs(term, google_search_service)
-            if api_specs:
-                ingestion_report['api_specs_found'].extend(api_specs)
-        
-        # Actually download and save the real data
-        if ingestion_report['documentation_found']:
-            await self._ingest_documentation(ingestion_report['documentation_found'])
-        
-        if ingestion_report['code_examples_found']:
-            await self._ingest_code_examples(ingestion_report['code_examples_found'])
-        
-        if ingestion_report['datasets_found']:
-            await self._ingest_datasets(ingestion_report['datasets_found'])
-        
-        if ingestion_report['repos_found']:
-            await self._ingest_repos(ingestion_report['repos_found'])
-        
-        ingestion_report['total_ingested'] = (
-            len(ingestion_report['documentation_found']) +
-            len(ingestion_report['code_examples_found']) +
-            len(ingestion_report['datasets_found']) +
-            len(ingestion_report['repos_found']) +
-            len(ingestion_report['api_specs_found'])
-        )
-        
-        self.ingested_count += ingestion_report['total_ingested']
-        
-        logger.info(f"[REAL-DATA-INGEST] ✅ Ingested {ingestion_report['total_ingested']} real resources")
-        
-        return ingestion_report
     
     async def _find_official_docs(
         self,
