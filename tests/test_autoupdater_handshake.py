@@ -172,10 +172,10 @@ async def test_handshake_system():
 
 
 async def test_kernel_integration():
-    """Test all 20 kernels integration"""
+    """Test kernel integration for the guardian-optimized set"""
     
     print("=" * 80)
-    print("TEST 3: KERNEL INTEGRATION (All 20 Kernels)")
+    print("TEST 3: KERNEL INTEGRATION (Guardian-Optimized Kernels)")
     print("=" * 80)
     print()
     
@@ -193,8 +193,9 @@ async def test_kernel_integration():
     
     status = integrator.get_integration_status()
     
-    print(f"  [OK] Total kernels: {status['total_kernels']}")
-    print(f"  [OK] Integrated: {status['integrated_kernels']}")
+    total_kernels = status['total_kernels']
+    print(f"  [OK] Total kernels: {total_kernels}")
+    print(f"  [OK] Integrated: {status['integrated']}")
     print(f"  [OK] Integration complete: {status['integration_complete']}")
     print()
     print(f"  [OK] By tier:")
@@ -209,18 +210,18 @@ async def test_kernel_integration():
     print(f"  [OK] Require approval: {status['requires_approval']}")
     
     # Test 3: Get specific kernel info
-    print("[TEST] Getting coding_agent info...")
+    print("[TEST] Getting agentic_spine info...")
     
-    coding_agent = integrator.get_kernel_by_name("coding_agent")
+    agentic_spine = integrator.get_kernel_by_name("agentic_spine")
     
-    if coding_agent:
-        print(f"  [OK] Name: {coding_agent.kernel_name}")
-        print(f"  [OK] Type: {coding_agent.kernel_type}")
-        print(f"  [OK] Layer: {coding_agent.grace_layer}")
-        print(f"  [OK] Domain: {coding_agent.grace_domain}")
-        print(f"  [OK] Capabilities: {coding_agent.capabilities}")
-        print(f"  [OK] Contributes to pillars: {coding_agent.contributes_to_pillars}")
-        print(f"  [OK] Registered: {coding_agent.registered}")
+    if agentic_spine:
+        print(f"  [OK] Name: {agentic_spine.kernel_name}")
+        print(f"  [OK] Type: {agentic_spine.kernel_type}")
+        print(f"  [OK] Layer: {agentic_spine.grace_layer}")
+        print(f"  [OK] Domain: {agentic_spine.grace_domain}")
+        print(f"  [OK] Capabilities: {agentic_spine.capabilities}")
+        print(f"  [OK] Contributes to pillars: {agentic_spine.contributes_to_pillars}")
+        print(f"  [OK] Registered: {agentic_spine.registered}")
     
     # Test 4: Get kernels by pillar
     print("[TEST] Getting kernels contributing to knowledge_application...")
@@ -286,7 +287,7 @@ async def run_all_tests():
     print("Testing:")
     print("  1. Unified Logic Hub (Autoupdater)")
     print("  2. Component Handshake Protocol")
-    print("  3. 20 Kernel Integration")
+    print("  3. Kernel Integration (Guardian-Optimized Set)")
     print("  4. Playbook Loading")
     print()
     
@@ -315,7 +316,9 @@ async def run_all_tests():
         print(f"   - Handshake submitted: {handshake_id}")
         print()
         print("✅ Kernel Integration: PASSED")
-        print(f"   - Kernels integrated: {kernel_status['integrated_kernels']}/20")
+        print(
+            f"   - Kernels integrated: {kernel_status['integrated']}/{kernel_status['total_kernels']}"
+        )
         print()
         print("✅ Playbook Loading: PASSED")
         print("   - ACL violation playbook loaded")
