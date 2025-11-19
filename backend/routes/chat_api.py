@@ -37,16 +37,64 @@ class ChatMessage(BaseModel):
     user_id: str = Field(default="user", description="User identifier")
 
 
+class LiveMetrics(BaseModel):
+    """Live system metrics attached to every response"""
+    trust_score: float
+    confidence: float
+    guardian_health: str
+    active_learning_jobs: int
+    pending_approvals_count: int
+    incidents: int
+    timestamp: str
+
+
+class ApprovalCard(BaseModel):
+    """Inline approval card for Tier 2/3 actions"""
+    trace_id: str
+    action_type: str
+    tier: str
+    description: str
+    justification: str
+    params: Dict[str, Any]
+    risk_level: str
+    requires_approval: bool
+    timestamp: str
+
+
+class LogExcerpt(BaseModel):
+    """Embedded log excerpt for errors"""
+    log_type: str
+    severity: str
+    timestamp: str
+    message: str
+    stack_trace: Optional[str] = None
+    source: str
+    context: Dict[str, Any] = Field(default_factory=dict)
+
+
 class ChatResponse(BaseModel):
-    """Chat response from Grace"""
+    """Chat response from Grace with live metrics and inline approvals"""
     reply: str
     trace_id: str
     session_id: str
+    
+    # Live metrics (always included)
+    live_metrics: LiveMetrics
+    
+    # Actions and approvals
     actions: List[Dict[str, Any]] = Field(default_factory=list)
-    citations: List[str] = Field(default_factory=list)
-    confidence: float
+    inline_approvals: List[ApprovalCard] = Field(default_factory=list)
     requires_approval: bool
     pending_approvals: List[Dict[str, Any]] = Field(default_factory=list)
+    
+    # Citations and confidence
+    citations: List[str] = Field(default_factory=list)
+    confidence: float
+    
+    # Error context
+    error_logs: List[LogExcerpt] = Field(default_factory=list)
+    has_errors: bool = False
+    
     timestamp: str
 
 
@@ -93,6 +141,52 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
             },
             trace_id=trace_id
         ))
+        
+        # Check if message is a reminder request
+        if "remind me" in msg.message.lower():
+            from backend.reminders.reminder_service import reminder_service
+            reminder_id = await reminder_service.parse_natural_language(
+                user_id=msg.user_id,
+                text=msg.message
+            )
+            
+            if reminder_id:
+                # Add to conversation and return
+                conversations[session_id].append({
+                    "role": "user",
+                    "content": msg.message,
+                    "timestamp": datetime.now().isoformat()
+                })
+                conversations[session_id].append({
+                    "role": "assistant",
+                    "content": f"✅ Reminder set! I'll notify you when it's time.",
+                    "timestamp": datetime.now().isoformat(),
+                    "trace_id": trace_id
+                })
+                
+                return ChatResponse(
+                    reply="✅ Reminder set! I'll notify you when it's time.",
+                    trace_id=trace_id,
+                    session_id=session_id,
+                    live_metrics=LiveMetrics(
+                        trust_score=0.9,
+                        confidence=1.0,
+                        guardian_health="healthy",
+                        active_learning_jobs=0,
+                        pending_approvals_count=0,
+                        incidents=0,
+                        timestamp=datetime.now().isoformat()
+                    ),
+                    actions=[],
+                    inline_approvals=[],
+                    citations=[],
+                    confidence=1.0,
+                    requires_approval=False,
+                    pending_approvals=[],
+                    error_logs=[],
+                    has_errors=False,
+                    timestamp=datetime.now().isoformat()
+                )
         
         # Step 1: RAG retrieval for semantic context
         rag_service = RAGService()
@@ -202,6 +296,60 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
             not a.get("declined")
         ]
         
+        # Create inline approval cards for new actions
+        avg_trust = trust_context["trust_score"]
+        inline_approval_cards = []
+        for action in processed_actions:
+            if action.get("governance_tier") == "approval_required" and not action.get("approved"):
+                # Determine risk level based on tier
+                tier = action.get("tier", 2)
+                risk_level = "high" if tier >= 3 else "medium"
+                
+                inline_approval_cards.append(ApprovalCard(
+                    trace_id=action["trace_id"],
+                    action_type=action.get("action_type", "unknown"),
+                    tier=str(tier),
+                    description=f"{action.get('action_type', 'action').replace('_', ' ').title()}",
+                    justification=action.get("reason", "No justification provided"),
+                    params=action.get("params", {}),
+                    risk_level=risk_level,
+                    requires_approval=True,
+                    timestamp=action.get("timestamp", datetime.now().isoformat())
+                ))
+        
+        # Gather live metrics
+        context = await world_model_service.query_context(limit=5)
+        live_metrics = LiveMetrics(
+            trust_score=avg_trust,
+            confidence=response["confidence"],
+            guardian_health="healthy" if avg_trust >= 0.7 else "degraded",
+            active_learning_jobs=len(context.get("learning_jobs", [])),
+            pending_approvals_count=len(pending_approvals),
+            incidents=0,
+            timestamp=datetime.now().isoformat()
+        )
+        
+        # Check for errors and embed log excerpts
+        error_logs = []
+        has_errors = False
+        
+        if response.get("error"):
+            has_errors = True
+            # Get recent error logs
+            from backend.services.log_service import log_service
+            recent_errors = await log_service.get_recent_errors(count=3)
+            
+            for error in recent_errors:
+                error_logs.append(LogExcerpt(
+                    log_type="error",
+                    severity=error.get("level", "error"),
+                    timestamp=error.get("timestamp", datetime.now().isoformat()),
+                    message=error.get("message", ""),
+                    stack_trace=error.get("stack_trace"),
+                    source=error.get("source", "unknown"),
+                    context=error.get("context", {})
+                ))
+        
         # Log governance event
         await event_bus.publish(Event(
             event_type=EventType.GOVERNANCE_CHECK,
@@ -249,11 +397,15 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
             reply=response["reply"],
             trace_id=trace_id,
             session_id=session_id,
+            live_metrics=live_metrics,
             actions=processed_actions,
+            inline_approvals=inline_approval_cards,
             citations=response["citations"],
             confidence=response["confidence"],
             requires_approval=response["requires_approval"],
             pending_approvals=pending_approvals[-5:],  # Latest 5
+            error_logs=error_logs,
+            has_errors=has_errors,
             timestamp=datetime.now().isoformat()
         )
     

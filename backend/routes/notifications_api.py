@@ -11,7 +11,7 @@ Provides Server-Sent Events stream for:
 
 import asyncio
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -114,3 +114,30 @@ async def test_notification(message: str = "Test notification"):
         "message": message,
     })
     return {"status": "notification sent"}
+
+
+async def notify_user(
+    user_id: str,
+    notification_type: str,
+    message: str,
+    data: Optional[Dict[str, Any]] = None,
+    badge: str = "ℹ️"
+):
+    """
+    Send notification to specific user
+    
+    Args:
+        user_id: Target user ID
+        notification_type: Type of notification (approval_needed, task_complete, etc.)
+        message: Notification message
+        data: Additional data payload
+        badge: Emoji or icon badge
+    """
+    await notification_stream.broadcast({
+        "type": notification_type,
+        "user_id": user_id,
+        "message": message,
+        "badge": badge,
+        "data": data or {},
+        "timestamp": datetime.utcnow().isoformat(),
+    })

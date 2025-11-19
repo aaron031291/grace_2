@@ -189,6 +189,42 @@ except ImportError as e:
     print(f"[WARN] Remote API disabled: {e}")
 
 try:
+    from backend.routes.screen_share_api import router as screen_share_router
+    app.include_router(screen_share_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Screen Share API disabled: {e}")
+
+try:
+    from backend.routes.tasks_api import router as tasks_router
+    app.include_router(tasks_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Tasks API disabled: {e}")
+
+try:
+    from backend.routes.cockpit_api import router as cockpit_router
+    app.include_router(cockpit_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Cockpit API disabled: {e}")
+
+try:
+    from backend.routes.learning_query_api import router as learning_query_router
+    app.include_router(learning_query_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Learning Query API disabled: {e}")
+
+try:
+    from backend.routes.reminders_api import router as reminders_router
+    app.include_router(reminders_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Reminders API disabled: {e}")
+
+try:
+    from backend.routes.background_tasks_api import router as background_tasks_router
+    app.include_router(background_tasks_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Background Tasks API disabled: {e}")
+
+try:
     from backend.routes.chat import router as chat_router
     app.include_router(chat_router)
 except ImportError as e:
@@ -481,6 +517,27 @@ async def startup_agentic_organism():
         print(f"[WARN] Agentic organism initialization degraded: {e}")
         import traceback
         traceback.print_exc()
+
+@app.on_event("startup")
+async def startup_ingestion_pipeline():
+    """Initialize auto-ingestion pipeline"""
+    try:
+        from backend.learning.auto_ingestion_pipeline import ingestion_pipeline
+        await ingestion_pipeline.initialize()
+        print("[OK] Auto-ingestion pipeline initialized")
+    except Exception as e:
+        print(f"[WARN] Auto-ingestion pipeline initialization failed: {e}")
+
+@app.on_event("startup")
+async def startup_reminder_service():
+    """Start reminder service background checker"""
+    try:
+        from backend.reminders.reminder_service import reminder_service
+        import asyncio
+        asyncio.create_task(reminder_service.start())
+        print("[OK] Reminder service started")
+    except Exception as e:
+        print(f"[WARN] Reminder service initialization failed: {e}")
 
 @app.on_event("startup")
 async def startup_guardian_metrics():
