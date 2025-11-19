@@ -14,6 +14,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatAPI, type ChatResponse, type PendingApproval } from '../api/chat';
 import { VoiceAPI, type VoiceSession } from '../api/voice';
+import { RemindersAPI } from '../api/reminders';
+import { PresenceAPI } from '../api/presence';
 import { useNotifications } from '../hooks/useNotifications';
 import { API_BASE_URL } from '../config';
 import './ChatPanel.css';
@@ -74,16 +76,55 @@ export const ChatPanel: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
+    const currentInput = input;
+    const currentAttachments = attachments;
+
+    // Check for reminder command
+    const reminderRequest = RemindersAPI.parseReminderCommand(currentInput);
+    if (reminderRequest) {
+      setInput('');
+      setAttachments([]);
+      
+      try {
+        await RemindersAPI.createReminder(reminderRequest);
+        const systemMessage: Message = {
+          role: 'system',
+          content: `✅ Reminder created: "${reminderRequest.message}" scheduled for ${new Date(reminderRequest.scheduled_time).toLocaleString()}`,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, systemMessage]);
+        return;
+      } catch (error) {
+        const errorMessage: Message = {
+          role: 'system',
+          content: `Failed to create reminder: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        return;
+      }
+    }
+
+    // Check for mentions
+    const mentions = PresenceAPI.parseMentions(currentInput);
+    if (mentions.length > 0 && sessionId) {
+      mentions.forEach(async (user) => {
+        try {
+          await PresenceAPI.notifyMention(user, currentInput, sessionId);
+        } catch (error) {
+          console.warn(`Failed to notify @${user}:`, error);
+        }
+      });
+    }
+
     const userMessage: Message = {
       role: 'user',
-      content: input,
+      content: currentInput,
       timestamp: new Date().toISOString(),
-      attachments: attachments.map(f => f.name),
+      attachments: currentAttachments.map(f => f.name),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    const currentInput = input;
-    const currentAttachments = attachments;
     setInput('');
     setAttachments([]);
     setLoading(true);

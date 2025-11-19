@@ -6,9 +6,12 @@
 
 const isDevelopment = import.meta.env.DEV;
 
-export const API_BASE_URL = isDevelopment
-  ? '/api'  // Proxied by Vite to backend
-  : import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/api';
+// Base URL without /api prefix for direct backend calls
+const BASE_URL = isDevelopment
+  ? ''  // Proxied by Vite to backend
+  : import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+
+export const API_BASE_URL = `${BASE_URL}/api`;
 
 export const API_ENDPOINTS = {
   // Chat API
