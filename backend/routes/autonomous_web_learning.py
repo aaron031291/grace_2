@@ -58,26 +58,14 @@ async def search_web(request: SearchRequest):
                 detail=f"Web search not allowed for query: {request.query}"
             )
         
-        if request.extract_content:
-            result = await google_search_service.search_and_extract(
-                request.query,
-                request.num_results
-            )
-        else:
-            results = await google_search_service.search(
-                request.query,
-                request.num_results
-            )
-            result = {
-                "query": request.query,
-                "results": results,
-                "count": len(results)
-            }
+        # Web search permanently disabled
+        # result = await google_search_service.search_and_extract(request.query, request.num_results)
+        logger.info("[WEB-LEARNING] Search request received but search is disabled.")
         
         return WebLearningResponse(
-            success=True,
+            success=False,
             query=request.query,
-            results=result.get("results", []),
+            results=[],
             timestamp=datetime.utcnow().isoformat()
         )
         
@@ -109,11 +97,11 @@ async def learn_topic(request: LearnTopicRequest):
                 detail=f"Topic learning not allowed for: {request.topic}"
             )
         
-        # Search for the topic
-        search_result = await google_search_service.search_and_extract(
-            request.topic,
-            request.max_sources
-        )
+        # Search disabled
+        # search_result = await google_search_service.search_and_extract(request.topic, request.max_sources)
+        search_result = {"results": []}
+        
+        logger.info("[WEB-LEARNING] Learn topic request received but search is disabled.")
         
         learned_facts = []
         
@@ -204,7 +192,8 @@ async def explore_domain(domain: str, depth: int = 3):
         
         for query in exploration_queries[:depth]:
             try:
-                results = await google_search_service.search(query, num_results=3)
+                # results = await google_search_service.search(query, num_results=3)
+                results = []
                 exploration_results.extend(results)
             except Exception as e:
                 logger.warning(f"[WEB-LEARNING] Exploration query failed: {query} - {e}")
@@ -261,7 +250,10 @@ async def start_autonomous_research(topics: List[str], duration_minutes: int = 6
         async def research_loop():
             for topic in topics:
                 try:
-                    result = await google_search_service.search_and_extract(topic, num_results=5)
+                    # result = await google_search_service.search_and_extract(topic, num_results=5)
+                    result = {"results": []}
+                    logger.info(f"[WEB-LEARNING] Autonomous research disabled for {topic}")
+                    
                     research_results["sources_explored"] += len(result.get("results", []))
                     
                     # Capture learning
@@ -299,7 +291,8 @@ async def get_learning_stats():
     try:
         from backend.services.google_search_service import google_search_service
         
-        metrics = await google_search_service.get_metrics()
+        # metrics = await google_search_service.get_metrics()
+        metrics = {"status": "disabled", "daily_usage": 0, "quota_limit": 0}
         metrics["status"] = "operational"
         metrics["timestamp"] = datetime.utcnow().isoformat()
         
@@ -317,8 +310,8 @@ async def add_trusted_domain(domain: str, trust_score: float = 0.8, reason: str 
     try:
         from backend.services.google_search_service import google_search_service
         
-        result = await google_search_service.add_trusted_domain(domain, trust_score, reason)
-        return result
+        # result = await google_search_service.add_trusted_domain(domain, trust_score, reason)
+        return {"success": False, "message": "Search disabled"}
     except Exception as e:
         logger.error(f"[WEB-LEARNING] Failed to add domain: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -330,8 +323,8 @@ async def block_domain(domain: str, reason: str = ""):
     try:
         from backend.services.google_search_service import google_search_service
         
-        result = await google_search_service.block_domain(domain, reason)
-        return result
+        # result = await google_search_service.block_domain(domain, reason)
+        return {"success": False, "message": "Search disabled"}
     except Exception as e:
         logger.error(f"[WEB-LEARNING] Failed to block domain: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -344,11 +337,11 @@ async def get_whitelist():
         from backend.services.google_search_service import google_search_service
         
         return {
-            "trusted_domains": sorted(list(google_search_service.trusted_domains)),
-            "blocked_domains": sorted(list(google_search_service.blocked_domains)),
-            "trust_scores": google_search_service.domain_trust_scores,
-            "total_trusted": len(google_search_service.trusted_domains),
-            "total_blocked": len(google_search_service.blocked_domains)
+            "trusted_domains": [],
+            "blocked_domains": [],
+            "trust_scores": {},
+            "total_trusted": 0,
+            "total_blocked": 0
         }
     except Exception as e:
         logger.error(f"[WEB-LEARNING] Failed to get whitelist: {e}")

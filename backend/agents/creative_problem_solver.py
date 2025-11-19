@@ -150,7 +150,7 @@ class CreativeProblemSolver:
         
         This is the core of Grace's learning expansion
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
         all_findings = {
             'depth_0': {'terms': initial_terms, 'results': []},
@@ -159,9 +159,12 @@ class CreativeProblemSolver:
             'solution_hints': []
         }
         
-        current_terms = initial_terms
+        logger.info("[CREATIVE-SOLVER] Terminology search disabled.")
+        return all_findings
+
+        # current_terms = initial_terms
         
-        for depth in range(max_depth):
+        # for depth in range(max_depth):
             logger.info(f"[CREATIVE-SOLVER] Depth {depth}: Searching {len(current_terms)} terms")
             
             depth_results = []
@@ -257,14 +260,16 @@ class CreativeProblemSolver:
             plan['gap_analysis']['blockers'] = problem_terms['error_codes']
         
         # Search to understand what's needed
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
         # Search the goal to understand requirements
         try:
-            goal_search = await google_search_service.search(
-                query=f"how to {desired_outcome}",
-                num_results=5
-            )
+            # goal_search = await google_search_service.search(
+            #     query=f"how to {desired_outcome}",
+            #     num_results=5
+            # )
+            logger.info("[CREATIVE-SOLVER] Goal search disabled.")
+            goal_search = []
             
             requirements_hints = []
             for result in goal_search:
@@ -301,7 +306,7 @@ class CreativeProblemSolver:
         Generate 3+ alternative approaches to solve the problem
         Never fixate on just one solution
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
         approaches = []
         
@@ -342,10 +347,11 @@ class CreativeProblemSolver:
         # Research each approach to add details
         for approach in approaches:
             try:
-                search_results = await google_search_service.search(
-                    query=approach['search_query'],
-                    num_results=2
-                )
+                # search_results = await google_search_service.search(
+                #     query=approach['search_query'],
+                #     num_results=2
+                # )
+                search_results = []
                 
                 approach['research_results'] = search_results
                 approach['feasibility'] = 'high' if search_results else 'unknown'

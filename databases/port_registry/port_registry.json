@@ -2423,7 +2423,67 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8201": {
+      "port": 8201,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-19T13:54:18.794867",
+      "last_health_check": "2025-11-19T13:54:18.794867",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8202": {
+      "port": 8202,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-19T14:05:21.164191",
+      "last_health_check": "2025-11-19T14:05:21.164191",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8203": {
+      "port": 8203,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-19T14:06:06.226372",
+      "last_health_check": "2025-11-19T14:06:06.226372",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8204": {
+      "port": 8204,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-19T14:07:37.616870",
+      "last_health_check": "2025-11-19T14:07:37.616870",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8205": {
+      "port": 8205,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-19T14:11:19.313827",
+      "last_health_check": "2025-11-19T14:11:19.313827",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-19T13:48:27.734377"
+  "last_updated": "2025-11-19T14:11:19.313827"
 }

@@ -124,7 +124,7 @@ class AutonomousWebNavigator:
         Returns:
             Search results and learned knowledge
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         from backend.services.closed_loop_learning import closed_loop_learning
         
         self.searches_triggered += 1
@@ -134,11 +134,15 @@ class AutonomousWebNavigator:
             'strategy': strategy_name,
             'topic': topic,
             'timestamp': datetime.utcnow().isoformat(),
-            'success': False
+            'success': False,
+            'error': 'Web navigation disabled per user request.'
         }
         
-        try:
-            if strategy_name == 'basic_search':
+        logger.info(f"[WEB-NAVIGATOR] Search strategy '{strategy_name}' triggered but disabled.")
+        return result
+
+        # try:
+        #     if strategy_name == 'basic_search':
                 # Simple search
                 search_results = await google_search_service.search(
                     query=topic,

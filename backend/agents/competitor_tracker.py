@@ -80,9 +80,18 @@ class CompetitorTracker:
         Returns:
             All active ads with metadata
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
-        logger.info(f"[COMPETITOR-TRACKER] 📊 Tracking Facebook ads for: {competitor_name}")
+        logger.info(f"[COMPETITOR-TRACKER] Tracking Facebook ads disabled per user request.")
+        return {
+                'competitor': competitor_name,
+                'platform': 'meta',
+                'ads_found': 0,
+                'ads': [],
+                'saved_to': None
+            }
+
+        # logger.info(f"[COMPETITOR-TRACKER] 📊 Tracking Facebook ads for: {competitor_name}")
         
         # Search Facebook Ad Library
         search_query = f'site:facebook.com/ads/library "{competitor_name}"'
@@ -144,9 +153,16 @@ class CompetitorTracker:
         """
         Track trending TikTok campaigns and products
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
-        logger.info(f"[COMPETITOR-TRACKER] 📱 Tracking TikTok campaigns for: {industry}")
+        logger.info(f"[COMPETITOR-TRACKER] Tracking TikTok campaigns disabled per user request.")
+        return {
+            'industry': industry,
+            'campaigns_found': 0,
+            'campaigns': []
+        }
+
+        # logger.info(f"[COMPETITOR-TRACKER] 📱 Tracking TikTok campaigns for: {industry}")
         
         search_queries = [
             f"site:tiktok.com trending {industry} products",

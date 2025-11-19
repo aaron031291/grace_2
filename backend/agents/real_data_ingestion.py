@@ -67,7 +67,7 @@ class RealDataIngestion:
         Returns:
             Report of all real data ingested
         """
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
         ingestion_report = {
             'terms_used': terms,
@@ -81,9 +81,12 @@ class RealDataIngestion:
             'timestamp': datetime.utcnow().isoformat()
         }
         
-        logger.info(f"[REAL-DATA-INGEST] 📥 Ingesting real data for {len(terms)} terms")
+        logger.info(f"[REAL-DATA-INGEST] Ingestion disabled per user request.")
+        return ingestion_report
+
+        # logger.info(f"[REAL-DATA-INGEST] 📥 Ingesting real data for {len(terms)} terms")
         
-        for term in terms[:10]:  # Limit to prevent overload
+        # for term in terms[:10]:  # Limit to prevent overload
             logger.info(f"[REAL-DATA-INGEST] Processing term: {term}")
             
             # 1. Find official documentation
@@ -267,14 +270,15 @@ class RealDataIngestion:
     ) -> List[Dict[str, Any]]:
         """Find GitHub repositories for term"""
         
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         
         try:
-            results = await google_search_service.search(
-                query=f"site:github.com {term}",
-                num_results=3,
-                min_trust_score=0.9  # GitHub has high trust
-            )
+            # results = await google_search_service.search(
+            #     query=f"site:github.com {term}",
+            #     num_results=3,
+            #     min_trust_score=0.9  # GitHub has high trust
+            # )
+            results = []
             
             repos = []
             for result in results:

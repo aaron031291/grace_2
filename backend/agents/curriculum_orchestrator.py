@@ -151,7 +151,7 @@ class CurriculumOrchestrator:
         
         logger.info(f"[CURRICULUM-ORCH] 📚 Learning {domain_name} from {curriculum_name}")
         
-        from backend.services.google_search_service import google_search_service
+        # from backend.services.google_search_service import google_search_service
         from backend.agents.real_data_ingestion import real_data_ingestion
         
         # Get search terms
@@ -159,40 +159,7 @@ class CurriculumOrchestrator:
         
         resources_found = 0
         
-        for term in search_terms:
-            try:
-                # Search the term
-                logger.info(f"[CURRICULUM-ORCH] Searching: {term}")
-                
-                results = await google_search_service.search(
-                    query=term,
-                    num_results=3
-                )
-                
-                resources_found += len(results)
-                
-                # Extract more terms from results
-                discovered_terms = [term]
-                for result in results:
-                    # Simple term extraction from title
-                    title = result.get('title', '')
-                    # Extract capitalized technical words
-                    import re
-                    tech_words = re.findall(r'\b[A-Z][a-z]*(?:[A-Z][a-z]*)*\b', title)
-                    discovered_terms.extend(tech_words[:2])
-                
-                # Ingest real data
-                if discovered_terms:
-                    await real_data_ingestion.ingest_from_terms(
-                        terms=list(set(discovered_terms))[:5],
-                        context=f"Learning {domain_name} from {curriculum_name}"
-                    )
-                
-                # Small delay to respect rate limits
-                await asyncio.sleep(2)
-            
-            except Exception as e:
-                logger.warning(f"[CURRICULUM-ORCH] Search failed for '{term}': {e}")
+        logger.info(f"[CURRICULUM-ORCH] Learning disabled per user request. Skipping search for terms: {search_terms}")
         
         # Mark domain as in progress
         self.domains_in_progress += 1
