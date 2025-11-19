@@ -68,7 +68,10 @@ class GoogleSearchService:
         self.backoff_until = 0
         self.max_backoff_seconds = 3600  # 1 hour max backoff
         self.offline_mode = False
-        self.offline_threshold = 3  # Strict threshold\n        \n        # Hard cutoff flag - once set, no API calls allowed until reset\n        self.quota_exhausted = False
+        self.offline_threshold = 3  # Strict threshold
+        
+        # Hard cutoff flag - once set, no API calls allowed until reset
+        self.quota_exhausted = False
         
         self.last_success_time = 0
         self.last_error = None
