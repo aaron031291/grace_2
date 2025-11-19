@@ -211,7 +211,7 @@ class SchedulerGuards:
         """Publish scheduler telemetry"""
         
         try:
-            from backend.logging.unified_logic_hub import unified_logic_hub
+            from backend.unified_logic.unified_logic_hub import unified_logic_hub
             
             await unified_logic_hub.submit_proposal(
                 proposal_id=f"scheduler_telemetry_{int(datetime.utcnow().timestamp())}",

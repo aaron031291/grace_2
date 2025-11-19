@@ -248,7 +248,7 @@ class Layer2Watchdog:
         """Publish Layer 2 telemetry to Clarity and Unified Logic"""
         
         try:
-            from backend.logging.unified_logic_hub import unified_logic_hub
+            from backend.unified_logic.unified_logic_hub import unified_logic_hub
             from backend.core.clarity_framework import clarity_framework
             
             # Prepare telemetry payload
