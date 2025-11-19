@@ -12,7 +12,7 @@ from backend.event_bus import event_bus, EventType, Event
 from backend.action_gateway import action_gateway
 from backend.reflection_loop import reflection_loop
 from backend.skills.registry import skill_registry
-from backend.grace.session.memory import SessionMemory
+from backend.session_memory.memory import SessionMemory
 
 
 class WorldModelService:

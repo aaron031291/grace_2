@@ -20,7 +20,7 @@ import asyncio
 
 from ..auth import get_current_user
 from ..memory import PersistentMemory
-from ..grace import GraceAutonomous
+from ..grace_agent import GraceAutonomous
 from ..causal import causal_tracker
 from ..hunter import hunter
 from ..models import ChatMessage, async_session

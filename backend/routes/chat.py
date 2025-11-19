@@ -4,7 +4,7 @@ from sqlalchemy import select
 from typing import Optional
 from backend.auth import get_current_user
 from backend.memory import PersistentMemory
-from backend.grace import GraceAutonomous, grace_autonomous
+from backend.grace_agent import GraceAutonomous, grace_autonomous
 from backend.causal import causal_tracker
 from backend.hunter import hunter
 from backend.models import ChatMessage, async_session
