@@ -28,3 +28,4 @@ watchdog
 docker
 lxml
 torch
+PyJWT

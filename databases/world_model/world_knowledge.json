@@ -16130,7 +16130,70 @@
         "auto_fixable": true,
         "healing_playbook": "restart_service"
       }
+    },
+    {
+      "knowledge_id": "7af2dce0-c5f",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T00:55:39.168966",
+      "updated_at": "2025-11-19T00:55:39.168966",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "2cfbd8e9-221",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T00:55:41.955521",
+      "updated_at": "2025-11-19T00:55:41.955521",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "83cd902a-b63",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-19T00:55:44.733430",
+      "updated_at": "2025-11-19T00:55:44.733430",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     }
   ],
-  "saved_at": "2025-11-19T00:50:36.456243"
+  "saved_at": "2025-11-19T00:55:44.735434"
 }

@@ -32,16 +32,18 @@
     "src/config.ts",
     "src/components/ChatPanel.tsx",
     "src/components/ChatPanel.css",
-    "src/components/BackgroundTasksDrawer.tsx",
-    "src/components/BackgroundTasksDrawer.css",
+    "src/components/BackgroundTasksDrawer*.tsx",
+    "src/components/BackgroundTasksDrawer*.css",
     "src/components/TelemetryStrip.tsx",
     "src/components/TelemetryStrip.css",
     "src/components/HistorySearch.tsx",
     "src/components/HistorySearch.css",
-    "src/components/UserPresence.tsx",
-    "src/components/UserPresence.css",
+    "src/components/UserPresence*.tsx",
+    "src/components/UserPresence*.css",
     "src/components/HealthMeter.tsx",
-    "src/components/RemoteCockpit.tsx",
+    "src/components/RemoteCockpit*.tsx",
+    "src/components/FileExplorer.tsx",
+    "src/components/FileExplorer.css",
     "src/api/chat.ts",
     "src/api/config.ts",
     "src/api/voice.ts",
@@ -52,5 +54,8 @@
     "src/api/presence.ts",
     "src/hooks/useNotifications.ts",
     "src/types/**/*"
+  ],
+  "exclude": [
+    "src/legacy/**/*"
   ]
 }
