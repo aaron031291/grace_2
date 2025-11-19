@@ -1,6 +1,6 @@
 """
 Unified Logic Kernel Integration
-Connects all 20 Grace kernels to unified logic and charter system
+Connects all registered Grace kernels to unified logic and charter system
 
 Every kernel:
 - Registers with unified logic hub
@@ -45,7 +45,7 @@ class KernelRegistration:
 
 class KernelIntegrator:
     """
-    Integrates all 20 kernels with unified logic and charter
+    Integrates all registered kernels with unified logic and charter
     
     Responsibilities:
     - Register all kernels with unified logic hub
@@ -95,13 +95,18 @@ class KernelIntegrator:
             contributes_to_pillars=["knowledge_application"]  # Tracks all learning
         )
         
-        # TIER 2: Governance & Safety (6 kernels)
+        # TIER 2: Governance & Safety kernels
         self.kernel_registry["self_healing"] = KernelRegistration(
             kernel_name="self_healing",
             kernel_type="tier2_governance",
-            capabilities=["auto_remediation", "playbook_execution", "trigger_management"],
+            capabilities=[
+                "auto_remediation",
+                "playbook_execution",
+                "guardian_sync",
+                "trigger_management"
+            ],
             provides_metrics=["trigger_count", "playbook_success_rate", "mttr"],
-            depends_on=["message_bus", "immutable_log"],
+            depends_on=["message_bus", "immutable_log", "guardian_core"],
             grace_layer="layer2",
             grace_domain="self_healing",
             contributes_to_pillars=["knowledge_application"]  # Self-improvement
@@ -110,9 +115,14 @@ class KernelIntegrator:
         self.kernel_registry["coding_agent"] = KernelRegistration(
             kernel_name="coding_agent",
             kernel_type="tier2_governance",
-            capabilities=["code_generation", "bug_fixing", "refactoring"],
+            capabilities=[
+                "code_generation",
+                "bug_fixing",
+                "guardian_playbook_support",
+                "refactoring"
+            ],
             provides_metrics=["tasks_completed", "success_rate", "code_quality"],
-            depends_on=["message_bus", "governance"],
+            depends_on=["message_bus", "governance", "guardian_core"],
             grace_layer="layer2",
             grace_domain="agentic",
             contributes_to_pillars=["knowledge_application", "business_revenue"]
@@ -215,7 +225,7 @@ class KernelIntegrator:
             kernel_type="tier4_agentic",
             capabilities=["multi_agent_coordination", "decision_making", "planning"],
             provides_metrics=["decisions_made", "plans_generated"],
-            depends_on=["coding_agent", "self_healing"],
+            depends_on=["coding_agent", "self_healing", "scheduler"],
             grace_layer="layer3",
             grace_domain="agentic",
             contributes_to_pillars=["knowledge_application", "science_beyond_limits"]
@@ -302,9 +312,10 @@ class KernelIntegrator:
         logger.info(f"[KERNEL INTEGRATOR] Defined {len(self.kernel_registry)} kernels")
     
     async def integrate_all_kernels(self):
-        """Integrate all 20 kernels with unified logic and charter"""
+        """Integrate all registered kernels with unified logic and charter"""
         
-        logger.info("[KERNEL INTEGRATOR] Starting integration of all 20 kernels...")
+        total_kernels = len(self.kernel_registry)
+        logger.info(f"[KERNEL INTEGRATOR] Starting integration of {total_kernels} kernels...")
         
         # Load dependencies
         await self._load_dependencies()
@@ -316,7 +327,9 @@ class KernelIntegrator:
             except Exception as e:
                 logger.error(f"[KERNEL INTEGRATOR] Failed to integrate {kernel_name}: {e}")
         
-        logger.info(f"[KERNEL INTEGRATOR] Integrated {len(self.integrated_kernels)}/20 kernels")
+        logger.info(
+            f"[KERNEL INTEGRATOR] Integrated {len(self.integrated_kernels)}/{total_kernels} kernels"
+        )
         
         return self.get_integration_status()
     
@@ -481,7 +494,7 @@ async def get_kernel_integrator() -> KernelIntegrator:
 
 async def integrate_all_kernels_with_unified_logic():
     """
-    Convenience function to integrate all 20 kernels
+    Convenience function to integrate all registered kernels
     
     Usage:
         await integrate_all_kernels_with_unified_logic()
