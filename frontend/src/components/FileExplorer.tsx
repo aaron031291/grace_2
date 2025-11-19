@@ -358,9 +358,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     ));
   };
 
-  const getIngestionForFile = (filename: string): IngestionStatus | undefined => {
-    return ingestions.find(ing => ing.filename === filename);
-  };
+  // Helper to find ingestion status for a file (currently unused, kept for future use)
+  // const getIngestionForFile = (filename: string): IngestionStatus | undefined => {
+  //   return ingestions.find(ing => ing.filename === filename);
+  // };
 
   if (!isOpen) return null;
 

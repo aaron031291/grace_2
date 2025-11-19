@@ -3,6 +3,7 @@ Backend Main Entry Point - Minimal Grace API
 """
 
 import os
+from typing import Optional
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -884,6 +885,10 @@ async def dismiss_context(request: dict):
     context_system.dismiss_topic(topic_type, kernel)
     
     return {"success": True}
+
+# ===== MEMORY FILES API =====
+from backend.api.memory_files import router as memory_files_router
+app.include_router(memory_files_router)
 
 # ===== VISION & VIDEO API =====
 
