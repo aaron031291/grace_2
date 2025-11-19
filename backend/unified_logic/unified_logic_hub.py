@@ -317,7 +317,7 @@ class UnifiedLogicHub:
         """Stage 3: Immutable log entry for proposal"""
         
         try:
-            from backend.immutable_log import immutable_log
+            from backend.core.immutable_log import immutable_log
             self._immutable_log = immutable_log
             
             entry_id = await self._immutable_log.append(
@@ -520,7 +520,7 @@ class UnifiedLogicHub:
         """Stage 8: Set up watchdog monitoring and observation window"""
         
         try:
-            from backend.anomaly_watchdog import anomaly_watchdog
+            from backend.misc.anomaly_watchdog import anomaly_watchdog
             
             # Register update for monitoring
             logger.info(f"[WATCHDOG] ✓ Monitoring update {package.update_id} for regressions")
