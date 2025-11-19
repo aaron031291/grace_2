@@ -1,3 +1,5 @@
+import uuid
+from typing import Any, Dict, Optional
 
 try:
     from .governance_models import GovernancePolicy, AuditLog, ApprovalRequest
@@ -14,7 +16,13 @@ class GovernanceEngine:
     def __init__(self):
         self.parliament_enabled = True  # Enable parliament integration
     
-    async def check(self, update_type: str = None, content: dict = None, risk_level: str = "medium", **kwargs) -> dict:
+    async def check(
+        self,
+        update_type: str = None,
+        content: dict = None,
+        risk_level: str = "medium",
+        **kwargs,
+    ) -> dict:
         """
         Primary check method for unified logic hub integration.
         
@@ -27,9 +35,19 @@ class GovernanceEngine:
         Returns:
             Check result with requires_approval flag
         """
-        # Handle legacy calls
-        if 'actor' in kwargs or 'action' in kwargs:
-            return await self.check_policy(**kwargs)
+        actor = kwargs.pop("actor", None)
+        action = kwargs.pop("action", None)
+        resource = kwargs.pop("resource", None)
+        payload = kwargs.pop("payload", None)
+        
+        # Handle legacy call sites that still pass actor/action/resource
+        if any(value is not None for value in (actor, action, resource, payload)):
+            return await self._legacy_policy_check(
+                actor=actor or "unknown_actor",
+                action=action or "unknown_action",
+                resource=resource or "unknown_resource",
+                payload=payload,
+            )
         
         # High/critical risk requires approval
         if risk_level in ['high', 'critical']:
@@ -54,16 +72,65 @@ class GovernanceEngine:
             'reason': 'Low risk auto-approved'
         }
     
+    async def _legacy_policy_check(
+        self,
+        actor: str,
+        action: str,
+        resource: str,
+        payload: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Legacy policy handler used by older call sites to avoid recursion."""
+        payload = payload or {}
+        
+        risk_level = str(
+            payload.get("risk_level")
+            or payload.get("risk")
+            or "medium"
+        ).lower()
+        
+        requires_human = bool(
+            payload.get("requires_human_approval")
+            or payload.get("requires_approval")
+        )
+        
+        if risk_level in {"high", "critical"}:
+            requires_human = True
+        
+        if payload.get("auto_approve"):
+            requires_human = False
+        
+        approved = not requires_human
+        
+        decision = {
+            "actor": actor,
+            "action": action,
+            "resource": resource,
+            "approved": approved,
+            "requires_approval": requires_human,
+            "requires_human_approval": requires_human,
+            "risk_level": risk_level,
+            "context": payload,
+            "reason": payload.get("reason")
+                      or (
+                          f"Risk level {risk_level} requires approval"
+                          if requires_human and risk_level in {"high", "critical"}
+                          else ("Action requires approval" if requires_human else "Legacy policy auto-approved")
+                      ),
+            "approval_id": payload.get("approval_id") or f"gov_{uuid.uuid4().hex[:8]}",
+        }
+        
+        return decision
+    
     # Backward-compatible API aliases
     async def check_policy(self, *, actor: str, action: str, resource: str, payload: dict | None = None) -> dict:
         """Alias for legacy callers expecting `check_policy`.
-        Delegates to `check()` and accepts optional payload.
+        Delegates to `_legacy_policy_check` and accepts optional payload.
         """
-        return await self.check(actor=actor, action=action, resource=resource, payload=payload or {})
+        return await self._legacy_policy_check(actor=actor, action=action, resource=resource, payload=payload)
 
     async def check_action(self, actor: str, action: str, resource: str, context: dict | None = None) -> dict:
         """Alias for legacy callers expecting `check_action` with `context` instead of `payload`."""
-        return await self.check(actor=actor, action=action, resource=resource, payload=context or {})
+        return await self._legacy_policy_check(actor=actor, action=action, resource=resource, payload=context)
 
 
 governance_engine = GovernanceEngine()
