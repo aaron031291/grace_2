@@ -79,6 +79,20 @@ class GoogleSearchService:
                 self._initialized = True
                 return
             
+            # Check for SerpAPI
+            if search_provider == "serpapi":
+                from backend.services.serpapi_adapter import serpapi_adapter
+                if serpapi_adapter.enabled:
+                    self.current_provider = 'serpapi'
+                    logger.info("[GOOGLE-SEARCH] SerpAPI provider enabled")
+                    self._initialized = True
+                    return
+                else:
+                    logger.warning("[GOOGLE-SEARCH] SerpAPI requested but SERPAPI_KEY not set, falling back to mock")
+                    self.current_provider = 'mock'
+                    self._initialized = True
+                    return
+            
             self.api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
             self.search_engine_id = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
             
@@ -218,6 +232,27 @@ class GoogleSearchService:
         Returns:
             List of search results with title, url, snippet
         """
+        # If in offline mode or mock provider, use mock service
+        if self.offline_mode or self.current_provider == 'mock':
+            logger.info(f"[GOOGLE-SEARCH] Using mock provider (offline_mode={self.offline_mode})")
+            from backend.services.mock_search_service import mock_search_service
+            return await mock_search_service.search(query, num_results)
+        
+        # If SerpAPI provider, use SerpAPI adapter
+        if self.current_provider == 'serpapi':
+            logger.info(f"[GOOGLE-SEARCH] Using SerpAPI provider")
+            from backend.services.serpapi_adapter import serpapi_adapter
+            return await serpapi_adapter.search(query, max_results=num_results)
+        
+        # Check backoff
+        import time
+        if time.time() < self.backoff_until:
+            logger.warning(
+                f"[GOOGLE-SEARCH] In backoff period, using mock results. "
+                f"Retry in {int(self.backoff_until - time.time())}s"
+            )
+            from backend.services.mock_search_service import mock_search_service
+            return await mock_search_service.search(query, num_results)
         if not self._initialized:
             await self.initialize()
         

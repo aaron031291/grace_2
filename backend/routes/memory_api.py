@@ -115,8 +115,20 @@ async def upload_and_ingest(
     file: UploadFile = File(...),
     asset_type: str = "upload",
     trust_score: float = 0.5,
+    auto_process: bool = True,
 ):
-    """Upload file and ingest into memory"""
+    """
+    Upload file and ingest into memory
+    
+    Args:
+        file: File to upload
+        asset_type: Type of asset
+        trust_score: Initial trust score
+        auto_process: Automatically start ingestion pipeline
+    
+    Returns:
+        asset_id and status
+    """
     try:
         upload_dir = Path("storage/memory/raw/upload")
         upload_dir.mkdir(parents=True, exist_ok=True)
@@ -134,10 +146,15 @@ async def upload_and_ingest(
             metadata={"original_filename": file.filename},
         )
         
+        # Auto-process trigger happens via event bus
+        # The ingestion_pipeline listens for asset_registered events
+        
         return {
             "status": "success",
             "asset_id": asset.asset_id,
             "path": asset.path,
+            "processing_status": "queued" if auto_process else "manual",
+            "message": "File uploaded and queued for processing" if auto_process else "File uploaded"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
