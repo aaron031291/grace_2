@@ -95,15 +95,14 @@ export const RemoteCockpit: React.FC<RemoteCockpitProps> = ({ isOpen, onClose })
     try {
       const response = await fetch(`${API_BASE_URL}/api/memory/files/ingestions`);
       if (response.ok) {
-        const data = await response.json();
-        const pending = data.filter((i: any) => i.status === 'queued' || i.status === 'processing');
-        const failed = data.filter((i: any) => i.status === 'failed');
+        const result = await response.json();
+        const ingestions = result.ingestions || [];
         
         setLearningBacklog({
-          total_items: data.length,
-          pending_ingestion: pending.filter((i: any) => i.status === 'queued').length,
-          pending_analysis: pending.filter((i: any) => i.status === 'processing').length,
-          failed_items: failed.length
+          total_items: ingestions.length,
+          pending_ingestion: result.queued || 0,
+          pending_analysis: result.processing || 0,
+          failed_items: result.failed || 0
         });
       }
     } catch (err) {
@@ -115,9 +114,11 @@ export const RemoteCockpit: React.FC<RemoteCockpitProps> = ({ isOpen, onClose })
     try {
       const response = await fetch(`${API_BASE_URL}/api/reminders`);
       if (response.ok) {
-        const data = await response.json();
+        const result = await response.json();
+        const allReminders = result.reminders || [];
+        
         // Get upcoming reminders (next 24 hours)
-        const upcoming = data.filter((r: any) => {
+        const upcoming = allReminders.filter((r: any) => {
           const scheduledTime = new Date(r.scheduled_time);
           const now = new Date();
           const hoursDiff = (scheduledTime.getTime() - now.getTime()) / (1000 * 60 * 60);

@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:check": "npm run build && npm run validate",
+    "validate": "node scripts/quick-validate.cjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:smoke": "playwright test tests/chat.spec.ts"
+    "test:smoke": "playwright test tests/smoke.spec.ts",
+    "test:build": "playwright test tests/build.spec.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
