@@ -82,19 +82,19 @@ class BootLayer:
             print("  [OK] Unified Logic ACTIVE")
             
             # Step 6: Self-Healing Kernel (Auto-repair)
-            print("\n[6/8] Starting Self-Healing Kernel...")
+            print("\n[6/9] Starting Self-Healing Kernel...")
             await self_healing_kernel.start()
             sh_stats = self_healing_kernel.get_stats()
             print(f"  [OK] Self-Healing ACTIVE ({sh_stats['playbooks_loaded']} playbooks)")
             
-            # Step 7: Coding Agent Kernel (Code generation)
-            print("\n[7/8] Starting Coding Agent Kernel...")
+            # Step 8: Coding Agent Kernel (Code generation)
+            print("\n[7/9] Starting Coding Agent Kernel...")
             await coding_agent_kernel.start()
             ca_stats = coding_agent_kernel.get_stats()
             print(f"  [OK] Coding Agent ACTIVE ({ca_stats['code_patterns_available']} patterns)")
             
-            # Step 8: Control Plane (Orchestrator)
-            print("\n[8/8] Starting Control Plane (orchestrator)...")
+            # Step 9: Control Plane (Orchestrator)
+            print("\n[8/9] Starting Control Plane (orchestrator)...")
             await control_plane.start()
             print("  [OK] Control Plane ACTIVE")
             
