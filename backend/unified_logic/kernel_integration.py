@@ -96,6 +96,38 @@ class KernelIntegrator:
         )
         
         # TIER 2: Governance & Safety kernels
+        self.kernel_registry["self_healing"] = KernelRegistration(
+            kernel_name="self_healing",
+            kernel_type="tier2_governance",
+            capabilities=[
+                "auto_remediation",
+                "playbook_execution",
+                "guardian_sync",
+                "trigger_management"
+            ],
+            provides_metrics=["trigger_count", "playbook_success_rate", "mttr"],
+            depends_on=["message_bus", "immutable_log", "guardian_core"],
+            grace_layer="layer2",
+            grace_domain="self_healing",
+            contributes_to_pillars=["knowledge_application"]  # Self-improvement
+        )
+        
+        self.kernel_registry["coding_agent"] = KernelRegistration(
+            kernel_name="coding_agent",
+            kernel_type="tier2_governance",
+            capabilities=[
+                "code_generation",
+                "bug_fixing",
+                "guardian_playbook_support",
+                "refactoring"
+            ],
+            provides_metrics=["tasks_completed", "success_rate", "code_quality"],
+            depends_on=["message_bus", "governance", "guardian_core"],
+            grace_layer="layer2",
+            grace_domain="agentic",
+            contributes_to_pillars=["knowledge_application", "business_revenue"]
+        )
+        
         self.kernel_registry["clarity_framework"] = KernelRegistration(
             kernel_name="clarity_framework",
             kernel_type="tier2_governance",
@@ -193,7 +225,7 @@ class KernelIntegrator:
             kernel_type="tier4_agentic",
             capabilities=["multi_agent_coordination", "decision_making", "planning"],
             provides_metrics=["decisions_made", "plans_generated"],
-            depends_on=["governance", "scheduler"],
+            depends_on=["coding_agent", "self_healing", "scheduler"],
             grace_layer="layer3",
             grace_domain="agentic",
             contributes_to_pillars=["knowledge_application", "science_beyond_limits"]

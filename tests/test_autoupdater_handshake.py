@@ -209,19 +209,21 @@ async def test_kernel_integration():
     print(f"  [OK] Charter-aware kernels: {status['charter_aware']}")
     print(f"  [OK] Require approval: {status['requires_approval']}")
     
-    # Test 3: Get specific kernel info
-    print("[TEST] Getting agentic_spine info...")
-    
-    agentic_spine = integrator.get_kernel_by_name("agentic_spine")
-    
-    if agentic_spine:
-        print(f"  [OK] Name: {agentic_spine.kernel_name}")
-        print(f"  [OK] Type: {agentic_spine.kernel_type}")
-        print(f"  [OK] Layer: {agentic_spine.grace_layer}")
-        print(f"  [OK] Domain: {agentic_spine.grace_domain}")
-        print(f"  [OK] Capabilities: {agentic_spine.capabilities}")
-        print(f"  [OK] Contributes to pillars: {agentic_spine.contributes_to_pillars}")
-        print(f"  [OK] Registered: {agentic_spine.registered}")
+    # Test 3: Get specific kernel info for guardian-managed services
+    for kernel_name in ["self_healing", "coding_agent", "agentic_spine"]:
+        print(f"[TEST] Getting {kernel_name} info...")
+        
+        kernel = integrator.get_kernel_by_name(kernel_name)
+        
+        if kernel:
+            print(f"  [OK] Name: {kernel.kernel_name}")
+            print(f"  [OK] Type: {kernel.kernel_type}")
+            print(f"  [OK] Layer: {kernel.grace_layer}")
+            print(f"  [OK] Domain: {kernel.grace_domain}")
+            print(f"  [OK] Capabilities: {kernel.capabilities}")
+            print(f"  [OK] Depends on: {kernel.depends_on}")
+            print(f"  [OK] Contributes to pillars: {kernel.contributes_to_pillars}")
+            print(f"  [OK] Registered: {kernel.registered}")
     
     # Test 4: Get kernels by pillar
     print("[TEST] Getting kernels contributing to knowledge_application...")
