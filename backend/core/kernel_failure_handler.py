@@ -480,7 +480,7 @@ class KernelFailureHandler:
         
         # Register with unified logic
         try:
-            from backend.logging.unified_logic_hub import unified_logic_hub
+            from backend.unified_logic.unified_logic_hub import unified_logic_hub
             
             await unified_logic_hub.submit_update(
                 update_type="playbook",

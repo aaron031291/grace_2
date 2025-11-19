@@ -238,7 +238,7 @@ class UnifiedLogicHub:
         self._update_status(package, "governance_check")
         
         try:
-            from backend.governance import governance_engine
+            from backend.verification_system.governance import governance_engine
             self._governance = governance_engine
             
             decision = await self._governance.check_action(
@@ -269,7 +269,7 @@ class UnifiedLogicHub:
         self._update_status(package, "crypto_assignment")
         
         try:
-            from backend.crypto_assignment_engine import crypto_engine
+            from backend.workflow_engines.crypto_assignment_engine import crypto_engine
             self._crypto_engine = crypto_engine
             
             identity = await self._crypto_engine.assign_universal_crypto_identity(

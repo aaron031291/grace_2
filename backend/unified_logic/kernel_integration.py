@@ -324,7 +324,7 @@ class KernelIntegrator:
         """Load unified logic dependencies"""
         
         try:
-            from backend.logging.unified_logic_hub import unified_logic_hub
+            from backend.unified_logic.unified_logic_hub import unified_logic_hub
             self.unified_logic_hub = unified_logic_hub
         except Exception as e:
             logger.warning(f"[KERNEL INTEGRATOR] Unified logic hub not available: {e}")

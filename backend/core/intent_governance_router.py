@@ -154,7 +154,7 @@ class IntentGovernanceRouter:
         """Submit intent to unified logic for governance decision"""
         
         try:
-            from backend.logging.unified_logic_hub import unified_logic_hub
+            from backend.unified_logic.unified_logic_hub import unified_logic_hub
             
             # Map mission context to charter priorities
             mission_priority = self._get_mission_priority(routing['intent_type'], mission_context)
