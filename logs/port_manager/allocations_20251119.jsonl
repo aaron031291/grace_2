@@ -11,3 +11,6 @@
 {"timestamp": "2025-11-19T09:30:08.516529", "action": "allocate", "port": 8189, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-19T09:37:30.305237", "action": "allocate", "port": 8190, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-19T09:45:45.919741", "action": "allocate", "port": 8191, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-19T10:30:49.056420", "action": "allocate", "port": 8192, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-19T10:42:05.389763", "action": "allocate", "port": 8193, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-19T10:48:51.399726", "action": "allocate", "port": 8194, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}

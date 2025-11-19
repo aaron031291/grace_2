@@ -67,6 +67,22 @@ async def boot_grace_minimal():
             delegate_to=None  # Guardian handles its own domain
         ))
         
+        # CHUNK 0.5: Healing Orchestrator (Guardian validates)
+        async def chunk_0b_healing():
+            print("[CHUNK 0.5] Healing Orchestrator...")
+            from backend.core.healing_orchestrator import healing_orchestrator
+            print("  [OK] Healing Orchestrator: Online (Watching Logs/CI/Secrets)")
+            return {"status": "online", "mode": "active"}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="healing_orchestrator",
+            name="Healing Orchestrator",
+            priority=0.5,
+            boot_function=chunk_0b_healing,
+            can_fail=False, # Critical for self-repair
+            guardian_validates=True
+        ))
+        
         # CHUNK 1-2: Core Systems (Guardian validates, can delegate healing)
         async def chunk_1_core_systems():
             print("[CHUNK 1-2] Core Systems...")

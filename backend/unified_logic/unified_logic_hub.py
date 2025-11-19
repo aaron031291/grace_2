@@ -241,16 +241,37 @@ class UnifiedLogicHub:
             from backend.verification_system.governance import governance_engine
             self._governance = governance_engine
             
-            decision = await self._governance.check_action(
-                actor=package.created_by,
-                action=f"update_{package.update_type}",
-                resource=",".join(package.component_targets),
-                context={
-                    "update_id": package.update_id,
-                    "risk_level": package.risk_level,
-                    **context
+            # Fallback: Check for check_action vs check
+            if hasattr(self._governance, 'check_action'):
+                decision = await self._governance.check_action(
+                    actor=package.created_by,
+                    action=f"update_{package.update_type}",
+                    resource=",".join(package.component_targets),
+                    context={
+                        "update_id": package.update_id,
+                        "risk_level": package.risk_level,
+                        **context
+                    }
+                )
+            else:
+                # Fallback for GovernanceEngine versions without check_action
+                # Adapts check() result to expected decision format
+                result = await self._governance.check(
+                    action_type=f"update_{package.update_type}",
+                    actor=package.created_by,
+                    resource=",".join(package.component_targets),
+                    input_data={
+                        "update_id": package.update_id,
+                        "risk_level": package.risk_level,
+                        **context
+                    }
+                )
+                decision = {
+                    "approved": result.get("allowed", False),
+                    "reason": result.get("reason", "No reason provided"),
+                    "approval_id": f"auto_adapted_{package.update_id}",
+                    "checks": result
                 }
-            )
             
             if not decision.get("approved", False):
                 raise Exception(f"Governance blocked: {decision.get('reason', 'No approval')}")

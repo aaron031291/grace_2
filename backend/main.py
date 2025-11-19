@@ -374,6 +374,20 @@ try:
 except ImportError as e:
     print(f"[WARN] Phase 8 API disabled: {e}")
 
+# Register Books API
+try:
+    from backend.routes.book_dashboard import router as books_router
+    app.include_router(books_router, prefix="/api/books")
+except ImportError as e:
+    print(f"[WARN] Books API disabled: {e}")
+
+# Register Librarian API
+try:
+    from backend.routes.librarian_api import router as librarian_router
+    app.include_router(librarian_router)
+except ImportError as e:
+    print(f"[WARN] Librarian API disabled: {e}")
+
 # Register Metrics API
 try:
     from backend.routes.metrics_api import router as metrics_router

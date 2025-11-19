@@ -5,10 +5,39 @@ Tests all backend endpoints used by the Grace Console
 
 import requests
 import json
+import os
+import sys
 from datetime import datetime
 
-API_BASE = "http://localhost:8017"
+# Configuration
+DEFAULT_PORT = 8000
+try:
+    PORT = int(os.getenv("GRACE_PORT", str(DEFAULT_PORT)))
+except ValueError:
+    PORT = DEFAULT_PORT
+
+API_BASE = f"http://localhost:{PORT}"
 TOKEN = "dev-token"
+
+# Unicode safe symbols for Windows consoles
+if sys.platform == 'win32':
+    CHECK_MARK = "[OK]"
+    CROSS_MARK = "[FAIL]"
+    CLOCK_MARK = "[TIME]"
+    HOSPITAL_MARK = "[HEALTH]"
+    LOCK_MARK = "[VAULT]"
+    TARGET_MARK = "[MISSION]"
+    CLIPBOARD_MARK = "[LOGS]"
+    INBOX_MARK = "[INGEST]"
+else:
+    CHECK_MARK = "✅"
+    CROSS_MARK = "❌"
+    CLOCK_MARK = "⏱️"
+    HOSPITAL_MARK = "🏥"
+    LOCK_MARK = "🔐"
+    TARGET_MARK = "🎯"
+    CLIPBOARD_MARK = "📋"
+    INBOX_MARK = "📥"
 
 headers = {
     "Authorization": f"Bearer {TOKEN}",
@@ -25,7 +54,7 @@ def test_endpoint(method, url, data=None, expected_status=200):
         elif method == "DELETE":
             response = requests.delete(url, headers=headers, timeout=5)
         
-        status = "✅" if response.status_code == expected_status else "❌"
+        status = CHECK_MARK if response.status_code == expected_status else CROSS_MARK
         return {
             "status": status,
             "code": response.status_code,
@@ -33,11 +62,11 @@ def test_endpoint(method, url, data=None, expected_status=200):
             "data": response.json() if response.headers.get("content-type", "").startswith("application/json") else None
         }
     except requests.exceptions.ConnectionError:
-        return {"status": "❌", "code": "CONN_ERROR", "url": url, "data": {"error": "Connection refused - is backend running?"}}
+        return {"status": CROSS_MARK, "code": "CONN_ERROR", "url": url, "data": {"error": "Connection refused - is backend running?"}}
     except requests.exceptions.Timeout:
-        return {"status": "⏱️", "code": "TIMEOUT", "url": url, "data": None}
+        return {"status": CLOCK_MARK, "code": "TIMEOUT", "url": url, "data": None}
     except Exception as e:
-        return {"status": "❌", "code": "ERROR", "url": url, "data": {"error": str(e)}}
+        return {"status": CROSS_MARK, "code": "ERROR", "url": url, "data": {"error": str(e)}}
 
 def print_result(name, result):
     """Print test result"""
@@ -57,18 +86,18 @@ def print_result(name, result):
 
 def main():
     print("=" * 80)
-    print("GRACE CONSOLE - ENDPOINT TESTS")
+    print(f"GRACE CONSOLE - ENDPOINT TESTS (Target: {API_BASE})")
     print("=" * 80)
     print()
     
     # Test basic health
-    print("🏥 HEALTH CHECKS")
+    print(f"{HOSPITAL_MARK} HEALTH CHECKS")
     print("-" * 80)
     result = test_endpoint("GET", f"{API_BASE}/health")
     print_result("Backend Health", result)
     
     # Test Vault endpoints
-    print("🔐 VAULT API")
+    print(f"{LOCK_MARK} VAULT API")
     print("-" * 80)
     
     result = test_endpoint("GET", f"{API_BASE}/api/vault/secrets")
@@ -97,7 +126,7 @@ def main():
     print_result("Delete Secret", result)
     
     # Test Mission Control endpoints
-    print("🎯 MISSION CONTROL API")
+    print(f"{TARGET_MARK} MISSION CONTROL API")
     print("-" * 80)
     
     result = test_endpoint("GET", f"{API_BASE}/mission-control/status")
@@ -110,7 +139,7 @@ def main():
     print_result("Subsystems Health", result)
     
     # Test Logs endpoints
-    print("📋 LOGS API")
+    print(f"{CLIPBOARD_MARK} LOGS API")
     print("-" * 80)
     
     result = test_endpoint("GET", f"{API_BASE}/api/logs/recent?limit=10")
@@ -129,7 +158,7 @@ def main():
     print_result("Logs Health", result)
     
     # Test Ingestion endpoints
-    print("📥 INGESTION API")
+    print(f"{INBOX_MARK} INGESTION API")
     print("-" * 80)
     
     result = test_endpoint("GET", f"{API_BASE}/api/ingest/artifacts?limit=10")
@@ -140,7 +169,7 @@ def main():
     print("=" * 80)
     print()
     print("Next steps:")
-    print("1. Start backend: python serve.py")
+    print("1. Start backend: python server.py")
     print("2. Start frontend: cd frontend && npm run dev")
     print("3. Open console and test UI panels")
     print()
