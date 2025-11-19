@@ -25,7 +25,11 @@ class LearningWhitelistManager:
     """
     
     def __init__(self):
-        self.whitelist_path = Path("config/autonomous_learning_whitelist.yaml")
+        self.whitelist_path = Path("config/genai_expert_2025_curriculum.yaml")
+        if not self.whitelist_path.exists():
+             # Fallback to original if new one doesn't exist
+             self.whitelist_path = Path("config/autonomous_learning_whitelist.yaml")
+        
         self.whitelist: Dict[str, Any] = {}
         self.current_domain: Optional[str] = None
         self.progress: Dict[str, Dict] = {}

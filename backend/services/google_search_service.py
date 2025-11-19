@@ -131,12 +131,19 @@ class GoogleSearchService:
 
     async def _check_quota(self, category: str) -> bool:
         """Check if we have budget for this category"""
-        if self.offline_mode:
-            return False
-            
+        # Always check persistence first to see if day rolled over (Auto-Loop)
         usage = self.persistence.get_quota_usage()
         total_used = usage["total"]
         
+        # Auto-recover from offline mode if quota reset (new day)
+        if self.offline_mode and total_used < self.daily_quota_limit:
+            logger.info(f"[GOOGLE-SEARCH] 🌅 New day detected (Usage: {total_used}/{self.daily_quota_limit}). Resuming operations.")
+            self.offline_mode = False
+            self._reset_backoff()
+            
+        if self.offline_mode:
+            return False
+            
         # Global hard limit
         if total_used >= self.daily_quota_limit:
             logger.warning(f"[GOOGLE-SEARCH] ⛔ Daily quota exhausted ({total_used}/{self.daily_quota_limit})")
