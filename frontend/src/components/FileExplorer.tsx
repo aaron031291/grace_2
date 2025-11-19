@@ -157,11 +157,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     const folderName = prompt('Enter folder name:');
     if (!folderName) return;
     
-    const basePath = selectedFile?.type === 'folder' ? selectedFile.path : 'storage';
-    const folderPath = `${basePath}/${folderName}`;
+    const basePath = selectedFile?.type === 'folder' ? selectedFile.path : '';
+    const folderPath = basePath ? `${basePath}/${folderName}` : folderName;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/folder`, {
+      const response = await fetch(`${API_BASE_URL}/memory/files/create-folder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: folderPath })

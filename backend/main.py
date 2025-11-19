@@ -701,72 +701,120 @@ async def shutdown_advanced_learning():
 
 @app.post("/api/chat")
 async def chat(request: dict):
-    """Chat with Grace using OpenAI with RAG and world-model context"""
+    """
+    Enhanced Chat Endpoint with Full Context Integration
+    
+    Gathers:
+    - Conversation history
+    - RAG context
+    - World model facts
+    - Trust framework state
+    
+    Returns:
+    - Reply with confidence and citations
+    - Proposed actions with governance
+    - Pending approvals with notifications
+    """
     import logging
     logger = logging.getLogger(__name__)
     
+    # Extract request params
     message = request.get("message", "")
+    session_id = request.get("session_id", str(uuid.uuid4()))
+    user_id = request.get("user_id", "user")
+    attachments = request.get("attachments", [])
+    
+    # Generate trace ID for this interaction
+    trace_id = str(uuid.uuid4())
     
     try:
         # Import services
         from backend.services.openai_reasoner import generate_grace_response
-        from backend.services.rag_service import rag_service
-        from backend.world_model.grace_world_model import world_model
+        from backend.services.chat_service import (
+            gather_full_context,
+            chat_history,
+            process_actions,
+            action_registry,
+            send_approval_notification
+        )
         
-        # Initialize services if needed
-        try:
-            await rag_service.initialize()
-            await world_model.initialize()
-        except Exception as init_error:
-            logger.warning(f"Service initialization warning: {init_error}")
+        # Add user message to history
+        chat_history.add_message(
+            session_id=session_id,
+            role="user",
+            content=message,
+            metadata={"attachments": attachments}
+        )
         
-        # Retrieve RAG context
-        rag_context = []
-        try:
-            rag_result = await rag_service.retrieve(
-                query=message,
-                top_k=5,
-                similarity_threshold=0.6,
-                requested_by="chat_api"
-            )
-            rag_context = rag_result.get("results", [])
-        except Exception as rag_error:
-            logger.warning(f"RAG retrieval failed: {rag_error}")
+        # Gather full context (history, RAG, world model, trust state)
+        context = await gather_full_context(
+            user_message=message,
+            session_id=session_id,
+            user_id=user_id
+        )
         
-        # Get world model facts
-        world_model_facts = {}
-        try:
-            knowledge_items = await world_model.query(message, top_k=3)
-            if knowledge_items:
-                world_model_facts = {
-                    "relevant_knowledge": [
-                        {
-                            "content": k.content,
-                            "confidence": k.confidence,
-                            "source": k.source,
-                            "category": k.category
-                        }
-                        for k in knowledge_items
-                    ]
-                }
-        except Exception as wm_error:
-            logger.warning(f"World model query failed: {wm_error}")
+        logger.info(f"[CHAT] Context gathered - History: {len(context['conversation_history'])} msgs, "
+                   f"RAG: {len(context['rag_context'])} docs, Trust: {context['trust_state'].get('trust_score', 0.0)}")
         
-        # Generate response using OpenAI with context
+        # Generate response using OpenAI with full context
         result = await generate_grace_response(
             user_message=message,
-            rag_context=rag_context,
-            world_model_facts=world_model_facts
+            rag_context=context["rag_context"],
+            world_model_facts=context["world_model_facts"],
+            conversation_history=context["conversation_history"],
+            trust_state=context["trust_state"],
+            trace_id=trace_id
         )
+        
+        # Extract response components
+        reply = result.get("reply", "Hello! I'm Grace. How can I help you?")
+        raw_actions = result.get("actions", [])
+        confidence = result.get("confidence", 0.8)
+        citations = result.get("citations", [])
+        
+        # Add assistant message to history
+        chat_history.add_message(
+            session_id=session_id,
+            role="assistant",
+            content=reply,
+            metadata={
+                "trace_id": trace_id,
+                "confidence": confidence,
+                "citations": citations
+            }
+        )
+        
+        # Process actions through governance
+        processed_actions, requires_approval = await process_actions(
+            actions=raw_actions,
+            trace_id=trace_id,
+            session_id=session_id
+        )
+        
+        # Get pending approvals
+        pending_approvals = action_registry.get_pending_approvals()
+        
+        # Send notification if approvals needed
+        if requires_approval and pending_approvals:
+            await send_approval_notification(
+                pending_approvals=pending_approvals,
+                user_id=user_id,
+                session_id=session_id
+            )
+            logger.info(f"[CHAT] Approval notification sent for {len(pending_approvals)} action(s)")
         
         # Return formatted response
         return {
-            "reply": result.get("reply", "Hello! I'm Grace. How can I help you?"),
-            "response": result.get("reply", "Hello! I'm Grace. How can I help you?"),  # Backward compatibility
-            "actions": result.get("actions", []),
-            "confidence": result.get("confidence", 0.8),
-            "citations": result.get("citations", []),
-            "requires_approval": result.get("requires_approval", False),
+            "reply": reply,
+            "response": reply,  # Backward compatibility
+            "trace_id": trace_id,
+            "session_id": session_id,
+            "actions": processed_actions,
+            "confidence": confidence,
+            "citations": citations,
+            "requires_approval": requires_approval,
+            "pending_approvals": pending_approvals,
+            "trust_score": context["trust_state"].get("trust_score", 0.8),
             "model": result.get("model", "gpt-4o"),
             "timestamp": datetime.now().isoformat()
         }
@@ -779,12 +827,105 @@ async def chat(request: dict):
         return {
             "reply": "I'm having trouble processing your request right now. Please make sure your OpenAI API key is configured in the .env file.",
             "response": "I'm having trouble processing your request right now. Please make sure your OpenAI API key is configured in the .env file.",
+            "trace_id": trace_id,
+            "session_id": session_id,
             "actions": [],
             "confidence": 0.0,
             "citations": [],
+            "requires_approval": False,
+            "pending_approvals": [],
             "error": str(e),
             "timestamp": datetime.now().isoformat()
         }
+
+@app.post("/api/chat/approve")
+async def approve_chat_action(request: dict):
+    """
+    Approve or reject a proposed action
+    
+    Request:
+        trace_id: str - ID of the action to approve
+        approved: bool - True to approve, False to reject
+        reason: str - Optional reason for decision
+        user_id: str - User making the decision
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    trace_id = request.get("trace_id")
+    approved = request.get("approved", False)
+    reason = request.get("reason", "")
+    user_id = request.get("user_id", "user")
+    
+    if not trace_id:
+        return {"error": "trace_id required", "status": "error"}
+    
+    try:
+        from backend.services.chat_service import action_registry
+        
+        # Approve the action
+        action = action_registry.approve_action(trace_id, approved, reason)
+        
+        if not action:
+            return {
+                "error": "Action not found",
+                "status": "error",
+                "trace_id": trace_id
+            }
+        
+        logger.info(f"[CHAT] Action {trace_id} {'approved' if approved else 'rejected'} by {user_id}")
+        
+        # If approved, execute the action (implement execution logic here)
+        if approved:
+            # TODO: Execute the action based on action_type and params
+            logger.info(f"[CHAT] Action {action['action_type']} ready for execution")
+        
+        return {
+            "status": "success",
+            "action": action,
+            "approved": approved,
+            "message": f"Action {'approved' if approved else 'rejected'} successfully",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    except Exception as e:
+        logger.error(f"Approval endpoint error: {e}", exc_info=True)
+        return {
+            "error": str(e),
+            "status": "error",
+            "trace_id": trace_id,
+            "timestamp": datetime.now().isoformat()
+        }
+
+
+@app.get("/api/chat/approvals")
+async def get_pending_approvals():
+    """Get all pending action approvals"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        from backend.services.chat_service import action_registry
+        
+        pending = action_registry.get_pending_approvals()
+        
+        return {
+            "approvals": pending,
+            "count": len(pending),
+            "status": "success",
+            "timestamp": datetime.now().isoformat()
+        }
+    
+    except Exception as e:
+        logger.error(f"Get approvals error: {e}", exc_info=True)
+        return {
+            "error": str(e),
+            "approvals": [],
+            "count": 0,
+            "status": "error",
+            "timestamp": datetime.now().isoformat()
+        }
+
 
 @app.get("/api/learning/status")
 async def learning_status():
@@ -889,6 +1030,10 @@ async def dismiss_context(request: dict):
 # ===== MEMORY FILES API =====
 from backend.api.memory_files import router as memory_files_router
 app.include_router(memory_files_router)
+
+# ===== PRODUCTION ENDPOINTS =====
+from backend.api.production_endpoints import router as production_router
+app.include_router(production_router)
 
 # ===== VISION & VIDEO API =====
 
