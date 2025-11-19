@@ -685,34 +685,42 @@ if __name__ == "__main__":
     
     print(f"[PORT] Using port: {port}")
     
+    # Start frontend in background
+    print("[FRONTEND] Starting frontend dev server...")
+    import subprocess
+    frontend_process = None
+    try:
+        frontend_dir = Path(__file__).parent / "frontend"
+        if frontend_dir.exists():
+            frontend_process = subprocess.Popen(
+                ["npm.cmd", "run", "dev"],
+                cwd=str(frontend_dir),
+                creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0
+            )
+            print(f"[FRONTEND] Started on http://localhost:5173 (PID: {frontend_process.pid})")
+        else:
+            print("[WARN] Frontend directory not found, skipping frontend")
+    except Exception as e:
+        print(f"[WARN] Could not start frontend: {e}")
+    
     # Start server
     print("=" * 80)
     print("GRACE IS READY")
     print("=" * 80)
     print()
-    print(f" API: http://localhost:{port}")
-    print(f" Docs: http://localhost:{port}/docs")
-    print(f"  Health: http://localhost:{port}/health")
+    print(f" Backend:  http://localhost:{port}")
+    print(f" Frontend: http://localhost:5173")
+    print(f" Docs:     http://localhost:{port}/docs")
+    print(f" Health:   http://localhost:{port}/health")
     print()
     print("=" * 80)
-    print("NEXT STEPS")
-    print("=" * 80)
-    print()
-    print("Terminal 2 - Configure clients for this port:")
-    print(f"  python auto_configure.py")
-    print()
-    print("Then use:")
-    print("  • Remote Access: python remote_access_client.py setup")
-    print("  • Learning: python start_grace_now.py")
-    print("  • Menu: USE_GRACE.cmd")
-    print()
-    print("Press Ctrl+C to stop")
+    print("Press Ctrl+C to stop both backend and frontend")
     print("=" * 80)
     print()
     
     # Start server on single fixed port
     try:
-        print(f"\n[STARTING] Starting Grace on port {port}...")
+        print(f"\n[STARTING] Starting Grace backend on port {port}...")
         uvicorn.run(
             "backend.main:app",
             host="0.0.0.0",
@@ -722,6 +730,13 @@ if __name__ == "__main__":
         )
     except KeyboardInterrupt:
         print("\n\nGrace shutdown requested...")
+        if frontend_process:
+            print("Stopping frontend...")
+            frontend_process.terminate()
+            try:
+                frontend_process.wait(timeout=5)
+            except:
+                frontend_process.kill()
         print("Goodbye!")
     except OSError as e:
         if 'address already in use' in str(e).lower() or '10048' in str(e):
