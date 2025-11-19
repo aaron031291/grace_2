@@ -12,7 +12,10 @@ from backend.event_bus import event_bus, EventType, Event
 from backend.action_gateway import action_gateway
 from backend.reflection_loop import reflection_loop
 from backend.skills.registry import skill_registry
-from backend.session_memory.memory import SessionMemory
+try:
+    from backend.session_memory.memory import SessionMemory
+except ImportError:
+    class SessionMemory: pass  # Stub if missing
 
 
 class WorldModelService:

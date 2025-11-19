@@ -6,7 +6,6 @@
 import { http } from './client';
 import type { 
   HealthResponse, 
-  SuccessResponse,
   ExecutionTrace, 
   DataProvenance,
   VerificationAuditResponse
