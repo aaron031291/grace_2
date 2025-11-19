@@ -36,6 +36,10 @@
     "src/components/BackgroundTasksDrawer.css",
     "src/components/TelemetryStrip.tsx",
     "src/components/TelemetryStrip.css",
+    "src/components/HistorySearch.tsx",
+    "src/components/HistorySearch.css",
+    "src/components/UserPresence.tsx",
+    "src/components/UserPresence.css",
     "src/components/HealthMeter.tsx",
     "src/components/RemoteCockpit.tsx",
     "src/api/chat.ts",
@@ -43,6 +47,9 @@
     "src/api/voice.ts",
     "src/api/remote.ts",
     "src/api/tasks.ts",
+    "src/api/history.ts",
+    "src/api/reminders.ts",
+    "src/api/presence.ts",
     "src/hooks/useNotifications.ts",
     "src/types/**/*"
   ]

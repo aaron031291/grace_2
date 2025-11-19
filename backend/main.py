@@ -2,6 +2,7 @@
 Backend Main Entry Point - Minimal Grace API
 """
 
+import os
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -177,9 +178,15 @@ except ImportError as e:
 
 try:
     from backend.routes.memory_api import router as memory_router
-    app.include_router(memory_router)
+    app.include_router(memory_router, prefix="/api")
 except ImportError as e:
     print(f"[WARN] Memory API disabled: {e}")
+
+try:
+    from backend.routes.remote_api import router as remote_api_router
+    app.include_router(remote_api_router, prefix="/api")
+except ImportError as e:
+    print(f"[WARN] Remote API disabled: {e}")
 
 try:
     from backend.routes.chat import router as chat_router
@@ -223,7 +230,9 @@ except ImportError:
 # Register storage tracking (monitor TB of learning data)
 try:
     from backend.routes.storage_api import router as storage_router
+    from backend.routes.session_management_api import router as session_mgmt_router
     app.include_router(storage_router)
+    app.include_router(session_mgmt_router)
 except ImportError:
     pass  # Storage tracking optional
 
@@ -634,171 +643,89 @@ async def shutdown_advanced_learning():
 
 @app.post("/api/chat")
 async def chat(request: dict):
-    """Chat with Grace - Fast built-in responses"""
+    """Chat with Grace using OpenAI with RAG and world-model context"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     message = request.get("message", "")
     
-    # Quick built-in response (instant, no model delays)
     try:
-        from backend.grace_llm import get_grace_llm
-        llm = get_grace_llm()
-        result = await llm.generate_response(message, domain="chat")
+        # Import services
+        from backend.services.openai_reasoner import generate_grace_response
+        from backend.services.rag_service import rag_service
+        from backend.world_model.grace_world_model import world_model
         
+        # Initialize services if needed
+        try:
+            await rag_service.initialize()
+            await world_model.initialize()
+        except Exception as init_error:
+            logger.warning(f"Service initialization warning: {init_error}")
+        
+        # Retrieve RAG context
+        rag_context = []
+        try:
+            rag_result = await rag_service.retrieve(
+                query=message,
+                top_k=5,
+                similarity_threshold=0.6,
+                requested_by="chat_api"
+            )
+            rag_context = rag_result.get("results", [])
+        except Exception as rag_error:
+            logger.warning(f"RAG retrieval failed: {rag_error}")
+        
+        # Get world model facts
+        world_model_facts = {}
+        try:
+            knowledge_items = await world_model.query(message, top_k=3)
+            if knowledge_items:
+                world_model_facts = {
+                    "relevant_knowledge": [
+                        {
+                            "content": k.content,
+                            "confidence": k.confidence,
+                            "source": k.source,
+                            "category": k.category
+                        }
+                        for k in knowledge_items
+                    ]
+                }
+        except Exception as wm_error:
+            logger.warning(f"World model query failed: {wm_error}")
+        
+        # Generate response using OpenAI with context
+        result = await generate_grace_response(
+            user_message=message,
+            rag_context=rag_context,
+            world_model_facts=world_model_facts
+        )
+        
+        # Return formatted response
         return {
-            "response": result.get("text", "I'm Grace. All 20 kernels operational. How can I help?"),
-            "kernel": "coding_agent",
-            "llm_provider": "grace_llm_fast",
-            "model": "built_in",
-            "timestamp": datetime.now().isoformat()
-        }
-    except Exception as e:
-        # Ultra-fast fallback
-        response_map = {
-            "hi": "Hello! I'm Grace. All 20 kernels are operational.",
-            "hello": "Hi! How can I assist you with code, knowledge, or tasks?",
-            "status": "All 20 kernels operational. 4 layers active. Ready to help!",
-            "help": "I can help with:\n- Writing and debugging code\n- Managing knowledge\n- Self-healing issues\n- Learning from data\n- Autonomous task execution\n\nWhat do you need?",
-        }
-        
-        msg_lower = message.lower().strip()
-        response = response_map.get(msg_lower, f"I received: '{message}'\n\nAll 20 kernels ready. I can help with code, knowledge, tasks, or conversation. What would you like to do?")
-        
-        return {
-            "response": response,
-            "kernel": "coding_agent",
-            "llm_provider": "instant_fallback",
-            "model": "built_in",
+            "reply": result.get("reply", "Hello! I'm Grace. How can I help you?"),
+            "response": result.get("reply", "Hello! I'm Grace. How can I help you?"),  # Backward compatibility
+            "actions": result.get("actions", []),
+            "confidence": result.get("confidence", 0.8),
+            "citations": result.get("citations", []),
+            "requires_approval": result.get("requires_approval", False),
+            "model": result.get("model", "gpt-4o"),
             "timestamp": datetime.now().isoformat()
         }
     
-    # Try to use real LLM (OpenAI/Anthropic/Ollama)
-    try:
-        import os
-        
-        # Check for API keys
-        openai_key = os.getenv("OPENAI_API_KEY")
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        
-        # Priority 1: Try Ollama (Open Source - FREE, runs locally)
-        try:
-            import httpx
-            async with httpx.AsyncClient() as client:
-                ollama_response = await client.post(
-                    "http://localhost:11434/api/chat",
-                    json={
-                        "model": "llama3.2:latest",  # or mistral, codellama, deepseek-coder
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": "You are Grace, an advanced autonomous AI system with 20 operational kernels. Be conversational, helpful, and naturally engaging. You can write code, manage knowledge, self-heal, and execute tasks autonomously."
-                            },
-                            {"role": "user", "content": message}
-                        ],
-                        "stream": False,
-                        "options": {
-                            "temperature": 0.8,
-                            "num_predict": 500
-                        }
-                    },
-                    timeout=30.0
-                )
-                
-                if ollama_response.status_code == 200:
-                    result = ollama_response.json()
-                    response_text = result["message"]["content"]
-                    
-                    return {
-                        "response": response_text,
-                        "kernel": "coding_agent",
-                        "llm_provider": "ollama_llama3",
-                        "llm_type": "open_source",
-                        "timestamp": datetime.now().isoformat()
-                    }
-        except Exception as ollama_error:
-            print(f"Ollama not available: {ollama_error}")
-            pass
-        
-        # Priority 2: Try OpenAI (if key provided)
-        if openai_key:
-            try:
-                from openai import AsyncOpenAI
-                client = AsyncOpenAI(api_key=openai_key)
-                
-                completion = await client.chat.completions.create(
-                    model="gpt-4-turbo-preview",
-                    messages=[
-                        {"role": "system", "content": "You are Grace, an advanced autonomous AI system with 20 operational kernels. Be conversational, helpful, and naturally engaging."},
-                        {"role": "user", "content": message}
-                    ],
-                    temperature=0.7,
-                    max_tokens=800
-                )
-                
-                response_text = completion.choices[0].message.content
-                
-                return {
-                    "response": response_text,
-                    "kernel": "coding_agent",
-                    "llm_provider": "openai_gpt4",
-                    "timestamp": datetime.now().isoformat()
-                }
-                
-            except Exception as e:
-                print(f"OpenAI error: {e}")
-                pass
-        
-        # Priority 3: Try Claude (if key provided)
-        elif anthropic_key:
-            # Use Claude for conversations
-            try:
-                from anthropic import AsyncAnthropic
-                client = AsyncAnthropic(api_key=anthropic_key)
-                
-                response = await client.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    max_tokens=800,
-                    system="""You are Grace, an advanced autonomous AI system with 20 operational kernels.
-
-You have complete capabilities for code, knowledge, self-healing, learning, and autonomous task execution.
-
-Be conversational, insightful, and technically excellent. Engage naturally like ChatGPT or Claude.""",
-                    messages=[
-                        {"role": "user", "content": message}
-                    ]
-                )
-                
-                response_text = response.content[0].text
-                
-                return {
-                    "response": response_text,
-                    "kernel": "coding_agent",
-                    "llm_provider": "claude_sonnet",
-                    "timestamp": datetime.now().isoformat()
-                }
-                
-            except Exception as e:
-                print(f"Anthropic error: {e}")
-                pass
-        
-        # Fallback to Grace's built-in LLM
-        from backend.grace_llm import get_grace_llm
-        llm = get_grace_llm()
-        result = await llm.generate_response(message, domain="chat")
-        
-        return {
-            "response": result.get("text", f"I'm Grace. All 20 kernels are ready. How can I assist you?"),
-            "kernel": "coding_agent",
-            "llm_provider": "grace_llm",
-            "timestamp": datetime.now().isoformat()
-        }
-        
     except Exception as e:
-        # Final fallback
+        # Graceful error handling with logging
+        logger.error(f"Chat endpoint error: {e}", exc_info=True)
+        
+        # Return friendly error message
         return {
-            "response": f"I'm Grace, your AI assistant. All 20 kernels are operational.\n\nYou said: {message}\n\nI'm ready to help with code, knowledge, tasks, or conversation. What would you like to do?",
-            "kernel": "coding_agent",
-            "llm_provider": "fallback",
-            "timestamp": datetime.now().isoformat(),
-            "error": str(e)
+            "reply": "I'm having trouble processing your request right now. Please make sure your OpenAI API key is configured in the .env file.",
+            "response": "I'm having trouble processing your request right now. Please make sure your OpenAI API key is configured in the .env file.",
+            "actions": [],
+            "confidence": 0.0,
+            "citations": [],
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
         }
 
 @app.get("/api/learning/status")
