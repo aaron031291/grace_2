@@ -11,6 +11,10 @@ import sys
 import socket
 from pathlib import Path
 from typing import Dict, Any, Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file immediately
+load_dotenv()
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent))
