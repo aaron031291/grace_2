@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { HistoryAPI, type HistorySearchResult, type ConversationSession } from '../api/history';
+import { HistoryAPI, type HistorySearchResult, type ConversationSession, type ConversationMessage } from '../api/history';
 import './HistorySearch.css';
 
 interface HistorySearchProps {
@@ -146,7 +146,7 @@ export const HistorySearch: React.FC<HistorySearchProps> = ({ isOpen, onClose, o
                     <details className="result-context">
                       <summary>Show context ({result.context.length} messages)</summary>
                       <div className="context-messages">
-                        {result.context.map((ctx, ctxIdx) => (
+                        {result.context.map((ctx: ConversationMessage, ctxIdx: number) => (
                           <div key={ctxIdx} className="context-message">
                             <span className={`ctx-role ${ctx.role}`}>
                               {ctx.role}:

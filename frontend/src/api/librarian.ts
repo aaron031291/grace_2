@@ -1,10 +1,10 @@
-import { apiUrl, WS_BASE_URL } from '../config';
+import { apiUrl } from '../config';
 /**
  * Librarian API Helper Functions
  * Handles all Librarian kernel API calls with proper error handling
  */
 
-const API_BASE = apiUrl('';
+const API_BASE = apiUrl('');
 
 export interface LibrarianStatus {
   kernel: {

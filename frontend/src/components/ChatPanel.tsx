@@ -108,7 +108,7 @@ export const ChatPanel: React.FC = () => {
     // Check for mentions
     const mentions = PresenceAPI.parseMentions(currentInput);
     if (mentions.length > 0 && sessionId) {
-      mentions.forEach(async (user) => {
+      mentions.forEach(async (user: string) => {
         try {
           await PresenceAPI.notifyMention(user, currentInput, sessionId);
         } catch (error) {

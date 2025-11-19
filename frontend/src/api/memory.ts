@@ -1,7 +1,7 @@
-import { apiUrl, WS_BASE_URL } from '../config';
+import { apiUrl } from '../config';
 // API helpers for memory management endpoints
 
-const API_BASE = import.meta.env.VITE_API_URL || apiUrl('';
+const API_BASE = import.meta.env.VITE_API_URL || apiUrl('');
 
 export interface FileNode {
   path: string;
