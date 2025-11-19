@@ -37,6 +37,39 @@ class AssetSource(Enum):
     REMOTE_ACCESS = "remote_access"
 
 
+class MemoryAsset:
+    """Memory asset data class"""
+    def __init__(
+        self,
+        asset_id: str,
+        file_path: str,
+        asset_type: AssetType,
+        source: AssetSource,
+        status: AssetStatus = AssetStatus.QUEUED,
+        metadata: Optional[Dict[str, Any]] = None,
+        created_at: Optional[datetime] = None
+    ):
+        self.asset_id = asset_id
+        self.file_path = file_path
+        self.asset_type = asset_type
+        self.source = source
+        self.status = status
+        self.metadata = metadata or {}
+        self.created_at = created_at or datetime.utcnow()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary"""
+        return {
+            "asset_id": self.asset_id,
+            "file_path": self.file_path,
+            "asset_type": self.asset_type.value if isinstance(self.asset_type, AssetType) else self.asset_type,
+            "source": self.source.value if isinstance(self.source, AssetSource) else self.source,
+            "status": self.status.value if isinstance(self.status, AssetStatus) else self.status,
+            "metadata": self.metadata,
+            "created_at": self.created_at.isoformat() if isinstance(self.created_at, datetime) else self.created_at
+        }
+
+
 class MemoryCatalog:
     """
     Memory catalog for tracking assets
