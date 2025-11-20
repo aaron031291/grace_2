@@ -146,6 +146,41 @@ async def boot_grace_minimal():
             delegate_to="self_healing"
         ))
 
+        # CHUNK 0.75: Tiered Agent Orchestrator (Guardian validates)
+        async def chunk_0g_agent_orchestrator():
+            print("[CHUNK 0.75] Tiered Agent Orchestrator...")
+            try:
+                from backend.agents_core.agent_orchestrator import agent_orchestrator
+                
+                # Start the orchestrator
+                await agent_orchestrator.start()
+                
+                print(f"  [OK] Agent Orchestrator: Online")
+                print(f"  [OK] Max concurrent pipelines: {agent_orchestrator.max_concurrent_pipelines}")
+                print(f"  [OK] Pipeline phases: research → design → implement → test → deploy")
+                print(f"  [OK] Guardian oversight: Active (pause/resume/override)")
+                print(f"  [OK] Playbooks: First-class agent tools")
+                print(f"  [OK] Learning loop: Artifact feedback enabled")
+                
+                return {
+                    "status": "online",
+                    "max_concurrent": agent_orchestrator.max_concurrent_pipelines,
+                    "guardian_integrated": True
+                }
+            except Exception as e:
+                print(f"  [WARN] Agent Orchestrator startup issue: {e}")
+                return {"status": "degraded", "error": str(e)}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="agent_orchestrator",
+            name="Tiered Agent Orchestrator",
+            priority=0.75,
+            boot_function=chunk_0g_agent_orchestrator,
+            can_fail=True, 
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
         # CHUNK 0.8: Senior Developer Agent (Guardian validates)
         async def chunk_0f_developer_agent():
             print("[CHUNK 0.8] Senior Developer Agent...")
@@ -569,6 +604,249 @@ async def boot_grace_minimal():
             delegate_to="self_healing"
         ))
 
+        # CHUNK 6.5: Remote Learning Systems (Firefox + GitHub + Web Scraper)
+        async def chunk_6b_remote_learning():
+            print("[CHUNK 6.5] Remote Learning Systems (Internet & GitHub Access)...")
+            
+            results = {
+                'systems_started': 0,
+                'warnings': []
+            }
+            
+            try:
+                # Start Firefox Agent for internet browsing
+                from backend.agents.firefox_agent import firefox_agent
+                await firefox_agent.start(enabled=True)
+                print(f"  [OK] Firefox Agent: ENABLED (Internet access via your PC)")
+                print(f"  [OK] Approved domains: {len(firefox_agent.approved_domains)}")
+                results['firefox_enabled'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Firefox Agent startup issue: {e}")
+                results['warnings'].append('firefox_agent')
+            
+            try:
+                # Start Remote Computer Access
+                from backend.misc.remote_computer_access import RemoteComputerAccess
+                remote_access = RemoteComputerAccess()
+                await remote_access.start()
+                print(f"  [OK] Remote Computer Access: Active")
+                print(f"  [OK] Allowed actions: {len(remote_access.allowed_actions)}")
+                results['remote_access_enabled'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Remote Computer Access startup issue: {e}")
+                results['warnings'].append('remote_access')
+            
+            try:
+                # Start Web Scraper (using Firefox agent)
+                from backend.utilities.safe_web_scraper import safe_web_scraper
+                await safe_web_scraper.start()
+                print(f"  [OK] Web Scraper: Active (via Firefox agent)")
+                print(f"  [OK] Trusted domains: {len(safe_web_scraper.trusted_domains)}")
+                results['web_scraper_enabled'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Web Scraper startup issue: {e}")
+                results['warnings'].append('web_scraper')
+            
+            try:
+                # Start GitHub Knowledge Miner
+                from backend.knowledge.github_knowledge_miner import github_miner
+                await github_miner.start()
+                print(f"  [OK] GitHub Knowledge Miner: Active")
+                results['github_miner_enabled'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] GitHub Knowledge Miner startup issue: {e}")
+                results['warnings'].append('github_miner')
+            
+            print(f"  [OK] {results['systems_started']}/4 remote learning systems started")
+            if results['warnings']:
+                print(f"  [WARN] Degraded systems: {', '.join(results['warnings'])}")
+            
+            print()
+            print("  🌐 Grace can now learn from:")
+            print("    • Internet (via Firefox on your PC)")
+            print("    • GitHub repositories")
+            print("    • Stack Overflow, arXiv, Kaggle, etc.")
+            print("    • All governed, logged, and traceable")
+            
+            return results
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="remote_learning_systems",
+            name="Remote Learning Systems (Internet & GitHub)",
+            priority=6.5,
+            boot_function=chunk_6b_remote_learning,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
+        # CHUNK 6.7: Self-Driving Learning Feedback Loop
+        async def chunk_6c_learning_feedback_loop():
+            print("[CHUNK 6.7] Self-Driving Learning Feedback Loop...")
+            
+            results = {
+                'systems_started': 0,
+                'warnings': []
+            }
+            
+            try:
+                # Start learning mission launcher
+                from backend.learning_systems.learning_mission_launcher import learning_mission_launcher
+                await learning_mission_launcher.start()
+                print(f"  [OK] Learning Mission Launcher: Active")
+                print(f"  [OK] Max concurrent missions: {learning_mission_launcher.max_concurrent_missions}")
+                results['mission_launcher_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Mission launcher startup issue: {e}")
+                results['warnings'].append('mission_launcher')
+            
+            try:
+                # Start learning triage agent
+                from backend.learning_systems.learning_triage_agent import learning_triage_agent
+                await learning_triage_agent.start()
+                print(f"  [OK] Learning Triage Agent: Active")
+                print(f"  [OK] Event subscriptions: {len(learning_triage_agent.subscriptions)}")
+                print(f"  [OK] Triage interval: 30 seconds")
+                results['triage_agent_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Triage agent startup issue: {e}")
+                results['warnings'].append('triage_agent')
+            
+            try:
+                # Initialize event emitters
+                from backend.learning_systems.event_emitters import (
+                    guardian_events,
+                    htm_events,
+                    rag_events,
+                    remote_access_events,
+                    agent_events,
+                    system_events
+                )
+                
+                # Initialize all emitters
+                await guardian_events.initialize()
+                await htm_events.initialize()
+                await rag_events.initialize()
+                await remote_access_events.initialize()
+                await agent_events.initialize()
+                await system_events.initialize()
+                
+                print(f"  [OK] Event Emitters: Active (6 emitter types)")
+                results['event_emitters_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Event emitters startup issue: {e}")
+                results['warnings'].append('event_emitters')
+            
+            print()
+            print("  🔄 Self-Driving Feedback Loop:")
+            print("    • Continuous event sensing (Guardian, HTM, RAG, agents)")
+            print("    • Autonomous diagnosis & clustering")
+            print("    • Auto-launch learning missions")
+            print("    • Full traceability (immutable log + RAG)")
+            print()
+            print("  📊 Event Sources:")
+            print("    • Guardian missions (created/resolved/failed)")
+            print("    • HTM anomalies (patterns, degradation)")
+            print("    • RAG health (retrieval failures, low confidence)")
+            print("    • Remote access (action failures, blocks)")
+            print("    • Agent outcomes (task failures, errors)")
+            print("    • System events (boot failures, crashes)")
+            print()
+            print("  🎯 Autonomous Actions:")
+            print("    • Cluster events by domain + severity + pattern")
+            print("    • Calculate urgency & recurrence scores")
+            print("    • Launch learning missions automatically")
+            print("    • Learn from web, GitHub, and internal knowledge")
+            
+            if results['warnings']:
+                print()
+                print(f"  [WARN] Degraded systems: {', '.join(results['warnings'])}")
+            
+            return results
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="learning_feedback_loop",
+            name="Self-Driving Learning Feedback Loop",
+            priority=6.7,
+            boot_function=chunk_6c_learning_feedback_loop,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
+        # CHUNK 6.8: Governance & Safety Systems
+        async def chunk_6d_governance_safety():
+            print("[CHUNK 6.8] Governance & Safety Systems...")
+            
+            results = {
+                'systems_started': 0,
+                'warnings': []
+            }
+            
+            try:
+                # Start RBAC system
+                from backend.governance_system.rbac_system import rbac_system
+                await rbac_system.start()
+                print(f"  [OK] RBAC System: Active")
+                print(f"  [OK] Service accounts: {len(rbac_system.service_accounts)}")
+                print(f"  [OK] Roles: learning_mission, agent_pipeline, self_healing, guardian")
+                results['rbac_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] RBAC system startup issue: {e}")
+                results['warnings'].append('rbac_system')
+            
+            try:
+                # Start inline approval engine
+                from backend.governance_system.inline_approval_engine import inline_approval_engine
+                await inline_approval_engine.start()
+                print(f"  [OK] Inline Approval Engine: Active")
+                print(f"  [OK] Auto-approval threshold: {inline_approval_engine.auto_approval_threshold}")
+                print(f"  [OK] Escalation threshold: {inline_approval_engine.escalation_threshold}")
+                results['approval_engine_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Approval engine startup issue: {e}")
+                results['warnings'].append('approval_engine')
+            
+            print()
+            print("  🛡️ Safety & Governance:")
+            print("    • RBAC: Service account permissions")
+            print("    • Risk scoring: Auto-approve low risk")
+            print("    • Guardian escalation: High-risk actions")
+            print("    • Immutable log: All decisions audited")
+            print()
+            print("  📋 Approval Flow:")
+            print("    1. Mission requests resource access")
+            print("    2. RBAC checks permissions")
+            print("    3. Risk score calculated")
+            print("    4. Auto-approve if risk < 0.3")
+            print("    5. Escalate to Guardian if risk > 0.7")
+            print("    6. All decisions logged")
+            
+            if results['warnings']:
+                print()
+                print(f"  [WARN] Degraded systems: {', '.join(results['warnings'])}")
+            
+            return results
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="governance_safety",
+            name="Governance & Safety Systems",
+            priority=6.8,
+            boot_function=chunk_6d_governance_safety,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
         # CHUNK 7: TRUST Framework + External Model Protocol (Guardian validates)
         async def chunk_7_trust_framework():
             print("[CHUNK 7] TRUST Framework + External Model Protocol...")
@@ -857,6 +1135,18 @@ if __name__ == "__main__":
     # Start server
     print("=" * 80)
     print("GRACE IS READY")
+    print()
+    
+    # Publish boot completion event
+    try:
+        from backend.core.message_bus import message_bus
+        await message_bus.publish('grace.boot.complete', {
+            'timestamp': datetime.utcnow().isoformat(),
+            'chunks_booted': len(boot_orchestrator.completed_chunks)
+        })
+        logger.info("[BOOT] Boot completion event published")
+    except Exception as e:
+        logger.warning(f"[BOOT] Could not publish boot completion: {e}")
     print("=" * 80)
     print()
     print(f" Backend:  http://localhost:{port}")

@@ -79,7 +79,12 @@ class PortWatchdog:
                 await asyncio.sleep(self.check_interval)
     
     async def _perform_health_checks(self):
-        """Perform health checks on all allocated ports"""
+        """Perform health checks on ONLY allocated ports (not entire range)"""
+        
+        # Only check ports that are actually allocated
+        if not port_manager.allocations:
+            logger.debug("[PORT-WATCHDOG] No allocated ports to check")
+            return
         
         health_reports = port_manager.health_check_all()
         
@@ -91,13 +96,18 @@ class PortWatchdog:
         dead = sum(1 for h in health_reports if h['status'] == 'dead')
         issues = sum(1 for h in health_reports if h['status'] not in ['active', 'dead'])
         
-        if dead or issues:
-            logger.warning(f"[PORT-WATCHDOG] Health check: {active} active, {dead} dead, {issues} issues")
-            self.issues_detected += dead + issues
+        # Only log if there are actual issues with allocated ports
+        if dead > 0:
+            logger.warning(f"[PORT-WATCHDOG] Health check: {active} active, {dead} dead")
+            self.issues_detected += dead
+        elif issues > 0:
+            logger.debug(f"[PORT-WATCHDOG] Health check: {active} active, {issues} issues (non-critical)")
+        else:
+            logger.debug(f"[PORT-WATCHDOG] Health check: {active} active ports, all healthy")
         
-        # Log details for non-active ports
+        # Log details ONLY for dead ports (not just "not_listening")
         for health in health_reports:
-            if health['status'] != 'active':
+            if health['status'] == 'dead':
                 logger.warning(f"[PORT-WATCHDOG] Port {health['port']} ({health['service_name']}): {health['status']}")
                 
                 # Try to ping the port

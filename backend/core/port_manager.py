@@ -49,7 +49,17 @@ class PortManager:
     - Automatic cleanup
     """
     
-    def __init__(self, start_port=8000, end_port=8500):
+    def __init__(self, start_port=8000, end_port=8010):
+        """
+        Initialize port manager
+        
+        UPDATED: Only monitor actually used ports (8000-8010)
+        - 8000: Grace backend
+        - 5173: Frontend (handled separately)
+        - 8000-8010: Small buffer for any additional services
+        
+        Old range (8000-8500) caused watchdog to check hundreds of dead ports
+        """
         self.start_port = start_port
         self.end_port = end_port
         self.allocations: Dict[int, PortAllocation] = {}
@@ -62,9 +72,13 @@ class PortManager:
         self.log_path = Path("logs/port_manager")
         self.log_path.mkdir(parents=True, exist_ok=True)
         
+        # Clean up stale allocations on init
+        self._clean_stale_state()
+        
         self._load_allocations()
         
         logger.info(f"[PORT-MANAGER] Initialized: Managing ports {start_port}-{end_port}")
+        logger.info(f"[PORT-MANAGER] Active allocations: {len(self.allocations)}")
     
     def allocate_port(
         self,
@@ -339,17 +353,43 @@ class PortManager:
         registry_file = self.storage_path / "port_registry.json"
         registry_file.write_text(json.dumps(allocations_data, indent=2))
     
+    def _clean_stale_state(self):
+        """Clean up stale allocations file - fresh start each boot"""
+        registry_file = self.storage_path / "port_registry.json"
+        
+        if registry_file.exists():
+            try:
+                # Backup old state
+                backup_file = self.storage_path / f"port_registry_backup_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+                import shutil
+                shutil.copy(registry_file, backup_file)
+                
+                # Delete stale state
+                registry_file.unlink()
+                logger.info(f"[PORT-MANAGER] Cleaned stale port registry (backed up to {backup_file.name})")
+            except Exception as e:
+                logger.warning(f"[PORT-MANAGER] Could not clean stale state: {e}")
+    
     def _load_allocations(self):
         """Load allocations from disk"""
         registry_file = self.storage_path / "port_registry.json"
         if not registry_file.exists():
+            logger.info("[PORT-MANAGER] No existing allocations (fresh start)")
             return
         
         try:
             data = json.loads(registry_file.read_text())
             
+            loaded_count = 0
+            skipped_count = 0
+            
             for port_str, alloc_data in data.get('allocations', {}).items():
                 port = int(port_str)
+                
+                # Skip ports outside our range
+                if port < self.start_port or port > self.end_port:
+                    skipped_count += 1
+                    continue
                 
                 # Recreate allocation
                 allocation = PortAllocation(
@@ -366,8 +406,9 @@ class PortManager:
                 allocation.error_count = alloc_data.get('error_count', 0)
                 
                 self.allocations[port] = allocation
+                loaded_count += 1
             
-            logger.info(f"[PORT-MANAGER] Loaded {len(self.allocations)} port allocations")
+            logger.info(f"[PORT-MANAGER] Loaded {loaded_count} allocations in range (skipped {skipped_count} old ports)")
         except Exception as e:
             logger.error(f"[PORT-MANAGER] Failed to load allocations: {e}")
     
@@ -410,6 +451,14 @@ class PortManager:
             return duration
         except:
             return 0.0
+    
+    def cleanup_all_allocations(self):
+        """Cleanup all allocations - use for manual reset"""
+        count = len(self.allocations)
+        self.allocations.clear()
+        self._save_allocations()
+        logger.info(f"[PORT-MANAGER] Cleaned up {count} allocations (manual reset)")
+        return {'cleaned': count}
     
     def get_stats(self) -> Dict[str, Any]:
         """Get port manager statistics"""
