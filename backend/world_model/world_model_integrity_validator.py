@@ -300,10 +300,10 @@ class WorldModelIntegrityValidator:
     async def _publish_violation(self, violation: IntegrityViolation):
         """Publish integrity violation to knowledge systems"""
         try:
-            # Publish to domain event bus
-            from backend.domains import domain_event_bus, DomainEvent
+            # Publish to unified domain event publisher
+            from backend.core.unified_event_publisher import publish_domain_event
             
-            await domain_event_bus.publish(DomainEvent(
+            await publish_domain_event(
                 event_type="integrity.violation.detected",
                 source_domain="core",
                 timestamp=datetime.now().isoformat(),
@@ -317,7 +317,7 @@ class WorldModelIntegrityValidator:
                     "healing_playbook": violation.healing_playbook,
                     "detected_at": violation.detected_at
                 }
-            ))
+            )
             
             # Add to world model as system knowledge
             from backend.world_model import grace_world_model

@@ -9,6 +9,7 @@ from enum import Enum
 import asyncio
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event
 
 
 class ScheduleType(str, Enum):
@@ -44,11 +45,11 @@ class AutomationScheduler(BaseComponent):
         # Start scheduler loop
         self.scheduler_task = asyncio.create_task(self._scheduler_loop())
         
-        await self.event_bus.publish(Event(
-            event_type="automation.scheduler.activated",
-            source=self.component_id,
-            payload={"component": self.component_type}
-        ))
+        await publish_event(
+            "automation.scheduler.activated",
+            {"component": self.component_type},
+            source=self.component_id
+        )
         
         return True
     
@@ -228,15 +229,15 @@ class AutomationScheduler(BaseComponent):
             )
             
             # Publish event
-            await self.event_bus.publish(Event(
-                event_type="automation.schedule.triggered",
-                source=self.component_id,
-                payload={
+            await publish_event(
+                "automation.schedule.triggered",
+                {
                     "schedule_id": schedule_id,
                     "pipeline": schedule["pipeline_id"],
                     "files_processed": len(files_to_process)
-                }
-            ))
+                },
+                source=self.component_id
+            )
             
         except Exception as e:
             schedule["last_status"] = f"failed: {str(e)}"

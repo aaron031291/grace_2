@@ -8,6 +8,7 @@ from datetime import datetime
 import re
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class SearchResult:
@@ -50,7 +51,7 @@ class MemorySearchEngine(BaseComponent):
         self.set_status(ComponentStatus.ACTIVE)
         self.activated_at = datetime.utcnow()
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="search.engine.activated",
             source=self.component_id,
             payload={"component": self.component_type}

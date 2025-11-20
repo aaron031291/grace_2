@@ -15,6 +15,7 @@ from uuid import uuid4
 from enum import Enum
 
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class TaskStatus(str, Enum):
@@ -115,7 +116,7 @@ class BackgroundTaskManager:
         self.tasks[task_id] = task
         
         # Publish event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.TASK_STARTED,
             source="background_task_manager",
             data={
@@ -182,7 +183,7 @@ class BackgroundTaskManager:
         task.progress = 1.0
         
         # Publish event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.TASK_COMPLETED,
             source="background_task_manager",
             data={
@@ -219,7 +220,7 @@ class BackgroundTaskManager:
         task.error = error
         
         # Publish event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.TASK_COMPLETED,
             source="background_task_manager",
             data={

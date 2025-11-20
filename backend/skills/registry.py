@@ -9,8 +9,8 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
-from backend.event_bus import event_bus, Event, EventType
 from backend.action_gateway import action_gateway
+from backend.unified_event_publisher import publish_event
 
 class SkillCategory(Enum):
     MEMORY = "memory"
@@ -74,8 +74,8 @@ class Skill:
                 execution_time_ms=0.0
             )
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
+        await publish_event(
+            event_type="agent.action",
             source=agent,
             data={
                 "skill": self.name,
@@ -83,7 +83,7 @@ class Skill:
                 "governance_approved": True
             },
             trace_id=trace_id
-        ))
+        )
         
         retries = 0
         last_error = None

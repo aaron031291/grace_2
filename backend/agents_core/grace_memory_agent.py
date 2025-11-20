@@ -10,6 +10,7 @@ import json
 import hashlib
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event, TrustLevel, get_manifest
+from backend.core.unified_event_publisher import publish_event_obj
 from backend.memory_file_service import get_memory_service
 from backend.memory_fusion_service import get_memory_fusion_service
 
@@ -117,7 +118,7 @@ class GraceMemoryAgent(BaseComponent):
         self.set_status(ComponentStatus.ACTIVE)
         self.activated_at = datetime.utcnow()
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="grace.memory.agent.activated",
             source=self.component_id,
             payload={
@@ -251,7 +252,7 @@ class GraceMemoryAgent(BaseComponent):
             await self._sync_to_fusion(file_path, content, metadata)
         
         # Publish event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="grace.memory.file.created",
             source=self.component_id,
             payload={
@@ -551,7 +552,7 @@ class GraceMemoryAgent(BaseComponent):
             result = await fusion_service.sync_memory(file_path, sync_data)
             
             # Publish event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(Event(
                 event_type="grace.memory.synced.fusion",
                 source=self.component_id,
                 payload={

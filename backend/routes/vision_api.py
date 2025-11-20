@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from backend.auth.auth_service import get_current_user, verify_session_token, create_session_token
 from backend.action_gateway import action_gateway
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -90,7 +91,7 @@ async def start_vision_session(
         vision_sessions[session_token] = session_data
         
         # Log session start
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="vision_api",
             data={
@@ -101,7 +102,7 @@ async def start_vision_session(
                 "governance": governance_result
             },
             trace_id=session_token
-        ))
+        )
         
         return {
             "success": True,
@@ -143,7 +144,7 @@ async def stop_vision_session(
             del active_vision_streams[session_token]
         
         # Log session stop
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="vision_api",
             data={
@@ -153,7 +154,7 @@ async def stop_vision_session(
                 "frame_count": session.get("frame_count", 0)
             },
             trace_id=session_token
-        ))
+        )
         
         return {
             "success": True,
@@ -267,7 +268,7 @@ async def vision_stream(
                         })
                     
                     # Log frame to audit (governance requirement)
-                    await event_bus.publish(Event(
+                    await publish_event_obj(
                         event_type=EventType.AGENT_ACTION,
                         source="vision_stream",
                         data={
@@ -278,7 +279,7 @@ async def vision_stream(
                             "analysis": analysis
                         },
                         trace_id=session_token
-                    ))
+                    )
             
             elif msg_type == "pause":
                 is_paused = True
@@ -309,7 +310,7 @@ async def vision_stream(
         if session_token in active_vision_streams:
             del active_vision_streams[session_token]
         
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="vision_stream",
             data={
@@ -317,7 +318,7 @@ async def vision_stream(
                 "session_token": session_token
             },
             trace_id=session_token
-        ))
+        )
     
     except Exception as e:
         await websocket.send_json({

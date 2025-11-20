@@ -19,6 +19,7 @@ import json
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, get_event_bus
 from backend.learning_memory import store_mentor_response, store_artifact
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class MentorHarness(BaseComponent):
@@ -142,14 +143,14 @@ class MentorHarness(BaseComponent):
             task_id = f"roundtable_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
         
         # Publish start event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="mentor.roundtable.started",
             source=self.component_id,
             payload={
                 "task_id": task_id,
                 "task_type": task_type
             }
-        ))
+        )
         
         # Filter models
         selected_models = self._filter_models_for_task(task_type, models)
@@ -189,7 +190,7 @@ class MentorHarness(BaseComponent):
             )
         
         # Publish completion event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="mentor.roundtable.completed",
             source=self.component_id,
             payload={
@@ -198,7 +199,7 @@ class MentorHarness(BaseComponent):
                 "successful_responses": len(valid_responses),
                 "top_recommendation": aggregated.get("consensus")
             }
-        ))
+        )
         
         return {
             "task_id": task_id,

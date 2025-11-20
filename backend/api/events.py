@@ -36,9 +36,9 @@ async def get_event_stats() -> Dict[str, Any]:
 @router.post("/publish")
 async def publish_event(event_type: str, payload: Dict[str, Any]):
     """Manually publish an event (for testing)"""
-    from backend.services.event_bus import event_bus
+    from backend.core.unified_event_publisher import publish_event as unified_publish
     
-    await event_bus.publish(event_type, payload)
+    await unified_publish(event_type, payload, source="api.manual")
     
     return {
         "success": True,

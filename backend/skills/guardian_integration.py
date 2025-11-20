@@ -5,7 +5,7 @@ Example of how Guardian uses skills via Action Gateway with governance
 
 from typing import Dict, Any
 from backend.skills.registry import skill_registry
-from backend.event_bus import event_bus, Event, EventType
+from backend.unified_event_publisher import publish_event
 
 async def guardian_detect_and_heal(issue_type: str, context: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -58,8 +58,8 @@ async def guardian_detect_and_heal(issue_type: str, context: Dict[str, Any]) -> 
         if write_result.success:
             print(f"[Guardian] Healing action recorded in memory")
         
-        await event_bus.publish(Event(
-            event_type=EventType.SELF_HEALING_TRIGGER,
+        await publish_event(
+            event_type="self_healing.trigger",
             source="guardian",
             data={
                 "issue_type": issue_type,
@@ -67,7 +67,7 @@ async def guardian_detect_and_heal(issue_type: str, context: Dict[str, Any]) -> 
                 "memory_check": memory_result.success,
                 "action_recorded": write_result.success
             }
-        ))
+        )
         
         return {
             "healed": True,
@@ -103,15 +103,15 @@ async def guardian_proactive_scan() -> Dict[str, Any]:
         results = scan_result.result.get("results", [])
         print(f"[Guardian] Proactive scan found {len(results)} recent healing actions")
         
-        await event_bus.publish(Event(
-            event_type=EventType.VERIFICATION_RESULT,
+        await publish_event(
+            event_type="verification.result",
             source="guardian",
             data={
                 "scan_type": "proactive",
                 "issues_found": len(results),
                 "trace_id": scan_result.trace_id
             }
-        ))
+        )
         
         return {
             "scan_complete": True,

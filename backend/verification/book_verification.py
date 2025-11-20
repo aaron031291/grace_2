@@ -7,8 +7,9 @@ from typing import Dict, Any
 from datetime import datetime
 import json
 
-from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
+from backend.clarity import BaseComponent, ComponentStatus, TrustLevel
 from backend.database import get_db
+from backend.unified_event_publisher import publish_event
 
 
 class BookVerificationEngine(BaseComponent):
@@ -25,7 +26,6 @@ class BookVerificationEngine(BaseComponent):
     def __init__(self):
         super().__init__()
         self.component_type = "book_verification_engine"
-        self.event_bus = get_event_bus()
         
     async def activate(self) -> bool:
         """Activate the verification engine"""
@@ -107,23 +107,23 @@ class BookVerificationEngine(BaseComponent):
             
             # Publish event
             trust_level = self._determine_trust_level(result["trust_score"])
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.book.completed",
                 source=self.component_id,
-                payload=result,
-                trust_level=trust_level
-            ))
+                data=result,
+                trust_level=trust_level.value
+            )
             
         except Exception as e:
             result["status"] = "failed"
             result["error"] = str(e)
             
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.book.failed",
                 source=self.component_id,
-                payload=result,
-                trust_level=TrustLevel.LOW
-            ))
+                data=result,
+                trust_level=TrustLevel.LOW.value
+            )
         
         return result
     

@@ -11,6 +11,7 @@ import shutil
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class FileOrganizerAgent(BaseComponent):
@@ -103,23 +104,23 @@ class FileOrganizerAgent(BaseComponent):
             await self._log_organization(result)
             
             # Publish event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="file.organized" if result['action_taken'] == 'moved' else "file.organization_suggested",
                 source=self.component_id,
                 payload=result,
                 trust_level=TrustLevel.HIGH if domain_analysis['confidence'] >= 0.85 else TrustLevel.MEDIUM
-            ))
+            )
             
         except Exception as e:
             result['status'] = 'failed'
             result['error'] = str(e)
             
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="file.organization_failed",
                 source=self.component_id,
                 payload=result,
                 trust_level=TrustLevel.LOW
-            ))
+            )
         
         return result
     
@@ -407,12 +408,12 @@ class FileOrganizerAgent(BaseComponent):
                 
                 await self._save_operation_to_db(operation)
                 
-                await self.event_bus.publish(Event(
+                await publish_event_obj(
                     event_type="file.operation_undone",
                     source=self.component_id,
                     payload={'operation_id': operation_id, 'type': 'move'},
                     trust_level=TrustLevel.HIGH
-                ))
+                )
                 
                 return {
                     'status': 'success',

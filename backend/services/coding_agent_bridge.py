@@ -6,6 +6,7 @@ Connects self-healing system to coding agent for code patches
 from typing import Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class WorkOrderStatus(str, Enum):
@@ -77,8 +78,7 @@ class CodingAgentBridge:
         # await elite_coding_agent.assign_work_order(work_order_id)
         
         # Emit event
-        from backend.services.event_bus import event_bus
-        await event_bus.publish("coding_agent.work_order_created", {
+        await publish_event_obj("coding_agent.work_order_created", {
             "work_order_id": work_order_id,
             "self_healing_run_id": self_healing_run_id,
             "priority": priority
@@ -131,8 +131,7 @@ class CodingAgentBridge:
             await self._notify_self_healing_complete(work_order_id, patch_result)
         
         # Emit event
-        from backend.services.event_bus import event_bus
-        await event_bus.publish("coding_agent.work_order_updated", {
+        await publish_event_obj("coding_agent.work_order_updated", {
             "work_order_id": work_order_id,
             "status": status.value,
             "self_healing_run_id": work_order.get("self_healing_run_id")

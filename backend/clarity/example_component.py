@@ -10,6 +10,7 @@ from .base_component import BaseComponent, ComponentStatus
 from .event_bus import get_event_bus, Event
 from .loop_output import GraceLoopOutput
 from .component_manifest import get_manifest, TrustLevel
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class ExampleGraceComponent(BaseComponent):
@@ -48,7 +49,7 @@ class ExampleGraceComponent(BaseComponent):
             self.activated_at = self.created_at
             
             # Publish activation event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(Event(
                 event_type="component.activated",
                 source=self.component_id,
                 payload={"component_type": self.component_type}
@@ -113,7 +114,7 @@ class ExampleGraceComponent(BaseComponent):
             self.processing_count += 1
             
             # Publish result event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(Event(
                 event_type="task.completed",
                 source=self.component_id,
                 payload={
@@ -124,7 +125,7 @@ class ExampleGraceComponent(BaseComponent):
             
         except Exception as e:
             loop_output.mark_failed(str(e))
-            await self.event_bus.publish(Event(
+            await publish_event_obj(Event(
                 event_type="task.failed",
                 source=self.component_id,
                 payload={"error": str(e)}

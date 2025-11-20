@@ -16,7 +16,7 @@ import sqlite3
 from pathlib import Path
 from enum import Enum
 
-from backend.event_bus import event_bus, Event, EventType
+from backend.unified_event_publisher import publish_event
 
 
 class ReminderStatus(str, Enum):
@@ -142,8 +142,8 @@ class ReminderService:
         conn.close()
         
         # Publish event
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
+        await publish_event(
+            event_type="reminder.created",
             source="reminder_service",
             data={
                 "action": "reminder_created",
@@ -151,7 +151,7 @@ class ReminderService:
                 "user_id": user_id,
                 "trigger_time": trigger_time.isoformat() if trigger_time else None,
             }
-        ))
+        )
         
         print(f"[ReminderService] Created reminder: {reminder_id}")
         return reminder_id
@@ -282,8 +282,8 @@ class ReminderService:
         )
         
         # Publish to chat if user is active
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
+        await publish_event(
+            event_type="reminder.triggered",
             source="reminder_service",
             data={
                 "action": "reminder_triggered",
@@ -291,7 +291,7 @@ class ReminderService:
                 "user_id": reminder["user_id"],
                 "message": reminder["message"],
             }
-        ))
+        )
         
         print(f"[ReminderService] Triggered reminder: {reminder_id}")
         

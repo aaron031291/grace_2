@@ -14,6 +14,7 @@ from backend.domains import (
     domain_orchestrator,
     DomainEvent
 )
+from backend.core.unified_event_publisher import publish_domain_event_obj
 
 router = APIRouter(prefix="/domains", tags=["Domain System"])
 
@@ -120,7 +121,7 @@ async def publish_event(publication: EventPublication) -> Dict[str, Any]:
         event_id=str(uuid.uuid4())[:8]
     )
     
-    result = await domain_event_bus.publish(event)
+    result = await publish_domain_event_obj(event)
     return result
 
 

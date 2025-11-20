@@ -340,10 +340,10 @@ class AutonomousCodingPipeline:
         }
         
         try:
-            from backend.agentic.event_bus import event_bus
-            await event_bus.publish("copilot.pipeline.completed", observations)
+            from backend.core.unified_event_publisher import publish_event
+            await publish_event("copilot.pipeline.completed", observations, source="autonomous_pipeline")
         except Exception as e:
-            logger.warning(f"[PIPELINE] Event bus publish failed: {e}")
+            logger.warning(f"[PIPELINE] Event publish failed: {e}")
         
         # Log to immutable log
         try:

@@ -11,6 +11,7 @@ from pathlib import Path
 from backend.memory_tables.registry import table_registry
 from backend.clarity import get_event_bus, Event
 from backend.kernels.agents.file_ingestion_agent import FileIngestionAgent
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -179,8 +180,7 @@ async def upload_file(
     
     # Publish special event for learning folder
     if is_learning:
-        event_bus = get_event_bus()
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="learning.corpus.file_added",
             source="file_ingestion_api",
             payload={
@@ -341,9 +341,7 @@ async def get_recent_activity(limit: int = 50) -> List[Dict[str, Any]]:
 async def reverify_file(document_id: str) -> Dict[str, Any]:
     """Trigger re-verification for a file"""
     
-    event_bus = get_event_bus()
-    
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type="verification.document.requested",
         source="file_ingestion_api",
         payload={

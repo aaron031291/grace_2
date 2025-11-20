@@ -8,6 +8,7 @@ from datetime import datetime
 
 from backend.memory_tables.registry import table_registry
 from backend.clarity import get_event_bus
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -308,11 +309,9 @@ async def get_daily_metrics(days: int = 30) -> List[Dict[str, Any]]:
 async def reverify_book(document_id: str) -> Dict[str, Any]:
     """Trigger re-verification for a book"""
     
-    event_bus = get_event_bus()
-    
     from backend.clarity import Event
     
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type="verification.book.requested",
         source="book_dashboard",
         payload={

@@ -8,7 +8,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from backend.world_model.grace_world_model import grace_world_model, WorldKnowledge
-from backend.event_bus import event_bus, EventType, Event
+from backend.event_bus import EventType
 from backend.core.unified_event_publisher import publish_event
 from backend.action_gateway import action_gateway
 from backend.reflection_loop import reflection_loop
@@ -859,7 +859,7 @@ Grace (respond naturally, in first person):"""
             "metadata": metadata
         }
         
-        await event_bus.publish(Event(
+        await publish_event(
             event_type=EventType.AGENT_ACTION,
             source="orb",
             data={
@@ -868,7 +868,7 @@ Grace (respond naturally, in first person):"""
                 "task_type": task_type
             },
             trace_id=task_id
-        ))
+        )
         
         return task_id
     

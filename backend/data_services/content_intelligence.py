@@ -9,6 +9,7 @@ import hashlib
 from pathlib import Path
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event
 
 
 class ContentIntelligence(BaseComponent):
@@ -28,11 +29,11 @@ class ContentIntelligence(BaseComponent):
         self.set_status(ComponentStatus.ACTIVE)
         self.activated_at = datetime.utcnow()
         
-        await self.event_bus.publish(Event(
-            event_type="intelligence.activated",
-            source=self.component_id,
-            payload={"component": self.component_type}
-        ))
+        await publish_event(
+            "intelligence.activated",
+            {"component": self.component_type},
+            source=self.component_id
+        )
         
         return True
     
@@ -97,16 +98,16 @@ class ContentIntelligence(BaseComponent):
         self.content_index[file_path] = analysis
         
         # Publish analysis event
-        await self.event_bus.publish(Event(
-            event_type="intelligence.file.analyzed",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "intelligence.file.analyzed",
+            {
                 "path": file_path,
                 "quality_score": analysis["quality_score"],
                 "duplicates_found": len(duplicates),
                 "recommendations": len(recommendations)
-            }
-        ))
+            },
+            source=self.component_id
+        )
         
         return analysis
     

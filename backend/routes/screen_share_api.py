@@ -17,6 +17,7 @@ from pydantic import BaseModel
 from backend.event_bus import event_bus, Event, EventType
 from backend.memory.memory_catalog import AssetSource, AssetType
 from backend.learning.memory_ingestion_hook import memory_ingestion_hook
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -72,7 +73,7 @@ async def start_screen_share(req: StartScreenShareRequest) -> Dict[str, Any]:
     active_sessions[session_id] = session
     
     # Publish event
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.AGENT_ACTION,
         source="screen_share_api",
         data={
@@ -108,7 +109,7 @@ async def stop_screen_share(session_id: str) -> Dict[str, Any]:
     session["stopped_at"] = datetime.utcnow().isoformat()
     
     # Publish event
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.AGENT_ACTION,
         source="screen_share_api",
         data={
@@ -204,7 +205,7 @@ async def capture_frame(
         })
         
         # Trigger ingestion
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.MEMORY_UPDATE,
             source="screen_share_api",
             data={

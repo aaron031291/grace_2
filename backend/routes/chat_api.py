@@ -22,6 +22,7 @@ from backend.world_model.world_model_service import world_model_service
 from backend.action_gateway import action_gateway, GovernanceTier
 from backend.reflection_loop import reflection_loop
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -130,7 +131,7 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
             conversations[session_id] = []
         
         # Publish chat event for audit trail
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="chat_api",
             data={
@@ -351,7 +352,7 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
                 ))
         
         # Log governance event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.GOVERNANCE_CHECK,
             source="chat_api",
             data={
@@ -364,7 +365,7 @@ async def chat_with_grace(msg: ChatMessage) -> ChatResponse:
         ))
         
         # Log full response for governance/notification pickup
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="chat_api",
             data={
@@ -486,7 +487,7 @@ async def execute_approved_action(
     """
     try:
         # Log execution start
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="chat_api",
             data={

@@ -18,6 +18,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from backend.event_bus import Event, EventType, event_bus
+from backend.core.unified_event_publisher import publish_event_obj
 from backend.memory.memory_catalog import (
     AssetSource,
     AssetStatus,
@@ -151,7 +152,7 @@ class MemoryMount:
             update_metadata
         )
         
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.MEMORY_UPDATE,
             source="memory_mount",
             data={

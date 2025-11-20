@@ -9,6 +9,7 @@ from datetime import datetime
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
+from backend.event_publisher import publish_event
 from .code_verification_engine import (
     verification_engine,
     Hypothesis,
@@ -74,15 +75,15 @@ class VerificationIntegration(BaseComponent):
             
             trust_level = self._map_confidence_to_trust(result.confidence)
             
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.completed",
                 source=self.component_id,
                 payload=result.to_dict(),
                 trust_level=trust_level
-            ))
+            )
             
         except Exception as e:
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.failed",
                 source=self.component_id,
                 payload={
@@ -90,7 +91,7 @@ class VerificationIntegration(BaseComponent):
                     'original_event': event.to_dict()
                 },
                 trust_level=TrustLevel.LOW
-            ))
+            )
     
     async def _handle_code_verification_request(self, event: Event):
         """Handle code-specific verification requests"""
@@ -118,15 +119,15 @@ class VerificationIntegration(BaseComponent):
             
             trust_level = self._map_confidence_to_trust(result.confidence)
             
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.completed",
                 source=self.component_id,
                 payload=result.to_dict(),
                 trust_level=trust_level
-            ))
+            )
             
         except Exception as e:
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="verification.failed",
                 source=self.component_id,
                 payload={
@@ -134,7 +135,7 @@ class VerificationIntegration(BaseComponent):
                     'original_event': event.to_dict()
                 },
                 trust_level=TrustLevel.LOW
-            ))
+            )
     
     async def _store_verification_result(self, result):
         """Store verification result in memory (Fusion + Vector)"""

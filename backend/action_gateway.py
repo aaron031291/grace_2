@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 class GovernanceTier(Enum):
     AUTONOMOUS = "autonomous"
@@ -83,7 +84,7 @@ class ActionGateway:
         
         self.action_log.append(execution_trace)
         
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.GOVERNANCE_CHECK,
             source="action_gateway",
             data=execution_trace,
@@ -111,7 +112,7 @@ class ActionGateway:
             "timestamp": datetime.now().isoformat()
         }
         
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.LEARNING_OUTCOME,
             source="action_gateway",
             data=outcome,

@@ -9,6 +9,7 @@ from datetime import datetime
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
+from backend.events.unified_publisher import publish_domain_event_obj
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +201,7 @@ class SharedDomainMemory:
             event_id=contribution.contribution_id
         )
         
-        await domain_event_bus.publish(event)
+        await publish_domain_event_obj(event)
     
     async def query_collective(
         self,

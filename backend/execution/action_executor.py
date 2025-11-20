@@ -17,6 +17,7 @@ from enum import Enum
 
 from backend.action_gateway import action_gateway
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class ExecutionStatus(Enum):
@@ -97,7 +98,7 @@ class ActionExecutor:
         self.active_executions[execution_id] = execution
         
         # Log execution start
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="action_executor",
             data={
@@ -106,7 +107,7 @@ class ActionExecutor:
                 "action_type": action_type
             },
             trace_id=trace_id
-        ))
+        )
         
         try:
             # Update status to running
@@ -134,7 +135,7 @@ class ActionExecutor:
             )
             
             # Log success
-            await event_bus.publish(Event(
+            await publish_event_obj(
                 event_type=EventType.LEARNING_OUTCOME,
                 source="action_executor",
                 data={
@@ -144,7 +145,7 @@ class ActionExecutor:
                     "result": result
                 },
                 trace_id=trace_id
-            ))
+            )
             
             return {
                 "success": True,
@@ -168,7 +169,7 @@ class ActionExecutor:
             )
             
             # Log failure
-            await event_bus.publish(Event(
+            await publish_event_obj(
                 event_type=EventType.LEARNING_OUTCOME,
                 source="action_executor",
                 data={
@@ -178,7 +179,7 @@ class ActionExecutor:
                     "error": str(e)
                 },
                 trace_id=trace_id
-            ))
+            )
             
             # Attempt self-healing
             if os.getenv("ENABLE_SELF_HEALING") == "true":
@@ -435,7 +436,7 @@ class ActionExecutor:
             Healing result
         """
         # Log healing attempt
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="action_executor",
             data={
@@ -444,7 +445,7 @@ class ActionExecutor:
                 "error": str(error)
             },
             trace_id=execution["trace_id"]
-        ))
+        )
         
         # Placeholder - implement actual healing strategies
         # - Retry with backoff

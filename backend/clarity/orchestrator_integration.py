@@ -10,6 +10,7 @@ from .event_bus import get_event_bus, Event
 from .component_manifest import get_manifest, TrustLevel
 from .loop_output import GraceLoopOutput
 from .mesh_loader import get_mesh_loader
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class ClarityIntegration:
@@ -28,7 +29,7 @@ class ClarityIntegration:
         """Publish a boot stage event"""
         event_type = f"system.boot.{status}"
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=event_type,
             source=self.orchestrator_id,
             payload={
@@ -43,7 +44,7 @@ class ClarityIntegration:
         """Publish a component lifecycle event"""
         event_type = f"component.{event_status}"
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=event_type,
             source=component_id,
             payload={
@@ -68,7 +69,7 @@ class ClarityIntegration:
             loop_output.mark_failed(results.get("error", "Unknown error") if results else "Stage failed")
         
         # Publish event with loop output
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="loop.completed" if success else "loop.failed",
             source=self.orchestrator_id,
             payload={
@@ -121,7 +122,7 @@ class ClarityIntegration:
         """Emit a health monitoring event"""
         event_type = f"health.{health_status}"
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=event_type,
             source=component_id,
             payload={

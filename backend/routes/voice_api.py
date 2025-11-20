@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from backend.world_model.world_model_service import world_model_service
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -81,7 +82,7 @@ async def start_voice(request: VoiceStartRequest) -> Dict[str, Any]:
         await world_model_service.toggle_voice(request.user_id, True)
         
         # Publish event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="voice_api",
             data={
@@ -143,7 +144,7 @@ async def stop_voice(
         await world_model_service.toggle_voice(user_id, False)
         
         # Publish event
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="voice_api",
             data={

@@ -12,6 +12,7 @@ from .base_component import BaseComponent, ComponentStatus
 from .event_bus import get_event_bus, Event
 from .component_manifest import get_manifest, TrustLevel
 from .loop_output import GraceLoopOutput
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class IngestionTask:
@@ -88,14 +89,14 @@ class ClarityIngestionOrchestrator(BaseComponent):
             self.activated_at = datetime.utcnow()
             
             # Publish activation event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="component.activated",
                 source=self.component_id,
                 payload={
                     "component_type": self.component_type,
                     "max_concurrent": self.max_concurrent
                 }
-            ))
+            )
             
             return True
             
@@ -181,7 +182,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
         self.tasks[task.task_id] = task
         
         # Publish task creation event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="task.created",
             source=self.component_id,
             payload={
@@ -189,7 +190,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
                 "task_type": task_type,
                 "source": source
             }
-        ))
+        )
         
         return task
     
@@ -215,7 +216,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
         loop_output.metadata["task_type"] = task.task_type
         
         # Publish start event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="ingest.start",
             source=self.component_id,
             payload={
@@ -223,7 +224,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
                 "task_type": task.task_type,
                 "loop_id": loop_output.loop_id
             }
-        ))
+        )
         
         # Run the ingestion (simulate for now)
         asyncio.create_task(self._run_ingestion(task, loop_output))
@@ -243,11 +244,11 @@ class ClarityIngestionOrchestrator(BaseComponent):
             self.active_tasks.remove(task_id)
         
         # Publish stop event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="ingest.stop",
             source=self.component_id,
             payload={"task_id": task_id}
-        ))
+        )
         
         return True
     
@@ -263,14 +264,14 @@ class ClarityIngestionOrchestrator(BaseComponent):
                 task.progress = (i + 1) * 10
                 
                 # Publish progress event
-                await self.event_bus.publish(Event(
+                await publish_event_obj(
                     event_type="ingest.progress",
                     source=self.component_id,
                     payload={
                         "task_id": task.task_id,
                         "progress": task.progress
                     }
-                ))
+                )
             
             if task.status != "stopped":
                 # Mark as completed
@@ -281,7 +282,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
                 loop_output.mark_completed(task.results, confidence=0.95)
                 
                 # Publish completion event
-                await self.event_bus.publish(Event(
+                await publish_event_obj(
                     event_type="task.completed",
                     source=self.component_id,
                     payload={
@@ -289,7 +290,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
                         "loop_output": loop_output.to_dict(),
                         "results": task.results
                     }
-                ))
+                )
             
         except Exception as e:
             task.status = "failed"
@@ -299,7 +300,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
             loop_output.mark_failed(str(e))
             
             # Publish failure event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="task.failed",
                 source=self.component_id,
                 payload={
@@ -307,7 +308,7 @@ class ClarityIngestionOrchestrator(BaseComponent):
                     "error": str(e),
                     "loop_output": loop_output.to_dict()
                 }
-            ))
+            )
         
         finally:
             if task.task_id in self.active_tasks:

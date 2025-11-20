@@ -19,6 +19,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
+from backend.events.unified_publisher import publish_domain_event
 
 logger = logging.getLogger(__name__)
 
@@ -238,9 +239,7 @@ class ClosedLoopLearning:
     ):
         """Publish insight event to domain event bus"""
         try:
-            from backend.domains import domain_event_bus
-            
-            await domain_event_bus.publish(
+            await publish_domain_event(
                 event_type="insight.generated",
                 domain_id=outcome.domain_id or "system",
                 data={

@@ -6,6 +6,7 @@ Grace learns from outcomes and updates her strategies
 from typing import Dict, Any, List
 from datetime import datetime
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 from backend.action_gateway import action_gateway
 
 class ReflectionLoop:
@@ -82,7 +83,7 @@ class ReflectionLoop:
         
         self.reflections.append(reflection)
         
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.WORLD_MODEL_UPDATE,
             source="reflection_loop",
             data=reflection,

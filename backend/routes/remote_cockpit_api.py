@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 from backend.auth.auth_service import get_current_user
 from backend.action_gateway import action_gateway
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -91,7 +92,7 @@ async def start_remote_session(
         remote_sessions[session_id] = session_data
         
         # Log to event bus
-        await event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type=EventType.AGENT_ACTION,
             source="remote_cockpit",
             data={
@@ -577,7 +578,7 @@ async def acknowledge_in_chat(
     
     This creates a system message that appears in the chat conversation
     """
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.AGENT_ACTION,
         source="remote_cockpit",
         data={

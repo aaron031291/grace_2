@@ -10,6 +10,7 @@ import asyncio
 from pathlib import Path
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class PipelineStage(str, Enum):
@@ -44,11 +45,11 @@ class IngestionPipeline(BaseComponent):
         self.set_status(ComponentStatus.ACTIVE)
         self.activated_at = datetime.utcnow()
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="ingestion.pipeline.activated",
             source=self.component_id,
             payload={"pipelines": list(self.pipeline_configs.keys())}
-        ))
+        )
         
         return True
     
@@ -201,7 +202,7 @@ class IngestionPipeline(BaseComponent):
         self.active_jobs[job_id] = job
         
         # Publish event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="ingestion.job.started",
             source=self.component_id,
             payload={
@@ -209,7 +210,7 @@ class IngestionPipeline(BaseComponent):
                 "pipeline": pipeline_id,
                 "file": file_path
             }
-        ))
+        )
         
         # Start async processing
         asyncio.create_task(self._execute_pipeline(job_id))
@@ -241,7 +242,7 @@ class IngestionPipeline(BaseComponent):
                 job["progress"] = int(((idx + 1) / total_stages) * 100)
                 
                 # Publish progress event
-                await self.event_bus.publish(Event(
+                await publish_event_obj(
                     event_type="ingestion.stage.completed",
                     source=self.component_id,
                     payload={
@@ -249,33 +250,33 @@ class IngestionPipeline(BaseComponent):
                         "stage": stage["name"],
                         "progress": job["progress"]
                     }
-                ))
+                )
             
             job["status"] = "complete"
             job["completed_at"] = datetime.utcnow().isoformat()
             
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="ingestion.job.completed",
                 source=self.component_id,
                 payload={
                     "job_id": job_id,
                     "results": job["results"]
                 }
-            ))
+            )
             
         except Exception as e:
             job["status"] = "failed"
             job["error"] = str(e)
             job["failed_at"] = datetime.utcnow().isoformat()
             
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="ingestion.job.failed",
                 source=self.component_id,
                 payload={
                     "job_id": job_id,
                     "error": str(e)
                 }
-            ))
+            )
     
     async def _execute_stage(
         self, 
@@ -487,11 +488,11 @@ class IngestionPipeline(BaseComponent):
             job["status"] = "cancelled"
             job["cancelled_at"] = datetime.utcnow().isoformat()
             
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="ingestion.job.cancelled",
                 source=self.component_id,
                 payload={"job_id": job_id}
-            ))
+            )
             
             return True
         return False

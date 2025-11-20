@@ -21,11 +21,11 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from uuid import uuid4
 
-from backend.event_bus import event_bus, Event, EventType
 from backend.memory.memory_catalog import memory_catalog, AssetStatus, AssetType
 from backend.memory.memory_mount import memory_mount
 from backend.world_model.grace_world_model import grace_world_model
 from backend.services.rag_service import RAGService
+from backend.unified_event_publisher import publish_event
 
 
 class IngestionPipeline:
@@ -51,7 +51,8 @@ class IngestionPipeline:
         await self.rag_service.initialize()
         
         # Subscribe to upload events
-        event_bus.subscribe(EventType.MEMORY_UPDATE, self._on_memory_event)
+        from backend.event_bus import event_bus
+        event_bus.subscribe("memory.update", self._on_memory_event)
         
         # Start processing worker
         self.running = True
@@ -59,7 +60,7 @@ class IngestionPipeline:
         
         print("[IngestionPipeline] Initialized and ready")
     
-    async def _on_memory_event(self, event: Event):
+    async def _on_memory_event(self, event):
         """Handle memory events (uploads, screen shares)"""
         action = event.data.get("action")
         
@@ -142,15 +143,15 @@ class IngestionPipeline:
             )
             
             # Publish completion event
-            await event_bus.publish(Event(
-                event_type=EventType.MEMORY_UPDATE,
+            await publish_event(
+                event_type="memory.asset_indexed",
                 source="ingestion_pipeline",
                 data={
                     "action": "asset_indexed",
                     "asset_id": asset_id,
                     "chunks": indexed_count,
                 }
-            ))
+            )
             
             print(f"[IngestionPipeline] Completed: {asset_id} ({indexed_count} chunks)")
         

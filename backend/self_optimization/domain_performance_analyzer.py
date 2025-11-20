@@ -17,6 +17,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from dataclasses import dataclass, field
+from backend.events.unified_publisher import publish_domain_event
 
 logger = logging.getLogger(__name__)
 
@@ -557,10 +558,8 @@ class DomainPerformanceAnalyzer:
     ) -> Dict[str, Any]:
         """Create mission focused on domain improvement"""
         try:
-            from backend.domains import domain_event_bus
-            
             # Publish mission creation event
-            await domain_event_bus.publish(
+            await publish_domain_event(
                 event_type="mission.improvement.created",
                 domain_id=domain_id,
                 data={

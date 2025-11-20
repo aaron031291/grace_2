@@ -9,6 +9,7 @@ import json
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class SchemaAgent(BaseComponent):
@@ -119,12 +120,12 @@ class SchemaAgent(BaseComponent):
         await self._log_proposal(proposal)
         
         # Publish event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="schema.proposal.created",
             source=self.component_id,
             payload=proposal,
             trust_level=TrustLevel.MEDIUM
-        ))
+        )
         
         return proposal
     
@@ -170,7 +171,7 @@ class SchemaAgent(BaseComponent):
         await self._log_decision(proposal_id, decision)
         
         # Publish event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(
             event_type="schema.proposal.decided",
             source=self.component_id,
             payload={
@@ -179,7 +180,7 @@ class SchemaAgent(BaseComponent):
                 "proposal": proposal
             },
             trust_level=TrustLevel.HIGH if decision["status"] == "approved" else TrustLevel.MEDIUM
-        ))
+        )
         
         return decision
     

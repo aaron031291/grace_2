@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, get_event_bus
+from backend.core.unified_event_publisher import publish_event_obj
 from backend.database import get_db
 
 
@@ -223,7 +224,7 @@ class BookAutomationRules(BaseComponent):
     async def _trigger_pipeline(self, action: Dict, event: Event):
         """Trigger an ingestion pipeline"""
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="pipeline.trigger.requested",
             source=self.component_id,
             payload={
@@ -237,7 +238,7 @@ class BookAutomationRules(BaseComponent):
     async def _trigger_verification(self, action: Dict, event: Event):
         """Trigger verification"""
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="verification.trigger.requested",
             source=self.component_id,
             payload={
@@ -272,7 +273,7 @@ class BookAutomationRules(BaseComponent):
     async def _send_notification(self, action: Dict, event: Event, rule: Dict):
         """Send a notification"""
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="notification.send",
             source=self.component_id,
             payload={
@@ -285,7 +286,7 @@ class BookAutomationRules(BaseComponent):
     async def _update_dashboard(self, event: Event):
         """Update dashboard metrics"""
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="dashboard.update.requested",
             source=self.component_id,
             payload={
@@ -297,7 +298,7 @@ class BookAutomationRules(BaseComponent):
     async def _create_review_task(self, event: Event):
         """Create a manual review task"""
         
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="review.task.created",
             source=self.component_id,
             payload={
@@ -314,7 +315,7 @@ class BookAutomationRules(BaseComponent):
         sidecar_path = file_path.with_suffix('.meta.json')
         
         if sidecar_path.exists():
-            await self.event_bus.publish(Event(
+            await publish_event_obj(Event(
                 event_type="metadata.sidecar.found",
                 source=self.component_id,
                 payload={

@@ -22,6 +22,7 @@ import os
 import yaml
 
 from backend.event_bus import Event, EventBus, EventType, event_bus as global_event_bus
+from backend.core.unified_event_publisher import publish_event_obj
 
 DEFAULT_CODEX_CONFIG: Dict[str, Any] = {
     "loops": [
@@ -855,9 +856,8 @@ class CodexInitModule:
             flow_inputs=flow_inputs,
             event_log=event_log,
         )
-        report_event = Event(
+        await publish_event_obj(
             event_type=EventType.VERIFICATION_RESULT,
             source=config.get("identity_tracking", {}).get("event_source", "codex"),
-            data={"codex_report": payload},
+            payload={"codex_report": payload}
         )
-        await self.event_bus.publish(report_event)

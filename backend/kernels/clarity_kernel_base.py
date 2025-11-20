@@ -9,6 +9,7 @@ from typing import Dict, Any
 from datetime import datetime
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event, TrustLevel, get_manifest
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class ClarityDomainKernel(BaseComponent):
@@ -45,7 +46,7 @@ class ClarityDomainKernel(BaseComponent):
             self.activated_at = datetime.utcnow()
             
             # Publish activation event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="component.activated",
                 source=self.component_id,
                 payload={
@@ -53,7 +54,7 @@ class ClarityDomainKernel(BaseComponent):
                     "domain": self.domain_name,
                     "apis_managed": len(self.apis_managed)
                 }
-            ))
+            )
             
             return True
             

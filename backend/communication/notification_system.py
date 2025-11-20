@@ -59,11 +59,11 @@ class NotificationSystem(BaseComponent):
         # Subscribe to relevant events
         await self._subscribe_to_events()
         
-        await self.event_bus.publish(Event(
-            event_type="notifications.system.activated",
-            source=self.component_id,
-            payload={"component": self.component_type}
-        ))
+        await publish_event(
+            "notifications.system.activated",
+            {"component": self.component_type},
+            source=self.component_id
+        )
         
         return True
     

@@ -191,3 +191,22 @@ async def publish_message(topic: str, message: Dict[str, Any]):
     """Publish message (convenience function)"""
     publisher = get_unified_publisher()
     await publisher.publish_message(topic, message)
+
+
+# Helper functions for seamless migration from Event() objects
+async def publish_event_obj(event_type: str, payload: Dict[str, Any], source: Optional[str] = None, **kwargs):
+    """
+    Drop-in replacement for: await event_bus.publish(Event(event_type="...", payload={...}))
+    Usage: await publish_event_obj("event_type", {"data": "value"}, source="component")
+    """
+    publisher = get_unified_publisher()
+    await publisher.publish_event(event_type, payload, source or "unknown")
+
+
+async def publish_domain_event_obj(event_type: str, domain: str = "default", data: Optional[Dict[str, Any]] = None, source: Optional[str] = None, **kwargs):
+    """
+    Drop-in replacement for: await domain_event_bus.publish(DomainEvent(event_type="...", domain="...", data={...}))
+    Usage: await publish_domain_event_obj("event_type", "domain", {"data": "value"})
+    """
+    publisher = get_unified_publisher()
+    await publisher.publish_domain_event(event_type, domain, data or {}, source or "unknown")

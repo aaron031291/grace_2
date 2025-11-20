@@ -13,6 +13,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Qu
 from backend.auth.auth_service import verify_session_token, create_session_token
 from backend.event_bus import event_bus, Event, EventType
 from backend.routes.chat_api import chat_with_grace, ChatMessage
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -70,7 +71,7 @@ async def voice_stream(
         active_connections[session_token] = websocket
         
         # Log session start
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="voice_stream_api",
             data={
@@ -80,7 +81,7 @@ async def voice_stream(
                 "timestamp": datetime.now().isoformat()
             },
             trace_id=session_token
-        ))
+        )
         
         # Send connection acknowledgment
         await websocket.send_json({
@@ -151,7 +152,7 @@ async def voice_stream(
                 })
                 
                 # Log mute event
-                await event_bus.publish(Event(
+                await publish_event_obj(
                     event_type=EventType.AGENT_ACTION,
                     source="voice_stream_api",
                     data={
@@ -160,7 +161,7 @@ async def voice_stream(
                         "user_id": user_id
                     },
                     trace_id=session_token
-                ))
+                )
             
             elif msg_type == "unmute":
                 is_muted = False
@@ -171,7 +172,7 @@ async def voice_stream(
                 })
                 
                 # Log unmute event
-                await event_bus.publish(Event(
+                await publish_event_obj(
                     event_type=EventType.AGENT_ACTION,
                     source="voice_stream_api",
                     data={
@@ -180,7 +181,7 @@ async def voice_stream(
                         "user_id": user_id
                     },
                     trace_id=session_token
-                ))
+                )
             
             elif msg_type == "ping":
                 # Keepalive
@@ -198,7 +199,7 @@ async def voice_stream(
             del active_connections[session_token]
         
         # Log disconnect
-        await event_bus.publish(Event(
+        await publish_event_obj(
             event_type=EventType.AGENT_ACTION,
             source="voice_stream_api",
             data={
@@ -207,7 +208,7 @@ async def voice_stream(
                 "timestamp": datetime.now().isoformat()
             },
             trace_id=session_token
-        ))
+        )
     
     except Exception as e:
         # Error occurred

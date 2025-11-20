@@ -13,7 +13,7 @@ from datetime import datetime
 import json
 
 from backend.model_orchestrator import ModelOrchestrator
-from backend.services.event_bus import event_bus
+from backend.core.unified_event_publisher import publish_event
 
 class DevelopmentJob:
     """Represents a software development job"""
@@ -99,22 +99,22 @@ class DeveloperAgent:
         job = DevelopmentJob(job_id, spec, session_id)
         self.jobs[job_id] = job
         
-        await event_bus.publish("dev.job.created", {
+        await publish_event("dev.job.created", {
             "job_id": job_id,
             "spec": spec,
             "session_id": session_id,
             "timestamp": datetime.utcnow().isoformat()
-        })
+        }, source="developer_agent")
         
         try:
             job.mission_id = f"mission_dev_{job_id}"
-            await event_bus.publish("mission.created", {
+            await publish_event("mission.created", {
                 "mission_id": job.mission_id,
                 "job_id": job_id,
                 "title": f"Build: {spec[:50]}",
                 "type": "development",
                 "status": "created"
-            })
+            }, source="developer_agent")
         except Exception as e:
             print(f"Failed to create mission: {e}")
         

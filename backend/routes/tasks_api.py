@@ -13,6 +13,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from backend.event_bus import event_bus, Event, EventType
+from backend.core.unified_event_publisher import publish_event_obj
 
 router = APIRouter()
 
@@ -107,7 +108,7 @@ async def pause_task(task_id: str) -> Dict[str, Any]:
     task["status"] = "paused"
     task["updated_at"] = datetime.utcnow().isoformat()
     
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.TASK_PAUSED,
         source="tasks_api",
         data={"task_id": task_id}
@@ -135,7 +136,7 @@ async def resume_task(task_id: str) -> Dict[str, Any]:
     task["status"] = "running"
     task["updated_at"] = datetime.utcnow().isoformat()
     
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.TASK_STARTED,
         source="tasks_api",
         data={"task_id": task_id}
@@ -163,7 +164,7 @@ async def cancel_task(task_id: str) -> Dict[str, Any]:
     task["status"] = "cancelled"
     task["updated_at"] = datetime.utcnow().isoformat()
     
-    await event_bus.publish(Event(
+    await publish_event_obj(Event(
         event_type=EventType.TASK_COMPLETED,
         source="tasks_api",
         data={

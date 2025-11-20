@@ -32,6 +32,7 @@ import json
 import hashlib
 
 from backend.clarity import get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event_obj
 from backend.kernels.agents.file_ingestion_agent import FileIngestionAgent
 
 
@@ -131,7 +132,7 @@ class LearningMemoryHelper:
             artifact_metadata.update(metadata)
         
         # Publish event
-        await self.event_bus.publish(Event(
+        await publish_event_obj(Event(
             event_type="learning.artifact.stored",
             source="learning_memory",
             payload={

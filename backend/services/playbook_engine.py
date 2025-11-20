@@ -7,6 +7,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum
 import asyncio
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class PlaybookType(str, Enum):
@@ -246,8 +247,7 @@ class PlaybookEngine:
                 print(f"[PlaybookEngine] Escalated to coding agent: work order {work_order_id}")
                 
                 # Emit event
-                from backend.services.event_bus import event_bus
-                await event_bus.publish("self_healing.escalated", {
+                await publish_event_obj("self_healing.escalated", {
                     "run_id": run_id,
                     "playbook_id": playbook_id,
                     "work_order_id": work_order_id,
@@ -268,8 +268,7 @@ class PlaybookEngine:
         self.active_runs[run_id]["completed_at"] = datetime.now().isoformat()
         
         # Emit completion event
-        from backend.services.event_bus import event_bus
-        await event_bus.publish("self_healing.completed", {
+        await publish_event_obj("self_healing.completed", {
             "run_id": run_id,
             "playbook_id": playbook_id,
             "steps_completed": len(playbook.steps)
@@ -542,8 +541,7 @@ class PlaybookEngine:
         self.active_runs[run_id]["completed_at"] = datetime.now().isoformat()
         
         # Emit event
-        from backend.services.event_bus import event_bus
-        await event_bus.publish("self_healing.patch_applied", {
+        await publish_event_obj("self_healing.patch_applied", {
             "run_id": run_id,
             "work_order_id": work_order_id,
             "playbook_id": playbook_id,

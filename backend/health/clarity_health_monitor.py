@@ -17,6 +17,7 @@ from backend.clarity import (
     TrustLevel,
     GraceLoopOutput
 )
+from backend.core.unified_event_publisher import publish_event_obj
 
 
 class ClarityHealthMonitor(BaseComponent):
@@ -58,14 +59,14 @@ class ClarityHealthMonitor(BaseComponent):
             self.activated_at = datetime.utcnow()
             
             # Publish activation event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="component.activated",
                 source=self.component_id,
                 payload={
                     "component_type": self.component_type,
                     "check_interval": self.check_interval
                 }
-            ))
+            )
             
             return True
             
@@ -93,11 +94,11 @@ class ClarityHealthMonitor(BaseComponent):
             self.set_status(ComponentStatus.STOPPED)
             
             # Publish deactivation event
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="component.deactivated",
                 source=self.component_id,
                 payload={"component_type": self.component_type}
-            ))
+            )
             
             return True
             
@@ -128,11 +129,11 @@ class ClarityHealthMonitor(BaseComponent):
                 break
             except Exception as e:
                 # Publish error event
-                await self.event_bus.publish(Event(
+                await publish_event_obj(
                     event_type="component.error",
                     source=self.component_id,
                     payload={"error": str(e)}
-                ))
+                )
     
     async def _perform_health_check(self):
         """Perform a health check cycle"""
@@ -163,14 +164,14 @@ class ClarityHealthMonitor(BaseComponent):
             
             # Publish health status
             event_type = "health.healthy" if health_status["system_healthy"] else "health.degraded"
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type=event_type,
                 source=self.component_id,
                 payload={
                     "loop_output": loop_output.to_dict(),
                     "health_status": health_status
                 }
-            ))
+            )
             
             # Store check result
             self.health_checks.append(loop_output)
@@ -180,14 +181,14 @@ class ClarityHealthMonitor(BaseComponent):
             
         except Exception as e:
             loop_output.mark_failed(str(e))
-            await self.event_bus.publish(Event(
+            await publish_event_obj(
                 event_type="loop.failed",
                 source=self.component_id,
                 payload={
                     "loop_output": loop_output.to_dict(),
                     "error": str(e)
                 }
-            ))
+            )
     
     def get_recent_checks(self, limit: int = 10) -> list:
         """Get recent health check results"""
