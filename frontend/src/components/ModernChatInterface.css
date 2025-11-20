@@ -1,34 +1,32 @@
-/* Modern Chat Interface */
+/* Modern Chat Interface - ChatGPT Style */
 .modern-chat-interface {
   display: flex;
   height: 100vh;
-  background-color: #0a0a0a;
-  color: #fff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* Sidebar */
 .chat-sidebar {
-  width: 280px;
-  background-color: #111;
-  border-right: 1px solid #2a2a2a;
+  width: 260px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
 .sidebar-header {
-  padding: 1.5rem 1rem;
-  border-bottom: 1px solid #2a2a2a;
+  padding: var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .sidebar-header h2 {
   margin: 0;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .nav-list {
@@ -40,26 +38,26 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
-  border-left: 3px solid transparent;
   text-align: left;
-  font-size: 0.9rem;
-  color: #888;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s ease;
+  border-radius: var(--radius-md);
+  margin: 0 var(--space-2);
 }
 
 .nav-item:hover {
-  background-color: #1a1a1a;
-  color: #fff;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background-color: #2a2a2a;
-  border-left-color: #4A9EFF;
-  color: #fff;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .nav-item .icon {
@@ -145,17 +143,20 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  background-color: #0a0a0a;
+  background-color: var(--bg-primary);
   overflow: hidden;
 }
 
 .chat-history {
   flex: 1;
-  padding: 2rem;
+  padding: var(--space-8);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .chat-history::-webkit-scrollbar {
@@ -229,26 +230,26 @@
 
 .message .content {
   flex: 1;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  background-color: #111;
-  border: 1px solid #2a2a2a;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  background-color: transparent;
+  border: none;
 }
 
 .message.user .content {
-  background-color: #1a2a3a;
-  border-color: #4A9EFF;
+  background-color: var(--bg-tertiary);
 }
 
 .message.assistant .content {
-  background-color: #1a1a1a;
+  background-color: transparent;
 }
 
 .message .content p {
   margin: 0;
-  line-height: 1.6;
-  color: #fff;
+  line-height: 1.75;
+  color: var(--text-primary);
   white-space: pre-wrap;
+  font-size: 1rem;
 }
 
 .actions {
@@ -278,11 +279,14 @@
 .input-area {
   display: flex;
   align-items: flex-end;
-  padding: 1rem;
-  border-top: 1px solid #2a2a2a;
-  background-color: #111;
-  gap: 0.75rem;
+  padding: var(--space-6);
+  border-top: 1px solid var(--border-light);
+  background-color: var(--bg-secondary);
+  gap: var(--space-3);
   flex-shrink: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .input-icon {
@@ -303,49 +307,47 @@
 .prompt-input {
   flex: 1;
   resize: none;
-  padding: 0.875rem 1rem;
-  border: 1px solid #2a2a2a;
-  border-radius: 12px;
+  padding: var(--space-4);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
   outline: none;
-  background-color: #1a1a1a;
-  color: #fff;
-  font-size: 0.95rem;
-  font-family: inherit;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-system);
   line-height: 1.5;
   max-height: 200px;
   overflow-y: auto;
 }
 
 .prompt-input::placeholder {
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .prompt-input:focus {
-  border-color: #4A9EFF;
-  background-color: #0a0a0a;
+  border-color: var(--text-secondary);
+  background-color: var(--bg-secondary);
 }
 
 .send-button {
-  padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
-  color: #fff;
+  padding: var(--space-3) var(--space-6);
+  background: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
-  font-size: 0.9rem;
+  transition: opacity 0.15s ease;
+  font-weight: 500;
+  font-size: 0.875rem;
   flex-shrink: 0;
 }
 
 .send-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #3A8EEF, #4BA5EF);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+  opacity: 0.9;
 }
 
 .send-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 

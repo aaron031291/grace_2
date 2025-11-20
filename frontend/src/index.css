@@ -1,3 +1,6 @@
+/* Import ChatGPT theme */
+@import './styles/chatgpt-theme.css';
+
 /* Import modal fixes */
 @import './styles/modal-fixes.css';
 
@@ -12,20 +15,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-system);
   overflow: hidden;
-}
-
-/* Smooth scrolling */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) var(--color-bg-secondary);
-}
-
-/* Focus styles */
-*:focus-visible {
-  outline: 2px solid var(--color-accent-primary);
-  outline-offset: 2px;
 }
