@@ -28,6 +28,8 @@ class IssueType(str):
     CONFIG_ERROR = "config_error"
     SECRET_MISSING = "secret_missing"
     SEARCH_PROVIDER_ERROR = "search_provider_error"
+    RAG_HEALTH_ISSUE = "rag_health_issue"
+    HTM_ANOMALY = "htm_anomaly"
     UNKNOWN = "unknown"
 
 class HealingOrchestrator:
@@ -118,6 +120,12 @@ class HealingOrchestrator:
         if "search" in text_lower and ("403" in text_lower or "limit" in text_lower):
             return IssueType.SEARCH_PROVIDER_ERROR, text
             
+        if "rag" in text_lower and ("health" in text_lower or "vector" in text_lower):
+            return IssueType.RAG_HEALTH_ISSUE, text
+
+        if "htm" in text_lower and "anomaly" in text_lower:
+            return IssueType.HTM_ANOMALY, text
+
         return IssueType.UNKNOWN, ""
 
     async def handle_issue(self, issue_type: str, description: str, full_log: str):
@@ -152,6 +160,18 @@ class HealingOrchestrator:
         # 2. Try Playbook Engine (Self-Healing / Runtime)
         # Check if we have a specialized runtime playbook (e.g. ingestion_replay)
         if await self._delegate_to_self_healing(context):
+            return
+
+        # 2.5 Handle RAG/HTM specific routing if no playbook found
+        if issue_type == IssueType.RAG_HEALTH_ISSUE:
+            logger.info("[HEALING] RAG Health Issue - Escalating to Elite Coding Agent for deep analysis")
+            await self._delegate_to_coding_agent(context)
+            return
+
+        if issue_type == IssueType.HTM_ANOMALY:
+            logger.info("[HEALING] HTM Anomaly - Escalating to Guardian/Self-Healing")
+            # If no playbook handled it above, we might need a new strategy
+            # For now, logging it as unhandled but noted
             return
 
         # 3. Delegate to Coding Agent (Complex/Code Fixes) -> USE RESOLUTION PROTOCOL
@@ -323,6 +343,10 @@ class HealingOrchestrator:
                 playbook_id = "memory_cleanup"
             elif "database" in context.get("description", "").lower():
                 playbook_id = "database_reconnect"
+            elif "rag" in context.get("description", "").lower() or context.get("issue_type") == "rag_health_issue":
+                playbook_id = "vector_rebuild"
+            elif "htm" in context.get("description", "").lower() or context.get("issue_type") == "htm_anomaly":
+                playbook_id = "network_healing"
                 
             if playbook_id:
                 logger.info(f"[HEALING] Delegating to PlaybookEngine: {playbook_id}")

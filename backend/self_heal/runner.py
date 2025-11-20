@@ -51,15 +51,30 @@ class ExecutionRunner:
         from ..settings import settings
         if not getattr(settings, "SELF_HEAL_EXECUTE", False):
             return
+            
+        boot_time = datetime.now(timezone.utc)
+        
         while not self._stopping.is_set():
             try:
                 await self._tick()
+                
+                # Health Monitoring (RAG + HTM)
+                # We piggyback on the runner loop to ensure consistent monitoring
+                base_url = getattr(settings, "SELF_HEAL_BASE_URL", "http://localhost:8000")
+                await self._check_rag_health(base_url)
+                await self._check_htm_anomalies()
+                
             except Exception as e:  # pragma: no cover
                 try:
                     print(f"[self-heal:runner] tick error: {e}")
                 except Exception:
                     pass
-            await asyncio.wait_for(asyncio.sleep(self._interval), timeout=self._interval + 1)
+            
+            # Adaptive Polling: Fast (15s) during boot (first 5m), Slow (3m) after
+            uptime_sec = (datetime.now(timezone.utc) - boot_time).total_seconds()
+            current_interval = 15 if uptime_sec < 300 else 180
+            
+            await asyncio.wait_for(asyncio.sleep(current_interval), timeout=current_interval + 1)
 
     # ---- Verification hooks ----
     async def _verify_http_health(self, base_url: str, path: str, expect: str = "ok", timeout_s: int = 20, retries: int = 2, backoff_ms: int = 250) -> bool:
@@ -291,6 +306,48 @@ class ExecutionRunner:
                 # Unknown check type -> fail closed
                 return False
         return True
+
+    async def _check_rag_health(self, base_url: str) -> None:
+        """Check RAG service health"""
+        try:
+            import httpx
+            from backend.core.healing_orchestrator import healing_orchestrator
+            
+            url = f"{base_url.rstrip('/')}/world-model/stats"
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(url)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    # Trigger if marked degraded or high error rate
+                    if data.get("status") == "degraded" or data.get("error_count", 0) > 50:
+                        await healing_orchestrator.handle_issue(
+                            "rag_health_issue", 
+                            f"RAG reported degraded status: {data.get('status')} (errors: {data.get('error_count')})", 
+                            json.dumps(data)
+                        )
+        except Exception:
+            pass
+
+    async def _check_htm_anomalies(self) -> None:
+        """Check for recent HTM anomalies"""
+        try:
+            # Attempt to import HTM detector (Chunk 7)
+            # If not booted yet, this will fail gracefully
+            from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+            
+            anomalies = htm_detector_pool.get_recent_anomalies(minutes=1)
+            if anomalies:
+                from backend.core.healing_orchestrator import healing_orchestrator
+                for anomaly in anomalies:
+                    await healing_orchestrator.handle_issue(
+                        "htm_anomaly",
+                        f"HTM Anomaly detected: {anomaly.get('description')}",
+                        json.dumps(anomaly)
+                    )
+        except ImportError:
+            pass # HTM not loaded yet
+        except Exception:
+            pass
 
     async def _execute_action(self, action: str, params: Dict[str, Any]) -> str:
         # Central parameter validation (bounds/whitelist)
