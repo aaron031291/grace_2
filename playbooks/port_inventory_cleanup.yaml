@@ -1,0 +1,244 @@
+# Port Inventory Cleanup Playbook
+# Triggered by dead ports or snapshot failures
+# Prunes stale allocations, syncs watch list to currently used ports, restarts watchdog
+
+name: port_inventory_cleanup
+version: 1.0.0
+priority: medium
+
+metadata:
+  description: Clean up stale port allocations and sync watchdog
+  owner: guardian
+  auto_trigger: true
+  requires_approval: false
+  
+triggers:
+  - type: dead_port_detected
+    source: port_watchdog
+    threshold: 3 # 3 consecutive dead port checks
+  - type: snapshot_failure
+    reason: port_health_check_failed
+  - type: scheduled
+    interval: 1h # Run hourly cleanup
+  - type: manual
+    command: cleanup_ports
+    
+conditions:
+  - check: port_manager_initialized
+    reason: Ensure port manager is available
+  - check: not_during_boot
+    reason: Don't interrupt boot sequence
+
+steps:
+  - name: scan_active_ports
+    action: enumerate_listening_ports
+    inputs:
+      - port_range_start: 8000
+      - port_range_end: 8010
+    operations:
+      - execute_netstat:
+          command: netstat -ano
+          filter: LISTENING
+          port_range: "8000-8010"
+      - parse_netstat_output
+      - extract_pids_and_ports
+    outputs:
+      - active_ports: list
+      - port_pid_map: dict
+      
+  - name: get_registered_allocations
+    action: query_port_manager
+    operations:
+      - load_port_registry:
+          path: databases/port_registry
+      - get_all_allocations
+      - filter_by_port_range: "8000-8010"
+    outputs:
+      - registered_allocations: list
+      - allocation_count: int
+      
+  - name: identify_stale_allocations
+    action: compare_and_identify
+    inputs:
+      - active_ports
+      - registered_allocations
+    logic: |
+      stale = []
+      for allocation in registered_allocations:
+        port = allocation.port
+        pid = allocation.pid
+        
+        # Check if port is not actually in use
+        if port not in active_ports:
+          stale.append({
+            'port': port,
+            'reason': 'not_listening',
+            'allocation': allocation
+          })
+          continue
+          
+        # Check if PID doesn't match
+        if port in port_pid_map:
+          actual_pid = port_pid_map[port]
+          if actual_pid != pid:
+            stale.append({
+              'port': port,
+              'reason': 'pid_mismatch',
+              'expected_pid': pid,
+              'actual_pid': actual_pid,
+              'allocation': allocation
+            })
+      
+      return stale
+    outputs:
+      - stale_allocations: list
+      - stale_count: int
+      
+  - name: prune_stale_allocations
+    action: cleanup_registry
+    condition: stale_count > 0
+    inputs:
+      - stale_allocations
+    operations:
+      - backup_registry:
+          path: databases/port_registry.backup
+      - for_each_stale_allocation:
+          - log_removal:
+              port: "{allocation.port}"
+              reason: "{reason}"
+              service: "{allocation.service_name}"
+          - remove_from_registry
+          - mark_as_cleaned
+      - save_registry
+      - log_cleanup_summary
+    outputs:
+      - pruned_count: int
+      - cleanup_successful: bool
+      
+  - name: update_watchdog_watch_list
+    action: sync_watchdog_config
+    inputs:
+      - active_ports
+    operations:
+      - get_watchdog_instance
+      - update_monitored_ports:
+          new_port_list: "{active_ports}"
+      - remove_dead_port_monitors
+      - add_new_port_monitors
+      - reconfigure_check_intervals
+    outputs:
+      - watchdog_synced: bool
+      - monitored_port_count: int
+      
+  - name: restart_port_watchdog
+    action: restart_service
+    condition: pruned_count > 0 or watchdog_synced
+    inputs:
+      - service: port_watchdog
+    operations:
+      - stop_watchdog:
+          graceful: true
+          timeout: 5
+      - wait_for_shutdown: 2
+      - start_watchdog:
+          check_interval: 30
+          initial_delay: 10
+      - verify_watchdog_started
+    outputs:
+      - watchdog_restarted: bool
+      - watchdog_status: string
+      
+  - name: verify_cleanup
+    action: run_health_checks
+    operations:
+      - wait_seconds: 5
+      - check_port_manager_health
+      - check_watchdog_health
+      - verify_no_stale_allocations
+      - verify_all_active_ports_registered
+    outputs:
+      - health_check_passed: bool
+      - remaining_issues: list
+      
+  - name: log_cleanup_results
+    action: record_event
+    inputs:
+      - stale_count
+      - pruned_count
+      - watchdog_restarted
+      - health_check_passed
+    operations:
+      - log_to_immutable_log:
+          event: port_inventory_cleanup
+          stale_found: "{stale_count}"
+          pruned: "{pruned_count}"
+          watchdog_restarted: "{watchdog_restarted}"
+          health_status: "{health_check_passed ? 'healthy' : 'needs_attention'}"
+          timestamp: "{now()}"
+      - save_cleanup_report:
+          path: logs/port_cleanup/{timestamp}.json
+          content:
+            trigger: "{trigger_reason}"
+            stale_allocations: "{stale_allocations}"
+            actions_taken:
+              - pruned: "{pruned_count}"
+              - watchdog_restarted: "{watchdog_restarted}"
+            final_state:
+              active_ports: "{active_ports}"
+              monitored_ports: "{monitored_port_count}"
+              health: "{health_check_passed}"
+              
+  - name: notify_guardian
+    action: send_notification
+    condition: pruned_count > 0 or not health_check_passed
+    inputs:
+      - cleanup_results
+    operations:
+      - notify_guardian:
+          severity: "{health_check_passed ? 'info' : 'warning'}"
+          message: |
+            Port inventory cleanup completed
+            
+            Stale allocations found: {stale_count}
+            Allocations pruned: {pruned_count}
+            Watchdog restarted: {watchdog_restarted}
+            Health check: {health_check_passed ? 'PASSED ✅' : 'FAILED ❌'}
+            
+            Active ports: {active_ports}
+            Monitored ports: {monitored_port_count}
+            
+            {remaining_issues.length > 0 ? 'Remaining issues: ' + remaining_issues : 'No issues remaining'}
+          
+recovery:
+  on_failure:
+    - restore_registry_backup
+    - log_playbook_failure
+    - escalate_to_guardian:
+        severity: error
+        message: "Port cleanup failed - manual intervention needed"
+    - keep_watchdog_running  # Don't stop watchdog on failure
+    
+  on_success:
+    - delete_registry_backup  # Cleanup successful, remove backup
+    - log_playbook_success
+    - update_cleanup_metrics
+    
+metrics:
+  track:
+    - total_cleanups_run
+    - total_stale_allocations_pruned
+    - average_stale_count_per_cleanup
+    - watchdog_restarts_count
+    - cleanup_failure_count
+    
+  alert_thresholds:
+    - stale_count > 10: warning  # Too many stale allocations
+    - cleanup_failures > 3: escalate
+    - health_check_failures > 2: escalate
+    - same_port_repeatedly_stale: investigate
+
+scheduling:
+  interval: 1h
+  run_on_boot: false  # Don't run during boot
+  run_on_shutdown: true  # Clean up before shutdown
+  skip_if_busy: true  # Don't run during critical operations

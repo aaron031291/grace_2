@@ -1160,6 +1160,37 @@ if __name__ == "__main__":
     print("=" * 80)
     print()
     
+    # Pre-flight: Clean up any processes on port 8000
+    print("[PRE-FLIGHT] Checking for processes on port 8000...")
+    import subprocess
+    try:
+        # Find processes listening on port 8000
+        result = subprocess.run(
+            ['netstat', '-ano'],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        for line in result.stdout.split('\n'):
+            if ':8000' in line and 'LISTENING' in line:
+                # Extract PID (last column)
+                parts = line.split()
+                if parts:
+                    pid = parts[-1]
+                    try:
+                        print(f"[PRE-FLIGHT] Killing process on port 8000 (PID {pid})")
+                        subprocess.run(['taskkill', '/PID', pid, '/F'], 
+                                     capture_output=True, timeout=5)
+                        import time
+                        time.sleep(1)  # Give it a moment to release the port
+                    except:
+                        pass
+        print("[PRE-FLIGHT] Port check complete")
+    except Exception as e:
+        print(f"[PRE-FLIGHT] Port check skipped: {e}")
+    print()
+    
     # Boot Grace (Guardian boots FIRST and allocates port)
     boot_result = asyncio.run(boot_grace_minimal())
     

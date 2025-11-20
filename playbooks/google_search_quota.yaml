@@ -1,0 +1,344 @@
+# Google Search Quota Exhaustion Playbook
+# Pauses remote-learning missions when Google quota exhausted
+# Flips search provider to fallback, notifies Guardian, resumes missions
+
+name: google_search_quota_exhaustion
+version: 1.0.0
+priority: medium
+
+metadata:
+  description: Handle Google Search API quota exhaustion
+  owner: guardian
+  auto_trigger: true
+  requires_approval: false
+  
+triggers:
+  - type: api_error
+    source: google_search_api
+    status_code: 429
+    reason: quota_exceeded
+  - type: api_error
+    source: google_search_api
+    status_code: 403
+    reason: daily_limit_exceeded
+  - type: log_message
+    pattern: "Google Search.*quota.*exceeded"
+    severity: warning
+  - type: metric_threshold
+    metric: google_search_requests_today
+    threshold: 95  # 95% of daily quota
+    comparison: ">="
+  - type: manual
+    command: switch_search_provider
+    
+conditions:
+  - check: search_provider == "google"
+    reason: Only run if Google is current provider
+  - check: fallback_provider_available
+    reason: Ensure we have an alternative
+  - check: not_already_on_fallback
+    reason: Prevent recursive switches
+
+steps:
+  - name: detect_quota_status
+    action: analyze_quota_error
+    operations:
+      - capture_error_context
+      - check_google_api_quota:
+          api_key: "{env:GOOGLE_SEARCH_API_KEY}"
+      - get_quota_limits:
+          queries_per_day: 100  # Free tier
+          current_usage: "{usage}"
+          reset_time: "{reset_at}"
+      - calculate_time_until_reset
+    outputs:
+      - quota_exhausted: bool
+      - queries_used: int
+      - queries_remaining: int
+      - reset_time: string
+      - hours_until_reset: int
+      
+  - name: pause_learning_missions
+    action: suspend_missions
+    inputs:
+      - mission_type: remote_learning
+      - reason: search_quota_exhausted
+    operations:
+      - get_all_active_missions:
+          filter: 
+            type: remote_learning
+            status: active
+            uses_search: true
+      - for_each_mission:
+          - pause_mission:
+              mission_id: "{mission.id}"
+              reason: "Google Search quota exhausted - switching to fallback"
+              preserve_state: true
+          - log_mission_paused
+      - get_mission_count
+    outputs:
+      - missions_paused: list
+      - paused_count: int
+      - missions_preserved: bool
+      
+  - name: select_fallback_provider
+    action: choose_alternative
+    operations:
+      - get_available_providers:
+          exclude: google
+          check_availability: true
+      - prioritize_providers:
+          order:
+            - bing  # Microsoft Bing API
+            - ddg   # DuckDuckGo (no API key needed)
+            - brave # Brave Search API
+            - mock  # Mock for testing
+      - test_first_available:
+          timeout: 5
+          test_query: "test search"
+      - select_working_provider
+    outputs:
+      - fallback_provider: string
+      - fallback_available: bool
+      - fallback_quota: string
+      
+  - name: update_search_configuration
+    action: flip_search_provider
+    condition: fallback_available == true
+    inputs:
+      - new_provider: "{fallback_provider}"
+      - reason: google_quota_exhausted
+    operations:
+      - backup_current_config:
+          path: config/search_config.backup.json
+      - update_environment_variable:
+          key: SEARCH_PROVIDER
+          value: "{fallback_provider}"
+          backup: true
+      - update_search_service_config:
+          provider: "{fallback_provider}"
+          fallback_chain: "{fallback_provider},mock"
+      - reload_search_service:
+          graceful: true
+          verify: true
+    outputs:
+      - config_updated: bool
+      - service_reloaded: bool
+      - active_provider: string
+      
+  - name: verify_fallback_works
+    action: test_search
+    condition: service_reloaded == true
+    operations:
+      - execute_test_search:
+          query: "python programming"
+          provider: "{fallback_provider}"
+          expect_results: true
+      - verify_response_format
+      - check_rate_limits:
+          provider: "{fallback_provider}"
+      - measure_response_time
+    outputs:
+      - test_successful: bool
+      - results_count: int
+      - response_time_ms: int
+      - fallback_rate_limit: string
+      
+  - name: notify_guardian
+    action: send_notification
+    inputs:
+      - quota_status: "{quota_exhausted}"
+      - fallback_provider: "{fallback_provider}"
+    operations:
+      - notify_guardian:
+          severity: warning
+          message: |
+            Google Search quota exhausted - switched to fallback
+            
+            Quota Status:
+            - Queries used: {queries_used}/{queries_per_day}
+            - Remaining: {queries_remaining}
+            - Resets in: {hours_until_reset} hours ({reset_time})
+            
+            Actions Taken:
+            - Paused {paused_count} learning missions
+            - Switched to: {fallback_provider}
+            - Fallback status: {test_successful ? 'WORKING ✅' : 'FAILED ❌'}
+            - Fallback quota: {fallback_rate_limit}
+            
+            Missions preserved: {missions_preserved ? 'YES' : 'NO'}
+            Will resume automatically when Google quota resets
+      - create_status_notification:
+          path: logs/search_quota_status.txt
+          content: |
+            Search Provider Status - {timestamp}
+            
+            Google: QUOTA EXHAUSTED (resets {reset_time})
+            Active: {fallback_provider}
+            Status: {test_successful ? 'Operational' : 'Degraded'}
+            
+  - name: resume_missions
+    action: restart_missions
+    condition: test_successful == true
+    inputs:
+      - missions_paused: "{missions_paused}"
+    operations:
+      - wait_for_provider_ready: 2
+      - for_each_paused_mission:
+          - resume_mission:
+              mission_id: "{mission.id}"
+              restore_state: true
+              use_provider: "{fallback_provider}"
+          - log_mission_resumed
+      - verify_missions_running
+    outputs:
+      - missions_resumed: list
+      - resumed_count: int
+      - all_missions_active: bool
+      
+  - name: schedule_google_restore
+    action: create_scheduled_task
+    operations:
+      - calculate_restore_time:
+          reset_time: "{reset_time}"
+          buffer_minutes: 15  # Wait 15 min after reset
+      - schedule_task:
+          name: restore_google_search
+          run_at: "{restore_time}"
+          action: switch_back_to_google
+          verify_quota_available: true
+          fallback_if_still_exhausted: "{fallback_provider}"
+      - set_reminder:
+          time: "{reset_time}"
+          message: "Google Search quota should be reset - verify and restore"
+    outputs:
+      - restore_scheduled: bool
+      - restore_time: string
+      
+  - name: log_quota_event
+    action: record_event
+    inputs:
+      - provider_switch: "{fallback_provider}"
+      - missions_affected: "{paused_count}"
+    operations:
+      - log_to_immutable_log:
+          event: google_search_quota_exhausted
+          queries_used: "{queries_used}"
+          quota_limit: "{queries_per_day}"
+          reset_time: "{reset_time}"
+          fallback_provider: "{fallback_provider}"
+          missions_paused: "{paused_count}"
+          missions_resumed: "{resumed_count}"
+          fallback_working: "{test_successful}"
+          restore_scheduled: "{restore_scheduled}"
+          timestamp: "{now()}"
+      - update_metrics:
+          google_quota_exhaustions: +1
+          last_quota_reset: "{reset_time}"
+          current_provider: "{fallback_provider}"
+      - save_detailed_report:
+          path: logs/search_quota/quota_event_{timestamp}.json
+          include:
+            - missions_affected
+            - quota_status
+            - fallback_performance
+
+  - name: escalate_if_fallback_fails
+    action: escalate_issue
+    condition: test_successful == false
+    operations:
+      - disable_remote_learning:
+          reason: no_working_search_provider
+          duration: "{hours_until_reset}h"
+      - create_incident:
+          severity: high
+          title: "Search quota exhausted and fallback failed"
+          description: |
+            Google Search quota exhausted and fallback provider failed
+            
+            Google Status:
+            - Quota used: {queries_used}/{queries_per_day}
+            - Resets: {reset_time}
+            
+            Fallback Status:
+            - Provider: {fallback_provider}
+            - Test: FAILED
+            - Reason: {fallback_failure_reason}
+            
+            Impact:
+            - {paused_count} learning missions paused
+            - Remote learning disabled until {reset_time}
+            
+            Required Action:
+            - Verify fallback provider credentials
+            - Or wait for Google quota reset
+            - Or manually configure alternative provider
+          assignee: human_operator
+      - notify_human:
+          urgency: medium
+          message: "Search functionality degraded - manual verification needed"
+    outputs:
+      - escalated: bool
+      - remote_learning_disabled: bool
+
+recovery:
+  on_failure:
+    - restore_config_backup
+    - attempt_mock_provider:
+        reason: all_providers_failed
+    - log_playbook_failure
+    - keep_missions_paused  # Don't resume if recovery failed
+    - notify_guardian:
+        severity: error
+        message: "Search quota recovery failed - remote learning paused"
+    
+  on_success:
+    - delete_config_backup
+    - log_playbook_success
+    - update_success_metrics
+    - clear_quota_warnings
+    - monitor_fallback_performance
+    
+metrics:
+  track:
+    - quota_exhaustions_total
+    - fallback_switches_count
+    - missions_paused_count
+    - fallback_success_rate
+    - average_quota_usage_per_day
+    - time_to_restore_hours
+    
+  alert_thresholds:
+    - quota_exhaustions_per_week > 3: reduce_search_usage
+    - fallback_failures > 1: configure_backup_provider
+    - missions_paused > 10: investigate_search_patterns
+    - quota_usage_rate > 80%_by_noon: throttle_searches
+
+prevention:
+  recommendations:
+    - implement_quota_monitoring: true
+    - throttle_searches_when: quota_usage > 80%
+    - cache_search_results: 24h
+    - deduplicate_queries: true
+    - use_fallback_for_non_critical: true
+    - upgrade_to_paid_tier_if: exhaustions_per_month > 5
+    
+  monitoring:
+    - track_hourly_usage: true
+    - predict_exhaustion_time: true
+    - proactive_fallback_switch: when_predicted_exhaustion < 2h
+    - notify_before_exhaustion: when_remaining < 10
+
+automation:
+  auto_restore_google:
+    enabled: true
+    when: quota_reset_confirmed
+    verify_before_restore: true
+    fallback_if_quota_still_low: true
+    
+  quota_management:
+    enable_caching: true
+    cache_duration: 24h
+    enable_throttling: true
+    throttle_threshold: 80%
+    prioritize_queries: by_mission_priority

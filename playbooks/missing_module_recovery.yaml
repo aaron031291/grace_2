@@ -1,0 +1,186 @@
+# Missing Module Recovery Playbook
+# Watches for ModuleNotFoundError/boot failures, creates stubs for optional modules
+# Opens coding-agent work orders for real missing packages while alerting Guardian
+
+name: missing_module_recovery
+version: 1.0.0
+priority: high
+
+metadata:
+  description: Automatic recovery from missing Python modules
+  owner: guardian
+  auto_trigger: true
+  requires_approval: false  # Auto-executes for optional modules
+  
+triggers:
+  - type: exception
+    pattern: ModuleNotFoundError
+    severity: error
+  - type: exception
+    pattern: ImportError
+    severity: error
+  - type: boot_failure
+    phase: import_phase
+    
+conditions:
+  - check: boot_failure_count < 3
+    reason: Prevent infinite recovery loops
+  - check: module_is_optional
+    reason: Only create stubs for optional modules
+
+steps:
+  - name: detect_missing_module
+    action: parse_error_message
+    inputs:
+      - error_log
+      - traceback
+    outputs:
+      - module_name
+      - import_path
+      - caller_file
+      - is_optional
+    
+  - name: check_if_optional
+    action: query_module_registry
+    inputs:
+      - module_name
+    logic: |
+      # Check if module is in optional dependencies list
+      OPTIONAL_MODULES = [
+        'creative_problem_solver',
+        'competitor_tracker', 
+        'future_projects_learner',
+        'closed_loop_learning',
+        'resolution_protocol'
+      ]
+      return module_name in OPTIONAL_MODULES
+    outputs:
+      - is_optional
+      - stub_template
+      
+  - name: create_stub_if_optional
+    action: generate_module_stub
+    condition: is_optional == true
+    inputs:
+      - module_name
+      - import_path
+      - stub_template
+    operations:
+      - create_directory_if_needed
+      - generate_stub_class
+      - add_singleton_instance
+      - add_basic_methods
+    outputs:
+      - stub_file_path
+      - stub_created
+      
+  - name: wrap_import_in_try_except
+    action: update_caller_file
+    condition: is_optional == true
+    inputs:
+      - caller_file
+      - import_statement
+    operations:
+      - backup_original_file
+      - wrap_import_with_try_except
+      - add_fallback_to_none
+      - format_file
+    outputs:
+      - file_updated
+      
+  - name: create_work_order_if_required
+    action: open_coding_agent_ticket
+    condition: is_optional == false
+    inputs:
+      - module_name
+      - error_context
+    operations:
+      - create_ticket:
+          title: "Install missing required package: {module_name}"
+          priority: high
+          assignee: coding_agent
+          description: |
+            Required module not found: {module_name}
+            
+            Error: {error_message}
+            File: {caller_file}
+            
+            Action needed:
+            1. Check if this is a typo or missing dependency
+            2. Add to requirements.txt or pyproject.toml
+            3. Install with: pip install {module_name}
+            4. Test imports work
+            5. Close ticket when resolved
+          labels:
+            - dependency-missing
+            - auto-generated
+            - requires-action
+    outputs:
+      - ticket_id
+      - ticket_url
+      
+  - name: alert_guardian
+    action: send_notification
+    inputs:
+      - module_name
+      - is_optional
+      - stub_created
+      - ticket_id
+    operations:
+      - log_to_immutable_log:
+          event: missing_module_recovery
+          module: "{module_name}"
+          action_taken: "{stub_created ? 'stub_created' : 'ticket_opened'}"
+          ticket: "{ticket_id}"
+      - notify_guardian:
+          severity: "{is_optional ? 'warning' : 'error'}"
+          message: |
+            Missing module detected: {module_name}
+            Optional: {is_optional}
+            Action: {stub_created ? 'Created stub module' : 'Opened coding ticket #' + ticket_id}
+            Status: {stub_created ? 'System operational' : 'Manual intervention required'}
+            
+  - name: retry_boot_if_stub_created
+    action: trigger_boot_retry
+    condition: stub_created == true
+    inputs:
+      - retry_delay: 2
+    operations:
+      - wait_seconds: 2
+      - trigger_boot_sequence
+    outputs:
+      - boot_retry_triggered
+      
+  - name: update_module_registry
+    action: record_stub_creation
+    condition: stub_created == true
+    inputs:
+      - module_name
+      - stub_file_path
+    operations:
+      - update_optional_modules_list
+      - mark_as_stub_generated
+      - add_to_documentation
+      
+recovery:
+  on_failure:
+    - log_playbook_failure
+    - escalate_to_guardian
+    - halt_boot_sequence
+    
+  on_success:
+    - log_playbook_success
+    - continue_boot_if_stub
+    - await_manual_fix_if_required
+    
+metrics:
+  track:
+    - stubs_created_count
+    - tickets_opened_count
+    - recovery_success_rate
+    - boot_retry_success_rate
+    
+  alert_thresholds:
+    - stub_creation_failures > 3: escalate
+    - same_module_errors > 5: escalate
+    - ticket_resolution_time > 24h: notify_human

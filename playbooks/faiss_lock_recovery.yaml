@@ -1,0 +1,323 @@
+# FAISS Lock Recovery Playbook
+# When FAISS hits "database is locked"
+# Identifies locking processes, restarts embedding service, force-unlocks if needed
+
+name: faiss_lock_recovery
+version: 1.0.0
+priority: high
+
+metadata:
+  description: Recover from FAISS database lock errors
+  owner: guardian
+  auto_trigger: true
+  requires_approval: false  # Auto-execute for locks
+  max_retries: 3
+  
+triggers:
+  - type: exception
+    pattern: "database is locked"
+    source: faiss
+    severity: error
+  - type: exception
+    pattern: "OperationalError.*locked"
+    source: vector_store
+    severity: error
+  - type: api_error
+    endpoint: /api/vectors/health
+    status_code: 500
+    reason: database_locked
+  - type: manual
+    command: fix_faiss_lock
+    
+conditions:
+  - check: vector_store_initialized
+    reason: Ensure vector store exists
+  - check: recovery_attempts < 3
+    reason: Prevent infinite recovery loops
+  - check: not_during_critical_operation
+    reason: Don't interrupt important tasks
+
+steps:
+  - name: detect_lock_state
+    action: analyze_lock_error
+    operations:
+      - capture_error_context
+      - identify_locked_database:
+          check_paths:
+            - "databases/vector_store.db"
+            - ".grace_cache/faiss.index"
+            - "ml_artifacts/embeddings.db"
+      - get_error_traceback
+      - determine_lock_duration
+    outputs:
+      - locked_file: string
+      - lock_error_message: string
+      - lock_age_seconds: int
+      - operation_that_failed: string
+      
+  - name: identify_locking_processes
+    action: find_file_locks
+    inputs:
+      - locked_file: "{locked_file}"
+    operations:
+      - on_windows:
+          - execute_command: |
+              handle.exe "{locked_file}" 2>nul || 
+              Get-Process | Where-Object {$_.Modules.FileName -like "*{locked_file}*"}
+          - parse_process_list
+      - on_linux:
+          - execute_command: "lsof | grep {locked_file}"
+          - parse_lsof_output
+      - identify_process_details:
+          - pid
+          - process_name
+          - user
+          - command_line
+    outputs:
+      - locking_processes: list
+      - process_count: int
+      - grace_process_locked: bool
+      
+  - name: attempt_graceful_unlock
+    action: request_unlock
+    inputs:
+      - locking_processes: "{locking_processes}"
+    operations:
+      - for_each_process:
+          - if_grace_component:
+              - send_shutdown_signal:
+                  signal: SIGTERM
+                  timeout: 5
+              - wait_for_graceful_close
+          - if_embedding_service:
+              - call_api: POST /api/embeddings/close-connections
+              - wait_for_response: 3
+      - wait_for_lock_release: 5
+      - check_if_lock_released
+    outputs:
+      - lock_released: bool
+      - processes_stopped: list
+      
+  - name: restart_embedding_service
+    action: restart_service
+    condition: grace_process_locked == true or lock_age_seconds > 60
+    inputs:
+      - service: embedding_service
+    operations:
+      - stop_embedding_service:
+          force: "{lock_released == false}"
+          timeout: 10
+      - close_all_vector_connections
+      - clear_faiss_cache:
+          path: .grace_cache/faiss
+      - wait_for_cleanup: 2
+      - start_embedding_service:
+          reinitialize_index: true
+      - wait_for_ready: 5
+    outputs:
+      - service_restarted: bool
+      - service_healthy: bool
+      
+  - name: force_unlock_if_needed
+    action: force_release_lock
+    condition: lock_released == false and service_restarted == true
+    inputs:
+      - locked_file: "{locked_file}"
+    operations:
+      - backup_database:
+          source: "{locked_file}"
+          destination: "{locked_file}.backup.{timestamp}"
+      - attempt_sqlite_unlock:
+          - close_all_connections
+          - execute_sql: "PRAGMA locking_mode = EXCLUSIVE; PRAGMA locking_mode = NORMAL;"
+          - vacuum_database
+      - if_still_locked:
+          - terminate_locking_processes:
+              force: true
+              timeout: 3
+          - wait_seconds: 2
+      - verify_lock_released
+    outputs:
+      - force_unlock_successful: bool
+      - processes_terminated: list
+      - backup_created: bool
+      
+  - name: rebuild_index_if_corrupted
+    action: rebuild_faiss_index
+    condition: force_unlock_successful == false or service_healthy == false
+    operations:
+      - check_index_integrity:
+          path: .grace_cache/faiss.index
+      - if_corrupted:
+          - log_corruption_detected
+          - backup_corrupted_index
+          - delete_corrupted_index
+          - initialize_new_index:
+              dimensions: 1536
+              metric: cosine
+              index_type: flat
+          - mark_for_reembedding
+      - restart_embedding_service_again
+    outputs:
+      - index_rebuilt: bool
+      - reembedding_needed: bool
+      
+  - name: recheck_vectors_health
+    action: verify_recovery
+    operations:
+      - wait_seconds: 3
+      - test_api_endpoint:
+          url: http://localhost:8000/api/vectors/health
+          expect_status: 200
+          timeout: 10
+      - test_embedding_operation:
+          text: "test embedding"
+          expect_success: true
+      - test_search_operation:
+          query: "test query"
+          expect_results: true
+      - check_no_lock_errors: 5  # Monitor for 5 seconds
+    outputs:
+      - health_check_passed: bool
+      - api_responding: bool
+      - embeddings_working: bool
+      - search_working: bool
+      
+  - name: escalate_if_lock_persists
+    action: escalate_to_guardian
+    condition: health_check_passed == false
+    inputs:
+      - recovery_attempts: "{recovery_attempts + 1}"
+      - lock_age: "{lock_age_seconds}"
+    operations:
+      - if_max_retries_reached:
+          - create_critical_alert:
+              severity: critical
+              title: "FAISS lock recovery failed after {recovery_attempts} attempts"
+              description: |
+                FAISS database lock could not be resolved automatically
+                
+                Locked file: {locked_file}
+                Lock duration: {lock_age_seconds}s
+                Locking processes: {locking_processes}
+                
+                Actions attempted:
+                - Graceful unlock: {lock_released ? 'tried' : 'failed'}
+                - Service restart: {service_restarted ? 'done' : 'failed'}
+                - Force unlock: {force_unlock_successful ? 'done' : 'failed'}
+                - Index rebuild: {index_rebuilt ? 'done' : 'skipped'}
+                
+                Manual intervention required:
+                1. Check for zombie processes
+                2. Restart Grace completely
+                3. Consider rebuilding vector store
+              assignee: human_operator
+              priority: p0
+          - disable_vector_operations_temporarily
+          - switch_to_fallback_mode:
+              use_in_memory_only: true
+      - else:
+          - wait_exponential_backoff:
+              base: 10
+              attempt: "{recovery_attempts}"
+          - retry_playbook
+    outputs:
+      - escalated: bool
+      - fallback_enabled: bool
+      
+  - name: log_recovery_results
+    action: record_event
+    inputs:
+      - success: "{health_check_passed}"
+      - recovery_steps: "{steps_completed}"
+    operations:
+      - log_to_immutable_log:
+          event: faiss_lock_recovery
+          locked_file: "{locked_file}"
+          lock_age_seconds: "{lock_age_seconds}"
+          locking_processes: "{locking_processes}"
+          recovery_actions:
+            graceful_unlock: "{lock_released}"
+            service_restart: "{service_restarted}"
+            force_unlock: "{force_unlock_successful}"
+            index_rebuild: "{index_rebuilt}"
+          result: "{success ? 'recovered' : 'failed'}"
+          health_status:
+            api: "{api_responding}"
+            embeddings: "{embeddings_working}"
+            search: "{search_working}"
+          escalated: "{escalated}"
+          timestamp: "{now()}"
+      - save_detailed_report:
+          path: logs/faiss_recovery/lock_{timestamp}.json
+          
+  - name: notify_guardian
+    action: send_notification
+    inputs:
+      - success: "{health_check_passed}"
+    operations:
+      - notify_guardian:
+          severity: "{success ? 'info' : 'error'}"
+          message: |
+            FAISS lock recovery {success ? 'successful ✅' : 'failed ❌'}
+            
+            Locked file: {locked_file}
+            Lock duration: {lock_age_seconds}s
+            Locking processes: {process_count}
+            
+            Actions taken:
+            {lock_released ? '✅' : '❌'} Graceful unlock
+            {service_restarted ? '✅' : '❌'} Service restart
+            {force_unlock_successful ? '✅' : '❌'} Force unlock
+            {index_rebuilt ? '✅' : '⏭️'} Index rebuild
+            
+            Current status:
+            API: {api_responding ? 'UP' : 'DOWN'}
+            Embeddings: {embeddings_working ? 'WORKING' : 'FAILED'}
+            Search: {search_working ? 'WORKING' : 'FAILED'}
+            
+            {escalated ? '⚠️ ESCALATED - Manual intervention needed' : ''}
+            {reembedding_needed ? '📝 Note: Some vectors may need re-embedding' : ''}
+
+recovery:
+  on_failure:
+    - restore_database_backup_if_exists
+    - log_playbook_failure
+    - enable_fallback_mode:
+        use_in_memory: true
+        disable_persistence: true
+    - create_incident_ticket:
+        severity: high
+        title: "FAISS database lock - manual recovery needed"
+    - notify_human_operator
+    
+  on_success:
+    - delete_database_backup
+    - log_playbook_success
+    - update_success_metrics
+    - clear_lock_warnings
+    - resume_normal_operations
+    
+metrics:
+  track:
+    - total_lock_recoveries
+    - graceful_unlock_success_rate
+    - force_unlock_attempts
+    - index_rebuilds_count
+    - average_lock_duration
+    - escalation_rate
+    
+  alert_thresholds:
+    - locks_per_day > 5: investigate_root_cause
+    - force_unlocks > 3: check_process_management
+    - index_rebuilds > 1: check_data_integrity
+    - escalations > 1: critical_system_issue
+
+prevention:
+  recommendations:
+    - use_connection_pooling: true
+    - implement_connection_timeout: 30
+    - enable_wal_mode: true  # Write-Ahead Logging for SQLite
+    - periodic_vacuum: daily
+    - monitor_long_running_queries: true
+    - implement_graceful_shutdown: true

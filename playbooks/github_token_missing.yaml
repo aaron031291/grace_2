@@ -1,0 +1,304 @@
+# GitHub Token Missing Playbook
+# Detects when GitHub miner lacks credentials
+# Pulls token from Vault or prompts operator, writes to .env, restarts miner
+
+name: github_token_missing
+version: 1.0.0
+priority: medium
+
+metadata:
+  description: Automatic recovery for missing GitHub token
+  owner: guardian
+  auto_trigger: true
+  requires_approval: false  # Can auto-fix from vault
+  
+triggers:
+  - type: log_message
+    pattern: "GITHUB-MINER.*No GitHub token found"
+    severity: warning
+  - type: log_message
+    pattern: "GITHUB-MINER.*Rate Limit.*60/60"
+    severity: warning
+  - type: api_error
+    source: github_api
+    status_code: 403
+    reason: rate_limit_exceeded
+  - type: manual
+    command: fix_github_token
+    
+conditions:
+  - check: github_miner_initialized
+    reason: Ensure GitHub miner is running
+  - check: not_in_ci_environment
+    reason: Skip in CI/testing environments
+
+steps:
+  - name: detect_token_status
+    action: check_current_state
+    operations:
+      - check_environment_variable:
+          var: GITHUB_TOKEN
+      - check_secrets_vault:
+          key: GITHUB_TOKEN
+          accessor: github_miner
+      - check_rate_limit_status
+    outputs:
+      - env_has_token: bool
+      - vault_has_token: bool
+      - current_rate_limit: int
+      - is_authenticated: bool
+      
+  - name: try_vault_first
+    action: retrieve_from_vault
+    condition: vault_has_token == true
+    inputs:
+      - secret_key: GITHUB_TOKEN
+      - accessor: github_miner
+    operations:
+      - access_secrets_vault
+      - retrieve_secret:
+          key: GITHUB_TOKEN
+          decrypt: true
+      - validate_token_format:
+          pattern: "^ghp_[A-Za-z0-9]{36}$"
+    outputs:
+      - vault_token: string
+      - token_valid: bool
+      - vault_retrieval_successful: bool
+      
+  - name: write_token_to_env
+    action: update_env_file
+    condition: vault_retrieval_successful == true
+    inputs:
+      - token: "{vault_token}"
+    operations:
+      - backup_env_file:
+          source: .env
+          destination: .env.backup.{timestamp}
+      - load_env_file
+      - update_or_add_variable:
+          key: GITHUB_TOKEN
+          value: "{vault_token}"
+          comment: "# Auto-configured from secrets vault on {timestamp}"
+      - save_env_file:
+          path: .env
+          permissions: 0600  # Owner read/write only
+      - verify_env_file_readable
+    outputs:
+      - env_file_updated: bool
+      - backup_created: bool
+      
+  - name: prompt_operator_if_needed
+    action: request_token_from_operator
+    condition: vault_retrieval_successful == false
+    inputs:
+      - prompt_message: |
+          GitHub token not found in vault or .env
+          
+          To enable full GitHub functionality:
+          1. Create token at: https://github.com/settings/tokens/new
+          2. Scopes needed: public_repo
+          3. Copy token (starts with ghp_)
+          4. Provide token now or add to .env manually
+          
+          Benefits:
+          - Unauthenticated: 60 requests/hour
+          - Authenticated: 5000 requests/hour
+    operations:
+      - check_if_interactive_session
+      - if_interactive:
+          - display_prompt
+          - read_token_input:
+              timeout: 300  # 5 minutes
+              validate_format: "^ghp_[A-Za-z0-9]{36}$"
+          - confirm_token_storage
+      - if_not_interactive:
+          - create_notification_file:
+              path: logs/github_token_needed.txt
+              content: "{prompt_message}"
+          - log_manual_intervention_needed
+    outputs:
+      - operator_provided_token: string
+      - operator_response_received: bool
+      - store_in_vault: bool
+      
+  - name: store_operator_token
+    action: save_token
+    condition: operator_response_received == true
+    inputs:
+      - token: "{operator_provided_token}"
+      - store_in_vault: "{store_in_vault}"
+    operations:
+      - if_store_in_vault:
+          - access_secrets_vault
+          - encrypt_and_store:
+              key: GITHUB_TOKEN
+              value: "{token}"
+              owner: system
+              service: github
+              description: "GitHub Personal Access Token for API access"
+              rotation_days: 90
+          - log_vault_storage
+      - write_to_env_file:
+          key: GITHUB_TOKEN
+          value: "{token}"
+      - log_token_configured
+    outputs:
+      - token_stored: bool
+      - storage_location: string
+      
+  - name: restart_github_miner
+    action: restart_service
+    condition: env_file_updated == true or token_stored == true
+    inputs:
+      - service: github_miner
+    operations:
+      - stop_github_miner:
+          graceful: true
+          close_sessions: true
+          timeout: 5
+      - reload_environment_variables
+      - start_github_miner:
+          verify_token_loaded: true
+      - wait_for_ready: 3
+      - check_rate_limit_status
+    outputs:
+      - miner_restarted: bool
+      - token_loaded: bool
+      - new_rate_limit: int
+      
+  - name: verify_token_works
+    action: test_github_api
+    condition: miner_restarted == true
+    operations:
+      - make_test_request:
+          endpoint: https://api.github.com/rate_limit
+          expect_authenticated: true
+      - check_rate_limit:
+          expect_limit: 5000
+      - verify_token_scopes
+    outputs:
+      - api_test_passed: bool
+      - authenticated: bool
+      - rate_limit: int
+      - scopes: list
+      
+  - name: record_event
+    action: log_recovery
+    inputs:
+      - token_source: "{vault_retrieval_successful ? 'vault' : 'operator'}"
+      - success: "{api_test_passed}"
+    operations:
+      - log_to_immutable_log:
+          event: github_token_configured
+          source: "{token_source}"
+          authenticated: "{authenticated}"
+          rate_limit: "{rate_limit}/5000"
+          success: "{success}"
+          timestamp: "{now()}"
+      - update_metrics:
+          github_token_recoveries: +1
+          last_token_update: "{now()}"
+          
+  - name: notify_guardian
+    action: send_notification
+    inputs:
+      - success: "{api_test_passed}"
+      - rate_limit: "{rate_limit}"
+    operations:
+      - notify_guardian:
+          severity: "{success ? 'info' : 'warning'}"
+          message: |
+            GitHub token configuration {success ? 'successful ✅' : 'failed ❌'}
+            
+            Token source: {token_source}
+            Authentication: {authenticated ? 'YES' : 'NO'}
+            Rate limit: {rate_limit}/hour
+            Scopes: {scopes.join(', ')}
+            
+            {success ? 
+              'GitHub miner now has full API access (5000 req/hr)' : 
+              'Token configuration failed - using anonymous mode (60 req/hr)'}
+            
+            {not success ? 'Manual verification needed: Check .env file and token validity' : ''}
+            
+  - name: create_documentation
+    action: generate_docs
+    condition: api_test_passed == true and operator_response_received == true
+    operations:
+      - create_file:
+          path: logs/github_token_setup_{timestamp}.md
+          content: |
+            # GitHub Token Setup - {timestamp}
+            
+            ## Configuration Details
+            - Token source: {token_source}
+            - Stored in vault: {store_in_vault}
+            - Rate limit: {rate_limit}/hour
+            - Scopes: {scopes.join(', ')}
+            
+            ## Next Steps
+            - Token will expire in ~90 days
+            - Renew before expiration
+            - Keep token secure (never commit to git)
+            
+            ## Testing
+            ```bash
+            # Verify token works
+            curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/rate_limit
+            ```
+
+recovery:
+  on_failure:
+    - restore_env_backup_if_exists
+    - log_playbook_failure
+    - create_manual_intervention_ticket:
+        title: "GitHub token configuration failed"
+        description: |
+          Automatic GitHub token recovery failed
+          
+          Please manually:
+          1. Create token at https://github.com/settings/tokens
+          2. Add GITHUB_TOKEN=<token> to .env
+          3. Restart Grace
+          
+          Or store in vault:
+          ```python
+          from backend.security.secrets_vault import secrets_vault
+          await secrets_vault.store_secret(
+              secret_key='GITHUB_TOKEN',
+              secret_value='ghp_your_token',
+              secret_type='token',
+              owner='system',
+              service='github'
+          )
+          ```
+    - notify_guardian:
+        severity: warning
+        escalate_to_human: true
+        
+  on_success:
+    - delete_env_backup
+    - log_playbook_success
+    - update_success_metrics
+    - clear_rate_limit_warnings
+    
+metrics:
+  track:
+    - token_recoveries_total
+    - vault_retrievals_successful
+    - operator_inputs_received
+    - api_test_success_rate
+    - current_rate_limit
+    
+  alert_thresholds:
+    - rate_limit < 100: warning  # Running low on requests
+    - token_recovery_failures > 3: escalate
+    - unauthenticated_for > 1h: notify_human
+    - token_expiring_in < 7days: renew_reminder
+
+documentation:
+  links:
+    - https://github.com/settings/tokens
+    - docs/guides/GITHUB_TOKEN_SETUP.md
+    - SETUP_GITHUB_TOKEN.md
