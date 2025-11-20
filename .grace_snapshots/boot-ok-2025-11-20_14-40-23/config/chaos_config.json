@@ -1,0 +1,17 @@
+{
+  "chaos_enabled": true,
+  "environment": "staging",
+  "auto_run": false,
+  "blast_radius_limit": 3,
+  "enabled_at": "2025-11-20T12:40:00Z",
+  "approved_by": "admin",
+  "governance": {
+    "require_approval_for_production": true,
+    "auto_approve_staging": true,
+    "guardian_can_halt": true
+  },
+  "scheduling": {
+    "chaos_tuesday": false,
+    "on_demand_only": true
+  }
+}

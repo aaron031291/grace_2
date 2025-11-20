@@ -1,9 +1,9 @@
 {
-  "snapshot_id": "boot-ok-2025-11-20_12-40-45",
-  "captured_at": "2025-11-20T12:40:45.787382",
+  "snapshot_id": "boot-ok-2025-11-20_14-40-23",
+  "captured_at": "2025-11-20T14:40:23.369950",
   "boot_result": {
     "boot_priority": 0,
-    "started_at": "2025-11-20T12:40:39.687124",
+    "started_at": "2025-11-20T14:40:19.570562",
     "phases": {
       "phase1_self_check": {
         "passed": true,
@@ -14,11 +14,9 @@
         }
       },
       "phase2_diagnostics": {
-        "status": "warning",
+        "status": "healthy",
         "critical_issues": [],
-        "warnings": [
-          "firewall"
-        ],
+        "warnings": [],
         "checks": {
           "ipv4_available": {
             "status": "ok",
@@ -36,7 +34,7 @@
           },
           "file_descriptors": {
             "status": "ok",
-            "current_handles": 194,
+            "current_handles": 195,
             "platform": "Windows",
             "note": "Windows handle tracking available"
           },
@@ -55,11 +53,10 @@
             ]
           },
           "firewall": {
-            "status": "warning",
+            "status": "ok",
             "port": 8000,
-            "can_bind": false,
-            "error": "[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions",
-            "recommendation": "Check firewall rules"
+            "can_bind": true,
+            "note": "Port can be bound (firewall likely OK)"
           },
           "time_wait_sockets": {
             "status": "ok",
@@ -69,9 +66,9 @@
           },
           "connection_limits": {
             "status": "ok",
-            "total_connections": 1497,
+            "total_connections": 1588,
             "established": 93,
-            "listening": 47,
+            "listening": 45,
             "recommendation": "OK"
           },
           "dns_resolution": {
@@ -87,13 +84,11 @@
         "service_name": "grace_backend",
         "purpose": "Main Grace API - allocated by Guardian during boot",
         "started_by": "guardian_kernel",
-        "allocated_at": "2025-11-20T12:40:39.729099",
+        "allocated_at": "2025-11-20T14:40:19.616468",
         "network_health": {
-          "status": "warning",
+          "status": "healthy",
           "critical_issues": [],
-          "warnings": [
-            "firewall"
-          ],
+          "warnings": [],
           "checks": {
             "ipv4_available": {
               "status": "ok",
@@ -111,7 +106,7 @@
             },
             "file_descriptors": {
               "status": "ok",
-              "current_handles": 212,
+              "current_handles": 213,
               "platform": "Windows",
               "note": "Windows handle tracking available"
             },
@@ -130,11 +125,10 @@
               ]
             },
             "firewall": {
-              "status": "warning",
+              "status": "ok",
               "port": 8000,
-              "can_bind": false,
-              "error": "[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions",
-              "recommendation": "Check firewall rules"
+              "can_bind": true,
+              "note": "Port can be bound (firewall likely OK)"
             },
             "time_wait_sockets": {
               "status": "ok",
@@ -144,9 +138,9 @@
             },
             "connection_limits": {
               "status": "ok",
-              "total_connections": 1497,
+              "total_connections": 1588,
               "established": 93,
-              "listening": 47,
+              "listening": 45,
               "recommendation": "OK"
             },
             "dns_resolution": {
@@ -156,7 +150,7 @@
               "hostname_ip": "192.168.7.252"
             }
           },
-          "timestamp": "2025-11-20T12:40:39.729099"
+          "timestamp": "2025-11-20T14:40:19.616468"
         }
       },
       "phase4_watchdog": {
@@ -175,16 +169,16 @@
       }
     },
     "boot_complete": true,
-    "duration_seconds": 0.119524
+    "duration_seconds": 0.151638
   },
   "targets": [
     {
       "path": "databases/",
-      "size_bytes": 41132139
+      "size_bytes": 41122962
     },
     {
       "path": "config/",
-      "size_bytes": 144773
+      "size_bytes": 145153
     },
     {
       "path": ".env",
@@ -199,5 +193,5 @@
       "size_bytes": 6
     }
   ],
-  "total_bytes": 42674814
+  "total_bytes": 42666017
 }
