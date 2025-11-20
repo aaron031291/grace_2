@@ -3,8 +3,8 @@
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: #0a0a0a;
-  color: #fff;
+  background: var(--bg-primary, #202123);
+  color: var(--text-primary, #ececf1);
   overflow: hidden;
 }
 
@@ -14,7 +14,7 @@
   align-items: center;
   padding: 0 1rem;
   border-bottom: 1px solid #2a2a2a;
-  background: #111;
+  background: var(--bg-secondary, #343541);
   flex-shrink: 0;
 }
 
@@ -28,7 +28,7 @@
   width: 300px;
   border-right: 1px solid #2a2a2a;
   overflow-y: auto;
-  background: #111;
+  background: var(--bg-secondary, #343541);
   flex-shrink: 0;
 }
 
@@ -43,7 +43,7 @@
   width: 320px;
   border-left: 1px solid #2a2a2a;
   overflow-y: auto;
-  background: #111;
+  background: var(--bg-secondary, #343541);
   flex-shrink: 0;
 }
 
@@ -54,7 +54,7 @@
   padding: 0 1rem;
   border-top: 1px solid #2a2a2a;
   font-size: 0.75rem;
-  background: #111;
+  background: var(--bg-secondary, #343541);
   flex-shrink: 0;
 }
 
@@ -66,7 +66,7 @@
 
 .app-shell-left::-webkit-scrollbar-track,
 .app-shell-right::-webkit-scrollbar-track {
-  background: #111;
+  background: var(--bg-secondary, #343541);
 }
 
 .app-shell-left::-webkit-scrollbar-thumb,
