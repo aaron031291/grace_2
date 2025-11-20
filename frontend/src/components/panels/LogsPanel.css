@@ -1,0 +1,164 @@
+.logs-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1rem;
+}
+
+.logs-filter {
+  display: flex;
+  gap: 0.25rem;
+  background: #0a0a0a;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.log-filter-btn {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: #666;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.log-filter-btn:hover {
+  color: #aaa;
+}
+
+.log-filter-btn.active {
+  background: #1a1a1a;
+  color: #4A9EFF;
+}
+
+.logs-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.log-entry {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.log-entry:hover {
+  background: #1a1a1a;
+  border-color: #3a3a3a;
+}
+
+.log-level-indicator {
+  width: 3px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.log-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.log-timestamp {
+  font-size: 0.65rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.log-category {
+  font-size: 0.65rem;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.log-level-badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.log-message {
+  font-size: 0.75rem;
+  color: #ddd;
+  line-height: 1.4;
+  margin-bottom: 0.25rem;
+}
+
+.log-trace {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #2a2a2a;
+}
+
+.trace-label {
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.trace-id {
+  font-size: 0.65rem;
+  color: #4A9EFF;
+  font-family: monospace;
+}
+
+.logs-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.logs-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.625rem;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logs-action-btn:hover {
+  background: #2a2a2a;
+  border-color: #4A9EFF;
+}
+
+.logs-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.logs-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.logs-list::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
