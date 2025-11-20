@@ -189,10 +189,6 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
       const guardianRes = await fetch('http://localhost:8017/api/guardian/stats');
       const guardianData = guardianRes.ok ? await guardianRes.json() : {};
 
-      // Fetch mission analytics
-      const analyticsRes = await fetch('http://localhost:8017/api/analytics/mttr-trend?period_days=30');
-      const analyticsData = analyticsRes.ok ? await analyticsRes.json() : {};
-
       // Count learning events from learning data
       const learningEventCount = learningData?.total_outcomes || 0;
 
