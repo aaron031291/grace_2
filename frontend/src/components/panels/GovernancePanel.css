@@ -1,0 +1,239 @@
+.governance-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #0a0a0a;
+}
+
+.governance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.governance-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.refresh-btn-gov {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #4A9EFF;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-btn-gov:hover {
+  background: #2a2a2a;
+  transform: rotate(180deg);
+}
+
+.empty-approvals {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.empty-icon-gov {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 0.9rem;
+}
+
+.approvals-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.approval-item {
+  padding: 1rem;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.approval-item:hover {
+  background: #1a1a1a;
+  border-color: #3a3a3a;
+}
+
+.approval-item.selected {
+  border-color: #4A9EFF;
+  background: #1a2a3a;
+}
+
+.approval-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.approval-agent {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4A9EFF;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.approval-risk {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.approval-action {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.375rem;
+}
+
+.approval-reason {
+  font-size: 0.8rem;
+  color: #aaa;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.approval-meta {
+  font-size: 0.7rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.approve-btn,
+.reject-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.approve-btn {
+  background: #10b981;
+  color: #fff;
+}
+
+.approve-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.approve-btn:disabled,
+.reject-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.governance-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.stat-label {
+  color: #888;
+}
+
+.stat-value {
+  color: #fff;
+  font-weight: 600;
+}
+
+.stat-value.compliant {
+  color: #10b981;
+}
+
+.stat-value.enabled {
+  color: #4A9EFF;
+}
+
+.governance-actions-bottom {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gov-action-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gov-action-btn:hover {
+  background: #2a2a2a;
+  border-color: #4A9EFF;
+}
+
+.approvals-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.approvals-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.approvals-list::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}

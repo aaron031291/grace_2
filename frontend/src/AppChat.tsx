@@ -18,10 +18,11 @@ import { SystemDashboard } from './components/SystemDashboard';
 import { SystemOverview } from './components/SystemOverview';
 import { MentorRoundtable } from './components/MentorRoundtable';
 import { ModernChatInterface } from './components/ModernChatInterface';
-import { SimplifiedMissionControl } from './components/SimplifiedMissionControl';
+import { TerminalViewer } from './components/TerminalViewer';
 import { ContextPanel } from './components/panels/ContextPanel';
 import { MemoryPanel } from './components/panels/MemoryPanel';
 import { LogsPanel } from './components/panels/LogsPanel';
+import { GovernancePanel } from './components/panels/GovernancePanel';
 import { RemoteAPI } from './api/remote';
 import { AppShell } from './components/layout/AppShell';
 import { TopBar } from './components/layout/TopBar';
@@ -249,7 +250,7 @@ function AppChat() {
   // Navigation items
   const navItems: NavItem[] = [
     { id: 'modern', label: 'Modern Chat', icon: '💬' },
-    { id: 'mission', label: 'Mission Control', icon: '🎯' },
+    { id: 'mission', label: 'Terminal', icon: '🖥️' },
     { id: 'overview', label: 'System Overview', icon: '📊' },
     { id: 'dashboard', label: 'Legacy Dashboard', icon: '📈' },
     { id: 'chat', label: 'Classic Chat', icon: '🗨️' },
@@ -261,7 +262,7 @@ function AppChat() {
       case 'modern':
         return <ModernChatInterface />;
       case 'mission':
-        return <SimplifiedMissionControl onClose={() => setActiveView('modern')} />;
+        return <TerminalViewer />;
       case 'overview':
         return <SystemOverview />;
       case 'dashboard':
@@ -489,6 +490,7 @@ function AppChat() {
           contextPanel={<ContextPanel />}
           memoryPanel={<MemoryPanel />}
           logsPanel={<LogsPanel />}
+          governancePanel={<GovernancePanel />}
         />
       }
       bottomBar={
