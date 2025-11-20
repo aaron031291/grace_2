@@ -84,3 +84,8 @@ storage/memory/*.avi
 *.MP4
 *.MOV
 *.AVI
+
+# Grace snapshots and cache (runtime, not source)
+.grace_snapshots/
+.grace_cache/
+.grace_vault/
