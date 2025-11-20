@@ -9,7 +9,7 @@ Based on Numenta's HTM theory for temporal sequence prediction.
 import numpy as np
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import deque
 import json
 from pathlib import Path
@@ -359,6 +359,7 @@ class HTMDetectorPool:
     
     def __init__(self):
         self.detectors: Dict[str, HTMAnomalyDetector] = {}
+        self.recent_anomalies: deque = deque(maxlen=100)
     
     def get_detector(self, model_name: str) -> HTMAnomalyDetector:
         """Get or create detector for model"""
@@ -376,7 +377,28 @@ class HTMDetectorPool:
         
         detector = self.get_detector(model_name)
         sequence = TokenSequence(tokens=tokens, probabilities=probabilities)
-        return detector.detect(sequence)
+        result = detector.detect(sequence)
+        
+        if result.is_anomaly:
+            self.recent_anomalies.append({
+                "model": model_name,
+                "anomaly": result,
+                "timestamp": datetime.utcnow()
+            })
+            
+        return result
+    
+    def get_recent_anomalies(self, minutes: int = 1) -> List[Dict]:
+        """Get anomalies detected in the last N minutes"""
+        cutoff = datetime.utcnow() - timedelta(minutes=minutes)
+        return [
+            {
+                "description": f"Anomaly in {x['model']}: score={x['anomaly'].anomaly_score:.2f}",
+                **x['anomaly'].to_dict()
+            }
+            for x in self.recent_anomalies
+            if x['timestamp'] >= cutoff
+        ]
     
     def get_all_stats(self) -> Dict[str, Dict]:
         """Get stats for all detectors"""

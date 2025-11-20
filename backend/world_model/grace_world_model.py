@@ -76,6 +76,8 @@ class GraceWorldModel:
         self.storage_path = Path("databases/world_model")
         self.storage_path.mkdir(parents=True, exist_ok=True)
         
+        self.status = "healthy"
+        self.error_count = 0
         self._initialized = False
     
     async def initialize(self):
@@ -243,6 +245,7 @@ class GraceWorldModel:
                 }
             )
         except Exception:
+            self.error_count += 1
             pass  # RAG not available, knowledge still stored in memory
         
         logger.info(f"[WORLD-MODEL] Added knowledge: {category}/{knowledge_id}")
@@ -330,6 +333,7 @@ class GraceWorldModel:
                 
                 return results
         except:
+            self.error_count += 1
             pass
         
         # Fallback: Simple text search
@@ -450,6 +454,8 @@ Answer (first person, as Grace):"""
     def get_stats(self) -> Dict[str, Any]:
         """Get world model statistics"""
         return {
+            'status': self.status,
+            'error_count': self.error_count,
             'total_knowledge': len(self.knowledge_base),
             'by_category': {
                 cat: len(items)
