@@ -5,6 +5,8 @@ import { BackgroundTasksDrawer } from './BackgroundTasksDrawer';
 import { RemoteCockpit } from './RemoteCockpit';
 import { IncidentsAPI, type Incident, type SelfHealingStats } from '../api/incidents';
 import { LearningAPI, type WhitelistEntry, type ServiceAccount } from '../api/learning';
+import { MissionControlAPI, type Mission } from '../api/missions';
+import { ChaosAPI, type ChaosCampaign, type ChaosStatus } from '../api/chaos';
 import './MissionControlDashboard.css';
 
 interface LearningStatus {
@@ -93,6 +95,9 @@ interface MissionControlData {
   incidents: Incident[];
   whitelist: WhitelistEntry[];
   serviceAccounts: ServiceAccount[];
+  missions: Mission[];
+  chaosStatus: ChaosStatus | null;
+  chaosCampaigns: ChaosCampaign[];
 }
 
 export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
@@ -109,7 +114,10 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
       selfHealingStats: null,
       incidents: [],
       whitelist: [],
-      serviceAccounts: []
+      serviceAccounts: [],
+      missions: [],
+      chaosStatus: null,
+      chaosCampaigns: []
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -159,6 +167,12 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
             // Fetch learning controls data
             const { whitelist, serviceAccounts } = await fetchLearningControlsData();
 
+            // Fetch missions data
+            const missions = await fetchMissions();
+
+            // Fetch chaos data
+            const { chaosStatus, chaosCampaigns } = await fetchChaosData();
+
             // Detect missing items
             const missingItems = detectMissingItems(externalLearning);
 
@@ -175,7 +189,10 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
               selfHealingStats,
               incidents,
               whitelist,
-              serviceAccounts
+              serviceAccounts,
+              missions,
+              chaosStatus,
+              chaosCampaigns
             });
 
             setError(null);
@@ -312,6 +329,36 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
         return {
           whitelist: [],
           serviceAccounts: []
+        };
+      }
+    };
+
+    const fetchMissions = async (): Promise<Mission[]> => {
+      try {
+        const data = await MissionControlAPI.listMissions({ limit: 50 });
+        return data.missions || [];
+      } catch (err) {
+        console.error('Missions fetch failed:', err);
+        return [];
+      }
+    };
+
+    const fetchChaosData = async (): Promise<{ chaosStatus: ChaosStatus | null; chaosCampaigns: ChaosCampaign[] }> => {
+      try {
+        const [status, campaigns] = await Promise.all([
+          ChaosAPI.getStatus(),
+          ChaosAPI.getCampaigns()
+        ]);
+
+        return {
+          chaosStatus: status,
+          chaosCampaigns: campaigns || []
+        };
+      } catch (err) {
+        console.error('Chaos data fetch failed:', err);
+        return {
+          chaosStatus: null,
+          chaosCampaigns: []
         };
       }
     };
@@ -1264,29 +1311,319 @@ Auto-Healing Playbooks: ${JSON.stringify(result.auto_healing_playbooks || {}, nu
                         )}
                     </div>
 
-                    {/* Tasks/Missions */}
-                    <div className="mc-section tasks-section">
-                        <h3>📋 Active Missions</h3>
-                        {data.tasks.length > 0 ? (
-                            <div className="tasks-list">
-                                {data.tasks.slice(0, 10).map((task, idx) => (
-                                    <div key={task.mission_id || task.task_id || idx} className="task-item">
-                                        <div className="task-status" data-status={task.status || 'unknown'}>
-                                            {task.status || 'pending'}
-                                        </div>
-                                        <div className="task-details">
-                                            <div className="task-title">{task.title || task.mission_type || 'Task'}</div>
-                                            <div className="task-meta">
-                                                {task.subsystem && <span className="task-subsystem">{task.subsystem}</span>}
-                                                {task.severity && <span className="task-severity">{task.severity}</span>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                    {/* Chaos Engineering Panel */}
+                    <div className="mc-section chaos-section">
+                      <h3>🌀 Chaos Engineering (Boot-Enabled)</h3>
+                      
+                      {data.chaosStatus ? (
+                        <>
+                          <div className="chaos-status-bar">
+                            <div className="chaos-status-item">
+                              <span className="chaos-label">Status:</span>
+                              <span className={`chaos-value ${data.chaosStatus.config.chaos_enabled ? 'enabled' : 'disabled'}`}>
+                                {data.chaosStatus.config.chaos_enabled ? '✅ Running Freely' : '⏸️ Paused'}
+                              </span>
                             </div>
-                        ) : (
-                            <div className="no-data">No active missions</div>
-                        )}
+                            
+                            <div className="chaos-status-item">
+                              <span className="chaos-label">Governance:</span>
+                              <span className="chaos-value disabled">
+                                ❌ Not Required (Boot Mode)
+                              </span>
+                            </div>
+                            
+                            <div className="chaos-status-item">
+                              <span className="chaos-label">Guardian Halt:</span>
+                              <span className={`chaos-value ${data.chaosStatus.config.guardian_halt_enabled ? 'enabled' : 'disabled'}`}>
+                                {data.chaosStatus.config.guardian_halt_enabled ? '✅ Enabled (Instant)' : '❌ Disabled'}
+                              </span>
+                            </div>
+
+                            <div className="chaos-status-item">
+                              <span className="chaos-label">Active Campaigns:</span>
+                              <span className="chaos-value">{data.chaosStatus.active_campaigns}</span>
+                            </div>
+
+                            <div className="chaos-status-item">
+                              <span className="chaos-label">Tracking:</span>
+                              <span className="chaos-value enabled">
+                                📊 KPI + Trust Score
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Chaos Configuration */}
+                          <div className="chaos-config">
+                            <div className="config-item">
+                              <span className="config-label">Allowed Environments:</span>
+                              <div className="config-tags">
+                                {data.chaosStatus.config.allowed_environments.map((env) => (
+                                  <span key={env} className="env-tag">{env}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="config-item">
+                              <span className="config-label">Min Trust Score:</span>
+                              <span className="config-value">{(data.chaosStatus.config.min_trust_score * 100).toFixed(0)}%</span>
+                            </div>
+                            <div className="config-item">
+                              <span className="config-label">Max Blast Radius:</span>
+                              <span className="config-value">{data.chaosStatus.config.max_blast_radius}%</span>
+                            </div>
+                          </div>
+
+                          {/* Active Campaigns */}
+                          {data.chaosCampaigns.length > 0 && (
+                            <div className="chaos-campaigns">
+                              <h4 className="campaigns-title">🎯 Active Campaigns ({data.chaosCampaigns.length})</h4>
+                              <div className="campaigns-list">
+                                {data.chaosCampaigns.slice(0, 5).map((campaign) => (
+                                  <div key={campaign.campaign_id} className={`campaign-card status-${campaign.status}`}>
+                                    <div className="campaign-header">
+                                      <div className="campaign-name">{campaign.name}</div>
+                                      <span className={`campaign-status status-${campaign.status}`}>
+                                        {campaign.status === 'running' && '⚙️ Running'}
+                                        {campaign.status === 'pending_approval' && '⏳ Pending'}
+                                        {campaign.status === 'approved' && '✅ Approved'}
+                                        {campaign.status === 'halted' && '🛑 Halted'}
+                                        {campaign.status === 'completed' && '✅ Completed'}
+                                      </span>
+                                    </div>
+
+                                    <div className="campaign-details">
+                                      <div className="campaign-env">
+                                        <span className={`env-badge env-${campaign.environment}`}>
+                                          {campaign.environment}
+                                        </span>
+                                      </div>
+                                      <div className="campaign-targets">
+                                        Targets: {campaign.targets.join(', ')}
+                                      </div>
+                                      <div className="campaign-failures">
+                                        Failures: {campaign.failure_types.join(', ')}
+                                      </div>
+                                    </div>
+
+                                    {/* KPI Tracking */}
+                                    {campaign.kpis && Object.keys(campaign.kpis).length > 0 && (
+                                      <div className="campaign-kpis">
+                                        <div className="kpi-title">📊 KPIs:</div>
+                                        <div className="kpi-grid">
+                                          {campaign.kpis.mttr_seconds !== undefined && (
+                                            <div className="kpi-item">
+                                              <span className="kpi-label">MTTR:</span>
+                                              <span className="kpi-value">{campaign.kpis.mttr_seconds}s</span>
+                                            </div>
+                                          )}
+                                          {campaign.kpis.recovery_success_rate !== undefined && (
+                                            <div className="kpi-item">
+                                              <span className="kpi-label">Recovery:</span>
+                                              <span className="kpi-value">{(campaign.kpis.recovery_success_rate * 100).toFixed(0)}%</span>
+                                            </div>
+                                          )}
+                                          {campaign.kpis.incidents_triggered !== undefined && (
+                                            <div className="kpi-item">
+                                              <span className="kpi-label">Incidents:</span>
+                                              <span className="kpi-value">{campaign.kpis.incidents_triggered}</span>
+                                            </div>
+                                          )}
+                                          {campaign.kpis.auto_recoveries !== undefined && (
+                                            <div className="kpi-item">
+                                              <span className="kpi-label">Auto-Recoveries:</span>
+                                              <span className="kpi-value">{campaign.kpis.auto_recoveries}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Trust Score Tracking */}
+                                    {(campaign.trust_score_before !== undefined || campaign.trust_score_after !== undefined) && (
+                                      <div className="campaign-trust">
+                                        <div className="trust-title">🛡️ Trust Score:</div>
+                                        <div className="trust-comparison">
+                                          {campaign.trust_score_before !== undefined && (
+                                            <div className="trust-item">
+                                              <span className="trust-label">Before:</span>
+                                              <span className="trust-value">{(campaign.trust_score_before * 100).toFixed(0)}%</span>
+                                            </div>
+                                          )}
+                                          {campaign.trust_score_after !== undefined && (
+                                            <div className="trust-item">
+                                              <span className="trust-label">After:</span>
+                                              <span className={`trust-value ${
+                                                campaign.trust_score_after >= (campaign.trust_score_before || 0) ? 'positive' : 'negative'
+                                              }`}>
+                                                {(campaign.trust_score_after * 100).toFixed(0)}%
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Campaign Actions */}
+                                    <div className="campaign-actions">
+                                      {campaign.status === 'running' && (
+                                        <button 
+                                          className="halt-btn"
+                                          onClick={async () => {
+                                            if (confirm(`Halt chaos campaign "${campaign.name}"?`)) {
+                                              try {
+                                                await ChaosAPI.haltCampaign(campaign.campaign_id, 'User requested halt');
+                                                await fetchDashboard();
+                                              } catch (err) {
+                                                console.error('Failed to halt campaign:', err);
+                                                alert('Failed to halt campaign');
+                                              }
+                                            }
+                                          }}
+                                        >
+                                          🛑 Guardian Halt
+                                        </button>
+                                      )}
+                                      {campaign.halt_reason && (
+                                        <div className="halt-reason">
+                                          Halt reason: {campaign.halt_reason}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Chaos Toggle */}
+                          <div className="chaos-controls">
+                            <button 
+                              className={`chaos-toggle-btn ${data.chaosStatus.config.chaos_enabled ? 'enabled' : 'disabled'}`}
+                              onClick={async () => {
+                                try {
+                                  await ChaosAPI.toggleChaos(!data.chaosStatus!.config.chaos_enabled);
+                                  await fetchDashboard();
+                                } catch (err) {
+                                  console.error('Failed to toggle chaos:', err);
+                                  alert('Failed to toggle chaos engineering');
+                                }
+                              }}
+                            >
+                              {data.chaosStatus.config.chaos_enabled ? '⏸️ Pause Chaos' : '▶️ Resume Chaos'}
+                            </button>
+                            
+                            <div className="chaos-notice">
+                              ℹ️ Chaos runs freely at boot. Guardian can halt instantly. KPIs & trust scores tracked.
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="no-data">Chaos engineering data unavailable</div>
+                      )}
+                    </div>
+
+                    {/* Mission Registry Table */}
+                    <div className="mc-section mission-registry-section">
+                      <h3>📋 Mission Registry</h3>
+                      {data.missions.length > 0 ? (
+                        <div className="mission-registry-table">
+                          <table className="missions-table">
+                            <thead>
+                              <tr>
+                                <th>Mission ID</th>
+                                <th>Owner</th>
+                                <th>Subsystem</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Started</th>
+                                <th>Resolved</th>
+                                <th>Duration</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {data.missions.slice(0, 20).map((mission) => {
+                                const startTime = new Date(mission.created_at);
+                                const endTime = mission.resolved_at ? new Date(mission.resolved_at) : null;
+                                const duration = endTime 
+                                  ? ((endTime.getTime() - startTime.getTime()) / 1000 / 60).toFixed(1) 
+                                  : ((Date.now() - startTime.getTime()) / 1000 / 60).toFixed(1);
+
+                                return (
+                                  <tr 
+                                    key={mission.mission_id} 
+                                    className={`mission-row severity-${mission.severity} status-${mission.status}`}
+                                  >
+                                    <td className="mission-id-cell">
+                                      <span className="mission-id-text" title={mission.mission_id}>
+                                        {mission.mission_id.substring(0, 24)}...
+                                      </span>
+                                    </td>
+                                    <td className="owner-cell">
+                                      {mission.assigned_to || mission.owner || 'Unassigned'}
+                                    </td>
+                                    <td className="subsystem-cell">
+                                      <span className="subsystem-badge">{mission.subsystem_id}</span>
+                                    </td>
+                                    <td className="severity-cell">
+                                      <span className={`severity-badge severity-${mission.severity}`}>
+                                        {mission.severity}
+                                      </span>
+                                    </td>
+                                    <td className="status-cell">
+                                      <span className={`status-badge status-${mission.status}`}>
+                                        {mission.status === 'in_progress' && '⟳ In Progress'}
+                                        {mission.status === 'open' && '🔓 Open'}
+                                        {mission.status === 'resolved' && '✅ Resolved'}
+                                        {mission.status === 'failed' && '❌ Failed'}
+                                        {mission.status === 'escalated' && '⬆️ Escalated'}
+                                        {mission.status === 'awaiting_validation' && '⏳ Validating'}
+                                        {mission.status === 'observing' && '👁️ Observing'}
+                                      </span>
+                                    </td>
+                                    <td className="time-cell">
+                                      {startTime.toLocaleString()}
+                                    </td>
+                                    <td className="time-cell">
+                                      {endTime ? endTime.toLocaleString() : '-'}
+                                    </td>
+                                    <td className="duration-cell">
+                                      {duration}m
+                                      {!endTime && <span className="ongoing-indicator"> (ongoing)</span>}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+
+                          {/* Mission Summary Stats */}
+                          <div className="mission-summary">
+                            <div className="summary-stat">
+                              <span className="summary-label">Total:</span>
+                              <span className="summary-value">{data.missions.length}</span>
+                            </div>
+                            <div className="summary-stat">
+                              <span className="summary-label">Active:</span>
+                              <span className="summary-value active">
+                                {data.missions.filter(m => m.status === 'open' || m.status === 'in_progress').length}
+                              </span>
+                            </div>
+                            <div className="summary-stat">
+                              <span className="summary-label">Resolved:</span>
+                              <span className="summary-value resolved">
+                                {data.missions.filter(m => m.status === 'resolved').length}
+                              </span>
+                            </div>
+                            <div className="summary-stat">
+                              <span className="summary-label">Critical:</span>
+                              <span className="summary-value critical">
+                                {data.missions.filter(m => m.severity === 'critical').length}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="no-data">No missions recorded</div>
+                      )}
                     </div>
                 </div>
 
