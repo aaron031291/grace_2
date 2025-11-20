@@ -1,0 +1,65 @@
+# GitHub Token Provisioning Playbook
+# Handles unauthenticated GitHub miner installs and prompts for credentials
+
+name: GitHub Token Provisioning
+version: 1.0.0
+category: governance
+
+trigger:
+  - event: github.token_missing
+  - event: learning.github.rate_limit
+
+steps:
+  - name: Detect Token Source
+    action: env_lookup
+    params:
+      keys:
+        - GITHUB_TOKEN
+        - GRACE_VAULT_KEY
+    output: token_sources
+
+  - name: Generate Vault Request
+    when: not token_sources.GITHUB_TOKEN and token_sources.GRACE_VAULT_KEY
+    action: vault_read
+    params:
+      key: github_token
+      vault_key: "{{ token_sources.GRACE_VAULT_KEY }}"
+    output: vault_token
+
+  - name: Prompt Operator
+    when: not token_sources.GITHUB_TOKEN and not vault_token
+    action: send_alert
+    params:
+      severity: medium
+      message: "GitHub token missing for knowledge miner"
+      recommendation: |
+        Set GITHUB_TOKEN in .env or store a secret named github_token in the Grace vault.
+
+  - name: Configure Token
+    when: vault_token
+    action: write_env
+    params:
+      path: "{{ workspace_root }}/.env"
+      key: GITHUB_TOKEN
+      value: "{{ vault_token }}"
+
+  - name: Restart GitHub Miner
+    action: restart_service
+    params:
+      service: github_knowledge_miner
+
+  - name: Log Event
+    action: log_event
+    params:
+      event_type: github_token_updated
+      severity: info
+      metadata:
+        source: >-
+          {{ 'vault' if vault_token else ('env' if token_sources.GITHUB_TOKEN else 'operator_prompted') }}
+
+metadata:
+  owner: governance_team
+  tags:
+    - github
+    - credentials
+    - learning

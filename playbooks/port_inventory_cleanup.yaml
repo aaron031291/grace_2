@@ -1,0 +1,60 @@
+# Port Inventory Cleanup Playbook
+# Clears stale port allocations and reconciles watchdog configuration
+
+name: Port Inventory Cleanup
+version: 1.0.0
+category: reliability
+
+trigger:
+  - event: port_watchdog.dead_port
+  - event: snapshot.health_check_failed
+
+steps:
+  - name: Gather Current Allocations
+    action: port_manager_list
+    output: port_state
+
+  - name: Detect Long-Stale Ports
+    action: filter_records
+    params:
+      records: "{{ port_state.allocations }}"
+      where:
+        - field: minutes_inactive
+          operator: ">"
+          value: 60
+    output: stale_ports
+
+  - name: Remove Stale Ports
+    when: stale_ports | length > 0
+    action: port_manager_release
+    params:
+      ports: "{{ stale_ports | map(attribute='port') | list }}"
+
+  - name: Rebuild Watch List
+    action: port_manager_sync
+    params:
+      active_ports:
+        - 8000
+        - 5173
+      kernel_ports:
+        - 8100-8120
+
+  - name: Restart Watchdog
+    action: restart_service
+    params:
+      service: port_watchdog
+
+  - name: Log Cleanup
+    action: log_event
+    params:
+      event_type: port_inventory_cleanup
+      severity: info
+      metadata:
+        stale_ports_removed: "{{ stale_ports | length }}"
+
+metadata:
+  owner: healing_team
+  tags:
+    - networking
+    - watchdog
+    - snapshot

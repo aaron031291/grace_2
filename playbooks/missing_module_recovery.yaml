@@ -1,0 +1,82 @@
+# Missing Module Recovery Playbook
+# Automatically diagnose and remediate ModuleNotFoundError / ImportError events
+
+name: Missing Module Recovery
+version: 1.0.0
+category: self_healing
+
+trigger:
+  - event: module_import_error
+  - event: boot.chunk.failed
+
+steps:
+  - name: Capture Error Context
+    action: extract_fields
+    params:
+      source: "{{ event }}"
+      fields:
+        module_name: missing_module
+        stack_trace: stack
+        component: component_id
+    output: module_ctx
+
+  - name: Check Known Locations
+    action: file_search
+    params:
+      root: "{{ workspace_root }}"
+      pattern: "{{ module_ctx.module_name | module_to_path }}"
+    output: module_search
+
+  - name: Auto-Create Stub (if optional)
+    when: module_ctx.module_name in optional_modules
+    action: create_file
+    params:
+      path: "{{ workspace_root }}/{{ module_ctx.module_name | module_to_path }}"
+      contents: |
+        \"\"\"Auto-generated stub for {{ module_ctx.module_name }}.\"\"\"
+        class PendingImplementation:
+            def __init__(self):
+                raise RuntimeError("Module {{ module_ctx.module_name }} requires implementation.")
+
+  - name: Raise Coding Agent Task
+    when: module_ctx.module_name not in optional_modules
+    action: create_work_order
+    params:
+      assignee: coding_agent
+      priority: high
+      title: "Restore missing module {{ module_ctx.module_name }}"
+      description: |
+        Component {{ module_ctx.component }} failed to import module {{ module_ctx.module_name }}.
+        Stack trace:
+        {{ module_ctx.stack_trace }}
+      labels:
+        - missing-module
+        - boot-blocker
+
+  - name: Register Incident
+    action: log_event
+    params:
+      event_type: module_missing
+      severity: critical
+      metadata:
+        module: "{{ module_ctx.module_name }}"
+        component: "{{ module_ctx.component }}"
+        stack_trace: "{{ module_ctx.stack_trace }}"
+
+  - name: Notify Guardian
+    action: send_alert
+    params:
+      severity: high
+      message: "Module {{ module_ctx.module_name }} missing for {{ module_ctx.component }}"
+      recommendation: "Track coding-agent work order and re-run boot chunk once module lands."
+
+metadata:
+  owner: healing_team
+  tags:
+    - imports
+    - boot
+    - coding-agent
+  optional_modules:
+    - backend.agents.creative_problem_solver
+    - backend.agents.future_projects_learner
+    - backend.agents.competitor_tracker

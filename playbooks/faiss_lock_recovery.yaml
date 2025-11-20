@@ -1,0 +1,62 @@
+# FAISS / SQLite Lock Recovery Playbook
+# Resolves "database is locked" during FAISS index registration
+
+name: FAISS Lock Recovery
+version: 1.0.0
+category: data
+
+trigger:
+  - event: faiss.database_locked
+  - event: embedding.index_failure
+
+steps:
+  - name: Identify Lock Holders
+    action: sqlite_locks
+    params:
+      database: "{{ workspace_root }}/grace.db"
+    output: lock_info
+
+  - name: Graceful Stop Writers
+    action: restart_service
+    params:
+      service: embedding_service
+
+  - name: Wait For Release
+    action: sleep
+    params:
+      duration: 5s
+
+  - name: Force Unlock (if necessary)
+    when: lock_info.processes | length > 0
+    action: terminate_processes
+    params:
+      pids: "{{ lock_info.processes }}"
+
+  - name: Rebuild FAISS Metadata
+    action: run_script
+    params:
+      command: >
+        python -m backend.services.embedding_admin rebuild_index
+
+  - name: Verify Vector API
+    action: http_request
+    params:
+      url: http://localhost:{{ env.GRACE_PORT | default(8000) }}/api/vectors/health
+      method: GET
+      timeout: 5
+    output: vector_health
+
+  - name: Alert If Still Locked
+    when: "vector_health.status != 'ok'"
+    action: send_alert
+    params:
+      severity: high
+      message: "FAISS lock persists after remediation"
+      recommendation: "Switch to dedicated vector DB or increase SQLite timeout."
+
+metadata:
+  owner: data_platform
+  tags:
+    - faiss
+    - sqlite
+    - embeddings

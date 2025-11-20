@@ -1,0 +1,46 @@
+# Google Search Quota Exhaustion Playbook
+# Pauses learning missions and rotates providers when quota hits zero
+
+name: Google Search Quota Handler
+version: 1.0.0
+category: learning
+
+trigger:
+  - event: search.quota.exhausted
+  - event: google_search.http_429
+
+steps:
+  - name: Pause Learning Missions
+    action: mission_control
+    params:
+      action: pause
+      reason: "Google Search quota exhausted"
+      scope: remote_learning
+
+  - name: Switch Provider
+    action: update_config
+    params:
+      file: "{{ workspace_root }}/config/remote_learning.yaml"
+      changes:
+        search_provider: bing
+        google_backoff_until: "{{ now() + 24h }}"
+
+  - name: Notify Guardian
+    action: send_alert
+    params:
+      severity: medium
+      message: "Google Search quota exhausted"
+      recommendation: "Review remote learning rate limits or increase quota."
+
+  - name: Resume Missions
+    action: mission_control
+    params:
+      action: resume
+      scope: remote_learning
+
+metadata:
+  owner: learning_team
+  tags:
+    - remote-learning
+    - search
+    - quota
