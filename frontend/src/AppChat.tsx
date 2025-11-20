@@ -486,9 +486,9 @@ function AppChat() {
       }
       rightSidebar={
         <RightSidebar
-          contextPanel={<div>Context panel coming soon</div>}
-          memoryPanel={<div>Memory panel coming soon</div>}
-          logsPanel={<div>Logs panel coming soon</div>}
+          contextPanel={<ContextPanel />}
+          memoryPanel={<MemoryPanel />}
+          logsPanel={<LogsPanel />}
         />
       }
       bottomBar={
