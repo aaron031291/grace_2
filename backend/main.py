@@ -102,6 +102,12 @@ except ImportError as e:
     print(f"[WARN] Cleanup API disabled: {e}")
 
 try:
+    from backend.routes.unified_status_api import router as unified_status_router
+    app.include_router(unified_status_router)
+except ImportError as e:
+    print(f"[WARN] Unified Status API disabled: {e}")
+
+try:
     from backend.routes.auth import router as auth_router
     app.include_router(auth_router)
 except ImportError as e:
