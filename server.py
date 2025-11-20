@@ -790,6 +790,16 @@ if __name__ == "__main__":
     from backend.config.environment import GRACE_PORT
     port = GRACE_PORT
     
+    # Sync with Guardian's allocation if available
+    if isinstance(boot_result, dict) and 'phases' in boot_result:
+        try:
+            allocated = boot_result.get('phases', {}).get('phase3_ports', {}).get('port')
+            if allocated and allocated != port:
+                print(f"[PORT] Guardian allocated port {allocated}, overriding GRACE_PORT {port}")
+                port = allocated
+        except Exception:
+            pass
+    
     print(f"[PORT] Using port: {port}")
     
     # Start frontend in background
