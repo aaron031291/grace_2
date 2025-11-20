@@ -7,6 +7,6 @@ echo.
 echo Starting backend on port 8420...
 echo.
 
-python server.py
+python scripts\runners\server.py
 
 pause

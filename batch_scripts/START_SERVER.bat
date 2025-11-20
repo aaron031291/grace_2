@@ -12,6 +12,6 @@ echo Press Ctrl+C to stop
 echo ========================================
 echo.
 
-python server.py
+python scripts\runners\server.py
 
 pause

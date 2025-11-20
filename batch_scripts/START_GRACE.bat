@@ -6,6 +6,6 @@ if exist .venv\Scripts\activate.bat (
     call .venv\Scripts\activate.bat
 )
 
-python serve.py
+python scripts\runners\server.py
 
 pause

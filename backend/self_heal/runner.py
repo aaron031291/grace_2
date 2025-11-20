@@ -53,7 +53,7 @@ class ExecutionRunner:
             self._task = None
 
     async def _run_loop(self) -> None:
-        from ..settings import settings
+        from backend.settings import settings
         if not getattr(settings, "SELF_HEAL_EXECUTE", False):
             return
             

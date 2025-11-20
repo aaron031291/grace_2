@@ -12,6 +12,6 @@ if exist .venv\Scripts\activate.bat (
 REM Quick dependency check
 python -m pip install --quiet beautifulsoup4 2>nul
 
-python serve.py
+python scripts\runners\server.py
 
 pause

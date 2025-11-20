@@ -143,103 +143,103 @@ class AutonomousWebNavigator:
 
         # try:
         #     if strategy_name == 'basic_search':
-                # Simple search
-                search_results = await google_search_service.search(
-                    query=topic,
-                    num_results=5
-                )
-                
-                result['results'] = search_results
-                result['count'] = len(search_results)
-                result['success'] = len(search_results) > 0
-                
-                # Save knowledge
-                if search_results:
-                    await self._save_search_knowledge(topic, search_results, strategy_name)
-                    self.knowledge_gaps_filled += 1
+        #         # Simple search
+        #         search_results = await google_search_service.search(
+        #             query=topic,
+        #             num_results=5
+        #         )
+        #         
+        #         result['results'] = search_results
+        #         result['count'] = len(search_results)
+        #         result['success'] = len(search_results) > 0
+        #         
+        #         # Save knowledge
+        #         if search_results:
+        #             await self._save_search_knowledge(topic, search_results, strategy_name)
+        #             self.knowledge_gaps_filled += 1
             
-            elif strategy_name == 'topic_learning':
-                # Deep learning on topic
-                search_results = await google_search_service.search_and_extract(
-                    query=topic,
-                    num_results=10
-                )
-                
-                result['results'] = search_results.get('results', [])
-                result['count'] = len(result['results'])
-                result['success'] = len(result['results']) > 0
-                
-                # Capture as learning outcome
-                if result['results']:
-                    await closed_loop_learning.capture_outcome(
-                        execution_id=f"web-nav-{datetime.utcnow().timestamp()}",
-                        task_description=f"Learn about: {topic}",
-                        approach_taken="Autonomous web navigation - topic learning",
-                        outcome_type="success",
-                        outcome_narrative=f"Learned about {topic} from {len(result['results'])} sources",
-                        metrics={'sources': len(result['results'])},
-                        learning_points=[r.get('snippet', '')[:100] for r in result['results'][:3]]
-                    )
-                    self.knowledge_gaps_filled += 1
-            
-            elif strategy_name == 'solution_search':
-                # Search for error solutions
-                # Format query for error searches
-                error_query = f"{topic} solution fix"
-                search_results = await google_search_service.search(
-                    query=error_query,
-                    num_results=10,
-                    min_trust_score=0.8  # Higher trust for solutions
-                )
-                
-                # Filter for high-quality sources
-                filtered = [r for r in search_results if r.get('trust_score', 0) >= 0.8]
-                
-                result['results'] = filtered
-                result['count'] = len(filtered)
-                result['success'] = len(filtered) > 0
-                
-                if filtered:
-                    await self._save_search_knowledge(topic, filtered, strategy_name)
-                    self.knowledge_gaps_filled += 1
-            
-            elif strategy_name == 'explore_domain':
-                # Domain exploration
-                # Extract domain from topic
-                domain = topic.split()[0] if ' ' in topic else topic
-                
-                exploration_queries = [
-                    f"{domain} fundamentals",
-                    f"{domain} best practices",
-                    f"{domain} examples",
-                    f"latest {domain} trends"
-                ]
-                
-                all_results = []
-                for query in exploration_queries[:3]:  # Limit to 3 queries
-                    try:
-                        search_results = await google_search_service.search(query, num_results=3)
-                        all_results.extend(search_results)
-                    except Exception as e:
-                        logger.warning(f"[WEB-NAVIGATOR] Query failed: {query} - {e}")
-                
-                result['results'] = all_results
-                result['count'] = len(all_results)
-                result['success'] = len(all_results) > 0
-                result['exploration_queries'] = exploration_queries[:3]
-                
-                if all_results:
-                    await self._save_search_knowledge(topic, all_results, strategy_name)
-                    self.knowledge_gaps_filled += 1
-            
-            else:
-                result['error'] = f"Unknown strategy: {strategy_name}"
-                logger.warning(f"[WEB-NAVIGATOR] Unknown strategy: {strategy_name}")
-        
-        except Exception as e:
-            result['error'] = str(e)
-            result['success'] = False
-            logger.error(f"[WEB-NAVIGATOR] Strategy execution failed: {e}")
+        #     elif strategy_name == 'topic_learning':
+        #         # Deep learning on topic
+        #         search_results = await google_search_service.search_and_extract(
+        #             query=topic,
+        #             num_results=10
+        #         )
+        #         
+        #         result['results'] = search_results.get('results', [])
+        #         result['count'] = len(result['results'])
+        #         result['success'] = len(result['results']) > 0
+        #         
+        #         # Capture as learning outcome
+        #         if result['results']:
+        #             await closed_loop_learning.capture_outcome(
+        #                 execution_id=f"web-nav-{datetime.utcnow().timestamp()}",
+        #                 task_description=f"Learn about: {topic}",
+        #                 approach_taken="Autonomous web navigation - topic learning",
+        #                 outcome_type="success",
+        #                 outcome_narrative=f"Learned about {topic} from {len(result['results'])} sources",
+        #                 metrics={'sources': len(result['results'])},
+        #                 learning_points=[r.get('snippet', '')[:100] for r in result['results'][:3]]
+        #             )
+        #             self.knowledge_gaps_filled += 1
+        #     
+        #     elif strategy_name == 'solution_search':
+        #         # Search for error solutions
+        #         # Format query for error searches
+        #         error_query = f"{topic} solution fix"
+        #         search_results = await google_search_service.search(
+        #             query=error_query,
+        #             num_results=10,
+        #             min_trust_score=0.8  # Higher trust for solutions
+        #         )
+        #         
+        #         # Filter for high-quality sources
+        #         filtered = [r for r in search_results if r.get('trust_score', 0) >= 0.8]
+        #         
+        #         result['results'] = filtered
+        #         result['count'] = len(filtered)
+        #         result['success'] = len(filtered) > 0
+        #         
+        #         if filtered:
+        #             await self._save_search_knowledge(topic, filtered, strategy_name)
+        #             self.knowledge_gaps_filled += 1
+        #     
+        #     elif strategy_name == 'explore_domain':
+        #         # Domain exploration
+        #         # Extract domain from topic
+        #         domain = topic.split()[0] if ' ' in topic else topic
+        #         
+        #         exploration_queries = [
+        #             f"{domain} fundamentals",
+        #             f"{domain} best practices",
+        #             f"{domain} examples",
+        #             f"latest {domain} trends"
+        #         ]
+        #         
+        #         all_results = []
+        #         for query in exploration_queries[:3]:  # Limit to 3 queries
+        #             try:
+        #                 search_results = await google_search_service.search(query, num_results=3)
+        #                 all_results.extend(search_results)
+        #             except Exception as e:
+        #                 logger.warning(f"[WEB-NAVIGATOR] Query failed: {query} - {e}")
+        #         
+        #         result['results'] = all_results
+        #         result['count'] = len(all_results)
+        #         result['success'] = len(all_results) > 0
+        #         result['exploration_queries'] = exploration_queries[:3]
+        #         
+        #         if all_results:
+        #             await self._save_search_knowledge(topic, all_results, strategy_name)
+        #             self.knowledge_gaps_filled += 1
+        #     
+        #     else:
+        #         result['error'] = f"Unknown strategy: {strategy_name}"
+        #         logger.warning(f"[WEB-NAVIGATOR] Unknown strategy: {strategy_name}")
+        # 
+        # except Exception as e:
+        #     result['error'] = str(e)
+        #     result['success'] = False
+        #     logger.error(f"[WEB-NAVIGATOR] Strategy execution failed: {e}")
         
         return result
     

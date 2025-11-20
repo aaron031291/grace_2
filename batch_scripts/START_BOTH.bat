@@ -5,7 +5,7 @@ echo.
 cd /d "%~dp0"
 
 echo Starting Backend on port 8000...
-start "Grace Backend" cmd /k "python server.py"
+start "Grace Backend" cmd /k "python scripts\runners\server.py"
 
 timeout /t 3 /nobreak >nul
 
