@@ -1,9 +1,9 @@
 {
-  "snapshot_id": "boot-ok-2025-11-20_12-52-21",
-  "captured_at": "2025-11-20T12:52:21.474523",
+  "snapshot_id": "boot-ok-2025-11-20_16-09-49",
+  "captured_at": "2025-11-20T16:09:49.360397",
   "boot_result": {
     "boot_priority": 0,
-    "started_at": "2025-11-20T12:52:15.276259",
+    "started_at": "2025-11-20T16:09:44.938688",
     "phases": {
       "phase1_self_check": {
         "passed": true,
@@ -14,11 +14,9 @@
         }
       },
       "phase2_diagnostics": {
-        "status": "warning",
+        "status": "healthy",
         "critical_issues": [],
-        "warnings": [
-          "firewall"
-        ],
+        "warnings": [],
         "checks": {
           "ipv4_available": {
             "status": "ok",
@@ -55,11 +53,10 @@
             ]
           },
           "firewall": {
-            "status": "warning",
+            "status": "ok",
             "port": 8000,
-            "can_bind": false,
-            "error": "[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions",
-            "recommendation": "Check firewall rules"
+            "can_bind": true,
+            "note": "Port can be bound (firewall likely OK)"
           },
           "time_wait_sockets": {
             "status": "ok",
@@ -69,9 +66,9 @@
           },
           "connection_limits": {
             "status": "ok",
-            "total_connections": 1595,
-            "established": 87,
-            "listening": 47,
+            "total_connections": 1565,
+            "established": 81,
+            "listening": 46,
             "recommendation": "OK"
           },
           "dns_resolution": {
@@ -87,13 +84,11 @@
         "service_name": "grace_backend",
         "purpose": "Main Grace API - allocated by Guardian during boot",
         "started_by": "guardian_kernel",
-        "allocated_at": "2025-11-20T12:52:15.321863",
+        "allocated_at": "2025-11-20T16:09:44.984147",
         "network_health": {
-          "status": "warning",
+          "status": "healthy",
           "critical_issues": [],
-          "warnings": [
-            "firewall"
-          ],
+          "warnings": [],
           "checks": {
             "ipv4_available": {
               "status": "ok",
@@ -130,11 +125,10 @@
               ]
             },
             "firewall": {
-              "status": "warning",
+              "status": "ok",
               "port": 8000,
-              "can_bind": false,
-              "error": "[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions",
-              "recommendation": "Check firewall rules"
+              "can_bind": true,
+              "note": "Port can be bound (firewall likely OK)"
             },
             "time_wait_sockets": {
               "status": "ok",
@@ -144,9 +138,9 @@
             },
             "connection_limits": {
               "status": "ok",
-              "total_connections": 1595,
-              "established": 87,
-              "listening": 47,
+              "total_connections": 1566,
+              "established": 81,
+              "listening": 46,
               "recommendation": "OK"
             },
             "dns_resolution": {
@@ -156,7 +150,7 @@
               "hostname_ip": "192.168.7.252"
             }
           },
-          "timestamp": "2025-11-20T12:52:15.321863"
+          "timestamp": "2025-11-20T16:09:44.984147"
         }
       },
       "phase4_watchdog": {
@@ -175,12 +169,12 @@
       }
     },
     "boot_complete": true,
-    "duration_seconds": 0.126982
+    "duration_seconds": 0.169211
   },
   "targets": [
     {
       "path": "databases/",
-      "size_bytes": 41132628
+      "size_bytes": 41126934
     },
     {
       "path": "config/",
@@ -199,5 +193,5 @@
       "size_bytes": 6
     }
   ],
-  "total_bytes": 42675683
+  "total_bytes": 42669989
 }

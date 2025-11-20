@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { HealthMeter } from './HealthMeter';
+import { TelemetryStrip } from './TelemetryStrip';
+import { BackgroundTasksDrawer } from './BackgroundTasksDrawer';
+import { RemoteCockpit } from './RemoteCockpit';
+import { IncidentsAPI, type Incident, type SelfHealingStats } from '../api/incidents';
+import { LearningAPI, type WhitelistEntry, type ServiceAccount } from '../api/learning';
 import './MissionControlDashboard.css';
 
 interface LearningStatus {
@@ -9,62 +15,73 @@ interface LearningStatus {
   model_accuracy: number;
 }
 
-interface Snapshot {
-  snapshot_id: string;
+interface LearningOutcome {
+  outcome_id: string;
   timestamp: string;
-  label: string;
-  verified_ok: boolean;
+  context: string;
+  action_taken: string;
+  result: string;
+  confidence: number;
+  learned_pattern?: string;
+}
+
+interface Snapshot {
+    snapshot_id: string;
+    timestamp: string;
+    label: string;
+    verified_ok: boolean;
 }
 
 interface HealthStatus {
-  overall_health: number;
-  incidents_count?: number;
-  healing_success_rate?: number;
+    overall_health: number;
+    incidents_count?: number;
+    healing_success_rate?: number;
 }
 
 interface ExternalLearningStatus {
-  web_learning_enabled: boolean;
-  github_learning_enabled: boolean;
-  firefox_agent_running: boolean;
-  github_token_status: 'valid' | 'missing' | 'unknown';
-  google_search_quota: 'ok' | 'exhausted' | 'warning' | 'unknown';
-  quota_reset_date?: string;
+    web_learning_enabled: boolean;
+    github_learning_enabled: boolean;
+    firefox_agent_running: boolean;
+    github_token_status: 'valid' | 'missing' | 'unknown';
+    google_search_quota: 'ok' | 'exhausted' | 'warning' | 'unknown';
+    quota_reset_date?: string;
 }
 
 interface MissingItem {
-  type: 'credential' | 'playbook' | 'config';
-  name: string;
-  severity: 'critical' | 'warning' | 'info';
-  description: string;
-  fix_available: boolean;
-  fix_action?: string;
-  documentation_url?: string;
+    type: 'credential' | 'playbook' | 'config';
+    name: string;
+    severity: 'critical' | 'warning' | 'info';
+    description: string;
+    fix_available: boolean;
+    fix_action?: string;
+    documentation_url?: string;
 }
 
 interface MetricsData {
-  mttr_seconds: number;
-  mttr_target_seconds: number;
-  learning_event_count: number;
-  success_rate_percent: number;
-  missions_resolved: number;
-  missions_active: number;
-  missions_failed: number;
-  rag_health?: number;
-  htm_health?: number;
+    mttr_seconds: number;
+    mttr_target_seconds: number;
+    learning_event_count: number;
+    success_rate_percent: number;
+    missions_resolved: number;
+    missions_active: number;
+    missions_failed: number;
+    rag_health?: number;
+    htm_health?: number;
 }
 
 interface MissionHistory {
-  mission_id: string;
-  status: string;
-  title: string;
-  subsystem: string;
-  created_at: string;
-  completed_at?: string;
-  duration_seconds?: number;
+    mission_id: string;
+    status: string;
+    title: string;
+    subsystem: string;
+    created_at: string;
+    completed_at?: string;
+    duration_seconds?: number;
 }
 
 interface MissionControlData {
   learning: LearningStatus | null;
+  learningOutcomes: LearningOutcome[];
   snapshots: Snapshot[];
   health: HealthStatus | null;
   tasks: any[];
@@ -72,384 +89,451 @@ interface MissionControlData {
   metrics: MetricsData | null;
   missionHistory: MissionHistory[];
   missingItems: MissingItem[];
+  selfHealingStats: SelfHealingStats | null;
+  incidents: Incident[];
+  whitelist: WhitelistEntry[];
+  serviceAccounts: ServiceAccount[];
 }
 
 export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const [data, setData] = useState<MissionControlData>({
-    learning: null,
-    snapshots: [],
-    health: null,
-    tasks: [],
-    externalLearning: null,
-    metrics: null,
-    missionHistory: [],
-    missingItems: []
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [learningEvidence, setLearningEvidence] = useState<any>(null);
-  const [playbookRunning, setPlaybookRunning] = useState<string | null>(null);
+    const [data, setData] = useState<MissionControlData>({
+      learning: null,
+      learningOutcomes: [],
+      snapshots: [],
+      health: null,
+      tasks: [],
+      externalLearning: null,
+      metrics: null,
+      missionHistory: [],
+      missingItems: [],
+      selfHealingStats: null,
+      incidents: [],
+      whitelist: [],
+      serviceAccounts: []
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [learningEvidence, setLearningEvidence] = useState<any>(null);
+    const [playbookRunning, setPlaybookRunning] = useState<string | null>(null);
+    const [tasksDrawerOpen, setTasksDrawerOpen] = useState(false);
+    const [remoteCockpitOpen, setRemoteCockpitOpen] = useState(false);
 
-  const fetchDashboard = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch learning status
-      const learningRes = await fetch('http://localhost:8017/api/learning/status');
-      const learning = learningRes.ok ? await learningRes.json() : null;
+    const fetchDashboard = async () => {
+        try {
+            setLoading(true);
 
-      // Fetch snapshots
-      const snapshotsRes = await fetch('http://localhost:8017/api/snapshots/list');
-      const snapshotsData = snapshotsRes.ok ? await snapshotsRes.json() : { snapshots: [] };
+            // Fetch learning status
+            const learningRes = await fetch('http://localhost:8017/api/learning/status');
+            const learning = learningRes.ok ? await learningRes.json() : null;
 
-      // Fetch health/incidents (if available)
-      const healthRes = await fetch('http://localhost:8017/api/incidents/stats');
-      const health = healthRes.ok ? await healthRes.json() : null;
+            // Fetch learning outcomes
+            const outcomesRes = await fetch('http://localhost:8017/api/learning/outcomes');
+            const outcomesData = outcomesRes.ok ? await outcomesRes.json() : { outcomes: [] };
+            const learningOutcomes = outcomesData.outcomes || outcomesData.data || [];
 
-      // Fetch missions/tasks
-      const tasksRes = await fetch('http://localhost:8017/mission-control/missions');
-      const tasksData = tasksRes.ok ? await tasksRes.json() : { missions: [] };
+            // Fetch snapshots
+            const snapshotsRes = await fetch('http://localhost:8017/api/snapshots/list');
+            const snapshotsData = snapshotsRes.ok ? await snapshotsRes.json() : { snapshots: [] };
 
-      // Fetch external learning status
-      const externalLearning = await fetchExternalLearningStatus();
+            // Fetch health/incidents (if available)
+            const healthRes = await fetch('http://localhost:8017/api/incidents/stats');
+            const health = healthRes.ok ? await healthRes.json() : null;
 
-      // Fetch mission history
-      const missionHistory = await fetchMissionHistory();
+            // Fetch missions/tasks
+            const tasksRes = await fetch('http://localhost:8017/mission-control/missions');
+            const tasksData = tasksRes.ok ? await tasksRes.json() : { missions: [] };
 
-      // Fetch metrics (MTTR, learning events, etc.) - needs tasks and learning data
-      const currentTasks = tasksData.missions || tasksData.tasks || [];
-      const metrics = await fetchMetrics(currentTasks, learning);
+            // Fetch external learning status
+            const externalLearning = await fetchExternalLearningStatus();
 
-      // Detect missing items
-      const missingItems = detectMissingItems(externalLearning);
+            // Fetch mission history
+            const missionHistory = await fetchMissionHistory();
 
-      setData({
-        learning,
-        snapshots: snapshotsData.snapshots || [],
-        health,
-        tasks: tasksData.missions || tasksData.tasks || [],
-        externalLearning,
-        metrics,
-        missionHistory,
-        missingItems
-      });
+            // Fetch metrics (MTTR, learning events, etc.) - needs tasks and learning data
+            const currentTasks = tasksData.missions || tasksData.tasks || [];
+            const metrics = await fetchMetrics(currentTasks, learning);
 
-      setError(null);
-    } catch (err: any) {
-      console.error('Dashboard fetch error:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+            // Fetch self-healing data
+            const { selfHealingStats, incidents } = await fetchSelfHealingData();
 
-  const fetchExternalLearningStatus = async (): Promise<ExternalLearningStatus> => {
-    try {
-      // Check Firefox agent status
-      const pcStatusRes = await fetch('http://localhost:8017/api/pc/status');
-      const pcStatus = pcStatusRes.ok ? await pcStatusRes.json() : {};
-      
-      // Check GitHub token from playbook status
-      const playbooksRes = await fetch('http://localhost:8017/api/playbooks/status');
-      const playbooksData = playbooksRes.ok ? await playbooksRes.json() : { playbooks: [] };
-      
-      // Find GitHub token playbook status
-      const githubPlaybook = playbooksData.playbooks?.find((p: any) => 
-        p.name === 'github_token_missing'
-      );
-      
-      // Find Google search quota playbook
-      const quotaPlaybook = playbooksData.playbooks?.find((p: any) => 
-        p.name === 'google_search_quota_exhaustion'
-      );
+            // Fetch learning controls data
+            const { whitelist, serviceAccounts } = await fetchLearningControlsData();
 
-      return {
-        web_learning_enabled: true, // Always on by default
-        github_learning_enabled: !githubPlaybook || githubPlaybook.last_triggered === null,
-        firefox_agent_running: pcStatus.firefox?.enabled === true,
-        github_token_status: githubPlaybook?.last_triggered ? 'missing' : 'valid',
-        google_search_quota: quotaPlaybook?.last_triggered ? 'exhausted' : 'ok',
-        quota_reset_date: quotaPlaybook?.next_reset_date
-      };
-    } catch (err) {
-      console.error('External learning status fetch failed:', err);
-      return {
-        web_learning_enabled: false,
-        github_learning_enabled: false,
-        firefox_agent_running: false,
-        github_token_status: 'unknown',
-        google_search_quota: 'unknown'
-      };
-    }
-  };
+            // Detect missing items
+            const missingItems = detectMissingItems(externalLearning);
 
-  const fetchMetrics = async (tasks: any[], learningData: LearningStatus | null): Promise<MetricsData | null> => {
-    try {
-      // Fetch MTTR and guardian stats
-      const guardianRes = await fetch('http://localhost:8017/api/guardian/stats');
-      const guardianData = guardianRes.ok ? await guardianRes.json() : {};
+            setData({
+              learning,
+              learningOutcomes,
+              snapshots: snapshotsData.snapshots || [],
+              health,
+              tasks: tasksData.missions || tasksData.tasks || [],
+              externalLearning,
+              metrics,
+              missionHistory,
+              missingItems,
+              selfHealingStats,
+              incidents,
+              whitelist,
+              serviceAccounts
+            });
 
-      // Count learning events from learning data
-      const learningEventCount = learningData?.total_outcomes || 0;
+            setError(null);
+        } catch (err: any) {
+            console.error('Dashboard fetch error:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      return {
-        mttr_seconds: guardianData.mttr?.mttr_seconds || guardianData.overall_health?.mttr_actual_seconds || 0,
-        mttr_target_seconds: guardianData.overall_health?.mttr_target_seconds || 120,
-        learning_event_count: learningEventCount,
-        success_rate_percent: guardianData.mttr?.success_rate_percent || 0,
-        missions_resolved: tasks.filter((t: any) => t.status === 'completed' || t.status === 'resolved').length,
-        missions_active: tasks.filter((t: any) => t.status === 'active' || t.status === 'in_progress').length,
-        missions_failed: tasks.filter((t: any) => t.status === 'failed').length,
-        rag_health: undefined, // TODO: Add RAG health API
-        htm_health: undefined  // TODO: Add HTM health API
-      };
-    } catch (err) {
-      console.error('Metrics fetch failed:', err);
-      return null;
-    }
-  };
+    const fetchExternalLearningStatus = async (): Promise<ExternalLearningStatus> => {
+        try {
+            // Check Firefox agent status
+            const pcStatusRes = await fetch('http://localhost:8017/api/pc/status');
+            const pcStatus = pcStatusRes.ok ? await pcStatusRes.json() : {};
 
-  const fetchMissionHistory = async (): Promise<MissionHistory[]> => {
-    try {
-      const res = await fetch('http://localhost:8017/mission-control/missions?limit=20');
-      if (!res.ok) return [];
-      
-      const data = await res.json();
-      const missions = data.missions || data.tasks || [];
-      
-      return missions.map((m: any) => ({
-        mission_id: m.mission_id || m.task_id || m.id,
-        status: m.status,
-        title: m.title || m.mission_type || 'Unknown',
-        subsystem: m.subsystem || 'general',
-        created_at: m.created_at || m.timestamp,
-        completed_at: m.completed_at || m.resolved_at,
-        duration_seconds: m.duration_seconds
-      }));
-    } catch (err) {
-      console.error('Mission history fetch failed:', err);
-      return [];
-    }
-  };
+            // Check GitHub token from playbook status
+            const playbooksRes = await fetch('http://localhost:8017/api/playbooks/status');
+            const playbooksData = playbooksRes.ok ? await playbooksRes.json() : { playbooks: [] };
 
-  const detectMissingItems = (externalLearning: ExternalLearningStatus | null): MissingItem[] => {
-    const items: MissingItem[] = [];
+            // Find GitHub token playbook status
+            const githubPlaybook = playbooksData.playbooks?.find((p: any) =>
+                p.name === 'github_token_missing'
+            );
 
-    if (!externalLearning) return items;
+            // Find Google search quota playbook
+            const quotaPlaybook = playbooksData.playbooks?.find((p: any) =>
+                p.name === 'google_search_quota_exhaustion'
+            );
 
-    // Check for missing GitHub token
-    if (externalLearning.github_token_status === 'missing') {
-      items.push({
-        type: 'credential',
-        name: 'GitHub Token',
-        severity: 'warning',
-        description: 'GitHub token is missing. Learning from GitHub repositories is disabled.',
-        fix_available: true,
-        fix_action: 'Run SETUP_TOKEN.bat to configure',
-        documentation_url: '/SETUP_GITHUB_TOKEN.md'
-      });
-    }
+            return {
+                web_learning_enabled: true, // Always on by default
+                github_learning_enabled: !githubPlaybook || githubPlaybook.last_triggered === null,
+                firefox_agent_running: pcStatus.firefox?.enabled === true,
+                github_token_status: githubPlaybook?.last_triggered ? 'missing' : 'valid',
+                google_search_quota: quotaPlaybook?.last_triggered ? 'exhausted' : 'ok',
+                quota_reset_date: quotaPlaybook?.next_reset_date
+            };
+        } catch (err) {
+            console.error('External learning status fetch failed:', err);
+            return {
+                web_learning_enabled: false,
+                github_learning_enabled: false,
+                firefox_agent_running: false,
+                github_token_status: 'unknown',
+                google_search_quota: 'unknown'
+            };
+        }
+    };
 
-    // Check for exhausted Google Search quota
-    if (externalLearning.google_search_quota === 'exhausted') {
-      items.push({
-        type: 'credential',
-        name: 'Google Search Quota',
-        severity: 'warning',
-        description: `Google Search API quota exhausted. Using fallback search methods.${externalLearning.quota_reset_date ? ` Resets: ${externalLearning.quota_reset_date}` : ''}`,
-        fix_available: false,
-        documentation_url: '/.env.example'
-      });
-    }
+    const fetchMetrics = async (tasks: any[], learningData: LearningStatus | null): Promise<MetricsData | null> => {
+        try {
+            // Fetch MTTR and guardian stats
+            const guardianRes = await fetch('http://localhost:8017/api/guardian/stats');
+            const guardianData = guardianRes.ok ? await guardianRes.json() : {};
 
-    // Check for stopped Firefox agent (if needed for learning)
-    if (!externalLearning.firefox_agent_running && externalLearning.web_learning_enabled) {
-      items.push({
-        type: 'config',
-        name: 'Firefox Agent',
-        severity: 'info',
-        description: 'Firefox agent is not running. Some web navigation features may be limited.',
-        fix_available: true,
-        fix_action: 'Enable via /api/pc endpoints'
-      });
-    }
+            // Count learning events from learning data
+            const learningEventCount = learningData?.total_outcomes || 0;
 
-    // Additional credential checks (can be extended)
-    // TODO: Check for OPENAI_API_KEY, ANTHROPIC_API_KEY via backend API
+            return {
+                mttr_seconds: guardianData.mttr?.mttr_seconds || guardianData.overall_health?.mttr_actual_seconds || 0,
+                mttr_target_seconds: guardianData.overall_health?.mttr_target_seconds || 120,
+                learning_event_count: learningEventCount,
+                success_rate_percent: guardianData.mttr?.success_rate_percent || 0,
+                missions_resolved: tasks.filter((t: any) => t.status === 'completed' || t.status === 'resolved').length,
+                missions_active: tasks.filter((t: any) => t.status === 'active' || t.status === 'in_progress').length,
+                missions_failed: tasks.filter((t: any) => t.status === 'failed').length,
+                rag_health: undefined, // TODO: Add RAG health API
+                htm_health: undefined  // TODO: Add HTM health API
+            };
+        } catch (err) {
+            console.error('Metrics fetch failed:', err);
+            return null;
+        }
+    };
 
-    return items;
-  };
-
-  const handleFixAction = async (item: MissingItem) => {
-    if (item.name === 'GitHub Token') {
-      // Trigger GitHub token setup
-      alert('Please run SETUP_TOKEN.bat script from the project root directory to configure your GitHub token.');
-      if (item.documentation_url) {
-        window.open(item.documentation_url, '_blank');
-      }
-    } else if (item.name === 'Firefox Agent') {
-      // Attempt to start Firefox agent
+    const fetchMissionHistory = async (): Promise<MissionHistory[]> => {
       try {
-        const res = await fetch('http://localhost:8017/api/pc/start-firefox', {
-          method: 'POST'
-        });
-        if (res.ok) {
-          alert('Firefox agent started successfully!');
-          fetchDashboard(); // Refresh to update status
-        } else {
-          alert('Failed to start Firefox agent. Check backend logs.');
-        }
+        const res = await fetch('http://localhost:8017/mission-control/missions?limit=20');
+        if (!res.ok) return [];
+        
+        const data = await res.json();
+        const missions = data.missions || data.tasks || [];
+        
+        return missions.map((m: any) => ({
+          mission_id: m.mission_id || m.task_id || m.id,
+          status: m.status,
+          title: m.title || m.mission_type || 'Unknown',
+          subsystem: m.subsystem || 'general',
+          created_at: m.created_at || m.timestamp,
+          completed_at: m.completed_at || m.resolved_at,
+          duration_seconds: m.duration_seconds
+        }));
       } catch (err) {
-        alert('Error starting Firefox agent: ' + (err as Error).message);
+        console.error('Mission history fetch failed:', err);
+        return [];
       }
-    }
-  };
+    };
 
-  const runLearningEvidence = async () => {
-    try {
-      const res = await fetch('http://localhost:8017/api/run-script', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          script: 'tests/show_learning_evidence.py',
-          return_output: true 
-        })
-      });
-      if (res.ok) {
-        const result = await res.json();
-        setLearningEvidence(result);
+    const fetchSelfHealingData = async (): Promise<{ selfHealingStats: SelfHealingStats | null; incidents: Incident[] }> => {
+      try {
+        const [stats, incidentsData] = await Promise.all([
+          IncidentsAPI.getStats(),
+          IncidentsAPI.getIncidents(20)
+        ]);
+
+        return {
+          selfHealingStats: stats,
+          incidents: incidentsData.incidents || []
+        };
+      } catch (err) {
+        console.error('Self-healing data fetch failed:', err);
+        return {
+          selfHealingStats: null,
+          incidents: []
+        };
       }
-    } catch (err) {
-      console.error('Learning evidence fetch failed:', err);
-    }
-  };
+    };
 
-  const triggerPlaybook = async (playbookName: string) => {
-    if (playbookRunning) {
-      alert('A playbook is already running. Please wait.');
-      return;
-    }
+    const fetchLearningControlsData = async (): Promise<{ whitelist: WhitelistEntry[]; serviceAccounts: ServiceAccount[] }> => {
+      try {
+        const [whitelist, serviceAccounts] = await Promise.all([
+          LearningAPI.getWhitelist(),
+          LearningAPI.getServiceAccounts()
+        ]);
 
-    try {
-      setPlaybookRunning(playbookName);
-      
-      // Execute playbook via unified orchestrator
-      const res = await fetch('http://localhost:8017/api/unified/execute-playbook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          playbook_id: playbookName,
-          params: {}
-        })
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        alert(`Playbook "${playbookName}" triggered successfully!\n\nExecution ID: ${result.execution_id || 'N/A'}\nStatus: ${result.status || 'Running'}`);
-        
-        // Refresh dashboard after 3 seconds
-        setTimeout(() => fetchDashboard(), 3000);
-      } else {
-        const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        alert(`Failed to trigger playbook "${playbookName}":\n${error.detail || error.error || 'Unknown error'}`);
+        return {
+          whitelist: whitelist || [],
+          serviceAccounts: serviceAccounts || []
+        };
+      } catch (err) {
+        console.error('Learning controls data fetch failed:', err);
+        return {
+          whitelist: [],
+          serviceAccounts: []
+        };
       }
-    } catch (err: any) {
-      alert(`Error triggering playbook "${playbookName}":\n${err.message}`);
-    } finally {
-      setPlaybookRunning(null);
-    }
-  };
+    };
 
-  const downloadEvidenceReport = async (reportType: 'learning' | 'healing') => {
-    try {
-      let endpoint = '';
-      let filename = '';
+    const detectMissingItems = (externalLearning: ExternalLearningStatus | null): MissingItem[] => {
+        const items: MissingItem[] = [];
 
-      if (reportType === 'learning') {
-        endpoint = '/api/run-script';
-        filename = `learning_evidence_${new Date().toISOString().split('T')[0]}.txt`;
-        
-        const res = await fetch('http://localhost:8017' + endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            script: 'tests/show_learning_evidence.py',
-            return_output: true 
-          })
-        });
+        if (!externalLearning) return items;
 
-        if (res.ok) {
-          const result = await res.json();
-          const content = result.output || result.stdout || JSON.stringify(result, null, 2);
-          
-          // Create download
-          const blob = new Blob([content], { type: 'text/plain' });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        } else {
-          alert('Failed to generate learning evidence report');
+        // Check for missing GitHub token
+        if (externalLearning.github_token_status === 'missing') {
+            items.push({
+                type: 'credential',
+                name: 'GitHub Token',
+                severity: 'warning',
+                description: 'GitHub token is missing. Learning from GitHub repositories is disabled.',
+                fix_available: true,
+                fix_action: 'Run SETUP_TOKEN.bat to configure',
+                documentation_url: '/SETUP_GITHUB_TOKEN.md'
+            });
         }
-      } else if (reportType === 'healing') {
-        // Use guardian stats to generate healing report
-        endpoint = '/api/guardian/stats';
-        filename = `healing_report_${new Date().toISOString().split('T')[0]}.json`;
-        
-        const res = await fetch('http://localhost:8017' + endpoint);
-        
-        if (res.ok) {
-          const result = await res.json();
-          
-          // Create formatted report
-          const report = {
-            generated_at: new Date().toISOString(),
-            report_type: 'Self-Healing Evidence',
-            mttr: result.mttr,
-            overall_health: result.overall_health,
-            network_playbooks: result.network_playbooks,
-            auto_healing_playbooks: result.auto_healing_playbooks,
-            summary: {
-              mttr_seconds: result.mttr?.mttr_seconds || 0,
-              success_rate: result.mttr?.success_rate_percent || 0,
-              target_met: result.overall_health?.target_met || false
+
+        // Check for exhausted Google Search quota
+        if (externalLearning.google_search_quota === 'exhausted') {
+            items.push({
+                type: 'credential',
+                name: 'Google Search Quota',
+                severity: 'warning',
+                description: `Google Search API quota exhausted. Using fallback search methods.${externalLearning.quota_reset_date ? ` Resets: ${externalLearning.quota_reset_date}` : ''}`,
+                fix_available: false,
+                documentation_url: '/.env.example'
+            });
+        }
+
+        // Check for stopped Firefox agent (if needed for learning)
+        if (!externalLearning.firefox_agent_running && externalLearning.web_learning_enabled) {
+            items.push({
+                type: 'config',
+                name: 'Firefox Agent',
+                severity: 'info',
+                description: 'Firefox agent is not running. Some web navigation features may be limited.',
+                fix_available: true,
+                fix_action: 'Enable via /api/pc endpoints'
+            });
+        }
+
+        // Additional credential checks (can be extended)
+        // TODO: Check for OPENAI_API_KEY, ANTHROPIC_API_KEY via backend API
+
+        return items;
+    };
+
+    const handleFixAction = async (item: MissingItem) => {
+        if (item.name === 'GitHub Token') {
+            // Trigger GitHub token setup
+            alert('Please run SETUP_TOKEN.bat script from the project root directory to configure your GitHub token.');
+            if (item.documentation_url) {
+                window.open(item.documentation_url, '_blank');
             }
-          };
-          
-          const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-        } else {
-          alert('Failed to generate healing report');
+        } else if (item.name === 'Firefox Agent') {
+            // Attempt to start Firefox agent
+            try {
+                const res = await fetch('http://localhost:8017/api/pc/start-firefox', {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    alert('Firefox agent started successfully!');
+                    fetchDashboard(); // Refresh to update status
+                } else {
+                    alert('Failed to start Firefox agent. Check backend logs.');
+                }
+            } catch (err) {
+                alert('Error starting Firefox agent: ' + (err as Error).message);
+            }
         }
-      }
-    } catch (err: any) {
-      alert(`Error downloading ${reportType} report:\n${err.message}`);
-    }
-  };
+    };
 
-  const viewEvidenceReport = async (reportType: 'learning' | 'healing') => {
-    try {
-      if (reportType === 'learning') {
-        await runLearningEvidence();
-        // Show in modal or new window
-        alert('Learning evidence check completed. Check the console or download the report for full details.');
-      } else if (reportType === 'healing') {
-        const res = await fetch('http://localhost:8017/api/guardian/stats');
-        if (res.ok) {
-          const result = await res.json();
-          
-          const summary = `
+    const runLearningEvidence = async () => {
+        try {
+            const res = await fetch('http://localhost:8017/api/run-script', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    script: 'tests/show_learning_evidence.py',
+                    return_output: true
+                })
+            });
+            if (res.ok) {
+                const result = await res.json();
+                setLearningEvidence(result);
+            }
+        } catch (err) {
+            console.error('Learning evidence fetch failed:', err);
+        }
+    };
+
+    const triggerPlaybook = async (playbookName: string) => {
+        if (playbookRunning) {
+            alert('A playbook is already running. Please wait.');
+            return;
+        }
+
+        try {
+            setPlaybookRunning(playbookName);
+
+            // Execute playbook via unified orchestrator
+            const res = await fetch('http://localhost:8017/api/unified/execute-playbook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playbook_id: playbookName,
+                    params: {}
+                })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                alert(`Playbook "${playbookName}" triggered successfully!\n\nExecution ID: ${result.execution_id || 'N/A'}\nStatus: ${result.status || 'Running'}`);
+
+                // Refresh dashboard after 3 seconds
+                setTimeout(() => fetchDashboard(), 3000);
+            } else {
+                const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
+                alert(`Failed to trigger playbook "${playbookName}":\n${error.detail || error.error || 'Unknown error'}`);
+            }
+        } catch (err: any) {
+            alert(`Error triggering playbook "${playbookName}":\n${err.message}`);
+        } finally {
+            setPlaybookRunning(null);
+        }
+    };
+
+    const downloadEvidenceReport = async (reportType: 'learning' | 'healing') => {
+        try {
+            let endpoint = '';
+            let filename = '';
+
+            if (reportType === 'learning') {
+                endpoint = '/api/run-script';
+                filename = `learning_evidence_${new Date().toISOString().split('T')[0]}.txt`;
+
+                const res = await fetch('http://localhost:8017' + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        script: 'tests/show_learning_evidence.py',
+                        return_output: true
+                    })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    const content = result.output || result.stdout || JSON.stringify(result, null, 2);
+
+                    // Create download
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to generate learning evidence report');
+                }
+            } else if (reportType === 'healing') {
+                // Use guardian stats to generate healing report
+                endpoint = '/api/guardian/stats';
+                filename = `healing_report_${new Date().toISOString().split('T')[0]}.json`;
+
+                const res = await fetch('http://localhost:8017' + endpoint);
+
+                if (res.ok) {
+                    const result = await res.json();
+
+                    // Create formatted report
+                    const report = {
+                        generated_at: new Date().toISOString(),
+                        report_type: 'Self-Healing Evidence',
+                        mttr: result.mttr,
+                        overall_health: result.overall_health,
+                        network_playbooks: result.network_playbooks,
+                        auto_healing_playbooks: result.auto_healing_playbooks,
+                        summary: {
+                            mttr_seconds: result.mttr?.mttr_seconds || 0,
+                            success_rate: result.mttr?.success_rate_percent || 0,
+                            target_met: result.overall_health?.target_met || false
+                        }
+                    };
+
+                    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert('Failed to generate healing report');
+                }
+            }
+        } catch (err: any) {
+            alert(`Error downloading ${reportType} report:\n${err.message}`);
+        }
+    };
+
+    const viewEvidenceReport = async (reportType: 'learning' | 'healing') => {
+        try {
+            if (reportType === 'learning') {
+                await runLearningEvidence();
+                // Show in modal or new window
+                alert('Learning evidence check completed. Check the console or download the report for full details.');
+            } else if (reportType === 'healing') {
+                const res = await fetch('http://localhost:8017/api/guardian/stats');
+                if (res.ok) {
+                    const result = await res.json();
+
+                    const summary = `
 === SELF-HEALING EVIDENCE REPORT ===
 
 MTTR (Mean Time To Recovery): ${result.mttr?.mttr_seconds?.toFixed(2) || 0}s
@@ -462,465 +546,825 @@ Overall Health: ${result.overall_health?.status || 'unknown'}
 Network Playbooks: ${JSON.stringify(result.network_playbooks || {}, null, 2)}
 Auto-Healing Playbooks: ${JSON.stringify(result.auto_healing_playbooks || {}, null, 2)}
           `.trim();
-          
-          alert(summary);
-        } else {
-          alert('Failed to fetch healing report');
+
+                    alert(summary);
+                } else {
+                    alert('Failed to fetch healing report');
+                }
+            }
+        } catch (err: any) {
+            alert(`Error viewing ${reportType} report:\n${err.message}`);
         }
-      }
-    } catch (err: any) {
-      alert(`Error viewing ${reportType} report:\n${err.message}`);
-    }
-  };
+    };
 
-  const restoreSnapshot = async (snapshotId: string) => {
-    if (!confirm(`Restore from ${snapshotId}? This will restart the system.`)) return;
-    
-    try {
-      const res = await fetch(`http://localhost:8017/api/snapshots/restore/${snapshotId}`, {
-        method: 'POST'
-      });
-      if (res.ok) {
-        alert('Restore initiated. Server will restart.');
-      } else {
-        alert('Restore failed: ' + await res.text());
-      }
-    } catch (err: any) {
-      alert('Restore error: ' + err.message);
-    }
-  };
+    const restoreSnapshot = async (snapshotId: string) => {
+        if (!confirm(`Restore from ${snapshotId}? This will restart the system.`)) return;
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchDashboard();
-      runLearningEvidence();
-      const interval = setInterval(fetchDashboard, 30000); // Refresh every 30s
-      return () => clearInterval(interval);
-    }
-  }, [isOpen]);
+        try {
+            const res = await fetch(`http://localhost:8017/api/snapshots/restore/${snapshotId}`, {
+                method: 'POST'
+            });
+            if (res.ok) {
+                alert('Restore initiated. Server will restart.');
+            } else {
+                alert('Restore failed: ' + await res.text());
+            }
+        } catch (err: any) {
+            alert('Restore error: ' + err.message);
+        }
+    };
 
-  if (!isOpen) return null;
+    useEffect(() => {
+        if (isOpen) {
+            fetchDashboard();
+            runLearningEvidence();
+            const interval = setInterval(fetchDashboard, 30000); // Refresh every 30s
+            return () => clearInterval(interval);
+        }
+    }, [isOpen]);
 
-  return (
-    <div className="mission-control-overlay" onClick={onClose}>
-      <div className="mission-control-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="mission-control-header">
-          <h2>🎯 Mission Control</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
+    if (!isOpen) return null;
 
-        {loading && <div className="loading-spinner">Loading mission control...</div>}
-        {error && <div className="error-banner">⚠️ {error}</div>}
-
-        <div className="mission-control-content">
-          
-          {/* External Learning Controls */}
-          <div className="mc-section external-learning-section">
-            <h3>🌐 External Learning Sources</h3>
-            {data.externalLearning ? (
-              <div className="external-learning-grid">
-                <div className="external-item">
-                  <div className="external-label">Web Learning:</div>
-                  <div className={`external-status ${data.externalLearning.web_learning_enabled ? 'enabled' : 'disabled'}`}>
-                    {data.externalLearning.web_learning_enabled ? '✅ ENABLED' : '⏸️ DISABLED'}
-                  </div>
+    return (
+        <div className="mission-control-overlay" onClick={onClose}>
+            <div className="mission-control-panel" onClick={(e) => e.stopPropagation()}>
+                <div className="mission-control-header">
+                    <h2>🎯 Mission Control</h2>
+                    <button className="close-btn" onClick={onClose}>×</button>
                 </div>
 
-                <div className="external-item">
-                  <div className="external-label">GitHub Learning:</div>
-                  <div className={`external-status ${data.externalLearning.github_learning_enabled ? 'enabled' : 'disabled'}`}>
-                    {data.externalLearning.github_learning_enabled ? '✅ ENABLED' : '⚠️ DISABLED'}
-                  </div>
+                {loading && <div className="loading-spinner">Loading mission control...</div>}
+                {error && <div className="error-banner">⚠️ {error}</div>}
+
+                {/* Telemetry Strip at the top */}
+                <div className="mc-telemetry-wrapper">
+                    <TelemetryStrip />
                 </div>
 
-                <div className="external-item">
-                  <div className="external-label">GitHub Token:</div>
-                  <div className={`token-status status-${data.externalLearning.github_token_status}`}>
-                    {data.externalLearning.github_token_status === 'valid' && '✓ Valid'}
-                    {data.externalLearning.github_token_status === 'missing' && '❌ Missing'}
-                    {data.externalLearning.github_token_status === 'unknown' && '❓ Unknown'}
-                  </div>
-                </div>
+                <div className="mission-control-content">
 
-                <div className="external-item">
-                  <div className="external-label">Firefox Agent:</div>
-                  <div className={`external-status ${data.externalLearning.firefox_agent_running ? 'running' : 'stopped'}`}>
-                    {data.externalLearning.firefox_agent_running ? '🟢 RUNNING' : '🔴 STOPPED'}
-                  </div>
-                </div>
-
-                <div className="external-item full-width">
-                  <div className="external-label">Google Search Quota:</div>
-                  <div className={`quota-status status-${data.externalLearning.google_search_quota}`}>
-                    {data.externalLearning.google_search_quota === 'ok' && '✅ OK'}
-                    {data.externalLearning.google_search_quota === 'warning' && '⚠️ LOW'}
-                    {data.externalLearning.google_search_quota === 'exhausted' && (
-                      <>
-                        ❌ EXHAUSTED
-                        {data.externalLearning.quota_reset_date && (
-                          <span className="quota-reset"> (Resets: {data.externalLearning.quota_reset_date})</span>
-                        )}
-                      </>
-                    )}
-                    {data.externalLearning.google_search_quota === 'unknown' && '❓ Unknown'}
-                  </div>
-                </div>
-
-                {data.externalLearning.github_token_status === 'missing' && (
-                  <div className="external-warning">
-                    ⚠️ GitHub token missing. Some learning features may be limited.
-                  </div>
-                )}
-
-                {data.externalLearning.google_search_quota === 'exhausted' && (
-                  <div className="external-warning">
-                    ⚠️ Google Search quota exhausted. Using fallback search methods.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="no-data">External learning status unavailable</div>
-            )}
-          </div>
-
-          {/* Missing Items Alert */}
-          {data.missingItems.length > 0 && (
-            <div className="mc-section missing-items-section">
-              <h3>⚠️ Missing Items & Configuration</h3>
-              <div className="missing-items-list">
-                {data.missingItems.map((item, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`missing-item severity-${item.severity}`}
-                  >
-                    <div className="missing-icon">
-                      {item.severity === 'critical' && '🔴'}
-                      {item.severity === 'warning' && '⚠️'}
-                      {item.severity === 'info' && 'ℹ️'}
+                    {/* System Overview - HealthMeter */}
+                    <div className="mc-section health-meter-section">
+                        <HealthMeter />
                     </div>
-                    <div className="missing-content">
-                      <div className="missing-header">
-                        <span className="missing-name">{item.name}</span>
-                        <span className={`missing-type type-${item.type}`}>{item.type}</span>
+
+                    {/* Quick Actions */}
+                    <div className="mc-section quick-actions-section">
+                        <h3>⚡ Quick Access</h3>
+                        <div className="quick-actions-grid">
+                            <button
+                                className="quick-action-btn"
+                                onClick={() => setTasksDrawerOpen(true)}
+                            >
+                                <span className="action-icon">📋</span>
+                                <span className="action-label">Background Tasks</span>
+                                <span className="action-badge">{data.tasks.length}</span>
+                            </button>
+
+                            <button
+                                className="quick-action-btn"
+                                onClick={() => setRemoteCockpitOpen(true)}
+                            >
+                                <span className="action-icon">🎛️</span>
+                                <span className="action-label">Remote Cockpit</span>
+                            </button>
+
+                            <button
+                                className="quick-action-btn"
+                                onClick={runLearningEvidence}
+                            >
+                                <span className="action-icon">🧪</span>
+                                <span className="action-label">Learning Evidence</span>
+                            </button>
+
+                            <button
+                                className="quick-action-btn"
+                                onClick={fetchDashboard}
+                            >
+                                <span className="action-icon">🔄</span>
+                                <span className="action-label">Refresh All</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Learning Controls & Service Accounts */}
+                    <div className="mc-section learning-controls-section">
+                      <h3>🎛️ Learning Controls</h3>
+                      
+                      {/* Service Account Status */}
+                      <div className="service-accounts-grid">
+                        {data.serviceAccounts.map((account) => {
+                          const quotaPercent = account.quota_used && account.quota_limit 
+                            ? (account.quota_used / account.quota_limit) * 100 
+                            : null;
+                          const isQuotaWarning = quotaPercent && quotaPercent > 80;
+                          const isQuotaCritical = quotaPercent && quotaPercent > 95;
+
+                          return (
+                            <div key={account.name} className={`service-account-card status-${account.status}`}>
+                              <div className="account-header">
+                                <span className="account-name">{account.name}</span>
+                                <span className={`account-status ${account.status}`}>
+                                  {account.status === 'active' && '✅'}
+                                  {account.status === 'missing' && '❌'}
+                                  {account.status === 'expired' && '⚠️'}
+                                  {account.status === 'quota_exceeded' && '🚫'}
+                                </span>
+                              </div>
+                              
+                              {quotaPercent !== null && (
+                                <div className="account-quota">
+                                  <div className="quota-label">
+                                    Quota: {account.quota_used}/{account.quota_limit}
+                                    {isQuotaCritical && ' ⚠️ CRITICAL'}
+                                    {isQuotaWarning && !isQuotaCritical && ' ⚠️'}
+                                  </div>
+                                  <div className="quota-bar">
+                                    <div 
+                                      className={`quota-fill ${isQuotaCritical ? 'critical' : isQuotaWarning ? 'warning' : 'ok'}`}
+                                      style={{ width: `${quotaPercent}%` }}
+                                    />
+                                  </div>
+                                  {account.quota_reset && (
+                                    <div className="quota-reset-info">
+                                      Resets: {new Date(account.quota_reset).toLocaleString()}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {account.last_used && (
+                                <div className="account-last-used">
+                                  Last used: {new Date(account.last_used).toLocaleTimeString()}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="missing-description">{item.description}</div>
-                      {item.fix_action && (
-                        <div className="missing-fix-action">{item.fix_action}</div>
-                      )}
-                    </div>
-                    <div className="missing-actions">
-                      {item.fix_available && (
-                        <button 
-                          className="fix-btn"
-                          onClick={() => handleFixAction(item)}
-                        >
-                          Fix
-                        </button>
-                      )}
-                      {item.documentation_url && (
-                        <button 
-                          className="docs-btn"
-                          onClick={() => window.open(item.documentation_url, '_blank')}
-                        >
-                          Docs
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* Metrics & Analytics */}
-          <div className="mc-section metrics-section">
-            <h3>📊 System Metrics</h3>
-            {data.metrics ? (
-              <div className="metrics-grid">
-                <div className="metric-card">
-                  <div className="metric-label">MTTR</div>
-                  <div className="metric-value">
-                    {data.metrics.mttr_seconds.toFixed(1)}s
-                  </div>
-                  <div className="metric-target">
-                    Target: {data.metrics.mttr_target_seconds}s
-                  </div>
-                  <div className="metric-bar">
-                    <div 
-                      className={`metric-fill ${data.metrics.mttr_seconds <= data.metrics.mttr_target_seconds ? 'good' : 'warn'}`}
-                      style={{ width: `${Math.min((data.metrics.mttr_seconds / data.metrics.mttr_target_seconds) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
+                      {/* Learning Toggles */}
+                      <div className="learning-toggles">
+                        <div className="toggle-item">
+                          <label className="toggle-label">
+                            <input 
+                              type="checkbox" 
+                              checked={data.externalLearning?.web_learning_enabled || false}
+                              onChange={async (e) => {
+                                try {
+                                  await LearningAPI.toggleWebLearning(e.target.checked);
+                                  await fetchDashboard();
+                                } catch (err) {
+                                  console.error('Failed to toggle web learning:', err);
+                                }
+                              }}
+                            />
+                            <span className="toggle-switch"></span>
+                            <span className="toggle-text">Web Learning</span>
+                          </label>
+                        </div>
 
-                <div className="metric-card">
-                  <div className="metric-label">Success Rate</div>
-                  <div className="metric-value">
-                    {data.metrics.success_rate_percent.toFixed(0)}%
-                  </div>
-                  <div className="metric-bar">
-                    <div 
-                      className="metric-fill good"
-                      style={{ width: `${data.metrics.success_rate_percent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="metric-card">
-                  <div className="metric-label">Learning Events</div>
-                  <div className="metric-value">
-                    {data.metrics.learning_event_count}
-                  </div>
-                </div>
-
-                <div className="metric-card">
-                  <div className="metric-label">Missions</div>
-                  <div className="mission-stats">
-                    <span className="stat-resolved">✓ {data.metrics.missions_resolved}</span>
-                    <span className="stat-active">⟳ {data.metrics.missions_active}</span>
-                    <span className="stat-failed">✗ {data.metrics.missions_failed}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="no-data">No metrics available</div>
-            )}
-          </div>
-
-          {/* Mission History */}
-          <div className="mc-section mission-history-section">
-            <h3>📜 Mission History</h3>
-            {data.missionHistory.length > 0 ? (
-              <div className="mission-history-list">
-                <div className="history-summary">
-                  <div className="summary-stat">
-                    <span className="summary-label">Resolved:</span>
-                    <span className="summary-value resolved-count">
-                      {data.missionHistory.filter(m => m.status === 'completed' || m.status === 'resolved').length}
-                    </span>
-                  </div>
-                  <div className="summary-stat">
-                    <span className="summary-label">Active:</span>
-                    <span className="summary-value active-count">
-                      {data.missionHistory.filter(m => m.status === 'active' || m.status === 'in_progress').length}
-                    </span>
-                  </div>
-                  <div className="summary-stat">
-                    <span className="summary-label">Failed:</span>
-                    <span className="summary-value failed-count">
-                      {data.missionHistory.filter(m => m.status === 'failed').length}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="history-items">
-                  {data.missionHistory.slice(0, 8).map((mission) => (
-                    <div 
-                      key={mission.mission_id} 
-                      className={`history-item status-${mission.status}`}
-                      onClick={() => window.open(`/missions/${mission.mission_id}`, '_blank')}
-                    >
-                      <div className="history-status">
-                        {mission.status === 'completed' || mission.status === 'resolved' ? '✓' : 
-                         mission.status === 'failed' ? '✗' : '⟳'}
+                        <div className="toggle-item">
+                          <label className="toggle-label">
+                            <input 
+                              type="checkbox" 
+                              checked={data.externalLearning?.github_learning_enabled || false}
+                              onChange={async (e) => {
+                                try {
+                                  await LearningAPI.toggleGitHubLearning(e.target.checked);
+                                  await fetchDashboard();
+                                } catch (err) {
+                                  console.error('Failed to toggle GitHub learning:', err);
+                                }
+                              }}
+                            />
+                            <span className="toggle-switch"></span>
+                            <span className="toggle-text">GitHub Learning</span>
+                          </label>
+                        </div>
                       </div>
-                      <div className="history-details">
-                        <div className="history-title">{mission.title}</div>
-                        <div className="history-meta">
-                          <span className="history-subsystem">{mission.subsystem}</span>
-                          {mission.duration_seconds && (
-                            <span className="history-duration">{mission.duration_seconds.toFixed(1)}s</span>
-                          )}
+
+                      {/* Whitelist Management */}
+                      <div className="whitelist-section">
+                        <h4 className="whitelist-title">📋 Learning Source Whitelist ({data.whitelist.length})</h4>
+                        <div className="whitelist-list">
+                          {data.whitelist.slice(0, 5).map((entry) => (
+                            <div key={entry.id} className="whitelist-entry">
+                              <div className="entry-info">
+                                <span className="entry-domain">{entry.domain}</span>
+                                <span className="entry-type">{entry.source_type}</span>
+                                {entry.trust_score && (
+                                  <span className="entry-trust">{entry.trust_score}% trust</span>
+                                )}
+                              </div>
+                              {entry.reason && (
+                                <div className="entry-reason">{entry.reason}</div>
+                              )}
+                              <button 
+                                className="entry-remove-btn"
+                                onClick={async () => {
+                                  if (confirm(`Remove ${entry.domain} from whitelist?`)) {
+                                    try {
+                                      await LearningAPI.removeFromWhitelist(entry.id);
+                                      await fetchDashboard();
+                                    } catch (err) {
+                                      console.error('Failed to remove whitelist entry:', err);
+                                    }
+                                  }
+                                }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Add to Whitelist Form */}
+                        <div className="whitelist-add-form">
+                          <input 
+                            type="text" 
+                            placeholder="example.com" 
+                            className="whitelist-input"
+                            id="whitelist-domain-input"
+                          />
+                          <select className="whitelist-type-select" id="whitelist-type-select">
+                            <option value="domain">Domain</option>
+                            <option value="url">URL</option>
+                            <option value="api">API</option>
+                            <option value="repository">Repository</option>
+                          </select>
+                          <button 
+                            className="whitelist-add-btn"
+                            onClick={async () => {
+                              const input = document.getElementById('whitelist-domain-input') as HTMLInputElement;
+                              const select = document.getElementById('whitelist-type-select') as HTMLSelectElement;
+                              
+                              if (input.value.trim()) {
+                                try {
+                                  await LearningAPI.addToWhitelist(input.value.trim(), select.value);
+                                  input.value = '';
+                                  await fetchDashboard();
+                                } catch (err) {
+                                  console.error('Failed to add whitelist entry:', err);
+                                  alert('Failed to add to whitelist');
+                                }
+                              }
+                            }}
+                          >
+                            Add Source
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="no-data">No mission history available</div>
-            )}
-          </div>
 
-          {/* Learning System Status */}
-          <div className="mc-section learning-section">
-            <h3>🎓 Learning System</h3>
-            {data.learning ? (
-              <div className="learning-stats">
-                <div className="stat-item">
-                  <span className="stat-label">Status:</span>
-                  <span className={`stat-value ${data.learning.active_learning ? 'active' : 'inactive'}`}>
-                    {data.learning.active_learning ? '✅ ACTIVE' : '⚠️ INACTIVE'}
-                  </span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">Learning Rate:</span>
-                  <span className="stat-value">{(data.learning.learning_rate * 100).toFixed(0)}%</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">Model Accuracy:</span>
-                  <span className="stat-value">{(data.learning.model_accuracy * 100).toFixed(0)}%</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">Total Outcomes:</span>
-                  <span className="stat-value">{data.learning.total_outcomes}</span>
-                </div>
-                
-                {learningEvidence && learningEvidence.exit_code === 0 && (
-                  <div className="evidence-badge">✅ Evidence Verified</div>
-                )}
-              </div>
-            ) : (
-              <div className="no-data">No learning data available</div>
-            )}
-          </div>
+                    {/* External Learning Sources Summary */}
+                    <div className="mc-section external-learning-section">
+                      <h3>🌐 External Learning Status</h3>
+                        {data.externalLearning ? (
+                            <div className="external-learning-grid">
+                                <div className="external-item">
+                                    <div className="external-label">Web Learning:</div>
+                                    <div className={`external-status ${data.externalLearning.web_learning_enabled ? 'enabled' : 'disabled'}`}>
+                                        {data.externalLearning.web_learning_enabled ? '✅ ENABLED' : '⏸️ DISABLED'}
+                                    </div>
+                                </div>
 
-          {/* Self-Healing Status */}
-          <div className="mc-section healing-section">
-            <h3>🔧 Self-Healing</h3>
-            {data.health ? (
-              <div className="healing-stats">
-                <div className="stat-item">
-                  <span className="stat-label">Incidents:</span>
-                  <span className="stat-value">{data.health.incidents_count || 0}</span>
-                </div>
-                {data.health.healing_success_rate !== undefined && (
-                  <div className="stat-item">
-                    <span className="stat-label">Success Rate:</span>
-                    <span className="stat-value">{(data.health.healing_success_rate * 100).toFixed(0)}%</span>
-                  </div>
-                )}
-                <div className="stat-item">
-                  <span className="stat-label">Health:</span>
-                  <div className="health-bar">
-                    <div 
-                      className="health-fill" 
-                      style={{ width: `${(data.health.overall_health || 0) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="no-data">No healing data available</div>
-            )}
-          </div>
+                                <div className="external-item">
+                                    <div className="external-label">GitHub Learning:</div>
+                                    <div className={`external-status ${data.externalLearning.github_learning_enabled ? 'enabled' : 'disabled'}`}>
+                                        {data.externalLearning.github_learning_enabled ? '✅ ENABLED' : '⚠️ DISABLED'}
+                                    </div>
+                                </div>
 
-          {/* Snapshots */}
-          <div className="mc-section snapshots-section">
-            <h3>📸 Boot Snapshots</h3>
-            {data.snapshots.length > 0 ? (
-              <div className="snapshots-list">
-                {data.snapshots.slice(0, 5).map((snap) => (
-                  <div key={snap.snapshot_id} className="snapshot-item">
-                    <div className="snapshot-info">
-                      <span className="snapshot-id">{snap.snapshot_id}</span>
-                      {snap.verified_ok && <span className="verified-badge">✓ OK</span>}
-                      <span className="snapshot-time">{new Date(snap.timestamp).toLocaleString()}</span>
+                                <div className="external-item">
+                                    <div className="external-label">GitHub Token:</div>
+                                    <div className={`token-status status-${data.externalLearning.github_token_status}`}>
+                                        {data.externalLearning.github_token_status === 'valid' && '✓ Valid'}
+                                        {data.externalLearning.github_token_status === 'missing' && '❌ Missing'}
+                                        {data.externalLearning.github_token_status === 'unknown' && '❓ Unknown'}
+                                    </div>
+                                </div>
+
+                                <div className="external-item">
+                                    <div className="external-label">Firefox Agent:</div>
+                                    <div className={`external-status ${data.externalLearning.firefox_agent_running ? 'running' : 'stopped'}`}>
+                                        {data.externalLearning.firefox_agent_running ? '🟢 RUNNING' : '🔴 STOPPED'}
+                                    </div>
+                                </div>
+
+                                <div className="external-item full-width">
+                                    <div className="external-label">Google Search Quota:</div>
+                                    <div className={`quota-status status-${data.externalLearning.google_search_quota}`}>
+                                        {data.externalLearning.google_search_quota === 'ok' && '✅ OK'}
+                                        {data.externalLearning.google_search_quota === 'warning' && '⚠️ LOW'}
+                                        {data.externalLearning.google_search_quota === 'exhausted' && (
+                                            <>
+                                                ❌ EXHAUSTED
+                                                {data.externalLearning.quota_reset_date && (
+                                                    <span className="quota-reset"> (Resets: {data.externalLearning.quota_reset_date})</span>
+                                                )}
+                                            </>
+                                        )}
+                                        {data.externalLearning.google_search_quota === 'unknown' && '❓ Unknown'}
+                                    </div>
+                                </div>
+
+                                {data.externalLearning.github_token_status === 'missing' && (
+                                    <div className="external-warning">
+                                        ⚠️ GitHub token missing. Some learning features may be limited.
+                                    </div>
+                                )}
+
+                                {data.externalLearning.google_search_quota === 'exhausted' && (
+                                    <div className="external-warning">
+                                        ⚠️ Google Search quota exhausted. Using fallback search methods.
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="no-data">External learning status unavailable</div>
+                        )}
                     </div>
-                    <button 
-                      className="restore-btn"
-                      onClick={() => restoreSnapshot(snap.snapshot_id)}
-                    >
-                      Restore
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="no-data">No snapshots available</div>
-            )}
-          </div>
 
-          {/* Tasks/Missions */}
-          <div className="mc-section tasks-section">
-            <h3>📋 Active Missions</h3>
-            {data.tasks.length > 0 ? (
-              <div className="tasks-list">
-                {data.tasks.slice(0, 10).map((task, idx) => (
-                  <div key={task.mission_id || task.task_id || idx} className="task-item">
-                    <div className="task-status" data-status={task.status || 'unknown'}>
-                      {task.status || 'pending'}
+                    {/* Missing Items Alert */}
+                    {data.missingItems.length > 0 && (
+                        <div className="mc-section missing-items-section">
+                            <h3>⚠️ Missing Items & Configuration</h3>
+                            <div className="missing-items-list">
+                                {data.missingItems.map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`missing-item severity-${item.severity}`}
+                                    >
+                                        <div className="missing-icon">
+                                            {item.severity === 'critical' && '🔴'}
+                                            {item.severity === 'warning' && '⚠️'}
+                                            {item.severity === 'info' && 'ℹ️'}
+                                        </div>
+                                        <div className="missing-content">
+                                            <div className="missing-header">
+                                                <span className="missing-name">{item.name}</span>
+                                                <span className={`missing-type type-${item.type}`}>{item.type}</span>
+                                            </div>
+                                            <div className="missing-description">{item.description}</div>
+                                            {item.fix_action && (
+                                                <div className="missing-fix-action">{item.fix_action}</div>
+                                            )}
+                                        </div>
+                                        <div className="missing-actions">
+                                            {item.fix_available && (
+                                                <button
+                                                    className="fix-btn"
+                                                    onClick={() => handleFixAction(item)}
+                                                >
+                                                    Fix
+                                                </button>
+                                            )}
+                                            {item.documentation_url && (
+                                                <button
+                                                    className="docs-btn"
+                                                    onClick={() => window.open(item.documentation_url, '_blank')}
+                                                >
+                                                    Docs
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Metrics & Analytics */}
+                    <div className="mc-section metrics-section">
+                        <h3>📊 System Metrics</h3>
+                        {data.metrics ? (
+                            <div className="metrics-grid">
+                                <div className="metric-card">
+                                    <div className="metric-label">MTTR</div>
+                                    <div className="metric-value">
+                                        {data.metrics.mttr_seconds.toFixed(1)}s
+                                    </div>
+                                    <div className="metric-target">
+                                        Target: {data.metrics.mttr_target_seconds}s
+                                    </div>
+                                    <div className="metric-bar">
+                                        <div
+                                            className={`metric-fill ${data.metrics.mttr_seconds <= data.metrics.mttr_target_seconds ? 'good' : 'warn'}`}
+                                            style={{ width: `${Math.min((data.metrics.mttr_seconds / data.metrics.mttr_target_seconds) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="metric-card">
+                                    <div className="metric-label">Success Rate</div>
+                                    <div className="metric-value">
+                                        {data.metrics.success_rate_percent.toFixed(0)}%
+                                    </div>
+                                    <div className="metric-bar">
+                                        <div
+                                            className="metric-fill good"
+                                            style={{ width: `${data.metrics.success_rate_percent}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="metric-card">
+                                    <div className="metric-label">Learning Events</div>
+                                    <div className="metric-value">
+                                        {data.metrics.learning_event_count}
+                                    </div>
+                                </div>
+
+                                <div className="metric-card">
+                                    <div className="metric-label">Missions</div>
+                                    <div className="mission-stats">
+                                        <span className="stat-resolved">✓ {data.metrics.missions_resolved}</span>
+                                        <span className="stat-active">⟳ {data.metrics.missions_active}</span>
+                                        <span className="stat-failed">✗ {data.metrics.missions_failed}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="no-data">No metrics available</div>
+                        )}
                     </div>
-                    <div className="task-details">
-                      <div className="task-title">{task.title || task.mission_type || 'Task'}</div>
-                      <div className="task-meta">
-                        {task.subsystem && <span className="task-subsystem">{task.subsystem}</span>}
-                        {task.severity && <span className="task-severity">{task.severity}</span>}
-                      </div>
+
+                    {/* Mission History */}
+                    <div className="mc-section mission-history-section">
+                        <h3>📜 Mission History</h3>
+                        {data.missionHistory.length > 0 ? (
+                            <div className="mission-history-list">
+                                <div className="history-summary">
+                                    <div className="summary-stat">
+                                        <span className="summary-label">Resolved:</span>
+                                        <span className="summary-value resolved-count">
+                                            {data.missionHistory.filter(m => m.status === 'completed' || m.status === 'resolved').length}
+                                        </span>
+                                    </div>
+                                    <div className="summary-stat">
+                                        <span className="summary-label">Active:</span>
+                                        <span className="summary-value active-count">
+                                            {data.missionHistory.filter(m => m.status === 'active' || m.status === 'in_progress').length}
+                                        </span>
+                                    </div>
+                                    <div className="summary-stat">
+                                        <span className="summary-label">Failed:</span>
+                                        <span className="summary-value failed-count">
+                                            {data.missionHistory.filter(m => m.status === 'failed').length}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="history-items">
+                                    {data.missionHistory.slice(0, 8).map((mission) => (
+                                        <div
+                                            key={mission.mission_id}
+                                            className={`history-item status-${mission.status}`}
+                                            onClick={() => window.open(`/missions/${mission.mission_id}`, '_blank')}
+                                        >
+                                            <div className="history-status">
+                                                {mission.status === 'completed' || mission.status === 'resolved' ? '✓' :
+                                                    mission.status === 'failed' ? '✗' : '⟳'}
+                                            </div>
+                                            <div className="history-details">
+                                                <div className="history-title">{mission.title}</div>
+                                                <div className="history-meta">
+                                                    <span className="history-subsystem">{mission.subsystem}</span>
+                                                    {mission.duration_seconds && (
+                                                        <span className="history-duration">{mission.duration_seconds.toFixed(1)}s</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="no-data">No mission history available</div>
+                        )}
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="no-data">No active missions</div>
-            )}
-          </div>
+
+                    {/* Learning System Status - Enhanced */}
+                    <div className="mc-section learning-section">
+                      <h3>🎓 Learning System</h3>
+                      {data.learning ? (
+                        <>
+                          <div className="learning-stats">
+                            <div className="stat-item">
+                              <span className="stat-label">Status:</span>
+                              <span className={`stat-value ${data.learning.active_learning ? 'active' : 'inactive'}`}>
+                                {data.learning.active_learning ? '✅ ACTIVE' : '⚠️ INACTIVE'}
+                              </span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Learning Rate:</span>
+                              <span className="stat-value">{(data.learning.learning_rate * 100).toFixed(0)}%</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Model Accuracy:</span>
+                              <span className="stat-value">{(data.learning.model_accuracy * 100).toFixed(0)}%</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Total Outcomes:</span>
+                              <span className="stat-value">{data.learning.total_outcomes}</span>
+                            </div>
+                            
+                            {learningEvidence && learningEvidence.exit_code === 0 && (
+                              <div className="evidence-badge">✅ Evidence Verified</div>
+                            )}
+                          </div>
+
+                          {/* Latest Learning Outcomes */}
+                          {data.learningOutcomes.length > 0 && (
+                            <div className="learning-outcomes">
+                              <h4 className="outcomes-title">📝 Latest Learning Outcomes ({data.learningOutcomes.length})</h4>
+                              <div className="outcomes-list">
+                                {data.learningOutcomes.slice(0, 5).map((outcome) => (
+                                  <div key={outcome.outcome_id} className="outcome-card">
+                                    <div className="outcome-header">
+                                      <span className="outcome-timestamp">
+                                        {new Date(outcome.timestamp).toLocaleString()}
+                                      </span>
+                                      <span className="outcome-confidence" style={{
+                                        color: outcome.confidence >= 0.8 ? '#00ff88' : outcome.confidence >= 0.6 ? '#ffaa00' : '#ff4444'
+                                      }}>
+                                        {(outcome.confidence * 100).toFixed(0)}% confidence
+                                      </span>
+                                    </div>
+                                    <div className="outcome-context">{outcome.context}</div>
+                                    <div className="outcome-action">
+                                      <strong>Action:</strong> {outcome.action_taken}
+                                    </div>
+                                    <div className="outcome-result">
+                                      <strong>Result:</strong> {outcome.result}
+                                    </div>
+                                    {outcome.learned_pattern && (
+                                      <div className="outcome-pattern">
+                                        💡 Pattern: {outcome.learned_pattern}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="no-data">No learning data available</div>
+                      )}
+                    </div>
+
+                    {/* Self-Healing Insights - Enhanced */}
+                    <div className="mc-section healing-section">
+                      <h3>🔧 Self-Healing Insights</h3>
+                      {data.selfHealingStats ? (
+                        <>
+                          <div className="healing-stats">
+                            <div className="stat-item">
+                              <span className="stat-label">Total Incidents:</span>
+                              <span className="stat-value">{data.selfHealingStats.total_incidents}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Active Now:</span>
+                              <span className="stat-value active-count">{data.selfHealingStats.active_incidents}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Resolved Today:</span>
+                              <span className="stat-value resolved-count">{data.selfHealingStats.resolved_today}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">MTTR:</span>
+                              <span className="stat-value">{data.selfHealingStats.average_resolution_time.toFixed(1)}s</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Success Rate:</span>
+                              <span className="stat-value">
+                                {(data.selfHealingStats.success_rate * 100).toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Latest Incidents */}
+                          {data.incidents.length > 0 && (
+                            <div className="incidents-section">
+                              <h4 className="incidents-title">
+                                🚨 Recent Incidents ({data.incidents.length})
+                              </h4>
+                              <div className="incidents-list">
+                                {data.incidents.slice(0, 5).map((incident) => {
+                                  const isActive = incident.status === 'pending' || incident.status === 'healing';
+                                  const detectedTime = new Date(incident.detected_at);
+                                  const resolvedTime = incident.resolved_at ? new Date(incident.resolved_at) : null;
+                                  const duration = resolvedTime 
+                                    ? ((resolvedTime.getTime() - detectedTime.getTime()) / 1000).toFixed(1)
+                                    : null;
+
+                                  return (
+                                    <div 
+                                      key={incident.id} 
+                                      className={`incident-card severity-${incident.severity} status-${incident.status}`}
+                                    >
+                                      <div className="incident-header">
+                                        <div className="incident-type">
+                                          <span className="incident-severity-badge">{incident.severity}</span>
+                                          {incident.type}
+                                        </div>
+                                        <span className={`incident-status status-${incident.status}`}>
+                                          {incident.status === 'pending' && '⏳ Pending'}
+                                          {incident.status === 'healing' && '🔧 Healing'}
+                                          {incident.status === 'resolved' && '✅ Resolved'}
+                                          {incident.status === 'failed' && '❌ Failed'}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="incident-component">
+                                        📦 {incident.component}
+                                      </div>
+                                      
+                                      {incident.playbook_applied && (
+                                        <div className="incident-playbook">
+                                          🔖 Playbook: {incident.playbook_applied}
+                                        </div>
+                                      )}
+                                      
+                                      <div className="incident-timing">
+                                        <span>Detected: {detectedTime.toLocaleTimeString()}</span>
+                                        {duration && (
+                                          <span className="incident-duration">
+                                            ⏱️ {duration}s
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {isActive && (
+                                        <div className="incident-active-indicator">
+                                          <div className="pulse-dot"></div>
+                                          In Progress...
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Last Healing Outcome */}
+                              {data.incidents.filter(inc => inc.status === 'resolved').length > 0 && (
+                                <div className="last-outcome">
+                                  <strong>🎯 Last Successful Healing:</strong>
+                                  {' '}
+                                  {(() => {
+                                    const lastResolved = data.incidents
+                                      .filter(inc => inc.status === 'resolved')
+                                      .sort((a, b) => 
+                                        new Date(b.resolved_at!).getTime() - new Date(a.resolved_at!).getTime()
+                                      )[0];
+                                    
+                                    if (!lastResolved) return 'N/A';
+                                    
+                                    const resolvedTime = new Date(lastResolved.resolved_at!);
+                                    const detectedTime = new Date(lastResolved.detected_at);
+                                    const duration = ((resolvedTime.getTime() - detectedTime.getTime()) / 1000).toFixed(1);
+                                    
+                                    return `${lastResolved.type} resolved in ${duration}s`;
+                                  })()}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="no-data">No self-healing data available</div>
+                      )}
+                    </div>
+
+                    {/* Snapshots */}
+                    <div className="mc-section snapshots-section">
+                        <h3>📸 Boot Snapshots</h3>
+                        {data.snapshots.length > 0 ? (
+                            <div className="snapshots-list">
+                                {data.snapshots.slice(0, 5).map((snap) => (
+                                    <div key={snap.snapshot_id} className="snapshot-item">
+                                        <div className="snapshot-info">
+                                            <span className="snapshot-id">{snap.snapshot_id}</span>
+                                            {snap.verified_ok && <span className="verified-badge">✓ OK</span>}
+                                            <span className="snapshot-time">{new Date(snap.timestamp).toLocaleString()}</span>
+                                        </div>
+                                        <button
+                                            className="restore-btn"
+                                            onClick={() => restoreSnapshot(snap.snapshot_id)}
+                                        >
+                                            Restore
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="no-data">No snapshots available</div>
+                        )}
+                    </div>
+
+                    {/* Tasks/Missions */}
+                    <div className="mc-section tasks-section">
+                        <h3>📋 Active Missions</h3>
+                        {data.tasks.length > 0 ? (
+                            <div className="tasks-list">
+                                {data.tasks.slice(0, 10).map((task, idx) => (
+                                    <div key={task.mission_id || task.task_id || idx} className="task-item">
+                                        <div className="task-status" data-status={task.status || 'unknown'}>
+                                            {task.status || 'pending'}
+                                        </div>
+                                        <div className="task-details">
+                                            <div className="task-title">{task.title || task.mission_type || 'Task'}</div>
+                                            <div className="task-meta">
+                                                {task.subsystem && <span className="task-subsystem">{task.subsystem}</span>}
+                                                {task.severity && <span className="task-severity">{task.severity}</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="no-data">No active missions</div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="mission-control-footer">
+                    <div className="footer-section">
+                        <button className="refresh-btn" onClick={fetchDashboard}>
+                            🔄 Refresh
+                        </button>
+                        <button className="evidence-btn" onClick={runLearningEvidence}>
+                            🧪 Check Learning Evidence
+                        </button>
+                    </div>
+
+                    <div className="footer-section playbook-triggers">
+                        <label>Quick Playbooks:</label>
+                        <button
+                            className="playbook-btn"
+                            onClick={() => triggerPlaybook('port_inventory_cleanup')}
+                            disabled={playbookRunning !== null}
+                        >
+                            {playbookRunning === 'port_inventory_cleanup' ? '⏳' : '🔧'} Port Cleanup
+                        </button>
+                        <button
+                            className="playbook-btn"
+                            onClick={() => triggerPlaybook('faiss_lock_recovery')}
+                            disabled={playbookRunning !== null}
+                        >
+                            {playbookRunning === 'faiss_lock_recovery' ? '⏳' : '🔓'} FAISS Unlock
+                        </button>
+                        <button
+                            className="playbook-btn"
+                            onClick={() => triggerPlaybook('google_search_quota')}
+                            disabled={playbookRunning !== null}
+                        >
+                            {playbookRunning === 'google_search_quota' ? '⏳' : '🔍'} Quota Check
+                        </button>
+                    </div>
+
+                    <div className="footer-section report-downloads">
+                        <label>Evidence Reports:</label>
+                        <button
+                            className="download-btn"
+                            onClick={() => viewEvidenceReport('learning')}
+                        >
+                            👁️ View Learning
+                        </button>
+                        <button
+                            className="download-btn"
+                            onClick={() => downloadEvidenceReport('learning')}
+                        >
+                            ⬇️ Download Learning
+                        </button>
+                        <button
+                            className="download-btn"
+                            onClick={() => viewEvidenceReport('healing')}
+                        >
+                            👁️ View Healing
+                        </button>
+                        <button
+                            className="download-btn"
+                            onClick={() => downloadEvidenceReport('healing')}
+                        >
+                            ⬇️ Download Healing
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Integrated Components */}
+            <BackgroundTasksDrawer
+                isOpen={tasksDrawerOpen}
+                onClose={() => setTasksDrawerOpen(false)}
+            />
+
+            <RemoteCockpit
+                isOpen={remoteCockpitOpen}
+                onClose={() => setRemoteCockpitOpen(false)}
+            />
         </div>
-
-        <div className="mission-control-footer">
-          <div className="footer-section">
-            <button className="refresh-btn" onClick={fetchDashboard}>
-              🔄 Refresh
-            </button>
-            <button className="evidence-btn" onClick={runLearningEvidence}>
-              🧪 Check Learning Evidence
-            </button>
-          </div>
-
-          <div className="footer-section playbook-triggers">
-            <label>Quick Playbooks:</label>
-            <button 
-              className="playbook-btn"
-              onClick={() => triggerPlaybook('port_inventory_cleanup')}
-              disabled={playbookRunning !== null}
-            >
-              {playbookRunning === 'port_inventory_cleanup' ? '⏳' : '🔧'} Port Cleanup
-            </button>
-            <button 
-              className="playbook-btn"
-              onClick={() => triggerPlaybook('faiss_lock_recovery')}
-              disabled={playbookRunning !== null}
-            >
-              {playbookRunning === 'faiss_lock_recovery' ? '⏳' : '🔓'} FAISS Unlock
-            </button>
-            <button 
-              className="playbook-btn"
-              onClick={() => triggerPlaybook('google_search_quota')}
-              disabled={playbookRunning !== null}
-            >
-              {playbookRunning === 'google_search_quota' ? '⏳' : '🔍'} Quota Check
-            </button>
-          </div>
-
-          <div className="footer-section report-downloads">
-            <label>Evidence Reports:</label>
-            <button 
-              className="download-btn"
-              onClick={() => viewEvidenceReport('learning')}
-            >
-              👁️ View Learning
-            </button>
-            <button 
-              className="download-btn"
-              onClick={() => downloadEvidenceReport('learning')}
-            >
-              ⬇️ Download Learning
-            </button>
-            <button 
-              className="download-btn"
-              onClick={() => viewEvidenceReport('healing')}
-            >
-              👁️ View Healing
-            </button>
-            <button 
-              className="download-btn"
-              onClick={() => downloadEvidenceReport('healing')}
-            >
-              ⬇️ Download Healing
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };

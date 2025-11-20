@@ -250,6 +250,12 @@ try:
 except ImportError as e:
     print(f"[WARN] Agentic API disabled: {e}")
 
+try:
+    from backend.routes.chaos_api import router as chaos_router
+    app.include_router(chaos_router)
+except ImportError as e:
+    print(f"[WARN] Chaos API disabled: {e}")
+
 # Register Elite Systems API (Elite Self-Healing & Coding Agent)
 try:
     from backend.routes.elite_systems_api import router as elite_systems_router
@@ -597,6 +603,23 @@ async def startup_guardian_metrics():
         print("[GUARDIAN-METRICS] Started auto-publish (60s interval)")
     except Exception as e:
         print(f"[WARN] Guardian metrics auto-publish disabled: {e}")
+
+@app.on_event("startup")
+async def startup_chaos_agent():
+    """Start Chaos Agent (controlled mode)"""
+    try:
+        from backend.chaos.chaos_agent import chaos_agent
+        
+        # Only start if explicitly enabled
+        chaos_enabled = os.getenv("ENABLE_CHAOS_TESTING", "false").lower() == "true"
+        
+        if chaos_enabled:
+            await chaos_agent.start()
+            print("[OK] Chaos Agent started (chaos testing enabled)")
+        else:
+            print("[INFO] Chaos Agent available but not started (set ENABLE_CHAOS_TESTING=true to enable)")
+    except Exception as e:
+        print(f"[WARN] Chaos Agent initialization degraded: {e}")
 
 @app.on_event("startup")
 async def startup_advanced_learning():
