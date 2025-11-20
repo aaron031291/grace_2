@@ -11,12 +11,19 @@ import os
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./grace.db")
 
-# Create async engine
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    future=True
-)
+# Create async engine with SQLite-specific configuration
+engine_kwargs = {
+    "echo": False,
+    "future": True
+}
+
+# For SQLite, ensure compatibility with RETURNING clause
+if DATABASE_URL.startswith("sqlite"):
+    # aiosqlite handles async properly, no need for check_same_thread
+    # SQLAlchemy 2.0+ with SQLite 3.35+ supports RETURNING
+    pass
+
+engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 
 # Create async session maker
 async_session_maker = async_sessionmaker(

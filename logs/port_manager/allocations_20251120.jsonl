@@ -285,3 +285,4 @@
 {"timestamp": "2025-11-20T12:06:57.532368", "action": "allocate", "port": 8049, "service_name": "unknown", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port 8049 failure"}
 {"timestamp": "2025-11-20T12:06:59.574288", "action": "allocate", "port": 8088, "service_name": "unknown", "started_by": "guardian_auto_remediation", "purpose": "Auto-restart after port 8088 failure"}
 {"timestamp": "2025-11-20T12:40:39.731100", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-20T12:52:15.324372", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}

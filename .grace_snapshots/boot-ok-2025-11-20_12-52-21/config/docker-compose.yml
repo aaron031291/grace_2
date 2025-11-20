@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./grace.db
+    volumes:
+      - ./sandbox:/app/sandbox
+      - ./grace.db:/app/grace.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./grace-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  # Optional: PostgreSQL for production
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: grace
+  #     POSTGRES_USER: grace
+  #     POSTGRES_PASSWORD: change_me
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

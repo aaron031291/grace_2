@@ -1,0 +1,219 @@
+# Metrics and Playbooks Catalog
+# This catalog is consumed during the bootstrap loop to validate required governance fields
+# Required fields per entry: playbook_id, risk_level, autonomy_tier, verification_hooks
+
+version: 1
+updated_at: 2025-11-09T19:27:00Z
+
+playbooks:
+  - playbook_id: "pb_bootstrap_health_check"
+    name: "Bootstrap Health Check"
+    description: "Minimal playbook to validate system bootstrap, metrics wiring, and verification pipeline."
+    risk_level: "low"           # one of: low, medium, high, critical
+    autonomy_tier: 1             # 1=minimal autonomy; higher requires added controls
+    verification_hooks:          # verification hooks to run after steps
+      - "verification.basic_sanity"
+      - "verification.audit_log"
+    preconditions: []
+    steps:
+      - id: "step_ping"
+        action: "ping_health_endpoint"
+        params:
+          url: "http://localhost:8000/health"
+      - id: "step_status"
+        action: "fetch_status"
+        params:
+          url: "http://localhost:8000/api/status"
+    verifications:
+      - id: "verify_shapes"
+        type: "response_shape"
+        params:
+          required_keys:
+            - overall_health
+            - overall_trust
+            - overall_confidence
+            - saas_ready
+            - domains
+    rollback_steps: []
+    requires_approval: false
+
+  - playbook_id: "pb_meta_loop_readiness"
+    name: "Meta-Loop Readiness"
+    description: "Ensures meta-loop can progress through stages and produce readiness metrics."
+    risk_level: "medium"
+    autonomy_tier: 2
+    verification_hooks:
+      - "verification.post_conditions"
+      - "verification.metrics_rollup"
+    preconditions: []
+    steps:
+      - id: "stage1_ingest"
+        action: "simulate_ingest"
+      - id: "stage2_understand"
+        action: "simulate_understand"
+      - id: "stage3_interpret"
+        action: "simulate_interpret"
+      - id: "stage4_intent"
+        action: "simulate_intent"
+    verifications:
+      - id: "verify_stage4"
+        type: "intent_present"
+        params:
+          require: ["use_cases", "applications"]
+    rollback_steps: []
+    requires_approval: false
+
+  - playbook_id: "pb_autonomy_change_request"
+    name: "Autonomy Change Request"
+    description: "Requests increased autonomy when confidence is high; guarded by parliament approval."
+    risk_level: "high"
+    autonomy_tier: 3
+    verification_hooks:
+      - "verification.governance_vote"
+      - "verification.audit_log"
+    preconditions:
+      - condition: "confidence_above_threshold"
+        params:
+          threshold: 0.8
+    steps:
+      - id: "propose_autonomy_increase"
+        action: "propose_parliament_vote"
+        params:
+          committee: "risk"
+          level: "increase"
+    verifications:
+      - id: "verify_vote_outcome"
+        type: "parliament_vote"
+        params:
+          require: "approved"
+    rollback_steps:
+      - id: "revert_autonomy_change"
+        action: "revert_parliament_vote"
+    requires_approval: true
+
+metrics:
+ - metric_id: learning.governance_blocks
+   category: learning
+   description: "Governance engine blocks raised during the last learning cycle"
+   source: governance_framework
+   resource_scope: subsystem
+   unit: count
+   aggregation: sum
+   recommended_interval_seconds: 300
+   thresholds:
+     good:     { upper: 2 }        # 0–2 blocks ⇒ good
+     warning:  { lower: 2, upper: 5 }
+     critical: { lower: 5 }
+   playbook_id: audit-learning-governance
+   risk_level: medium
+   autonomy_tier: 2
+   verification_hooks:
+     - verify_learning_governance_health
+
+ - metric_id: infra.cpu_utilization
+   category: infra
+   description: "Average CPU utilisation per host or shard"
+   source: infra_collector     # e.g. Prometheus/Nova
+   resource_scope: host
+   unit: percent
+   aggregation: avg
+   recommended_interval_seconds: 30
+   thresholds:
+     good:     { upper: 70 }
+     warning:  { lower: 70, upper: 85 }
+     critical: { lower: 85 }
+   playbook_id: scale-compute-capacity
+   risk_level: medium
+   autonomy_tier: 2
+   verification_hooks:
+     - verify_infra_capacity
+
+ - metric_id: infra.memory_utilization
+   category: infra
+   description: "Average RAM utilisation per host or shard"
+   source: infra_collector
+   resource_scope: host
+   unit: percent
+   aggregation: avg
+   recommended_interval_seconds: 30
+   thresholds:
+     good:     { upper: 75 }
+     warning:  { lower: 75, upper: 90 }
+     critical: { lower: 90 }
+   playbook_id: reclaim-memory
+   risk_level: medium
+   autonomy_tier: 2
+   verification_hooks:
+     - verify_infra_capacity
+
+ - metric_id: infra.disk_usage
+   category: infra
+   description: "Highest disk utilisation for mission-critical volumes"
+   source: infra_collector
+   resource_scope: volume
+   unit: percent
+   aggregation: max
+   recommended_interval_seconds: 300
+   thresholds:
+     good:     { upper: 70 }
+     warning:  { lower: 70, upper: 85 }
+     critical: { lower: 85 }
+   playbook_id: expand-disk-capacity
+   risk_level: high
+   autonomy_tier: 2
+   verification_hooks:
+     - verify_disk_capacity
+
+ - metric_id: executor.queue_depth
+   category: executor
+   description: "Number of pending tasks in the autonomous executor queue"
+   source: execution_supervisor
+   resource_scope: queue
+   unit: count
+   aggregation: max
+   recommended_interval_seconds: 30
+   thresholds:
+     good:     { upper: 25 }
+     warning:  { lower: 25, upper: 75 }
+     critical: { lower: 75 }
+   playbook_id: scale-executor-workers
+   risk_level: high
+   autonomy_tier: 2
+   verification_hooks:
+     - verify_executor_health
+
+ - metric_id: autonomy.approvals_pending
+   category: autonomy
+   description: "Count of high-risk actions awaiting approval"
+   source: governance_engine
+   resource_scope: subsystem
+   unit: count
+   aggregation: max
+   recommended_interval_seconds: 60
+   thresholds:
+     good:     { upper: 3 }
+     warning:  { lower: 3, upper: 7 }
+     critical: { lower: 7 }
+   playbook_id: escalate-governance-approvals
+   risk_level: high
+   autonomy_tier: 1
+   verification_hooks:
+     - verify_governance_queue
+
+ - metric_id: autonomy.plan_success_rate
+   category: autonomy
+   description: "Percentage of recovery plans completed without rollback in last 5 minutes"
+   source: agentic_spine
+   resource_scope: subsystem
+   unit: percent
+   aggregation: avg
+   recommended_interval_seconds: 300
+   thresholds:
+     good:     { lower: 90 }
+     warning:  { lower: 75, upper: 90 }
+     critical: { upper: 75 }
+   playbook_id: downgrade-autonomy-tier
+   risk_level: critical
+   autonomy_tier: 1
+   verification_hooks:
+     - verify_autonomy_decisions

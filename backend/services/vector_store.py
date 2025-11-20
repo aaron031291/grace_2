@@ -358,9 +358,11 @@ class VectorStore:
                 vector_dimensions=self.config.get("dimensions", 1536),
                 backend_type=self.backend_type,
                 backend_config=self.config,
-                status="active"
+                status="active",
+                created_at=datetime.now(timezone.utc)  # Explicitly set instead of server_default
             )
             session.add(self.index_record)
+            await session.flush()  # Flush to get ID without triggering RETURNING issues
             await session.commit()
         
         print(f"[VECTOR STORE] Initialized {self.backend_type} backend")

@@ -1,0 +1,114 @@
+table: memory_librarian_log
+description: |
+  Tracks Librarian kernel activity including jobs routed to sub-agents,
+  ingestion triggers, schema actions, and governance decisions.
+  Acts as the auditable ledger for Grace's data orchestration.
+
+fields:
+  - name: id
+    type: uuid
+    primary_key: true
+    generated: true
+    description: Unique log entry identifier
+
+  - name: timestamp
+    type: datetime
+    required: true
+    generated: true
+    description: When this action occurred
+
+  - name: action_type
+    type: string
+    allowed:
+      - schema_proposal
+      - ingestion_launch
+      - ml_run_trigger
+      - trust_update
+      - governance_request
+      - agent_spawn
+      - agent_terminate
+      - alert_raise
+      - verification_run
+      - self_healing
+      - other
+    default: other
+    description: Category of action taken by Librarian
+
+  - name: action_detail
+    type: text
+    nullable: true
+    description: Human-readable summary of the event
+
+  - name: target_resource
+    type: string
+    nullable: true
+    description: File path, table name, ingestion job ID, etc.
+
+  - name: related_agent_id
+    type: string
+    nullable: true
+    description: Sub-agent ID involved (if any)
+
+  - name: schema_id
+    type: string
+    nullable: true
+    description: Schema proposal or Unified Logic update ID
+
+  - name: ingestion_id
+    type: string
+    nullable: true
+    description: Ingestion pipeline run identifier
+
+  - name: governance_result
+    type: json
+    nullable: true
+    description: Result from Unified Logic (approved/rejected, notes)
+
+  - name: trust_score_delta
+    type: float
+    default: 0.0
+    description: How the action changed trust scoring (+ or -)
+
+  - name: status
+    type: string
+    allowed: [queued, running, succeeded, failed, escalated]
+    default: queued
+    description: Current status of this action
+
+  - name: error_info
+    type: text
+    nullable: true
+    description: Full error/exception if status is failed
+
+  - name: follow_up_task
+    type: json
+    nullable: true
+    description: Recommended or scheduled next steps
+
+  - name: clarity_event_id
+    type: string
+    nullable: true
+    description: Reference to clarity event mesh event
+
+  - name: loop_output_id
+    type: string
+    nullable: true
+    description: Reference to GraceLoopOutput entry
+
+  - name: notes
+    type: text
+    nullable: true
+    description: Additional commentary from Librarian or reviewers
+
+  - name: created_at
+    type: datetime
+    generated: true
+
+indexes:
+  - fields: [timestamp]
+  - fields: [action_type, status]
+  - fields: [related_agent_id]
+  - fields: [target_resource]
+
+constraints:
+  - valid_status: "status IN ('queued', 'running', 'succeeded', 'failed', 'escalated')"
