@@ -25,8 +25,11 @@ if __name__ == "__main__":
     # Let's check grace.db and databases/*.db
     import glob
     import os
+    from pathlib import Path
     
-    dbs = ["grace.db"] + glob.glob("databases/*.db") + glob.glob("data/*.db")
+    root_dir = Path(__file__).parent.parent.parent
+    
+    dbs = glob.glob(str(root_dir / "databases/*.db")) + glob.glob(str(root_dir / "data/*.db"))
     
     for db in dbs:
         if os.path.exists(db):

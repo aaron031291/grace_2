@@ -20,7 +20,7 @@ def run_command(cmd, cwd=None, check=True):
 
 def main():
     """Build Grace completely"""
-    grace_root = Path(__file__).parent
+    grace_root = Path(__file__).parent.parent.parent
     os.chdir(grace_root)
     
     print("🚀 BUILDING GRACE COMPLETE SYSTEM")
@@ -35,13 +35,13 @@ def main():
     
     # Run import tests
     print("🧪 Testing imports...")
-    run_command([sys.executable, "scripts/test_imports.py"])
+    run_command([sys.executable, "scripts/tests/test_imports.py"])
     
     # Run boot probe
     print("🧪 Testing boot sequence...")
     env = os.environ.copy()
     env.update({"OFFLINE_MODE": "true", "DRY_RUN": "true", "CI": "true"})
-    run_command([sys.executable, "server.py", "--dry-run"], env=env, check=False)
+    run_command([sys.executable, "scripts/runners/server.py", "--dry-run"], env=env, check=False)
     
     print("✅ Backend build complete!")
     
@@ -84,7 +84,7 @@ def main():
     # Start backend temporarily for testing
     print("🚀 Starting backend for verification...")
     backend_proc = subprocess.Popen([
-        sys.executable, "server.py", "--port", "8001"
+        sys.executable, "scripts/runners/server.py", "--port", "8001"
     ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
     # Wait for startup
@@ -122,10 +122,10 @@ def main():
     
     print("\n🎉 GRACE BUILD COMPLETE!")
     print("\nTo start Grace:")
-    print("  Backend:  python server.py")
+    print("  Backend:  python scripts/runners/server.py")
     print("  Frontend: cd frontend && npm run dev")
-    print("  Full:     python build_grace.py --start")
-
+    print("  Full:     python scripts/setup/build_grace.py --start")
+    
 if __name__ == "__main__":
     if "--start" in sys.argv:
         # Start both services after build
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         print("\n🚀 Starting Grace services...")
         
         # Start backend
-        backend_proc = subprocess.Popen([sys.executable, "server.py"])
+        backend_proc = subprocess.Popen([sys.executable, "scripts/runners/server.py"])
         
         # Start frontend
         frontend_proc = subprocess.Popen(["npm", "run", "dev"], cwd="frontend")

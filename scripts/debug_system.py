@@ -6,7 +6,12 @@ def check_db():
     print("="*30)
     print("DATABASE CHECK")
     print("="*30)
-    db_path = "grace.db"
+    db_path = "databases/grace.db"
+    if not os.path.exists(db_path):
+        # Fallback if running from scripts dir
+        if os.path.exists("../databases/grace.db"):
+            db_path = "../databases/grace.db"
+            
     if not os.path.exists(db_path):
         print(f"[FAIL] Database file '{db_path}' not found.")
         return
@@ -33,7 +38,11 @@ def check_imports():
     print("IMPORT CHECK")
     print("="*30)
     
-    sys.path.append(os.getcwd())
+    # Add root to path
+    from pathlib import Path
+    root_dir = Path(__file__).parent.parent
+    if str(root_dir) not in sys.path:
+        sys.path.insert(0, str(root_dir))
     
     modules_to_check = [
         "backend.anomaly_watchdog",

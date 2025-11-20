@@ -51,7 +51,8 @@ def check_imports():
     ]
     
     # Add root to sys.path
-    root_dir = os.path.dirname(os.path.abspath(__file__))
+    from pathlib import Path
+    root_dir = str(Path(__file__).parent.parent.parent)
     sys.path.insert(0, root_dir)
     
     for module_path, name in services:
