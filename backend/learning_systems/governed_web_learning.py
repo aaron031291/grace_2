@@ -73,7 +73,7 @@ class DomainWhitelist:
     def _initialize_trusted_domains(self):
         """Initialize with pre-approved trusted domains"""
         trusted_domains = [
-            ("github.com", LearningPermission.ALLOWED, ["docs", "readme"], [], ["documentation", "code"]),
+            ("github.com", LearningPermission.ALLOWED, [], [], ["documentation", "code"]),
             ("stackoverflow.com", LearningPermission.ALLOWED, [], ["/questions/tagged/"], ["qa", "code"]),
             ("docs.python.org", LearningPermission.ALLOWED, [], [], ["documentation"]),
             ("realpython.com", LearningPermission.ALLOWED, [], [], ["tutorials", "documentation"]),

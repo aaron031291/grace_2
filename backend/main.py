@@ -257,6 +257,14 @@ try:
 except ImportError:
     pass  # Web learning optional
 
+# Register proactive learning API (Always-on autonomous learning)
+try:
+    from backend.routes.proactive_learning_api import router as proactive_learning_router
+    app.include_router(proactive_learning_router)
+    print("[OK] Proactive Learning API registered (Always-on autonomous learning)")
+except ImportError as e:
+    print(f"[WARN] Proactive Learning API disabled: {e}")
+
 # Register autonomous web navigator (Grace's decision-making for web searches)
 try:
     from backend.routes.autonomous_navigator_api import router as navigator_router
@@ -410,15 +418,11 @@ try:
 except ImportError as e:
     print(f"[WARN] Developer API disabled: {e}")
 
-# Register Health Monitoring APIs
+# Register Health Monitoring APIs (Google Search health disabled - quota exhausted)
 try:
-    from backend.routes.search_health_api import router as search_health_router
-    from backend.routes.learning_health_api import router as learning_health_router
     from backend.routes.remote_health_api import router as remote_health_router
-    app.include_router(search_health_router)
-    app.include_router(learning_health_router)
     app.include_router(remote_health_router)
-    print("[OK] Health monitoring APIs registered (search, learning, remote)")
+    print("[OK] Health monitoring APIs registered (remote)")
 except ImportError as e:
     print(f"[WARN] Health monitoring APIs disabled: {e}")
 

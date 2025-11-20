@@ -399,6 +399,19 @@ async def boot_grace_minimal():
         # CHUNK 6: Governed Learning Engine (Gap detection + world model)
         async def chunk_6_governed_learning():
             print("[CHUNK 6] Governed Learning Engine...")
+            from backend.learning_systems.continuous_learning_loop import continuous_learning_loop
+            from backend.autonomy.proactive_learning_agent import proactive_learning_agent
+            
+            # Start the continuous learning loop
+            await continuous_learning_loop.start()
+            print("  [OK] Continuous Learning Loop: Active (Learning from every action)")
+            
+            # Start the proactive learning agent
+            await proactive_learning_agent.start()
+            print("  [OK] Proactive Learning Agent: Active (Always learning from internet)")
+            print("  [OK] Current Domain: 1_genai_foundations (Auto-started)")
+            print("  [OK] Learning Cycle: Every 60 seconds (Fully autonomous)")
+            
             from backend.learning.governed_learning import (
                 ApprovalGate,
                 DomainWhitelistAPI,
