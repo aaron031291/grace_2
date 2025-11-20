@@ -3,7 +3,11 @@ import './SimplifiedMissionControl.css';
 
 type Tab = 'overview' | 'tasks' | 'playbooks' | 'learning' | 'evidence';
 
-export const SimplifiedMissionControl: React.FC = () => {
+interface SimplifiedMissionControlProps {
+  onClose?: () => void;
+}
+
+export const SimplifiedMissionControl: React.FC<SimplifiedMissionControlProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [showAlert, setShowAlert] = useState(true);
 
@@ -182,8 +186,17 @@ export const SimplifiedMissionControl: React.FC = () => {
       )}
 
       <div className="mc-header">
-        <h1 className="mc-title">Mission Control</h1>
-        <p className="mc-subtitle">System overview and management</p>
+        <div className="mc-header-content">
+          <div>
+            <h1 className="mc-title">Mission Control</h1>
+            <p className="mc-subtitle">System overview and management</p>
+          </div>
+          {onClose && (
+            <button className="mc-close-btn" onClick={onClose} title="Close Mission Control">
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mc-tabs">

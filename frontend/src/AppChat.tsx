@@ -261,7 +261,7 @@ function AppChat() {
       case 'modern':
         return <ModernChatInterface />;
       case 'mission':
-        return <SimplifiedMissionControl />;
+        return <SimplifiedMissionControl onClose={() => setActiveView('modern')} />;
       case 'overview':
         return <SystemOverview />;
       case 'dashboard':
