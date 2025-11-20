@@ -1,9 +1,9 @@
 {
-  "snapshot_id": "boot-ok-2025-11-20_16-19-31",
-  "captured_at": "2025-11-20T16:19:31.461612",
+  "snapshot_id": "boot-ok-2025-11-20_19-49-48",
+  "captured_at": "2025-11-20T19:49:48.228044",
   "boot_result": {
     "boot_priority": 0,
-    "started_at": "2025-11-20T16:19:27.937834",
+    "started_at": "2025-11-20T19:49:44.330595",
     "phases": {
       "phase1_self_check": {
         "passed": true,
@@ -66,9 +66,9 @@
           },
           "connection_limits": {
             "status": "ok",
-            "total_connections": 1557,
-            "established": 81,
-            "listening": 47,
+            "total_connections": 1658,
+            "established": 129,
+            "listening": 46,
             "recommendation": "OK"
           },
           "dns_resolution": {
@@ -84,7 +84,7 @@
         "service_name": "grace_backend",
         "purpose": "Main Grace API - allocated by Guardian during boot",
         "started_by": "guardian_kernel",
-        "allocated_at": "2025-11-20T16:19:27.981694",
+        "allocated_at": "2025-11-20T19:49:44.376639",
         "network_health": {
           "status": "healthy",
           "critical_issues": [],
@@ -138,9 +138,9 @@
             },
             "connection_limits": {
               "status": "ok",
-              "total_connections": 1557,
-              "established": 81,
-              "listening": 47,
+              "total_connections": 1658,
+              "established": 129,
+              "listening": 46,
               "recommendation": "OK"
             },
             "dns_resolution": {
@@ -150,7 +150,7 @@
               "hostname_ip": "192.168.7.252"
             }
           },
-          "timestamp": "2025-11-20T16:19:27.981694"
+          "timestamp": "2025-11-20T19:49:44.376639"
         }
       },
       "phase4_watchdog": {
@@ -169,12 +169,12 @@
       }
     },
     "boot_complete": true,
-    "duration_seconds": 0.145675
+    "duration_seconds": 0.152781
   },
   "targets": [
     {
       "path": "databases/",
-      "size_bytes": 41130906
+      "size_bytes": 41119739
     },
     {
       "path": "config/",
@@ -193,5 +193,5 @@
       "size_bytes": 6
     }
   ],
-  "total_bytes": 42673961
+  "total_bytes": 42662794
 }
