@@ -73,4 +73,14 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
-.env 
+
+# Large media files
+storage/memory/*.MP4
+storage/memory/*.mp4
+storage/memory/*.MOV
+storage/memory/*.mov
+storage/memory/*.AVI
+storage/memory/*.avi
+*.MP4
+*.MOV
+*.AVI
