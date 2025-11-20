@@ -13,6 +13,7 @@ import { TelemetryStrip } from './components/TelemetryStrip';
 import { HistorySearch } from './components/HistorySearch';
 import { UserPresenceBar } from './components/UserPresence';
 import { FileExplorer } from './components/FileExplorer';
+import { MissionControlDashboard } from './components/MissionControlDashboard';
 import { RemoteAPI } from './api/remote';
 import './AppChat.css';
 
@@ -21,6 +22,7 @@ function AppChat() {
   const [tasksOpen, setTasksOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [fileExplorerOpen, setFileExplorerOpen] = useState(false);
+  const [missionControlOpen, setMissionControlOpen] = useState(false);
   const [remoteActive, setRemoteActive] = useState(false);
   const [screenShareActive, setScreenShareActive] = useState(false);
   const [remoteSessionId, setRemoteSessionId] = useState<string | null>(null);
@@ -390,6 +392,14 @@ function AppChat() {
           >
             🎛️ Cockpit
           </button>
+          
+          <button
+            className="control-button mission-control-btn"
+            onClick={() => setMissionControlOpen(true)}
+            title="Open Mission Control Dashboard"
+          >
+            🎯 Mission Control
+          </button>
         </div>
       </div>
       
@@ -407,6 +417,7 @@ function AppChat() {
         onSelectSession={(sessionId) => console.log('Selected session:', sessionId)}
       />
       <FileExplorer isOpen={fileExplorerOpen} onClose={() => setFileExplorerOpen(false)} />
+      <MissionControlDashboard isOpen={missionControlOpen} onClose={() => setMissionControlOpen(false)} />
     </div>
   );
 }
