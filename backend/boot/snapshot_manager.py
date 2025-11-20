@@ -149,7 +149,7 @@ class BootSnapshotManager:
             return False
     
     async def _apply_retention_policy(self):
-        """Keep only 3 most recent snapshots"""
+        """Keep only 3 most recent snapshots and clean up cache/db artifacts"""
         
         # List all snapshots
         snapshots = sorted(
@@ -169,6 +169,51 @@ class BootSnapshotManager:
                     logger.info(f"[SNAPSHOT] Deleted old snapshot: {snapshot_dir.name}")
                 except Exception as e:
                     logger.error(f"[SNAPSHOT] Failed to delete {snapshot_dir.name}: {e}")
+        
+        # Clean up boot cache directories (keep only 5 most recent)
+        cache_dirs = sorted(
+            [d for d in self.snapshot_root.glob('boot_*_cache') if d.is_dir()],
+            key=lambda x: x.stat().st_mtime,
+            reverse=True
+        )
+        
+        if len(cache_dirs) > 5:
+            for cache_dir in cache_dirs[5:]:
+                try:
+                    shutil.rmtree(cache_dir)
+                    logger.info(f"[SNAPSHOT] Deleted old cache: {cache_dir.name}")
+                except Exception as e:
+                    logger.error(f"[SNAPSHOT] Failed to delete cache {cache_dir.name}: {e}")
+        
+        # Clean up orphaned db.sqlite files (keep only 5 most recent)
+        db_files = sorted(
+            self.snapshot_root.glob('boot_*_db.sqlite'),
+            key=lambda x: x.stat().st_mtime,
+            reverse=True
+        )
+        
+        if len(db_files) > 5:
+            for db_file in db_files[5:]:
+                try:
+                    db_file.unlink()
+                    logger.info(f"[SNAPSHOT] Deleted old db: {db_file.name}")
+                except Exception as e:
+                    logger.error(f"[SNAPSHOT] Failed to delete {db_file.name}: {e}")
+        
+        # Clean up orphaned metadata.json files (keep only 5 most recent)
+        metadata_files = sorted(
+            self.snapshot_root.glob('boot_*_metadata.json'),
+            key=lambda x: x.stat().st_mtime,
+            reverse=True
+        )
+        
+        if len(metadata_files) > 5:
+            for meta_file in metadata_files[5:]:
+                try:
+                    meta_file.unlink()
+                    logger.info(f"[SNAPSHOT] Deleted old metadata: {meta_file.name}")
+                except Exception as e:
+                    logger.error(f"[SNAPSHOT] Failed to delete {meta_file.name}: {e}")
         
         logger.info(f"[SNAPSHOT] Retention policy applied: {len(snapshots[:self.max_snapshots])} snapshots kept")
     

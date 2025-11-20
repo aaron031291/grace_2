@@ -1202,6 +1202,17 @@ if __name__ == "__main__":
         print(f"[PRE-FLIGHT] Port check skipped: {e}")
     print()
     
+    # Run snapshot cleanup before boot
+    print("[CLEANUP] Running snapshot cleanup...")
+    try:
+        from backend.utils.snapshot_cleanup import run_cleanup
+        cleanup_stats = asyncio.run(run_cleanup(dry_run=False))
+        if cleanup_stats.get("items_deleted", 0) > 0:
+            print(f"[CLEANUP] Freed {cleanup_stats['bytes_freed'] / 1024 / 1024:.2f} MB")
+    except Exception as e:
+        print(f"[CLEANUP] Cleanup skipped: {e}")
+    print()
+    
     # Boot Grace (Guardian boots FIRST and allocates port)
     boot_result = asyncio.run(boot_grace_minimal())
     

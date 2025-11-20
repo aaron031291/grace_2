@@ -1,0 +1,45 @@
+# Grace Snapshot Retention Policy Configuration
+
+# Boot Snapshots (full system state after successful boot)
+boot_snapshots:
+  max_count: 3
+  max_age_days: 30
+  cleanup_on_boot: true
+
+# Boot Cache (kernel state during boot)
+boot_cache:
+  max_count: 5
+  max_age_days: 7
+  cleanup_on_boot: true
+
+# Pre-Boot Snapshots (before initialization)
+pre_boot_snapshots:
+  max_count: 5
+  max_age_days: 14
+  cleanup_on_boot: true
+
+# Database Backups
+database_backups:
+  max_count: 10
+  max_age_days: 30
+  cleanup_on_boot: false  # Don't auto-delete DB backups
+
+# Port Registry Backups
+port_registry_backups:
+  max_count: 20
+  max_age_days: 14
+  cleanup_on_boot: true
+
+# Global Settings
+global:
+  # Run cleanup automatically on every boot
+  auto_cleanup_enabled: true
+  
+  # Minimum free disk space (GB) before forcing aggressive cleanup
+  min_free_space_gb: 10
+  
+  # Log cleanup operations
+  log_cleanup: true
+  
+  # Dry run mode (test without deleting)
+  dry_run: false

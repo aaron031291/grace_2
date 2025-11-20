@@ -96,6 +96,12 @@ except ImportError as e:
     print(f"[WARN] Mission control disabled: {e}")
 
 try:
+    from backend.routes.cleanup_api import router as cleanup_router
+    app.include_router(cleanup_router)
+except ImportError as e:
+    print(f"[WARN] Cleanup API disabled: {e}")
+
+try:
     from backend.routes.auth import router as auth_router
     app.include_router(auth_router)
 except ImportError as e:
