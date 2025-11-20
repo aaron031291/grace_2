@@ -1,0 +1,60 @@
+/**
+ * Global modal and close button fixes
+ * Ensures all close buttons are clickable with proper z-index
+ */
+
+/* Ensure all modals/overlays have high z-index */
+.drawer-overlay,
+.chat-kind-selector-overlay,
+[class*="overlay"],
+[class*="modal"] {
+  z-index: 9998 !important;
+}
+
+/* Ensure all close buttons are on top and clickable */
+.close-btn,
+.drawer-close,
+.cockpit-close,
+.history-close,
+.close-details-btn,
+button[class*="close"],
+button[aria-label*="lose"] {
+  position: relative;
+  z-index: 10000 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Prevent backdrop from blocking clicks */
+.drawer-overlay,
+.chat-kind-selector-overlay {
+  pointer-events: auto !important;
+}
+
+/* Ensure drawer/modal content allows clicks */
+.drawer,
+.chat-kind-selector,
+[class*="drawer-content"],
+[class*="modal-content"] {
+  position: relative;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Fix for nested elements */
+.drawer-header,
+.chat-kind-header,
+[class*="modal-header"] {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+}
+
+/* Ensure close button hover states work */
+.close-btn:hover,
+.drawer-close:hover,
+.cockpit-close:hover,
+.history-close:hover {
+  z-index: 10001 !important;
+}
