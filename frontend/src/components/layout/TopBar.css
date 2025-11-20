@@ -16,7 +16,7 @@
   margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #0066cc, #00bcd4);
+  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -80,12 +80,12 @@
 }
 
 .top-bar-action-btn.self-healing {
-  border-color: #10b981;
-  color: #10b981;
+  border-color: #4A9EFF;
+  color: #4A9EFF;
 }
 
 .top-bar-action-btn.self-healing:hover {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(74, 158, 255, 0.1);
 }
 
 .top-bar-action-btn.emergency-stop {

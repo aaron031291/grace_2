@@ -21,7 +21,7 @@
 .app-logo h1 {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
-  background: linear-gradient(135deg, #0066cc, #00bcd4);
+  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -67,13 +67,13 @@
 }
 
 .control-button.active {
-  background: linear-gradient(135deg, #0066cc, #00bcd4);
-  border-color: #0066cc;
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
+  border-color: #4A9EFF;
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
 }
 
 .control-button.active:hover {
-  background: linear-gradient(135deg, #0052a3, #00a5bd);
+  background: linear-gradient(135deg, #3A8EEF, #4BA5EF);
 }
 
 .control-button.mission-control-btn {
@@ -135,7 +135,7 @@
 
 .cockpit-toggle:hover {
   background: #3a3a3a;
-  border-color: #0066cc;
+  border-color: #4A9EFF;
 }
 
 .app-main {

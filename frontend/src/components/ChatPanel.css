@@ -57,7 +57,7 @@
 
 .message-user {
   align-self: flex-end;
-  background: #0066cc;
+  background: #4A9EFF;
   color: #fff;
 }
 
@@ -310,7 +310,7 @@
 
 .chat-input:focus {
   outline: none;
-  border-color: #0066cc;
+  border-color: #4A9EFF;
 }
 
 .chat-input:disabled {
@@ -320,7 +320,7 @@
 
 .chat-send-btn {
   padding: 0.75rem 1.5rem;
-  background: #0066cc;
+  background: #4A9EFF;
   color: white;
   border: none;
   border-radius: 6px;
@@ -400,7 +400,7 @@
 }
 
 .control-btn.active {
-  background: #0066cc;
-  border-color: #0066cc;
+  background: #4A9EFF;
+  border-color: #4A9EFF;
   color: white;
 }

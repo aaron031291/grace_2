@@ -16,7 +16,7 @@ export const BottomStatusBar: React.FC<BottomStatusBarProps> = ({
 }) => {
   const getHealthColor = () => {
     switch (healthStatus) {
-      case 'healthy': return '#10b981';
+      case 'healthy': return '#4A9EFF';
       case 'warning': return '#f59e0b';
       case 'critical': return '#ef4444';
     }

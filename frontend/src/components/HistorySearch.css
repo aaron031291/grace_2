@@ -112,7 +112,7 @@
 
 .history-tab.active {
   color: #fff;
-  border-bottom-color: #0066cc;
+  border-bottom-color: #4A9EFF;
   background: #2a2a2a;
 }
 
@@ -140,12 +140,12 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #0066cc;
+  border-color: #4A9EFF;
 }
 
 .search-btn {
   padding: 0.75rem 1.5rem;
-  background: #0066cc;
+  background: #4A9EFF;
   border: none;
   border-radius: 6px;
   color: white;
@@ -212,7 +212,7 @@
 .result-score {
   margin-left: auto;
   padding: 0.25rem 0.5rem;
-  background: #0066cc;
+  background: #4A9EFF;
   border-radius: 4px;
   color: white;
   font-size: 0.75rem;
@@ -221,7 +221,7 @@
 
 .session-count {
   margin-left: auto;
-  color: #0066cc;
+  color: #4A9EFF;
   font-weight: 600;
 }
 
@@ -283,7 +283,7 @@
 }
 
 .ctx-role.user {
-  color: #0066cc;
+  color: #4A9EFF;
 }
 
 .ctx-role.assistant {
@@ -299,7 +299,7 @@
 .session-open-btn {
   width: 100%;
   padding: 0.5rem;
-  background: #0066cc;
+  background: #4A9EFF;
   border: none;
   border-radius: 4px;
   color: white;
