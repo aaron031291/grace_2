@@ -113,11 +113,12 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
       // Fetch external learning status
       const externalLearning = await fetchExternalLearningStatus();
 
-      // Fetch metrics (MTTR, learning events, etc.)
-      const metrics = await fetchMetrics();
-
       // Fetch mission history
       const missionHistory = await fetchMissionHistory();
+
+      // Fetch metrics (MTTR, learning events, etc.) - needs tasks and learning data
+      const currentTasks = tasksData.missions || tasksData.tasks || [];
+      const metrics = await fetchMetrics(currentTasks, learning);
 
       // Detect missing items
       const missingItems = detectMissingItems(externalLearning);
@@ -182,7 +183,7 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
     }
   };
 
-  const fetchMetrics = async (): Promise<MetricsData | null> => {
+  const fetchMetrics = async (tasks: any[], learningData: LearningStatus | null): Promise<MetricsData | null> => {
     try {
       // Fetch MTTR and guardian stats
       const guardianRes = await fetch('http://localhost:8017/api/guardian/stats');
@@ -192,17 +193,17 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
       const analyticsRes = await fetch('http://localhost:8017/api/analytics/mttr-trend?period_days=30');
       const analyticsData = analyticsRes.ok ? await analyticsRes.json() : {};
 
-      // Count learning events from immutable log
-      const learningEventCount = data.learning?.total_outcomes || 0;
+      // Count learning events from learning data
+      const learningEventCount = learningData?.total_outcomes || 0;
 
       return {
         mttr_seconds: guardianData.mttr?.mttr_seconds || guardianData.overall_health?.mttr_actual_seconds || 0,
         mttr_target_seconds: guardianData.overall_health?.mttr_target_seconds || 120,
         learning_event_count: learningEventCount,
         success_rate_percent: guardianData.mttr?.success_rate_percent || 0,
-        missions_resolved: data.tasks.filter((t: any) => t.status === 'completed' || t.status === 'resolved').length,
-        missions_active: data.tasks.filter((t: any) => t.status === 'active' || t.status === 'in_progress').length,
-        missions_failed: data.tasks.filter((t: any) => t.status === 'failed').length,
+        missions_resolved: tasks.filter((t: any) => t.status === 'completed' || t.status === 'resolved').length,
+        missions_active: tasks.filter((t: any) => t.status === 'active' || t.status === 'in_progress').length,
+        missions_failed: tasks.filter((t: any) => t.status === 'failed').length,
         rag_health: undefined, // TODO: Add RAG health API
         htm_health: undefined  // TODO: Add HTM health API
       };
