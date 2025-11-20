@@ -257,40 +257,36 @@ class VerificationMesh:
     ) -> VerificationVote:
         """Logic critic vote - validates reasoning"""
         
-        # Use reasoning specialist model
         model = get_model_for_task("reasoning", requires_governance=True)
         
-        # Build prompt for logic validation
-        prompt = f"""You are a logic critic. Analyze this content for logical consistency:
-
-Content: {content}
-
-Check for:
-1. Logical fallacies
-2. Contradictions
-3. Unsupported claims
-4. Reasoning gaps
-
-Respond with JSON:
-{{"approved": true/false, "confidence": 0.0-1.0, "reasoning": "explanation", "warnings": ["issue1", "issue2"]}}"""
-        
-        # TODO: Actually call model - for now, use heuristics
-        # In production, this would call the LLM
-        
-        # Simple heuristics for now
         has_contradictions = self._detect_contradictions(content)
         has_unsupported_claims = len(context.get('citations', [])) == 0
         
-        approved = not has_contradictions
-        confidence = 0.8 if not has_unsupported_claims else 0.6
+        sentences = [s.strip() for s in content.split('.') if s.strip()]
+        reasoning_gaps = self._detect_reasoning_gaps(sentences)
+        fallacies = self._detect_logical_fallacies(content)
+        
+        total_issues = (
+            (1 if has_contradictions else 0) +
+            (1 if has_unsupported_claims else 0) +
+            len(reasoning_gaps) +
+            len(fallacies)
+        )
+        
+        approved = total_issues == 0
+        confidence = max(0.3, 1.0 - (total_issues * 0.15))
         
         warnings = []
         if has_contradictions:
-            warnings.append("Potential logical contradictions detected")
+            warnings.append("Logical contradictions detected")
         if has_unsupported_claims:
             warnings.append("Claims lack citations")
+        if reasoning_gaps:
+            warnings.extend([f"Reasoning gap: {gap}" for gap in reasoning_gaps[:2]])
+        if fallacies:
+            warnings.extend([f"Logical fallacy: {fallacy}" for fallacy in fallacies[:2]])
         
-        reasoning = "Logic validation based on contradiction detection and citation coverage"
+        reasoning = f"Logic validation: {total_issues} issues found across {len(sentences)} sentences"
         
         return VerificationVote(
             role=VerificationRole.LOGIC_CRITIC,
@@ -298,7 +294,7 @@ Respond with JSON:
             approved=approved,
             confidence=confidence,
             reasoning=reasoning,
-            evidence=[f"Citations: {len(context.get('citations', []))}"],
+            evidence=[f"Citations: {len(context.get('citations', []))}", f"Sentences analyzed: {len(sentences)}"],
             warnings=warnings
         )
     
@@ -375,14 +371,16 @@ Respond with JSON:
         )
     
     def _detect_contradictions(self, content: str) -> bool:
-        """Simple contradiction detection"""
-        # Look for obvious contradictions
+        """Detect logical contradictions"""
         contradiction_pairs = [
             ("always", "never"),
             ("all", "none"),
             ("yes", "no"),
             ("true", "false"),
-            ("correct", "incorrect")
+            ("correct", "incorrect"),
+            ("impossible", "possible"),
+            ("certain", "uncertain"),
+            ("must", "cannot")
         ]
         
         content_lower = content.lower()
@@ -394,6 +392,43 @@ Respond with JSON:
                     return True
         
         return False
+    
+    def _detect_reasoning_gaps(self, sentences: List[str]) -> List[str]:
+        """Detect gaps in logical reasoning"""
+        gaps = []
+        
+        claim_indicators = ['therefore', 'thus', 'consequently', 'hence', 'so']
+        
+        for i, sent in enumerate(sentences):
+            sent_lower = sent.lower()
+            
+            for indicator in claim_indicators:
+                if indicator in sent_lower:
+                    if i == 0:
+                        gaps.append(f"Conclusion without premise at sentence {i+1}")
+                    elif len(sent.split()) < 5:
+                        gaps.append(f"Weak conclusion at sentence {i+1}")
+        
+        return gaps
+    
+    def _detect_logical_fallacies(self, content: str) -> List[str]:
+        """Detect common logical fallacies"""
+        fallacies = []
+        content_lower = content.lower()
+        
+        if any(phrase in content_lower for phrase in ['everyone knows', 'obviously', 'clearly']):
+            fallacies.append("Appeal to common knowledge")
+        
+        if any(phrase in content_lower for phrase in ['always has been', 'traditionally', 'historically']):
+            fallacies.append("Appeal to tradition")
+        
+        if content_lower.count('if ') > 2 and 'then' not in content_lower:
+            fallacies.append("Incomplete conditional reasoning")
+        
+        if any(phrase in content_lower for phrase in ['you should', 'we must', 'have to']) and 'because' not in content_lower:
+            fallacies.append("Unsupported imperative")
+        
+        return fallacies
     
     def _assess_technical_depth(self, content: str) -> float:
         """Assess technical depth of content"""

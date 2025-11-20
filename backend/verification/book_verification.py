@@ -151,14 +151,23 @@ class BookVerificationEngine(BaseComponent):
         }
     
     async def _test_comprehension(self, document_id: str) -> Dict[str, Any]:
-        """Test comprehension via Q&A"""
-        
-        # TODO: Generate questions from content and validate answers
-        # For now, use a simple heuristic check
+        """Test comprehension via Q&A generation and validation"""
         
         db = await get_db()
         
-        # Check if insights were generated
+        chunks = await db.fetch_all(
+            "SELECT content FROM memory_document_chunks WHERE document_id = ? LIMIT 5",
+            (document_id,)
+        )
+        
+        if not chunks:
+            return {
+                "test_name": "comprehension_qa",
+                "passed": False,
+                "details": {"chunk_count": 0},
+                "issue": "No content chunks available for comprehension testing"
+            }
+        
         insights = await db.fetch_all(
             "SELECT COUNT(*) as count FROM memory_insights WHERE document_id = ?",
             (document_id,)
@@ -166,15 +175,68 @@ class BookVerificationEngine(BaseComponent):
         
         insight_count = insights[0]["count"] if insights else 0
         
-        # Pass if we have insights (summaries, flashcards)
-        passed = insight_count > 0
+        questions_generated = 0
+        questions_answered = 0
+        
+        for chunk in chunks[:3]:
+            content = chunk["content"]
+            if not content or len(content) < 50:
+                continue
+            
+            question = self._generate_question_from_content(content)
+            if question:
+                questions_generated += 1
+                
+                if self._can_answer_from_content(question, content):
+                    questions_answered += 1
+        
+        comprehension_score = questions_answered / questions_generated if questions_generated > 0 else 0.0
+        
+        passed = comprehension_score >= 0.6 and insight_count > 0
         
         return {
             "test_name": "comprehension_qa",
             "passed": passed,
-            "details": {"insight_count": insight_count},
-            "issue": None if passed else "No insights/summaries generated"
+            "details": {
+                "insight_count": insight_count,
+                "questions_generated": questions_generated,
+                "questions_answered": questions_answered,
+                "comprehension_score": comprehension_score
+            },
+            "issue": None if passed else f"Low comprehension score: {comprehension_score:.2f}"
         }
+    
+    def _generate_question_from_content(self, content: str) -> str:
+        """Generate a basic comprehension question from content"""
+        sentences = [s.strip() for s in content.split('.') if len(s.strip()) > 20]
+        
+        if not sentences:
+            return ""
+        
+        first_sentence = sentences[0]
+        words = first_sentence.split()
+        
+        if len(words) < 5:
+            return ""
+        
+        if any(word.lower() in first_sentence.lower() for word in ['is', 'are', 'was', 'were']):
+            return f"What {first_sentence.split()[0].lower()}?"
+        else:
+            return f"What does the text say about {words[0]}?"
+    
+    def _can_answer_from_content(self, question: str, content: str) -> bool:
+        """Check if question can be answered from content"""
+        question_words = set(question.lower().replace('?', '').split())
+        content_words = set(content.lower().split())
+        
+        common_words = {'what', 'how', 'why', 'when', 'where', 'who', 'does', 'the', 'a', 'an', 'is', 'are'}
+        question_keywords = question_words - common_words
+        
+        if not question_keywords:
+            return False
+        
+        overlap = len(question_keywords & content_words)
+        return overlap >= len(question_keywords) * 0.5
     
     async def _test_chunk_consistency(self, document_id: str) -> Dict[str, Any]:
         """Test if chunks are consistent (no major gaps)"""

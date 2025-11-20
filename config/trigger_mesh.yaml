@@ -1,0 +1,444 @@
+# Grace Trigger Mesh - Constitutional Event Routing Configuration
+# Complete routing specification with constitutional validation and trust enforcement
+
+events:
+  # === System Lifecycle Events ===
+  
+  - event_type: system.boot.started
+    description: System boot sequence initiated
+    publishers:
+      - orchestrator
+    subscribers:
+      - metrics_collector
+      - immutable_log
+      - health_monitor
+    requires_constitutional_validation: false
+    min_trust_score: 0.8
+  
+  - event_type: system.boot.completed
+    description: System boot sequence completed successfully
+    publishers:
+      - orchestrator
+    subscribers:
+      - metrics_collector
+      - health_monitor
+      - notification_service
+    requires_constitutional_validation: false
+    min_trust_score: 0.8
+  
+  - event_type: system.boot.failed
+    description: System boot sequence failed
+    publishers:
+      - orchestrator
+    subscribers:
+      - alert_system
+      - immutable_log
+      - self_heal_engine
+    requires_constitutional_validation: false
+    min_trust_score: 0.5
+  
+  # === Component Lifecycle Events ===
+  
+  - event_type: component.activated
+    description: A component has been activated
+    publishers:
+      - any_component
+    subscribers:
+      - component_manifest
+      - metrics_collector
+      - health_monitor
+    requires_constitutional_validation: false
+    min_trust_score: 0.6
+  
+  - event_type: component.deactivated
+    description: A component has been deactivated
+    publishers:
+      - any_component
+    subscribers:
+      - component_manifest
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.6
+  
+  - event_type: component.error
+    description: A component encountered an error
+    publishers:
+      - any_component
+    subscribers:
+      - alert_system
+      - self_heal_engine
+      - immutable_log
+    requires_constitutional_validation: false
+    min_trust_score: 0.3  # Low trust for error reporting
+  
+  # === Governance Events (High Security) ===
+  
+  - event_type: governance.policy_violation
+    description: Policy violation detected
+    publishers:
+      - constitutional_engine
+      - verification_kernel
+      - governance_engine
+    subscribers:
+      - alert_system
+      - immutable_log
+      - governance_dashboard
+      - parliament_engine
+    requires_constitutional_validation: true
+    min_trust_score: 0.9
+  
+  - event_type: governance.approval_required
+    description: Action requires governance approval
+    publishers:
+      - any_component
+    subscribers:
+      - governance_engine
+      - notification_service
+      - immutable_log
+    requires_constitutional_validation: true
+    min_trust_score: 0.7
+  
+  - event_type: governance.decision_made
+    description: Governance decision completed
+    publishers:
+      - governance_engine
+      - parliament_engine
+    subscribers:
+      - immutable_log
+      - requesting_component
+      - metrics_collector
+    requires_constitutional_validation: true
+    min_trust_score: 0.95
+  
+  - event_type: governance.policy_changed
+    description: System policy has been changed
+    publishers:
+      - governance_engine
+    subscribers:
+      - all_components
+      - immutable_log
+      - config_manager
+    requires_constitutional_validation: true
+    min_trust_score: 0.95
+  
+  # === Verification Events ===
+  
+  - event_type: verification.refuted
+    description: Claim or code refuted by verification
+    publishers:
+      - verification_system
+      - code_verification_engine
+    subscribers:
+      - immutable_log
+      - governance_engine
+      - alert_system
+    requires_constitutional_validation: false
+    min_trust_score: 0.8
+  
+  - event_type: verification.verified
+    description: Claim or code successfully verified
+    publishers:
+      - verification_system
+      - code_verification_engine
+    subscribers:
+      - immutable_log
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.8
+  
+  - event_type: verification.security_violation
+    description: Security violation detected during verification
+    publishers:
+      - verification_system
+    subscribers:
+      - alert_system
+      - immutable_log
+      - governance_engine
+    requires_constitutional_validation: true
+    min_trust_score: 0.9
+  
+  # === AVN (Anomaly & Self-Healing) Events ===
+  
+  - event_type: avn.anomaly_detected
+    description: Anomaly detected by AVN system
+    publishers:
+      - avn_detector
+      - htm_detector
+      - anomaly_engine
+    subscribers:
+      - self_heal_engine
+      - immutable_log
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: avn.healing_action
+    description: Self-healing action executed
+    publishers:
+      - self_heal_engine
+      - avn_healer
+    subscribers:
+      - immutable_log
+      - metrics_collector
+      - health_monitor
+    requires_constitutional_validation: true
+    min_trust_score: 0.85
+  
+  - event_type: avn.healing_failed
+    description: Self-healing action failed
+    publishers:
+      - self_heal_engine
+    subscribers:
+      - alert_system
+      - immutable_log
+      - escalation_engine
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: avn.rollback_required
+    description: Rollback required due to anomaly
+    publishers:
+      - self_heal_engine
+    subscribers:
+      - version_control
+      - governance_engine
+      - immutable_log
+    requires_constitutional_validation: true
+    min_trust_score: 0.9
+  
+  # === Cognitive Loop Events ===
+  
+  - event_type: loop.started
+    description: A cognitive loop has started execution
+    publishers:
+      - reasoning_engine
+      - planning_engine
+      - execution_engine
+    subscribers:
+      - metrics_collector
+      - immutable_log
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: loop.completed
+    description: A cognitive loop completed successfully
+    publishers:
+      - reasoning_engine
+      - planning_engine
+      - execution_engine
+    subscribers:
+      - memory_fusion
+      - metrics_collector
+      - feedback_pipeline
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: loop.failed
+    description: A cognitive loop failed to complete
+    publishers:
+      - reasoning_engine
+      - planning_engine
+      - execution_engine
+    subscribers:
+      - alert_system
+      - self_heal_engine
+      - immutable_log
+    requires_constitutional_validation: false
+    min_trust_score: 0.5
+  
+  # === Memory Events ===
+  
+  - event_type: memory.stored
+    description: Memory successfully stored
+    publishers:
+      - memory_fusion
+      - lightning_memory
+    subscribers:
+      - metrics_collector
+      - knowledge_graph
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: memory.trust_updated
+    description: Memory trust score updated
+    publishers:
+      - trust_engine
+    subscribers:
+      - memory_fusion
+      - governance_engine
+    requires_constitutional_validation: false
+    min_trust_score: 0.8
+  
+  # === Health & Monitoring Events ===
+  
+  - event_type: health.degraded
+    description: Component health degraded
+    publishers:
+      - health_monitor
+    subscribers:
+      - alert_system
+      - self_heal_engine
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.6
+  
+  - event_type: health.critical
+    description: Critical health issue detected
+    publishers:
+      - health_monitor
+    subscribers:
+      - alert_system
+      - orchestrator
+      - emergency_shutdown
+      - immutable_log
+    requires_constitutional_validation: true
+    min_trust_score: 0.8
+  
+  # === Task Execution Events ===
+  
+  - event_type: task.created
+    description: New task created
+    publishers:
+      - task_orchestrator
+      - user_interface
+    subscribers:
+      - task_executor
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.6
+  
+  - event_type: task.completed
+    description: Task completed successfully
+    publishers:
+      - task_executor
+    subscribers:
+      - task_orchestrator
+      - notification_service
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: task.failed
+    description: Task execution failed
+    publishers:
+      - task_executor
+    subscribers:
+      - alert_system
+      - task_orchestrator
+      - self_heal_engine
+    requires_constitutional_validation: false
+    min_trust_score: 0.5
+  
+  # === Learning Events ===
+  
+  - event_type: learning.pattern_detected
+    description: New pattern detected by learning system
+    publishers:
+      - learning_engine
+    subscribers:
+      - memory_fusion
+      - metrics_collector
+    requires_constitutional_validation: false
+    min_trust_score: 0.7
+  
+  - event_type: learning.model_updated
+    description: ML model updated or retrained
+    publishers:
+      - auto_retrain_engine
+    subscribers:
+      - model_registry
+      - metrics_collector
+      - governance_engine
+    requires_constitutional_validation: true
+    min_trust_score: 0.85
+
+# Event routing rules
+routing_rules:
+  # High priority events bypass normal queue
+  priority_events:
+    - health.critical
+    - system.boot.failed
+    - governance.policy_violation
+    - verification.security_violation
+    - avn.rollback_required
+  
+  # Events that should be persisted to immutable log
+  audit_events:
+    - governance.policy_violation
+    - governance.approval_required
+    - governance.decision_made
+    - governance.policy_changed
+    - verification.refuted
+    - verification.security_violation
+    - avn.healing_action
+    - avn.rollback_required
+    - component.error
+    - task.failed
+    - loop.failed
+    - health.critical
+  
+  # Events that trigger alerts
+  alert_events:
+    - health.critical
+    - health.degraded
+    - system.boot.failed
+    - governance.policy_violation
+    - verification.security_violation
+    - avn.healing_failed
+  
+  # Events requiring constitutional validation (also specified per-event above)
+  constitutional_events:
+    - governance.policy_violation
+    - governance.approval_required
+    - governance.decision_made
+    - governance.policy_changed
+    - verification.security_violation
+    - avn.healing_action
+    - avn.rollback_required
+    - health.critical
+    - learning.model_updated
+
+# Subscriber groups for bulk operations
+subscriber_groups:
+  monitoring:
+    - metrics_collector
+    - health_monitor
+    - immutable_log
+  
+  governance:
+    - constitutional_engine
+    - governance_engine
+    - verification_kernel
+    - parliament_engine
+  
+  healing:
+    - self_heal_engine
+    - alert_system
+    - auto_fix_engine
+  
+  audit:
+    - immutable_log
+    - audit_trail
+    - compliance_engine
+
+# Trust score requirements by component type
+trust_requirements:
+  governance_publishers:
+    min_score: 0.95
+    components:
+      - governance_engine
+      - parliament_engine
+      - constitutional_engine
+  
+  verification_publishers:
+    min_score: 0.85
+    components:
+      - verification_system
+      - code_verification_engine
+  
+  system_critical:
+    min_score: 0.9
+    components:
+      - orchestrator
+      - health_monitor
+      - emergency_shutdown
