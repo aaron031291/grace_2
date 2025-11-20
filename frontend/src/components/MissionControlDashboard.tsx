@@ -88,6 +88,7 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [learningEvidence, setLearningEvidence] = useState<any>(null);
+  const [playbookRunning, setPlaybookRunning] = useState<string | null>(null);
 
   const fetchDashboard = async () => {
     try {
@@ -323,6 +324,155 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
       }
     } catch (err) {
       console.error('Learning evidence fetch failed:', err);
+    }
+  };
+
+  const triggerPlaybook = async (playbookName: string) => {
+    if (playbookRunning) {
+      alert('A playbook is already running. Please wait.');
+      return;
+    }
+
+    try {
+      setPlaybookRunning(playbookName);
+      
+      // Execute playbook via unified orchestrator
+      const res = await fetch('http://localhost:8017/api/unified/execute-playbook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          playbook_id: playbookName,
+          params: {}
+        })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        alert(`Playbook "${playbookName}" triggered successfully!\n\nExecution ID: ${result.execution_id || 'N/A'}\nStatus: ${result.status || 'Running'}`);
+        
+        // Refresh dashboard after 3 seconds
+        setTimeout(() => fetchDashboard(), 3000);
+      } else {
+        const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        alert(`Failed to trigger playbook "${playbookName}":\n${error.detail || error.error || 'Unknown error'}`);
+      }
+    } catch (err: any) {
+      alert(`Error triggering playbook "${playbookName}":\n${err.message}`);
+    } finally {
+      setPlaybookRunning(null);
+    }
+  };
+
+  const downloadEvidenceReport = async (reportType: 'learning' | 'healing') => {
+    try {
+      let endpoint = '';
+      let filename = '';
+
+      if (reportType === 'learning') {
+        endpoint = '/api/run-script';
+        filename = `learning_evidence_${new Date().toISOString().split('T')[0]}.txt`;
+        
+        const res = await fetch('http://localhost:8017' + endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            script: 'tests/show_learning_evidence.py',
+            return_output: true 
+          })
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          const content = result.output || result.stdout || JSON.stringify(result, null, 2);
+          
+          // Create download
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        } else {
+          alert('Failed to generate learning evidence report');
+        }
+      } else if (reportType === 'healing') {
+        // Use guardian stats to generate healing report
+        endpoint = '/api/guardian/stats';
+        filename = `healing_report_${new Date().toISOString().split('T')[0]}.json`;
+        
+        const res = await fetch('http://localhost:8017' + endpoint);
+        
+        if (res.ok) {
+          const result = await res.json();
+          
+          // Create formatted report
+          const report = {
+            generated_at: new Date().toISOString(),
+            report_type: 'Self-Healing Evidence',
+            mttr: result.mttr,
+            overall_health: result.overall_health,
+            network_playbooks: result.network_playbooks,
+            auto_healing_playbooks: result.auto_healing_playbooks,
+            summary: {
+              mttr_seconds: result.mttr?.mttr_seconds || 0,
+              success_rate: result.mttr?.success_rate_percent || 0,
+              target_met: result.overall_health?.target_met || false
+            }
+          };
+          
+          const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        } else {
+          alert('Failed to generate healing report');
+        }
+      }
+    } catch (err: any) {
+      alert(`Error downloading ${reportType} report:\n${err.message}`);
+    }
+  };
+
+  const viewEvidenceReport = async (reportType: 'learning' | 'healing') => {
+    try {
+      if (reportType === 'learning') {
+        await runLearningEvidence();
+        // Show in modal or new window
+        alert('Learning evidence check completed. Check the console or download the report for full details.');
+      } else if (reportType === 'healing') {
+        const res = await fetch('http://localhost:8017/api/guardian/stats');
+        if (res.ok) {
+          const result = await res.json();
+          
+          const summary = `
+=== SELF-HEALING EVIDENCE REPORT ===
+
+MTTR (Mean Time To Recovery): ${result.mttr?.mttr_seconds?.toFixed(2) || 0}s
+Target: ${result.overall_health?.mttr_target_seconds || 120}s
+Target Met: ${result.overall_health?.target_met ? 'YES ✅' : 'NO ❌'}
+
+Success Rate: ${result.mttr?.success_rate_percent?.toFixed(0) || 0}%
+Overall Health: ${result.overall_health?.status || 'unknown'}
+
+Network Playbooks: ${JSON.stringify(result.network_playbooks || {}, null, 2)}
+Auto-Healing Playbooks: ${JSON.stringify(result.auto_healing_playbooks || {}, null, 2)}
+          `.trim();
+          
+          alert(summary);
+        } else {
+          alert('Failed to fetch healing report');
+        }
+      }
+    } catch (err: any) {
+      alert(`Error viewing ${reportType} report:\n${err.message}`);
     }
   };
 
@@ -711,12 +861,67 @@ export const MissionControlDashboard: React.FC<{ isOpen: boolean; onClose: () =>
         </div>
 
         <div className="mission-control-footer">
-          <button className="refresh-btn" onClick={fetchDashboard}>
-            🔄 Refresh
-          </button>
-          <button className="evidence-btn" onClick={runLearningEvidence}>
-            🧪 Run Evidence Check
-          </button>
+          <div className="footer-section">
+            <button className="refresh-btn" onClick={fetchDashboard}>
+              🔄 Refresh
+            </button>
+            <button className="evidence-btn" onClick={runLearningEvidence}>
+              🧪 Check Learning Evidence
+            </button>
+          </div>
+
+          <div className="footer-section playbook-triggers">
+            <label>Quick Playbooks:</label>
+            <button 
+              className="playbook-btn"
+              onClick={() => triggerPlaybook('port_inventory_cleanup')}
+              disabled={playbookRunning !== null}
+            >
+              {playbookRunning === 'port_inventory_cleanup' ? '⏳' : '🔧'} Port Cleanup
+            </button>
+            <button 
+              className="playbook-btn"
+              onClick={() => triggerPlaybook('faiss_lock_recovery')}
+              disabled={playbookRunning !== null}
+            >
+              {playbookRunning === 'faiss_lock_recovery' ? '⏳' : '🔓'} FAISS Unlock
+            </button>
+            <button 
+              className="playbook-btn"
+              onClick={() => triggerPlaybook('google_search_quota')}
+              disabled={playbookRunning !== null}
+            >
+              {playbookRunning === 'google_search_quota' ? '⏳' : '🔍'} Quota Check
+            </button>
+          </div>
+
+          <div className="footer-section report-downloads">
+            <label>Evidence Reports:</label>
+            <button 
+              className="download-btn"
+              onClick={() => viewEvidenceReport('learning')}
+            >
+              👁️ View Learning
+            </button>
+            <button 
+              className="download-btn"
+              onClick={() => downloadEvidenceReport('learning')}
+            >
+              ⬇️ Download Learning
+            </button>
+            <button 
+              className="download-btn"
+              onClick={() => viewEvidenceReport('healing')}
+            >
+              👁️ View Healing
+            </button>
+            <button 
+              className="download-btn"
+              onClick={() => downloadEvidenceReport('healing')}
+            >
+              ⬇️ Download Healing
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -452,10 +452,25 @@
 
 .mission-control-footer {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
   padding: 20px 24px;
   border-top: 2px solid rgba(0, 212, 255, 0.3);
   background: rgba(0, 0, 0, 0.2);
+}
+
+.footer-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-section label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .refresh-btn,
@@ -469,6 +484,7 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
+  font-size: 14px;
 }
 
 .refresh-btn:hover,
@@ -476,6 +492,47 @@
   background: #00d4ff;
   color: #000;
   transform: translateY(-2px);
+}
+
+.playbook-btn {
+  padding: 10px 16px;
+  border: 2px solid #ffaa00;
+  background: rgba(255, 170, 0, 0.1);
+  color: #ffaa00;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.playbook-btn:hover:not(:disabled) {
+  background: rgba(255, 170, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3);
+}
+
+.playbook-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.download-btn {
+  padding: 10px 16px;
+  border: 2px solid #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.download-btn:hover {
+  background: rgba(0, 255, 136, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
 }
 
 .metrics-grid {
