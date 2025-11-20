@@ -17,6 +17,7 @@ import { MissionControlDashboard } from './components/MissionControlDashboard';
 import { SystemDashboard } from './components/SystemDashboard';
 import { SystemOverview } from './components/SystemOverview';
 import { MentorRoundtable } from './components/MentorRoundtable';
+import { ModernChatInterface } from './components/ModernChatInterface';
 import { RemoteAPI } from './api/remote';
 import { AppShell } from './components/layout/AppShell';
 import { TopBar } from './components/layout/TopBar';
@@ -28,7 +29,7 @@ import './AppChat.css';
 type Mode = 'observe' | 'learn' | 'autonomous';
 
 function AppChat() {
-  const [activeView, setActiveView] = useState<'chat' | 'dashboard' | 'overview'>('overview'); // Default to overview
+  const [activeView, setActiveView] = useState<'chat' | 'dashboard' | 'overview' | 'modern'>('modern'); // Default to modern chat
   const [cockpitOpen, setCockpitOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -243,14 +244,17 @@ function AppChat() {
 
   // Navigation items
   const navItems: NavItem[] = [
+    { id: 'modern', label: 'Modern Chat', icon: '💬' },
     { id: 'overview', label: 'System Overview', icon: '🎯' },
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'chat', label: 'Chat', icon: '💬' },
+    { id: 'chat', label: 'Classic Chat', icon: '🗨️' },
   ];
 
   // Render main view
   const renderMainView = () => {
     switch (activeView) {
+      case 'modern':
+        return <ModernChatInterface />;
       case 'overview':
         return <SystemOverview />;
       case 'dashboard':
