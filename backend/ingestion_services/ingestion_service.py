@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import asyncio
+from datetime import datetime
 from sqlalchemy.exc import OperationalError
 from backend.models.knowledge_models import KnowledgeArtifact, KnowledgeRevision
 from backend.models.base_models import async_session
@@ -117,29 +118,50 @@ class IngestionService:
         from sqlalchemy import select
 
         async with async_session() as session:
+            # Check for existing artifact by content_hash OR path
             existing = await session.execute(
-                select(KnowledgeArtifact).where(KnowledgeArtifact.content_hash == content_hash)
+                select(KnowledgeArtifact).where(
+                    (KnowledgeArtifact.content_hash == content_hash) |
+                    (KnowledgeArtifact.path == path)
+                )
             )
-            if existing.scalar_one_or_none():
-                print(f"ℹ️ Duplicate content detected (skipping)")
-                return None
-
-            artifact = KnowledgeArtifact(
-                path=path,
-                title=title,
-                artifact_type=artifact_type,
-                content=content,
-                content_hash=content_hash,
-                artifact_metadata=json.dumps(metadata or {}),
-                source=source,
-                ingested_by=actor,
-                domain=domain,
-                tags=json.dumps(tags or []),
-                size_bytes=len(content)
-            )
-            session.add(artifact)
-            await session.commit()
-            await session.refresh(artifact)
+            existing_artifact = existing.scalar_one_or_none()
+            
+            if existing_artifact:
+                # Update existing artifact instead of creating new one
+                if existing_artifact.content_hash == content_hash:
+                    print(f"ℹ️ Duplicate content detected (skipping)")
+                    return None
+                else:
+                    # Same path but different content - update it
+                    print(f"ℹ️ Updating existing artifact at path: {path}")
+                    existing_artifact.content = content
+                    existing_artifact.content_hash = content_hash
+                    existing_artifact.artifact_metadata = json.dumps(metadata or {})
+                    existing_artifact.source = source
+                    existing_artifact.size_bytes = len(content)
+                    existing_artifact.updated_at = datetime.utcnow()
+                    await session.commit()
+                    await session.refresh(existing_artifact)
+                    artifact = existing_artifact
+            else:
+                # Create new artifact
+                artifact = KnowledgeArtifact(
+                    path=path,
+                    title=title,
+                    artifact_type=artifact_type,
+                    content=content,
+                    content_hash=content_hash,
+                    artifact_metadata=json.dumps(metadata or {}),
+                    source=source,
+                    ingested_by=actor,
+                    domain=domain,
+                    tags=json.dumps(tags or []),
+                    size_bytes=len(content)
+                )
+                session.add(artifact)
+                await session.commit()
+                await session.refresh(artifact)
 
             # Create initial revision entry
             revision = KnowledgeRevision(

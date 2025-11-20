@@ -59,11 +59,16 @@ class BootSnapshotManager:
             Snapshot metadata
         """
         
-        # Verify system is healthy before snapshot
-        health_ok = await self._verify_health()
-        if not health_ok:
-            logger.warning("[SNAPSHOT] Health check failed - skipping snapshot")
-            return {"captured": False, "reason": "health_check_failed"}
+        # Verify boot was successful (server not running yet during boot)
+        if not boot_result or not isinstance(boot_result, dict):
+            logger.warning("[SNAPSHOT] Invalid boot result - skipping snapshot")
+            return {"captured": False, "reason": "invalid_boot_result"}
+        
+        # Check if boot was successful
+        boot_success = boot_result.get('success', True)  # Default to True if not specified
+        if not boot_success:
+            logger.warning("[SNAPSHOT] Boot not successful - skipping snapshot")
+            return {"captured": False, "reason": "boot_not_successful"}
         
         # Create snapshot directory with timestamp
         timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
@@ -131,7 +136,10 @@ class BootSnapshotManager:
         }
     
     async def _verify_health(self) -> bool:
-        """Verify system health before snapshot"""
+        """
+        Verify system health before snapshot (for runtime snapshots)
+        Note: This is only used for manual/scheduled snapshots, not during boot
+        """
         try:
             async with httpx.AsyncClient(timeout=5) as client:
                 response = await client.get("http://localhost:8000/health")
@@ -259,6 +267,33 @@ class BootSnapshotManager:
             "targets_restored": restored_targets,
             "message": "System restored - restart server to apply changes"
         }
+    
+    async def capture_runtime_snapshot(self, reason: str = "manual") -> Dict[str, Any]:
+        """
+        Capture snapshot during runtime (with health check)
+        
+        Args:
+            reason: Reason for snapshot (manual, scheduled, pre_update, etc.)
+            
+        Returns:
+            Snapshot metadata
+        """
+        
+        # Verify system is healthy (server should be running)
+        health_ok = await self._verify_health()
+        if not health_ok:
+            logger.warning("[SNAPSHOT] Health check failed - skipping runtime snapshot")
+            return {"captured": False, "reason": "health_check_failed"}
+        
+        # Create a mock boot_result for runtime snapshots
+        mock_boot_result = {
+            "success": True,
+            "snapshot_reason": reason,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # Use the main capture method
+        return await self.capture_snapshot(mock_boot_result)
     
     def get_stats(self) -> Dict[str, Any]:
         """Get snapshot manager statistics"""
