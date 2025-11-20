@@ -1,6 +1,7 @@
 """
 Guardian Incident Log - Real MTTR Tracking
 Track healing incidents with timestamps for accurate MTTR calculation
+Integrated with unified task registry
 """
 
 import json
@@ -12,6 +13,14 @@ from pathlib import Path
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+# Import task registry for integration
+try:
+    from backend.services.task_registry import task_registry
+    TASK_REGISTRY_AVAILABLE = True
+except ImportError:
+    TASK_REGISTRY_AVAILABLE = False
+    logger.warning("[INCIDENT-LOG] Task registry not available")
 
 
 class IncidentStatus(Enum):
@@ -97,9 +106,9 @@ class IncidentLog:
         except Exception as e:
             logger.error(f"[INCIDENT-LOG] Failed to load incidents: {e}")
     
-    def log_incident(self, incident: HealingIncident):
+    async def log_incident(self, incident: HealingIncident):
         """
-        Log a new incident
+        Log a new incident and register with task registry
         """
         try:
             # Append to file
@@ -112,9 +121,61 @@ class IncidentLog:
                 self.recent_incidents = self.recent_incidents[-self.max_cache:]
             
             logger.info(f"[INCIDENT-LOG] Logged incident: {incident.incident_id} ({incident.failure_mode})")
+            
+            # Register with unified task registry
+            if TASK_REGISTRY_AVAILABLE:
+                await self._register_with_task_registry(incident)
         
         except Exception as e:
             logger.error(f"[INCIDENT-LOG] Failed to log incident: {e}")
+    
+    async def _register_with_task_registry(self, incident: HealingIncident):
+        """Register incident as task in unified registry"""
+        try:
+            task_data = {
+                "task_id": incident.incident_id,
+                "task_type": "healing_incident",
+                "subsystem": "self_healing",
+                "title": f"{incident.severity.upper()}: {incident.failure_mode}",
+                "description": f"Playbook: {incident.playbook_name or 'N/A'}",
+                "created_by": "guardian",
+                "priority": self._severity_to_priority(incident.severity),
+                "task_metadata": {
+                    "failure_mode": incident.failure_mode,
+                    "playbook_id": incident.playbook_id,
+                    "playbook_name": incident.playbook_name,
+                    **incident.metadata
+                }
+            }
+            
+            # Register the task
+            await task_registry.register_task(**task_data)
+            
+            # If already resolved, complete it immediately
+            if incident.status == IncidentStatus.RESOLVED.value and incident.resolved_at:
+                await task_registry.complete_task(
+                    task_id=incident.incident_id,
+                    success=incident.success,
+                    result={
+                        "actions_taken": incident.actions_taken,
+                        "mttr_seconds": incident.mttr_seconds,
+                        "error": incident.error
+                    }
+                )
+            
+            logger.info(f"[INCIDENT-LOG] Registered {incident.incident_id} with task registry")
+        except Exception as e:
+            logger.warning(f"[INCIDENT-LOG] Failed to register with task registry: {e}")
+    
+    def _severity_to_priority(self, severity: str) -> int:
+        """Convert severity to task priority (1-10)"""
+        severity_map = {
+            "critical": 10,
+            "high": 8,
+            "medium": 5,
+            "low": 2
+        }
+        return severity_map.get(severity.lower(), 5)
     
     def create_incident(
         self,
@@ -144,11 +205,11 @@ class IncidentLog:
         self.log_incident(incident)
         return incident
     
-    def update_incident(self, incident: HealingIncident):
+    async def update_incident(self, incident: HealingIncident):
         """
         Update an existing incident (e.g., mark resolved)
         """
-        self.log_incident(incident)  # Append updated version
+        await self.log_incident(incident)  # Append updated version
     
     def get_recent_incidents(self, limit: int = 10) -> List[HealingIncident]:
         """Get most recent incidents"""

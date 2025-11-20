@@ -701,6 +701,17 @@ async def boot_grace_minimal():
             }
             
             try:
+                # Start task registry (unified task tracking)
+                from backend.services.task_registry import task_registry
+                await task_registry.start()
+                print(f"  [OK] Task Registry: Active (unified task tracking)")
+                results['task_registry_active'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Task registry startup issue: {e}")
+                results['warnings'].append('task_registry')
+            
+            try:
                 # Start learning mission launcher
                 from backend.learning_systems.learning_mission_launcher import learning_mission_launcher
                 await learning_mission_launcher.start()

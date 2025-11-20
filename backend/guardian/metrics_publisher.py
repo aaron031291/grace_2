@@ -122,10 +122,12 @@ class GuardianMetricsPublisher:
         """
         try:
             from backend.metrics_service import publish_metric
+            from backend.guardian.incident_log import IncidentLog
             
-            # TODO: Calculate real MTTR from incident log
-            # For now, use placeholder
-            mttr_seconds = 45.0
+            # Calculate real MTTR from incident log (last 24 hours)
+            incident_log = IncidentLog()
+            mttr_stats = incident_log.calculate_mttr(hours=24)
+            mttr_seconds = mttr_stats['mttr_seconds'] or 0.0
             mttr_minutes = mttr_seconds / 60
             
             await publish_metric(self.domain, "mttr_seconds", mttr_seconds)

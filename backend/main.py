@@ -61,6 +61,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Learning Hub API disabled: {e}")
 
+# Register Task Registry API (Unified task tracking across all subsystems)
+try:
+    from backend.routes.task_registry_api import router as task_registry_router
+    app.include_router(task_registry_router)
+except ImportError as e:
+    print(f"[WARN] Task Registry API disabled: {e}")
+
 # Register Copilot API (Phase 4 - Interactive AI Assistant)
 try:
     from backend.routes.copilot_api import router as copilot_router
