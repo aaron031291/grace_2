@@ -1,0 +1,168 @@
+.governance-hub-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.governance-hub-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
+}
+
+.governance-hub-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.governance-hub-page__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.governance-hub-page__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.governance-hub-page__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.governance-hub-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Secrets */
+.governance-hub-page__secrets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.governance-hub-page__secret {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-md);
+}
+
+.governance-hub-page__secret-info {
+  flex: 1;
+}
+
+.governance-hub-page__secret-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.governance-hub-page__secret-type {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+.governance-hub-page__secret-value {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-sm);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-sm);
+}
+
+/* Approvals */
+.governance-hub-page__approvals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.governance-hub-page__approval {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-md);
+}
+
+.governance-hub-page__approval-info {
+  flex: 1;
+}
+
+.governance-hub-page__approval-request {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.governance-hub-page__approval-time {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+}
+
+/* Compliance */
+.governance-hub-page__compliance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.governance-hub-page__compliance-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.governance-hub-page__compliance-label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Quick Actions */
+.governance-hub-page__quick-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .governance-hub-page__header {
+    flex-direction: column;
+  }
+
+  .governance-hub-page__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .governance-hub-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .governance-hub-page__kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .governance-hub-page__quick-actions {
+    flex-direction: column;
+  }
+}

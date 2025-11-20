@@ -1,0 +1,126 @@
+.memory-explorer-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.memory-explorer-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
+}
+
+.memory-explorer-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.memory-explorer-page__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.memory-explorer-page__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.memory-explorer-page__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.memory-explorer-page__stat {
+  background: var(--color-surface);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.memory-explorer-page__stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-accent-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.memory-explorer-page__stat-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.memory-explorer-page__upload {
+  margin-bottom: var(--spacing-xl);
+}
+
+.memory-explorer-page__upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  color: var(--color-text-tertiary);
+}
+
+.memory-explorer-page__upload-zone:hover {
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
+.memory-explorer-page__upload-hint {
+  font-size: 0.875rem;
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-muted);
+}
+
+.memory-explorer-page__browser {
+  min-height: 400px;
+}
+
+.memory-explorer-page__insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.memory-explorer-page__insight {
+  padding: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.memory-explorer-page__insight-title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.memory-explorer-page__insight-value {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+  .memory-explorer-page__header {
+    flex-direction: column;
+  }
+
+  .memory-explorer-page__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .memory-explorer-page__stats {
+    grid-template-columns: 1fr;
+  }
+}

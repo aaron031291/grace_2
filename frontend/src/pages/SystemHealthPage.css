@@ -1,0 +1,44 @@
+.system-health-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.system-health-page__header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.system-health-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.system-health-page__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.system-health-page__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.system-health-page__quick-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .system-health-page__kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .system-health-page__quick-actions {
+    flex-direction: column;
+  }
+}

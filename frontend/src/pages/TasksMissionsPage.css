@@ -1,0 +1,52 @@
+.tasks-missions-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.tasks-missions-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-lg);
+}
+
+.tasks-missions-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tasks-missions-page__subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.tasks-missions-page__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.tasks-missions-page__filters {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.tasks-missions-page__board {
+  min-height: 500px;
+}
+
+@media (max-width: 768px) {
+  .tasks-missions-page__header {
+    flex-direction: column;
+  }
+
+  .tasks-missions-page__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+}

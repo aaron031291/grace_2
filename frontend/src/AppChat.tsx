@@ -18,7 +18,14 @@ import { SystemDashboard } from './components/SystemDashboard';
 import { SystemOverview } from './components/SystemOverview';
 import { MentorRoundtable } from './components/MentorRoundtable';
 import { RemoteAPI } from './api/remote';
+import { AppShell } from './components/layout/AppShell';
+import { TopBar } from './components/layout/TopBar';
+import { LeftSidebar, type NavItem } from './components/layout/LeftSidebar';
+import { RightSidebar } from './components/layout/RightSidebar';
+import { BottomStatusBar } from './components/layout/BottomStatusBar';
 import './AppChat.css';
+
+type Mode = 'observe' | 'learn' | 'autonomous';
 
 function AppChat() {
   const [activeView, setActiveView] = useState<'chat' | 'dashboard' | 'overview'>('overview'); // Default to overview
@@ -41,6 +48,7 @@ function AppChat() {
   const [requiresApproval, setRequiresApproval] = useState(false);
   const [screenShareMode, setScreenShareMode] = useState<'learn' | 'observe_only' | 'consent_required'>('learn');
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [graceMode, setGraceMode] = useState<Mode>('learn');
 
   const handleRemoteToggle = async () => {
     setRemoteLoading(true);
@@ -233,59 +241,88 @@ function AppChat() {
     input.click();
   };
 
-  return (
-    <div className="app-chat">
-      <div className="app-sidebar">
-        <div className="app-logo">
-          <h1>🤖 GRACE</h1>
-          <p>AI Assistant with Governance</p>
-        </div>
+  // Navigation items
+  const navItems: NavItem[] = [
+    { id: 'overview', label: 'System Overview', icon: '🎯' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'chat', label: 'Chat', icon: '💬' },
+  ];
+
+  // Render main view
+  const renderMainView = () => {
+    switch (activeView) {
+      case 'overview':
+        return <SystemOverview />;
+      case 'dashboard':
+        return <SystemDashboard />;
+      case 'chat':
+      default:
+        return (
+          <>
+            <TelemetryStrip />
+            <UserPresenceBar currentUser="user" />
+            <ChatPanel />
+          </>
+        );
+    }
+  };
+
+  // Logo component
+  const logo = (
+    <div className="app-logo">
+      <h1>🤖 GRACE</h1>
+      <p>AI Assistant with Governance</p>
+    </div>
+  );
+
+  // Sidebar controls
+  const sidebarControls = (
+    <>
+      <HealthMeter />
+      
+      <div className="sidebar-controls">
+        <h3>Quick Controls</h3>
         
-        <HealthMeter />
+        {error && (
+          <div className="control-error" style={{ 
+            padding: '8px', 
+            background: '#fee', 
+            border: '1px solid #fcc',
+            borderRadius: '4px',
+            marginBottom: '8px',
+            fontSize: '12px',
+            color: '#c00'
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
         
-        <div className="sidebar-controls">
-          <h3>Quick Controls</h3>
-          
-          {error && (
-            <div className="control-error" style={{ 
-              padding: '8px', 
-              background: '#fee', 
-              border: '1px solid #fcc',
-              borderRadius: '4px',
-              marginBottom: '8px',
-              fontSize: '12px',
-              color: '#c00'
-            }}>
-              ⚠️ {error}
-            </div>
-          )}
-          
-          <button
-            className={`control-button ${remoteActive ? 'active' : ''} ${requiresApproval ? 'pending' : ''}`}
-            onClick={handleRemoteToggle}
-            disabled={remoteLoading}
-            title={remoteStatus || 'Toggle remote access'}
-          >
-            <div className="button-content">
-              <span className="button-icon">
-                {remoteLoading ? '⏳' : requiresApproval ? '🔐' : remoteActive ? '🔓' : '🔒'}
+        <button
+          className={`control-button ${remoteActive ? 'active' : ''} ${requiresApproval ? 'pending' : ''}`}
+          onClick={handleRemoteToggle}
+          disabled={remoteLoading}
+          title={remoteStatus || 'Toggle remote access'}
+        >
+          <div className="button-content">
+            <span className="button-icon">
+              {remoteLoading ? '⏳' : requiresApproval ? '🔐' : remoteActive ? '🔓' : '🔒'}
+            </span>
+            <span className="button-text">
+              {remoteLoading ? 'Loading...' : 
+               requiresApproval ? 'Pending' : 
+               remoteActive ? 'Connected' : 
+               'Remote Access'}
+            </span>
+            {remoteSessionId && (
+              <span className="button-session">
+                {remoteSessionId.slice(0, 8)}
               </span>
-              <span className="button-text">
-                {remoteLoading ? 'Loading...' : 
-                 requiresApproval ? 'Pending' : 
-                 remoteActive ? 'Connected' : 
-                 'Remote Access'}
-              </span>
-              {remoteSessionId && (
-                <span className="button-session">
-                  {remoteSessionId.slice(0, 8)}
-                </span>
-              )}
-            </div>
-            {remoteStatus && (
-              <span className="button-status">{remoteStatus}</span>
             )}
-          </button>
+          </div>
+          {remoteStatus && (
+            <span className="button-status">{remoteStatus}</span>
+          )}
+        </button>
           
           <div className="screen-share-container">
             <button
@@ -406,53 +443,53 @@ function AppChat() {
             🎯 Mission Control
           </button>
           
-          <button
-            className="control-button mentor-btn"
-            onClick={() => setMentorOpen(true)}
-            title="Consult Local Mentors"
-          >
-            🧙 Mentors
-          </button>
-        </div>
+        <button
+          className="control-button mentor-btn"
+          onClick={() => setMentorOpen(true)}
+          title="Consult Local Mentors"
+        >
+          🧙 Mentors
+        </button>
+      </div>
+    </>
+  );
 
-        <div className="view-switcher">
-          <button
-            className={`view-btn ${activeView === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveView('overview')}
-            title="System Overview - Tile Grid"
-          >
-            🎯 Overview
-          </button>
-          <button
-            className={`view-btn ${activeView === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveView('dashboard')}
-            title="Legacy Dashboard"
-          >
-            📊 Dashboard
-          </button>
-          <button
-            className={`view-btn ${activeView === 'chat' ? 'active' : ''}`}
-            onClick={() => setActiveView('chat')}
-            title="Chat Interface"
-          >
-            💬 Chat
-          </button>
-        </div>
-      </div>
-      
-      <div className="app-main">
-        {activeView === 'overview' ? (
-          <SystemOverview />
-        ) : activeView === 'dashboard' ? (
-          <SystemDashboard />
-        ) : (
-          <>
-            <TelemetryStrip />
-            <UserPresenceBar currentUser="user" />
-            <ChatPanel />
-          </>
-        )}
-      </div>
+  return (
+    <AppShell
+      topBar={
+        <TopBar
+          title="🤖 GRACE"
+          mode={graceMode}
+          onModeChange={setGraceMode}
+          onSelfHealing={() => console.log('Trigger self-healing')}
+        />
+      }
+      leftSidebar={
+        <LeftSidebar
+          items={navItems}
+          activeId={activeView}
+          onSelect={(id) => setActiveView(id as typeof activeView)}
+          logo={logo}
+          controls={sidebarControls}
+        />
+      }
+      rightSidebar={
+        <RightSidebar
+          contextPanel={<div>Context panel coming soon</div>}
+          memoryPanel={<div>Memory panel coming soon</div>}
+          logsPanel={<div>Logs panel coming soon</div>}
+        />
+      }
+      bottomBar={
+        <BottomStatusBar
+          statusText="Ready"
+          loopState="Idle"
+          gpuUsage={0}
+          healthStatus="healthy"
+        />
+      }
+    >
+      {renderMainView()}
       
       <RemoteCockpit isOpen={cockpitOpen} onClose={() => setCockpitOpen(false)} />
       <BackgroundTasksDrawer isOpen={tasksOpen} onClose={() => setTasksOpen(false)} />
@@ -464,7 +501,7 @@ function AppChat() {
       <FileExplorer isOpen={fileExplorerOpen} onClose={() => setFileExplorerOpen(false)} />
       <MissionControlDashboard isOpen={missionControlOpen} onClose={() => setMissionControlOpen(false)} />
       <MentorRoundtable isOpen={mentorOpen} onClose={() => setMentorOpen(false)} />
-    </div>
+    </AppShell>
   );
 }
 

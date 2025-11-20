@@ -1,0 +1,11 @@
+.grace-surface {
+  min-height: 100%;
+  background: var(--color-bg-primary);
+  padding: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .grace-surface {
+    padding: var(--spacing-md);
+  }
+}

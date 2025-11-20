@@ -1,0 +1,33 @@
+.chat-collaboration-page {
+  height: 100%;
+  padding: 0 !important;
+}
+
+.chat-collaboration-page__container {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg);
+}
+
+.chat-collaboration-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.chat-collaboration-page__main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .chat-collaboration-page__container {
+    padding: var(--spacing-md);
+  }
+}

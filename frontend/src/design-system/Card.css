@@ -1,0 +1,65 @@
+.grace-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+}
+
+.grace-card--default {
+  background: var(--color-surface);
+}
+
+.grace-card--elevated {
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+.grace-card--bordered {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.grace-card--hover:hover {
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.grace-card--padding-none {
+  padding: 0;
+}
+
+.grace-card--padding-sm {
+  padding: var(--spacing-sm);
+}
+
+.grace-card--padding-md {
+  padding: var(--spacing-md);
+}
+
+.grace-card--padding-lg {
+  padding: var(--spacing-lg);
+}
+
+.grace-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.grace-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.grace-card__action {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.grace-card__content {
+  color: var(--color-text-secondary);
+}

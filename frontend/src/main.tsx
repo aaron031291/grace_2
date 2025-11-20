@@ -1,10 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
+import { router } from './router'
+import './styles/theme.css'
 import './index.css'
-import AppChat from './AppChat.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppChat />
+    <RouterProvider router={router} />
   </StrictMode>,
 )

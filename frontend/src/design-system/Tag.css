@@ -1,0 +1,42 @@
+.grace-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.grace-tag--sm {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.grace-tag--md {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.grace-tag--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.grace-tag--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.grace-tag--error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.grace-tag--info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.grace-tag--neutral {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}

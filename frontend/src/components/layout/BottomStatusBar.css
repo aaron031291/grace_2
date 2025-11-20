@@ -1,0 +1,56 @@
+.bottom-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  color: #888;
+}
+
+.status-bar-left,
+.status-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-label {
+  color: #666;
+}
+
+.status-text,
+.status-value {
+  color: #aaa;
+}
+
+.gpu-item {
+  gap: 0.75rem;
+}
+
+.gpu-bar {
+  width: 96px;
+  height: 6px;
+  background: #2a2a2a;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.gpu-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.3s ease;
+}

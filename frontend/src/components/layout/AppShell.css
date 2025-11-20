@@ -1,0 +1,81 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background: #0a0a0a;
+  color: #fff;
+  overflow: hidden;
+}
+
+.app-shell-header {
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid #2a2a2a;
+  background: #111;
+  flex-shrink: 0;
+}
+
+.app-shell-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.app-shell-left {
+  width: 300px;
+  border-right: 1px solid #2a2a2a;
+  overflow-y: auto;
+  background: #111;
+  flex-shrink: 0;
+}
+
+.app-shell-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell-right {
+  width: 320px;
+  border-left: 1px solid #2a2a2a;
+  overflow-y: auto;
+  background: #111;
+  flex-shrink: 0;
+}
+
+.app-shell-footer {
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-top: 1px solid #2a2a2a;
+  font-size: 0.75rem;
+  background: #111;
+  flex-shrink: 0;
+}
+
+/* Scrollbar styling */
+.app-shell-left::-webkit-scrollbar,
+.app-shell-right::-webkit-scrollbar {
+  width: 6px;
+}
+
+.app-shell-left::-webkit-scrollbar-track,
+.app-shell-right::-webkit-scrollbar-track {
+  background: #111;
+}
+
+.app-shell-left::-webkit-scrollbar-thumb,
+.app-shell-right::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+.app-shell-left::-webkit-scrollbar-thumb:hover,
+.app-shell-right::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

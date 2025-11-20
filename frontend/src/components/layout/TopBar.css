@@ -1,0 +1,98 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0066cc, #00bcd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.top-bar-mode-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #aaa;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.top-bar-mode-switcher {
+  display: flex;
+  gap: 0.25rem;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 9999px;
+  padding: 0.25rem;
+}
+
+.mode-btn {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.75rem;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
+
+.mode-btn:hover {
+  color: #bbb;
+}
+
+.mode-btn.active {
+  background: #fff;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+
+.top-bar-action-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.top-bar-action-btn.self-healing {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.top-bar-action-btn.self-healing:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.top-bar-action-btn.emergency-stop {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.top-bar-action-btn.emergency-stop:hover {
+  background: rgba(239, 68, 68, 0.1);
+}

@@ -1,0 +1,76 @@
+.grace-kpi-tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+}
+
+.grace-kpi-tile--clickable {
+  cursor: pointer;
+}
+
+.grace-kpi-tile--clickable:hover {
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.grace-kpi-tile--success {
+  border-left: 3px solid var(--color-success);
+}
+
+.grace-kpi-tile--warning {
+  border-left: 3px solid var(--color-warning);
+}
+
+.grace-kpi-tile--error {
+  border-left: 3px solid var(--color-error);
+}
+
+.grace-kpi-tile--info {
+  border-left: 3px solid var(--color-info);
+}
+
+.grace-kpi-tile__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.grace-kpi-tile__label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.grace-kpi-tile__icon {
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+}
+
+.grace-kpi-tile__value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-xs);
+}
+
+.grace-kpi-tile__trend {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.grace-kpi-tile__trend--up {
+  color: var(--color-success);
+}
+
+.grace-kpi-tile__trend--down {
+  color: var(--color-error);
+}
+
+.grace-kpi-tile__trend--neutral {
+  color: var(--color-text-tertiary);
+}
