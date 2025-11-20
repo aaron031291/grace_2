@@ -1,9 +1,9 @@
 {
-  "snapshot_id": "boot-ok-2025-11-20_16-09-49",
-  "captured_at": "2025-11-20T16:09:49.360397",
+  "snapshot_id": "boot-ok-2025-11-20_19-09-46",
+  "captured_at": "2025-11-20T19:09:46.504645",
   "boot_result": {
     "boot_priority": 0,
-    "started_at": "2025-11-20T16:09:44.938688",
+    "started_at": "2025-11-20T19:09:42.453251",
     "phases": {
       "phase1_self_check": {
         "passed": true,
@@ -14,9 +14,11 @@
         }
       },
       "phase2_diagnostics": {
-        "status": "healthy",
+        "status": "warning",
         "critical_issues": [],
-        "warnings": [],
+        "warnings": [
+          "time_wait_sockets"
+        ],
         "checks": {
           "ipv4_available": {
             "status": "ok",
@@ -59,16 +61,16 @@
             "note": "Port can be bound (firewall likely OK)"
           },
           "time_wait_sockets": {
-            "status": "ok",
-            "time_wait_count": 0,
-            "note": "Normal if < 10",
-            "recommendation": "OK"
+            "status": "warning",
+            "time_wait_count": 50,
+            "note": "High TIME_WAIT count",
+            "recommendation": "Consider SO_REUSEADDR"
           },
           "connection_limits": {
             "status": "ok",
-            "total_connections": 1565,
-            "established": 81,
-            "listening": 46,
+            "total_connections": 1598,
+            "established": 73,
+            "listening": 45,
             "recommendation": "OK"
           },
           "dns_resolution": {
@@ -84,11 +86,13 @@
         "service_name": "grace_backend",
         "purpose": "Main Grace API - allocated by Guardian during boot",
         "started_by": "guardian_kernel",
-        "allocated_at": "2025-11-20T16:09:44.984147",
+        "allocated_at": "2025-11-20T19:09:42.498705",
         "network_health": {
-          "status": "healthy",
+          "status": "warning",
           "critical_issues": [],
-          "warnings": [],
+          "warnings": [
+            "time_wait_sockets"
+          ],
           "checks": {
             "ipv4_available": {
               "status": "ok",
@@ -131,16 +135,16 @@
               "note": "Port can be bound (firewall likely OK)"
             },
             "time_wait_sockets": {
-              "status": "ok",
-              "time_wait_count": 0,
-              "note": "Normal if < 10",
-              "recommendation": "OK"
+              "status": "warning",
+              "time_wait_count": 50,
+              "note": "High TIME_WAIT count",
+              "recommendation": "Consider SO_REUSEADDR"
             },
             "connection_limits": {
               "status": "ok",
-              "total_connections": 1566,
-              "established": 81,
-              "listening": 46,
+              "total_connections": 1599,
+              "established": 73,
+              "listening": 45,
               "recommendation": "OK"
             },
             "dns_resolution": {
@@ -150,7 +154,7 @@
               "hostname_ip": "192.168.7.252"
             }
           },
-          "timestamp": "2025-11-20T16:09:44.984147"
+          "timestamp": "2025-11-20T19:09:42.498705"
         }
       },
       "phase4_watchdog": {
@@ -169,12 +173,12 @@
       }
     },
     "boot_complete": true,
-    "duration_seconds": 0.169211
+    "duration_seconds": 0.150198
   },
   "targets": [
     {
       "path": "databases/",
-      "size_bytes": 41126934
+      "size_bytes": 41120792
     },
     {
       "path": "config/",
@@ -193,5 +197,5 @@
       "size_bytes": 6
     }
   ],
-  "total_bytes": 42669989
+  "total_bytes": 42663847
 }
