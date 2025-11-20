@@ -198,19 +198,19 @@ async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
 // ===== SELF-HEALING API =====
 
 export async function getSelfHealingStats(): Promise<SelfHealingStats> {
-  return fetchJSON<SelfHealingStats>('/self-healing/stats');
+  return fetchJSON<SelfHealingStats>('/api/self-healing/stats');
 }
 
 export async function getSelfHealingIncidents(limit = 20): Promise<{ incidents: Incident[]; count: number; total: number }> {
-  return fetchJSON(`/self-healing/incidents?limit=${limit}`);
+  return fetchJSON(`/api/self-healing/incidents?limit=${limit}`);
 }
 
 export async function getSelfHealingPlaybooks(): Promise<{ playbooks: Playbook[]; count: number }> {
-  return fetchJSON('/self-healing/playbooks');
+  return fetchJSON('/api/self-healing/playbooks');
 }
 
 export async function getRecentHealingActions(limit = 15): Promise<{ actions: HealingAction[]; count: number }> {
-  return fetchJSON(`/self-healing/actions/recent?limit=${limit}`);
+  return fetchJSON(`/api/self-healing/actions/recent?limit=${limit}`);
 }
 
 export async function enableSelfHealing(): Promise<{ status: string; message: string }> {
@@ -278,7 +278,7 @@ export async function getSystemHealth(): Promise<SystemHealth> {
 }
 
 export async function getComprehensiveMetrics(): Promise<ComprehensiveMetrics> {
-  return fetchJSON('/metrics/comprehensive');
+  return fetchJSON('/api/metrics/comprehensive');
 }
 
 // Export all as a single API object

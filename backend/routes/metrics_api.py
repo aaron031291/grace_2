@@ -21,12 +21,33 @@ async def get_metrics_summary() -> Dict[str, Any]:
         { success: true, data: { health, trust, confidence, ... } }
     """
     try:
-        # Get trust scores - use fallback if method doesn't exist
+        # Initialize default values
+        avg_trust = 0.75
+        guardian_health = 0.75
+        pending_count = 0
+        active_tasks_count = 0
+        
+        # Try to get real metrics from various sources
+        try:
+            # Get Guardian health
+            from backend.core.guardian import guardian
+            if guardian and hasattr(guardian, 'get_health_score'):
+                guardian_health = guardian.get_health_score()
+        except:
+            pass
+        
+        # Try to get trust scores
         try:
             trust_scores = reflection_loop.get_trust_scores()
             avg_trust = sum(trust_scores.values()) / len(trust_scores) if trust_scores else 0.75
-        except AttributeError:
-            avg_trust = 0.75  # Default trust score
+        except:
+            # Try alternative trust score sources
+            try:
+                from backend.mission_control.hub import mission_control_hub
+                if mission_control_hub.trust_scores:
+                    avg_trust = sum(mission_control_hub.trust_scores.values()) / len(mission_control_hub.trust_scores)
+            except:
+                pass
         
         # Count pending approvals
         try:
@@ -36,13 +57,30 @@ async def get_metrics_summary() -> Dict[str, Any]:
                 a.get("governance_tier") == "approval_required" and
                 not a.get("declined")
             ]
+            pending_count = len(pending)
         except:
-            pending = []
+            pass
+        
+        # Get active tasks from mission control
+        try:
+            from backend.mission_control.hub import mission_control_hub
+            active_missions = [m for m in mission_control_hub.missions.values() 
+                             if m.status.value in ['open', 'in_progress']]
+            active_tasks_count = len(active_missions)
+        except:
+            try:
+                if hasattr(action_gateway, 'action_log'):
+                    active_tasks_count = len(action_gateway.action_log)
+            except:
+                pass
+        
+        # Calculate overall health score (average of trust + guardian)
+        health_score = (avg_trust + guardian_health) / 2
         
         # Determine system status
-        if avg_trust >= 0.7:
+        if health_score >= 0.7:
             status = "healthy"
-        elif avg_trust >= 0.5:
+        elif health_score >= 0.5:
             status = "degraded"
         else:
             status = "offline"
@@ -54,16 +92,17 @@ async def get_metrics_summary() -> Dict[str, Any]:
                 "trust": avg_trust,
                 "confidence": avg_trust,
                 "trust_score": avg_trust,
-                "guardian_score": avg_trust,
-                "health_score": avg_trust,
+                "guardian_score": guardian_health,
+                "health_score": health_score,
                 "uptime_percent": 99.0,
-                "pending_approvals": len(pending),
-                "active_tasks": len(action_gateway.action_log) if hasattr(action_gateway, 'action_log') else 0,
+                "pending_approvals": pending_count,
+                "active_tasks": active_tasks_count,
                 "system_status": status,
             }
         }
     
     except Exception as e:
+        print(f"[METRICS] Error getting summary: {e}")
         return {
             "success": True,  # Return success with default values
             "data": {

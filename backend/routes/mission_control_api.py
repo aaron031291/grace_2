@@ -231,6 +231,10 @@ async def list_missions(
 ):
     """List missions with optional filtering"""
     try:
+        # Ensure mission control hub is started
+        if not mission_control_hub.running:
+            await mission_control_hub.start()
+        
         missions = []
         
         for mission_id, mission in mission_control_hub.missions.items():
@@ -264,7 +268,11 @@ async def list_missions(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return empty result instead of error
+        return {
+            "total": 0,
+            "missions": []
+        }
 
 
 @router.get("/missions/{mission_id}")

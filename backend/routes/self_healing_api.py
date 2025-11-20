@@ -100,15 +100,53 @@ async def get_active_runs() -> Dict[str, Any]:
 @router.get("/stats")
 async def get_self_healing_stats() -> Dict[str, Any]:
     """Get self-healing statistics"""
-    return {
-        "total_incidents": 0,
-        "active_incidents": 0,
-        "resolved_today": 0,
-        "average_resolution_time": 0,
-        "success_rate": 100.0,
-        "mttr": 0,
-        "mttr_target": 300
-    }
+    try:
+        # Try to get real stats from self-healing system
+        from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
+        from datetime import datetime, timedelta
+        
+        active = len(trigger_playbook_integration.active_incidents)
+        resolved = len(trigger_playbook_integration.resolved_incidents)
+        
+        # Calculate today's resolved incidents
+        today = datetime.utcnow().date()
+        resolved_today = len([
+            inc for inc in trigger_playbook_integration.resolved_incidents
+            if datetime.fromisoformat(inc.get("completed_at", "2000-01-01")).date() == today
+        ])
+        
+        # Calculate average resolution time
+        resolution_times = [
+            inc.get("resolution_time_seconds", 0)
+            for inc in trigger_playbook_integration.resolved_incidents
+            if inc.get("resolution_time_seconds")
+        ]
+        avg_resolution = sum(resolution_times) / len(resolution_times) if resolution_times else 0
+        
+        # Calculate success rate
+        total_attempts = active + resolved
+        success_rate = (resolved / total_attempts * 100) if total_attempts > 0 else 100.0
+        
+        return {
+            "total_incidents": active + resolved,
+            "active_incidents": active,
+            "resolved_today": resolved_today,
+            "average_resolution_time": avg_resolution,
+            "success_rate": success_rate,
+            "mttr": avg_resolution,
+            "mttr_target": 300
+        }
+    except Exception as e:
+        # Return default stats if system not available
+        return {
+            "total_incidents": 0,
+            "active_incidents": 0,
+            "resolved_today": 0,
+            "average_resolution_time": 0,
+            "success_rate": 100.0,
+            "mttr": 0,
+            "mttr_target": 300
+        }
 
 @router.post("/trigger-manual")
 async def trigger_manual_healing(request: ManualHealingRequest) -> Dict[str, Any]:
@@ -223,28 +261,56 @@ async def get_self_healing_metrics() -> Dict[str, Any]:
 async def get_incidents(status: Optional[str] = None, limit: int = 20) -> Dict[str, Any]:
     """Get self-healing incidents"""
     try:
-        from backend.memory_tables.registry import table_registry
-
-        filters = {}
+        # Get real incidents from trigger system
+        from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
+        
+        all_incidents = []
+        
+        # Add active incidents
+        for inc_id, inc_data in trigger_playbook_integration.active_incidents.items():
+            all_incidents.append({
+                "id": inc_id,
+                "type": inc_data.get("trigger_type", "unknown"),
+                "severity": inc_data.get("severity", "medium"),
+                "status": inc_data.get("status", "pending"),
+                "component": inc_data.get("component", "unknown"),
+                "detected_at": inc_data.get("created_at", datetime.utcnow().isoformat()),
+                "playbook_applied": inc_data.get("playbook_name"),
+                "error_message": inc_data.get("error_message")
+            })
+        
+        # Add resolved incidents
+        for inc_data in trigger_playbook_integration.resolved_incidents:
+            if len(all_incidents) >= limit:
+                break
+            all_incidents.append({
+                "id": inc_data.get("incident_id", "unknown"),
+                "type": inc_data.get("trigger_type", "unknown"),
+                "severity": inc_data.get("severity", "medium"),
+                "status": "resolved",
+                "component": inc_data.get("component", "unknown"),
+                "detected_at": inc_data.get("created_at", datetime.utcnow().isoformat()),
+                "resolved_at": inc_data.get("completed_at"),
+                "playbook_applied": inc_data.get("playbook_name"),
+                "resolution_time": inc_data.get("resolution_time_seconds")
+            })
+        
+        # Filter by status if requested
         if status:
-            filters['status'] = status
-
-        incidents = table_registry.query_rows(
-            'memory_incidents',
-            filters=filters,
-            limit=limit,
-            order_by='created_at',
-            descending=True
-        )
-
+            all_incidents = [inc for inc in all_incidents if inc["status"] == status]
+        
+        # Limit results
+        all_incidents = all_incidents[:limit]
+        
         return {
-            "incidents": incidents,
-            "count": len(incidents),
-            "total": len(incidents)
+            "incidents": all_incidents,
+            "count": len(all_incidents),
+            "total": len(all_incidents)
         }
 
     except Exception as e:
         # Return empty result instead of error
+        print(f"[SELF-HEALING] Error fetching incidents: {e}")
         return {
             "incidents": [],
             "count": 0,

@@ -199,6 +199,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Self-Healing API disabled: {e}")
 
+# Register Comprehensive API (all panels data)
+try:
+    from backend.routes.comprehensive_api import router as comprehensive_router
+    app.include_router(comprehensive_router)
+except ImportError as e:
+    print(f"[WARN] Comprehensive API disabled: {e}")
+
 try:
     from backend.routes.vault_api import router as vault_router
     app.include_router(vault_router)
@@ -210,6 +217,13 @@ try:
     app.include_router(memory_router, prefix="/api")
 except ImportError as e:
     print(f"[WARN] Memory API disabled: {e}")
+
+# Register Memory Files API (file browser & operations)
+try:
+    from backend.routes.memory_files_api import router as memory_files_router
+    app.include_router(memory_files_router)
+except ImportError as e:
+    print(f"[WARN] Memory Files API disabled: {e}")
 
 try:
     from backend.routes.remote_api import router as remote_api_router
