@@ -1,0 +1,8 @@
+{
+  "allocations": {},
+  "metadata": {
+    "cleaned": "2025-11-20",
+    "reason": "Reset to fresh state - only monitor active ports (8000-8010)",
+    "previous_file": "port_registry_old.json"
+  }
+}

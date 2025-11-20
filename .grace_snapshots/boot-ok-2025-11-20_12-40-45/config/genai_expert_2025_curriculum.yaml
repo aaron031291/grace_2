@@ -1,0 +1,95 @@
+domains:
+  # --- PRIORITY 1: FOUNDATIONS ---
+  1_genai_foundations:
+    name: "GenAI Foundations (2025 Edition)"
+    priority: critical
+    success_criteria:
+      trust_score: 0.9
+      projects_completed: 2
+    metrics:
+      knowledge_retention: true
+      implementation_speed: true
+    topics:
+      - "Advanced Python for ML (Type hints, Decorators, AsyncIO)"
+      - "PyTorch 2.x Best Practices"
+      - "Modern ML Ops & Experiment Tracking (MLflow/Weights & Biases)"
+      - "Transformer Architecture Deep Dive"
+    practice_projects:
+      - name: "Transformer from Scratch"
+        description: "Implement a mini-transformer (GPT-2 style) in pure PyTorch"
+        validation: "Train on Shakespeare dataset, achieve loss < 3.0"
+      - name: "Efficient Data Pipeline"
+        description: "Build a high-performance data loader for large datasets"
+        validation: "Benchmark throughput vs standard loader"
+
+  # --- PRIORITY 2: RAG & RETRIEVAL ---
+  2_rag_mastery:
+    name: "Advanced RAG Systems"
+    priority: high
+    success_criteria:
+      trust_score: 0.85
+      projects_completed: 2
+    topics:
+      - "Vector Database Optimization (HNSW, IVF)"
+      - "Hybrid Search (Keyword + Semantic)"
+      - "Reranking Strategies (Cohere/Cross-Encoders)"
+      - "Context Window Management & Chunking Strategies"
+    practice_projects:
+      - name: "Grace Self-RAG"
+        description: "Build a RAG pipeline over Grace's own codebase"
+        validation: "Answer complex architecture questions correctly"
+      - name: "Multi-Hop Reasoning RAG"
+        description: "Implement GraphRAG or similar for complex queries"
+        validation: "Solve multi-step reasoning benchmarks"
+
+  # --- PRIORITY 3: LLM ENGINEERING ---
+  3_llm_engineering:
+    name: "LLM Fine-Tuning & Engineering"
+    priority: high
+    success_criteria:
+      trust_score: 0.8
+      projects_completed: 1
+    topics:
+      - "PEFT & LoRA/QLoRA Techniques"
+      - "Dataset Curation & Cleaning for instruction tuning"
+      - "RLHF vs DPO (Direct Preference Optimization)"
+      - "Model Evaluation (MMLU, GSM8K)"
+    practice_projects:
+      - name: "Specialized Coding Assistant"
+        description: "Fine-tune a small model (e.g., Qwen 1.5B) on Grace's code style"
+        validation: "Generate code matching project conventions"
+
+  # --- PRIORITY 4: AGENTIC SYSTEMS ---
+  4_agentic_systems:
+    name: "Autonomous Agent Construction"
+    priority: medium
+    success_criteria:
+      trust_score: 0.85
+      projects_completed: 2
+    topics:
+      - "Tool Use & Function Calling patterns"
+      - "Multi-Agent Orchestration (CrewAI/LangGraph)"
+      - "Memory Systems for Agents"
+      - "Self-Correction Loops"
+    practice_projects:
+      - name: "Research Assistant Agent"
+        description: "Build an agent that browses web, summarizes, and cites sources"
+        validation: "Produce a 500-word report on a new topic"
+      - name: "DevOps Agent"
+        description: "Agent that can diagnose and fix simple Kubernetes issues"
+        validation: "Resolve simulated pod crash in sandbox"
+
+metrics:
+  trust_scores:
+    good: 0.85
+    excellent: 0.95
+  autonomous_rules:
+    allowed_actions:
+      - "search"
+      - "read_docs"
+      - "clone_repo"
+      - "run_tests"
+      - "write_code"
+    approval_required:
+      - "deploy_cloud"
+      - "fine_tune_large_model"

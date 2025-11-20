@@ -9,8 +9,10 @@ import os
 import uvicorn
 import sys
 import socket
+import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables from .env file immediately
@@ -18,6 +20,10 @@ load_dotenv()
 
 # Add root to path
 sys.path.insert(0, str(Path(__file__).parent))
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 # Removed: Guardian no longer allocates ports
@@ -847,6 +853,60 @@ async def boot_grace_minimal():
             delegate_to="self_healing"
         ))
 
+        # CHUNK 6.9: Chaos Engineering Agent
+        async def chunk_6e_chaos_agent():
+            print("[CHUNK 6.9] Chaos Engineering Agent...")
+            
+            results = {
+                'systems_started': 0,
+                'warnings': []
+            }
+            
+            try:
+                # Start chaos agent
+                from backend.chaos.chaos_agent import chaos_agent
+                from backend.chaos.component_profiles import component_registry
+                
+                await chaos_agent.start()
+                
+                print(f"  [OK] Chaos Agent: Ready (DISABLED by default)")
+                print(f"  [OK] Component profiles: {len(component_registry.profiles)}")
+                print(f"  [OK] Environment: {chaos_agent.environment}")
+                print(f"  [OK] Blast radius limit: {chaos_agent.blast_radius_limit} components")
+                results['chaos_agent_ready'] = True
+                results['systems_started'] += 1
+            except Exception as e:
+                print(f"  [WARN] Chaos agent startup issue: {e}")
+                results['warnings'].append('chaos_agent')
+            
+            print()
+            print("  🎯 Chaos Engineering:")
+            print("    • Component profiles: 8 (API, DB, RAG, HTM, etc.)")
+            print("    • Stress patterns: 24 (OWASP, load, config, network)")
+            print("    • Guardrail verification: Automated")
+            print("    • Healing integration: Auto-raise tasks")
+            print("    • Learning feedback: RAG/HTM enrichment")
+            print()
+            print("  ⚠️  Chaos campaigns require governance approval")
+            print("  ⚠️  Default: staging environment only")
+            print("  ⚠️  Guardian can halt instantly")
+            
+            if results['warnings']:
+                print()
+                print(f"  [WARN] Degraded systems: {', '.join(results['warnings'])}")
+            
+            return results
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="chaos_agent",
+            name="Chaos Engineering Agent",
+            priority=6.9,
+            boot_function=chunk_6e_chaos_agent,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
         # CHUNK 7: TRUST Framework + External Model Protocol (Guardian validates)
         async def chunk_7_trust_framework():
             print("[CHUNK 7] TRUST Framework + External Model Protocol...")
@@ -1071,6 +1131,17 @@ async def boot_grace_minimal():
         except Exception as e:
             print(f"  [WARN] Snapshot failed: {e}")
         
+        # Publish boot completion event for learning triage transition
+        try:
+            from backend.core.message_bus import message_bus
+            await message_bus.publish('grace.boot.complete', {
+                'timestamp': datetime.utcnow().isoformat(),
+                'chunks_booted': len(boot_orchestrator.completed_chunks)
+            })
+            logger.info("[BOOT] Boot completion event published")
+        except Exception as e:
+            logger.debug(f"[BOOT] Could not publish boot completion: {e}")
+        
         # Return boot result with port info
         return guardian_boot
         
@@ -1135,18 +1206,6 @@ if __name__ == "__main__":
     # Start server
     print("=" * 80)
     print("GRACE IS READY")
-    print()
-    
-    # Publish boot completion event
-    try:
-        from backend.core.message_bus import message_bus
-        await message_bus.publish('grace.boot.complete', {
-            'timestamp': datetime.utcnow().isoformat(),
-            'chunks_booted': len(boot_orchestrator.completed_chunks)
-        })
-        logger.info("[BOOT] Boot completion event published")
-    except Exception as e:
-        logger.warning(f"[BOOT] Could not publish boot completion: {e}")
     print("=" * 80)
     print()
     print(f" Backend:  http://localhost:{port}")

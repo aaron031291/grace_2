@@ -35,6 +35,7 @@ class ServiceAccountRole(str, Enum):
     LEARNING_MISSION = "learning_mission"  # For learning missions
     AGENT_PIPELINE = "agent_pipeline"  # For agent pipelines
     SELF_HEALING = "self_healing"  # For self-healing operations
+    CHAOS_ENGINEERING = "chaos_engineering"  # For chaos campaigns
     GUARDIAN = "guardian"  # Guardian has elevated permissions
     ADMIN = "admin"  # Full access
     READ_ONLY = "read_only"  # Read-only access
@@ -91,6 +92,10 @@ class RBACSystem:
                 Permission.READ,
                 Permission.WRITE,
                 Permission.MODIFY  # Can modify configurations
+            },
+            ServiceAccountRole.CHAOS_ENGINEERING: {
+                Permission.READ,
+                Permission.EXECUTE  # Can execute stress tests
             },
             ServiceAccountRole.GUARDIAN: {
                 Permission.READ,
@@ -192,6 +197,18 @@ class RBACSystem:
             resource_scopes={
                 'staging_db': ['*'],
                 'file_system': ['/config/*', '/logs/*']
+            }
+        )
+        
+        # Chaos engineering account
+        await self.create_service_account(
+            account_id='chaos_agent_service',
+            role=ServiceAccountRole.CHAOS_ENGINEERING,
+            resource_scopes={
+                'test_environment': ['*'],
+                'staging_db': ['*'],
+                'staging_model': ['*']
+                # NOT production (requires manual approval)
             }
         )
         

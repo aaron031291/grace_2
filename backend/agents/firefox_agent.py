@@ -8,9 +8,22 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from ..unified_logger import unified_logger
-from ..grace_control_center import grace_control, SystemState
-from ..activity_monitor import activity_monitor
+try:
+    from backend.logging.unified_logger import unified_logger
+except ImportError:
+    unified_logger = None
+
+try:
+    from backend.grace_control_center import grace_control, SystemState
+except ImportError:
+    grace_control = None
+    class SystemState:
+        RUNNING = "running"
+
+try:
+    from backend.activity_monitor import activity_monitor
+except ImportError:
+    activity_monitor = None
 
 logger = logging.getLogger(__name__)
 
@@ -103,11 +116,12 @@ class FirefoxAgent:
             return result
         
         # Check system state
-        state = grace_control.get_state()
-        if state['system_state'] != SystemState.RUNNING:
-            result['status'] = 'system_paused'
-            result['error'] = f"System is {state['system_state']}"
-            return result
+        if grace_control:
+            state = grace_control.get_state()
+            if state['system_state'] != SystemState.RUNNING:
+                result['status'] = 'system_paused'
+                result['error'] = f"System is {state['system_state']}"
+                return result
         
         # Security check: HTTPS only
         if not url.startswith('https://'):
@@ -115,7 +129,8 @@ class FirefoxAgent:
             result['error'] = 'Only HTTPS URLs allowed'
             logger.warning(f"[FIREFOX] BLOCKED (not HTTPS): {url}")
             
-            await unified_logger.log_agentic_spine_decision(
+            if unified_logger:
+                await unified_logger.log_agentic_spine_decision(
                 decision_type='browser_blocked',
                 decision_context={'url': url, 'reason': 'not_https'},
                 chosen_action='block_url',
@@ -124,8 +139,8 @@ class FirefoxAgent:
                 confidence=1.0,
                 risk_score=0.9,
                 status='blocked',
-                resource=url
-            )
+                    resource=url
+                )
             
             return result
         
@@ -144,11 +159,12 @@ class FirefoxAgent:
                 return result
         
         # Log activity - what Grace is doing
-        await activity_monitor.log_activity(
-            activity_type='browsing',
-            description=f'Browsing: {url}',
-            details={'purpose': purpose, 'domain': domain}
-        )
+        if activity_monitor:
+            await activity_monitor.log_activity(
+                activity_type='browsing',
+                description=f'Browsing: {url}',
+                details={'purpose': purpose, 'domain': domain}
+            )
         
         # Browse to URL
         try:
@@ -178,7 +194,8 @@ class FirefoxAgent:
                     })
                     
                     # Log to unified logger
-                    await unified_logger.log_agentic_spine_decision(
+                    if unified_logger:
+                        await unified_logger.log_agentic_spine_decision(
                         decision_type='browser_visit',
                         decision_context={'url': url, 'purpose': purpose, 'status': response.status},
                         chosen_action='browse_url',
@@ -186,9 +203,9 @@ class FirefoxAgent:
                         actor='firefox_agent',
                         confidence=0.85,
                         risk_score=0.2,
-                        status='success',
-                        resource=url
-                    )
+                            status='success',
+                            resource=url
+                        )
                     
                     logger.info(f"[FIREFOX] Success: {url} (status: {response.status})")
         

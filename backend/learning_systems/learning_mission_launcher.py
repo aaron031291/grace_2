@@ -173,14 +173,19 @@ class LearningMissionLauncher:
             from backend.orchestrators.web_learning_orchestrator import WebLearningOrchestrator
             self.web_orchestrator = WebLearningOrchestrator()
             await self.web_orchestrator.start()
-        except ImportError:
-            logger.warning("[MISSION-LAUNCHER] Web learning orchestrator not available")
+        except ImportError as e:
+            logger.info("[MISSION-LAUNCHER] Web learning orchestrator not available (will use direct scrapers)")
+        except Exception as e:
+            logger.warning(f"[MISSION-LAUNCHER] Web orchestrator startup issue: {e}")
         
         try:
-            from backend.knowledge.github_knowledge_miner import github_miner
-            self.github_miner = github_miner
+            from backend.knowledge.github_knowledge_miner import GitHubKnowledgeMiner
+            self.github_miner = GitHubKnowledgeMiner()
+            await self.github_miner.start()
         except ImportError:
-            logger.warning("[MISSION-LAUNCHER] GitHub miner not available")
+            logger.info("[MISSION-LAUNCHER] GitHub miner not available (will use alternatives)")
+        except Exception as e:
+            logger.warning(f"[MISSION-LAUNCHER] GitHub miner startup issue: {e}")
         
         self.running = True
         
@@ -489,6 +494,15 @@ class LearningMissionLauncher:
                 logger.info(f"[MISSION-LAUNCHER] Learned from {len(web_result.get('sources', []))} web sources")
             except Exception as e:
                 logger.warning(f"[MISSION-LAUNCHER] Web learning failed: {e}")
+        else:
+            # Fallback: Use web scraper directly
+            try:
+                from backend.utilities.safe_web_scraper import safe_web_scraper
+                if safe_web_scraper.enabled:
+                    web_result = await safe_web_scraper.search_and_learn(query, max_sources=3)
+                    logger.info(f"[MISSION-LAUNCHER] Learned from {web_result.get('scraped', 0)} web sources (direct)")
+            except Exception as e:
+                logger.debug(f"[MISSION-LAUNCHER] Direct web scraper fallback failed: {e}")
         
         # Learn from GitHub if relevant
         github_result = {'repos': [], 'learned': False}

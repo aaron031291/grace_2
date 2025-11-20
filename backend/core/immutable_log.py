@@ -150,6 +150,27 @@ class ImmutableLog:
         
         return entry_id
     
+    async def append_entry(
+        self,
+        category: str,
+        subcategory: str,
+        data: Dict[str, Any],
+        actor: str,
+        action: str,
+        resource: str
+    ) -> str:
+        """
+        Append entry (alias for append with new API)
+        Supports both old and new calling conventions
+        """
+        return await self.append(
+            actor=actor,
+            action=action,
+            resource=resource,
+            payload=data,
+            metadata={'category': category, 'subcategory': subcategory}
+        )
+    
     async def _load_index(self):
         """Load index from log file"""
         
