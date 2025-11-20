@@ -366,7 +366,7 @@ class DiagnoseNetworkPlaybook(NetworkPlaybook):
     def _check_port_conflicts(self, port: int) -> List[Dict[str, Any]]:
         """Check for other processes using nearby ports"""
         conflicts = []
-        port_range = range(max(8000, port - 10), min(8500, port + 10))
+        port_range = range(max(8000, port - 10), min(8020, port + 10))
         
         for conn in psutil.net_connections():
             if conn.laddr.port in port_range and conn.laddr.port != port:

@@ -117,6 +117,23 @@ class GitHubKnowledgeMiner:
             self.session = None
         logger.info("[GITHUB-MINER] Stopped")
     
+    def __del__(self):
+        """Cleanup on deletion"""
+        if self.session and not self.session.closed:
+            try:
+                # Try to close synchronously if event loop is available
+                import asyncio
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        asyncio.create_task(self.session.close())
+                    else:
+                        loop.run_until_complete(self.session.close())
+                except:
+                    pass
+            except:
+                pass
+    
     async def _check_rate_limit(self):
         """Check and display GitHub API rate limit status"""
         try:

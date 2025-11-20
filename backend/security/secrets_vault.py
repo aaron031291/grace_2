@@ -658,5 +658,11 @@ class SecretsVault:
             if env_value:
                 return env_value
             return None
+        except Exception:
+            # Catch any other vault errors and fall back to env
+            env_value = os.getenv(secret_key)
+            if env_value:
+                return env_value
+            return None
 
 secrets_vault = SecretsVault()

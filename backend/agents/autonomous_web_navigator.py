@@ -125,7 +125,10 @@ class AutonomousWebNavigator:
             Search results and learned knowledge
         """
         # from backend.services.google_search_service import google_search_service
-        from backend.services.closed_loop_learning import closed_loop_learning
+        try:
+            from backend.services.closed_loop_learning import closed_loop_learning
+        except ImportError:
+            closed_loop_learning = None
         
         self.searches_triggered += 1
         self.last_search_time = datetime.utcnow()

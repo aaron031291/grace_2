@@ -1,6 +1,6 @@
 """
 Port Watchdog
-Monitors all ports 8000-8500, tracks usage, detects issues
+Monitors all ports 8000-8010, tracks usage, detects issues
 INTEGRATED with Guardian for auto-remediation
 """
 

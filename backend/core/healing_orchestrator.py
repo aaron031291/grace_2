@@ -15,7 +15,11 @@ from backend.core.guardian_playbooks import (
     RemediationStatus
 )
 from backend.core.immutable_log import immutable_log
-from backend.core.resolution_protocol import ResolutionProtocol
+
+try:
+    from backend.core.resolution_protocol import ResolutionProtocol
+except ImportError:
+    ResolutionProtocol = None
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -220,7 +220,8 @@ async def boot_grace_minimal():
             results = {}
             
             try:
-                from backend.core import message_bus, immutable_log
+                from backend.core.message_bus import message_bus
+                from backend.core.immutable_log import immutable_log
                 
                 if guardian.check_can_boot_kernel('message_bus', 1):
                     await message_bus.start()

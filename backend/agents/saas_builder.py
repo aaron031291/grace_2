@@ -99,7 +99,10 @@ class SaaSBuilder:
         # PHASE 1: Research and learn tech stack
         logger.info("[SAAS-BUILDER] Phase 1: Researching tech stack...")
         
-        from backend.agents.future_projects_learner import future_projects_learner
+        try:
+            from backend.agents.future_projects_learner import future_projects_learner
+        except ImportError:
+            future_projects_learner = None
         
         # Trigger intensive learning on SaaS development
         await future_projects_learner.learn_domain_now(

@@ -52,9 +52,20 @@ class KnowledgeApplicationLoop:
         Returns:
             Complete cycle report with knowledge and application results
         """
-        from backend.agents.creative_problem_solver import creative_problem_solver
-        from backend.agents.autonomous_web_navigator import autonomous_web_navigator
-        from backend.services.closed_loop_learning import closed_loop_learning
+        try:
+            from backend.agents.creative_problem_solver import creative_problem_solver
+        except ImportError:
+            creative_problem_solver = None
+        
+        try:
+            from backend.agents.autonomous_web_navigator import autonomous_web_navigator
+        except ImportError:
+            autonomous_web_navigator = None
+        
+        try:
+            from backend.services.closed_loop_learning import closed_loop_learning
+        except ImportError:
+            closed_loop_learning = None
         
         cycle_report = {
             'problem': problem,

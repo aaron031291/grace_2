@@ -1,6 +1,6 @@
 """
 Port Manager & Watchdog
-Manages ports 8000-8500 with full tracking, logging, and metadata
+Manages ports 8000-8010 with full tracking, logging, and metadata
 Integrated with network hardening for comprehensive issue detection
 """
 
@@ -41,7 +41,7 @@ class PortAllocation:
 
 class PortManager:
     """
-    Manages port range 8000-8500
+    Manages port range 8000-8010
     - Allocates ports automatically
     - Tracks who/what/when/why for each port
     - Watchdog monitors health
