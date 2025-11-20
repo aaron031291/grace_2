@@ -265,6 +265,14 @@ try:
 except ImportError as e:
     print(f"[WARN] Proactive Learning API disabled: {e}")
 
+# Register snapshot management API (Boot snapshots with 3-retention policy)
+try:
+    from backend.routes.snapshot_api import router as snapshot_router
+    app.include_router(snapshot_router)
+    print("[OK] Snapshot API registered (Boot rollback capability)")
+except ImportError as e:
+    print(f"[WARN] Snapshot API disabled: {e}")
+
 # Register autonomous web navigator (Grace's decision-making for web searches)
 try:
     from backend.routes.autonomous_navigator_api import router as navigator_router

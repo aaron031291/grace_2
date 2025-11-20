@@ -583,6 +583,12 @@ async def boot_grace_minimal():
                 print(f"  [OK] HTM Anomaly Detection: Active")
                 results['htm_active'] = True
                 results['systems_loaded'] += 1
+                
+                # Start Model Telemetry Integration (feeds HTM + RAG)
+                from backend.ml_training.model_telemetry_integration import model_telemetry_integration
+                await model_telemetry_integration.start()
+                print(f"  [OK] Model Telemetry: Active (HTM + RAG integration)")
+                results['systems_loaded'] += 1
             except Exception as e:
                 print(f"  [WARN] HTM Anomaly Detection degraded: {e}")
                 results['degraded'].append('htm_anomaly_detector')
@@ -772,6 +778,20 @@ async def boot_grace_minimal():
         print()
         print("[ORCHESTRATOR] All chunks validated and approved by Guardian")
         print()
+        
+        # Capture boot snapshot after successful validation
+        print("[SNAPSHOT] Capturing clean boot snapshot...")
+        try:
+            from backend.boot.snapshot_manager import boot_snapshot_manager
+            snapshot_result = await boot_snapshot_manager.capture_snapshot(guardian_boot)
+            if snapshot_result.get('captured'):
+                print(f"  [OK] Snapshot captured: {snapshot_result['snapshot_id']}")
+                print(f"  [OK] Size: {snapshot_result['metadata']['total_bytes']:,} bytes")
+                print(f"  [OK] Retention: {boot_snapshot_manager.max_snapshots} snapshots kept")
+            else:
+                print(f"  [WARN] Snapshot skipped: {snapshot_result.get('reason', 'unknown')}")
+        except Exception as e:
+            print(f"  [WARN] Snapshot failed: {e}")
         
         # Return boot result with port info
         return guardian_boot
