@@ -85,9 +85,15 @@ class GitHubKnowledgeMiner:
             
             if self.github_token:
                 logger.info("[GITHUB-MINER] ✅ GitHub token loaded successfully")
+                
+                # Support both classic (ghp_) and fine-grained (github_pat_) tokens
+                # Classic tokens use: Authorization: token <TOKEN>
+                # Fine-grained tokens use: Authorization: Bearer <TOKEN>
+                auth_prefix = 'Bearer' if self.github_token.startswith('github_pat_') else 'token'
+                
                 headers = {
                     'Accept': 'application/vnd.github.v3+json',
-                    'Authorization': f'token {self.github_token}'
+                    'Authorization': f'{auth_prefix} {self.github_token}'
                 }
             else:
                 logger.warning(

@@ -366,9 +366,9 @@ class EliteCodingAgent:
         if trigger_mesh:
             await trigger_mesh.subscribe("code.*", self._handle_code_event)
             await trigger_mesh.subscribe("feature.*", self._handle_feature_event)
-            logger.info("[ELITE_CODE] Subscribed to trigger mesh events")
+            logger.debug("[ELITE_CODE] Subscribed to trigger mesh events")
         else:
-            logger.info("[ELITE_CODE] Trigger mesh not available, skipping subscription")
+            logger.debug("[ELITE_CODE] Trigger mesh not available, skipping subscription")
     
     async def _handle_code_event(self, event: TriggerEvent):
         """Handle code-related events"""

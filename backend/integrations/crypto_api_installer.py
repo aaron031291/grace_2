@@ -74,10 +74,10 @@ class CryptoAPIInstaller:
                 __import__(config['import_name'])
                 status[api_name] = True
                 self.installed_apis[api_name] = config
-                logger.info(f"[CRYPTO-API] ✅ {api_name} installed")
+                logger.debug(f"[CRYPTO-API] ✅ {api_name} installed")
             except ImportError:
                 status[api_name] = False
-                logger.info(f"[CRYPTO-API] ⚠️ {api_name} not installed")
+                logger.debug(f"[CRYPTO-API] ⚠️ {api_name} not installed (optional)")
         
         return status
     

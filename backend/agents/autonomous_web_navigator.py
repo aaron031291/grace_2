@@ -38,9 +38,9 @@ class AutonomousWebNavigator:
                     # Load all documents and merge (YAML file has multiple --- separators)
                     docs = list(yaml.safe_load_all(f))
                     self.playbook = docs[0] if docs else {}
-                logger.info("[WEB-NAVIGATOR] Loaded web navigation playbook")
+                logger.debug("[WEB-NAVIGATOR] Loaded web navigation playbook")
             else:
-                logger.warning(f"[WEB-NAVIGATOR] Playbook not found: {playbook_path}")
+                logger.debug(f"[WEB-NAVIGATOR] Playbook not found: {playbook_path} (using defaults)")
         except Exception as e:
             logger.error(f"[WEB-NAVIGATOR] Failed to load playbook: {e}")
         
