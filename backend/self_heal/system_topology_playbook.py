@@ -158,11 +158,15 @@ class SystemTopologyPlaybook(Playbook):
             from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
             pool_stats = htm_detector_pool.get_all_stats()
             
+            # Enhanced telemetry check: Look for specific ML-related models
+            ml_models_active = any(m in pool_stats for m in ["metrics_throughput", "rag_latency", "action_duration"])
+            
             if stats.get("total_bytes_processed", 0) >= 0: 
                 return {
                     "ok": True, 
                     "stats": stats,
-                    "anomaly_detector_active": len(pool_stats) > 0
+                    "anomaly_detector_active": len(pool_stats) > 0,
+                    "ml_telemetry_detected": ml_models_active
                 }
             return {"ok": False, "error": "No stats"}
         except Exception as e:

@@ -214,6 +214,21 @@ class LearningLoop:
             stats.updated_at = datetime.now(timezone.utc)
             
             await session.commit()
+            
+            # Send execution time telemetry to HTM
+            if execution_time is not None:
+                try:
+                    from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+                    # Tokenize duration (100ms buckets)
+                    duration_ms = int(execution_time * 1000)
+                    token = min(duration_ms // 100, 10000)
+                    htm_detector_pool.detect_for_model(
+                        "action_duration",
+                        [token],
+                        [1.0]
+                    )
+                except Exception:
+                    pass
     
     async def get_playbook_stats(self, playbook_id: str) -> Optional[Dict[str, Any]]:
         """Get statistics for a specific playbook"""

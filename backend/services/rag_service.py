@@ -118,6 +118,19 @@ class RAGService:
         end_time = datetime.now(timezone.utc)
         total_time_ms = (end_time - start_time).total_seconds() * 1000
         
+        # Send latency telemetry to HTM
+        try:
+            from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+            # Tokenize latency (10ms buckets, max 5000)
+            latency_token = min(int(total_time_ms) // 10, 5000)
+            htm_detector_pool.detect_for_model(
+                "rag_latency",
+                [latency_token],
+                [1.0]
+            )
+        except Exception:
+            pass
+        
         log_event(
             action="rag.retrieve",
             actor=requested_by,
