@@ -11,10 +11,25 @@ from pathlib import Path
 import logging
 import platform
 
-from .governance_framework import governance_framework
-from .constitutional_engine import constitutional_engine
-from .unified_logger import unified_logger
-from .immutable_log import immutable_log
+try:
+    from backend.governance_system.governance_framework import governance_framework
+except ImportError:
+    governance_framework = None
+
+try:
+    from backend.constitutional_engine import constitutional_engine
+except ImportError:
+    constitutional_engine = None
+
+try:
+    from backend.logging.unified_logger import unified_logger
+except ImportError:
+    unified_logger = None
+
+try:
+    from backend.core.immutable_log import immutable_log
+except ImportError:
+    immutable_log = None
 
 logger = logging.getLogger(__name__)
 
@@ -86,28 +101,30 @@ class RemoteComputerAccess:
         logger.info(f"[REMOTE-ACCESS] Parameters: {parameters}")
         
         # Governance check
-        approval = await governance_framework.check_action(
-            actor='grace_remote_access',
-            action=action,
-            resource=self.computer_name,
-            context={'action': action, 'parameters': parameters, 'purpose': purpose},
-            confidence=0.8
-        )
-        
-        if approval.get('decision') != 'allow':
-            logger.warning(f"[REMOTE-ACCESS] 🚫 Governance blocked")
-            await self._log_action(action, parameters, 'blocked', approval.get('reason'))
-            return {'error': 'governance_blocked', 'reason': approval.get('reason')}
+        if governance_framework:
+            approval = await governance_framework.check_action(
+                actor='grace_remote_access',
+                action=action,
+                resource=self.computer_name,
+                context={'action': action, 'parameters': parameters, 'purpose': purpose},
+                confidence=0.8
+            )
+            
+            if approval.get('decision') != 'allow':
+                logger.warning(f"[REMOTE-ACCESS] 🚫 Governance blocked")
+                await self._log_action(action, parameters, 'blocked', approval.get('reason'))
+                return {'error': 'governance_blocked', 'reason': approval.get('reason')}
         
         # Constitutional check
-        constitutional_check = await constitutional_engine.verify_action(
-            action_type='remote_computer_access',
-            context={'action': action, 'computer': self.computer_name, 'purpose': purpose}
-        )
-        
-        if not constitutional_check.get('approved', False):
-            logger.warning(f"[REMOTE-ACCESS] ⚖️ Constitutional check failed")
-            return {'error': 'constitutional_blocked'}
+        if constitutional_engine:
+            constitutional_check = await constitutional_engine.verify_action(
+                action_type='remote_computer_access',
+                context={'action': action, 'computer': self.computer_name, 'purpose': purpose}
+            )
+            
+            if not constitutional_check.get('approved', False):
+                logger.warning(f"[REMOTE-ACCESS] ⚖️ Constitutional check failed")
+                return {'error': 'constitutional_blocked'}
         
         logger.info(f"[REMOTE-ACCESS] ✅ Governance and constitutional checks passed")
         

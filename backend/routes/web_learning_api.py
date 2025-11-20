@@ -7,12 +7,12 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
-from ..web_learning_orchestrator import web_learning_orchestrator
-from ..youtube_learning import youtube_learning
-from ..reddit_learning import reddit_learning
-from ..remote_computer_access import remote_access
-from ..knowledge_provenance import provenance_tracker
-from ..safe_web_scraper import safe_web_scraper
+from backend.orchestrators.web_learning_orchestrator import web_learning_orchestrator
+from backend.learning_systems.youtube_learning import youtube_learning
+from backend.learning_systems.reddit_learning import reddit_learning
+from backend.misc.remote_computer_access import remote_access
+from backend.knowledge.knowledge_provenance import provenance_tracker
+from backend.utilities.safe_web_scraper import safe_web_scraper
 from ..api_integration_manager import api_integration_manager
 from ..api_discovery_engine import api_discovery
 from ..visual_ingestion_logger import visual_ingestion_logger
@@ -569,7 +569,7 @@ async def verify_knowledge_source(request: VerifySourceRequest):
     """
     
     # Get source from database
-    from ..knowledge_provenance import KnowledgeSource
+    from backend.knowledge.knowledge_provenance import KnowledgeSource
     from sqlalchemy import select
     
     async with async_session() as session:

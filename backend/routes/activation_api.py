@@ -20,7 +20,7 @@ class LearningRequest(BaseModel):
 async def activate_learning(request: LearningRequest):
     """Trigger autonomous learning session"""
     
-    from ..web_learning_orchestrator import web_learning_orchestrator
+    from backend.orchestrators.web_learning_orchestrator import web_learning_orchestrator
     
     try:
         result = await web_learning_orchestrator.start_learning_session(
@@ -92,7 +92,7 @@ async def trigger_forecast():
 async def get_activation_status():
     """Get status of autonomous systems"""
     
-    from ..web_learning_orchestrator import web_learning_orchestrator
+    from backend.orchestrators.web_learning_orchestrator import web_learning_orchestrator
     from ..autonomous_improver import autonomous_improver
     from ..forecast_scheduler import forecast_scheduler
     from ..automated_ml_training import automated_training

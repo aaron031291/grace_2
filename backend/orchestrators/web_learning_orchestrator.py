@@ -9,13 +9,13 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
 
-from .safe_web_scraper import safe_web_scraper
-from .github_knowledge_miner import github_miner
-from .youtube_learning import youtube_learning
-from .remote_computer_access import remote_access
-from .knowledge_provenance import provenance_tracker
-from .knowledge_application_sandbox import knowledge_sandbox
-from .unified_logger import unified_logger
+from backend.utilities.safe_web_scraper import safe_web_scraper
+from backend.knowledge.github_knowledge_miner import github_miner
+from backend.learning_systems.youtube_learning import youtube_learning
+from backend.misc.remote_computer_access import remote_access
+from backend.knowledge.knowledge_provenance import provenance_tracker
+from backend.knowledge.knowledge_application_sandbox import knowledge_sandbox
+from backend.logging.unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 

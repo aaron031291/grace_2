@@ -8,11 +8,11 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import logging
 
-from .safe_web_scraper import safe_web_scraper
-from .github_knowledge_miner import github_miner
-from .youtube_learning import youtube_learning
-from .reddit_learning import reddit_learning
-from .amp_api_integration import amp_api_integration
+from backend.utilities.safe_web_scraper import safe_web_scraper
+from backend.knowledge.github_knowledge_miner import github_miner
+from backend.learning_systems.youtube_learning import youtube_learning
+from backend.learning_systems.reddit_learning import reddit_learning
+from backend.integration_layer.amp_api_integration import amp_api_integration
 
 logger = logging.getLogger(__name__)
 

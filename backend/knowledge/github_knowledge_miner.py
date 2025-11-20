@@ -11,9 +11,20 @@ from datetime import datetime
 import logging
 import base64
 
-from .governance_framework import governance_framework
-from .knowledge_provenance import provenance_tracker
-from .secrets_vault import secrets_vault
+try:
+    from backend.governance_system.governance_framework import governance_framework
+except ImportError:
+    governance_framework = None
+
+try:
+    from backend.knowledge.knowledge_provenance import provenance_tracker
+except ImportError:
+    provenance_tracker = None
+
+try:
+    from backend.security.secrets_vault import secrets_vault
+except ImportError:
+    secrets_vault = None
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +70,18 @@ class GitHubKnowledgeMiner:
         """Start GitHub mining session"""
         if not self.session:
             # Try to get GitHub token from secrets vault or environment
-            self.github_token = await secrets_vault.get_secret('GITHUB_TOKEN', 'github_miner')
+            if secrets_vault:
+                try:
+                    self.github_token = await secrets_vault.get_secret('GITHUB_TOKEN', 'github_miner')
+                except:
+                    self.github_token = None
+            else:
+                self.github_token = None
+            
+            # Fallback to environment variable
+            if not self.github_token:
+                import os
+                self.github_token = os.getenv('GITHUB_TOKEN')
             
             if self.github_token:
                 logger.info("[GITHUB-MINER] ✅ GitHub token loaded successfully")
