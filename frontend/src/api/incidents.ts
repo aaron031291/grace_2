@@ -55,7 +55,7 @@ export const IncidentsAPI = {
    * Get self-healing system statistics
    */
   async getStats(): Promise<SelfHealingStats> {
-    const response = await fetch(`${API_BASE_URL}/self-healing/stats`);
+    const response = await fetch(`${API_BASE_URL}/api/self-healing/stats`);
     if (!response.ok) {
       throw new Error(`Failed to fetch self-healing stats: ${response.statusText}`);
     }
@@ -66,7 +66,7 @@ export const IncidentsAPI = {
    * Get self-healing incidents
    */
   async getIncidents(limit: number = 20): Promise<IncidentsResponse> {
-    const response = await fetch(`${API_BASE_URL}/self-healing/incidents?limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/self-healing/incidents?limit=${limit}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch incidents: ${response.statusText}`);
     }
@@ -77,7 +77,7 @@ export const IncidentsAPI = {
    * Get available self-healing playbooks
    */
   async getPlaybooks(): Promise<PlaybooksResponse> {
-    const response = await fetch(`${API_BASE_URL}/self-healing/playbooks`);
+    const response = await fetch(`${API_BASE_URL}/api/self-healing/playbooks`);
     if (!response.ok) {
       throw new Error(`Failed to fetch playbooks: ${response.statusText}`);
     }
