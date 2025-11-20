@@ -91,7 +91,7 @@ except ImportError as e:
 
 try:
     from backend.routes.mission_control_api import router as mission_control_router
-    app.include_router(mission_control_router)
+    app.include_router(mission_control_router, prefix="/api")
 except ImportError as e:
     print(f"[WARN] Mission control disabled: {e}")
 
@@ -184,6 +184,20 @@ try:
     app.include_router(ingest_router)
 except ImportError as e:
     print(f"[WARN] Ingestion API disabled: {e}")
+
+# Register Ingestion API (file stats and management)
+try:
+    from backend.routes.ingestion_api import router as ingestion_router
+    app.include_router(ingestion_router)
+except ImportError as e:
+    print(f"[WARN] Ingestion API disabled: {e}")
+
+# Register Self-Healing API
+try:
+    from backend.routes.self_healing_api import router as self_healing_router
+    app.include_router(self_healing_router)
+except ImportError as e:
+    print(f"[WARN] Self-Healing API disabled: {e}")
 
 try:
     from backend.routes.vault_api import router as vault_router

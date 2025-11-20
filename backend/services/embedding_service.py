@@ -72,6 +72,10 @@ class EmbeddingService:
         provider: str = "local",
         batch_size: int = 100
     ):
+        # If using local provider, use a valid local model
+        if provider == "local":
+            default_model = "all-MiniLM-L6-v2"  # Fast, lightweight model
+        
         self.default_model = default_model
         self.provider = provider
         self.batch_size = batch_size
@@ -428,9 +432,11 @@ class EmbeddingService:
                 from sentence_transformers import SentenceTransformer
                 
                 # Default to all-MiniLM-L6-v2 (fast, 384 dimensions)
-                model_name = model or "all-MiniLM-L6-v2"
+                # Use self.default_model which is already set to a valid local model
+                model_name = "all-MiniLM-L6-v2"  # Always use this for local
                 
                 if not hasattr(self, '_local_model'):
+                    print(f"[EMBEDDING SERVICE] Loading local model: {model_name}")
                     self._local_model = SentenceTransformer(model_name)
                 
                 embedding = self._local_model.encode(text, convert_to_tensor=False)
