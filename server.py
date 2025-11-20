@@ -114,6 +114,65 @@ async def boot_grace_minimal():
             delegate_to="self_healing"
         ))
         
+        # CHUNK 0.7: Elite Coding Agent (Guardian validates)
+        async def chunk_0e_coding_agent():
+            print("[CHUNK 0.7] Elite Coding Agent (Senior Dev Mode)...")
+            try:
+                from backend.agents_core.elite_coding_agent import elite_coding_agent
+                
+                # Start the agent
+                await elite_coding_agent.start()
+                
+                print(f"  [OK] Elite Coding Agent: Online")
+                print(f"  [OK] Knowledge Base: {len(elite_coding_agent.knowledge_base)} entries")
+                print(f"  [OK] Execution Mode: {elite_coding_agent.orchestration_state.get('mode', 'auto')}")
+                
+                return {
+                    "status": "online",
+                    "knowledge_entries": len(elite_coding_agent.knowledge_base),
+                    "active": True
+                }
+            except Exception as e:
+                print(f"  [WARN] Elite Coding Agent startup issue: {e}")
+                return {"status": "degraded", "error": str(e)}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="elite_coding_agent",
+            name="Elite Coding Agent",
+            priority=0.7,
+            boot_function=chunk_0e_coding_agent,
+            can_fail=True, 
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
+        # CHUNK 0.8: Senior Developer Agent (Guardian validates)
+        async def chunk_0f_developer_agent():
+            print("[CHUNK 0.8] Senior Developer Agent...")
+            try:
+                from backend.developer.developer_agent import developer_agent
+                
+                print(f"  [OK] Developer Agent: Ready")
+                print(f"  [OK] Pipeline: Plan -> Design -> Implement -> Governance -> Test -> Deploy")
+                
+                return {
+                    "status": "online",
+                    "ready": True
+                }
+            except Exception as e:
+                print(f"  [WARN] Developer Agent startup issue: {e}")
+                return {"status": "degraded", "error": str(e)}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="developer_agent",
+            name="Senior Developer Agent",
+            priority=0.8,
+            boot_function=chunk_0f_developer_agent,
+            can_fail=True,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
         # CHUNK 1-2: Core Systems (Guardian validates, can delegate healing)
         async def chunk_1_core_systems():
             print("[CHUNK 1-2] Core Systems...")

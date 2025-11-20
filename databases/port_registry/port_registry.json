@@ -2843,7 +2843,79 @@
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
+    },
+    "8236": {
+      "port": 8236,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T08:57:47.991515",
+      "last_health_check": "2025-11-20T08:57:47.991515",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8237": {
+      "port": 8237,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T09:17:37.249439",
+      "last_health_check": "2025-11-20T09:17:37.249439",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8238": {
+      "port": 8238,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T09:25:15.084249",
+      "last_health_check": "2025-11-20T09:25:15.084249",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8239": {
+      "port": 8239,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T09:33:11.240467",
+      "last_health_check": "2025-11-20T09:33:11.240467",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8240": {
+      "port": 8240,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T09:38:48.938973",
+      "last_health_check": "2025-11-20T09:38:48.938973",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
+    },
+    "8241": {
+      "port": 8241,
+      "service_name": "grace_backend",
+      "started_by": "guardian_kernel",
+      "purpose": "Main Grace API - allocated by Guardian during boot",
+      "pid": null,
+      "allocated_at": "2025-11-20T09:44:12.557582",
+      "last_health_check": "2025-11-20T09:44:12.557582",
+      "health_status": "active",
+      "request_count": 0,
+      "error_count": 0
     }
   },
-  "last_updated": "2025-11-19T16:26:03.329931"
+  "last_updated": "2025-11-20T09:44:12.557582"
 }
