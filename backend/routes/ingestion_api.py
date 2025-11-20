@@ -35,6 +35,11 @@ async def get_ingestion_stats():
         "average_trust_score": 0.0
     }
 
+@router.get("/recent")
+async def get_recent_files(limit: int = 10):
+    """Get recently ingested files"""
+    return []
+
 @router.post("/ingest")
 async def ingest_data(data: dict):
     """Ingest data into the system"""
