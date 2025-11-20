@@ -32,8 +32,8 @@ async def boot_grace_minimal():
     
     Guardian Priorities:
     1. Boot integrity & networking (Guardian's domain)
-    2. Delegate healing to self-healing system
-    3. Delegate coding to coding agent
+    2. Delegate healing to self-healing system (Chunk 0.6)
+    3. Delegate coding to coding agent (Chunk 0.7)
     
     Guardian works in SYNERGY with specialists.
     """
