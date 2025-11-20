@@ -22,11 +22,16 @@ All smoke tests and API documentation are in place to prevent regressions and su
 npm install
 npx playwright install chromium
 
-# Run tests
-npm test              # Headless mode
-npm run test:ui       # Interactive UI
-npm run test:smoke    # Smoke tests only
+# Run tests (auto-starts dev server)
+npm test              # All tests with auto dev server
+npm run test:ui       # Interactive UI with auto dev server
+npm run test:smoke    # Smoke tests only with auto dev server
+
+# Run tests (requires backend + frontend already running)
+npm run test:ci       # Run all tests without starting dev server
 ```
+
+**Note:** Tests require both backend (port 8000) and frontend (port 5173) to be running. The default `npm test` will auto-start the frontend dev server. Use `npm run test:ci` if you're already running both services manually.
 
 ### 2. API Documentation
 

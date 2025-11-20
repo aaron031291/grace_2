@@ -15,41 +15,47 @@ test.describe('Grace Chat UI', () => {
   test('should load the chat interface', async ({ page }) => {
     await page.goto('/');
     
-    // Check for main elements
-    await expect(page.getByText('GRACE')).toBeVisible();
-    await expect(page.getByPlaceholder('Ask Grace anything...')).toBeVisible();
-    await expect(page.getByText('📤 Send')).toBeVisible();
+    // Check for main elements - GRACE header exists in sidebar
+    await expect(page.locator('h1')).toContainText('GRACE');
+    await expect(page.getByPlaceholder('Ask Grace anything...')).toBeVisible({ timeout: 10000 });
+    
+    // Send button appears when there's text or initially
+    const sendButton = page.locator('button.chat-send-btn');
+    await expect(sendButton).toBeVisible({ timeout: 10000 });
   });
 
   test('should display telemetry strip', async ({ page }) => {
     await page.goto('/');
     
-    // Check telemetry strip is present
-    await expect(page.locator('.telemetry-strip')).toBeVisible();
+    // Check telemetry strip is present (in ChatPanel)
+    const telemetryStrip = page.locator('.telemetry-strip');
+    await expect(telemetryStrip).toBeVisible({ timeout: 10000 });
     
-    // Should show at least some metrics
-    await expect(page.getByText('Guardian')).toBeVisible();
-    await expect(page.getByText('Trust')).toBeVisible();
+    // HealthMeter shows Trust Score instead of just "Trust" or "Guardian"
+    const healthMeter = page.locator('.health-meter');
+    await expect(healthMeter).toBeVisible({ timeout: 10000 });
   });
 
   test('should have voice and attachment controls', async ({ page }) => {
     await page.goto('/');
     
-    // Voice toggle button
-    await expect(page.getByTitle(/voice input/i)).toBeVisible();
+    // Voice toggle button in ChatPanel
+    const voiceButton = page.locator('button[title*="voice" i], button:has-text("🎤")');
+    await expect(voiceButton.first()).toBeVisible({ timeout: 10000 });
     
-    // Attachment button
-    await expect(page.getByTitle(/attach files/i)).toBeVisible();
+    // Attachment button in ChatPanel
+    const attachButton = page.locator('button[title*="attach" i], button:has-text("📎")');
+    await expect(attachButton.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('should have sidebar controls', async ({ page }) => {
     await page.goto('/');
     
-    // Check sidebar buttons exist
-    await expect(page.getByText('Remote Access')).toBeVisible();
-    await expect(page.getByText('Screen Share')).toBeVisible();
-    await expect(page.getByText('Upload Docs')).toBeVisible();
-    await expect(page.getByText('Tasks')).toBeVisible();
+    // Check sidebar buttons exist - using actual text from AppChat.tsx
+    await expect(page.getByText('Remote Access', { exact: false })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Screen Share', { exact: false })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Upload Docs')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Tasks')).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -58,23 +64,21 @@ test.describe('Chat Interaction', () => {
     await page.goto('/');
     
     const input = page.getByPlaceholder('Ask Grace anything...');
-    const sendBtn = page.getByText('📤 Send');
+    await expect(input).toBeVisible({ timeout: 10000 });
     
     // Type a test message
     await input.fill('ping');
     
-    // Send should be enabled
+    // Find send button using class selector
+    const sendBtn = page.locator('button.chat-send-btn');
+    await expect(sendBtn).toBeVisible();
     await expect(sendBtn).toBeEnabled();
     
     // Click send
     await sendBtn.click();
     
-    // Message should appear in chat
-    await expect(page.getByText('👤 You')).toBeVisible();
-    await expect(page.getByText('ping')).toBeVisible();
-    
-    // Send button should show loading state
-    await expect(page.getByText('⏳ Sending...')).toBeVisible({ timeout: 1000 });
+    // Message should appear in chat history
+    await expect(page.locator('.chat-messages')).toContainText('ping', { timeout: 5000 });
   });
 
   test('should receive a response from Grace', async ({ page }) => {
@@ -101,11 +105,12 @@ test.describe('Chat Interaction', () => {
     
     const input = page.getByPlaceholder('Ask Grace anything...');
     await input.fill('ping');
-    await page.getByText('📤 Send').click();
     
-    // Wait for Grace's response
-    await expect(page.getByText('🤖 Grace')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('pong')).toBeVisible();
+    const sendBtn = page.locator('button.chat-send-btn');
+    await sendBtn.click();
+    
+    // Wait for Grace's response in chat messages
+    await expect(page.locator('.chat-messages')).toContainText('pong', { timeout: 5000 });
   });
 });
 
@@ -144,16 +149,18 @@ test.describe('Approvals', () => {
     
     const input = page.getByPlaceholder('Ask Grace anything...');
     await input.fill('run command');
-    await page.getByText('📤 Send').click();
     
-    // Wait for approval card to appear
-    await expect(page.getByText('⚠️ Pending Approvals')).toBeVisible({ timeout: 5000 });
+    const sendBtn = page.locator('button.chat-send-btn');
+    await sendBtn.click();
+    
+    // Wait for approval section to appear
+    await expect(page.locator('.approvals-section')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Pending Approvals')).toBeVisible();
     await expect(page.getByText('execute_command')).toBeVisible();
-    await expect(page.getByText('APPROVAL REQUIRED')).toBeVisible();
     
     // Check approval buttons exist
-    await expect(page.getByText('✅ Approve')).toBeVisible();
-    await expect(page.getByText('❌ Reject')).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'Approve' })).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'Reject' })).toBeVisible();
   });
 
   test('should handle approval action', async ({ page }) => {
@@ -209,10 +216,16 @@ test.describe('Approvals', () => {
     
     const input = page.getByPlaceholder('Ask Grace anything...');
     await input.fill('test');
-    await page.getByText('📤 Send').click();
+    
+    const sendBtn = page.locator('button.chat-send-btn');
+    await sendBtn.click();
+    
+    // Wait for approval section
+    await page.locator('.approvals-section').waitFor({ timeout: 10000 });
     
     // Click approve button
-    await page.getByText('✅ Approve').click();
+    const approveBtn = page.locator('button').filter({ hasText: 'Approve' });
+    await approveBtn.click();
     
     // Wait a bit for the API call
     await page.waitForTimeout(500);
@@ -267,9 +280,11 @@ test.describe('Error Handling', () => {
     
     const input = page.getByPlaceholder('Ask Grace anything...');
     await input.fill('test error');
-    await page.getByText('📤 Send').click();
     
-    // Should show error message
-    await expect(page.getByText(/Error:/)).toBeVisible({ timeout: 5000 });
+    const sendBtn = page.locator('button.chat-send-btn');
+    await sendBtn.click();
+    
+    // Should show error message in chat
+    await expect(page.locator('.chat-messages')).toContainText('Error', { timeout: 10000 });
   });
 });

@@ -1,0 +1,275 @@
+/* File Drop Zone Styles */
+
+.file-drop-zone-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.file-drop-zone {
+  border: 3px dashed #3498db;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  background: #1a1a1a;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.file-drop-zone:hover {
+  border-color: #27ae60;
+  background: #222;
+}
+
+.file-drop-zone.dragging {
+  border-color: #27ae60;
+  background: #1a3a1a;
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(39, 174, 96, 0.3);
+}
+
+.file-drop-zone.learning {
+  border-color: #9b59b6;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2a1a3a 100%);
+}
+
+.file-drop-zone.learning:hover {
+  border-color: #e74c3c;
+  box-shadow: 0 8px 24px rgba(231, 76, 60, 0.2);
+}
+
+.file-drop-zone.learning.dragging {
+  border-color: #e74c3c;
+  background: linear-gradient(135deg, #2a1a2e 0%, #3a1a4a 100%);
+  box-shadow: 0 12px 32px rgba(231, 76, 60, 0.4);
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.drop-zone-icon {
+  font-size: 64px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.drop-zone-title {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
+}
+
+.drop-zone-description {
+  margin: 0;
+  font-size: 16px;
+  color: #888;
+}
+
+.drop-zone-badge {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #9b59b6 0%, #e74c3c 100%);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+  }
+}
+
+.file-select-btn {
+  padding: 12px 32px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-select-btn:hover {
+  background: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+/* Upload Progress */
+.upload-progress-container {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.upload-progress-container h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.upload-progress-item {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.upload-progress-item:last-child {
+  margin-bottom: 0;
+}
+
+.upload-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.upload-filename {
+  font-weight: 600;
+  color: #fff;
+  font-size: 14px;
+}
+
+.upload-status {
+  font-size: 18px;
+}
+
+.upload-status.status-uploading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.upload-status.status-processing {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.upload-progress-bar {
+  height: 8px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db 0%, #27ae60 100%);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.upload-message {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Upload Results */
+.upload-results {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upload-results h4 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.results-stats {
+  display: flex;
+  gap: 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result-success {
+  color: #27ae60;
+}
+
+.result-error {
+  color: #e74c3c;
+}
+
+.clear-results-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 2px solid #3498db;
+  color: #3498db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.clear-results-btn:hover {
+  background: #3498db;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .file-drop-zone {
+    padding: 32px 16px;
+  }
+
+  .drop-zone-icon {
+    font-size: 48px;
+  }
+
+  .drop-zone-title {
+    font-size: 20px;
+  }
+
+  .drop-zone-description {
+    font-size: 14px;
+  }
+
+  .results-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

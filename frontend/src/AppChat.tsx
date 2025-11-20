@@ -15,11 +15,12 @@ import { UserPresenceBar } from './components/UserPresence';
 import { FileExplorer } from './components/FileExplorer';
 import { MissionControlDashboard } from './components/MissionControlDashboard';
 import { SystemDashboard } from './components/SystemDashboard';
+import { SystemOverview } from './components/SystemOverview';
 import { RemoteAPI } from './api/remote';
 import './AppChat.css';
 
 function AppChat() {
-  const [activeView, setActiveView] = useState<'chat' | 'dashboard'>('dashboard'); // Default to dashboard
+  const [activeView, setActiveView] = useState<'chat' | 'dashboard' | 'overview'>('overview'); // Default to overview
   const [cockpitOpen, setCockpitOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -406,14 +407,23 @@ function AppChat() {
 
         <div className="view-switcher">
           <button
+            className={`view-btn ${activeView === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveView('overview')}
+            title="System Overview - Tile Grid"
+          >
+            🎯 Overview
+          </button>
+          <button
             className={`view-btn ${activeView === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveView('dashboard')}
+            title="Legacy Dashboard"
           >
             📊 Dashboard
           </button>
           <button
             className={`view-btn ${activeView === 'chat' ? 'active' : ''}`}
             onClick={() => setActiveView('chat')}
+            title="Chat Interface"
           >
             💬 Chat
           </button>
@@ -421,7 +431,9 @@ function AppChat() {
       </div>
       
       <div className="app-main">
-        {activeView === 'dashboard' ? (
+        {activeView === 'overview' ? (
+          <SystemOverview />
+        ) : activeView === 'dashboard' ? (
           <SystemDashboard />
         ) : (
           <>
