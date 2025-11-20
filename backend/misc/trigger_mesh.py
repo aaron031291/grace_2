@@ -99,6 +99,36 @@ class TriggerMesh:
 
 trigger_mesh = TriggerMesh()
 
+# ============================================================================
+# INTEGRATION: Use enhanced trigger mesh if available
+# ============================================================================
+
+_simple_mesh = trigger_mesh  # Keep reference to simple version
+
+try:
+    from backend.routing.trigger_mesh_enhanced import (
+        trigger_mesh as _enhanced_mesh,
+        TriggerMesh as _EnhancedMesh,
+        TriggerEvent as _EnhancedEvent
+    )
+    
+    # Check if enhanced mesh has required methods
+    if hasattr(_enhanced_mesh, 'load_config') and hasattr(_enhanced_mesh, 'emit'):
+        # Use enhanced version
+        trigger_mesh = _enhanced_mesh
+        TriggerMesh = _EnhancedMesh
+        TriggerEvent = _EnhancedEvent
+        
+        print("✓ Using enhanced trigger mesh with governance hooks")
+    else:
+        print("⚠ Enhanced trigger mesh incomplete, using simple version")
+
+except ImportError as e:
+    # Fall back to simple mesh
+    print(f"⚠ Enhanced trigger mesh unavailable, using simple version")
+    pass
+
+# Keep setup_subscriptions for compatibility
 async def setup_subscriptions():
     """Wire up all subsystem subscriptions"""
     

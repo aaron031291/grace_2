@@ -17,7 +17,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON
 from sqlalchemy.sql import func
 from backend.models import Base, async_session
 from backend.verification_system.verification import VerificationEngine
-from backend.core.immutable_log import ImmutableLog
+from backend.logging.unified_audit_logger import get_audit_logger
 from backend.verification_system.governance import GovernanceEngine
 
 class SecretEntry(Base):
@@ -109,7 +109,7 @@ class SecretsVault:
         
         self.cipher = Fernet(self.encryption_key)
         self.verification = VerificationEngine()
-        self.audit = ImmutableLog()
+        self.audit = get_audit_logger()
         self.governance = GovernanceEngine()
     
     def _derive_key(self, password: str, salt: Optional[bytes] = None) -> bytes:
@@ -243,12 +243,11 @@ class SecretsVault:
             await session.commit()
         
         # Log to audit
-        audit_id = await self.audit.log_event(
-            actor=owner,
+        audit_id = await self.audit.log_security_event(
             action=f"secret_{action}",
+            actor=owner,
             resource=secret_key,
-            result="success",
-            details={"service": service, "type": secret_type}
+            details={"service": service, "type": secret_type, "result": "success"}
         )
         
         # Log access
@@ -344,11 +343,10 @@ class SecretsVault:
         await self._log_access(secret_key, accessor, "read", True)
         
         # Audit
-        await self.audit.log_event(
-            actor=accessor,
+        await self.audit.log_security_event(
             action="secret_accessed",
+            actor=accessor,
             resource=secret_key,
-            result="success",
             details={"service": service}
         )
         
@@ -439,11 +437,10 @@ class SecretsVault:
             await session.commit()
         
         # Audit
-        await self.audit.log_event(
-            actor=actor,
+        await self.audit.log_security_event(
             action="secret_revoked",
+            actor=actor,
             resource=secret_key,
-            result="success",
             details={"reason": reason}
         )
         
@@ -521,23 +518,20 @@ class SecretsVault:
         """
         
         # Log retrieval attempt
-        await self.audit.log_event(
-            actor=accessor,
+        await self.audit.log_security_event(
             action="secret_retrieval_attempted",
+            actor=accessor,
             resource=key_name,
-            result="pending",
-            details={"purpose": purpose}
+            details={"purpose": purpose, "status": "pending"}
         )
         
         # Check governance if required
         if governance_approval_required:
             # TODO: Integrate with governance approval system
-            await self.audit.log_event(
-                actor=accessor,
+            await self.audit.log_governance_event(
                 action="secret_retrieval_requires_governance",
-                resource=key_name,
-                result="approval_required",
-                details={"purpose": purpose}
+                actor=accessor,
+                details={"resource": key_name, "purpose": purpose, "result": "approval_required"}
             )
             return None
         
@@ -602,11 +596,10 @@ class SecretsVault:
                 
                 if should_rotate:
                     # Log rotation needed
-                    await self.audit.log_event(
-                        actor="system",
+                    await self.audit.log_security_event(
                         action="secret_rotation_needed",
+                        actor="system",
                         resource=secret.secret_key,
-                        result="pending",
                         details={
                             "service": secret.service,
                             "expired": bool(secret.expires_at and secret.expires_at < datetime.utcnow()),

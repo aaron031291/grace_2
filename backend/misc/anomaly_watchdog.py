@@ -246,11 +246,13 @@ class AnomalyWatchdog:
             return None
     
     async def _trigger_healing(self, anomaly: Dict[str, Any]):
-        """Trigger self-healing in response to anomaly"""
+        """
+        Trigger self-healing in response to anomaly.
+        Routes through unified trigger mesh for consistency.
+        """
+        from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
         
         anomaly_id = anomaly["type"]
-        
-        # Check healing attempt count
         attempts = self.healing_attempts.get(anomaly_id, 0)
         
         if attempts >= self.max_healing_attempts:
@@ -260,24 +262,25 @@ class AnomalyWatchdog:
         
         logger.info(f"Triggering healing for {anomaly_id} (attempt {attempts + 1})")
         
-        # Take snapshot before healing
         await self._take_snapshot(anomaly_id)
         
-        # Select appropriate playbook
-        playbook = self._select_playbook_for_anomaly(anomaly)
+        context = {
+            "error_type": "anomaly_detected",
+            "anomaly_type": anomaly_id,
+            "anomaly_data": anomaly,
+            "attempt_count": attempts + 1,
+            "triggered_by": "anomaly_watchdog"
+        }
         
-        if playbook:
-            # Execute playbook
-            result = await self._execute_healing_playbook(playbook, anomaly)
-            
-            # Verify fix with re-test
-            verification = await self._verify_healing(anomaly)
-            
-            # Log to immutable ledger
-            await self._log_healing_cycle(anomaly, playbook, result, verification)
-            
-            if verification["passed"]:
-                logger.info(f"Healing successful for {anomaly_id}")
+        await trigger_playbook_integration.trigger_healing(
+            trigger_type="anomaly",
+            context=context
+        )
+        
+        verification = await self._verify_healing(anomaly)
+        
+        if verification["passed"]:
+            logger.info(f"Healing successful for {anomaly_id}")
                 self.healing_attempts[anomaly_id] = 0  # Reset counter
             else:
                 logger.warning(f"Healing failed for {anomaly_id}")

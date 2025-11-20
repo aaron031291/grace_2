@@ -762,18 +762,27 @@ class ModelRegistry:
         playbook: str,
         context: Dict[str, Any]
     ):
-        """Trigger self-healing playbook via callback"""
-        if self._self_healing_callback:
-            try:
-                await self._self_healing_callback(
-                    resource_type="ml_model",
-                    resource_id=model_id,
-                    playbook=playbook,
-                    context=context
-                )
-                logger.info(f"Self-healing triggered for {model_id}: {playbook}")
-            except Exception as e:
-                logger.error(f"Failed to trigger self-healing: {e}")
+        """
+        Trigger self-healing playbook.
+        Routes through unified trigger mesh for consistency.
+        """
+        from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
+        
+        try:
+            context.update({
+                "resource_type": "ml_model",
+                "resource_id": model_id,
+                "triggered_by": "model_registry"
+            })
+            
+            await trigger_playbook_integration.trigger_healing(
+                trigger_type="model_degradation",
+                context=context,
+                playbook_hint=playbook
+            )
+            logger.info(f"Self-healing triggered for {model_id}: {playbook}")
+        except Exception as e:
+            logger.error(f"Failed to trigger self-healing: {e}")
     
     # ========== Automated Monitoring & Health Checks ==========
     

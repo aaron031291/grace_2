@@ -128,18 +128,14 @@ if kernel_path.exists():
     InfrastructureKernel = safe_import('InfrastructureKernel', 'backend.kernels.infrastructure_kernel', optional=True) or StubComponent
     FederationKernel = safe_import('FederationKernel', 'backend.kernels.federation_kernel', optional=True) or StubComponent
     
-    # Librarian Data Orchestrator (NEW)
     LibrarianKernel = safe_import('LibrarianKernel', 'backend.kernels.librarian_kernel', optional=True) or StubComponent
     LibrarianClarityAdapter = safe_import('LibrarianClarityAdapter', 'backend.kernels.librarian_clarity_adapter', optional=True) or StubComponent
-    get_event_bus = safe_import('get_event_bus', 'backend.kernels.event_bus', optional=True) or (lambda *args, **kwargs: StubComponent('event_bus'))
-
-    # Self-Healing Kernel (NEW)
     SelfHealingKernel = safe_import('SelfHealingKernel', 'backend.kernels.self_healing_kernel', optional=True) or StubComponent
+    get_event_bus = safe_import('get_event_bus', 'backend.kernels.event_bus', optional=True) or (lambda *args, **kwargs: StubComponent('event_bus'))
 else:
-    # Create stub kernels if directory doesn't exist
-    MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = StubComponent
-    VerificationKernel = IntelligenceKernel = InfrastructureKernel = FederationKernel = StubComponent
-    LibrarianKernel = LibrarianClarityAdapter = SelfHealingKernel = StubComponent
+    MemoryKernel = CoreKernel = CodeKernel = GovernanceKernel = VerificationKernel = StubComponent
+    IntelligenceKernel = InfrastructureKernel = FederationKernel = LibrarianKernel = StubComponent
+    LibrarianClarityAdapter = SelfHealingKernel = StubComponent
     get_event_bus = lambda *args, **kwargs: StubComponent('event_bus')
 
 # API Routes - check if routes exist (OPTIONAL - have fallbacks)

@@ -55,20 +55,45 @@ class EventBus:
         self.max_log_size = 10000
         
     async def publish(self, event: Event) -> None:
-        """Publish event to all subscribers"""
-        self.event_log.append(event)
+        """Publish event to all subscribers - routes through trigger mesh"""
         
+        # Keep legacy log
+        self.event_log.append(event)
         if len(self.event_log) > self.max_log_size:
             self.event_log = self.event_log[-self.max_log_size:]
         
-        print(f"[EventBus] Published: {event.event_type.value} from {event.source}")
-        
-        if event.event_type in self.subscribers:
-            tasks = []
-            for callback in self.subscribers[event.event_type]:
-                tasks.append(self._safe_callback(callback, event))
+        # Route through trigger mesh (includes governance validation)
+        try:
+            from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
             
-            await asyncio.gather(*tasks, return_exceptions=True)
+            # Convert Event to TriggerEvent
+            event_type_str = event.event_type.value if hasattr(event.event_type, 'value') else str(event.event_type)
+            
+            trigger_event = TriggerEvent(
+                event_type=event_type_str,
+                source=event.source,
+                actor=event.source,
+                resource="",
+                payload=event.data
+            )
+            
+            # Publish through mesh
+            await trigger_mesh.publish(trigger_event)
+            
+            print(f"[EventBus] Routed through mesh: {event_type_str} from {event.source}")
+        
+        except Exception as e:
+            # Fallback to direct publish if mesh fails
+            print(f"[EventBus] Mesh routing failed, using direct: {e}")
+            
+            print(f"[EventBus] Published: {event.event_type.value} from {event.source}")
+            
+            if event.event_type in self.subscribers:
+                tasks = []
+                for callback in self.subscribers[event.event_type]:
+                    tasks.append(self._safe_callback(callback, event))
+                
+                await asyncio.gather(*tasks, return_exceptions=True)
     
     async def _safe_callback(self, callback: Callable, event: Event) -> None:
         """Execute callback with error handling"""

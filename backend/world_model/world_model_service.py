@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from backend.world_model.grace_world_model import grace_world_model, WorldKnowledge
 from backend.event_bus import event_bus, EventType, Event
+from backend.core.unified_event_publisher import publish_event
 from backend.action_gateway import action_gateway
 from backend.reflection_loop import reflection_loop
 from backend.skills.registry import skill_registry
@@ -266,16 +267,15 @@ class WorldModelService:
         action["approved_at"] = datetime.now().isoformat()
         action["reason"] = f"Approved by {approved_by}"
         
-        await event_bus.publish(Event(
-            event_type=EventType.GOVERNANCE_CHECK,
-            source="world_model_service",
-            data={
+        await publish_event(
+            EventType.GOVERNANCE_CHECK,
+            {
                 "trace_id": trace_id,
                 "action": "approved",
                 "approved_by": approved_by
             },
-            trace_id=trace_id
-        ))
+            source="world_model_service"
+        )
         
         return {
             "success": True,
@@ -315,17 +315,16 @@ class WorldModelService:
         action["declined_at"] = datetime.now().isoformat()
         action["decline_reason"] = reason
         
-        await event_bus.publish(Event(
-            event_type=EventType.GOVERNANCE_CHECK,
-            source="world_model_service",
-            data={
+        await publish_event(
+            EventType.GOVERNANCE_CHECK,
+            {
                 "trace_id": trace_id,
                 "action": "declined",
                 "declined_by": declined_by,
                 "reason": reason
             },
-            trace_id=trace_id
-        ))
+            source="world_model_service"
+        )
         
         return {
             "success": True,
@@ -354,17 +353,16 @@ class WorldModelService:
         """
         trace_id = f"chat_{datetime.now().timestamp()}"
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="world_model_hub",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "chat",
                 "message": message,
                 "user_id": user_id,
                 "context": context or {}
             },
-            trace_id=trace_id
-        ))
+            source="world_model_hub"
+        )
         
         relevant_knowledge = await grace_world_model.query(
             query=message,
@@ -459,17 +457,16 @@ Grace (respond naturally, in first person):"""
         
         self.orb_sessions[session_id] = session
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "session_started",
                 "session_id": session_id,
                 "user_id": user_id,
                 "metadata": metadata or {}
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return session_id
     
@@ -520,16 +517,15 @@ Grace (respond naturally, in first person):"""
         
         summary = session.get_summary()
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "session_closed",
                 "session_id": session_id,
                 "summary": summary
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return summary
     
@@ -559,16 +555,15 @@ Grace (respond naturally, in first person):"""
             "metadata": quality_settings
         }
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "screen_share_started",
                 "session_id": session_id,
                 "user_id": user_id
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return session_id
     
@@ -588,15 +583,14 @@ Grace (respond naturally, in first person):"""
         self.media_sessions[session_id]["status"] = "stopped"
         self.media_sessions[session_id]["end_time"] = datetime.now().isoformat()
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "screen_share_stopped",
                 "session_id": session_id
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return True
     
@@ -628,17 +622,16 @@ Grace (respond naturally, in first person):"""
             "metadata": metadata
         }
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "recording_started",
                 "session_id": session_id,
                 "user_id": user_id,
                 "media_type": media_type
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return session_id
     
@@ -665,17 +658,16 @@ Grace (respond naturally, in first person):"""
         
         file_path = f"/recordings/{session_id}.{session['media_type'].split('_')[0]}"
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "recording_stopped",
                 "session_id": session_id,
                 "file_path": file_path,
                 "duration": duration
             },
-            trace_id=session_id
-        ))
+            source="orb"
+        )
         
         return {
             "file_path": file_path,
@@ -699,16 +691,15 @@ Grace (respond naturally, in first person):"""
         else:
             self.voice_enabled_users.discard(user_id)
         
-        await event_bus.publish(Event(
-            event_type=EventType.AGENT_ACTION,
-            source="orb",
-            data={
+        await publish_event(
+            EventType.AGENT_ACTION,
+            {
                 "action": "voice_toggled",
                 "user_id": user_id,
                 "enabled": enable
             },
-            trace_id=f"voice_{user_id}"
-        ))
+            source="orb"
+        )
         
         return enable
     

@@ -147,21 +147,29 @@ class LogWatcher(BaseComponent if HAS_CLARITY else object):
 log_watcher = LogWatcher()
 
 
-# Example self-healing integration
+# Consolidated healing trigger - routes to unified trigger mesh
 async def trigger_self_healing_on_error(event: Dict[str, Any]):
     """
-    Handler that triggers self-healing when critical errors detected
+    Handler that triggers self-healing when critical errors detected.
+    Routes through unified trigger mesh for consistency.
     """
     pattern = event.get('pattern')
     
     if pattern in ['error', 'critical', 'ingestion_failure', 'connection_lost']:
-        print(f"[Self-Healing] Triggered by log pattern: {pattern}")
-        print(f"[Self-Healing] Source: {event.get('source')}")
-        print(f"[Self-Healing] Line: {event.get('line')[:100]}")
+        from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
         
-        # TODO: Integrate with actual self-healing kernel
-        # from backend.self_healing import trigger_playbook
-        # await trigger_playbook(get_playbook_for_pattern(pattern))
+        context = {
+            "error_type": f"log_pattern_{pattern}",
+            "pattern": pattern,
+            "source": event.get('source'),
+            "line": event.get('line', '')[:200],
+            "triggered_by": "log_watcher"
+        }
+        
+        await trigger_playbook_integration.trigger_healing(
+            trigger_type=pattern,
+            context=context
+        )
 
 
 async def trigger_error_recognition_on_error(event: Dict[str, Any]):

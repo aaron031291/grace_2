@@ -115,17 +115,15 @@ async def log_to_immutable_on_event(event: Dict[str, Any]):
 
 async def trigger_healing_on_failure(event: Dict[str, Any]):
     """
-    Handler that triggers self-healing on failure events
-    Executes playbooks which may escalate to coding agent
+    Consolidated handler that triggers self-healing on failure events.
+    Routes through unified trigger mesh for consistency.
     """
     event_type = event.get('type')
     payload = event.get('payload', {})
     
+    from backend.self_heal.trigger_playbook_integration import trigger_playbook_integration
+    
     if event_type == 'ingestion.failed':
-        print(f"[Self-Healing] Ingestion failure detected: {payload.get('file_path')}")
-        
-        from backend.services.playbook_engine import playbook_engine
-        
         context = {
             "error_type": "ingestion_failed",
             "file_path": payload.get('file_path'),
@@ -133,16 +131,21 @@ async def trigger_healing_on_failure(event: Dict[str, Any]):
             "triggered_by": "event_bus"
         }
         
-        result = await playbook_engine.execute_playbook('ingestion_replay', context)
-        print(f"[Self-Healing] Playbook executed: {result.get('status')}")
-        
-        if result.get('coding_work_order_id'):
-            print(f"[Self-Healing] Escalated to coding agent: {result.get('coding_work_order_id')}")
+        await trigger_playbook_integration.trigger_healing(
+            trigger_type="ingestion_failure",
+            context=context,
+            playbook_hint="ingestion_replay"
+        )
     
     elif event_type == 'log_pattern.critical':
-        print(f"[Self-Healing] Critical pattern detected: {payload.get('pattern')}")
+        line_lower = payload.get('line', '').lower()
         
-        from backend.services.playbook_engine import playbook_engine
+        if "timeout" in line_lower:
+            playbook_hint = "pipeline_timeout_fix"
+        elif "build failed" in line_lower or "typescript" in line_lower:
+            playbook_hint = "typescript_build_fix"
+        else:
+            playbook_hint = "verification_fix"
         
         context = {
             "error_type": "critical_pattern",
@@ -152,18 +155,11 @@ async def trigger_healing_on_failure(event: Dict[str, Any]):
             "triggered_by": "log_watcher"
         }
         
-        # Select appropriate playbook
-        line_lower = payload.get('line', '').lower()
-        
-        if "timeout" in line_lower:
-            playbook_id = "pipeline_timeout_fix"
-        elif "build failed" in line_lower or "typescript" in line_lower:
-            playbook_id = "typescript_build_fix"
-        else:
-            playbook_id = "verification_fix"
-        
-        result = await playbook_engine.execute_playbook(playbook_id, context)
-        print(f"[Self-Healing] Playbook {playbook_id} executed: {result.get('status')}")
+        await trigger_playbook_integration.trigger_healing(
+            trigger_type="critical_log_pattern",
+            context=context,
+            playbook_hint=playbook_hint
+        )
 
 
 # Register default handlers

@@ -251,6 +251,162 @@ async def boot_grace_minimal():
             delegate_to="self_healing"  # Delegate issues to self-healing
         ))
         
+        # CHUNK 1.5: Production Systems (Governance, Verification, AVN)
+        async def chunk_1_5_production_systems():
+            print("[CHUNK 1.5] Production Systems (Governance, Verification, AVN)...")
+            
+            results = {}
+            
+            try:
+                # Load and start enhanced trigger mesh
+                from backend.misc.trigger_mesh import trigger_mesh
+                
+                # Load YAML config if enhanced version
+                if hasattr(trigger_mesh, 'load_config'):
+                    try:
+                        config = trigger_mesh.load_config()
+                        routes_loaded = len(config.get('events', []))
+                        print(f"  [OK] Trigger Mesh: {routes_loaded} routes loaded from YAML")
+                        results['trigger_mesh'] = f"{routes_loaded}_routes"
+                    except Exception as e:
+                        print(f"  [WARN] Trigger Mesh config load failed: {e}")
+                        print(f"  [INFO] Continuing with simple trigger mesh")
+                        results['trigger_mesh'] = 'simple_version'
+                else:
+                    print(f"  [INFO] Simple trigger mesh active (no YAML config)")
+                    results['trigger_mesh'] = 'simple_version'
+                
+                # Start immune kernel (AVN)
+                try:
+                    from backend.immune.immune_kernel import immune_kernel
+                    await immune_kernel.start()
+                    print("  [OK] Immune Kernel (AVN): Anomaly detection active")
+                    results['immune_kernel'] = 'active'
+                except ImportError:
+                    print(f"  [INFO] Immune kernel not available yet")
+                    results['immune_kernel'] = 'unavailable'
+                
+                # Governance gate is passive (validates on-demand)
+                try:
+                    from backend.governance_system.governance_gate import governance_gate
+                    print("  [OK] Governance Gate: Ready (Kernel 1)")
+                    results['governance_gate'] = 'ready'
+                except ImportError:
+                    print(f"  [INFO] Governance gate not available yet")
+                    results['governance_gate'] = 'unavailable'
+                
+                # Verification engine is passive (verifies on-demand)
+                try:
+                    from backend.verification_system.code_verification_engine import verification_engine
+                    print("  [OK] Verification Engine: Ready")
+                    results['verification_engine'] = 'ready'
+                except ImportError:
+                    print(f"  [INFO] Verification engine not available yet")
+                    results['verification_engine'] = 'unavailable'
+                
+                # Unified decision engine is passive
+                try:
+                    from backend.unified_logic.unified_decision_engine import unified_decision_engine
+                    print("  [OK] Unified Decision Engine: Ready")
+                    results['unified_decision'] = 'ready'
+                except ImportError:
+                    results['unified_decision'] = 'unavailable'
+                
+                online_count = len([v for v in results.values() if 'active' in v or 'ready' in v or 'routes' in v])
+                print(f"  [SUMMARY] {online_count}/{len(results)} systems online")
+                
+                return {
+                    "status": "online" if online_count > 0 else "degraded",
+                    "systems": results
+                }
+            
+            except Exception as e:
+                logger.error(f"Production systems startup error: {e}")
+                return {"status": "degraded", "error": str(e)}
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="production_systems",
+            name="Production Systems (Governance, Verification, AVN)",
+            priority=1.5,
+            boot_function=chunk_1_5_production_systems,
+            can_fail=True,  # Can degrade gracefully
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
+        # CHUNK 1.6: Mesh Validators (Constitutional + Trust)
+        async def chunk_1_6_mesh_validators():
+            print("[CHUNK 1.6] Trigger Mesh Validators...")
+            
+            try:
+                from backend.misc.trigger_mesh import trigger_mesh
+                
+                # Only set validators if enhanced mesh is loaded
+                if hasattr(trigger_mesh, 'set_governance_validator'):
+                    validators_set = 0
+                    
+                    # Constitutional validator
+                    try:
+                        from backend.governance_system.constitutional_verifier import constitutional_verifier
+                        
+                        async def validate_constitutional(event):
+                            try:
+                                result = await constitutional_verifier.verify(
+                                    actor=event.actor,
+                                    action=event.event_type,
+                                    resource=event.resource,
+                                    context=event.payload
+                                )
+                                return result.get('compliant', True)
+                            except Exception as e:
+                                logger.warning(f"Constitutional validation error: {e}")
+                                return True  # Default to compliant if check fails
+                        
+                        trigger_mesh.set_governance_validator(validate_constitutional)
+                        print("  [OK] Constitutional validator: Registered")
+                        validators_set += 1
+                    
+                    except ImportError:
+                        print(f"  [INFO] Constitutional verifier not available yet")
+                    
+                    # Trust scorer
+                    try:
+                        from backend.trust_framework.trust_score import get_trust_score
+                        
+                        async def get_component_trust(component_id):
+                            try:
+                                trust = await get_trust_score(component_id)
+                                return trust.composite_score if trust else 1.0
+                            except Exception:
+                                return 1.0
+                        
+                        trigger_mesh.set_trust_scorer(get_component_trust)
+                        print("  [OK] Trust scorer: Registered")
+                        validators_set += 1
+                    
+                    except ImportError:
+                        print(f"  [INFO] Trust framework not available yet")
+                    
+                    return {"status": "configured", "validators": validators_set}
+                
+                else:
+                    print("  [INFO] Simple trigger mesh - validators not needed")
+                    return {"status": "simple_mesh", "validators": 0}
+            
+            except Exception as e:
+                logger.error(f"Validator setup error: {e}")
+                return {"status": "degraded", "error": str(e)}
+        
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="mesh_validators",
+            name="Trigger Mesh Validators (Constitutional + Trust)",
+            priority=1.6,
+            boot_function=chunk_1_6_mesh_validators,
+            can_fail=True,  # Can degrade gracefully
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+        
         # CHUNK 2: LLM Models with Categorization (Guardian validates, delegates to coding agent for issues)
         async def chunk_2_llm_models():
             print("[CHUNK 2] LLM Models (21 Open Source Models by Specialty)...")
