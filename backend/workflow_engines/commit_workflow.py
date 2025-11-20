@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from .immutable_log import ImmutableLog
 from .autonomy_tiers import autonomy_manager
 from .trigger_mesh import trigger_mesh, TriggerEvent
+from backend.core.unified_event_publisher import publish_trigger
 
 
 @dataclass
@@ -138,16 +139,15 @@ class GraceCommitWorkflow:
         self.active_workflows[workflow_id] = workflow
         
         # Publish to Trigger Mesh
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="commit.proposed",
-            source="commit_workflow",
-            actor=author,
-            resource=workflow_id,
-            payload={
+        await publish_trigger(
+            "commit.proposed",
+            {
                 "workflow_id": workflow_id,
                 "branch": branch_name,
                 "files_changed": len(commit_changes),
-                "commit_message": commit_message
+                "commit_message": commit_message,
+                "actor": author,
+                "resource": workflow_id
             },
             timestamp=datetime.now(timezone.utc)
         ))
@@ -212,12 +212,11 @@ class GraceCommitWorkflow:
                 results["errors"].append(f"Tests failed: {test_result.get('output', '')}")
             
             # Publish validation results
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="commit.validated",
-                source="commit_workflow",
-                actor=workflow.author,
-                resource=workflow_id,
-                payload={
+            await publish_trigger(
+                "commit.validated",
+                {
+                    "actor": workflow.author,
+                    "resource": workflow_id,
                     "workflow_id": workflow_id,
                     "lint_passed": results["lint_passed"],
                     "tests_passed": results["tests_passed"],
@@ -230,14 +229,13 @@ class GraceCommitWorkflow:
             results["errors"].append(str(e))
             
             # Publish error
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="commit.validation_failed",
-                source="commit_workflow",
-                actor=workflow.author,
-                resource=workflow_id,
-                payload={
+            await publish_trigger(
+                "commit.validation_failed",
+                {
                     "workflow_id": workflow_id,
-                    "error": str(e)
+                    "error": str(e),
+                    "actor": workflow.author,
+                    "resource": workflow_id
                 },
                 timestamp=datetime.now(timezone.utc)
             ))
