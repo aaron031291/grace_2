@@ -14,6 +14,8 @@ from typing import Dict, List, Optional
 from datetime import datetime, timezone
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
+from backend.core.unified_event_publisher import publish_trigger
+from backend.logging.unified_audit_logger import get_audit_logger
 from .autonomy_tiers import autonomy_manager, AutonomyTier
 from .event_persistence import event_persistence
 
@@ -29,6 +31,7 @@ class InputSentinel:
     
     def __init__(self):
         self.immutable_log = ImmutableLog()
+        self.audit = get_audit_logger()
         self.running = False
         
         # Playbook mapping: error pattern -> recovery action
@@ -81,13 +84,12 @@ class InputSentinel:
         self.running = True
         print("[OK] Input Sentinel active - monitoring errors in real-time")
         
-        await self.immutable_log.append(
-            actor="input_sentinel",
+        await self.audit.log_event(
+            category="security",
             action="sentinel_started",
+            actor="input_sentinel",
             resource="error_handling",
-            subsystem="agentic",
-            payload={},
-            result="started"
+            details={"subsystem": "agentic"}
         )
     
     async def _handle_error_detected(self, event: TriggerEvent):
@@ -136,19 +138,21 @@ class InputSentinel:
         }
         
         # Publish problem identification
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="agentic.problem_identified",
-            source="input_sentinel",
-            actor="sentinel",
-            resource=error_id,
-            payload=problem_payload,
-            timestamp=datetime.now(timezone.utc)
-        ))
+        await publish_trigger(
+            "agentic.problem_identified",
+            {
+                **problem_payload,
+                "actor": "sentinel",
+                "resource": error_id
+            },
+            source="input_sentinel"
+        )
         
         # Log diagnosis
-        await self.immutable_log.append(
-            actor="input_sentinel",
+        await self.audit.log_event(
+            category="security",
             action="problem_identified",
+            actor="input_sentinel",
             resource=error_id,
             subsystem="agentic",
             payload=problem_payload,
@@ -183,15 +187,15 @@ class InputSentinel:
         }
         
         # Publish action plan
-        event = TriggerEvent(
-            event_type="agentic.action_planned",
-            source="input_sentinel",
-            actor="sentinel",
-            resource=action_id,
-            payload=action_payload,
-            timestamp=datetime.now(timezone.utc)
+        await publish_trigger(
+            "agentic.action_planned",
+            {
+                **action_payload,
+                "actor": "sentinel",
+                "resource": action_id
+            },
+            source="input_sentinel"
         )
-        await trigger_mesh.publish(event)
         
         # Persist to DB for audit trail
         await event_persistence.persist_action_event(
@@ -210,15 +214,16 @@ class InputSentinel:
         """Execute remediation actions"""
         
         # Publish execution start
-        exec_event = TriggerEvent(
-            event_type="agentic.action_executing",
-            source="input_sentinel",
-            actor="sentinel",
-            resource=action_id,
-            payload={"action_id": action_id, "actions": actions},
-            timestamp=datetime.now(timezone.utc)
+        await publish_trigger(
+            "agentic.action_executing",
+            {
+                "action_id": action_id,
+                "actions": actions,
+                "actor": "sentinel",
+                "resource": action_id
+            },
+            source="input_sentinel"
         )
-        await trigger_mesh.publish(exec_event)
         
         # Persist execution start
         await event_persistence.persist_action_event(event=exec_event)
@@ -257,7 +262,8 @@ class InputSentinel:
         await event_persistence.persist_action_event(event=completion_event)
         
         # Log outcome
-        await self.immutable_log.append(
+        await self.audit.log_event(
+            category="security",
             actor="input_sentinel",
             action="action_completed",
             resource=action_id,
@@ -410,12 +416,11 @@ class InputSentinel:
     async def _request_approval(self, action_id: str, approval_id: str, actions: List[str], problem: Dict):
         """Request human approval for high-tier actions"""
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="approval.requested",
-            source="input_sentinel",
-            actor="sentinel",
-            resource=action_id,
-            payload={
+        await publish_trigger(
+            "approval.requested",
+            {
+                "actor": "sentinel",
+                "resource": action_id,
                 "approval_id": approval_id,
                 "action_id": action_id,
                 "actions": actions,
@@ -444,8 +449,9 @@ class InputSentinel:
         }
         
         # Publish suggestion
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="governance.suggestion",
+        await publish_trigger(
+            "governance.suggestion",
+            {
             source="input_sentinel",
             actor="sentinel",
             resource=block_data.get("action"),
@@ -461,8 +467,9 @@ class InputSentinel:
         
         # High-severity warnings trigger proactive checks
         if severity in ["high", "critical"]:
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="agentic.proactive_check",
+            await publish_trigger(
+                "agentic.proactive_check",
+                {
                 source="input_sentinel",
                 actor="sentinel",
                 resource="health_check",

@@ -40,6 +40,16 @@ except:
     logger.warning("Learning engine not available")
 
 try:
+    from backend.services.vector_integration import vector_integration
+    VECTOR_AVAILABLE = True
+except:
+    VECTOR_AVAILABLE = False
+    logger.warning("Vector integration not available - embeddings will be skipped")
+
+from backend.core.unified_event_publisher import publish_event
+from backend.logging.unified_audit_logger import get_audit_logger
+
+try:
     from pypdf import PdfReader
     PDF_LIBRARY = "pypdf"
 except ImportError:
@@ -143,9 +153,10 @@ class BookPipeline:
             result["steps_completed"].append("memory_fusion_sync")
             
             # Step 8: Emit learning event (connect to continuous learning)
-            if LEARNING_AVAILABLE:
-                try:
-                    await trigger_mesh.publish("book.ingestion.completed", {
+            try:
+                await publish_event(
+                    "book.ingestion.completed",
+                    {
                         "document_id": doc_id,
                         "title": title,
                         "author": author,
@@ -374,15 +385,44 @@ class BookPipeline:
         return chunks
     
     async def _create_embeddings(self, chunks: list) -> int:
-        """Create embeddings for chunks (stub)"""
+        """Create embeddings for chunks using vector integration"""
         
-        # For now, just count - real embeddings would call OpenAI
-        # When OpenAI is connected, this will:
-        # - Call OpenAI embeddings API
-        # - Store vectors in chunk_embeddings table
-        # - Enable semantic search
+        if not VECTOR_AVAILABLE or not chunks:
+            logger.warning("Vector integration unavailable - skipping embeddings")
+            return 0
         
-        return len(chunks)
+        try:
+            embeddings_created = 0
+            
+            for chunk in chunks:
+                # Create embedding for each chunk
+                await vector_integration.create_embedding(
+                    text=chunk["text"],
+                    metadata={
+                        "document_id": chunk["document_id"],
+                        "chunk_index": chunk["chunk_index"],
+                        "source": "book_pipeline"
+                    }
+                )
+                embeddings_created += 1
+            
+            logger.info(f"Created {embeddings_created} embeddings for chunks")
+            
+            # Publish event
+            await publish_event(
+                "book.embeddings_created",
+                {
+                    "embeddings_count": embeddings_created,
+                    "chunks_count": len(chunks)
+                },
+                source="book_pipeline"
+            )
+            
+            return embeddings_created
+            
+        except Exception as e:
+            logger.error(f"Error creating embeddings: {e}")
+            return 0
     
     async def _generate_insights(self, doc_id: str, title: str, chunks: list) -> int:
         """Generate summary and insights using LLM"""
@@ -413,18 +453,33 @@ class BookPipeline:
                     context={"book_title": title, "doc_id": doc_id}
                 )
                 
-                # Store LLM-generated insights
-                # TODO: Parse response and store structured insights
+                # Store LLM-generated insights in database
+                audit = get_audit_logger()
+                await audit.log_event(
+                    category="learning",
+                    action="insights_generated",
+                    actor="book_pipeline",
+                    resource=doc_id,
+                    details={
+                        "title": title,
+                        "method": "llm",
+                        "chunks_analyzed": min(3, len(chunks))
+                    }
+                )
+                
                 logger.info(f"[PIPELINE] LLM generated insights for {title}")
                 
                 # Emit learning event
-                if LEARNING_AVAILABLE:
-                    await trigger_mesh.publish("book.insights_generated", {
+                await publish_event(
+                    "book.insights_generated",
+                    {
                         "document_id": doc_id,
                         "title": title,
                         "method": "llm",
                         "chunks_analyzed": min(3, len(chunks))
-                    })
+                    },
+                    source="book_pipeline"
+                )
                 
                 return 3  # LLM-generated insights
                 

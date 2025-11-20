@@ -9,6 +9,7 @@ import json
 from datetime import datetime
 
 from backend.clarity import get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event
 
 
 class MemoryWebSocketManager:
@@ -207,7 +208,22 @@ async def start_event_listener():
             event.payload.get("metadata")
         )
     
-    # Subscribe to events
-    # In real implementation, would use event bus subscription
-    # For now, this is a stub framework
-    pass
+    # Subscribe to real event bus
+    event_bus = get_event_bus()
+    
+    # Memory file events
+    event_bus.subscribe("grace.memory.file.created", on_file_created)
+    event_bus.subscribe("grace.memory.file.updated", on_file_update)
+    event_bus.subscribe("librarian.file.created", on_file_created)
+    
+    # Book pipeline events
+    event_bus.subscribe("book.ingestion.completed", on_pipeline_complete)
+    event_bus.subscribe("book.embeddings_created", on_pipeline_progress)
+    event_bus.subscribe("book.insights_generated", on_pipeline_progress)
+    
+    # Ingestion events
+    event_bus.subscribe("file.ingestion.started", on_pipeline_progress)
+    event_bus.subscribe("file.ingestion.completed", on_pipeline_complete)
+    event_bus.subscribe("file.ingestion.failed", on_pipeline_fail)
+    
+    print("[MemoryWebSocket] Connected to event bus - streaming live updates")

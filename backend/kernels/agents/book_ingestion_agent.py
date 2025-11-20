@@ -11,6 +11,7 @@ import hashlib
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
+from backend.core.unified_event_publisher import publish_event
 
 
 class BookIngestionAgent(BaseComponent):
@@ -76,11 +77,11 @@ class BookIngestionAgent(BaseComponent):
         
         try:
             # Step 1: Extract metadata
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.metadata_extraction",
-                source=self.component_id,
-                payload={"file": str(file_path)}
-            ))
+                payload={"file": str(file_path)},
+                source="book_ingestion_agent"
+            )
             
             extracted_meta = await self._extract_metadata(file_path, metadata)
             
@@ -89,11 +90,11 @@ class BookIngestionAgent(BaseComponent):
             result["document_id"] = document_id
             
             # Step 3: Extract text content
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.text_extraction",
-                source=self.component_id,
-                payload={"document_id": document_id}
-            ))
+                payload={"document_id": document_id},
+                source="book_ingestion_agent"
+            )
             
             content = await self._extract_text(file_path)
             
@@ -101,21 +102,21 @@ class BookIngestionAgent(BaseComponent):
             chapters = await self._detect_chapters(content, extracted_meta)
             
             # Step 5: Chunk and embed
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.chunking",
-                source=self.component_id,
-                payload={"document_id": document_id, "chapters": len(chapters)}
-            ))
+                payload={"document_id": document_id, "chapters": len(chapters)},
+                source="book_ingestion_agent"
+            )
             
             chunks = await self._create_chunks(chapters, document_id)
             result["chunks_created"] = len(chunks)
             
             # Step 6: Generate summaries and insights
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.summary_generation",
-                source=self.component_id,
-                payload={"document_id": document_id}
-            ))
+                payload={"document_id": document_id},
+                source="book_ingestion_agent"
+            )
             
             insights = await self._generate_insights(chapters, document_id, extracted_meta)
             result["insights_created"] = len(insights)
@@ -128,23 +129,21 @@ class BookIngestionAgent(BaseComponent):
             
             result["status"] = "completed"
             
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.completed",
-                source=self.component_id,
                 payload=result,
-                trust_level=TrustLevel.MEDIUM
-            ))
+                source="book_ingestion_agent"
+            )
             
         except Exception as e:
             result["status"] = "failed"
             result["errors"].append(str(e))
             
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="book.ingestion.failed",
-                source=self.component_id,
                 payload=result,
-                trust_level=TrustLevel.LOW
-            ))
+                source="book_ingestion_agent"
+            )
             
         return result
     
@@ -341,27 +340,27 @@ class BookIngestionAgent(BaseComponent):
     async def _trigger_embedding_pipeline(self, document_id: str, chunks: List[Dict]):
         """Trigger ML/DL pipeline for embeddings"""
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="ml.embedding.requested",
-            source=self.component_id,
             payload={
                 "document_id": document_id,
                 "chunk_count": len(chunks),
                 "priority": "high"
-            }
-        ))
+            },
+            source="book_ingestion_agent"
+        )
     
     async def _queue_verification(self, document_id: str):
         """Queue verification job for trust scoring"""
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="verification.book.requested",
-            source=self.component_id,
             payload={
                 "document_id": document_id,
                 "verification_type": "comprehension_qa"
-            }
-        ))
+            },
+            source="book_ingestion_agent"
+        )
 
 
 # Singleton instance

@@ -31,6 +31,7 @@ from backend.learning_memory import (
     query_category
 )
 from backend.kernels.mentor_harness import get_mentor_harness
+from backend.core.unified_event_publisher import publish_event
 
 
 class SandboxWorkspace:
@@ -272,11 +273,11 @@ class MissionOrchestrator(BaseComponent):
         
         try:
             # PHASE 1: Define Mission
-            await self.event_bus.publish(Event(
+            await publish_event(
                 event_type="mission.orchestration.started",
-                source=self.component_id,
-                payload={"mission_id": mission_id}
-            ))
+                payload={"mission_id": mission_id},
+                source="mission_orchestrator"
+            )
             
             phase1 = await self._phase_define_mission(mission_id, brief, constraints)
             execution_log["phases"].append(phase1)
@@ -344,11 +345,11 @@ class MissionOrchestrator(BaseComponent):
             metadata={"phase": "definition", "orchestrated": True}
         )
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
-            payload={"mission_id": mission_id, "phase": "definition"}
-        ))
+            payload={"mission_id": mission_id, "phase": "definition"},
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "definition",
@@ -377,15 +378,15 @@ class MissionOrchestrator(BaseComponent):
             store_results=True  # Auto-stores in Learning Memory
         )
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
             payload={
                 "mission_id": mission_id,
                 "phase": "mentor_consultation",
                 "mentors_queried": len(roundtable_result["models_queried"])
-            }
-        ))
+            },
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "mentor_consultation",
@@ -446,11 +447,11 @@ class MissionOrchestrator(BaseComponent):
             metadata={"generated_from": "mentor_consensus"}
         )
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
-            payload={"mission_id": mission_id, "phase": "planning"}
-        ))
+            payload={"mission_id": mission_id, "phase": "planning"},
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "planning",
@@ -467,15 +468,15 @@ class MissionOrchestrator(BaseComponent):
         
         self.active_sandboxes[mission_id] = workspace
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
             payload={
                 "mission_id": mission_id,
                 "phase": "sandbox_creation",
                 "workspace_path": str(workspace.workspace_path)
-            }
-        ))
+            },
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "sandbox_creation",
@@ -513,15 +514,15 @@ class MissionOrchestrator(BaseComponent):
             filename="implementation_result.json"
         )
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
             payload={
                 "mission_id": mission_id,
                 "phase": "implementation",
                 "files_created": len(implementation_result["files_created"])
-            }
-        ))
+            },
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "implementation",
@@ -547,15 +548,15 @@ class MissionOrchestrator(BaseComponent):
             filename="test_execution.json"
         )
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.phase.completed",
-            source=self.component_id,
             payload={
                 "mission_id": mission_id,
                 "phase": "testing",
                 "tests_passed": test_result["tests_passed"]
-            }
-        ))
+            },
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "testing",
@@ -579,11 +580,11 @@ class MissionOrchestrator(BaseComponent):
             "message": f"Mission {mission_id} completed and ready for review"
         }
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.notification.sent",
-            source=self.component_id,
-            payload=notification
-        ))
+            payload=notification,
+            source="mission_orchestrator"
+        )
         
         return {
             "phase": "notification",
@@ -640,11 +641,11 @@ class MissionOrchestrator(BaseComponent):
         await workspace.cleanup(keep_artifacts=True)
         del self.active_sandboxes[mission_id]
         
-        await self.event_bus.publish(Event(
+        await publish_event(
             event_type="mission.promoted",
-            source=self.component_id,
-            payload={"mission_id": mission_id, "result": result}
-        ))
+            payload={"mission_id": mission_id, "result": result},
+            source="mission_orchestrator"
+        )
         
         return result
 

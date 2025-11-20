@@ -14,6 +14,8 @@ import json
 
 from backend.model_orchestrator import ModelOrchestrator
 from backend.services.event_bus import event_bus
+from backend.core.unified_event_publisher import publish_event
+from backend.logging.unified_audit_logger import get_audit_logger
 
 
 class DevelopmentJob:
@@ -104,22 +106,22 @@ class DeveloperAgent:
         job = DevelopmentJob(job_id, spec, session_id)
         self.jobs[job_id] = job
         
-        await event_bus.publish("dev.job.created", {
+        await publish_event("dev.job.created", {
             "job_id": job_id,
             "spec": spec,
             "session_id": session_id,
             "timestamp": datetime.utcnow().isoformat()
-        })
+        }, source="developer_agent")
         
         try:
             job.mission_id = f"mission_dev_{job_id}"
-            await event_bus.publish("mission.created", {
+            await publish_event("mission.created", {
                 "mission_id": job.mission_id,
                 "job_id": job_id,
                 "title": f"Build: {spec[:50]}",
                 "type": "development",
                 "status": "created"
-            })
+            }, source="developer_agent")
         except Exception as e:
             print(f"Failed to create mission: {e}")
         
@@ -134,11 +136,11 @@ class DeveloperAgent:
         job.add_step("plan", "in_progress")
         job.status = "planning"
         
-        await event_bus.publish("dev.step.started", {
+        await publish_event("dev.step.started", {
             "job_id": job.job_id,
             "step": "plan",
             "session_id": job.session_id
-        })
+        }, source="developer_agent")
         
         try:
             prompt = f"""Analyze this software development request and create a detailed plan:
@@ -185,32 +187,32 @@ Provide a structured plan with:
             job.add_artifact("plan", plan)
             job.add_step("plan", "completed", {"tasks": len(plan["breakdown"])})
             
-            await event_bus.publish("dev.artifact.plan", {
+            await publish_event("dev.artifact.plan", {
                 "job_id": job.job_id,
                 "plan": plan,
                 "session_id": job.session_id
-            })
+            }, source="developer_agent")
             
             return plan
             
         except Exception as e:
             job.add_error(f"Planning failed: {str(e)}")
             job.add_step("plan", "failed", {"error": str(e)})
-            await event_bus.publish("dev.step.failed", {
+            await publish_event("dev.step.failed", {
                 "job_id": job.job_id,
                 "step": "plan",
                 "error": str(e)
-            })
+            }, source="developer_agent")
             raise
             
     async def generate_adr(self, job: DevelopmentJob, plan: Dict[str, Any]) -> Dict[str, Any]:
         """Step 2: Generate Architecture Decision Record"""
         job.add_step("design", "in_progress")
         
-        await event_bus.publish("dev.step.started", {
+        await publish_event("dev.step.started", {
             "job_id": job.job_id,
             "step": "design"
-        })
+        }, source="developer_agent")
         
         try:
             adr = {
@@ -240,10 +242,10 @@ Provide a structured plan with:
             job.add_artifact("adr", adr)
             job.add_step("design", "completed")
             
-            await event_bus.publish("dev.artifact.adr", {
+            await publish_event("dev.artifact.adr", {
                 "job_id": job.job_id,
                 "adr": adr
-            })
+            }, source="developer_agent")
             
             return adr
             
@@ -257,10 +259,10 @@ Provide a structured plan with:
         job.add_step("implement_dryrun", "in_progress")
         job.status = "implementing"
         
-        await event_bus.publish("dev.step.started", {
+        await publish_event("dev.step.started", {
             "job_id": job.job_id,
             "step": "implement_dryrun"
-        })
+        }, source="developer_agent")
         
         try:
             implementation = {
@@ -296,10 +298,10 @@ Provide a structured plan with:
                 "lines": implementation["lines_added"]
             })
             
-            await event_bus.publish("dev.artifact.diff", {
+            await publish_event("dev.artifact.diff", {
                 "job_id": job.job_id,
                 "implementation": implementation
-            })
+            }, source="developer_agent")
             
             return implementation
             
@@ -313,12 +315,12 @@ Provide a structured plan with:
         job.add_step("governance_approval", "in_progress")
         job.status = "waiting_for_governance"
         
-        await event_bus.publish("dev.approval.required", {
+        await publish_event("dev.approval.required", {
             "job_id": job.job_id,
             "stage": "governance",
             "risks": job.artifacts.get("implementation", {}).get("risk_summary", {}),
             "session_id": job.session_id
-        })
+        }, source="developer_agent")
         
         job.approvals["governance"]["status"] = "requested"
         job.add_step("governance_approval", "waiting")
@@ -332,11 +334,11 @@ Provide a structured plan with:
         job.approvals["governance"]["approved_by"] = approved_by
         job.add_step("governance_approval", "completed")
         
-        await event_bus.publish("dev.approval.granted", {
+        await publish_event("dev.approval.granted", {
             "job_id": job.job_id,
             "stage": "governance",
             "approved_by": approved_by
-        })
+        }, source="developer_agent")
         
         return True
         
@@ -345,10 +347,10 @@ Provide a structured plan with:
         job.add_step("quality_scan", "in_progress")
         job.status = "scanning"
         
-        await event_bus.publish("dev.step.started", {
+        await publish_event("dev.step.started", {
             "job_id": job.job_id,
             "step": "quality_scan"
-        })
+        }, source="developer_agent")
         
         try:
             scan_results = {
@@ -374,13 +376,13 @@ Provide a structured plan with:
             job.add_artifact("scan_results", scan_results)
             job.add_step("quality_scan", "completed", {"trust_score": trust_score})
             
-            await event_bus.publish("dev.scan.completed", {
+            await publish_event("dev.scan.completed", {
                 "job_id": job.job_id,
                 "scan_results": scan_results,
                 "trust_score": trust_score
-            })
+            }, source="developer_agent")
             
-            await event_bus.publish("dev.trust.updated", {
+            await publish_event("dev.trust.updated", {
                 "job_id": job.job_id,
                 "trust_score": trust_score,
                 "components": {
@@ -389,7 +391,7 @@ Provide a structured plan with:
                     "tests": scan_results["tests"]["score"],
                     "security": scan_results["security"]["score"]
                 }
-            })
+            }, source="developer_agent")
             
             return scan_results
             
@@ -403,14 +405,14 @@ Provide a structured plan with:
         job.add_step("user_approval", "in_progress")
         job.status = "waiting_for_user_approval"
         
-        await event_bus.publish("dev.approval.required", {
+        await publish_event("dev.approval.required", {
             "job_id": job.job_id,
             "stage": "user_final",
             "trust_score": job.trust_score,
             "scan_results": job.approvals["scan"]["results"],
             "implementation": job.artifacts.get("implementation", {}),
             "session_id": job.session_id
-        })
+        }, source="developer_agent")
         
         job.approvals["user"]["status"] = "requested"
         job.add_step("user_approval", "waiting")
@@ -424,11 +426,11 @@ Provide a structured plan with:
         job.approvals["user"]["approved_by"] = approved_by
         job.add_step("user_approval", "completed")
         
-        await event_bus.publish("dev.approval.granted", {
+        await publish_event("dev.approval.granted", {
             "job_id": job.job_id,
             "stage": "user_final",
             "approved_by": approved_by
-        })
+        }, source="developer_agent")
         
         return True
         
@@ -438,10 +440,10 @@ Provide a structured plan with:
         job.status = "applying"
         job.dry_run = False
         
-        await event_bus.publish("dev.step.started", {
+        await publish_event("dev.step.started", {
             "job_id": job.job_id,
             "step": "apply_changes"
-        })
+        }, source="developer_agent")
         
         try:
             result = {
@@ -458,10 +460,10 @@ Provide a structured plan with:
             job.add_artifact("apply_result", result)
             job.add_step("apply_changes", "completed")
             
-            await event_bus.publish("dev.changes.applied", {
+            await publish_event("dev.changes.applied", {
                 "job_id": job.job_id,
                 "result": result
-            })
+            }, source="developer_agent")
             
             return result
             
@@ -503,10 +505,10 @@ Provide a structured plan with:
             job.add_artifact("pr", pr)
             job.add_step("pr", "completed", {"pr_number": pr["pr_number"]})
             
-            await event_bus.publish("dev.pr.opened", {
+            await publish_event("dev.pr.opened", {
                 "job_id": job.job_id,
                 "pr": pr
-            })
+            }, source="developer_agent")
             
             return pr
             
@@ -563,12 +565,12 @@ Provide a structured plan with:
             
             job.status = "completed"
             
-            await event_bus.publish("mission.completed", {
+            await publish_event("mission.completed", {
                 "mission_id": job.mission_id,
                 "job_id": job.job_id,
                 "status": "completed",
                 "pr_url": pr.get("pr_url")
-            })
+            }, source="developer_agent")
             
             return job.to_dict()
             

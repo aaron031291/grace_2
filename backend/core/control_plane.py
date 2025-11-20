@@ -18,6 +18,8 @@ from pathlib import Path
 import logging
 
 from .message_bus import message_bus, MessagePriority
+from backend.core.unified_event_publisher import publish_event
+from backend.logging.unified_audit_logger import get_audit_logger
 
 logger = logging.getLogger(__name__)
 
@@ -120,10 +122,10 @@ class ControlPlane:
         self.system_state = "booting"
         
         # Publish system event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={'action': 'booting', 'timestamp': datetime.utcnow().isoformat()},
+            source='control_plane',
             priority=MessagePriority.CRITICAL
         )
         
@@ -165,10 +167,10 @@ class ControlPlane:
         logger.info("[CONTROL-PLANE] All kernels booted, system RUNNING")
         
         # Publish running event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={'action': 'running', 'timestamp': datetime.utcnow().isoformat()},
+            source='control_plane',
             priority=MessagePriority.CRITICAL
         )
     
@@ -181,10 +183,10 @@ class ControlPlane:
         self.system_state = "stopping"
         
         # Publish stopping event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={'action': 'stopping', 'timestamp': datetime.utcnow().isoformat()},
+            source='control_plane',
             priority=MessagePriority.CRITICAL
         )
         
@@ -210,10 +212,10 @@ class ControlPlane:
         self.system_state = "paused"
         
         # Publish pause event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={'action': 'pause', 'timestamp': datetime.utcnow().isoformat()},
+            source='control_plane',
             priority=MessagePriority.HIGH
         )
         
@@ -227,10 +229,10 @@ class ControlPlane:
         self.system_state = "running"
         
         # Publish resume event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={'action': 'resume', 'timestamp': datetime.utcnow().isoformat()},
+            source='control_plane',
             priority=MessagePriority.HIGH
         )
         
@@ -335,10 +337,10 @@ class ControlPlane:
             kernel.last_heartbeat = datetime.utcnow()
             
             # Publish kernel started event
-            await message_bus.publish(
-                source='control_plane',
+            await publish_event(
                 topic=f'kernel.{kernel.name}',
                 payload={'action': 'started', 'timestamp': datetime.utcnow().isoformat()},
+                source='control_plane',
                 priority=MessagePriority.HIGH
             )
             
@@ -370,10 +372,10 @@ class ControlPlane:
             kernel.state = KernelState.STOPPED
             
             # Publish kernel stopped event
-            await message_bus.publish(
-                source='control_plane',
+            await publish_event(
                 topic=f'kernel.{kernel.name}',
                 payload={'action': 'stopped', 'timestamp': datetime.utcnow().isoformat()},
+                source='control_plane',
                 priority=MessagePriority.HIGH
             )
             
@@ -428,8 +430,7 @@ class ControlPlane:
         logger.critical(f"[EMERGENCY] Kernel {kernel.name} exceeded max restarts - activating emergency protocol")
         
         # Publish emergency event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={
                 'action': 'kernel_quarantined',
@@ -438,6 +439,7 @@ class ControlPlane:
                 'emergency': True,
                 'timestamp': datetime.utcnow().isoformat()
             },
+            source='control_plane',
             priority=MessagePriority.CRITICAL
         )
         
@@ -470,8 +472,7 @@ class ControlPlane:
         await self._boot_kernel(kernel)
         
         # Publish restart event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.health',
             payload={
                 'action': 'kernel_restarted',
@@ -479,6 +480,7 @@ class ControlPlane:
                 'restart_count': kernel.restart_count,
                 'timestamp': datetime.utcnow().isoformat()
             },
+            source='control_plane',
             priority=MessagePriority.HIGH
         )
     
@@ -519,14 +521,14 @@ class ControlPlane:
         logger.info(f"[CONTROL-PLANE] Paused kernel: {kernel_name}")
         
         # Publish pause event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={
                 'action': 'kernel_paused',
                 'kernel': kernel_name,
                 'timestamp': datetime.utcnow().isoformat()
-            }
+            },
+            source='control_plane'
         )
     
     async def resume_kernel(self, kernel_name: str):
@@ -546,14 +548,14 @@ class ControlPlane:
         logger.info(f"[CONTROL-PLANE] Resumed kernel: {kernel_name}")
         
         # Publish resume event
-        await message_bus.publish(
-            source='control_plane',
+        await publish_event(
             topic='system.control',
             payload={
                 'action': 'kernel_resumed',
                 'kernel': kernel_name,
                 'timestamp': datetime.utcnow().isoformat()
-            }
+            },
+            source='control_plane'
         )
     
     def get_status(self) -> Dict[str, Any]:

@@ -705,99 +705,134 @@ Grace (respond naturally, in first person):"""
     
     async def list_sandbox_experiments(self) -> List[Dict[str, Any]]:
         """
-        List sandbox experiments (Phase 1: stub)
+        List sandbox experiments from mission registry
         
         Returns:
-            List of experiments
+            List of experiments from database
         """
-        return [
-            {
-                "experiment_id": "exp_001",
-                "status": "validating",
-                "title": "Autonomous Learning Enhancement",
-                "description": "Testing improved learning loop with feedback",
-                "metrics": {"accuracy": 0.92, "speed": 1.5},
-                "progress": 0.65
-            },
-            {
-                "experiment_id": "exp_002",
-                "status": "ready",
-                "title": "Multi-Model Consensus",
-                "description": "Cross-model validation for critical decisions",
-                "metrics": {"consensus": 0.88, "confidence": 0.91},
-                "progress": 1.0
-            }
-        ]
+        try:
+            from backend.kernels.mission_orchestrator import get_mission_orchestrator
+            orchestrator = get_mission_orchestrator()
+            experiments = await orchestrator.list_experiments()
+            
+            await publish_event(
+                "world_model.sandbox_experiments_queried",
+                {"count": len(experiments)},
+                source="world_model_service"
+            )
+            
+            return experiments
+        except Exception as e:
+            logger.error(f"Error listing sandbox experiments: {e}")
+            return []
     
     async def get_consensus_votes(self) -> List[Dict[str, Any]]:
         """
-        Get consensus votes (Phase 1: stub)
+        Get consensus votes from parliament/quorum system
         
         Returns:
-            List of consensus votes
+            List of consensus votes from governance
         """
-        return [
-            {
-                "role": "Guardian",
-                "avatar": "🛡️",
-                "vote": "approve",
-                "confidence": 0.95
-            },
-            {
-                "role": "Analyst",
-                "avatar": "📊",
-                "vote": "caution",
-                "confidence": 0.82
-            },
-            {
-                "role": "Architect",
-                "avatar": "🏗️",
-                "vote": "approve",
-                "confidence": 0.88
-            }
-        ]
+        try:
+            from backend.workflow_engines.parliament_engine import parliament_engine
+            votes = await parliament_engine.get_recent_votes(limit=10)
+            
+            await publish_event(
+                "world_model.consensus_votes_queried",
+                {"votes_count": len(votes)},
+                source="world_model_service"
+            )
+            
+            return votes
+        except Exception as e:
+            logger.warning(f"Could not fetch consensus votes: {e}")
+            return []
     
     async def get_feedback_queue(self) -> List[Dict[str, Any]]:
         """
-        Get feedback queue (Phase 1: stub)
+        Get feedback queue from mission feedback storage
         
         Returns:
-            List of feedback items
+            List of feedback items from database
         """
-        return [
-            {
-                "id": "fb_001",
-                "title": "Model Selection Strategy",
-                "description": "Review model routing decisions for code generation",
-                "priority": "high",
-                "created_at": datetime.now().isoformat()
-            },
-            {
-                "id": "fb_002",
-                "title": "Learning Loop Calibration",
-                "description": "Validate trust score calculations",
-                "priority": "normal",
-                "created_at": datetime.now().isoformat()
-            }
-        ]
+        try:
+            from backend.models import async_session
+            from backend.models.mission_models import MissionFeedback
+            from sqlalchemy import select
+            
+            async with async_session() as session:
+                result = await session.execute(
+                    select(MissionFeedback)
+                    .where(MissionFeedback.status == "pending")
+                    .order_by(MissionFeedback.created_at.desc())
+                    .limit(20)
+                )
+                feedback_items = result.scalars().all()
+                
+                return [
+                    {
+                        "id": f"fb_{item.id}",
+                        "title": item.title or "Feedback Item",
+                        "description": item.description,
+                        "priority": item.priority or "normal",
+                        "created_at": item.created_at.isoformat() if item.created_at else datetime.now().isoformat()
+                    }
+                    for item in feedback_items
+                ]
+        except Exception as e:
+            logger.warning(f"Could not fetch feedback queue: {e}")
+            return []
     
     async def get_sovereignty_metrics(self) -> Dict[str, Any]:
         """
-        Get sovereignty metrics (Phase 1: stub)
+        Get sovereignty metrics from trust/immutability/decision data
         
         Returns:
-            Sovereignty metrics
+            Sovereignty metrics aggregated from MTL
         """
-        return {
-            "autonomy_level": 0.78,
-            "autonomous_decisions_30d": 1247,
-            "success_rate": 0.94,
-            "learning_velocity": 1.23,
-            "trust_calibration": 0.89,
-            "active_sandboxes": 2,
-            "trust_score": 0.91,
-            "pending_reviews": 2
-        }
+        try:
+            from backend.models import async_session
+            from backend.trust_framework.trust_score import trust_score_service
+            from sqlalchemy import select, func
+            
+            async with async_session() as session:
+                # Get autonomy metrics
+                autonomy_level = await trust_score_service.get_system_trust_score()
+                
+                # Count active sandboxes
+                from backend.models.mission_models import Mission
+                sandbox_result = await session.execute(
+                    select(func.count(Mission.id))
+                    .where(Mission.status == "in_sandbox")
+                )
+                active_sandboxes = sandbox_result.scalar() or 0
+                
+                # Get pending reviews
+                from backend.models.governance_models import ApprovalRequest
+                reviews_result = await session.execute(
+                    select(func.count(ApprovalRequest.id))
+                    .where(ApprovalRequest.status == "pending")
+                )
+                pending_reviews = reviews_result.scalar() or 0
+                
+                return {
+                    "autonomy_level": autonomy_level,
+                    "autonomous_decisions_30d": 0,  # TODO: Add decision counter
+                    "success_rate": 0.94,  # TODO: Calculate from mission outcomes
+                    "learning_velocity": 1.0,  # TODO: Calculate from learning events
+                    "trust_calibration": autonomy_level,
+                    "active_sandboxes": active_sandboxes,
+                    "trust_score": autonomy_level,
+                    "pending_reviews": pending_reviews
+                }
+        except Exception as e:
+            logger.warning(f"Could not fetch sovereignty metrics: {e}")
+            return {
+                "autonomy_level": 0.0,
+                "active_sandboxes": 0,
+                "trust_score": 0.0,
+                "pending_reviews": 0
+            }
     
     async def create_background_task(
         self,

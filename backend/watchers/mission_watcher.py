@@ -20,6 +20,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileCreatedEvent
 
 from backend.clarity import get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event
 from backend.kernels.mission_orchestrator import get_mission_orchestrator
 
 
@@ -102,11 +103,11 @@ class MissionWatcher:
         
         self.running = True
         
-        await self.event_bus.publish(Event(
-            event_type="mission.watcher.started",
-            source="mission_watcher",
-            payload={"watch_path": str(self.watch_path)}
-        ))
+        await publish_event(
+            "mission.watcher.started",
+            {"watch_path": str(self.watch_path)},
+            source="mission_watcher"
+        )
         
         return {
             "status": "started",
@@ -124,11 +125,11 @@ class MissionWatcher:
         
         self.running = False
         
-        await self.event_bus.publish(Event(
-            event_type="mission.watcher.stopped",
-            source="mission_watcher",
-            payload={}
-        ))
+        await publish_event(
+            "mission.watcher.stopped",
+            {},
+            source="mission_watcher"
+        )
         
         return {"status": "stopped"}
     
@@ -145,15 +146,15 @@ class MissionWatcher:
             constraints = brief_data.get("constraints", {})
             
             # Publish detection event
-            await self.event_bus.publish(Event(
-                event_type="mission.detected",
-                source="mission_watcher",
-                payload={
+            await publish_event(
+                "mission.detected",
+                {
                     "mission_id": mission_id,
                     "file_path": str(file_path),
                     "auto_orchestration": True
-                }
-            ))
+                },
+                source="mission_watcher"
+            )
             
             # Check if auto-orchestration is enabled
             auto_orchestrate = brief_data.get("auto_orchestrate", True)
@@ -168,24 +169,24 @@ class MissionWatcher:
                 )
                 
                 # Publish completion
-                await self.event_bus.publish(Event(
-                    event_type="mission.auto_orchestrated",
-                    source="mission_watcher",
-                    payload={
+                await publish_event(
+                    "mission.auto_orchestrated",
+                    {
                         "mission_id": mission_id,
                         "status": result["status"]
-                    }
-                ))
+                    },
+                    source="mission_watcher"
+                )
             
         except Exception as e:
-            await self.event_bus.publish(Event(
-                event_type="mission.watcher.error",
-                source="mission_watcher",
-                payload={
+            await publish_event(
+                "mission.watcher.error",
+                {
                     "file_path": str(file_path),
                     "error": str(e)
-                }
-            ))
+                },
+                source="mission_watcher"
+            )
 
 
 # Global instance

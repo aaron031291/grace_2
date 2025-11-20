@@ -14,6 +14,8 @@ import mimetypes
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
+from backend.core.unified_event_publisher import publish_event
+from backend.logging.unified_audit_logger import get_audit_logger
 
 
 class FileIngestionAgent(BaseComponent):
@@ -146,15 +148,15 @@ class FileIngestionAgent(BaseComponent):
                 
             result["modality"] = detected_modality
             
-            await self.event_bus.publish(Event(
-                event_type="file.ingestion.started",
-                source=self.component_id,
-                payload={
+            await publish_event(
+                "file.ingestion.started",
+                {
                     "file": str(file_path),
                     "modality": detected_modality,
                     "is_xxl": is_xxl
-                }
-            ))
+                },
+                source="file_ingestion_agent"
+            )
             
             # Step 2: Move to appropriate storage location
             storage_path = await self._store_file(file_path, detected_modality)
@@ -187,15 +189,15 @@ class FileIngestionAgent(BaseComponent):
             await self._queue_verification(document_id, detected_modality)
             
             # Step 8: Publish completion event
-            await self.event_bus.publish(Event(
-                event_type="file.ingestion.completed",
-                source=self.component_id,
-                payload={
+            await publish_event(
+                "file.ingestion.completed",
+                {
                     "document_id": document_id,
                     "modality": detected_modality,
                     "artifacts": processing_result
-                }
-            ))
+                },
+                source="file_ingestion_agent"
+            )
             
             result["status"] = "completed"
             
@@ -203,14 +205,14 @@ class FileIngestionAgent(BaseComponent):
             result["status"] = "failed"
             result["errors"].append(str(e))
             
-            await self.event_bus.publish(Event(
-                event_type="file.ingestion.failed",
-                source=self.component_id,
-                payload={
+            await publish_event(
+                "file.ingestion.failed",
+                {
                     "file": str(file_path),
                     "error": str(e)
-                }
-            ))
+                },
+                source="file_ingestion_agent"
+            )
         
         return result
     
@@ -318,11 +320,11 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process API artifacts (JSON/XML)"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.api",
-            source=self.component_id,
-            payload={"document_id": document_id}
-        ))
+        await publish_event(
+            "file.processing.api",
+            {"document_id": document_id},
+            source="file_ingestion_agent"
+        )
         
         result = {"type": "api", "entities_extracted": 0}
         
@@ -346,11 +348,11 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process web content (HTML/Markdown)"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.web",
-            source=self.component_id,
-            payload={"document_id": document_id}
-        ))
+        await publish_event(
+            "file.processing.web",
+            {"document_id": document_id},
+            source="file_ingestion_agent"
+        )
         
         return {"type": "web", "links_extracted": 0, "text_length": 0}
     
@@ -362,14 +364,14 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process audio files - trigger transcription"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.audio",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "file.processing.audio",
+            {
                 "document_id": document_id,
                 "action": "transcription_requested"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )
         
         # Store reference to transcription task
         return {
@@ -386,14 +388,14 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process video files - extract frames + transcribe"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.video",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "file.processing.video",
+            {
                 "document_id": document_id,
                 "action": "frame_extraction_and_transcription_requested"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )
         
         return {
             "type": "video",
@@ -411,15 +413,15 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process code files - build knowledge graph"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.code",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "file.processing.code",
+            {
                 "document_id": document_id,
                 "language": file_path.suffix.lstrip('.'),
                 "action": "code_analysis_requested"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )
         
         return {
             "type": "code",
@@ -435,15 +437,15 @@ class FileIngestionAgent(BaseComponent):
     ) -> Dict[str, Any]:
         """Process extra-large files with streaming"""
         
-        await self.event_bus.publish(Event(
-            event_type="file.processing.xxl",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "file.processing.xxl",
+            {
                 "document_id": document_id,
                 "size_mb": metadata.get("size_mb", 0),
                 "action": "chunked_processing_requested"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )
         
         return {
             "type": "xxl",
@@ -467,25 +469,25 @@ class FileIngestionAgent(BaseComponent):
     async def _trigger_embedding_pipeline(self, document_id: str, modality: str):
         """Trigger ML embedding generation"""
         
-        await self.event_bus.publish(Event(
-            event_type="ml.embedding.requested",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "ml.embedding.requested",
+            {
                 "document_id": document_id,
                 "modality": modality,
                 "priority": "normal"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )
     
     async def _queue_verification(self, document_id: str, modality: str):
         """Queue document for verification"""
         
-        await self.event_bus.publish(Event(
-            event_type="verification.document.requested",
-            source=self.component_id,
-            payload={
+        await publish_event(
+            "verification.document.requested",
+            {
                 "document_id": document_id,
                 "verification_type": f"{modality}_comprehensive",
                 "triggered_by": "auto_ingestion"
-            }
-        ))
+            },
+            source="file_ingestion_agent"
+        )

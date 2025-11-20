@@ -12,8 +12,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import immutable_log
+from backend.core.unified_event_publisher import publish_trigger
 
 
 class ApprovalStatus(Enum):
@@ -187,19 +187,18 @@ class IncidentChannel:
         message = brief.to_markdown()
         self.channels[channel_id].append(message)
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.brief_posted",
-            source="incident_channel",
-            actor="grace_agent",
-            resource=brief.brief_id,
-            payload={
+        await publish_trigger(
+            trigger_type="collaboration.brief_posted",
+            context={
                 "channel": channel_id,
                 "brief_id": brief.brief_id,
                 "severity": brief.severity,
-                "approval_required": brief.approval_required
+                "approval_required": brief.approval_required,
+                "actor": "grace_agent",
+                "resource": brief.brief_id
             },
-            timestamp=datetime.utcnow()
-        ))
+            source="human_collaboration"
+        )
         
         await self._notify_subscribers(channel_id, message)
     
@@ -252,18 +251,17 @@ class ApprovalManager:
         
         self.pending_approvals[request.request_id] = request
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.approval_requested",
-            source="approval_manager",
-            actor=requested_by,
-            resource=request.request_id,
-            payload={
+        await publish_trigger(
+            trigger_type="collaboration.approval_requested",
+            context={
                 "brief_id": brief.brief_id,
                 "incident_id": brief.incident_id,
-                "deadline": deadline.isoformat() if deadline else None
+                "deadline": deadline.isoformat() if deadline else None,
+                "actor": requested_by,
+                "resource": request.request_id
             },
-            timestamp=datetime.utcnow()
-        ))
+            source="human_collaboration"
+        )
         
         await immutable_log.append(
             actor=requested_by,
@@ -311,14 +309,15 @@ class ApprovalManager:
             result="approved"
         )
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.approval_granted",
-            source="approval_manager",
-            actor=approved_by,
-            resource=request_id,
-            payload={"brief_id": request.brief.brief_id},
-            timestamp=datetime.utcnow()
-        ))
+        await publish_trigger(
+            trigger_type="collaboration.approval_granted",
+            context={
+                "brief_id": request.brief.brief_id,
+                "actor": approved_by,
+                "resource": request_id
+            },
+            source="human_collaboration"
+        )
         
         return True
     
@@ -354,14 +353,16 @@ class ApprovalManager:
             result="rejected"
         )
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.approval_rejected",
-            source="approval_manager",
-            actor=rejected_by,
-            resource=request_id,
-            payload={"brief_id": request.brief.brief_id, "reason": reason},
-            timestamp=datetime.utcnow()
-        ))
+        await publish_trigger(
+            trigger_type="collaboration.approval_rejected",
+            context={
+                "brief_id": request.brief.brief_id,
+                "reason": reason,
+                "actor": rejected_by,
+                "resource": request_id
+            },
+            source="human_collaboration"
+        )
         
         return True
     
@@ -375,14 +376,15 @@ class ApprovalManager:
                 self.approval_history.append(request)
                 del self.pending_approvals[request_id]
                 
-                await trigger_mesh.publish(TriggerEvent(
-                    event_type="collaboration.approval_expired",
-                    source="approval_manager",
-                    actor="system",
-                    resource=request_id,
-                    payload={"brief_id": request.brief.brief_id},
-                    timestamp=datetime.utcnow()
-                ))
+                await publish_trigger(
+                    trigger_type="collaboration.approval_expired",
+                    context={
+                        "brief_id": request.brief.brief_id,
+                        "actor": "system",
+                        "resource": request_id
+                    },
+                    source="human_collaboration"
+                )
 
 
 class ClarificationManager:
@@ -410,17 +412,16 @@ class ClarificationManager:
         
         self.pending_clarifications[request.request_id] = request
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.clarification_requested",
-            source="clarification_manager",
-            actor="grace_agent",
-            resource=request.request_id,
-            payload={
+        await publish_trigger(
+            trigger_type="collaboration.clarification_requested",
+            context={
                 "question": question,
-                "options": options
+                "options": options,
+                "actor": "grace_agent",
+                "resource": request.request_id
             },
-            timestamp=datetime.utcnow()
-        ))
+            source="human_collaboration"
+        )
         
         return request
     
@@ -441,14 +442,15 @@ class ClarificationManager:
         self.clarification_history.append(request)
         del self.pending_clarifications[request_id]
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="collaboration.clarification_provided",
-            source="clarification_manager",
-            actor="human",
-            resource=request_id,
-            payload={"response": response},
-            timestamp=datetime.utcnow()
-        ))
+        await publish_trigger(
+            trigger_type="collaboration.clarification_provided",
+            context={
+                "response": response,
+                "actor": "human",
+                "resource": request_id
+            },
+            source="human_collaboration"
+        )
         
         return True
 
@@ -493,17 +495,16 @@ class InterventionManager:
             result="recorded"
         )
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type=f"collaboration.{intervention_type.value}",
-            source="intervention_manager",
-            actor=actor,
-            resource=target_resource,
-            payload={
+        await publish_trigger(
+            trigger_type=f"collaboration.{intervention_type.value}",
+            context={
                 "action": action,
-                "reasoning": reasoning
+                "reasoning": reasoning,
+                "actor": actor,
+                "resource": target_resource
             },
-            timestamp=datetime.utcnow()
-        ))
+            source="human_collaboration"
+        )
 
 
 class HumanCollaboration:

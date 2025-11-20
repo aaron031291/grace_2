@@ -149,8 +149,8 @@ class GraceCommitWorkflow:
                 "actor": author,
                 "resource": workflow_id
             },
-            timestamp=datetime.now(timezone.utc)
-        ))
+            source="commit_workflow"
+        )
         
         # Log to immutable ledger
         await self.immutable_log.append(
@@ -222,8 +222,8 @@ class GraceCommitWorkflow:
                     "tests_passed": results["tests_passed"],
                     "ready_for_approval": results["lint_passed"] and results["tests_passed"]
                 },
-                timestamp=datetime.now(timezone.utc)
-            ))
+                source="commit_workflow"
+            )
             
         except Exception as e:
             results["errors"].append(str(e))
@@ -237,8 +237,8 @@ class GraceCommitWorkflow:
                     "actor": workflow.author,
                     "resource": workflow_id
                 },
-                timestamp=datetime.now(timezone.utc)
-            ))
+                source="commit_workflow"
+            )
         
         return results
     
@@ -267,23 +267,22 @@ class GraceCommitWorkflow:
         
         if not can_execute:
             # Publish approval request
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="commit.approval_requested",
-                source="commit_workflow",
-                actor=workflow.author,
-                resource=workflow_id,
-                payload={
+            await publish_trigger(
+                "commit.approval_requested",
+                {
                     "approval_id": approval_id,
                     "workflow_id": workflow_id,
                     "commit_message": workflow.commit_message,
                     "description": workflow.description,
                     "files_changed": len(workflow.changes),
+                    "actor": workflow.author,
+                    "resource": workflow_id,
                     "lint_passed": workflow.lint_passed,
                     "tests_passed": workflow.tests_passed,
                     "diff_summary": self._generate_diff_summary(workflow)
                 },
-                timestamp=datetime.now(timezone.utc)
-            ))
+                source="commit_workflow"
+            )
         
         return approval_id
     
@@ -344,19 +343,18 @@ class GraceCommitWorkflow:
             workflow.status = "committed"
             
             # Publish success
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="commit.executed",
-                source="commit_workflow",
-                actor=workflow.author,
-                resource=workflow_id,
-                payload={
+            await publish_trigger(
+                "commit.executed",
+                {
                     "workflow_id": workflow_id,
                     "commit_sha": commit_sha,
                     "pr_url": pr_url,
-                    "branch": workflow.branch_name
+                    "branch": workflow.branch_name,
+                    "actor": workflow.author,
+                    "resource": workflow_id
                 },
-                timestamp=datetime.now(timezone.utc)
-            ))
+                source="commit_workflow"
+            )
             
             # Log to immutable ledger
             await self.immutable_log.append(
@@ -373,17 +371,16 @@ class GraceCommitWorkflow:
             workflow.status = "failed"
             
             # Publish error
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="commit.execution_failed",
-                source="commit_workflow",
-                actor=workflow.author,
-                resource=workflow_id,
-                payload={
+            await publish_trigger(
+                "commit.execution_failed",
+                {
                     "workflow_id": workflow_id,
-                    "error": str(e)
+                    "error": str(e),
+                    "actor": workflow.author,
+                    "resource": workflow_id
                 },
-                timestamp=datetime.now(timezone.utc)
-            ))
+                source="commit_workflow"
+            )
         
         return results
     
@@ -399,14 +396,15 @@ class GraceCommitWorkflow:
         workflow.status = "rolled_back"
         
         # Publish rollback
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="commit.rolled_back",
-            source="commit_workflow",
-            actor=workflow.author,
-            resource=workflow_id,
-            payload={"workflow_id": workflow_id},
-            timestamp=datetime.now(timezone.utc)
-        ))
+        await publish_trigger(
+            "commit.rolled_back",
+            {
+                "workflow_id": workflow_id,
+                "actor": workflow.author,
+                "resource": workflow_id
+            },
+            source="commit_workflow"
+        )
     
     # ==================== Git Operations ====================
     

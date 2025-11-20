@@ -10,6 +10,7 @@ import asyncio
 from collections import deque
 
 from backend.clarity import BaseComponent, ComponentStatus, get_event_bus, Event
+from backend.core.unified_event_publisher import publish_event
 
 
 class NotificationLevel(str, Enum):
@@ -73,15 +74,21 @@ class NotificationSystem(BaseComponent):
         event_mappings = {
             "ingestion.job.completed": self._handle_pipeline_completed,
             "ingestion.job.failed": self._handle_pipeline_failed,
+            "book.ingestion.completed": self._handle_book_ingested,
             "grace.memory.file.created": self._handle_grace_action,
             "grace.memory.synced.fusion": self._handle_sync_completed,
             "intelligence.file.analyzed": self._handle_file_analyzed,
+            "mission.detected": self._handle_mission_detected,
+            "mission.auto_orchestrated": self._handle_mission_orchestrated,
+            "governance.forbidden": self._handle_governance_block,
+            "agentic.problem_identified": self._handle_problem_identified,
         }
         
         for event_type, handler in event_mappings.items():
-            # In real implementation, would subscribe to event bus
-            # For now, this is a stub
-            pass
+            try:
+                self.event_bus.subscribe(event_type, handler)
+            except Exception as e:
+                print(f"[NotificationSystem] Could not subscribe to {event_type}: {e}")
     
     async def notify(
         self,
@@ -124,11 +131,11 @@ class NotificationSystem(BaseComponent):
         await self._broadcast(notification)
         
         # Publish as event
-        await self.event_bus.publish(Event(
-            event_type="notification.created",
-            source=self.component_id,
-            payload=notification
-        ))
+        await publish_event(
+            "notification.created",
+            notification,
+            source=self.component_id
+        )
         
         return notification_id
     
@@ -216,6 +223,62 @@ class NotificationSystem(BaseComponent):
                 message=f"Found {duplicates} duplicate files",
                 data=event.payload
             )
+    
+    async def _handle_book_ingested(self, event: Event):
+        """Handle book ingestion completion"""
+        await self.notify(
+            notification_type=NotificationType.PIPELINE_COMPLETED,
+            level=NotificationLevel.SUCCESS,
+            title="Book Ingested",
+            message=f"'{event.payload.get('title', 'Unknown')}' processed successfully with {event.payload.get('chunks', 0)} chunks",
+            data=event.payload
+        )
+    
+    async def _handle_mission_detected(self, event: Event):
+        """Handle mission detection"""
+        await self.notify(
+            notification_type=NotificationType.GRACE_ACTION,
+            level=NotificationLevel.INFO,
+            title="Mission Detected",
+            message=f"New mission detected: {event.payload.get('mission_id', 'Unknown')}",
+            data=event.payload
+        )
+    
+    async def _handle_mission_orchestrated(self, event: Event):
+        """Handle mission orchestration completion"""
+        status = event.payload.get('status', 'unknown')
+        level = NotificationLevel.SUCCESS if status == 'completed' else NotificationLevel.INFO
+        
+        await self.notify(
+            notification_type=NotificationType.GRACE_ACTION,
+            level=level,
+            title="Mission Orchestrated",
+            message=f"Mission {event.payload.get('mission_id')}: {status}",
+            data=event.payload
+        )
+    
+    async def _handle_governance_block(self, event: Event):
+        """Handle governance blocks"""
+        await self.notify(
+            notification_type=NotificationType.GOVERNANCE_BLOCK,
+            level=NotificationLevel.WARNING,
+            title="Action Blocked by Governance",
+            message=f"Policy: {event.payload.get('policy', 'Unknown')} - Reason: {event.payload.get('reason', 'No reason provided')}",
+            data=event.payload
+        )
+    
+    async def _handle_problem_identified(self, event: Event):
+        """Handle agentic problem identification"""
+        pattern = event.payload.get('pattern', 'unknown')
+        confidence = event.payload.get('confidence', 0)
+        
+        await self.notify(
+            notification_type=NotificationType.GRACE_ACTION,
+            level=NotificationLevel.INFO,
+            title="Problem Identified",
+            message=f"Input Sentinel detected: {pattern} (confidence: {confidence:.0%})",
+            data=event.payload
+        )
     
     def get_notifications(
         self,

@@ -11,7 +11,7 @@ from ...verification import VerificationEngine
 from ...hunter import hunter
 from ...parliament_engine import ParliamentEngine
 from ...grace_architect_agent import GraceArchitectAgent
-from ...immutable_log import ImmutableLog
+from backend.logging.unified_audit_logger import get_audit_logger
 from .models import Client, Project, Invoice
 
 
@@ -22,7 +22,7 @@ class AIConsultingEngine:
         self.verification = VerificationEngine()
         self.parliament = ParliamentEngine()
         self.architect = GraceArchitectAgent()
-        self.audit = ImmutableLog()
+        self.audit = get_audit_logger()
         self.lead_classifier = None
         
     async def initialize(self):
@@ -99,9 +99,9 @@ class AIConsultingEngine:
             data={"score": score, "features": features}
         )
         
-        await self.audit.log(
+        await self.audit.log_business_event(
             action="lead_qualified",
-            user="ai_consulting_engine",
+            actor="ai_consulting_engine",
             details={
                 "email": client_data.get("email"),
                 "score": score,
@@ -190,10 +190,11 @@ Include:
             data=proposal
         )
         
-        await self.audit.log(
+        await self.audit.log_business_event(
             action="proposal_generated",
-            user="ai_consulting_engine",
-            details={"client_id": client_id, "pricing": pricing}
+            actor="ai_consulting_engine",
+            resource=client_id,
+            details={"pricing": pricing}
         )
         
         return proposal
@@ -299,10 +300,11 @@ Include:
                 "milestones": self._create_milestones(deliverables, timeline)
             }
             
-            await self.audit.log(
+            await self.audit.log_business_event(
                 action="project_plan_created",
-                user="ai_consulting_engine",
-                details={"project_id": project.id, "client_id": client_id}
+                actor="ai_consulting_engine",
+                resource=str(project.id),
+                details={"client_id": client_id}
             )
             
             return plan
@@ -379,10 +381,11 @@ Include:
             )
             await session.commit()
             
-            await self.audit.log(
+            await self.audit.log_business_event(
                 action="project_delivered",
-                user="ai_consulting_engine",
-                details={"project_id": project_id, "automated": True}
+                actor="ai_consulting_engine",
+                resource=project_id,
+                details={"automated": True}
             )
             
             return {
@@ -421,14 +424,12 @@ Include:
             await session.commit()
             await session.refresh(invoice)
             
-            await self.audit.log(
+            await self.audit.log_business_event(
                 action="invoice_created",
-                user="ai_consulting_engine",
-                details={
-                    "project_id": project_id,
-                    "invoice_id": invoice.id,
-                    "amount": project.budget
-                }
+                actor="ai_consulting_engine",
+                resource=project_id,
+                transaction_id=str(invoice.id),
+                details={"amount": project.budget}
             )
             
             return {
@@ -463,11 +464,11 @@ Include:
             
             category = "Promoter" if simulated_nps >= 9 else ("Passive" if simulated_nps >= 7 else "Detractor")
             
-            await self.audit.log(
+            await self.audit.log_business_event(
                 action="nps_tracked",
-                user="ai_consulting_engine",
+                actor="ai_consulting_engine",
+                resource=project_id,
                 details={
-                    "project_id": project_id,
                     "nps_score": simulated_nps,
                     "category": category
                 }
