@@ -28,6 +28,7 @@ class ExecutionRunner:
         # simple in-memory adapters state (simulated toggles/logging TTLs)
         self._flags: Dict[str, Dict[str, Any]] = {}
         self._log_level_ttl: Optional[datetime] = None
+        self._last_htm_check: Optional[datetime] = None
 
     async def start(self) -> None:
         if self._task and not self._task.done():
@@ -335,7 +336,14 @@ class ExecutionRunner:
             # If not booted yet, this will fail gracefully
             from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
             
-            anomalies = htm_detector_pool.get_recent_anomalies(minutes=1)
+            anomalies = htm_detector_pool.get_recent_anomalies(
+                minutes=1,
+                since=self._last_htm_check
+            )
+            
+            # Update last check time
+            self._last_htm_check = datetime.utcnow()
+            
             if anomalies:
                 from backend.core.healing_orchestrator import healing_orchestrator
                 for anomaly in anomalies:

@@ -344,9 +344,25 @@ class HealingOrchestrator:
             elif "database" in context.get("description", "").lower():
                 playbook_id = "database_reconnect"
             elif "rag" in context.get("description", "").lower() or context.get("issue_type") == "rag_health_issue":
-                playbook_id = "vector_rebuild"
+                if "vector" in context.get("description", "").lower() or "index" in context.get("description", "").lower():
+                    playbook_id = "vector_rebuild"
+                else:
+                    # General RAG issue fallback
+                    playbook_id = "rag_service_restart"
+
             elif "htm" in context.get("description", "").lower() or context.get("issue_type") == "htm_anomaly":
-                playbook_id = "network_healing"
+                desc = context.get("description", "").lower()
+                if "network" in desc or "port" in desc or "connection" in desc:
+                    playbook_id = "network_healing"
+                elif "storage" in desc or "disk" in desc:
+                    playbook_id = "resource_cleanup"
+                elif "cpu" in desc or "memory" in desc or "load" in desc:
+                    playbook_id = "performance_optimization"
+                elif "service" in desc or "api" in desc:
+                    playbook_id = "restart_service"
+                else:
+                    # Fallback for unspecified HTM anomaly
+                    playbook_id = "run_diagnostics"
                 
             if playbook_id:
                 logger.info(f"[HEALING] Delegating to PlaybookEngine: {playbook_id}")

@@ -388,16 +388,20 @@ class HTMDetectorPool:
             
         return result
     
-    def get_recent_anomalies(self, minutes: int = 1) -> List[Dict]:
-        """Get anomalies detected in the last N minutes"""
-        cutoff = datetime.utcnow() - timedelta(minutes=minutes)
+    def get_recent_anomalies(self, minutes: int = 1, since: Optional[datetime] = None) -> List[Dict]:
+        """Get anomalies detected in the last N minutes or since timestamp"""
+        if since:
+            cutoff = since
+        else:
+            cutoff = datetime.utcnow() - timedelta(minutes=minutes)
+            
         return [
             {
                 "description": f"Anomaly in {x['model']}: score={x['anomaly'].anomaly_score:.2f}",
                 **x['anomaly'].to_dict()
             }
             for x in self.recent_anomalies
-            if x['timestamp'] >= cutoff
+            if x['timestamp'] > cutoff
         ]
     
     def get_all_stats(self) -> Dict[str, Dict]:
