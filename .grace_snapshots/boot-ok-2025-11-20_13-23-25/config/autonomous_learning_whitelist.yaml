@@ -1,0 +1,369 @@
+# Grace Autonomous Learning Whitelist
+# Defines domains Grace can autonomously study, practice, and master
+# Focus: Learning by building, not just reading
+
+# Core Philosophy:
+# - Use sandbox to test edge cases
+# - Build real projects to apply knowledge
+# - Work from KPIs and trust scores
+# - NO chatbot mode - real engineering only
+# - Follow whitelist strictly for autonomous work
+
+domains:
+  1_programming_foundations:
+    priority: critical
+    learning_mode: hands_on
+    topics:
+      - Python advanced (async, metaprogramming, C extensions)
+      - Java enterprise patterns
+      - C/C++ systems programming
+      - Go concurrency patterns
+      - TypeScript/JavaScript full-stack
+      - Rust memory safety
+    
+    practice_projects:
+      - Build async web crawler in Python
+      - Create microservice in Go
+      - Implement memory allocator in C
+      - Build type-safe API in TypeScript
+      - Port Python library to Rust
+    
+    success_criteria:
+      - "KPI: Projects compile and run"
+      - "Trust score: >0.8 on code review"
+      - "All edge cases handled in sandbox"
+
+  2_data_engineering:
+    priority: critical
+    learning_mode: build_pipeline
+    topics:
+      - Batch processing (Spark, Hadoop)
+      - Streaming (Kafka, Flink)
+      - Databases (Postgres, MongoDB, Cassandra, InfluxDB)
+      - ETL/ELT (Airflow, dbt)
+      - Data modeling (dimensional, data vault)
+      - Data quality and governance
+    
+    practice_projects:
+      - Build real-time data pipeline from scratch
+      - Implement CDC pipeline
+      - Create dimensional model for analytics
+      - Build data quality monitoring system
+      - Implement data lake architecture
+    
+    success_criteria:
+      - KPI: Pipeline processes 1M+ records
+      - Trust score: Data quality >0.95
+      - Handle schema evolution gracefully
+
+  3_cloud_infrastructure:
+    priority: critical
+    learning_mode: build_from_scratch
+    topics:
+      - AWS services (EC2, S3, Lambda, RDS, ECS/EKS)
+      - Azure services
+      - GCP services
+      - Kubernetes orchestration
+      - Terraform IaC
+      - Docker containerization
+    
+    practice_projects:
+      - Build entire cloud infrastructure from scratch
+      - Deploy multi-region HA system
+      - Implement auto-scaling web service
+      - Create K8s operator
+      - Build serverless data pipeline
+    
+    success_criteria:
+      - KPI: 99.9% uptime
+      - Trust score: Infrastructure security >0.9
+      - Cost optimization in place
+
+  4_devops_sre:
+    priority: high
+    learning_mode: operational
+    topics:
+      - CI/CD pipelines (GitHub Actions, Jenkins, ArgoCD)
+      - Monitoring (Prometheus, Grafana, Datadog)
+      - Incident response
+      - Chaos engineering
+      - SLI/SLO/SLA management
+    
+    practice_projects:
+      - Build complete CI/CD pipeline
+      - Implement observability stack
+      - Create incident response system
+      - Run chaos experiments
+      - Build auto-remediation system
+    
+    success_criteria:
+      - KPI: Deploy frequency >10/day
+      - Trust score: Incident MTTR <30min
+      - 100% test coverage on critical paths
+
+  5_security_compliance:
+    priority: critical
+    learning_mode: security_first
+    topics:
+      - Application security (OWASP Top 10)
+      - OAuth/OIDC/SAML
+      - Zero-trust architecture
+      - DevSecOps automation
+      - Compliance (SOC2, ISO 27001, GDPR)
+      - Cryptography
+    
+    practice_projects:
+      - Build zero-trust access system
+      - Implement OAuth provider
+      - Create security scanning pipeline
+      - Build compliance reporting system
+      - Implement encryption at rest/transit
+    
+    success_criteria:
+      - KPI: Zero critical vulnerabilities
+      - Trust score: Security audit >0.95
+      - All traffic encrypted
+
+  6_system_architecture:
+    priority: high
+    learning_mode: design_and_build
+    topics:
+      - Microservices patterns
+      - Event-driven architecture
+      - Distributed systems (consensus, replication)
+      - CAP theorem applications
+      - API gateway patterns
+    
+    practice_projects:
+      - Design and build microservices platform
+      - Implement event sourcing system
+      - Build distributed cache
+      - Create API gateway
+      - Design high-availability system
+    
+    success_criteria:
+      - KPI: System handles 10K RPS
+      - Trust score: Architecture review >0.85
+      - Fault tolerance proven
+
+  7_ml_dl_ai:
+    priority: high
+    learning_mode: research_and_implement
+    topics:
+      - Classical ML (regression, classification, clustering)
+      - Deep learning (CNNs, RNNs, Transformers)
+      - MLOps (experiment tracking, model registry)
+      - LLMs (fine-tuning, RAG, prompt engineering)
+      - AI ethics and safety
+    
+    practice_projects:
+      - Build ML pipeline end-to-end
+      - Train custom transformer model
+      - Implement RAG system
+      - Create MLOps platform
+      - Build AI safety monitoring
+    
+    success_criteria:
+      - KPI: Model accuracy >0.9
+      - Trust score: ML validation >0.85
+      - Bias detection in place
+
+  8_data_science:
+    priority: medium
+    learning_mode: analytical
+    topics:
+      - Exploratory data analysis
+      - Time series forecasting
+      - Optimization algorithms
+      - Business intelligence
+      - A/B testing
+    
+    practice_projects:
+      - Build forecasting system
+      - Create optimization engine
+      - Implement A/B test framework
+      - Build BI dashboard
+      - Create recommendation system
+    
+    success_criteria:
+      - KPI: Forecast accuracy >0.85
+      - Trust score: Statistical rigor >0.9
+      - Business impact measurable
+
+  9_product_strategy:
+    priority: medium
+    learning_mode: business_driven
+    topics:
+      - Product discovery and validation
+      - Growth funnels
+      - Customer acquisition and retention
+      - Pricing strategy
+      - Financial metrics (CAC, LTV, churn)
+    
+    practice_projects:
+      - Build growth model
+      - Implement funnel analytics
+      - Create pricing optimization
+      - Build retention system
+      - Design monetization strategy
+    
+    success_criteria:
+      - KPI: Revenue impact measurable
+      - Trust score: Business model validated
+      - ROI positive
+
+  10_blockchain_web3:
+    priority: low
+    learning_mode: experimental
+    topics:
+      - Smart contracts (Solidity, Rust)
+      - DeFi protocols
+      - On-chain analytics
+      - Security auditing
+    
+    practice_projects:
+      - Build smart contract
+      - Create DeFi protocol
+      - Implement blockchain indexer
+      - Build security scanner
+    
+    success_criteria:
+      - KPI: Contract deployed and working
+      - Trust score: Security audit >0.95
+      - Gas optimization achieved
+
+# Autonomous Learning Rules
+autonomous_rules:
+  # What Grace can do automatically
+  allowed_actions:
+    - Read whitelisted sources
+    - Build projects in sandbox
+    - Run tests and benchmarks
+    - Deploy to dev/staging  
+    - Create PRs for review
+    - Write documentation
+    - Implement fixes for known issues
+    - Optimize performance
+    - Add monitoring
+    
+  # What requires human approval
+  approval_required:
+    - Deploy to production
+    - Modify security policies
+    - Access secrets/credentials
+    - Modify governance rules
+    - Delete data
+    - External API calls (first time)
+    
+  # Learning methodology
+  process:
+    1_understand:
+      - Read documentation
+      - Study examples
+      - Analyze patterns
+      
+    2_apply:
+      - Build in sandbox
+      - Test edge cases
+      - Measure KPIs
+      
+    3_validate:
+      - Run comprehensive tests
+      - Check trust scores
+      - Get feedback
+      
+    4_iterate:
+      - Fix issues
+      - Optimize
+      - Document learnings
+      
+    5_next:
+      - Move to next topic only when current is mastered
+      - KPIs met, trust score achieved
+
+# Trusted Sources
+trusted_sources:
+  books:
+    - "Designing Data-Intensive Applications"
+    - "Site Reliability Engineering (Google)"
+    - "Kubernetes in Action"
+    - "Database Internals"
+    - "Building Microservices"
+    - "Hands-On Machine Learning"
+    - "Clean Architecture"
+    - "Domain-Driven Design"
+    
+  official_docs:
+    - docs.python.org
+    - kubernetes.io/docs
+    - aws.amazon.com/documentation
+    - cloud.google.com/docs
+    - docs.microsoft.com/azure
+    - terraform.io/docs
+    - pytorch.org/docs
+    - fastapi.tiangolo.com
+    
+  research:
+    - arxiv.org
+    - paperswithcode.com
+    - github.com (verified repos)
+    
+  industry_blogs:
+    - engineering.uber.com
+    - netflixtechblog.com
+    - aws.amazon.com/blogs
+    - cloud.google.com/blog
+
+# Remote Access Integration
+remote_access:
+  enabled: true
+  learning_enabled: true
+  ingest_commands: true
+  ingest_sessions: true
+  analyze_patterns: true
+  
+  # What to learn from remote access
+  learn_from:
+    - Command patterns and sequences
+    - Error handling strategies
+    - System administration best practices
+    - Security incident responses
+    - Performance optimization techniques
+    - Troubleshooting methodologies
+
+# Sandbox Rules
+sandbox:
+  enabled: true
+  allow_network: false  # Start isolated
+  allow_filesystem: true  # Within sandbox only
+  max_runtime: 3600  # 1 hour max per experiment
+  auto_cleanup: true
+  
+  # Edge case testing
+  edge_cases:
+    - Empty inputs
+    - Maximum values
+    - Concurrent access
+    - Network failures
+    - Resource exhaustion
+    - Invalid data
+
+# Success Metrics
+metrics:
+  kpis:
+    - projects_completed
+    - tests_passing_rate
+    - deployment_success_rate
+    - incident_resolution_time
+    - code_quality_score
+    - security_audit_score
+    
+  trust_scores:
+    minimum: 0.7  # Below this, needs review
+    good: 0.85    # Autonomous OK
+    excellent: 0.95  # Production ready
+    
+  learning_velocity:
+    topics_per_week: 2
+    projects_per_month: 4
+    mastery_time_max: 30_days  # Per domain
