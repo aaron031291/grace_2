@@ -13,6 +13,7 @@ import { TelemetryStrip } from './components/TelemetryStrip';
 import { HistorySearch } from './components/HistorySearch';
 import { UserPresenceBar } from './components/UserPresence';
 import { FileExplorer } from './components/FileExplorer';
+import { SystemOverviewPanel } from './components/SystemOverviewPanel';
 import { RemoteAPI } from './api/remote';
 import './AppChat.css';
 
@@ -391,13 +392,19 @@ function AppChat() {
             🎛️ Cockpit
           </button>
         </div>
-      </div>
-      
-      <div className="app-main">
-        <TelemetryStrip />
-        <UserPresenceBar currentUser="user" />
-        <ChatPanel />
-      </div>
+        </div>
+        
+        <div className="app-main">
+          <SystemOverviewPanel
+            remoteActive={remoteActive}
+            onToggleRemote={handleRemoteToggle}
+            onOpenTasks={() => setTasksOpen(true)}
+            onOpenFileExplorer={() => setFileExplorerOpen(true)}
+          />
+          <TelemetryStrip />
+          <UserPresenceBar currentUser="user" />
+          <ChatPanel />
+        </div>
       
       <RemoteCockpit isOpen={cockpitOpen} onClose={() => setCockpitOpen(false)} />
       <BackgroundTasksDrawer isOpen={tasksOpen} onClose={() => setTasksOpen(false)} />
