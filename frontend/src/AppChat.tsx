@@ -16,6 +16,7 @@ import { FileExplorer } from './components/FileExplorer';
 import { MissionControlDashboard } from './components/MissionControlDashboard';
 import { SystemDashboard } from './components/SystemDashboard';
 import { SystemOverview } from './components/SystemOverview';
+import { MentorRoundtable } from './components/MentorRoundtable';
 import { RemoteAPI } from './api/remote';
 import './AppChat.css';
 
@@ -26,6 +27,7 @@ function AppChat() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [fileExplorerOpen, setFileExplorerOpen] = useState(false);
   const [missionControlOpen, setMissionControlOpen] = useState(false);
+  const [mentorOpen, setMentorOpen] = useState(false);
   const [remoteActive, setRemoteActive] = useState(false);
   const [screenShareActive, setScreenShareActive] = useState(false);
   const [remoteSessionId, setRemoteSessionId] = useState<string | null>(null);
@@ -403,6 +405,14 @@ function AppChat() {
           >
             🎯 Mission Control
           </button>
+          
+          <button
+            className="control-button mentor-btn"
+            onClick={() => setMentorOpen(true)}
+            title="Consult Local Mentors"
+          >
+            🧙 Mentors
+          </button>
         </div>
 
         <div className="view-switcher">
@@ -453,6 +463,7 @@ function AppChat() {
       />
       <FileExplorer isOpen={fileExplorerOpen} onClose={() => setFileExplorerOpen(false)} />
       <MissionControlDashboard isOpen={missionControlOpen} onClose={() => setMissionControlOpen(false)} />
+      <MentorRoundtable isOpen={mentorOpen} onClose={() => setMentorOpen(false)} />
     </div>
   );
 }

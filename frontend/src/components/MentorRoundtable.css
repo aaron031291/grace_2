@@ -1,0 +1,396 @@
+/* Mentor Roundtable Styles */
+
+.mentor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s;
+}
+
+.mentor-panel {
+  background: #1a1a1a;
+  border-radius: 16px;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s;
+}
+
+.mentor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 2px solid #2a2a2a;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2a1a3a 100%);
+}
+
+.mentor-header h2 {
+  margin: 0;
+  font-size: 26px;
+  color: #fff;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.mentor-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Input Section */
+.mentor-input-section {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.mentor-input-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #fff;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.task-input {
+  width: 100%;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.task-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.task-type-select {
+  width: 100%;
+  padding: 12px;
+  background: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.task-type-select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.model-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.model-card {
+  background: #1a1a1a;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.model-card:hover {
+  border-color: #3498db;
+  transform: translateY(-2px);
+}
+
+.model-card.selected {
+  border-color: #27ae60;
+  background: #1a2a1a;
+}
+
+.model-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.model-spec {
+  font-size: 12px;
+  color: #3498db;
+  margin-bottom: 6px;
+}
+
+.model-strength {
+  font-size: 13px;
+  color: #888;
+}
+
+.run-roundtable-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #9b59b6 0%, #e74c3c 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 20px;
+}
+
+.run-roundtable-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(231, 76, 60, 0.4);
+}
+
+.run-roundtable-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mentor-error {
+  background: #e74c3c;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* Results Section */
+.mentor-results {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.mentor-results h3 {
+  margin: 0 0 20px 0;
+  font-size: 22px;
+  color: #fff;
+}
+
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.consensus-section {
+  background: #1a3a1a;
+  border: 2px solid #27ae60;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.consensus-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #27ae60;
+}
+
+.consensus-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+}
+
+.responses-section {
+  margin-top: 24px;
+}
+
+.responses-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.response-card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+  border-left: 4px solid #3498db;
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.response-model {
+  font-weight: 700;
+  font-size: 15px;
+  color: #3498db;
+}
+
+.response-confidence {
+  font-size: 13px;
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.response-specialization {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.response-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ccc;
+  white-space: pre-wrap;
+}
+
+.storage-notice {
+  background: #1a2a1a;
+  border: 2px solid #27ae60;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  color: #27ae60;
+  font-weight: 600;
+  margin-top: 24px;
+}
+
+/* Recent Roundtables */
+.recent-section {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.recent-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  color: #fff;
+}
+
+.recent-item {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #9b59b6;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recent-item:hover {
+  border-color: #e74c3c;
+  transform: translateX(4px);
+}
+
+.recent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.recent-type {
+  font-weight: 600;
+  color: #9b59b6;
+  text-transform: capitalize;
+}
+
+.recent-date {
+  font-size: 13px;
+  color: #888;
+}
+
+.recent-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mentor-panel {
+    width: 98%;
+    max-height: 95vh;
+  }
+
+  .model-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .results-summary {
+    grid-template-columns: 1fr;
+  }
+}
