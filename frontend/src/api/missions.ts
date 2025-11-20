@@ -80,7 +80,7 @@ export const MissionControlAPI = {
    * Get overall mission control status
    */
   async getStatus(): Promise<MissionControlStatus> {
-    const response = await fetch(`${API_BASE_URL}/mission-control/status`);
+    const response = await fetch(`${API_BASE_URL}/api/mission-control/status`);
     if (!response.ok) {
       throw new Error(`Failed to fetch mission control status: ${response.statusText}`);
     }
@@ -102,7 +102,7 @@ export const MissionControlAPI = {
     if (params?.severity) queryParams.append('severity', params.severity);
     if (params?.limit) queryParams.append('limit', params.limit.toString());
 
-    const url = `${API_BASE_URL}/mission-control/missions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${API_BASE_URL}/api/mission-control/missions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -116,7 +116,7 @@ export const MissionControlAPI = {
    * Get detailed information about a specific mission
    */
   async getMission(missionId: string): Promise<MissionDetail> {
-    const response = await fetch(`${API_BASE_URL}/mission-control/missions/${missionId}`);
+    const response = await fetch(`${API_BASE_URL}/api/mission-control/missions/${missionId}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch mission ${missionId}: ${response.statusText}`);
     }

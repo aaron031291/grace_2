@@ -87,7 +87,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     setError(null);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/list`);
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/list`);
       if (!response.ok) throw new Error('Failed to load files');
       
       const data = await response.json();
@@ -101,7 +101,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
 
   const loadIngestionStatus = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/ingestions`);
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/ingestions`);
       if (response.ok) {
         const data = await response.json();
         setIngestions(data);
@@ -116,7 +116,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/content?path=${encodeURIComponent(file.path)}`);
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/content?path=${encodeURIComponent(file.path)}`);
       if (!response.ok) throw new Error('Failed to load file content');
       
       const data = await response.json();
@@ -134,7 +134,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/content`, {
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/content`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -161,7 +161,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     const folderPath = basePath ? `${basePath}/${folderName}` : folderName;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/create-folder`, {
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/create-folder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: folderPath })
@@ -181,7 +181,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     formData.append('path', targetPath);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/upload`, {
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/upload`, {
         method: 'POST',
         body: formData
       });
@@ -214,7 +214,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     if (!confirm(`Delete ${node.name}?`)) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/delete`, {
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/delete`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: node.path })
@@ -268,7 +268,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     setError(null);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/learned?file_path=${encodeURIComponent(file.path)}`);
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/learned?file_path=${encodeURIComponent(file.path)}`);
       if (!response.ok) throw new Error('Failed to query learned knowledge');
       
       const data = await response.json();
@@ -288,7 +288,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ isOpen, onClose }) =
     setError(null);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/memory/files/quick-action`, {
+      const response = await fetch(`${API_BASE_URL}/api/memory/files/quick-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

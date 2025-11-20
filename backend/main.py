@@ -61,6 +61,13 @@ try:
 except ImportError as e:
     print(f"[WARN] Learning Hub API disabled: {e}")
 
+# Register Mentor API (Local model roundtables)
+try:
+    from backend.routes.mentor_api import router as mentor_router
+    app.include_router(mentor_router)
+except ImportError as e:
+    print(f"[WARN] Mentor API disabled: {e}")
+
 # Register Task Registry API (Unified task tracking across all subsystems)
 try:
     from backend.routes.task_registry_api import router as task_registry_router

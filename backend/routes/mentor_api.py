@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from backend.kernels.mentor_harness import get_mentor_harness
 from backend.learning_memory import query_category
 
-router = APIRouter()
+router = APIRouter(prefix="/api/mentor", tags=["Mentor"])
 
 
 class RoundtableRequest(BaseModel):
