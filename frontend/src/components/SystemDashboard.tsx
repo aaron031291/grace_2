@@ -15,7 +15,10 @@
 import React, { useState, useEffect } from 'react';
 import { HealthMeter } from './HealthMeter';
 import { TelemetryStrip } from './TelemetryStrip';
-import { LearningAPI } from '../api/learning';
+import { MetricsCharts } from './MetricsCharts';
+import { MissionList } from './MissionList';
+import { SelfHealingMetrics } from './SelfHealingMetrics';
+import { SnapshotManagement } from './SnapshotManagement';
 import { MissionControlAPI, type Mission } from '../api/missions';
 import { SnapshotAPI, type Snapshot } from '../api/snapshots';
 import { IncidentsAPI, type SelfHealingStats } from '../api/incidents';
@@ -38,6 +41,7 @@ interface RemoteAccessStatus {
 }
 
 export const SystemDashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'metrics' | 'missions' | 'healing' | 'snapshots'>('overview');
   const [learningStatus, setLearningStatus] = useState<LearningStatus | null>(null);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
@@ -91,16 +95,7 @@ export const SystemDashboard: React.FC = () => {
     }
   };
 
-  const handleRestoreSnapshot = async (snapshotId: string) => {
-    if (!confirm(`Restore from ${snapshotId}? This will restart the system.`)) return;
-    
-    try {
-      await SnapshotAPI.restoreSnapshot(snapshotId);
-      alert('Restore initiated. Server will restart.');
-    } catch (err: any) {
-      alert('Restore error: ' + err.message);
-    }
-  };
+  // Snapshot restore is handled by SnapshotManagement component
 
   useEffect(() => {
     fetchDashboardData();
@@ -122,10 +117,46 @@ export const SystemDashboard: React.FC = () => {
         <TelemetryStrip />
       </div>
 
+      {/* Navigation Tabs */}
+      <div className="dashboard-tabs">
+        <button 
+          className={`dashboard-tab ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          📊 Overview
+        </button>
+        <button 
+          className={`dashboard-tab ${activeTab === 'metrics' ? 'active' : ''}`}
+          onClick={() => setActiveTab('metrics')}
+        >
+          📈 Metrics & Charts
+        </button>
+        <button 
+          className={`dashboard-tab ${activeTab === 'missions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('missions')}
+        >
+          🎯 Mission List
+        </button>
+        <button 
+          className={`dashboard-tab ${activeTab === 'healing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('healing')}
+        >
+          🔧 Self-Healing
+        </button>
+        <button 
+          className={`dashboard-tab ${activeTab === 'snapshots' ? 'active' : ''}`}
+          onClick={() => setActiveTab('snapshots')}
+        >
+          📸 Snapshots
+        </button>
+      </div>
+
       {error && <div className="dashboard-error">⚠️ {error}</div>}
       {loading && <div className="dashboard-loading">Loading system data...</div>}
 
-      <div className="dashboard-grid">
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <div className="dashboard-grid">
         {/* Health Meter - Full Width */}
         <div className="dashboard-section health-section">
           <HealthMeter />
@@ -308,34 +339,60 @@ export const SystemDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Snapshots Card */}
+        {/* Snapshots Summary - Link to Snapshots Tab */}
         <div className="dashboard-section snapshots-card">
           <h3>📸 System Snapshots ({snapshots.length})</h3>
-          {snapshots.length > 0 ? (
-            <div className="snapshots-list">
-              {snapshots.slice(0, 5).map((snapshot) => (
-                <div key={snapshot.snapshot_id} className="snapshot-item-compact">
-                  <div className="snapshot-info">
-                    <div className="snapshot-id">{snapshot.snapshot_id}</div>
-                    <div className="snapshot-time">
-                      {new Date(snapshot.timestamp).toLocaleString()}
-                    </div>
-                    {snapshot.verified_ok && <span className="verified-badge">✓ Verified</span>}
-                  </div>
-                  <button 
-                    className="restore-btn-compact"
-                    onClick={() => handleRestoreSnapshot(snapshot.snapshot_id)}
-                  >
-                    Restore
-                  </button>
-                </div>
-              ))}
+          <div className="snapshot-summary">
+            <div className="summary-stats">
+              <div className="summary-stat">
+                <span className="summary-label">Total:</span>
+                <span className="summary-value">{snapshots.length}</span>
+              </div>
+              <div className="summary-stat">
+                <span className="summary-label">Latest:</span>
+                <span className="summary-value">
+                  {snapshots[0] ? new Date(snapshots[0].timestamp).toLocaleString() : 'N/A'}
+                </span>
+              </div>
             </div>
-          ) : (
-            <div className="no-data">No snapshots available</div>
-          )}
+            <button 
+              className="view-all-btn"
+              onClick={() => setActiveTab('snapshots')}
+            >
+              📸 View All Snapshots →
+            </button>
+          </div>
         </div>
       </div>
+      )}
+
+      {/* Metrics & Charts Tab */}
+      {activeTab === 'metrics' && (
+        <div className="dashboard-tab-content">
+          <MetricsCharts />
+        </div>
+      )}
+
+      {/* Mission List Tab */}
+      {activeTab === 'missions' && (
+        <div className="dashboard-tab-content">
+          <MissionList filter="all" limit={50} />
+        </div>
+      )}
+
+      {/* Self-Healing Tab */}
+      {activeTab === 'healing' && (
+        <div className="dashboard-tab-content">
+          <SelfHealingMetrics />
+        </div>
+      )}
+
+      {/* Snapshots Tab */}
+      {activeTab === 'snapshots' && (
+        <div className="dashboard-tab-content">
+          <SnapshotManagement />
+        </div>
+      )}
     </div>
   );
 };

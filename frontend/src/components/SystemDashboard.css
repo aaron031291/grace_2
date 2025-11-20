@@ -1,0 +1,384 @@
+/* System Overview Dashboard */
+.system-dashboard {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #00d4ff;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #00d4ff;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #00d4ff, #0064ff);
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+.dashboard-telemetry {
+  margin-bottom: 24px;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+}
+
+.dashboard-tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #aaa;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dashboard-tab:hover {
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.dashboard-tab.active {
+  color: #00d4ff;
+  border-bottom-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.dashboard-tab-content {
+  padding: 20px 0;
+}
+
+.dashboard-error {
+  background: rgba(255, 68, 68, 0.2);
+  border: 2px solid #ff4444;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  color: #ff4444;
+  font-weight: 600;
+}
+
+.dashboard-loading {
+  text-align: center;
+  padding: 40px;
+  color: #00d4ff;
+  font-size: 18px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.dashboard-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.dashboard-section:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+}
+
+.dashboard-section h3 {
+  margin: 0 0 16px 0;
+  color: #00d4ff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.health-section {
+  grid-column: 1 / -1;
+}
+
+.no-data {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* Status Cards */
+.learning-stats-grid,
+.healing-stats-grid,
+.chaos-stats-grid,
+.remote-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.stat-box {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-label {
+  color: #888;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  color: #00d4ff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stat-value.small {
+  font-size: 12px;
+}
+
+.stat-value.status-active,
+.stat-value.active {
+  color: #00ff88;
+}
+
+.stat-value.status-paused,
+.stat-value.inactive {
+  color: #ff8800;
+}
+
+.stat-value.status-disabled {
+  color: #ff4444;
+}
+
+.stat-value.resolved {
+  color: #00ff88;
+}
+
+/* Mission Queue Table */
+.mission-queue-section {
+  grid-column: 1 / -1;
+}
+
+.mission-queue-table {
+  overflow-x: auto;
+}
+
+.missions-compact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.missions-compact-table thead {
+  background: rgba(0, 212, 255, 0.1);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.missions-compact-table th {
+  padding: 8px 10px;
+  text-align: left;
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.missions-compact-table tbody tr {
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.2s;
+}
+
+.missions-compact-table tbody tr:hover {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.missions-compact-table td {
+  padding: 10px;
+  color: #ddd;
+}
+
+.mission-id-compact {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #00d4ff;
+  cursor: help;
+}
+
+.subsystem-badge-compact {
+  display: inline-block;
+  padding: 2px 6px;
+  background: rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 3px;
+  color: #00d4ff;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.severity-badge-compact {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.severity-badge-compact.severity-critical {
+  background: #ff4444;
+  color: white;
+}
+
+.severity-badge-compact.severity-high {
+  background: #ff8800;
+  color: white;
+}
+
+.severity-badge-compact.severity-medium {
+  background: #ffaa00;
+  color: white;
+}
+
+.severity-badge-compact.severity-low {
+  background: #888;
+  color: white;
+}
+
+.status-badge-compact {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.status-badge-compact.status-open {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.status-badge-compact.status-in_progress {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.status-badge-compact.status-resolved {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.status-badge-compact.status-failed {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.time-compact {
+  font-size: 11px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+/* Snapshots Card */
+.snapshot-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 6px;
+}
+
+.summary-label {
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.summary-value {
+  color: #00d4ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.view-all-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #00d4ff, #0064ff);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+  
+  .learning-stats-grid,
+  .healing-stats-grid,
+  .chaos-stats-grid,
+  .remote-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

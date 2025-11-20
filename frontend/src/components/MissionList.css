@@ -1,0 +1,470 @@
+.mission-list {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 24px;
+  color: #fff;
+}
+
+.mission-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+  gap: 16px;
+}
+
+.mission-list-header h2 {
+  margin: 0;
+  color: #00d4ff;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.mission-stats {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.stat-badge {
+  padding: 6px 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  color: #ddd;
+  font-size: 12px;
+}
+
+.stat-badge strong {
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+.stat-badge.active strong {
+  color: #ffaa00;
+}
+
+.stat-badge.resolved strong {
+  color: #00ff88;
+}
+
+.mission-list-loading,
+.mission-list-error {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-style: italic;
+}
+
+.mission-list-error {
+  color: #ff4444;
+}
+
+.mission-list-content {
+  position: relative;
+}
+
+.missions-table-container {
+  overflow-x: auto;
+}
+
+.missions-table-full {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.missions-table-full thead {
+  background: rgba(0, 212, 255, 0.1);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.missions-table-full th {
+  padding: 12px;
+  text-align: left;
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.missions-table-full tbody tr {
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.missions-table-full tbody tr:hover {
+  background: rgba(0, 212, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.missions-table-full td {
+  padding: 12px;
+  color: #ddd;
+}
+
+.mission-id-full {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #00d4ff;
+  cursor: help;
+}
+
+.subsystem-tag,
+.severity-tag,
+.status-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.subsystem-tag {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.severity-tag.severity-critical {
+  background: #ff4444;
+  color: white;
+}
+
+.severity-tag.severity-high {
+  background: #ff8800;
+  color: white;
+}
+
+.severity-tag.severity-medium {
+  background: #ffaa00;
+  color: white;
+}
+
+.severity-tag.severity-low {
+  background: #888;
+  color: white;
+}
+
+.status-tag.status-open {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+}
+
+.status-tag.status-in_progress {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+.status-tag.status-resolved {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+}
+
+.status-tag.status-failed {
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+}
+
+.status-tag.status-escalated {
+  background: rgba(255, 0, 255, 0.2);
+  color: #ff00ff;
+}
+
+.assigned-to {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.time-cell-full {
+  font-size: 11px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.count-cell {
+  text-align: center;
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #00d4ff, #0064ff);
+  border: none;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+/* Mission Details Panel */
+.mission-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-details-panel {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #00d4ff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.details-header h3 {
+  margin: 0;
+  color: #00d4ff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.close-details-btn {
+  background: transparent;
+  border: 2px solid #ff4444;
+  color: #ff4444;
+  font-size: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.close-details-btn:hover {
+  background: #ff4444;
+  color: white;
+  transform: rotate(90deg);
+}
+
+.details-loading {
+  padding: 40px;
+  text-align: center;
+  color: #00d4ff;
+}
+
+.details-content {
+  padding: 24px;
+}
+
+.details-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.details-section:last-child {
+  border-bottom: none;
+}
+
+.details-section h4 {
+  margin: 0 0 16px 0;
+  color: #00d4ff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-label {
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.detail-value {
+  color: #ddd;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.symptoms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.symptom-card {
+  background: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.symptom-description {
+  color: #ddd;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.symptom-metric {
+  color: #ffaa00;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.symptom-log {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #ff4444;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #ff8888;
+}
+
+.remediation-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.remediation-event {
+  padding: 12px;
+  background: rgba(0, 212, 255, 0.05);
+  border-left: 4px solid #00d4ff;
+  border-radius: 4px;
+}
+
+.event-time {
+  color: #888;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.event-actor {
+  color: #00d4ff;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.event-action {
+  color: #ddd;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.event-result {
+  color: #00ff88;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.context-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.context-label {
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.context-value {
+  color: #00d4ff;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.details-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.execute-btn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.execute-btn.coding {
+  background: linear-gradient(135deg, #00d4ff, #0064ff);
+  color: white;
+}
+
+.execute-btn.healing {
+  background: linear-gradient(135deg, #00ff88, #00aa55);
+  color: white;
+}
+
+.execute-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}

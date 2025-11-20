@@ -14,10 +14,12 @@ import { HistorySearch } from './components/HistorySearch';
 import { UserPresenceBar } from './components/UserPresence';
 import { FileExplorer } from './components/FileExplorer';
 import { MissionControlDashboard } from './components/MissionControlDashboard';
+import { SystemDashboard } from './components/SystemDashboard';
 import { RemoteAPI } from './api/remote';
 import './AppChat.css';
 
 function AppChat() {
+  const [activeView, setActiveView] = useState<'chat' | 'dashboard'>('dashboard'); // Default to dashboard
   const [cockpitOpen, setCockpitOpen] = useState(false);
   const [tasksOpen, setTasksOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -401,12 +403,33 @@ function AppChat() {
             🎯 Mission Control
           </button>
         </div>
+
+        <div className="view-switcher">
+          <button
+            className={`view-btn ${activeView === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveView('dashboard')}
+          >
+            📊 Dashboard
+          </button>
+          <button
+            className={`view-btn ${activeView === 'chat' ? 'active' : ''}`}
+            onClick={() => setActiveView('chat')}
+          >
+            💬 Chat
+          </button>
+        </div>
       </div>
       
       <div className="app-main">
-        <TelemetryStrip />
-        <UserPresenceBar currentUser="user" />
-        <ChatPanel />
+        {activeView === 'dashboard' ? (
+          <SystemDashboard />
+        ) : (
+          <>
+            <TelemetryStrip />
+            <UserPresenceBar currentUser="user" />
+            <ChatPanel />
+          </>
+        )}
       </div>
       
       <RemoteCockpit isOpen={cockpitOpen} onClose={() => setCockpitOpen(false)} />

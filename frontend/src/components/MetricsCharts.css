@@ -1,0 +1,184 @@
+.metrics-charts {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 24px;
+  color: #fff;
+}
+
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.metrics-header h2 {
+  margin: 0;
+  color: #00d4ff;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.metrics-loading,
+.metrics-error {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+  font-style: italic;
+}
+
+.metrics-error {
+  color: #ff4444;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.metric-card:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+}
+
+.metric-card h3 {
+  margin: 0 0 16px 0;
+  color: #00d4ff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.metric-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-label {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stat-value {
+  color: #ddd;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stat-value.highlight {
+  color: #00d4ff;
+  font-size: 18px;
+}
+
+.stat-value.success {
+  color: #00ff88;
+}
+
+.stat-value.warning {
+  color: #ffaa00;
+}
+
+.stat-value.error {
+  color: #ff4444;
+}
+
+.stat-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.stat-bar-fill.success {
+  background: linear-gradient(90deg, #00ff88, #00aa55);
+}
+
+.stat-bar-fill.warning {
+  background: linear-gradient(90deg, #ffaa00, #ff8800);
+}
+
+.stat-bar-fill.trust {
+  background: linear-gradient(90deg, #00d4ff, #0064ff);
+}
+
+/* Trust Distribution Chart */
+.trust-distribution-chart {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.chart-bar-group {
+  display: flex;
+  width: 100%;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chart-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.3s;
+  cursor: help;
+}
+
+.chart-bar:hover {
+  filter: brightness(1.2);
+}
+
+.chart-bar.high-trust {
+  background: #00ff88;
+}
+
+.chart-bar.medium-trust {
+  background: #ffaa00;
+}
+
+.chart-bar.low-trust {
+  background: #ff4444;
+}
+
+.metrics-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 212, 255, 0.2);
+  text-align: center;
+}
+
+.metrics-timestamp {
+  color: #888;
+  font-size: 12px;
+  font-style: italic;
+}

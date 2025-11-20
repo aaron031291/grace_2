@@ -88,6 +88,38 @@
   box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
 }
 
+.view-switcher {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.view-btn {
+  flex: 1;
+  padding: 12px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.view-btn:hover {
+  background: #3a3a3a;
+  border-color: #4a4a4a;
+}
+
+.view-btn.active {
+  background: linear-gradient(135deg, #00d4ff, #0096ff);
+  border-color: #00d4ff;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
 .cockpit-toggle {
   width: 100%;
   padding: 0.75rem 1rem;
