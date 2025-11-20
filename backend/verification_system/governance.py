@@ -73,5 +73,23 @@ class GovernanceEngine:
         # Stub - implement actual logging
         pass
 
+    
+    def __getattr__(self, name):
+        """Fail-safe for missing methods (API regression)"""
+        if name == "check_action":
+            # Log the regression trigger
+            import logging
+            logging.getLogger(__name__).error(f"Governance API Regression: object has no attribute '{name}'")
+            
+            # Return a fail-safe async stub
+            async def fail_safe_check(*args, **kwargs):
+                return {
+                    "approved": False,
+                    "reason": "Governance API Regression: Method missing. Fail-safe block.",
+                    "approval_id": "failsafe_block"
+                }
+            return fail_safe_check
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
 # Singleton instance
 governance_engine = GovernanceEngine()

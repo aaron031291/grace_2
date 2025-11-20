@@ -29,6 +29,10 @@ class ExecutionRunner:
         self._flags: Dict[str, Dict[str, Any]] = {}
         self._log_level_ttl: Optional[datetime] = None
         self._last_htm_check: Optional[datetime] = None
+        
+        # Real executors
+        from .real_executors import real_executors
+        self.executors = real_executors
 
     async def start(self) -> None:
         if self._task and not self._task.done():
@@ -178,33 +182,30 @@ class ExecutionRunner:
         else:
             return slope > 0
 
-    # ---- Action adapters (safe/simulated) ----
+    # ---- Action adapters (delegated to RealExecutors) ----
     async def _act_restart_service(self, service: str, graceful: bool = True) -> str:
-        # Simulate restart; real integration can be added later
-        await asyncio.sleep(0.05)
-        return f"restart_service(graceful={graceful}) simulated"
+        res = await self.executors.restart_service({"service": service, "graceful": graceful})
+        return f"restart_service: {res.get('note', str(res))}"
 
     async def _act_toggle_flag(self, flag: str, state: bool) -> str:
-        self._flags[flag] = {"state": bool(state), "at": datetime.now(timezone.utc)}
-        return f"toggle_flag {flag} -> {state}"
+        res = await self.executors.toggle_flag({"flag": flag, "state": state})
+        return f"toggle_flag: {res.get('note', str(res))}"
 
     async def _act_scale_instances(self, min_delta: int) -> str:
-        if not isinstance(min_delta, int) or min_delta < -3 or min_delta > 3:
-            raise ValueError("min_delta out of bounds [-3,3]")
-        await asyncio.sleep(0.05)
-        return f"scale_instances by {min_delta} (simulated)"
+        res = await self.executors.scale_instances({"min_delta": min_delta})
+        return f"scale_instances: {res.get('note', str(res))}"
 
     async def _act_warm_cache(self) -> str:
-        await asyncio.sleep(0.05)
-        return "warm_cache simulated"
+        res = await self.executors.warm_cache({"cache_type": "application"})
+        return f"warm_cache: {res.get('note', str(res))}"
 
     async def _act_set_logging_level(self, level: str = "DEBUG", ttl_min: int = 15) -> str:
-        self._log_level_ttl = datetime.now(timezone.utc) + timedelta(minutes=int(ttl_min or 15))
-        return f"set_logging_level {level} ttl={ttl_min}m (simulated)"
+        res = await self.executors.set_logging_level({"level": level, "ttl_min": ttl_min})
+        return f"set_logging_level: {res.get('note', str(res))}"
 
     async def _act_flush_circuit_breakers(self) -> str:
-        await asyncio.sleep(0.02)
-        return "flush_circuit_breakers simulated"
+        res = await self.executors.flush_circuit_breakers({})
+        return f"flush_circuit_breakers: {res.get('note', str(res))}"
 
     async def _act_noop(self) -> str:
         return "noop"

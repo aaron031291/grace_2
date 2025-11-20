@@ -85,6 +85,25 @@ class HTMSizeMetricsAggregator:
         now = datetime.now(timezone.utc)
         one_hour_ago = now - timedelta(hours=1)
         
+        # Push metrics to HTM detector for anomaly detection
+        try:
+            from backend.trust_framework.htm_anomaly_detector import htm_detector_pool
+            # Basic integration: send total throughput as a token sequence to a 'metrics' model
+            # In a real system, we'd send more granular streams
+            if self.stats["total_throughput_bytes_per_sec"] > 0:
+                # Fake tokenization of metric for HTM (conceptually)
+                # Mapping value buckets to tokens
+                throughput = int(self.stats["total_throughput_bytes_per_sec"])
+                token = min(throughput // 1024, 1000) # 1KB buckets, max 1000
+                
+                htm_detector_pool.detect_for_model(
+                    "metrics_throughput",
+                    [token],
+                    [1.0] # High confidence it happened
+                )
+        except Exception as e:
+            pass # Don't fail metrics agg on HTM issue
+
         async with async_session() as session:
             # Get completed tasks from last hour with size data
             result = await session.execute(

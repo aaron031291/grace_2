@@ -379,6 +379,8 @@ class RotateSecretsPlaybook(Playbook):
         }
 
 
+from .system_topology_playbook import SystemTopologyPlaybook
+
 class PlaybookRegistry:
     """Registry of all available playbooks"""
     
@@ -398,7 +400,8 @@ class PlaybookRegistry:
             QuarantineArtifactsPlaybook(),
             RunDiagnosticsPlaybook(),
             DailyHealthCheckPlaybook(),
-            RotateSecretsPlaybook()
+            RotateSecretsPlaybook(),
+            SystemTopologyPlaybook()
         ]
         
         for playbook in playbooks:

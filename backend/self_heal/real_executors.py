@@ -335,6 +335,41 @@ class RealExecutors:
         logging.root.setLevel(logging.INFO)
         print(f"  [OK] Logging reset to INFO after {minutes} minutes")
 
+    async def check_health(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Check health of a component/url
+        """
+        check_type = parameters.get("type", "http")
+        target = parameters.get("target", "http://localhost:8000/health")
+        
+        try:
+            if check_type == "http":
+                import aiohttp
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(target, timeout=5) as resp:
+                        return {
+                            "ok": resp.status == 200,
+                            "status_code": resp.status,
+                            "target": target
+                        }
+            elif check_type == "port":
+                import socket
+                port = int(parameters.get("port", 80))
+                host = parameters.get("host", "localhost")
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex((host, port))
+                sock.close()
+                return {
+                    "ok": result == 0,
+                    "target": f"{host}:{port}"
+                }
+                
+            return {"ok": False, "error": "Unknown check type"}
+            
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+
 
 # Singleton instance
 real_executors = RealExecutors()
