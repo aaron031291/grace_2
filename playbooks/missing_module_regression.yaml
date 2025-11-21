@@ -1,0 +1,45 @@
+# Missing Module Regression Playbook - backend.events  
+# Specifically handles the "No module named 'backend.events'" error  
+# Creates stub package and raises coding-agent work order  
+  
+name: missing_module_regression  
+version: 1.0.0  
+priority: critical  
+  
+metadata:  
+  description: Handle regression where backend.events module is missing  
+  owner: guardian  
+  auto_trigger: true  
+  requires_approval: false  
+  
+triggers:  
+  - type: exception  
+    pattern: ModuleNotFoundError.*backend\.events  
+    severity: error  
+  - type: log_message  
+    pattern: No module named 'backend.events'  
+    severity: warning  
+  
+conditions:  
+  - check: not file_exists('backend/events/__init__.py')  
+  - check: boot_phase in ['import_phase', 'startup']  
+  
+steps:  
+  - name: create_events_package_stub  
+    action: create_package_structure  
+    operations:  
+      - create_directory: 'backend/events'  
+      - create_stub_files  
+  - name: raise_coding_agent_work_order  
+    action: open_coding_agent_ticket  
+    operations:  
+      - create_ticket:  
+          title: "URGENT: Restore backend.events package (boot regression)"  
+          priority: critical  
+          assignee: coding_agent  
+  - name: alert_guardian  
+    action: send_notification  
+    operations:  
+      - notify_guardian:  
+          severity: critical  
+          message: "BACKEND.EVENTS REGRESSION DETECTED - Stub created, work order opened" 

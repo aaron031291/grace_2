@@ -1,0 +1,47 @@
+# World Model Pipeline Degradation Playbook  
+# Catches backend.events warning, auto-suppresses subscription, files task  
+  
+name: world_model_pipeline_degradation  
+version: 1.0.0  
+priority: medium  
+  
+metadata:  
+  description: Handle world model pipeline degradation from missing backend.events  
+  owner: guardian  
+  auto_trigger: true  
+  requires_approval: false  
+  
+triggers:  
+  - type: log_message  
+    pattern: No module named 'backend.events'  
+    severity: warning  
+  - type: exception  
+    pattern: ModuleNotFoundError.*backend\.events  
+    severity: error  
+  
+conditions:  
+  - check: component == 'world_model_summary_pipeline'  
+  - check: not stub_already_created  
+  
+steps:  
+  - name: suppress_subscription  
+    action: disable_domain_events  
+    operations:  
+      - skip_event_subscription  
+      - log_degraded_mode  
+    outputs:  
+      - subscription_suppressed: bool  
+  - name: file_domain_system_task  
+    action: create_domain_system_ticket  
+    operations:  
+      - create_ticket:  
+          title: "Restore backend.events package for domain event subscriptions"  
+          priority: high  
+          assignee: domain_system  
+          description: "World model pipeline degraded due to missing backend.events module"  
+  - name: alert_guardian  
+    action: send_notification  
+    operations:  
+      - notify_guardian:  
+          severity: warning  
+          message: "World model pipeline operating in degraded mode - domain events suppressed until backend.events restored" 

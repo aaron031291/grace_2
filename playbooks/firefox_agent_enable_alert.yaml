@@ -1,0 +1,45 @@
+# Firefox Agent Enable Alert Playbook  
+# Alerts Guardian when Firefox agent enables, confirms governance scope  
+  
+name: firefox_agent_enable_alert  
+version: 1.0.0  
+priority: high  
+  
+metadata:  
+  description: Alert Guardian when Firefox browser access is enabled  
+  owner: guardian  
+  auto_trigger: true  
+  requires_approval: true  
+  
+triggers:  
+  - type: log_message  
+    pattern: Browser access ENABLED  
+    severity: info  
+  - type: state_change  
+    component: firefox_agent  
+    from_state: disabled  
+    to_state: enabled  
+  
+conditions:  
+  - check: not emergency_mode  
+  - check: whitelist_domains_count > 0  
+  
+steps:  
+  - name: verify_governance_scope  
+    action: check_whitelist_compliance  
+    outputs:  
+      - approved_domains  
+      - governance_approved  
+  - name: alert_guardian  
+    action: send_notification  
+    operations:  
+      - notify_guardian:  
+          severity: warning  
+          message: "Firefox browser access ENABLED. Approved domains: {approved_domains}. Governance approved: {governance_approved}"  
+          require_acknowledgment: true  
+  - name: pause_if_not_approved  
+    action: conditional_pause  
+    condition: not governance_approved  
+    operations:  
+      - disable_firefox_agent  
+      - log_security_event 

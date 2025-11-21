@@ -269,3 +269,5 @@ def plan(service: str, diagnosis_code: Optional[str] = None, severity: Optional[
         "severity": severity,
         "plans": [_materialize(t) for t in templates],
     }
+'        _template_bundle_drift_detector(),' 
+'        _template_kernel_handshake_auto_repair(),' 

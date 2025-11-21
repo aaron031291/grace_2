@@ -671,3 +671,4 @@ class TriggerManager:
 
 # Global instance
 trigger_manager = TriggerManager()
+'    KERNEL_HANDSHAKE_FAILURE = "kernel_handshake_failure"' 

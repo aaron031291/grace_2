@@ -1,0 +1,55 @@
+# LLM Warm Failure Playbook  
+# Handles model warm step failures, retries with fallback, logs, notifies  
+  
+name: llm_warm_failure  
+version: 1.0.0  
+priority: high  
+  
+metadata:  
+  description: Handle LLM model warm failures with fallback and notification  
+  owner: guardian  
+  auto_trigger: true  
+  requires_approval: false  
+  
+triggers:  
+  - type: log_message  
+    pattern: .*warm.*fail.*  
+    severity: warning  
+  - type: exception  
+    pattern: .*warm.*error.*  
+    severity: error  
+  
+conditions:  
+  - check: model_name in ['phi3.5:latest', 'other_fallback_models']  
+  - check: failure_count < 3  
+  
+steps:  
+  - name: identify_failed_model  
+    action: parse_warm_failure  
+    outputs:  
+      - failed_model  
+      - failure_reason  
+  - name: select_fallback_model  
+    action: get_fallback_model  
+    inputs:  
+      - failed_model  
+    outputs:  
+      - fallback_model  
+  - name: retry_with_fallback  
+    action: attempt_model_warm  
+    inputs:  
+      - fallback_model  
+    outputs:  
+      - retry_success  
+  - name: log_failure_to_immutable  
+    action: log_to_immutable  
+    inputs:  
+      - failed_model  
+      - failure_reason  
+      - fallback_model  
+      - retry_success  
+  - name: notify_llm_ops  
+    action: send_notification  
+    operations:  
+      - notify_contact: llm_ops  
+          message: "LLM warm failure: {failed_model} - {failure_reason}. Fallback: {fallback_model} ({retry_success})" 

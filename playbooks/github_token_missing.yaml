@@ -302,3 +302,25 @@ documentation:
     - https://github.com/settings/tokens
     - docs/guides/GITHUB_TOKEN_SETUP.md
     - SETUP_GITHUB_TOKEN.md
+  - name: check_for_rotated_tokens  
+    action: check_vault_for_updates  
+    condition: vault_has_token == true  
+    operations:  
+      - check_token_rotation:  
+          vault_key: GITHUB_TOKEN  
+          check_expiry: true  
+          rotation_window_days: 7  
+    outputs:  
+      - token_rotated: bool  
+      - new_token_available: bool  
+  
+  - name: pause_crawling_if_no_token  
+    action: pause_github_crawling  
+    condition: not is_authenticated and current_rate_limit < 10  
+    operations:  
+      - pause_github_miner  
+      - log_crawling_paused  
+      - schedule_resume_check:  
+          delay_hours: 1  
+    outputs:  
+      - crawling_paused: bool 
