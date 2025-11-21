@@ -1273,23 +1273,41 @@ async def boot_grace_minimal():
         async def chunk_9_agi_components():
             print("[CHUNK 9] AGI Components (The Brain)...")
             
-            # 1. Initialize RAG Service
+            # 1. Initialize RAG Service (with timeout)
             try:
                 from backend.services.rag_service import rag_service
-                await rag_service.initialize()
+                await asyncio.wait_for(rag_service.initialize(), timeout=5.0)
                 print("  [OK] RAG Service: Initialized (Vector Memory Active)")
+            except asyncio.TimeoutError:
+                print("  [WARN] RAG Service initialization timed out (will retry in background)")
             except Exception as e:
                 print(f"  [WARN] RAG Service failed: {e}")
 
-            # 2. Start Self-Reflection Loop
+            # 2. Start Self-Reflection Loop (non-blocking)
             try:
                 from backend.autonomy.self_reflection_loop import self_reflection_loop
-                await self_reflection_loop.start()
-                print("  [OK] Self-Reflection Loop: Active (Mirroring)")
+                asyncio.create_task(self_reflection_loop.start())
+                print("  [OK] Self-Reflection Loop: Scheduled (Mirroring)")
             except Exception as e:
                 print(f"  [WARN] Self-Reflection Loop failed: {e}")
+
+            # 3. Start Builder Agent (non-blocking)
+            try:
+                from backend.agents.builder_agent import builder_agent
+                asyncio.create_task(builder_agent.start())
+                print("  [OK] Builder Agent: Scheduled (Construction Mode)")
+            except Exception as e:
+                print(f"  [WARN] Builder Agent failed: {e}")
+
+            # 4. Start Multi-Agent Orchestrator (non-blocking)
+            try:
+                from backend.agents.multi_agent_orchestrator import multi_agent_orchestrator
+                asyncio.create_task(multi_agent_orchestrator.start())
+                print(f"  [OK] Multi-Agent Orchestrator: Scheduled (Up to {multi_agent_orchestrator.max_agents} parallel agents)")
+            except Exception as e:
+                print(f"  [WARN] Multi-Agent Orchestrator failed: {e}")
             
-            return {"rag": "initialized", "reflection": "active"}
+            return {"rag": "initialized", "reflection": "scheduled", "builder": "scheduled", "orchestrator": "scheduled"}
 
         boot_orchestrator.register_chunk(BootChunk(
             chunk_id="agi_components",

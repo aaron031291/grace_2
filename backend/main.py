@@ -843,6 +843,54 @@ async def chat(request: dict):
             content=message,
             metadata={"attachments": attachments}
         )
+
+        # INTERCEPT: Builder Mode (with Multi-Agent Orchestration)
+        if message.lower().startswith("build "):
+            from backend.core.message_bus import message_bus
+            from backend.core.agent_protocol import AgentProtocol
+            from backend.agents.multi_agent_orchestrator import multi_agent_orchestrator
+            
+            logger.info(f"[CHAT] Detected Builder Intent: {message}")
+            
+            # Create request for Builder Agent
+            request_payload = AgentProtocol.create_request(
+                source="user_chat",
+                capability="build",
+                query=message,
+                context={"session_id": session_id, "user_id": user_id}
+            )
+            
+            # Submit to orchestrator (handles parallel processing + learning)
+            task_id = await multi_agent_orchestrator.submit_build_task(request_payload)
+            
+            # Get orchestrator status
+            orch_status = multi_agent_orchestrator.get_status()
+            
+            return {
+                "reply": f"""🏗️ **Builder Mode Activated**
+
+I have dispatched your request to the Multi-Agent Build Orchestrator.
+
+**Request**: *{message}*
+**Task ID**: `{task_id}`
+**Active Agents**: {orch_status['active_agents']}/{orch_status['max_agents']}
+**Queue Position**: {orch_status['queue_size'] + 1}
+
+I will build this for you in parallel with other tasks. If I encounter anything I don't know, I'll automatically research it and try again.
+
+Check the **Tasks** panel for real-time progress updates.""",
+                "response": f"Builder Mode Activated: {message}",
+                "trace_id": trace_id,
+                "session_id": session_id,
+                "actions": [{"type": "build_start", "params": {"query": message, "task_id": task_id}}],
+                "confidence": 1.0,
+                "citations": [],
+                "requires_approval": False,
+                "pending_approvals": [],
+                "trust_score": 1.0,
+                "model": "multi-agent-orchestrator",
+                "timestamp": datetime.now().isoformat()
+            }
         
         # Gather full context (history, RAG, world model, trust state)
         context = await gather_full_context(
