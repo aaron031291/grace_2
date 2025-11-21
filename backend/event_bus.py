@@ -21,12 +21,25 @@ class EventType(Enum):
 class Event:
     def __init__(
         self,
-        event_type: EventType,
+        event_type: EventType | str,
         source: str,
         data: Dict[str, Any],
         trace_id: Optional[str] = None
     ):
-        self.event_type = event_type
+        if isinstance(event_type, EventType):
+            normalized_type = event_type
+        elif isinstance(event_type, str):
+            try:
+                normalized_type = EventType[event_type.upper()]
+            except KeyError:
+                try:
+                    normalized_type = EventType(event_type)
+                except ValueError:
+                    normalized_type = EventType.AGENT_ACTION
+        else:
+            normalized_type = EventType.AGENT_ACTION
+
+        self.event_type = normalized_type
         self.source = source
         self.data = data
         self.trace_id = trace_id or f"trace_{datetime.now().timestamp()}"
