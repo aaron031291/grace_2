@@ -1,15 +1,35 @@
 import React, { useState } from 'react';
 import ChatInterface from '../components/Chat/ChatInterface';
+import GovernanceView from '../components/Governance/GovernanceView';
+import SecretsVaultView from '../components/Secrets/SecretsVaultView';
+import TaskManagementView from '../components/Tasks/TaskManagementView';
+import ProjectView from '../components/Project/ProjectView';
 import './CenterPanel.css';
 
 interface CenterPanelProps {
     activeTab: string;
+    onTabChange: (tab: string) => void;
 }
 
-const CenterPanel: React.FC<CenterPanelProps> = ({ activeTab }) => {
+const CenterPanel: React.FC<CenterPanelProps> = ({ activeTab, onTabChange }) => {
     const [windows, setWindows] = useState<string[]>([]);
 
     const renderContent = () => {
+        // Check for project view
+        if (activeTab.startsWith('project:')) {
+            const projectName = activeTab.split(':')[1];
+            return (
+                <ProjectView
+                    projectName={projectName}
+                    onClose={() => onTabChange('chat')}
+                    onSelectChat={(chatId) => {
+                        console.log(`Opening chat ${chatId}`);
+                        onTabChange('chat'); // For now, just go back to chat
+                    }}
+                />
+            );
+        }
+
         switch (activeTab) {
             case 'chat':
                 return <ChatInterface />;
@@ -53,16 +73,16 @@ const CenterPanel: React.FC<CenterPanelProps> = ({ activeTab }) => {
                         </div>
                     </div>
                 );
-            case 'projects':
-                return <div className="placeholder">Projects View (Coming Soon)</div>;
             case 'intelligence':
                 return <div className="placeholder">Intelligence Panel (MLDL Specialists)</div>;
             case 'governance':
-                return <div className="placeholder">Governance & Trust Panel</div>;
+                return <GovernanceView />;
             case 'health':
                 return <div className="placeholder">System Health Dashboard</div>;
             case 'secrets':
-                return <div className="placeholder">Secrets & Config Management</div>;
+                return <SecretsVaultView />;
+            case 'tasks':
+                return <TaskManagementView />;
             case 'audit':
                 return <div className="placeholder">Audit Logs Viewer</div>;
             case 'business':

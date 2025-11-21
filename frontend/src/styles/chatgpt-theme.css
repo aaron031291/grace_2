@@ -1,46 +1,54 @@
 /**
- * ChatGPT-inspired Theme for Grace
+ * ChatGPT-inspired Light Theme for Grace
  * 
  * Design principles:
- * - Neutral dark greys (#202123, #343541)
- * - System fonts for readability
- * - Minimal color usage (green #74AA9C, purple #AB68FF for accents only)
- * - High contrast, generous spacing
- * - Clean, centered layouts
+ * - Minimalist White/Cream backgrounds
+ * - Light Blue accents
+ * - Dark Grey/Black text for readability
+ * - Clean, sans-serif typography (Inter/Söhne style)
  */
 
 :root {
-  /* ChatGPT-inspired neutrals */
-  --bg-primary: #202123;
-  --bg-secondary: #343541;
-  --bg-tertiary: #40414f;
-  --bg-hover: #2a2b32;
-  
+  /* ChatGPT-inspired Light Mode (Default) */
+  --bg-primary: #FFFFFF;
+  /* Main chat area */
+  --bg-secondary: #F7F7F8;
+  /* Sidebar / Message bubbles */
+  --bg-tertiary: #ECECF1;
+  /* Hover states / Borders */
+  --bg-hover: #D9D9E3;
+
   /* Text colors */
-  --text-primary: #ececf1;
-  --text-secondary: #c5c5d2;
-  --text-tertiary: #8e8ea0;
-  
+  --text-primary: #343541;
+  /* Main text (Dark Grey) */
+  --text-secondary: #6E6E80;
+  /* Subtitles / Meta */
+  --text-tertiary: #9A9A9E;
+  /* Placeholders */
+
   /* Borders */
-  --border-light: rgba(255, 255, 255, 0.1);
-  --border-medium: rgba(255, 255, 255, 0.15);
-  
-  /* Accent colors (use sparingly) */
-  --accent-green: #74AA9C;
-  --accent-purple: #AB68FF;
-  --accent-blue: #4A9EFF;
-  
+  --border-light: #E5E5E5;
+  --border-medium: #D1D1D1;
+
+  /* Accents */
+  --accent-blue: #10a37f;
+  /* ChatGPT Teal/Green as primary accent */
+  --accent-light-blue: #E6F3FF;
+  /* Soft background blue */
+  --accent-primary: #007AFF;
+  /* Standard Link Blue */
+  --accent-neutral: #6B7280;
+
   /* Status colors */
   --status-success: #10b981;
   --status-warning: #f59e0b;
   --status-error: #ef4444;
-  --status-info: #4A9EFF;
-  
+  --status-info: #3b82f6;
+
   /* Typography */
-  --font-system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
-                 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
-  
+  --font-system: 'Söhne', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Söhne Mono', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+
   /* Spacing scale */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -48,12 +56,44 @@
   --space-4: 1rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
-  
+
   /* Border radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-full: 9999px;
+}
+
+[data-theme='dark'] {
+  /* ChatGPT-inspired Dark Mode */
+  --bg-primary: #343541;
+  /* Main chat area */
+  --bg-secondary: #202123;
+  /* Sidebar / Message bubbles */
+  --bg-tertiary: #444654;
+  /* Hover states / Borders */
+  --bg-hover: #2A2B32;
+
+  /* Text colors */
+  --text-primary: #ECECF1;
+  /* Main text (Light Grey) */
+  --text-secondary: #C5C5D2;
+  /* Subtitles / Meta */
+  --text-tertiary: #8E8EA0;
+  /* Placeholders */
+
+  /* Borders */
+  --border-light: #565869;
+  --border-medium: #40414F;
+
+  /* Accents */
+  --accent-blue: #10a37f;
+  /* Keep Teal */
+  --accent-light-blue: #444654;
+  /* Darker blue/grey for user bubbles */
+  --accent-primary: #1A73E8;
+  /* Link Blue */
+  --accent-neutral: #9CA3AF;
 }
 
 /* Global resets with system fonts */
@@ -65,30 +105,31 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* Improved scrollbars */
+/* Improved scrollbars for light mode */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  background: #D1D1D1;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-medium);
+  background: #A0A0A0;
 }
 
 /* Focus states */
 *:focus-visible {
-  outline: 2px solid var(--accent-blue);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }

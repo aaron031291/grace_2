@@ -1,17 +1,15 @@
 .app-chat {
   display: flex;
   height: 100vh;
-  background: #0a0a0a;
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-system);
 }
 
 .app-sidebar {
   width: 300px;
-  background: #111;
-  border-right: 1px solid #2a2a2a;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-light);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -21,7 +19,7 @@
 .app-logo h1 {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
-  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
+  background: linear-gradient(135deg, #10a37f, #0d8a6c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -29,7 +27,7 @@
 
 .app-logo p {
   margin: 0;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -42,7 +40,7 @@
 .sidebar-controls h3 {
   margin: 0 0 0.5rem 0;
   font-size: 0.9rem;
-  color: #888;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -50,9 +48,9 @@
 .control-button {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #2a2a2a;
-  color: #fff;
-  border: 1px solid #3a3a3a;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -62,30 +60,32 @@
 }
 
 .control-button:hover {
-  background: #3a3a3a;
-  border-color: #4a4a4a;
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
 }
 
 .control-button.active {
-  background: linear-gradient(135deg, #4A9EFF, #5BB5FF);
-  border-color: #4A9EFF;
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+  background: linear-gradient(135deg, #10a37f, #0d8a6c);
+  border-color: #10a37f;
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 163, 127, 0.3);
 }
 
 .control-button.active:hover {
-  background: linear-gradient(135deg, #3A8EEF, #4BA5EF);
+  background: linear-gradient(135deg, #0d8a6c, #0a6b54);
 }
 
 .control-button.mission-control-btn {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 150, 255, 0.15));
-  border-color: #00d4ff;
+  background: linear-gradient(135deg, rgba(16, 163, 127, 0.1), rgba(13, 138, 108, 0.1));
+  border-color: #10a37f;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .control-button.mission-control-btn:hover {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 150, 255, 0.3));
+  background: linear-gradient(135deg, rgba(16, 163, 127, 0.2), rgba(13, 138, 108, 0.2));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 163, 127, 0.2);
 }
 
 .view-switcher {
@@ -93,15 +93,15 @@
   gap: 8px;
   margin-top: auto;
   padding-top: 20px;
-  border-top: 1px solid #2a2a2a;
+  border-top: 1px solid var(--border-light);
 }
 
 .view-btn {
   flex: 1;
   padding: 12px;
-  background: #2a2a2a;
-  color: #fff;
-  border: 1px solid #3a3a3a;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -110,22 +110,23 @@
 }
 
 .view-btn:hover {
-  background: #3a3a3a;
-  border-color: #4a4a4a;
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
 }
 
 .view-btn.active {
-  background: linear-gradient(135deg, #00d4ff, #0096ff);
-  border-color: #00d4ff;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  background: linear-gradient(135deg, #10a37f, #0d8a6c);
+  border-color: #10a37f;
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 163, 127, 0.3);
 }
 
 .cockpit-toggle {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #2a2a2a;
-  color: #fff;
-  border: 1px solid #3a3a3a;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -134,8 +135,8 @@
 }
 
 .cockpit-toggle:hover {
-  background: #3a3a3a;
-  border-color: #4A9EFF;
+  background: var(--bg-hover);
+  border-color: #10a37f;
 }
 
 .app-main {
@@ -143,5 +144,111 @@
   display: flex;
   overflow: hidden;
 }
-".control-button.active { background: #27ae60; } .control-button.pending { background: #f39c12; animation: pulse 2s infinite; } @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } } .button-content { display: flex; flex-direction: column; gap: 4px; } .button-icon { font-size: 18px; } .button-text { font-size: 12px; } .button-session { font-size: 10px; color: #888; }" 
-".screen-share-container { position: relative; } .mode-selector { position: absolute; top: 100%; left: 0; background: #2d2d2d; border: 1px solid #444; border-radius: 8px; padding: 12px; z-index: 1000; width: 280px; margin-top: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); } .mode-selector-header { color: #aaa; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; } .mode-option { width: 100%; background: #252525; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 4px; cursor: pointer; margin-bottom: 8px; display: flex; flex-direction: column; gap: 4px; text-align: left; transition: all 0.2s; } .mode-option:hover { background: #333; border-color: #3498db; } .mode-desc { font-size: 11px; color: #888; } .mode-cancel { width: 100%; background: transparent; border: 1px solid #666; color: #888; padding: 8px; border-radius: 4px; cursor: pointer; } .mode-cancel:hover { background: #333; color: #fff; }" 
+
+.control-button.active {
+  background: #27ae60;
+}
+
+.control-button.pending {
+  background: #f39c12;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-icon {
+  font-size: 18px;
+}
+
+.button-text {
+  font-size: 12px;
+}
+
+.button-session {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.screen-share-container {
+  position: relative;
+}
+
+.mode-selector {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 1000;
+  width: 280px;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mode-selector-header {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.mode-option {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.mode-option:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-blue);
+}
+
+.mode-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.mode-cancel {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mode-cancel:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+" 

@@ -5,8 +5,12 @@ import { router } from './router'
 import './styles/theme.css'
 import './index.css'
 
+import { ThemeProvider } from './context/ThemeContext'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>,
 )

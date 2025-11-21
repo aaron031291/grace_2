@@ -1,7 +1,7 @@
 .right-panel-tab {
     width: 30px;
-    background: #252526;
-    border-left: 1px solid #3e3e42;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,13 +12,13 @@
 }
 
 .right-panel-tab:hover {
-    background: #2a2d2e;
+    background: var(--bg-hover);
 }
 
 .tab-text {
     font-size: 0.65rem;
     font-weight: 600;
-    color: #858585;
+    color: var(--text-secondary);
     letter-spacing: 1px;
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -28,7 +28,7 @@
     position: absolute;
     top: 10px;
     right: 5px;
-    background: #f48771;
+    background: var(--status-error);
     color: #ffffff;
     font-size: 0.65rem;
     font-weight: 700;
@@ -40,8 +40,8 @@
 
 .right-panel {
     width: 350px;
-    background: #252526;
-    border-left: 1px solid #3e3e42;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border-light);
     display: flex;
     flex-direction: column;
     animation: slideIn 0.3s ease-out;
@@ -62,20 +62,20 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid #3e3e42;
+    border-bottom: 1px solid var(--border-light);
 }
 
 .panel-header h3 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #d4d4d4;
+    color: var(--text-primary);
 }
 
 .close-btn {
     background: transparent;
     border: none;
-    color: #858585;
+    color: var(--text-secondary);
     font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
@@ -88,8 +88,8 @@
 }
 
 .close-btn:hover {
-    background: #3e3e42;
-    color: #d4d4d4;
+    background: var(--bg-hover);
+    color: var(--text-primary);
 }
 
 .panel-content {
@@ -116,6 +116,7 @@
     padding: 0.75rem;
     border-radius: 8px;
     animation: fadeIn 0.3s ease-out;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 @keyframes fadeIn {
@@ -131,14 +132,14 @@
 }
 
 .collab-message.grace {
-    background: #1e1e1e;
-    border: 1px solid #3e3e42;
-    border-left: 3px solid #00d4ff;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid var(--accent-blue);
 }
 
 .collab-message.user {
-    background: #094771;
-    border-left: 3px solid #ffffff;
+    background: var(--accent-light-blue);
+    border-left: 3px solid var(--accent-primary);
 }
 
 .message-header {
@@ -151,31 +152,31 @@
 .sender-name {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #00d4ff;
+    color: var(--accent-blue);
 }
 
 .collab-message.user .sender-name {
-    color: #ffffff;
+    color: var(--accent-primary);
 }
 
 .message-time {
     font-size: 0.7rem;
-    color: #858585;
+    color: var(--text-secondary);
 }
 
 .message-content {
     font-size: 0.9rem;
     line-height: 1.5;
-    color: #d4d4d4;
+    color: var(--text-primary);
 }
 
 /* Task Context */
 .task-context {
     margin-top: 0.5rem;
     padding: 0.75rem;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-tertiary);
     border-radius: 6px;
-    border: 1px solid #3e3e42;
+    border: 1px solid var(--border-light);
 }
 
 .task-header {
@@ -188,7 +189,7 @@
 .task-name {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #00d4ff;
+    color: var(--text-primary);
 }
 
 .complexity-badge {
@@ -200,18 +201,18 @@
 }
 
 .complexity-badge.low {
-    background: rgba(78, 201, 176, 0.2);
-    color: #4ec9b0;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-success);
 }
 
 .complexity-badge.medium {
-    background: rgba(255, 165, 0, 0.2);
-    color: #ffa500;
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--status-warning);
 }
 
 .complexity-badge.high {
-    background: rgba(244, 135, 113, 0.2);
-    color: #f48771;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-error);
 }
 
 .task-details {
@@ -228,11 +229,11 @@
 }
 
 .detail-label {
-    color: #858585;
+    color: var(--text-secondary);
 }
 
 .detail-value {
-    color: #d4d4d4;
+    color: var(--text-primary);
     font-weight: 500;
 }
 
@@ -244,25 +245,25 @@
 }
 
 .status-badge.pending {
-    background: rgba(255, 165, 0, 0.2);
-    color: #ffa500;
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--status-warning);
 }
 
 .status-badge.in_progress {
-    background: rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--status-info);
 }
 
 .status-badge.completed {
-    background: rgba(78, 201, 176, 0.2);
-    color: #4ec9b0;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-success);
 }
 
 /* Task Variables */
 .task-variables {
     margin-top: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #3e3e42;
+    border-top: 1px solid var(--border-medium);
 }
 
 .variable-item {
@@ -273,12 +274,12 @@
 }
 
 .var-key {
-    color: #c586c0;
+    color: var(--accent-neutral);
     font-weight: 600;
 }
 
 .var-value {
-    color: #ce9178;
+    color: var(--status-info);
 }
 
 /* Task Actions */
@@ -300,32 +301,32 @@
 }
 
 .task-action-btn.approve {
-    background: #0e639c;
+    background: var(--status-success);
     color: #ffffff;
 }
 
 .task-action-btn.approve:hover {
-    background: #1177bb;
+    opacity: 0.9;
 }
 
 .task-action-btn.decline {
     background: transparent;
-    color: #f48771;
-    border: 1px solid #f48771;
+    color: var(--status-error);
+    border: 1px solid var(--status-error);
 }
 
 .task-action-btn.decline:hover {
-    background: rgba(244, 135, 113, 0.1);
+    background: rgba(239, 68, 68, 0.05);
 }
 
 .task-action-btn.discuss {
     background: transparent;
-    color: #00d4ff;
-    border: 1px solid #00d4ff;
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
 }
 
 .task-action-btn.discuss:hover {
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(16, 163, 127, 0.05);
 }
 
 /* Input Container */
@@ -333,34 +334,35 @@
     display: flex;
     gap: 0.5rem;
     padding: 1rem;
-    border-top: 1px solid #3e3e42;
-    background: #1e1e1e;
+    border-top: 1px solid var(--border-light);
+    background: var(--bg-primary);
 }
 
 .collab-input {
     flex: 1;
     padding: 0.5rem;
-    background: #252526;
-    border: 1px solid #3e3e42;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-medium);
     border-radius: 4px;
-    color: #d4d4d4;
+    color: var(--text-primary);
     font-family: inherit;
     font-size: 0.85rem;
     resize: none;
     outline: none;
+    transition: border-color 0.2s;
 }
 
 .collab-input:focus {
-    border-color: #00d4ff;
+    border-color: var(--accent-blue);
 }
 
 .collab-input::placeholder {
-    color: #858585;
+    color: var(--text-tertiary);
 }
 
 .send-collab-btn {
     padding: 0.5rem 1rem;
-    background: #0e639c;
+    background: var(--accent-blue);
     color: #ffffff;
     border: none;
     border-radius: 4px;
@@ -371,12 +373,14 @@
 }
 
 .send-collab-btn:hover:not(:disabled) {
-    background: #1177bb;
+    opacity: 0.9;
 }
 
 .send-collab-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
 }
 
 /* Scrollbar */
@@ -385,14 +389,14 @@
 }
 
 .messages-container::-webkit-scrollbar-track {
-    background: #1e1e1e;
+    background: transparent;
 }
 
 .messages-container::-webkit-scrollbar-thumb {
-    background: #424242;
+    background: var(--bg-hover);
     border-radius: 3px;
 }
 
 .messages-container::-webkit-scrollbar-thumb:hover {
-    background: #4e4e4e;
+    background: var(--text-tertiary);
 }

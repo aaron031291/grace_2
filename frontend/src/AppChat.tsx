@@ -29,6 +29,7 @@ import { TopBar } from './components/layout/TopBar';
 import { LeftSidebar, type NavItem } from './components/layout/LeftSidebar';
 import { RightSidebar } from './components/layout/RightSidebar';
 import { BottomStatusBar } from './components/layout/BottomStatusBar';
+import { useTheme } from './context/ThemeContext';
 import './AppChat.css';
 
 type Mode = 'observe' | 'learn' | 'autonomous';
@@ -55,11 +56,12 @@ function AppChat() {
   const [screenShareMode, setScreenShareMode] = useState<'learn' | 'observe_only' | 'consent_required'>('learn');
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [graceMode, setGraceMode] = useState<Mode>('learn');
+  const { theme, toggleTheme } = useTheme();
 
   const handleRemoteToggle = async () => {
     setRemoteLoading(true);
     setError(null);
-    
+
     try {
       if (remoteActive) {
         setRemoteStatus('Stopping...');
@@ -76,7 +78,7 @@ function AppChat() {
         if (response.session_id || response.trace_id) {
           const sessionId = response.session_id || response.trace_id;
           setRemoteSessionId(sessionId);
-          
+
           if (response.requires_approval) {
             setRequiresApproval(true);
             setRemoteStatus('Pending Approval');
@@ -121,7 +123,7 @@ function AppChat() {
         clearInterval(interval);
       }
     }, 30000); // Every 30 seconds
-    
+
     // Store interval to clear on stop
     (window as any).__sessionHeartbeat = interval;
   };
@@ -131,13 +133,13 @@ function AppChat() {
       // Stop screen share
       setScreenShareLoading(true);
       setError(null);
-      
+
       try {
         setScreenShareStatus('Stopping...');
         if (screenShareSessionId) {
           const result = await RemoteAPI.stopScreenShare(screenShareSessionId);
           setScreenShareSessionId(null);
-          
+
           // Show learning stats in chat
           if (result.frames_learned > 0) {
             const statsMsg = `📺 Screen share ended. Grace learned from ${result.frames_learned} of ${result.frames_captured} captured frames.`;
@@ -161,30 +163,30 @@ function AppChat() {
         setShowModeSelector(true);
         return;
       }
-      
+
       const selectedMode = mode || screenShareMode;
       setScreenShareLoading(true);
       setError(null);
-      
+
       try {
         setScreenShareStatus('Starting...');
         const response = await RemoteAPI.startScreenShareWithMode('medium', selectedMode);
         if (response.session_id) {
           setScreenShareSessionId(response.session_id);
           setScreenShareActive(true);
-          
+
           const modeLabels = {
             'learn': '🧠 Learning from screen',
             'observe_only': '👁️ Observe only',
             'consent_required': '🔐 Consent required'
           };
-          
+
           setScreenShareStatus(modeLabels[selectedMode as keyof typeof modeLabels] || 'Active');
           setShowModeSelector(false);
-          
+
           // Start heartbeat
           startSessionHeartbeat(response.session_id);
-          
+
           // Poll for stats if learning mode
           if (selectedMode === 'learn') {
             const interval = setInterval(async () => {
@@ -221,10 +223,10 @@ function AppChat() {
       const files = Array.from(e.target.files || []) as File[];
       setUploadLoading(true);
       setError(null);
-      
+
       let successCount = 0;
       let failCount = 0;
-      
+
       for (const file of files) {
         try {
           await RemoteAPI.uploadDocument(file);
@@ -234,9 +236,9 @@ function AppChat() {
           console.error(`Failed to upload ${file.name}:`, error);
         }
       }
-      
+
       setUploadLoading(false);
-      
+
       if (successCount > 0) {
         alert(`✅ Uploaded ${successCount} file(s) successfully`);
       }
@@ -291,14 +293,14 @@ function AppChat() {
   const sidebarControls = (
     <>
       <HealthMeter />
-      
+
       <div className="sidebar-controls">
         <h3>Quick Controls</h3>
-        
+
         {error && (
-          <div className="control-error" style={{ 
-            padding: '8px', 
-            background: '#fee', 
+          <div className="control-error" style={{
+            padding: '8px',
+            background: '#fee',
             border: '1px solid #fcc',
             borderRadius: '4px',
             marginBottom: '8px',
@@ -308,7 +310,7 @@ function AppChat() {
             ⚠️ {error}
           </div>
         )}
-        
+
         <button
           className={`control-button ${remoteActive ? 'active' : ''} ${requiresApproval ? 'pending' : ''}`}
           onClick={handleRemoteToggle}
@@ -320,10 +322,10 @@ function AppChat() {
               {remoteLoading ? '⏳' : requiresApproval ? '🔐' : remoteActive ? '🔓' : '🔒'}
             </span>
             <span className="button-text">
-              {remoteLoading ? 'Loading...' : 
-               requiresApproval ? 'Pending' : 
-               remoteActive ? 'Connected' : 
-               'Remote Access'}
+              {remoteLoading ? 'Loading...' :
+                requiresApproval ? 'Pending' :
+                  remoteActive ? 'Connected' :
+                    'Remote Access'}
             </span>
             {remoteSessionId && (
               <span className="button-session">
@@ -335,132 +337,140 @@ function AppChat() {
             <span className="button-status">{remoteStatus}</span>
           )}
         </button>
-          
-          <div className="screen-share-container">
-            <button
-              className={`control-button ${screenShareActive ? 'active' : ''}`}
-              onClick={() => handleScreenShareToggle()}
-              disabled={screenShareLoading}
-              title={screenShareStatus || 'Toggle screen share'}
-            >
-              <div className="button-content">
-                <span className="button-icon">
-                  {screenShareLoading ? '⏳' : screenShareActive ? '📺' : '📺'}
+
+        <div className="screen-share-container">
+          <button
+            className={`control-button ${screenShareActive ? 'active' : ''}`}
+            onClick={() => handleScreenShareToggle()}
+            disabled={screenShareLoading}
+            title={screenShareStatus || 'Toggle screen share'}
+          >
+            <div className="button-content">
+              <span className="button-icon">
+                {screenShareLoading ? '⏳' : screenShareActive ? '📺' : '📺'}
+              </span>
+              <span className="button-text">
+                {screenShareLoading ? 'Loading...' :
+                  screenShareActive ? 'Sharing' :
+                    'Screen Share'}
+              </span>
+              {screenShareSessionId && (
+                <span className="button-session">
+                  {screenShareSessionId.slice(0, 8)}
                 </span>
-                <span className="button-text">
-                  {screenShareLoading ? 'Loading...' : 
-                   screenShareActive ? 'Sharing' : 
-                   'Screen Share'}
-                </span>
-                {screenShareSessionId && (
-                  <span className="button-session">
-                    {screenShareSessionId.slice(0, 8)}
-                  </span>
-                )}
-              </div>
-              {screenShareStatus && (
-                <span className="button-status">{screenShareStatus}</span>
               )}
-            </button>
-            
-            {showModeSelector && !screenShareActive && (
-              <div className="mode-selector">
-                <div className="mode-selector-header">Choose Mode:</div>
-                <button
-                  className="mode-option"
-                  onClick={() => {
-                    setScreenShareMode('learn');
-                    handleScreenShareToggle('learn');
-                  }}
-                >
-                  🧠 Learn
-                  <span className="mode-desc">Capture and store in memory</span>
-                </button>
-                <button
-                  className="mode-option"
-                  onClick={() => {
-                    setScreenShareMode('observe_only');
-                    handleScreenShareToggle('observe_only');
-                  }}
-                >
-                  👁️ Observe Only
-                  <span className="mode-desc">Show but don't save</span>
-                </button>
-                <button
-                  className="mode-option"
-                  onClick={() => {
-                    setScreenShareMode('consent_required');
-                    handleScreenShareToggle('consent_required');
-                  }}
-                >
-                  🔐 Consent Required
-                  <span className="mode-desc">Prompt before storing sensitive content</span>
-                </button>
-                <button
-                  className="mode-cancel"
-                  onClick={() => setShowModeSelector(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+            </div>
+            {screenShareStatus && (
+              <span className="button-status">{screenShareStatus}</span>
             )}
-          </div>
-          
-          <button
-            className="control-button"
-            onClick={handleDocumentUpload}
-            disabled={uploadLoading}
-            title="Upload documents"
-          >
-            {uploadLoading ? '⏳ Uploading...' : '📄 Upload Docs'}
           </button>
-          
-          <button
-            className="control-button"
-            onClick={() => setFileExplorerOpen(true)}
-            title="Browse memory files"
-          >
-            📁 Files
-          </button>
-          
-          <button
-            className="control-button"
-            onClick={() => setTasksOpen(true)}
-            title="View background tasks"
-          >
-            📋 Tasks
-          </button>
-          
-          <button
-            className="control-button"
-            onClick={() => setHistoryOpen(true)}
-            title="Search conversation history"
-          >
-            🔍 History
-          </button>
-          
-          <button
-            className="control-button"
-            onClick={() => setCockpitOpen(!cockpitOpen)}
-            title="Open remote cockpit"
-          >
-            🎛️ Cockpit
-          </button>
-          
-          <button
-            className="control-button mission-control-btn"
-            onClick={() => setMissionControlOpen(true)}
-            title="Open Mission Control Dashboard"
-          >
-            🎯 Mission Control
-          </button>
-          
+
+          {showModeSelector && !screenShareActive && (
+            <div className="mode-selector">
+              <div className="mode-selector-header">Choose Mode:</div>
+              <button
+                className="mode-option"
+                onClick={() => {
+                  setScreenShareMode('learn');
+                  handleScreenShareToggle('learn');
+                }}
+              >
+                🧠 Learn
+                <span className="mode-desc">Capture and store in memory</span>
+              </button>
+              <button
+                className="mode-option"
+                onClick={() => {
+                  setScreenShareMode('observe_only');
+                  handleScreenShareToggle('observe_only');
+                }}
+              >
+                👁️ Observe Only
+                <span className="mode-desc">Show but don't save</span>
+              </button>
+              <button
+                className="mode-option"
+                onClick={() => {
+                  setScreenShareMode('consent_required');
+                  handleScreenShareToggle('consent_required');
+                }}
+              >
+                🔐 Consent Required
+                <span className="mode-desc">Prompt before storing sensitive content</span>
+              </button>
+              <button
+                className="mode-cancel"
+                onClick={() => setShowModeSelector(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          className="control-button"
+          onClick={handleDocumentUpload}
+          disabled={uploadLoading}
+          title="Upload documents"
+        >
+          {uploadLoading ? '⏳ Uploading...' : '📄 Upload Docs'}
+        </button>
+
+        <button
+          className="control-button"
+          onClick={() => setFileExplorerOpen(true)}
+          title="Browse memory files"
+        >
+          📁 Files
+        </button>
+
+        <button
+          className="control-button"
+          onClick={() => setTasksOpen(true)}
+          title="View background tasks"
+        >
+          📋 Tasks
+        </button>
+
+        <button
+          className="control-button"
+          onClick={() => setHistoryOpen(true)}
+          title="Search conversation history"
+        >
+          🔍 History
+        </button>
+
+        <button
+          className="control-button"
+          onClick={() => setCockpitOpen(!cockpitOpen)}
+          title="Open remote cockpit"
+        >
+          🎛️ Cockpit
+        </button>
+
+        <button
+          className="control-button mission-control-btn"
+          onClick={() => setMissionControlOpen(true)}
+          title="Open Mission Control Dashboard"
+        >
+          🎯 Mission Control
+        </button>
+
         <button
           className="control-button mentor-btn"
           onClick={() => setMentorOpen(true)}
           title="Consult Local Mentors"
         >
           🧙 Mentors
+        </button>
+
+        <button
+          className="control-button theme-toggle"
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+        >
+          {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
         </button>
       </div>
     </>
@@ -503,11 +513,11 @@ function AppChat() {
       }
     >
       {renderMainView()}
-      
+
       <RemoteCockpit isOpen={cockpitOpen} onClose={() => setCockpitOpen(false)} />
       <BackgroundTasksDrawer isOpen={tasksOpen} onClose={() => setTasksOpen(false)} />
-      <HistorySearch 
-        isOpen={historyOpen} 
+      <HistorySearch
+        isOpen={historyOpen}
         onClose={() => setHistoryOpen(false)}
         onSelectSession={(sessionId) => console.log('Selected session:', sessionId)}
       />

@@ -1,0 +1,274 @@
+.governance-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.governance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 20px;
+}
+
+.governance-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+.trust-score-large {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 200px;
+}
+
+.score-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.score-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--status-success);
+    margin-bottom: 8px;
+}
+
+.score-bar {
+    width: 100%;
+    height: 6px;
+    background-color: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background-color: var(--status-success);
+}
+
+.governance-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border-radius: 6px 6px 0 0;
+}
+
+.tab-btn.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+
+.governance-content {
+    flex: 1;
+}
+
+/* Oversight Panel */
+.approval-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.approval-item {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.approval-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.approval-title {
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.risk-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.risk-badge.high {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--status-error);
+}
+
+.risk-badge.medium {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--status-warning);
+}
+
+.approval-desc {
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.approval-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-approve,
+.btn-collaborate,
+.btn-decline {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.btn-approve {
+    background-color: var(--status-success);
+    color: white;
+}
+
+.btn-collaborate {
+    background-color: var(--status-info);
+    color: white;
+}
+
+.btn-decline {
+    background-color: var(--status-error);
+    color: white;
+}
+
+.btn-approve:hover,
+.btn-collaborate:hover,
+.btn-decline:hover {
+    opacity: 0.9;
+}
+
+/* Audit Panel */
+.audit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.audit-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--bg-primary);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    align-items: center;
+}
+
+.audit-item:last-child {
+    border-bottom: none;
+}
+
+.audit-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.audit-time {
+    color: var(--text-secondary);
+    width: 100px;
+}
+
+.audit-action {
+    color: var(--text-primary);
+    flex: 1;
+    font-weight: 500;
+}
+
+.audit-user {
+    color: var(--accent-blue);
+    width: 100px;
+}
+
+.audit-hash {
+    color: var(--text-tertiary);
+    width: 150px;
+    text-align: right;
+}
+
+/* Crypto Panel */
+.key-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.key-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-primary);
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.key-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.key-name {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.key-fingerprint {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.key-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--status-success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}

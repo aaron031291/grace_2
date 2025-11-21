@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LeftSidebar from './LeftSidebar';
 import CenterPanel from './CenterPanel';
 import RightPanel from './RightPanel';
-import BottomTerminal from './BottomTerminal';
+import { useTheme } from '../context/ThemeContext';
 import './MainLayout.css';
 
 interface MainLayoutProps {
@@ -11,8 +11,8 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const [rightPanelOpen, setRightPanelOpen] = useState(false);
-    const [terminalOpen, setTerminalOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('chat');
+    const { theme, toggleTheme } = useTheme();
 
     return (
         <div className="main-layout">
@@ -22,14 +22,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <h1>Grace 3.0</h1>
                 </div>
                 <div className="header-center">
-                    <span className="status-badge trust">Trust: 92%</span>
-                    <span className="status-badge consciousness">Consciousness: 41%</span>
-                    <span className="status-badge loops">Active Loops: 3</span>
-                    <span className="status-badge memory">Memory: 2.3TB / 5TB</span>
-                    <span className="status-badge crypto">Crypto: ✓</span>
+                    {/* Status badges removed for cleaner UI */}
                 </div>
                 <div className="header-right">
-                    <span className="oversight-badge">Human Oversight: 3 pending</span>
+                    <button
+                        className="theme-toggle-btn"
+                        onClick={toggleTheme}
+                        title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+                        style={{
+                            background: 'transparent',
+                            border: '1px solid var(--border-medium)',
+                            color: 'var(--text-primary)',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                        }}
+                    >
+                        {theme === 'light' ? '🌙' : '☀️'}
+                    </button>
                 </div>
             </header>
 
@@ -42,7 +53,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 />
 
                 {/* Center Panel */}
-                <CenterPanel activeTab={activeTab} />
+                <CenterPanel
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                />
 
                 {/* Right Panel (Slide-out) */}
                 <RightPanel
@@ -50,13 +64,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     onToggle={() => setRightPanelOpen(!rightPanelOpen)}
                 />
             </div>
-
-            {/* Bottom Terminal */}
-            {terminalOpen && (
-                <BottomTerminal
-                    onClose={() => setTerminalOpen(false)}
-                />
-            )}
         </div>
     );
 };
