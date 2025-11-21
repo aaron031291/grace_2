@@ -281,13 +281,10 @@ class AnomalyWatchdog:
         
         if verification["passed"]:
             logger.info(f"Healing successful for {anomaly_id}")
-                self.healing_attempts[anomaly_id] = 0  # Reset counter
-            else:
-                logger.warning(f"Healing failed for {anomaly_id}")
-                self.healing_attempts[anomaly_id] = attempts + 1
+            self.healing_attempts[anomaly_id] = 0  # Reset counter
         else:
-            logger.warning(f"No playbook available for {anomaly_id}")
-            await self._escalate_to_amp(anomaly)
+            logger.warning(f"Healing failed for {anomaly_id}")
+            self.healing_attempts[anomaly_id] = attempts + 1
     
     def _select_playbook_for_anomaly(self, anomaly: Dict[str, Any]) -> Optional[str]:
         """Select appropriate playbook for anomaly type"""

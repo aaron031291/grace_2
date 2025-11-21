@@ -15,10 +15,17 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, func, and_, desc
 
-from .models import async_session
+from backend.models.base_models import ImmutableLogEntry as LogEntry, async_session
 from .immutable_log import ImmutableLog
-from .base_models import ImmutableLogEntry as LogEntry
-from .trigger_mesh import trigger_mesh, TriggerEvent
+
+# Import trigger mesh from correct location
+try:
+    from backend.triggers.trigger_mesh import get_trigger_mesh, TriggerEvent
+    trigger_mesh = get_trigger_mesh()
+except ImportError:
+    # Fallback if trigger mesh not available
+    trigger_mesh = None
+    TriggerEvent = None
 
 
 class ImmutableLogAnalytics:
@@ -381,14 +388,15 @@ class ImmutableLogAnalytics:
     async def _emit_integrity_alert(self, report: Dict[str, Any]):
         """Emit alert for integrity issues"""
         
-        await trigger_mesh.publish(TriggerEvent(
-            event_type="log.integrity_issue",
-            source="log_analytics",
-            actor="system",
-            resource="immutable_log",
-            payload=report,
-            timestamp=datetime.now(timezone.utc)
-        ))
+        if trigger_mesh and TriggerEvent:
+            await trigger_mesh.publish(TriggerEvent(
+                event_type="log.integrity_issue",
+                source="log_analytics",
+                actor="system",
+                resource="immutable_log",
+                payload=report,
+                timestamp=datetime.now(timezone.utc)
+            ))
         
         print(f"⚠️  Immutable log integrity issues detected: {len(report['issues'])} issues")
     
@@ -397,14 +405,15 @@ class ImmutableLogAnalytics:
         
         # Only alert if gaps are meaningful (not on fresh startup)
         if len(report['gaps']) > 0 and any(g['type'] == 'stale' for g in report['gaps']):
-            await trigger_mesh.publish(TriggerEvent(
-                event_type="log.subsystem_gap",
-                source="log_analytics",
-                actor="system",
-                resource="subsystems",
-                payload=report,
-                timestamp=datetime.now(timezone.utc)
-            ))
+            if trigger_mesh and TriggerEvent:
+                await trigger_mesh.publish(TriggerEvent(
+                    event_type="log.subsystem_gap",
+                    source="log_analytics",
+                    actor="system",
+                    resource="subsystems",
+                    payload=report,
+                    timestamp=datetime.now(timezone.utc)
+                ))
             
             print(f"⚠️  Subsystem logging gaps detected: {len(report['gaps'])} subsystems")
 

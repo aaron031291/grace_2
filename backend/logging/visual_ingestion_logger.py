@@ -9,7 +9,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from .models import async_session
+from backend.models import async_session
 from .knowledge_provenance import KnowledgeSource
 from sqlalchemy import select, desc
 

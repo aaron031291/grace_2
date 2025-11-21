@@ -16,7 +16,7 @@ import sqlite3
 from pathlib import Path
 from enum import Enum
 
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 
 class ReminderStatus(str, Enum):

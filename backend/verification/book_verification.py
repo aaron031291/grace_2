@@ -9,7 +9,7 @@ import json
 
 from backend.clarity import BaseComponent, ComponentStatus, TrustLevel
 from backend.database import get_db
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 
 class BookVerificationEngine(BaseComponent):

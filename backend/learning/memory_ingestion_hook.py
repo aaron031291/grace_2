@@ -16,7 +16,7 @@ import asyncio
 
 from backend.memory.memory_catalog import AssetType, AssetSource
 from backend.memory.memory_mount import memory_mount
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 
 class MemoryIngestionHook:

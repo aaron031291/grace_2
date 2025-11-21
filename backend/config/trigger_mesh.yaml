@@ -1,0 +1,42 @@
+# Trigger Mesh Configuration
+# Defines trigger routing rules for Grace's event-driven architecture
+
+# Version
+version: "1.0"
+
+# Default settings
+defaults:
+  priority: "normal"
+  retry_count: 3
+  timeout_seconds: 30
+
+# Trigger routes - empty by default, routes can be added at runtime
+routes: []
+
+# Example routes (commented out):
+# routes:
+#   - trigger_type: "error.critical"
+#     target: "self_healing"
+#     priority: "high"
+#     
+#   - trigger_type: "anomaly.detected"
+#     target: "anomaly_watchdog"
+#     priority: "normal"
+#
+#   - trigger_type: "governance.violation"
+#     target: "constitutional_verifier"
+#     priority: "high"
+
+# Route filters
+filters:
+  - name: "critical_only"
+    condition: "priority == 'critical'"
+    
+  - name: "production_only"
+    condition: "environment == 'production'"
+
+# Metadata
+metadata:
+  created_by: "Grace Configuration System"
+  description: "Trigger mesh routing configuration"
+  auto_generated: true

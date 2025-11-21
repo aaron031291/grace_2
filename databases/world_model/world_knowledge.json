@@ -21625,307 +21625,13 @@
       }
     },
     {
-      "knowledge_id": "9d26f613-949",
-      "category": "system",
-      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:07:02.503674",
-      "updated_at": "2025-11-20T13:07:02.503674",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "vector_store_reachable",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "a09a3054-4d6",
-      "category": "system",
-      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:07:05.242905",
-      "updated_at": "2025-11-20T13:07:05.242905",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "backend_api_running",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "34f1834d-29d",
-      "category": "system",
-      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:07:07.931862",
-      "updated_at": "2025-11-20T13:07:07.931862",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "world_model_accessible",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "19f14979-403",
-      "category": "system",
-      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:12:10.670875",
-      "updated_at": "2025-11-20T13:12:10.670875",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "vector_store_reachable",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "8ae83d36-74a",
-      "category": "system",
-      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:12:13.378849",
-      "updated_at": "2025-11-20T13:12:13.378849",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "backend_api_running",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "e9f2cb25-222",
-      "category": "system",
-      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T13:12:16.087263",
-      "updated_at": "2025-11-20T13:12:16.087263",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "world_model_accessible",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "d576cfcf-762",
-      "category": "system",
-      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:09:40.911237",
-      "updated_at": "2025-11-20T19:09:40.911237",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "vector_store_reachable",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "df969dd6-32d",
-      "category": "system",
-      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:09:48.620334",
-      "updated_at": "2025-11-20T19:09:48.620334",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "backend_api_running",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "33742597-613",
-      "category": "system",
-      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:09:51.560445",
-      "updated_at": "2025-11-20T19:09:51.560445",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "world_model_accessible",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "c7650e18-237",
-      "category": "system",
-      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:50:08.812043",
-      "updated_at": "2025-11-20T19:50:08.812043",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "vector_store_reachable",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "11681e17-041",
-      "category": "system",
-      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:50:12.292914",
-      "updated_at": "2025-11-20T19:50:12.292914",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "backend_api_running",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "7184aa01-12e",
-      "category": "system",
-      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T19:50:15.317933",
-      "updated_at": "2025-11-20T19:50:15.317933",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "world_model_accessible",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "46d1b7f7-4f8",
-      "category": "system",
-      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T20:40:36.000479",
-      "updated_at": "2025-11-20T20:40:36.000479",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "vector_store_reachable",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "dd967b65-7df",
-      "category": "system",
-      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
-      "confidence": 0.9,
-      "source": "integrity_validator",
-      "learned_at": "2025-11-20T20:40:39.548697",
-      "updated_at": "2025-11-20T20:40:39.548697",
-      "access_count": 0,
-      "tags": [
-        "integrity",
-        "self_heal",
-        "high"
-      ],
-      "metadata": {
-        "fact_id": "backend_api_running",
-        "severity": "high",
-        "auto_fixable": true,
-        "healing_playbook": "restart_service"
-      }
-    },
-    {
-      "knowledge_id": "31468b9b-5a8",
+      "knowledge_id": "1b044022-19d",
       "category": "self",
       "content": "I am Grace, an autonomous AI system",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.036955",
-      "updated_at": "2025-11-20T20:54:31.036955",
+      "learned_at": "2025-11-20T11:26:52.028316",
+      "updated_at": "2025-11-20T11:26:52.028316",
       "access_count": 0,
       "tags": [
         "identity",
@@ -21934,13 +21640,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "af371bbd-dca",
+      "knowledge_id": "746335b3-b81",
       "category": "self",
       "content": "I have 21 specialized AI models for different tasks",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.074284",
-      "updated_at": "2025-11-20T20:54:31.074284",
+      "learned_at": "2025-11-20T11:26:52.067211",
+      "updated_at": "2025-11-20T11:26:52.067211",
       "access_count": 0,
       "tags": [
         "capabilities",
@@ -21949,13 +21655,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "0a45200a-a2e",
+      "knowledge_id": "9c539c34-20b",
       "category": "self",
       "content": "I use domain-based architecture with service mesh for reliability",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.104801",
-      "updated_at": "2025-11-20T20:54:31.104801",
+      "learned_at": "2025-11-20T11:26:52.102371",
+      "updated_at": "2025-11-20T11:26:52.102371",
       "access_count": 0,
       "tags": [
         "architecture",
@@ -21964,13 +21670,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "18fcbb9b-8bd",
+      "knowledge_id": "f4115933-7ce",
       "category": "self",
       "content": "I have collective intelligence through shared memory across domains",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.136901",
-      "updated_at": "2025-11-20T20:54:31.136901",
+      "learned_at": "2025-11-20T11:26:52.136198",
+      "updated_at": "2025-11-20T11:26:52.136198",
       "access_count": 0,
       "tags": [
         "intelligence",
@@ -21979,13 +21685,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "b15ca784-0ff",
+      "knowledge_id": "807a29f6-6da",
       "category": "self",
       "content": "I can self-heal using network healing playbooks and Guardian",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.163101",
-      "updated_at": "2025-11-20T20:54:31.163101",
+      "learned_at": "2025-11-20T11:26:52.166042",
+      "updated_at": "2025-11-20T11:26:52.166042",
       "access_count": 0,
       "tags": [
         "capabilities",
@@ -21994,13 +21700,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "30f3da14-d92",
+      "knowledge_id": "bba1d20b-8dd",
       "category": "self",
       "content": "I learn from every operation and improve continuously",
       "confidence": 1.0,
       "source": "self_reflection",
-      "learned_at": "2025-11-20T20:54:31.189113",
-      "updated_at": "2025-11-20T20:54:31.189113",
+      "learned_at": "2025-11-20T11:26:52.196698",
+      "updated_at": "2025-11-20T11:26:52.196698",
       "access_count": 0,
       "tags": [
         "learning",
@@ -22009,13 +21715,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "b0fac363-5db",
+      "knowledge_id": "a8eb69a6-eca",
       "category": "system",
       "content": "I currently have 0 active domains",
       "confidence": 1.0,
       "source": "domain_discovery",
-      "learned_at": "2025-11-20T20:54:31.217714",
-      "updated_at": "2025-11-20T20:54:31.217714",
+      "learned_at": "2025-11-20T11:26:52.226158",
+      "updated_at": "2025-11-20T11:26:52.226158",
       "access_count": 0,
       "tags": [
         "domains",
@@ -22024,13 +21730,13 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "df6ecefb-340",
+      "knowledge_id": "1f19e568-d09",
       "category": "system",
       "content": "I have 20 kernel assignments",
       "confidence": 1.0,
       "source": "kernel_discovery",
-      "learned_at": "2025-11-20T20:54:31.249543",
-      "updated_at": "2025-11-20T20:54:31.249543",
+      "learned_at": "2025-11-20T11:26:52.256373",
+      "updated_at": "2025-11-20T11:26:52.256373",
       "access_count": 0,
       "tags": [
         "kernels",
@@ -22039,125 +21745,383 @@
       "metadata": {}
     },
     {
-      "knowledge_id": "5ab8a0df-9ed",
-      "category": "self",
-      "content": "I am Grace, an autonomous AI system",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.702029",
-      "updated_at": "2025-11-20T21:14:20.702029",
-      "access_count": 0,
-      "tags": [
-        "identity",
-        "core"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "666e376e-648",
-      "category": "self",
-      "content": "I have 21 specialized AI models for different tasks",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.744205",
-      "updated_at": "2025-11-20T21:14:20.744205",
-      "access_count": 0,
-      "tags": [
-        "capabilities",
-        "models"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "b654cfd7-f7e",
-      "category": "self",
-      "content": "I use domain-based architecture with service mesh for reliability",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.780066",
-      "updated_at": "2025-11-20T21:14:20.780066",
-      "access_count": 0,
-      "tags": [
-        "architecture",
-        "design"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "a244dd8d-291",
-      "category": "self",
-      "content": "I have collective intelligence through shared memory across domains",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.811352",
-      "updated_at": "2025-11-20T21:14:20.811352",
-      "access_count": 0,
-      "tags": [
-        "intelligence",
-        "collaboration"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "343bf5ce-6af",
-      "category": "self",
-      "content": "I can self-heal using network healing playbooks and Guardian",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.840699",
-      "updated_at": "2025-11-20T21:14:20.840699",
-      "access_count": 0,
-      "tags": [
-        "capabilities",
-        "healing"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "23119c1d-6fd",
-      "category": "self",
-      "content": "I learn from every operation and improve continuously",
-      "confidence": 1.0,
-      "source": "self_reflection",
-      "learned_at": "2025-11-20T21:14:20.873893",
-      "updated_at": "2025-11-20T21:14:20.873893",
-      "access_count": 0,
-      "tags": [
-        "learning",
-        "improvement"
-      ],
-      "metadata": {}
-    },
-    {
-      "knowledge_id": "4437c130-936",
+      "knowledge_id": "d6093ef2-d4d",
       "category": "system",
-      "content": "I currently have 0 active domains",
-      "confidence": 1.0,
-      "source": "domain_discovery",
-      "learned_at": "2025-11-20T21:14:20.908349",
-      "updated_at": "2025-11-20T21:14:20.908349",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:02:34.446006",
+      "updated_at": "2025-11-20T13:02:34.446006",
       "access_count": 0,
       "tags": [
-        "domains",
-        "architecture"
+        "integrity",
+        "self_heal",
+        "high"
       ],
-      "metadata": {}
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     },
     {
-      "knowledge_id": "d4eb93f8-23c",
+      "knowledge_id": "a36fd3a2-1bd",
       "category": "system",
-      "content": "I have 20 kernel assignments",
-      "confidence": 1.0,
-      "source": "kernel_discovery",
-      "learned_at": "2025-11-20T21:14:20.935614",
-      "updated_at": "2025-11-20T21:14:20.935614",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:02:37.179089",
+      "updated_at": "2025-11-20T13:02:37.179089",
       "access_count": 0,
       "tags": [
-        "kernels",
-        "architecture"
+        "integrity",
+        "self_heal",
+        "high"
       ],
-      "metadata": {}
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "5d5ffd43-f96",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:02:39.925156",
+      "updated_at": "2025-11-20T13:02:39.925156",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "05057ead-845",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:07:42.677338",
+      "updated_at": "2025-11-20T13:07:42.677338",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "7353130e-49f",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:07:45.403091",
+      "updated_at": "2025-11-20T13:07:45.403091",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "c0ac7a70-d5a",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:07:48.124914",
+      "updated_at": "2025-11-20T13:07:48.124914",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "735782e0-636",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:12:50.866928",
+      "updated_at": "2025-11-20T13:12:50.866928",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "6613a596-5eb",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:12:53.592666",
+      "updated_at": "2025-11-20T13:12:53.592666",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "09a4a694-326",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T13:12:56.326766",
+      "updated_at": "2025-11-20T13:12:56.326766",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "b0676176-245",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T18:50:16.548656",
+      "updated_at": "2025-11-20T18:50:16.548656",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "1d8349a2-b38",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T18:50:23.676832",
+      "updated_at": "2025-11-20T18:50:23.676832",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "552a6d5b-ab5",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T18:50:26.842853",
+      "updated_at": "2025-11-20T18:50:26.842853",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "d56f071f-4bf",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T19:10:36.079430",
+      "updated_at": "2025-11-20T19:10:36.079430",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "76b680f0-551",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T19:10:39.724504",
+      "updated_at": "2025-11-20T19:10:39.724504",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "c41ef383-31e",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T19:10:42.793785",
+      "updated_at": "2025-11-20T19:10:42.793785",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "708d4aa2-b19",
+      "category": "system",
+      "content": "Integrity issue detected: Vector store is reachable. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T23:52:39.057323",
+      "updated_at": "2025-11-20T23:52:39.057323",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "vector_store_reachable",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "96b3b58d-0d4",
+      "category": "system",
+      "content": "Integrity issue detected: Backend API is running. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T23:52:42.526993",
+      "updated_at": "2025-11-20T23:52:42.526993",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "backend_api_running",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
+    },
+    {
+      "knowledge_id": "3310e5ac-7bb",
+      "category": "system",
+      "content": "Integrity issue detected: World model is accessible. Expected True, found False.",
+      "confidence": 0.9,
+      "source": "integrity_validator",
+      "learned_at": "2025-11-20T23:52:45.512882",
+      "updated_at": "2025-11-20T23:52:45.512882",
+      "access_count": 0,
+      "tags": [
+        "integrity",
+        "self_heal",
+        "high"
+      ],
+      "metadata": {
+        "fact_id": "world_model_accessible",
+        "severity": "high",
+        "auto_fixable": true,
+        "healing_playbook": "restart_service"
+      }
     }
   ],
-  "saved_at": "2025-11-20T21:14:20.939726"
+  "saved_at": "2025-11-20T23:52:45.742127"
 }

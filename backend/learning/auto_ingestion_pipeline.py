@@ -25,7 +25,7 @@ from backend.memory.memory_catalog import memory_catalog, AssetStatus, AssetType
 from backend.memory.memory_mount import memory_mount
 from backend.world_model.grace_world_model import grace_world_model
 from backend.services.rag_service import RAGService
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 
 class IngestionPipeline:

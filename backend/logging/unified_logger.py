@@ -10,7 +10,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 
-from .models import async_session
+from backend.models import async_session
 from .healing_models import (
     HealingAttempt, AgenticSpineLog, MetaLoopLog,
     MLLearningLog, TriggerMeshLog, DataCubeEntry,

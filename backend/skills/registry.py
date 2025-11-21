@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from backend.action_gateway import action_gateway
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 class SkillCategory(Enum):
     MEMORY = "memory"

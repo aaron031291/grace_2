@@ -4,6 +4,7 @@ Checks actions against governance policies
 """
 
 from typing import Dict, Any, Optional
+from backend.logging.unified_audit_logger import audit_log
 
 class GovernanceEngine:
     """Governance policy checker"""
@@ -70,8 +71,19 @@ class GovernanceEngine:
         decision: Dict[str, Any]
     ):
         """Log governance decision for audit"""
-        # Stub - implement actual logging
-        pass
+        await audit_log(
+            action="governance.decision",
+            actor=decision.get("actor", "unknown"),
+            resource=decision.get("resource", action_id),
+            outcome="allowed" if decision.get("allowed") else "denied",
+            details={
+                "action_id": action_id,
+                "decision": decision,
+                "policy": decision.get("policy"),
+                "reason": decision.get("reason")
+            },
+            source="governance_engine"
+        )
 
     
     def __getattr__(self, name):

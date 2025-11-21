@@ -9,7 +9,7 @@ from datetime import datetime
 
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
-from backend.event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 from .code_verification_engine import (
     verification_engine,
     Hypothesis,

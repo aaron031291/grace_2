@@ -5,7 +5,7 @@ Example of how Guardian uses skills via Action Gateway with governance
 
 from typing import Dict, Any
 from backend.skills.registry import skill_registry
-from backend.unified_event_publisher import publish_event
+from backend.core.unified_event_publisher import publish_event
 
 async def guardian_detect_and_heal(issue_type: str, context: Dict[str, Any]) -> Dict[str, Any]:
     """
