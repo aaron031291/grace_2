@@ -192,6 +192,50 @@ except ImportError as e:
     print(f"[WARN] Learning visibility disabled: {e}")
 
 try:
+    from backend.routes import (
+    chat as chat_router_v2, metrics as metrics_router_v2, reflections as reflections_router, tasks as tasks_router_v2, history as history_router, causal as causal_router, goals as goals_router, knowledge as knowledge_router,
+    evaluation as evaluation_router, summaries as summaries_router, sandbox as sandbox_router, executor as executor_router, governance as governance_router_v2, hunter as hunter_router, memory_api as memory_api_router_v2,
+    guardian_api as guardian_api_router_v2, learning_api as learning_api_router_v2, coding_pipeline_api as coding_pipeline_api_router, enterprise_api as enterprise_api_router, health_routes as health_routes_router,
+    execution as execution_router, temporal_api as temporal_api_router, causal_graph_api as causal_graph_api_router, speech_api as speech_api_router, parliament_api as parliament_api_router,
+    coding_agent_api as coding_agent_api_router, constitutional_api as constitutional_api_router, book_dashboard as book_dashboard_router, file_organizer_api as file_organizer_api_router,
+    builder_api as builder_api_router, orchestrator_api as orchestrator_api_router, models_api as models_api_router  # New AGI APIs
+)
+    app.include_router(chat_router_v2)
+    app.include_router(metrics_router_v2)
+    app.include_router(reflections_router)
+    app.include_router(tasks_router_v2)
+    app.include_router(history_router)
+    app.include_router(causal_router)
+    app.include_router(goals_router)
+    app.include_router(knowledge_router)
+    app.include_router(evaluation_router)
+    app.include_router(summaries_router)
+    app.include_router(sandbox_router)
+    app.include_router(executor_router)
+    app.include_router(governance_router_v2)
+    app.include_router(hunter_router)
+    app.include_router(memory_api_router_v2)
+    app.include_router(guardian_api_router_v2)
+    app.include_router(learning_api_router_v2)
+    app.include_router(coding_pipeline_api_router)
+    app.include_router(enterprise_api_router)
+    app.include_router(health_routes_router)
+    app.include_router(execution_router)
+    app.include_router(temporal_api_router)
+    app.include_router(causal_graph_api_router)
+    app.include_router(speech_api_router)
+    app.include_router(parliament_api_router)
+    app.include_router(coding_agent_api_router)
+    app.include_router(constitutional_api_router)
+    app.include_router(book_dashboard_router)
+    app.include_router(file_organizer_api_router)
+    app.include_router(builder_api_router)
+    app.include_router(orchestrator_api_router)
+    app.include_router(models_api_router)
+except ImportError as e:
+    print(f"[WARN] AGI API routers disabled: {e}")
+
+try:
     from backend.routes.ingest import router as ingest_router
     app.include_router(ingest_router)
 except ImportError as e:
