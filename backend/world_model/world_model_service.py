@@ -127,7 +127,7 @@ class WorldModelService:
         """Get system health summary"""
         return {
             "event_bus": {
-                "total_events": len(event_bus.event_log),
+                "total_events": len(event_bus.event_history),
                 "subscribers": len(event_bus.subscribers)
             },
             "action_gateway": {
@@ -382,7 +382,7 @@ Your internal knowledge:
 {knowledge_context}
 
 System status:
-- Event Bus: {len(event_bus.event_log)} events
+- Event Bus: {len(event_bus.event_history)} events
 - Actions: {len(action_gateway.action_log)} actions
 - Reflections: {len(reflection_loop.reflections)} reflections
 - Skills: {len(skill_registry.skills)} skills
@@ -911,7 +911,7 @@ Grace (respond naturally, in first person):"""
                 "pending_tasks": len([a for a in action_gateway.action_log if not a.get("approved")])
             },
             "notifications": {
-                "total": len(event_bus.event_log),
+                "total": len(event_bus.event_history),
                 "unread": 0
             },
             "multimodal": {
@@ -924,3 +924,4 @@ Grace (respond naturally, in first person):"""
 
 # Singleton instance
 world_model_service = WorldModelService()
+"from backend.services.event_bus import event_bus" 

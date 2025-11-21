@@ -76,12 +76,12 @@ export const ModernChatInterface: React.FC = () => {
       content: inputValue,
     });
 
-    // TODO: Send to backend API and get response
-    setTimeout(() => {
+    // Call backend API
+    fetch('/api/chat', \{ method: 'POST', headers: \{ 'Content-Type': 'application/json' \}, body: JSON.stringify\(\{ message: inputValue, session_id: activeThreadId, user_id: 'user' \}\) \}\) .then\(\(response\) => response.json\(\)\) .then\(\(data\) => \{ 
       if (activeProjectId && activeThreadId) {
         addMessage(activeProjectId, activeThreadId, {
           role: 'assistant',
-          content: 'This is a placeholder response. Backend integration coming soon.',
+          content: 'Sorry, I encountered an error.',
         });
       }
     }, 500);

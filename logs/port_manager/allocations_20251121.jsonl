@@ -11,3 +11,10 @@
 {"timestamp": "2025-11-21T09:33:21.866661", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-21T09:36:29.596454", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
 {"timestamp": "2025-11-21T09:38:41.004768", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T09:41:17.260645", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T09:51:55.507223", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T10:23:38.237263", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T10:30:40.466321", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T10:32:49.182723", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T10:37:32.268322", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-21T10:44:17.957438", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
