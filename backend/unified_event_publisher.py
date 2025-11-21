@@ -18,8 +18,12 @@ from backend.core.unified_event_publisher import (
     UnifiedEventPublisher
 )
 
+# Alias for backward compatibility
+publish_event_async = publish_event
+
 __all__ = [
     'publish_event',
+    'publish_event_async',  # Alias for backward compatibility
     'publish_domain_event',
     'publish_trigger',
     'publish_message',

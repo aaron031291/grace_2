@@ -88,7 +88,8 @@ class SelfReflectionLoop:
         
         response = await model_orchestrator.chat_with_learning(
             message=prompt,
-            user_preference="deepseek-r1:70b" # Use reasoning model
+            # Use MoE powerhouse for deep analysis
+            user_preference="deepseek-v2.5:236b" # MoE reasoning powerhouse
         )
         
         analysis = response.get('text', '')

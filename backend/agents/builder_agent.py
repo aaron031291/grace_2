@@ -276,7 +276,8 @@ All files have been created and dependencies installed.""",
             ]
         }}
         """
-        response = await model_orchestrator.chat_with_learning(prompt, user_preference="deepseek-r1:70b")
+        # Use MoE reasoning model for faster planning
+        response = await model_orchestrator.chat_with_learning(prompt, user_preference="mixtral:8x22b")
         # Extract JSON from response (naive implementation)
         try:
             text = response['text']
@@ -296,7 +297,8 @@ All files have been created and dependencies installed.""",
         
         Output JSON: {{ "filename": "code_content" }}
         """
-        response = await model_orchestrator.chat_with_learning(prompt, user_preference="deepseek-coder-v2:16b")
+        # Use coding specialist with better function calling
+        response = await model_orchestrator.chat_with_learning(prompt, user_preference="qwen2.5-coder:32b")
         try:
             text = response['text']
             start = text.find('{')
@@ -315,7 +317,8 @@ All files have been created and dependencies installed.""",
         
         Fix the code. Output JSON: {{ "filename": "fixed_content" }}
         """
-        response = await model_orchestrator.chat_with_learning(prompt, user_preference="deepseek-coder-v2:16b")
+        # Use ultra-fast model for quick fixes
+        response = await model_orchestrator.chat_with_learning(prompt, user_preference="codegemma:7b")
         try:
             text = response['text']
             start = text.find('{')

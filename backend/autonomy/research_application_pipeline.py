@@ -115,7 +115,8 @@ Provide a structured analysis that Grace can use for implementation."""
             result = await model_orchestrator.chat_with_learning(
                 message=understanding_prompt,
                 context=[],
-                user_preference="deepseek-r1:70b"  # Use reasoning model
+                # Use deep research specialist
+                user_preference="qwen2.5:72b"  # Deep research specialist
             )
             
             return {
@@ -149,7 +150,8 @@ Output: Python code for sandbox testing"""
         result = await model_orchestrator.chat_with_learning(
             message=experiment_prompt,
             context=[],
-            user_preference="deepseek-coder-v2:16b"  # Use coding model
+            # Use coding specialist with better function calling
+            user_preference="qwen2.5-coder:32b"  # Better function calling
         )
         
         return [
