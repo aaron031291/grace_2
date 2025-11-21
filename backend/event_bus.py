@@ -93,13 +93,27 @@ class EventBus:
         except Exception as e:
             print(f"[EventBus] Callback error: {e}")
     
-    def subscribe(self, event_type: EventType, callback: Callable) -> None:
+    def _normalize_event_type(self, event_type: EventType | str) -> EventType:
+        if isinstance(event_type, EventType):
+            return event_type
+        if isinstance(event_type, str):
+            try:
+                return EventType[event_type.upper()]
+            except KeyError:
+                try:
+                    return EventType(event_type)
+                except ValueError:
+                    return EventType.AGENT_ACTION
+        return EventType.AGENT_ACTION
+
+    def subscribe(self, event_type: EventType | str, callback: Callable) -> None:
         """Subscribe to event type"""
-        if event_type not in self.subscribers:
-            self.subscribers[event_type] = []
+        normalized = self._normalize_event_type(event_type)
+        if normalized not in self.subscribers:
+            self.subscribers[normalized] = []
         
-        self.subscribers[event_type].append(callback)
-        print(f"[EventBus] Subscribed to {event_type.value}")
+        self.subscribers[normalized].append(callback)
+        print(f"[EventBus] Subscribed to {normalized.value}")
     
     def get_recent_events(self, limit: int = 100, event_type: Optional[EventType] = None) -> List[Dict[str, Any]]:
         """Get recent events from log"""
