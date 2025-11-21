@@ -1268,6 +1268,38 @@ async def boot_grace_minimal():
             guardian_validates=True,
             delegate_to="self_healing"  # Self-healing handles kernel issues
         ))
+
+        # CHUNK 9: AGI Components (Reflection & RAG)
+        async def chunk_9_agi_components():
+            print("[CHUNK 9] AGI Components (The Brain)...")
+            
+            # 1. Initialize RAG Service
+            try:
+                from backend.services.rag_service import rag_service
+                await rag_service.initialize()
+                print("  [OK] RAG Service: Initialized (Vector Memory Active)")
+            except Exception as e:
+                print(f"  [WARN] RAG Service failed: {e}")
+
+            # 2. Start Self-Reflection Loop
+            try:
+                from backend.autonomy.self_reflection_loop import self_reflection_loop
+                await self_reflection_loop.start()
+                print("  [OK] Self-Reflection Loop: Active (Mirroring)")
+            except Exception as e:
+                print(f"  [WARN] Self-Reflection Loop failed: {e}")
+            
+            return {"rag": "initialized", "reflection": "active"}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="agi_components",
+            name="AGI Components (Brain & Mirror)",
+            priority=9,
+            boot_function=chunk_9_agi_components,
+            can_fail=True,  # Grace can run without full AGI features
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
         
         # Execute chunked boot with Guardian validation
         print()

@@ -15,6 +15,10 @@ from backend.learning_systems.governed_web_learning import domain_whitelist
 from backend.ingestion_services.ingestion_service import ingestion_service
 from backend.agents.firefox_agent import firefox_agent
 from backend.learning_systems.knowledge_synthesizer import knowledge_synthesizer
+from backend.services.rag_service import rag_service
+
+from backend.core.message_bus import message_bus
+from backend.core.agent_protocol import AgentProtocol, AgentRequest
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +67,9 @@ class ProactiveLearningAgent:
         
         # Start the continuous learning loop
         asyncio.create_task(self._learning_loop())
+        
+        # Start listening for agent requests
+        asyncio.create_task(self._listen_for_requests())
         
         logger.info("[PROACTIVE] Agent is now OPERATIONAL and learning autonomously")
     
@@ -259,8 +266,107 @@ class ProactiveLearningAgent:
                 self.total_bytes_ingested += len(raw_content)
                 logger.info(f"[PROACTIVE] ✓ Learned & Synthesized: {topic} - Artifact ID {artifact_id}")
                 
+                # 4. Index into RAG System (The "Synapse")
+                try:
+                    # Index concepts
+                    for concept in synthesized_data.get('concepts', []):
+                        await rag_service.vector_store.add_text(
+                            content=f"{concept['name']}: {concept['description']}",
+                            source=f"web_learning/{domain}/{topic}",
+                            metadata={
+                                "type": "concept",
+                                "topic": topic,
+                                "domain": domain,
+                                "url": url,
+                                "artifact_id": artifact_id
+                            }
+                        )
+                    
+                    # Index Q&A pairs
+                    for qa in synthesized_data.get('qa_pairs', []):
+                        await rag_service.vector_store.add_text(
+                            content=f"Q: {qa['question']}\nA: {qa['answer']}",
+                            source=f"web_learning/{domain}/{topic}",
+                            metadata={
+                                "type": "qa",
+                                "topic": topic,
+                                "domain": domain,
+                                "url": url,
+                                "artifact_id": artifact_id
+                            }
+                        )
+                        
+                    logger.info(f"[PROACTIVE] ✓ Indexed {len(synthesized_data.get('concepts', []))} concepts and {len(synthesized_data.get('qa_pairs', []))} Q&A pairs into RAG")
+                except Exception as e:
+                    logger.warning(f"[PROACTIVE] RAG indexing failed: {e}")
+                
         except Exception as e:
             logger.error(f"[PROACTIVE] Ingestion error: {e}")
+            
+    async def _listen_for_requests(self):
+        """Listen for research requests from other agents"""
+        queue = await message_bus.subscribe("proactive_learning_agent", AgentProtocol.TOPIC_REQUEST)
+        
+        while self.running:
+            try:
+                message = await queue.get()
+                payload = message.payload
+                
+                # Check if this request is for us (research)
+                if payload.get('target_capability') == 'research':
+                    request = AgentRequest(**payload)
+                    logger.info(f"[PROACTIVE] Received research request from {request.source_agent}: {request.query}")
+                    
+                    # Handle request asynchronously
+                    asyncio.create_task(self._handle_research_request(request))
+                    
+            except Exception as e:
+                logger.error(f"[PROACTIVE] Error processing request: {e}")
+                await asyncio.sleep(1)
+
+    async def _handle_research_request(self, request: AgentRequest):
+        """Process a research request and send response"""
+        try:
+            # 1. Query RAG first (Fast path)
+            rag_result = await rag_service.retrieve_with_citations(
+                query=request.query,
+                top_k=3,
+                requested_by="proactive_agent_responder"
+            )
+            
+            response_content = ""
+            artifacts = []
+            
+            if rag_result['total_tokens'] > 0:
+                response_content = f"Based on my internal knowledge:\n\n{rag_result['context']}"
+                artifacts = rag_result['citations']
+            else:
+                # 2. If no internal knowledge, trigger a live web search (Slow path)
+                # For now, we'll just say we don't know, but in future we could trigger _learn_from_web
+                response_content = "I don't have immediate knowledge about this. I will add it to my learning queue."
+                
+                # Queue it for learning
+                # TODO: Add to priority learning queue
+            
+            # 3. Send Response
+            response = AgentProtocol.create_response(
+                request_id=request.request_id,
+                source="proactive_learning_agent",
+                content=response_content,
+                artifacts=artifacts
+            )
+            
+            await message_bus.publish(
+                source="proactive_learning_agent",
+                topic=AgentProtocol.TOPIC_RESPONSE,
+                payload=response.to_dict(),
+                correlation_id=request.request_id
+            )
+            
+            logger.info(f"[PROACTIVE] Sent response to {request.source_agent}")
+            
+        except Exception as e:
+            logger.error(f"[PROACTIVE] Failed to handle research request: {e}")
     
     def get_status(self) -> Dict[str, Any]:
         """Get current status of proactive learning"""

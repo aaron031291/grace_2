@@ -78,7 +78,10 @@ class MessageBus:
             'kernel.code': ['coding_agent', 'sandbox'],
             'kernel.crypto': ['crypto_service', 'orchestrator'],
             'system.control': ['orchestrator', 'control_center', 'control_plane'],
-            'system.health': ['health_monitor', 'orchestrator']
+            'system.health': ['health_monitor', 'orchestrator'],
+            'agent.request': ['coding_agent', 'firefox_agent', 'proactive_learning_agent', 'orchestrator'],
+            'agent.response': ['coding_agent', 'firefox_agent', 'proactive_learning_agent', 'orchestrator'],
+            'agent.growth_plan': ['self_reflection_loop', 'orchestrator', 'guardian']
         }
     
     async def start(self):
