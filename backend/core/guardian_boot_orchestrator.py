@@ -303,7 +303,7 @@ class GuardianBootOrchestrator:
         
         chunk_log.update({
             'completed_at': chunk.completed_at,
-            'status': chunk.status.value,
+            'status': chunk.status.value if hasattr(chunk.status, 'value') else str(chunk.status),
             'guardian_approved': chunk.guardian_approved,
             'issues_found': chunk.issues_found,
             'auto_fixes_applied': chunk.auto_fixes_applied,

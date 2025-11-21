@@ -217,3 +217,30 @@ async def log_governance(action: str, actor: str, **kwargs) -> int:
     """Log governance event (convenience function)"""
     audit_logger = get_audit_logger()
     return await audit_logger.log_governance_event(action, actor, **kwargs)
+
+
+# Alias for compatibility
+async def audit_log(action: str, actor: str = "system", resource: str = None, outcome: str = "success", details: Optional[Dict[str, Any]] = None, source: str = None, **kwargs) -> int:
+    """
+    Audit log function (compatibility alias)
+    
+    This is an alias for log_audit with a more flexible signature.
+    """
+    audit_logger = get_audit_logger()
+    await audit_logger.initialize()
+    
+    # Merge details with kwargs
+    all_details = details or {}
+    all_details.update(kwargs)
+    if source:
+        all_details['source'] = source
+    if outcome:
+        all_details['outcome'] = outcome
+    
+    return await audit_logger.log_event(
+        category="audit",
+        action=action,
+        actor=actor,
+        resource=resource,
+        details=all_details
+    )
