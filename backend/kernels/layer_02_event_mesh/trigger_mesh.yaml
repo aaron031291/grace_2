@@ -1,0 +1,132 @@
+version: '1.0'
+description: 'Grace Trigger Mesh Configuration - Declarative Event Routing'
+
+routes:
+  # Governance Events - Require high trust and audit
+  - source_pattern: 'governance.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions:
+          min_trust: 0.7
+      - component: 'audit_logger'
+        conditions:
+          auditable: true
+      - component: 'consciousness_layer'
+        conditions: {}
+    description: 'Governance decisions route to MTL, audit, and consciousness'
+
+  # Learning Events - Update memory and MTL state
+  - source_pattern: 'learning.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions: {}
+      - component: 'memory_system'
+        conditions: {}
+      - component: 'consciousness_layer'
+        conditions: {}
+    description: 'Learning events route to MTL, memory, and consciousness'
+
+  # Trust Events - Update governance and MTL
+  - source_pattern: 'trust.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions: {}
+      - component: 'governance_kernel'
+        conditions: {}
+    description: 'Trust updates route to MTL and governance'
+
+  # Security Events - Critical routing with validation
+  - source_pattern: 'security.*'
+    target_components:
+      - component: 'immune_system'
+        conditions: {}
+      - component: 'governance_kernel'
+        conditions:
+          critical: true
+      - component: 'audit_logger'
+        conditions:
+          auditable: true
+    description: 'Security events route to immune system, governance, and audit'
+
+  # Health Events - System monitoring
+  - source_pattern: 'health.*'
+    target_components:
+      - component: 'immune_system'
+        conditions: {}
+      - component: 'consciousness_layer'
+        conditions: {}
+    description: 'Health events route to immune system and consciousness'
+
+  # Kernel Events - System orchestration
+  - source_pattern: 'kernel.*'
+    target_components:
+      - component: 'orchestrator'
+        conditions: {}
+      - component: 'consciousness_layer'
+        conditions: {}
+    description: 'Kernel events route to orchestrator and consciousness'
+
+  # Business Operations - Require constitutional validation
+  - source_pattern: 'business.*'
+    target_components:
+      - component: 'governance_kernel'
+        conditions:
+          requires_constitutional_validation: true
+      - component: 'audit_logger'
+        conditions:
+          auditable: true
+      - component: 'mtl_kernel'
+        conditions: {}
+    description: 'Business operations require governance validation'
+
+  # Memory Events - Update MTL state
+  - source_pattern: 'memory.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions: {}
+      - component: 'consciousness_layer'
+        conditions: {}
+    description: 'Memory events route to MTL and consciousness'
+
+  # Consciousness Events - Self-awareness updates
+  - source_pattern: 'consciousness.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions: {}
+      - component: 'governance_kernel'
+        conditions: {}
+    description: 'Consciousness events route to MTL and governance'
+
+  # Immune System Events - Anomaly responses
+  - source_pattern: 'immune.*'
+    target_components:
+      - component: 'mtl_kernel'
+        conditions: {}
+      - component: 'consciousness_layer'
+        conditions: {}
+      - component: 'audit_logger'
+        conditions:
+          auditable: true
+    description: 'Immune system events route to MTL, consciousness, and audit'
+
+# Governance Validators
+governance_validators:
+  constitutional:
+    enabled: true
+    policies:
+      - require_audit_for_external_actions
+      - validate_trust_thresholds
+      - check_governance_tier_requirements
+
+# Trust Scorers
+trust_scorers:
+  component_trust:
+    enabled: true
+    default_threshold: 0.5
+    critical_threshold: 0.8
+
+# Monitoring
+monitoring:
+  enable_route_metrics: true
+  enable_governance_audit: true
+  log_blocked_events: true</code></edit_file>
