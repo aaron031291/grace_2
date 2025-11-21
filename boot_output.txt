@@ -1,0 +1,388 @@
+INFO:backend.utils.snapshot_cleanup:[CLEANUP] Starting comprehensive cleanup...
+INFO:backend.utils.snapshot_cleanup:[CLEANUP] Deleted port registry backup: port_registry_backup_20251120_123527.json (0.19 KB)
+INFO:backend.utils.snapshot_cleanup:[CLEANUP] Complete! Deleted 1 items, freed 0.00 MB
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Initialized - Guardian validates, specialists execute
+INFO:backend.core.port_manager:[PORT-MANAGER] Cleaned stale port registry (backed up to port_registry_backup_20251121_001550.json)
+INFO:backend.core.port_manager:[PORT-MANAGER] No existing allocations (fresh start)
+INFO:backend.core.port_manager:[PORT-MANAGER] Initialized: Managing ports 8000-8010
+INFO:backend.core.port_manager:[PORT-MANAGER] Active allocations: 0
+INFO:backend.core.guardian:[GUARDIAN] Initialized - Boot Priority 0 (FIRST KERNEL)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk guardian_boot (priority 0, delegate: guardian)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk healing_orchestrator (priority 0.5, delegate: guardian)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk self_healing_agent (priority 0.6, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk elite_coding_agent (priority 0.7, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk agent_orchestrator (priority 0.75, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk developer_agent (priority 0.8, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk core_systems (priority 1, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk production_systems (priority 1.5, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk mesh_validators (priority 1.6, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk llm_models (priority 2, delegate: coding_agent)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk main_app (priority 3, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk databases (priority 4, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk learning_whitelist (priority 5, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk governed_learning_engine (priority 6, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk remote_learning_systems (priority 6.5, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk learning_feedback_loop (priority 6.7, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk governance_safety (priority 6.8, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk chaos_agent (priority 6.9, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk trust_framework (priority 7, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Registered chunk grace_kernels (priority 8, delegate: self_healing)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] CHUNKED BOOT SEQUENCE STARTING
+INFO:backend.core.guardian_boot_orchestrator:[BOOT-ORCHESTRATOR] Total chunks: 20
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0] Guardian Kernel (Network, Ports, Diagnostics)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.guardian:================================================================================
+INFO:backend.core.guardian:[GUARDIAN] BOOT SEQUENCE STARTING - PRIORITY 0
+INFO:backend.core.guardian:================================================================================
+INFO:backend.core.guardian:[GUARDIAN] Phase 1/6: Self-check
+INFO:backend.core.guardian:[GUARDIAN] ✓ Phase 1 complete: Self-check passed
+INFO:backend.core.guardian:[GUARDIAN] Phase 2/6: Network diagnostics
+INFO:backend.core.network_hardening:[NETWORK-HARDENING] Running comprehensive checks for port 8000
+INFO:backend.core.network_hardening:[NETWORK-HARDENING] Status: healthy (0 critical, 0 warnings)
+INFO:backend.core.guardian:[GUARDIAN] ✓ Phase 2 complete: Network healthy
+INFO:backend.core.guardian:[GUARDIAN] Phase 3/6: Port allocation
+INFO:backend.core.network_hardening:[NETWORK-HARDENING] Running comprehensive checks for port 8000
+INFO:backend.core.network_hardening:[NETWORK-HARDENING] Status: healthy (0 critical, 0 warnings)
+INFO:backend.core.port_manager:[PORT-MANAGER] ✅ Allocated port 8000 for grace_backend
+INFO:backend.core.port_manager:[PORT-MANAGER] Purpose: Main Grace API - allocated by Guardian during boot, Started by: guardian_kernel
+INFO:backend.core.port_manager:[PORT-MANAGER] Network health: healthy
+INFO:backend.core.guardian:[GUARDIAN] ✓ Phase 3 complete: Port 8000 allocated
+INFO:backend.core.guardian:[GUARDIAN] Phase 4/6: Starting watchdog, healer & playbook sharing
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Registered 5 core playbooks
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Registry initialized
+INFO:backend.core.watchdog_guardian_integration:[WATCHDOG-GUARDIAN] Bridge initialized
+INFO:backend.core.watchdog_guardian_integration:[WATCHDOG-GUARDIAN] Connected to Guardian playbook registry
+INFO:backend.core.watchdog_guardian_integration:[WATCHDOG-GUARDIAN] Bridge started - processing alerts
+INFO:backend.core.guardian:[GUARDIAN] ✓ Watchdog-Guardian bridge active (auto-remediation enabled)
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Hub initialized
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Connected to Guardian playbooks
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Connected to self-healing playbooks
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Connected to coding agent triggers
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Sharing playbooks across systems...
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Shared 3 network playbooks: Guardian → Self-Healing
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from self-healing: restart_kernel
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from self-healing: restart_service
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from self-healing: Port Not Responding
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from self-healing: Network Degradation
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Received 4 playbooks from self-healing
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Shared 4 recovery playbooks: Self-Healing → Guardian
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from coding agent: import_error
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from coding agent: syntax_error
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from coding agent: type_error
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from coding agent: test_failure
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Shared from coding agent: build_error
+INFO:backend.core.guardian_playbooks:[GUARDIAN-PLAYBOOKS] Received 5 triggers from coding agent
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Shared 5 code triggers: Coding Agent → Guardian
+INFO:backend.core.playbook_sharing:[PLAYBOOK-SHARING] Total shared: 12 playbooks/triggers
+INFO:backend.core.guardian:[GUARDIAN] ✓ Playbook sharing active (synergy with self-healing & coding agent)
+INFO:backend.core.port_watchdog:[PORT-WATCHDOG] Started (first check in 60s, then every 30s)
+INFO:backend.core.port_watchdog:[PORT-WATCHDOG] Monitoring ports 8000-8010
+INFO:backend.core.advanced_network_healer:[ADV-NET-HEALER] Advanced Network Healer initialized
+INFO:backend.core.advanced_network_healer:[ADV-NET-HEALER] Coverage: 31 issue types
+INFO:backend.core.guardian:[GUARDIAN] ✓ Advanced Network Healer loaded (OSI Layers 2-7)
+INFO:backend.core.guardian:[GUARDIAN] ✓ Phase 4 complete: Watchdog + Healer active (scan & heal every 30s)
+INFO:backend.core.guardian:[GUARDIAN] Phase 5/6: Pre-flight complete
+INFO:backend.core.guardian:[GUARDIAN] ✓ Phase 5 complete: Ready to boot other kernels
+INFO:backend.core.guardian:[GUARDIAN] Phase 6/6: System ready
+INFO:backend.core.guardian:================================================================================
+INFO:backend.core.guardian:[GUARDIAN] BOOT COMPLETE - REST OF SYSTEM CAN NOW START
+INFO:backend.core.guardian:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.5] Healing Orchestrator
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.healing_orchestrator:[HEALING-ORCHESTRATOR] Online and ready with 17 playbooks
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.5] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.6] Self-Healing Agent
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.6] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.7] Elite Coding Agent
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.agents_core.elite_coding_agent:================================================================================
+INFO:backend.agents_core.elite_coding_agent:ELITE CODING AGENT - STARTING
+INFO:backend.agents_core.elite_coding_agent:================================================================================
+INFO:backend.agents_core.code_memory:[CODE_MEMORY] Initialized
+INFO:backend.agents_core.code_understanding:[CODE_UNDERSTANDING] Initialized
+INFO:backend.agents_core.code_generator:[CODE_GENERATOR] Initialized
+INFO:backend.agents_core.governance:[GOVERNANCE] Initialized
+INFO:backend.agents_core.hunter:[HUNTER] Initialized
+INFO:backend.agents_core.execution_engine:[EXECUTION] Initialized
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Loaded 8 knowledge entries
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Loaded 8 knowledge entries
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Grace architecture learned
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Parsing 27 Python files...
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Parsed 0 files into code memory
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] Grace codebase parsed into memory
+INFO:backend.agents_core.elite_coding_agent:[ELITE_CODE] ✅ Elite Coding Agent OPERATIONAL
+INFO:backend.agents_core.elite_coding_agent:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.7] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.75] Tiered Agent Orchestrator
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.agents_core.agent_orchestrator:[AGENT-ORCHESTRATOR] Starting agent orchestrator...
+INFO:backend.core.message_bus:[MESSAGE-BUS] guardian.pause_pipeline subscribed to <bound method AgentOrchestrator._handle_guardian_pause of <backend.agents_core.agent_orchestrator.AgentOrchestrator object at 0x0000022C411EB910>>
+INFO:backend.core.message_bus:[MESSAGE-BUS] guardian.resume_pipeline subscribed to <bound method AgentOrchestrator._handle_guardian_resume of <backend.agents_core.agent_orchestrator.AgentOrchestrator object at 0x0000022C411EB910>>
+INFO:backend.core.message_bus:[MESSAGE-BUS] guardian.override_pipeline subscribed to <bound method AgentOrchestrator._handle_guardian_override of <backend.agents_core.agent_orchestrator.AgentOrchestrator object at 0x0000022C411EB910>>
+INFO:backend.agents_core.agent_orchestrator:[AGENT-ORCHESTRATOR] ✅ Started
+INFO:backend.agents_core.agent_orchestrator:[AGENT-ORCHESTRATOR] Max concurrent pipelines: 2
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.75] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.8] Senior Developer Agent
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 0.8] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1] Core Systems (Message Bus, Immutable Log)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.message_bus:[MESSAGE-BUS] Started - Grace's nervous system active
+INFO:backend.core.guardian:[GUARDIAN] Kernel booted: message_bus (priority 1)
+INFO:backend.core.immutable_log:[IMMUTABLE-LOG] Started - 1838 existing entries
+INFO:backend.core.guardian:[GUARDIAN] Kernel booted: immutable_log (priority 2)
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1.5] Production Systems (Governance, Verification, AVN)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1.5] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1.6] Trigger Mesh Validators (Constitutional + Trust)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.trust_framework.model_integrity_system:[MODEL-INTEGRITY] Registry initialized
+INFO:backend.trust_framework.model_rollback_system:[MODEL-ROLLBACK] System initialized
+INFO:backend.trust_framework.stress_testing_harness:[STRESS-TEST] Harness initialized
+INFO:backend.trust_framework.uncertainty_reporting:[UNCERTAINTY] Reporting system initialized
+INFO:backend.trust_framework.metrics_aggregator:[METRICS] Collector initialized
+INFO:backend.trust_framework.alert_system:[ALERTS] Notification system initialized
+INFO:backend.trust_framework.trend_analyzer:[TREND-ANALYZER] Initialized
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 1.6] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 2] LLM Models (Ollama)
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Boot function completed
+INFO:backend.core.guardian_boot_orchestrator:  [2/6] Guardian validating chunk...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian validation: PASSED
+INFO:backend.core.guardian_boot_orchestrator:  [3/6] No issues found - skipping fixes
+INFO:backend.core.guardian_boot_orchestrator:  [4/6] Skipping re-validation (no fixes applied)
+INFO:backend.core.guardian_boot_orchestrator:  [5/6] Guardian making approval decision...
+INFO:backend.core.guardian_boot_orchestrator:  [OK] Guardian: APPROVED
+INFO:backend.core.guardian_boot_orchestrator:  [6/6] Chunk complete
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 2] [OK] PASSED - Guardian approved
+INFO:backend.core.guardian_boot_orchestrator:
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:[CHUNK 3] Grace Backend Application
+INFO:backend.core.guardian_boot_orchestrator:================================================================================
+INFO:backend.core.guardian_boot_orchestrator:  [1/6] Executing boot function...
+INFO:backend.learning_systems.autonomous_curriculum:[CURRICULUM] Initialized 9 knowledge domains
+INFO:backend.learning_systems.autonomous_curriculum:[CURRICULUM] Loaded progress: 0 projects completed
+INFO:faiss.loader:Loading faiss with AVX512 support.
+INFO:faiss.loader:Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO:faiss.loader:Loading faiss with AVX2 support.
+INFO:faiss.loader:Successfully loaded faiss with AVX2 support.
+INFO:backend.remote_access.zero_trust_gate:[ZERO-TRUST] Loaded 1 devices, 0 sessions
+ERROR:backend.core.guardian_boot_orchestrator:  [FAIL] Boot function failed: 'str' object has no attribute 'value'
+ERROR:backend.core.guardian_boot_orchestrator:[CHUNK 3] [FAIL] FAILED (critical) - Boot aborted
+INFO:backend.core.watchdog_guardian_integration:[WATCHDOG-GUARDIAN] Alert processing loop started
+INFO:backend.core.port_watchdog:[PORT-WATCHDOG] Waiting 60s for server startup...
+
+================================================================================
+   GRACE - Autonomous AI System
+================================================================================
+
+[PRE-FLIGHT] Checking for processes on port 8000...
+[PRE-FLIGHT] Port check complete
+
+[CLEANUP] Running snapshot cleanup...
+[CLEANUP] Freed 0.00 MB
+
+
+================================================================================
+GRACE - CHUNKED BOOT SEQUENCE (Guardian Orchestrated)
+================================================================================
+
+[PRE-BOOT] Checking port availability...
+
+[ORCHESTRATOR] Starting chunked boot sequence...
+[ORCHESTRATOR] Guardian will validate each chunk before proceeding
+
+[CHUNK 0] Guardian Kernel Boot...
+[PLAYBOOK-REG] Registered 10 playbooks
+[PLAYBOOK-REG] Imported 3 playbooks from guardian
+[PLAYBOOK-REG] Total playbooks: 13
+  [OK] Guardian: Online
+  [OK] Network: healthy
+  [OK] Watchdog: Active
+[CHUNK 0.5] Healing Orchestrator...
+  [OK] Healing Orchestrator: Online (Watching Logs/CI/Secrets)
+[CHUNK 0.6] Self-Healing Agent...
+  [OK] Self-Healing Agent: Online (Automated remediation)
+  [OK] Playbook execution: Active (15s intervals)
+[CHUNK 0.7] Elite Coding Agent (Senior Dev Mode)...
+  [OK] Elite Coding Agent: Online
+  [OK] Knowledge Base: 8 entries
+  [OK] Execution Mode: auto
+[CHUNK 0.75] Tiered Agent Orchestrator...
+  [OK] Agent Orchestrator: Online
+  [OK] Max concurrent pipelines: 2
+  [OK] Pipeline phases: research → design → implement → test → deploy
+  [OK] Guardian oversight: Active (pause/resume/override)
+  [OK] Playbooks: First-class agent tools
+  [OK] Learning loop: Artifact feedback enabled
+[CHUNK 0.8] Senior Developer Agent...
+[EventBus] Subscribed log_to_immutable_on_event to librarian.file.created
+[EventBus] Subscribed log_to_immutable_on_event to ingestion.completed
+[EventBus] Subscribed trigger_healing_on_failure to ingestion.failed
+[EventBus] Subscribed trigger_healing_on_failure to log_pattern.critical
+  [OK] Developer Agent: Ready
+  [OK] Pipeline: Plan -> Design -> Implement -> Governance -> Test -> Deploy
+[CHUNK 1-2] Core Systems...
+  [OK] Message Bus: Active
+  [OK] Immutable Log: Active
+[CHUNK 1.5] Production Systems (Governance, Verification, AVN)...
+✓ Using enhanced trigger mesh with governance hooks
+✓ Loaded 0 event definitions into routing map
+✓ Created 0 routing entries
+  [OK] Trigger Mesh: 0 routes loaded from YAML
+✓ Immune Kernel (AVN) started
+  [OK] Immune Kernel (AVN): Anomaly detection active
+  [OK] Governance Gate: Ready (Kernel 1)
+  [OK] Verification Engine: Ready
+  [OK] Unified Decision Engine: Ready
+  [SUMMARY] 5/5 systems online
+[CHUNK 1.6] Trigger Mesh Validators...
+  [INFO] Constitutional verifier not available yet
+  [INFO] Trust framework not available yet
+[CHUNK 2] LLM Models (21 Open Source Models by Specialty)...
+  [OK] Ollama: Running
+  [OK] Total models: 21
+  [OK] Grace models: 21/21 specialized models
+  -> By specialty:
+    • retrieval: 2 models
+    • research: 2 models
+    • reasoning: 3 models
+    • coding: 4 models
+    • verification: 2 models
+    • vision: 1 models
+    • conversation: 2 models
+    • fast_response: 2 models
+    • uncensored: 2 models
+    • general_purpose: 1 models
+  -> Installed:
+    • qwen2.5:32b - Conversation & reasoning
+    • qwen2.5:72b - Ultimate quality
+    • deepseek-coder-v2:16b - Best coding
+    • deepseek-r1:70b - Complex reasoning (o1-level)
+    • llava:34b - Vision + text
+    ... and 16 more
+[CHUNK 3] Grace Backend...
+[LEARNING] Loaded whitelist with 4 domains
+[EMBEDDING SERVICE] Initialized (model: all-MiniLM-L6-v2, provider: local)
+[EventBus] Subscribed to learning_outcome
+
+[ERROR] Boot failed at chunk: main_app
+   Reason: 'str' object has no attribute 'value'
+✓ Subscribed to anomaly.detected
+✓ Subscribed to system.health_check
+✓ Subscribed to security.event
+✓ AVN subscribed to anomaly events
+Failed to boot Grace. Exiting.
+
+Press Enter to exit...Traceback (most recent call last):
+  File "c:\Users\aaron\grace_2\server.py", line 1387, in <module>
+    input("\nPress Enter to exit...")
+EOFError: EOF when reading a line

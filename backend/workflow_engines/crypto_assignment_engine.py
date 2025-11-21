@@ -147,7 +147,7 @@ class UniversalCryptographicAssignmentEngine:
         target_ms = self.target_speeds[entity_type]
         
         if duration_ms > target_ms:
-            logger.warning(f"Crypto assignment took {duration_ms:.2f}ms (target: {target_ms}ms)")
+            logger.info(f"Crypto assignment took {duration_ms:.2f}ms (target: {target_ms}ms)")
         
         return identity
     

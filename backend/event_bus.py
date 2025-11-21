@@ -111,7 +111,8 @@ class EventBus:
             self.subscribers[event_type] = []
         
         self.subscribers[event_type].append(callback)
-        print(f"[EventBus] Subscribed to {event_type.value}")
+        event_name = event_type.value if hasattr(event_type, 'value') else str(event_type)
+        print(f"[EventBus] Subscribed to {event_name}")
     
     def get_recent_events(self, limit: int = 100, event_type: Optional[EventType] = None) -> List[Dict[str, Any]]:
         """Get recent events from log"""

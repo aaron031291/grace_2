@@ -119,13 +119,13 @@ try:
         TriggerMesh = _EnhancedMesh
         TriggerEvent = _EnhancedEvent
         
-        print("✓ Using enhanced trigger mesh with governance hooks")
+        print("[OK] Using enhanced trigger mesh with governance hooks")
     else:
-        print("⚠ Enhanced trigger mesh incomplete, using simple version")
+        print("[WARN] Enhanced trigger mesh incomplete, using simple version")
 
 except ImportError as e:
     # Fall back to simple mesh
-    print(f"⚠ Enhanced trigger mesh unavailable, using simple version")
+    print(f"[WARN] Enhanced trigger mesh unavailable, using simple version")
     pass
 
 # Keep setup_subscriptions for compatibility

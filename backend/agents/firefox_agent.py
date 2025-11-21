@@ -78,7 +78,7 @@ class FirefoxAgent:
         
         if enabled:
             logger.warning("[FIREFOX] Browser access ENABLED - Grace can browse internet")
-            print("[WARNING] Firefox Agent enabled - Grace can browse approved domains")
+            print("[INFO] Firefox Agent enabled - Grace can browse approved domains")
         else:
             logger.info("[FIREFOX] Browser access DISABLED (safe mode)")
     

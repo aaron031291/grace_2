@@ -15,6 +15,15 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from dotenv import load_dotenv
 
+# Fix Windows console encoding for Unicode characters
+if sys.platform == 'win32':
+    try:
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, errors='replace')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, errors='replace')
+    except Exception:
+        pass  # Fallback to default encoding
+
 # Load environment variables from .env file immediately
 load_dotenv()
 
