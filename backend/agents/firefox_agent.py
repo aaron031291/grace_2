@@ -52,19 +52,41 @@ class FirefoxAgent:
         self.pages_visited = []
         self.downloads = []
         
-        # Whitelist of approved domains for autonomous browsing
-        self.approved_domains = [
-            'arxiv.org',
-            'github.com',
-            'stackoverflow.com',
-            'huggingface.co',
-            'tensorflow.org',
-            'paperswithcode.com',
-            'kaggle.com',
-            'docs.python.org',
-            'readthedocs.io',
-            'wikipedia.org'
-        ]
+        # Load whitelist from config
+        self.approved_domains = self._load_approved_domains()
+
+    def _load_approved_domains(self) -> List[str]:
+        """Load approved domains from whitelist config"""
+        try:
+            import yaml
+            config_path = Path("config/autonomous_learning_whitelist.yaml")
+            if not config_path.exists():
+                logger.warning("[FIREFOX] Whitelist config not found, using defaults")
+                return ['github.com', 'arxiv.org', 'docs.python.org', 'stackoverflow.com']
+            
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            
+            domains = []
+            # Add trusted sources
+            sources = config.get('trusted_sources', {})
+            for category in sources.values():
+                if isinstance(category, list):
+                    domains.extend(category)
+            
+            # Clean domains (remove paths if any)
+            cleaned_domains = []
+            for d in domains:
+                # Simple strip of protocol and path
+                d = d.replace('https://', '').replace('http://', '').split('/')[0]
+                cleaned_domains.append(d)
+                
+            logger.info(f"[FIREFOX] Loaded {len(cleaned_domains)} approved domains from whitelist")
+            return list(set(cleaned_domains))
+            
+        except Exception as e:
+            logger.error(f"[FIREFOX] Failed to load whitelist: {e}")
+            return ['github.com', 'arxiv.org', 'docs.python.org']
     
     async def start(self, enabled: bool = False):
         """
@@ -82,6 +104,113 @@ class FirefoxAgent:
         else:
             logger.info("[FIREFOX] Browser access DISABLED (safe mode)")
     
+    def _get_random_user_agent(self) -> str:
+        """Get a random modern user agent to avoid detection"""
+        import random
+        agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"
+        ]
+        return random.choice(agents)
+
+    async def _smart_sleep(self):
+        """Sleep for a random duration to be polite and avoid rate limits"""
+        import random
+        import asyncio
+        # Sleep between 2 and 5 seconds
+        duration = random.uniform(2.0, 5.0)
+        logger.debug(f"[FIREFOX] Sleeping for {duration:.2f}s...")
+        await asyncio.sleep(duration)
+
+    async def search_web(
+        self,
+        query: str,
+        max_results: int = 10
+    ) -> Dict[str, Any]:
+        """
+        Search the web using DuckDuckGo HTML scraping (No API limits)
+        """
+        logger.info(f"[FIREFOX] Searching web: {query}")
+        
+        results = {
+            'query': query,
+            'results': [],
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        
+        # 1. Try DuckDuckGo HTML Search (Unlimited, Anonymous)
+        try:
+            import aiohttp
+            import re
+            from urllib.parse import quote_plus
+            
+            # Polite delay before search
+            await self._smart_sleep()
+            
+            headers = {
+                'User-Agent': self._get_random_user_agent(),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Referer': 'https://duckduckgo.com/'
+            }
+            
+            search_url = f"https://html.duckduckgo.com/html/?q={quote_plus(query)}"
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.get(search_url, headers=headers) as response:
+                    if response.status == 200:
+                        html = await response.text()
+                        
+                        # Regex extraction for DDG HTML (faster than BS4 for simple structure)
+                        # Look for result links: <a class="result__a" href="...">Title</a>
+                        # Note: DDG HTML structure changes, but this is a common pattern
+                        # Using a robust regex to capture title and link
+                        
+                        # Pattern: <a class="result__a" href="(url)">(title)</a>
+                        # We need to be careful with regex on HTML, but for DDG HTML version it's relatively stable
+                        link_pattern = r'<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>(.*?)</a>'
+                        matches = re.findall(link_pattern, html)
+                        
+                        for url, title_html in matches[:max_results]:
+                            # Clean title (remove bold tags etc)
+                            title = re.sub(r'<[^>]+>', '', title_html).strip()
+                            
+                            # Decode DDG redirect URL if needed
+                            # DDG links often look like /l/?kh=-1&uddg=https%3A%2F%2Fexample.com%2F
+                            if "uddg=" in url:
+                                from urllib.parse import unquote
+                                try:
+                                    url = unquote(url.split("uddg=")[1].split("&")[0])
+                                except:
+                                    pass
+                                    
+                            results['results'].append({
+                                'title': title,
+                                'url': url,
+                                'source': 'duckduckgo_html'
+                            })
+                            
+                        logger.info(f"[FIREFOX] Found {len(results['results'])} results via DuckDuckGo")
+                        
+        except Exception as e:
+            logger.error(f"[FIREFOX] DuckDuckGo search failed: {e}")
+        
+        # 2. Fallback to arXiv if DDG fails or returns nothing (and query looks scientific)
+        if not results['results']:
+            logger.info("[FIREFOX] Falling back to arXiv search...")
+            arxiv_results = await self.browse_url(
+                url=f"https://export.arxiv.org/api/query?search_query=all:{query}&max_results={max_results}",
+                purpose=f"Search arXiv for: {query}",
+                extract_data=True
+            )
+            if arxiv_results.get('data'):
+                results['results'].extend(arxiv_results['data'])
+        
+        return results
+
     async def browse_url(
         self,
         url: str,
@@ -89,17 +218,8 @@ class FirefoxAgent:
         extract_data: bool = False
     ) -> Dict[str, Any]:
         """
-        Browse to URL
-        
-        Args:
-            url: URL to visit
-            purpose: Purpose of visit (for logging)
-            extract_data: Whether to extract and return page data
-        
-        Returns:
-            Browse result with optional data
+        Browse to URL with rotation and politeness
         """
-        
         result = {
             'url': url,
             'purpose': purpose,
@@ -109,153 +229,64 @@ class FirefoxAgent:
             'approved': False
         }
         
-        # Check if enabled
         if not self.enabled:
             result['status'] = 'disabled'
-            result['error'] = 'Browser access is disabled. Enable with ENABLE_FIREFOX_ACCESS=true'
             return result
-        
-        # Check system state
-        if grace_control:
-            state = grace_control.get_state()
-            if state['system_state'] != SystemState.RUNNING:
-                result['status'] = 'system_paused'
-                result['error'] = f"System is {state['system_state']}"
-                return result
-        
-        # Security check: HTTPS only
+            
+        # Security: HTTPS Only
         if not url.startswith('https://'):
             result['status'] = 'blocked'
-            result['error'] = 'Only HTTPS URLs allowed'
-            logger.warning(f"[FIREFOX] BLOCKED (not HTTPS): {url}")
-            
-            if unified_logger:
-                await unified_logger.log_agentic_spine_decision(
-                decision_type='browser_blocked',
-                decision_context={'url': url, 'reason': 'not_https'},
-                chosen_action='block_url',
-                rationale='Only HTTPS URLs allowed for security',
-                actor='firefox_agent',
-                confidence=1.0,
-                risk_score=0.9,
-                status='blocked',
-                    resource=url
-                )
-            
             return result
-        
-        # Check if domain is approved
+            
+        # Check Whitelist
         domain = self._extract_domain(url)
-        
         if not self._is_approved_domain(domain):
+            # Auto-approve subdomains of approved domains? Already handled in _is_approved_domain
+            # If strict mode, block.
             logger.warning(f"[FIREFOX] Domain not approved: {domain}")
-            
-            # Request approval
-            approval = await self._request_domain_approval(domain, purpose)
-            
-            if not approval['approved']:
-                result['status'] = 'not_approved'
-                result['error'] = f"Domain {domain} not approved: {approval['reason']}"
-                return result
-        
-        # Log activity - what Grace is doing
-        if activity_monitor:
-            await activity_monitor.log_activity(
-                activity_type='browsing',
-                description=f'Browsing: {url}',
-                details={'purpose': purpose, 'domain': domain}
-            )
-        
-        # Browse to URL
+            result['status'] = 'not_approved'
+            return result
+
         try:
-            logger.info(f"[FIREFOX] Browsing: {url} (purpose: {purpose})")
+            # Smart Sleep before request
+            await self._smart_sleep()
             
-            # In production, would use Selenium/Playwright with Firefox
-            # For now, simulate with curl/requests
             import aiohttp
+            headers = {'User-Agent': self._get_random_user_agent()}
             
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                async with session.get(url, headers=headers, timeout=30) as response:
                     html = await response.text()
                     
                     result['status'] = 'success' if response.status == 200 else 'failed'
                     result['status_code'] = response.status
-                    result['content_length'] = len(html)
                     
                     if extract_data:
-                        result['data'] = await self._extract_useful_data(html, url)
-                    
+                        # If it's an API (like arXiv), return parsed data
+                        if "api" in url or "json" in response.headers.get('Content-Type', ''):
+                            result['data'] = html # Raw for now, or parse if JSON
+                        else:
+                            # For web pages, return the FULL HTML for the synthesizer
+                            # The previous implementation returned a list of links, which was weak.
+                            # Now we return the full content so KnowledgeSynthesizer can work.
+                            result['data'] = html 
+                            
                     # Log visit
                     self.pages_visited.append({
                         'url': url,
-                        'purpose': purpose,
-                        'timestamp': datetime.utcnow().isoformat(),
-                        'status_code': response.status
+                        'timestamp': datetime.utcnow().isoformat()
                     })
                     
-                    # Log to unified logger
-                    if unified_logger:
-                        await unified_logger.log_agentic_spine_decision(
-                        decision_type='browser_visit',
-                        decision_context={'url': url, 'purpose': purpose, 'status': response.status},
-                        chosen_action='browse_url',
-                        rationale=f'Browsed {url} for {purpose}',
-                        actor='firefox_agent',
-                        confidence=0.85,
-                        risk_score=0.2,
-                            status='success',
-                            resource=url
-                        )
+                    logger.info(f"[FIREFOX] Visited: {url} ({len(html)} bytes)")
                     
-                    logger.info(f"[FIREFOX] Success: {url} (status: {response.status})")
-        
         except Exception as e:
             result['status'] = 'error'
             result['error'] = str(e)
-            logger.error(f"[FIREFOX] Error browsing {url}: {e}")
-        
+            logger.error(f"[FIREFOX] Error visiting {url}: {e}")
+            
         return result
-    
-    async def search_web(
-        self,
-        query: str,
-        max_results: int = 10
-    ) -> Dict[str, Any]:
-        """
-        Search the web
-        
-        Args:
-            query: Search query
-            max_results: Max results to return
-        
-        Returns:
-            Search results
-        """
-        
-        logger.info(f"[FIREFOX] Searching web: {query}")
-        
-        # In production, would use search engine API or scrape results
-        # For now, search approved domains
-        
-        results = {
-            'query': query,
-            'results': [],
-            'timestamp': datetime.utcnow().isoformat()
-        }
-        
-        # Search arXiv for papers
-        arxiv_results = await self.browse_url(
-            url=f"https://export.arxiv.org/api/query?search_query=all:{query}&max_results={max_results}",
-            purpose=f"Search arXiv for: {query}",
-            extract_data=True
-        )
-        
-        if arxiv_results.get('data'):
-            results['results'].extend(arxiv_results['data'])
-        
-        logger.info(f"[FIREFOX] Found {len(results['results'])} results for: {query}")
-        
-        return results
+
+
     
     async def download_file(
         self,

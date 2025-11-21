@@ -1378,6 +1378,28 @@ if __name__ == "__main__":
         print(f"[CLEANUP] Cleanup skipped: {e}")
     print()
     
+    # Start frontend in background (BEFORE boot to ensure UI is ready)
+    print("[FRONTEND] Starting frontend dev server...")
+    import subprocess
+    frontend_process = None
+    try:
+        # Since server.py is in root, frontend is directly in "frontend" folder
+        frontend_dir = Path(__file__).parent / "frontend"
+        if frontend_dir.exists():
+            # Check if npm is available
+            npm_cmd = "npm.cmd" if os.name == 'nt' else "npm"
+            frontend_process = subprocess.Popen(
+                [npm_cmd, "run", "dev"],
+                cwd=str(frontend_dir),
+                creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0
+            )
+            print(f"[FRONTEND] Started on http://localhost:5173 (PID: {frontend_process.pid})")
+        else:
+            print("[WARN] Frontend directory not found, skipping frontend")
+    except Exception as e:
+        print(f"[WARN] Could not start frontend: {e}")
+    print()
+
     # Boot Grace (Guardian boots FIRST and allocates port)
     boot_result = asyncio.run(boot_grace_minimal())
     
@@ -1403,24 +1425,7 @@ if __name__ == "__main__":
     
     print(f"[PORT] Using port: {port}")
     
-    # Start frontend in background
-    print("[FRONTEND] Starting frontend dev server...")
-    import subprocess
-    frontend_process = None
-    try:
-        # Since server.py is in root, frontend is directly in "frontend" folder
-        frontend_dir = Path(__file__).parent / "frontend"
-        if frontend_dir.exists():
-            frontend_process = subprocess.Popen(
-                ["npm.cmd", "run", "dev"],
-                cwd=str(frontend_dir),
-                creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0
-            )
-            print(f"[FRONTEND] Started on http://localhost:5173 (PID: {frontend_process.pid})")
-        else:
-            print("[WARN] Frontend directory not found, skipping frontend")
-    except Exception as e:
-        print(f"[WARN] Could not start frontend: {e}")
+
     
     # Start server
     print("=" * 80)
