@@ -24,6 +24,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 <div className="header-center">
                     <span className="status-badge trust">Trust: 92%</span>
                     <span className="status-badge consciousness">Consciousness: 41%</span>
+                    <span className="status-badge loops">Active Loops: 3</span>
+                    <span className="status-badge memory">Memory: 2.3TB / 5TB</span>
                     <span className="status-badge crypto">Crypto: ✓</span>
                 </div>
                 <div className="header-right">

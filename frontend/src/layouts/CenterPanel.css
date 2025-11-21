@@ -38,3 +38,70 @@
     padding: 1rem;
     min-height: 200px;
 }
+
+/* Logs View */
+.logs-view-full {
+    padding: 2rem;
+}
+
+.logs-view-full h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    color: #d4d4d4;
+}
+
+.logs-container {
+    background: #1e1e1e;
+    border: 1px solid #3e3e42;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.log-entry {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+}
+
+.log-entry:hover {
+    background: #2a2d2e;
+}
+
+.log-time {
+    color: #858585;
+    min-width: 70px;
+}
+
+.log-type {
+    font-weight: 700;
+    min-width: 120px;
+}
+
+.log-message {
+    flex: 1;
+    color: #d4d4d4;
+}
+
+.log-entry.info .log-type {
+    color: #4fc1ff;
+}
+
+.log-entry.warn .log-type {
+    color: #ffa500;
+}
+
+.log-entry.error .log-type {
+    color: #f48771;
+}
+
+.log-entry.success .log-type {
+    color: #4ec9b0;
+}
+
+.log-entry.governance .log-type {
+    color: #c586c0;
+}

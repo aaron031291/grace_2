@@ -49,6 +49,18 @@
   border: 1px solid #8a2be2;
 }
 
+.status-badge.loops {
+  background: rgba(255, 165, 0, 0.1);
+  color: #ffa500;
+  border: 1px solid #ffa500;
+}
+
+.status-badge.memory {
+  background: rgba(78, 201, 176, 0.1);
+  color: #4ec9b0;
+  border: 1px solid #4ec9b0;
+}
+
 .status-badge.crypto {
   background: rgba(0, 255, 127, 0.1);
   color: #00ff7f;
