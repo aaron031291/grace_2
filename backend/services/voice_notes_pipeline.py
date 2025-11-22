@@ -18,7 +18,7 @@ from typing import Dict, Any, Optional
 
 from backend.services.recording_service import recording_service, RecordingType
 from backend.core.message_bus import message_bus
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 
 
 class VoiceNotesPipeline:

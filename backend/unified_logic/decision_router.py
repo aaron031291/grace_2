@@ -189,7 +189,7 @@ class DecisionRouter:
         """Route to immutable log for audit trail"""
         
         try:
-            from backend.logging.immutable_log import immutable_log
+            from backend.logging_system.immutable_log import immutable_log
             
             await immutable_log.append(
                 actor="unified_decision_engine",

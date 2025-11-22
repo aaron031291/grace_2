@@ -10,7 +10,7 @@ from pathlib import Path
 import logging
 import statistics
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from backend.config.environment import GraceEnvironment
 
 logger = logging.getLogger(__name__)

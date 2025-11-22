@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from collections import Counter
 import statistics
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

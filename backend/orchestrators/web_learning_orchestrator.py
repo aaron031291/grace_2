@@ -15,7 +15,7 @@ from backend.learning_systems.youtube_learning import youtube_learning
 from backend.misc.remote_computer_access import remote_access
 from backend.knowledge.knowledge_provenance import provenance_tracker
 from backend.knowledge.knowledge_application_sandbox import knowledge_sandbox
-from backend.logging.unified_logger import unified_logger
+from backend.logging_system.unified_logger import unified_logger
 
 logger = logging.getLogger(__name__)
 

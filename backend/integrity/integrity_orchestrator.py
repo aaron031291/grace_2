@@ -8,7 +8,7 @@ import logging
 from typing import Dict, Any
 from datetime import datetime
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 
@@ -369,7 +369,7 @@ if __name__ == "__main__":
         return f'''
 # Auto-generated integration code for {service_path}
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from backend.core.governance_engine import governance_engine
 import logging
 

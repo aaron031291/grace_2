@@ -21,7 +21,7 @@ import tiktoken
 
 from backend.models.vector_models import VectorEmbedding, EmbeddingBatch
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from sqlalchemy import select
 
 

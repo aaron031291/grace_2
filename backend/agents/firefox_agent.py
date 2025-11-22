@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 
 try:
-    from backend.logging.unified_logger import unified_logger
+    from backend.logging_system.unified_logger import unified_logger
 except ImportError:
     unified_logger = None
 

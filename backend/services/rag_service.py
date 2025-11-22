@@ -22,7 +22,7 @@ from backend.services.embedding_service import embedding_service
 from backend.services.vector_store import vector_store
 from backend.models.vector_models import VectorEmbedding
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from sqlalchemy import select
 
 

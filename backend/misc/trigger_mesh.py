@@ -46,7 +46,7 @@ class TriggerMesh:
         await self.event_queue.put(event)
         
         # Log to immutable log
-        from backend.logging.immutable_log import immutable_log
+        from backend.logging_system.immutable_log import immutable_log
         await immutable_log.append(
             actor=event.actor,
             action=event.event_type,

@@ -30,7 +30,7 @@ class UnifiedAuditLogger:
             return
             
         try:
-            from backend.logging.immutable_log import immutable_log
+            from backend.logging_system.immutable_log import immutable_log
             self._immutable_log = immutable_log
             self._initialized = True
             logger.info("Unified audit logger initialized")

@@ -15,7 +15,7 @@ import json
 from backend.model_orchestrator import ModelOrchestrator
 from backend.services.event_bus import event_bus
 from backend.core.unified_event_publisher import publish_event
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 
 
 class DevelopmentJob:

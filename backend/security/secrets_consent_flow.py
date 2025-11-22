@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from backend.models.base_models import async_session, Base
 from sqlalchemy import Column, String, DateTime, Text, Boolean, JSON, Integer, select, update
 from sqlalchemy.sql import func

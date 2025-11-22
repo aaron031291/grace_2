@@ -47,7 +47,7 @@ except:
     logger.warning("Vector integration not available - embeddings will be skipped")
 
 from backend.core.unified_event_publisher import publish_event
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 
 try:
     from pypdf import PdfReader

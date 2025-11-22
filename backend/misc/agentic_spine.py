@@ -14,7 +14,7 @@ from enum import Enum
 from collections import defaultdict
 
 from .trigger_mesh import trigger_mesh, TriggerEvent
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from backend.core.intent_api import intent_api, IntentDomain, IntentPriority
 from backend.learning_systems.learning_loop import learning_loop
 from backend.core.message_bus import message_bus

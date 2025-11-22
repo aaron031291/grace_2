@@ -15,7 +15,7 @@ from enum import Enum
 from collections import defaultdict
 
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 
 class ViolationType(Enum):

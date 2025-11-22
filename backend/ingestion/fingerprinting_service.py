@@ -7,7 +7,7 @@ from typing import Dict, List, Set, Tuple, Any
 from datetime import datetime, timedelta
 import logging
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

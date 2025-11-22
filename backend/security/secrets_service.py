@@ -22,7 +22,7 @@ from cryptography.fernet import Fernet
 
 from backend.models.secrets_models import SecretVault, SecretAccessLog, ContactRegistry, SecretValidation
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from backend.core.message_bus import message_bus, MessagePriority
 from sqlalchemy import select, update, desc
 

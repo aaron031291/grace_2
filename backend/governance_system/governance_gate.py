@@ -360,7 +360,7 @@ class GovernanceGate:
         """Log governance decision to immutable log"""
         
         try:
-            from backend.logging.governance_logger import governance_logger
+            from backend.logging_system.governance_logger import governance_logger
             
             await governance_logger.log_governance_decision(
                 decision_id=request.request_id,

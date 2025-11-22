@@ -4,7 +4,7 @@ Checks actions against governance policies
 """
 
 from typing import Dict, Any, Optional
-from backend.logging.unified_audit_logger import audit_log
+from backend.logging_system.unified_audit_logger import audit_log
 
 class GovernanceEngine:
     """Governance policy checker"""

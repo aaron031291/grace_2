@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from enum import Enum
 
 from backend.core.message_bus import message_bus, MessagePriority
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from sqlalchemy import Column, String, JSON, DateTime, Float, Integer, Boolean
 from backend.models.base_models import Base, async_session
 

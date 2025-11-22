@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from .trigger_mesh import trigger_mesh, TriggerEvent
 from .immutable_log import ImmutableLog
 from backend.core.unified_event_publisher import publish_trigger
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 from .autonomy_tiers import autonomy_manager, AutonomyTier
 from .event_persistence import event_persistence
 

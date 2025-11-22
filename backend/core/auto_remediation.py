@@ -15,7 +15,7 @@ from enum import Enum
 
 from backend.core.message_bus import message_bus
 from backend.core.intent_api import intent_api, Intent, IntentPriority
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 
 
 class RemediationAction(Enum):

@@ -8,7 +8,7 @@ from collections import defaultdict, Counter
 import logging
 
 from backend.metrics_service import metrics_service
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

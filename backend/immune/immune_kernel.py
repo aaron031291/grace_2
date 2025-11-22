@@ -454,7 +454,7 @@ class ImmuneKernel:
         print(f"🚨 AVN: Escalating {anomaly.anomaly_id} to human")
         
         try:
-            from backend.logging.avn_logger import avn_logger
+            from backend.logging_system.avn_logger import avn_logger
             
             await avn_logger.log_escalation(
                 escalation_id=f"esc_{anomaly.anomaly_id}",
@@ -473,7 +473,7 @@ class ImmuneKernel:
         """Log anomaly to immutable log"""
         
         try:
-            from backend.logging.avn_logger import avn_logger
+            from backend.logging_system.avn_logger import avn_logger
             
             await avn_logger.log_anomaly_detected(
                 anomaly_id=anomaly.anomaly_id,
@@ -491,7 +491,7 @@ class ImmuneKernel:
         """Log healing attempt to immutable log"""
         
         try:
-            from backend.logging.avn_logger import avn_logger
+            from backend.logging_system.avn_logger import avn_logger
             
             await avn_logger.log_healing_action(
                 healing_id=healing.healing_id,

@@ -15,7 +15,7 @@ import mimetypes
 from backend.clarity import BaseComponent, ComponentStatus, Event, TrustLevel, get_event_bus
 from backend.database import get_db
 from backend.core.unified_event_publisher import publish_event
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 
 
 class FileIngestionAgent(BaseComponent):

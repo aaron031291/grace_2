@@ -19,7 +19,7 @@ import logging
 
 from .message_bus import message_bus, MessagePriority
 from backend.core.unified_event_publisher import publish_event
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 
 logger = logging.getLogger(__name__)
 

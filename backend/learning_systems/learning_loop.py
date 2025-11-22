@@ -16,7 +16,7 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy import Column, String, JSON, DateTime, Float, Boolean, Integer, select, func
 
 from backend.models.base_models import Base, async_session
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 
 class OutcomeRecord(Base):

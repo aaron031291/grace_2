@@ -11,7 +11,7 @@ from typing import Optional, Dict, Any, List
 from cryptography.fernet import Fernet
 from datetime import datetime
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 
 class SecureCredentialVault:

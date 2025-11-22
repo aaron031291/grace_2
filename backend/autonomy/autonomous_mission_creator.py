@@ -23,7 +23,7 @@ from enum import Enum
 from backend.mission_control.schemas import MissionPackage
 from backend.mission_control.hub import mission_control_hub
 from backend.misc.sandbox_manager import sandbox_manager
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 from backend.mission_control.hub import mission_control_hub
 from backend.misc.sandbox_manager import sandbox_manager

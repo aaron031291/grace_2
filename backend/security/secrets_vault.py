@@ -17,7 +17,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, JSON
 from sqlalchemy.sql import func
 from backend.models import Base, async_session
 from backend.verification_system.verification import VerificationEngine
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 from backend.verification_system.governance import GovernanceEngine
 
 class SecretEntry(Base):

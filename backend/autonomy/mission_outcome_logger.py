@@ -303,7 +303,7 @@ class MissionOutcomeLogger:
     ):
         """Log to governance for audit"""
         try:
-            from backend.logging_utils import log_event
+            from backend.logging_system_utils import log_event
             
             log_event(
                 action="mission.outcome.logged",

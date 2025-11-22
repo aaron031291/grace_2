@@ -27,7 +27,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 )
 from cryptography.hazmat.primitives import serialization
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
 
 logger = logging.getLogger(__name__)

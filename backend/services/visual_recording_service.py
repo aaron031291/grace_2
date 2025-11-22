@@ -18,7 +18,7 @@ from typing import Dict, Any, List
 
 from backend.services.recording_service import recording_service, RecordingType
 from backend.services.embedding_service import embedding_service
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 
 
 class VisualRecordingService:

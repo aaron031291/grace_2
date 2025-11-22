@@ -16,7 +16,7 @@ from pathlib import Path
 import asyncio
 import json
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 from backend.auth.auth_handler import get_current_user # Assuming a user auth system
 from backend.governance_system.governance import governance_engine

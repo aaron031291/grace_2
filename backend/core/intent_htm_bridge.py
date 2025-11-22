@@ -27,7 +27,7 @@ from backend.core.intent_api import IntentAPI, Intent, IntentStatus, IntentOutco
 from backend.core.message_bus import message_bus, MessagePriority
 from backend.models.htm_models import HTMTask
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from sqlalchemy import select, update
 
 

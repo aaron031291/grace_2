@@ -16,7 +16,7 @@ from pathlib import Path
 
 from backend.model_orchestrator import model_orchestrator
 from backend.ingestion_services.ingestion_service import ingestion_service
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 
 class ResearchApplicationPipeline:

@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import logging
 
 from backend.config.environment import GraceEnvironment
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

@@ -453,7 +453,7 @@ class TriggerMesh:
             return
         
         try:
-            from backend.logging.immutable_log import immutable_log
+            from backend.logging_system.immutable_log import immutable_log
             
             await immutable_log.append(
                 actor=event.actor,
@@ -474,7 +474,7 @@ class TriggerMesh:
         """Log blocked event to immutable log"""
         
         try:
-            from backend.logging.immutable_log import immutable_log
+            from backend.logging_system.immutable_log import immutable_log
             
             await immutable_log.append(
                 actor=event.actor,

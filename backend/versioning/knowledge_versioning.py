@@ -10,7 +10,7 @@ import difflib
 import logging
 
 from backend.security.kms_encryption import kms_encryption
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

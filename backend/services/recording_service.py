@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 from backend.models.recording_models import RecordingSession, ConsentRecord
 from backend.models.base_models import async_session
-from backend.logging_utils import log_event
+from backend.logging_system_utils import log_event
 from backend.core.message_bus import message_bus, MessagePriority
 from sqlalchemy import select
 

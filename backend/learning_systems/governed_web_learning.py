@@ -11,7 +11,7 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,7 @@ from typing import Dict, Any, List
 from datetime import datetime
 import pkgutil
 
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 logger = logging.getLogger(__name__)
 
@@ -298,7 +298,7 @@ class ServiceIntegrationValidator:
         """Get integration template for new services"""
         return {
             "required_imports": [
-                "from backend.logging.immutable_log import immutable_log",
+                "from backend.logging_system.immutable_log import immutable_log",
                 "from backend.core.governance_engine import governance_engine"
             ],
             "required_methods": [

@@ -11,7 +11,7 @@ from ...verification import VerificationEngine
 from ...hunter import hunter
 from ...parliament_engine import ParliamentEngine
 from ...grace_architect_agent import GraceArchitectAgent
-from backend.logging.unified_audit_logger import get_audit_logger
+from backend.logging_system.unified_audit_logger import get_audit_logger
 from .models import Client, Project, Invoice
 
 

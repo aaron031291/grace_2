@@ -12,7 +12,7 @@ import asyncio
 
 from backend.mission_control.mission_manifest import MissionManifest, SuccessCriterion, Constraint
 from backend.mission_control.mission_controller import mission_controller
-from backend.logging.immutable_log import immutable_log
+from backend.logging_system.immutable_log import immutable_log
 
 class ExperimentationAgent:
     """
