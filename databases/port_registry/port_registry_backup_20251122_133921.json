@@ -6,12 +6,12 @@
       "started_by": "guardian_kernel",
       "purpose": "Main Grace API - allocated by Guardian during boot",
       "pid": null,
-      "allocated_at": "2025-11-22T13:48:00.483743",
-      "last_health_check": "2025-11-22T13:48:00.483743",
+      "allocated_at": "2025-11-22T10:55:19.500082",
+      "last_health_check": "2025-11-22T10:55:19.500082",
       "health_status": "active",
       "request_count": 0,
       "error_count": 0
     }
   },
-  "last_updated": "2025-11-22T13:48:00.483743"
+  "last_updated": "2025-11-22T10:55:19.500082"
 }

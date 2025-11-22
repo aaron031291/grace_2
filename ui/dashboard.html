@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace Agent Dashboard</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        h2 { margin-top: 0; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+        button { padding: 10px 20px; cursor: pointer; }
+        input[type="text"] { width: 70%; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Grace Agent Dashboard</h1>
+
+    <div class="card">
+        <h2>Set Goal</h2>
+        <input type="text" id="goalInput" placeholder="Enter a goal (e.g., 'Summarize Grace AI')">
+        <button onclick="setGoal()">Start Agent</button>
+        <p id="status"></p>
+    </div>
+
+    <div class="card">
+        <h2>Current Plan</h2>
+        <ul id="planList"></ul>
+    </div>
+
+    <div class="card">
+        <h2>Execution History</h2>
+        <div id="historyLog"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        async def setGoal() {
+            const goal = document.getElementById('goalInput').value;
+            if (!goal) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/agent/goal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goal })
+                });
+                const data = await res.json();
+                document.getElementById('status').innerText = `Status: ${data.status}`;
+            } catch (e) {
+                document.getElementById('status').innerText = `Error: ${e.message}`;
+            }
+        }
+
+        async function updateState() {
+            try {
+                // Fetch Plan
+                const planRes = await fetch(`${API_BASE}/agent/plan`);
+                const planData = await planRes.json();
+                const planList = document.getElementById('planList');
+                planList.innerHTML = '';
+                if (planData.plan) {
+                    planData.plan.forEach(step => {
+                        const li = document.createElement('li');
+                        li.innerText = step;
+                        planList.appendChild(li);
+                    });
+                }
+
+                // Fetch History
+                const histRes = await fetch(`${API_BASE}/agent/history`);
+                const histData = await histRes.json();
+                const historyLog = document.getElementById('historyLog');
+                historyLog.innerHTML = '';
+                if (histData.history) {
+                    histData.history.forEach(entry => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<strong>${entry.action}</strong>: <pre>${JSON.stringify(entry.args)}</pre> -> <pre>${JSON.stringify(entry.result)}</pre><hr>`;
+                        historyLog.appendChild(div);
+                    });
+                }
+            } catch (e) {
+                console.error("Polling error", e);
+            }
+        }
+
+        // Poll every 2 seconds
+        setInterval(updateState, 2000);
+        updateState();
+    </script>
+</body>
+</html>

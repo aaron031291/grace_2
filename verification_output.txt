@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "C:\Users\aaron\grace_2\tests\verify_artifact_identity.py", line 122, in <module>
+    asyncio.run(verify_artifact_identity())
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\grace_2\tests\verify_artifact_identity.py", line 27, in verify_artifact_identity
+    artifact_id_v1 = await ingestion_service.ingest(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\grace_2\backend\ingestion_services\ingestion_service.py", line 146, in ingest
+    print(f"\u2139\ufe0f Updating existing artifact: {path} (Root: {root_artifact_id})")
+  File "C:\Users\aaron\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+DEBUG: Loaded ingestion_service from C:\Users\aaron\grace_2\backend\ingestion_services\ingestion_service.py
+=== Verifying Artifact Identity (Root Key) ===
+
+[Step 1] Ingesting new artifact...
+[OK] Using enhanced trigger mesh with governance hooks

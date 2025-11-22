@@ -245,6 +245,12 @@ async def boot_grace_minimal():
                     guardian.signal_kernel_boot('immutable_log', 2)
                     print("  [OK] Immutable Log: Active")
                     results['immutable_log'] = 'active'
+
+                # Start Crypto Key Manager
+                from backend.crypto.crypto_key_manager import crypto_key_manager
+                await crypto_key_manager.start()
+                print("  [OK] Crypto Key Manager: Active")
+                results['crypto_key_manager'] = 'active'
             
             except ImportError as e:
                 print(f"  [WARN] Core systems not available: {e}")
@@ -265,17 +271,31 @@ async def boot_grace_minimal():
         # CHUNK 2: Grace Agent Initialization (Guardian validates)
         async def chunk_grace_agent():
             print("[CHUNK 2] Grace Agent Initialization...")
-            # Initialize short‑term memory buffer
-            memory_buffer = MemoryBuffer(max_size=100)
-            # Placeholder LLM client
-            class DummyLLM:
-                async def generate(self, prompt):
-                    # Simple echo response
-                    return {"tool": "search_web", "args": {"query": "example"}}
-            llm = DummyLLM()
+            
+            # Use Unified Memory (Fusion)
+            try:
+                from backend.services.unified_memory import unified_memory
+                memory = unified_memory
+                print("  [OK] Unified Memory: Connected (Fusion)")
+            except ImportError as e:
+                print(f"  [WARN] Unified Memory not found, falling back to buffer: {e}")
+                memory = MemoryBuffer(max_size=100)
+            
+            # Use real LLM Service
+            try:
+                from backend.services.llm_service import llm_service
+                llm = llm_service
+                print("  [OK] LLM Service: Connected")
+            except ImportError as e:
+                print(f"  [WARN] LLM Service not found, falling back to dummy: {e}")
+                class DummyLLM:
+                    async def generate(self, prompt):
+                        return {"tool": "search_web", "args": {"query": "example"}}
+                llm = DummyLLM()
+
             # Initialize GraceAgent
             global GRACE_AGENT
-            GRACE_AGENT = GraceAgent(llm=llm, memory=memory_buffer)
+            GRACE_AGENT = GraceAgent(llm=llm, memory=memory)
             print("[OK] GraceAgent initialized")
             return {"status": "initialized"}
 
@@ -285,6 +305,48 @@ async def boot_grace_minimal():
             priority=2,
             boot_function=chunk_grace_agent,
             can_fail=False,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
+        # CHUNK 2.5: Agent API Endpoints (Guardian validates)
+        async def chunk_agent_api():
+            print("[CHUNK 2.5] Agent API Endpoints...")
+            from backend.main import app
+            from pydantic import BaseModel
+
+            class GoalRequest(BaseModel):
+                goal: str
+
+            @app.post("/agent/goal")
+            async def set_agent_goal(request: GoalRequest):
+                if 'GRACE_AGENT' not in globals():
+                    return {"status": "error", "message": "Agent not initialized"}
+                # Run in background
+                asyncio.create_task(GRACE_AGENT.run(request.goal))
+                return {"status": "started", "goal": request.goal}
+
+            @app.get("/agent/history")
+            async def get_agent_history():
+                if 'GRACE_AGENT' not in globals():
+                    return {"status": "error", "message": "Agent not initialized"}
+                return {"history": GRACE_AGENT.history}
+            
+            @app.get("/agent/plan")
+            async def get_agent_plan():
+                if 'GRACE_AGENT' not in globals():
+                    return {"status": "error", "message": "Agent not initialized"}
+                return {"plan": GRACE_AGENT.current_plan}
+
+            print("[OK] Agent API endpoints registered")
+            return {"status": "registered"}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="agent_api",
+            name="Agent API Endpoints",
+            priority=2.5,
+            boot_function=chunk_agent_api,
+            can_fail=True,
             guardian_validates=True,
             delegate_to="self_healing"
         ))

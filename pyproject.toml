@@ -143,4 +143,3 @@ collect_ignore = [
     "tests/stress_test_suite.py",
     "tests/check_tables.py",
 ]
-"    sentry-sdk>=1.40.0," 

@@ -118,41 +118,73 @@ class IngestionService:
         from sqlalchemy import select
 
         async with async_session() as session:
-            # Check for existing artifact by content_hash OR path
+            # Check for existing artifact by path (Identity is Path + Source)
             existing = await session.execute(
-                select(KnowledgeArtifact).where(
-                    (KnowledgeArtifact.content_hash == content_hash) |
-                    (KnowledgeArtifact.path == path)
-                )
+                select(KnowledgeArtifact).where(KnowledgeArtifact.path == path)
             )
             existing_artifact = existing.scalar_one_or_none()
             
+            # Initialize artifact variable
+            artifact = None
+            
             if existing_artifact:
-                # Update existing artifact instead of creating new one
+                # Load existing metadata
+                existing_meta = json.loads(existing_artifact.artifact_metadata or "{}")
+                root_artifact_id = existing_meta.get("root_artifact_id")
+                
+                # Backfill if missing (Legacy support)
+                if not root_artifact_id:
+                    root_artifact_id = hashlib.sha256(f"legacy:{path}".encode()).hexdigest()
+                    print(f"ℹ️ Backfilled Root Key for {path}: {root_artifact_id}")
+                
+                # Check if content actually changed
                 if existing_artifact.content_hash == content_hash:
-                    print(f"ℹ️ Duplicate content detected (skipping)")
-                    return None
-                else:
-                    # Same path but different content - update it
-                    print(f"ℹ️ Updating existing artifact at path: {path}")
-                    existing_artifact.content = content
-                    existing_artifact.content_hash = content_hash
-                    existing_artifact.artifact_metadata = json.dumps(metadata or {})
-                    existing_artifact.source = source
-                    existing_artifact.size_bytes = len(content)
-                    existing_artifact.updated_at = datetime.utcnow()
-                    await session.commit()
-                    await session.refresh(existing_artifact)
-                    artifact = existing_artifact
+                    print(f"ℹ️ Duplicate content detected (skipping version)")
+                    return existing_artifact.id
+                
+                # Update existing artifact (New Version)
+                print(f"ℹ️ Updating existing artifact: {path} (Root: {root_artifact_id})")
+                existing_artifact.content = content
+                existing_artifact.content_hash = content_hash
+                
+                # Merge metadata, preserving Root Key
+                new_meta = metadata or {}
+                new_meta["root_artifact_id"] = root_artifact_id
+                new_meta["version_id"] = content_hash
+                existing_artifact.artifact_metadata = json.dumps(new_meta)
+                
+                existing_artifact.source = source
+                existing_artifact.size_bytes = len(content)
+                existing_artifact.updated_at = datetime.utcnow()
+                
+                await session.commit()
+                await session.refresh(existing_artifact)
+                artifact = existing_artifact
+                
             else:
-                # Create new artifact
+                # Create NEW Artifact -> Generate NEW Root Key
+                timestamp_str = datetime.utcnow().isoformat()
+                first_1kb = content[:1024]
+                first_1kb_hash = hashlib.sha256(first_1kb.encode()).hexdigest()
+                
+                raw_id = f"{source}:{path}|{first_1kb_hash}|{timestamp_str}"
+                root_artifact_id = hashlib.sha256(raw_id.encode()).hexdigest()
+                
+                print(f"🆕 Generated Root Artifact Key: {root_artifact_id}")
+                
+                # Add Root Key to metadata
+                final_meta = metadata or {}
+                final_meta["root_artifact_id"] = root_artifact_id
+                final_meta["version_id"] = content_hash
+                final_meta["ingest_timestamp"] = timestamp_str
+                
                 artifact = KnowledgeArtifact(
                     path=path,
                     title=title,
                     artifact_type=artifact_type,
                     content=content,
                     content_hash=content_hash,
-                    artifact_metadata=json.dumps(metadata or {}),
+                    artifact_metadata=json.dumps(final_meta),
                     source=source,
                     ingested_by=actor,
                     domain=domain,
@@ -162,6 +194,9 @@ class IngestionService:
                 session.add(artifact)
                 await session.commit()
                 await session.refresh(artifact)
+
+            if artifact is None:
+                raise RuntimeError("Artifact was not assigned in ingest method")
 
             # Create initial revision entry
             revision = KnowledgeRevision(
@@ -177,7 +212,7 @@ class IngestionService:
             print(f"[OK] Ingested: {title} ({artifact_type}, {len(content)} bytes)")
 
             from backend.misc.trigger_mesh import trigger_mesh, TriggerEvent
-            from datetime import datetime, timezone as tz
+            from datetime import timezone as tz
             await trigger_mesh.publish(TriggerEvent(
                 event_type="knowledge.ingested",
                 source="ingestion",

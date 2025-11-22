@@ -1,0 +1,10 @@
+Exception: cannot access local variable 'datetime' where it is not associated with a value
+
+Traceback (most recent call last):
+  File "C:\Users\aaron\grace_2\tests\capture_error.py", line 11, in test_with_error_capture
+    artifact_id = await ingestion_service.ingest(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\aaron\grace_2\backend\ingestion_services\ingestion_service.py", line 166, in ingest
+    timestamp_str = datetime.utcnow().isoformat()
+                    ^^^^^^^^
+UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value
