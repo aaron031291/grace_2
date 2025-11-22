@@ -17,7 +17,7 @@ from pathlib import Path
 from backend.model_orchestrator import model_orchestrator
 from backend.ingestion_services.ingestion_service import ingestion_service
 from backend.logging.immutable_log import immutable_log
-from backend.services.intelligent_model_router import intelligent_model_router
+
 
 class ResearchApplicationPipeline:
     """
@@ -260,4 +260,5 @@ Timestamp: {results['timestamp']}
 
 
 # Global instance
+from backend.services.intelligent_model_router import intelligent_model_router
 from backend.services.intelligent_model_router import intelligent_model_router  

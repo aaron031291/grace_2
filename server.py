@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime
 from dotenv import load_dotenv
+from agent_core import GraceAgent
+from memory_buffer import MemoryBuffer
 
 # Fix Windows console encoding for Unicode characters
 if sys.platform == 'win32':
@@ -259,7 +261,34 @@ async def boot_grace_minimal():
             guardian_validates=True,
             delegate_to="self_healing"  # Delegate issues to self-healing
         ))
-        
+
+        # CHUNK 2: Grace Agent Initialization (Guardian validates)
+        async def chunk_grace_agent():
+            print("[CHUNK 2] Grace Agent Initialization...")
+            # Initialize short‑term memory buffer
+            memory_buffer = MemoryBuffer(max_size=100)
+            # Placeholder LLM client
+            class DummyLLM:
+                async def generate(self, prompt):
+                    # Simple echo response
+                    return {"tool": "search_web", "args": {"query": "example"}}
+            llm = DummyLLM()
+            # Initialize GraceAgent
+            global GRACE_AGENT
+            GRACE_AGENT = GraceAgent(llm=llm, memory=memory_buffer)
+            print("[OK] GraceAgent initialized")
+            return {"status": "initialized"}
+
+        boot_orchestrator.register_chunk(BootChunk(
+            chunk_id="grace_agent",
+            name="Grace Agent Initialization",
+            priority=2,
+            boot_function=chunk_grace_agent,
+            can_fail=False,
+            guardian_validates=True,
+            delegate_to="self_healing"
+        ))
+
         # CHUNK 1.5: Production Systems (Governance, Verification, AVN)
         async def chunk_1_5_production_systems():
             print("[CHUNK 1.5] Production Systems (Governance, Verification, AVN)...")

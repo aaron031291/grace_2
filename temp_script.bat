@@ -1,0 +1,2 @@
+@echo off  
+powershell -Command "(Get-Content frontend/src/components/Chat/ChatInterface.tsx) -replace 'import \{ librarian \} from '\''../../services/LibrarianService'\'';', 'import { librarian } from '\''../../services/LibrarianService'\'';`nimport { ChatAPI } from '\''../../api/chat'\'';`nimport { chatWebSocket } from '\''../../services/WebSocketService'\'';`nimport { OrchestratorAPI, OrchestratorStatus } from '\''../../api/orchestrator'\'';' | Set-Content frontend/src/components/Chat/ChatInterface.tsx" 
