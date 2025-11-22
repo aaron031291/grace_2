@@ -1,0 +1,280 @@
+.intelligence-panel {
+    padding: 1.5rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    font-family: var(--font-system);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--status-success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--status-success);
+}
+
+.status-dot.active {
+    box-shadow: 0 0 8px var(--status-success);
+    animation: pulse 2s infinite;
+}
+
+.models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.model-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.model-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.model-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.model-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-success);
+}
+
+.status-badge.training {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-blue);
+}
+
+.status-badge.idle {
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--text-tertiary);
+}
+
+.status-badge.offline {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-error);
+}
+
+.model-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-item .label {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-bottom: 0.1rem;
+}
+
+.detail-item .value {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.model-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-medium);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover:not(:disabled) {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.training-dashboard {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-light);
+}
+
+.training-dashboard h4 {
+    margin: 0 0 1.5rem 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.training-dashboard h4::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-blue);
+}
+
+.training-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-box {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+.metric-box .metric-label {
+    display: block;
+    border-radius: 2px;
+}
+
+.visualizer-placeholder {
+    height: 150px;
+    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    border-radius: 8px;
+    border: 1px dashed var(--border-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+}
+
+.wave-animation {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 0.5rem;
+    height: 20px;
+    align-items: center;
+}
+
+.wave-animation span {
+    width: 3px;
+    background: var(--accent-blue);
+    border-radius: 2px;
+    animation: wave 1s ease-in-out infinite;
+}
+
+.wave-animation span:nth-child(1) {
+    height: 10px;
+    animation-delay: 0.0s;
+}
+
+.wave-animation span:nth-child(2) {
+    height: 15px;
+    animation-delay: 0.1s;
+}
+
+.wave-animation span:nth-child(3) {
+    height: 20px;
+    animation-delay: 0.2s;
+}
+
+.wave-animation span:nth-child(4) {
+    height: 15px;
+    animation-delay: 0.3s;
+}
+
+.wave-animation span:nth-child(5) {
+    height: 10px;
+    animation-delay: 0.4s;
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(1.5);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

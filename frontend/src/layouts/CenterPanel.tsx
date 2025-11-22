@@ -4,6 +4,9 @@ import GovernanceView from '../components/Governance/GovernanceView';
 import SecretsVaultView from '../components/Secrets/SecretsVaultView';
 import TaskManagementView from '../components/Tasks/TaskManagementView';
 import ProjectView from '../components/Project/ProjectView';
+import LibrarianGovernance from '../components/Knowledge/LibrarianGovernance';
+import IntelligencePanel from '../components/Intelligence/IntelligencePanel';
+import FileExplorer from '../components/Knowledge/FileExplorer';
 import './CenterPanel.css';
 
 interface CenterPanelProps {
@@ -34,7 +37,12 @@ const CenterPanel: React.FC<CenterPanelProps> = ({ activeTab, onTabChange }) => 
             case 'chat':
                 return <ChatInterface />;
             case 'memory':
-                return <div className="placeholder">Learning Memory Explorer (Coming in Phase 2)</div>;
+                return (
+                    <div className="memory-view-container">
+                        <LibrarianGovernance />
+                        <FileExplorer />
+                    </div>
+                );
             case 'logs':
                 return (
                     <div className="logs-view-full">
@@ -74,7 +82,7 @@ const CenterPanel: React.FC<CenterPanelProps> = ({ activeTab, onTabChange }) => 
                     </div>
                 );
             case 'intelligence':
-                return <div className="placeholder">Intelligence Panel (MLDL Specialists)</div>;
+                return <IntelligencePanel />;
             case 'governance':
                 return <GovernanceView />;
             case 'health':

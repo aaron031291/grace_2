@@ -1,0 +1,2 @@
+{"timestamp": "2025-11-22T07:54:03.074200", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}
+{"timestamp": "2025-11-22T10:06:51.915194", "action": "allocate", "port": 8000, "service_name": "grace_backend", "started_by": "guardian_kernel", "purpose": "Main Grace API - allocated by Guardian during boot"}

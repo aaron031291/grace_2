@@ -1,115 +1,240 @@
-# Backend Directory Structure
+# Grace 3.0 - Backend Setup Guide
 
-## Organized Subdirectories
+## Prerequisites
 
-### Core Systems
-- **`core/`** - Layer 1 kernels, message bus, orchestration
-- **`kernels/`** - Domain-specific kernels
-- **`middleware/`** - Request/response middleware
-
-### Models & Data
-- **`models/`** - Data models, schemas (21 files)
-- **`database_files/`** - SQLite databases (5 files)
-- **`memory_services/`** - Memory management (11 files)
-- **`memory_tables/`** - Memory table definitions
-
-### Agents & Intelligence
-- **`agents/`** - Agent implementations
-- **`agents_core/`** - Core agent systems (9 files)
-- **`grace_components/`** - Grace-specific components (9 files)
-- **`agentic/`** - Agentic architecture
-
-### Execution & Workflows
-- **`workflow_engines/`** - Workflow execution engines (13 files)
-- **`execution/`** - Task execution (5 files)
-- **`orchestrators/`** - System orchestrators (6 files)
-
-### Intelligence & Learning
-- **`ml_training/`** - ML model training (11 files)
-- **`learning_systems/`** - Learning loops (6 files)
-- **`cognition/`** - Cognitive systems
-- **`temporal/`** - Temporal reasoning (7 files)
-
-### Governance & Security
-- **`governance/`** - Governance framework
-- **`governance_system/`** - Governance engines (3 files)
-- **`parliament_system/`** - Parliamentary governance
-- **`security/`** - Security systems (6 files)
-- **`hunter.py`** - Threat detection
-
-### Services
-- **`routes/`** - API routes
-- **`api/`** - API definitions
-- **`services/`** - Business services
-- **`ingestion_services/`** - Ingestion pipeline (3 files)
-
-### Monitoring & Observability
-- **`monitoring/`** - Metrics and monitoring (10 files)
-- **`health/`** - Health checks
-- **`logging/`** - Logging systems (7 files)
-
-### Integration & Communication
-- **`integration_layer/`** - System integrations (4 files)
-- **`communication/`** - WebSockets, notifications (6 files)
-- **`integrations/`** - External integrations
-
-### Automation & Optimization
-- **`automation/`** - Automation systems
-- **`autonomy/`** - Autonomous agents (12 files)
-- **`optimization/`** - Performance optimization
-- **`self_heal/`** - Self-healing systems
-
-### Supporting Systems
-- **`boot/`** - Boot and startup (10 files)
-- **`config/`** - Configuration (4 files)
-- **`utilities/`** - Helper utilities (3 files)
-- **`capabilities/`** - Capability management (4 files)
-- **`meta_systems/`** - Meta-level systems (2 files)
-
-### Testing & Validation
-- **`test_files/`** - Backend tests (14 files)
-- **`tests/`** - Test suites
-- **`verification_system/`** - Verification tools (5 files)
-- **`verification/`** - Verification framework
-
-### Specialized
-- **`knowledge/`** - Knowledge management (10 files)
-- **`analysis_tools/`** - Analysis utilities (2 files)
-- **`data_services/`** - Data handling (3 files)
-- **`speech_tts/`** - Speech and TTS (1 file)
-- **`crypto/`** - Cryptography (2 files)
-- **`plugins/`** - Plugin system (1 file)
-- **`reporting/`** - Reporting tools (4 files)
-
-### Other
-- **`processors/`** - Data processors
-- **`collectors/`** - Data collectors
-- **`databases/`** - Database management
-- **`domains/`** - Domain logic
-- **`executors/`** - Execution engines
-- **`external_apis/`** - External API clients
-- **`playbooks/`** - Playbook definitions
-- **`remote_access/`** - Remote access
-- **`routers/`** - Routing
-- **`subsystems/`** - Subsystems
-- **`transcendence/`** - Transcendence layer
-- **`clarity/`** - Clarity framework
-- **`cli/`** - CLI tools
-- **`collaboration/`** - Collaboration tools
-- **`data_cube/`** - Data cube
-- **`mission_control/`** - Mission control
-
-### Miscellaneous
-- **`misc/`** - Miscellaneous files (60 files)
-- **`batch_scripts/`** - Batch scripts (2 files)
-- **`documentation/`** - Backend docs (15 files)
-- **`seed_data/`** - Seed data scripts (8 files)
-
-### Core Files (Root)
-- `requirements.txt` - Python dependencies
-- `__init__.py` - Package initialization
+1. **PostgreSQL** (version 12+)
+2. **Redis** (version 6+)
+3. **Python** (version 3.9+)
 
 ---
 
-**Total:** 180+ files organized into 50+ logical subdirectories
-**Root files:** Reduced from 180+ to 2 essential files
+## Installation Steps
+
+### 1. Install PostgreSQL
+
+**Windows:**
+```powershell
+# Download from https://www.postgresql.org/download/windows/
+# Or use Chocolatey:
+choco install postgresql
+
+# Start PostgreSQL service
+net start postgresql-x64-14
+```
+
+**Create Database:**
+```powershell
+# Open psql
+psql -U postgres
+
+# In psql:
+CREATE DATABASE grace_memory;
+\q
+```
+
+### 2. Install Redis
+
+**Windows:**
+```powershell
+# Download from https://github.com/microsoftarchive/redis/releases
+# Or use Chocolatey:
+choco install redis-64
+
+# Start Redis service
+redis-server
+```
+
+### 3. Set Up Python Environment
+
+```powershell
+# Navigate to backend directory
+cd c:\Users\aaron\grace_2\backend
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+.\venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment
+
+```powershell
+# Copy example env file
+copy .env.example .env
+
+# Edit .env file with your credentials
+notepad .env
+```
+
+**Update these values in `.env`:**
+```
+DATABASE_PASSWORD=your_postgres_password
+```
+
+### 5. Initialize Database
+
+```powershell
+# Run schema SQL
+psql -U postgres -d grace_memory -f database/schema.sql
+```
+
+### 6. Start the Backend Server
+
+```powershell
+# Make sure virtual environment is activated
+.\venv\Scripts\activate
+
+# Run server
+python server.py
+```
+
+You should see:
+```
+🚀 Grace 3.0 Librarian API starting on port 5000...
+📊 PostgreSQL: grace_memory@localhost
+⚡ Redis: localhost:6379
+ * Running on http://0.0.0.0:5000
+```
+
+---
+
+## API Endpoints
+
+### Health Check
+- `GET /api/health` - Check system health
+
+### Lightning Layer (Volatile)
+- `POST /api/librarian/lightning` - Add item to Lightning
+- `GET /api/librarian/lightning` - Get all Lightning items
+- `GET /api/librarian/lightning/<id>` - Get specific Lightning item
+- `DELETE /api/librarian/lightning/<id>` - Delete Lightning item
+
+### Fusion Layer (Durable)
+- `POST /api/librarian/fusion` - Add item to Fusion
+- `GET /api/librarian/fusion` - Get all Fusion items
+- `GET /api/librarian/fusion/<id>` - Get specific Fusion item
+
+### Operations
+- `POST /api/librarian/promote` - Promote from Lightning to Fusion
+- `POST /api/librarian/rename` - Rename artifact
+- `GET /api/librarian/stats` - Get statistics
+
+---
+
+## Testing
+
+### 1. Test Health Check
+```powershell
+curl http://localhost:5000/api/health
+```
+
+### 2. Test Lightning Storage
+```powershell
+curl -X POST http://localhost:5000/api/librarian/lightning `
+  -H "Content-Type: application/json" `
+  -d '{
+    "id": "ART-test-001",
+    "name": "test_file.txt",
+    "type": "file",
+    "layer": "lightning",
+    "dna": {
+      "artifactId": "ART-test-001",
+      "versionId": "VER-test-001",
+      "origin": "User",
+      "timestamp": "2025-11-22T09:00:00",
+      "intent": "Testing",
+      "checksum": "abc123",
+      "lifecycle": [
+        {
+          "timestamp": "2025-11-22T09:00:00",
+          "action": "Created",
+          "actor": "User",
+          "description": "Test item"
+        }
+      ]
+    }
+  }'
+```
+
+### 3. Test Fusion Storage
+```powershell
+curl http://localhost:5000/api/librarian/fusion
+```
+
+---
+
+## Troubleshooting
+
+### PostgreSQL Connection Error
+```
+Error: could not connect to server
+```
+**Solution:** Make sure PostgreSQL service is running:
+```powershell
+net start postgresql-x64-14
+```
+
+### Redis Connection Error
+```
+Error: Error 10061 connecting to localhost:6379
+```
+**Solution:** Make sure Redis is running:
+```powershell
+redis-server
+```
+
+### Port Already in Use
+```
+Error: Address already in use
+```
+**Solution:** Change the port in `.env`:
+```
+FLASK_PORT=5001
+```
+
+---
+
+## Production Deployment
+
+### Using Gunicorn (Linux/Mac)
+```bash
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 server:app
+```
+
+### Using Waitress (Windows)
+```powershell
+pip install waitress
+waitress-serve --port=5000 server:app
+```
+
+---
+
+## Monitoring
+
+### Check Redis Keys
+```powershell
+redis-cli
+> KEYS lightning:*
+> TTL lightning:ART-xxx
+```
+
+### Check PostgreSQL Data
+```powershell
+psql -U postgres -d grace_memory
+> SELECT COUNT(*) FROM fusion_artifacts;
+> SELECT * FROM lifecycle_events ORDER BY created_at DESC LIMIT 10;
+```
+
+---
+
+## Next Steps
+
+1. Start the backend server
+2. Update frontend `LibrarianService.ts` to use API endpoints
+3. Test the full flow: Lightning → Promotion → Fusion
+4. Monitor logs and performance
