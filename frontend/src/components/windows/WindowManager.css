@@ -1,0 +1,39 @@
+.window-manager {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.window-manager > * {
+  pointer-events: auto;
+}
+
+.window {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  min-width: 300px;
+  min-height: 200px;
+  background: var(--bg-primary, #1e1e1e);
+  border: 1px solid var(--border-medium, #333);
+}
+
+.window.active {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-color: var(--accent-primary, #007acc);
+}
+
+.window.maximized {
+  border-radius: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999;
+}

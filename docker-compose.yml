@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # Grace Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: grace-backend
+    ports:
+      - "${GRACE_PORT:-8000}:8000"
+    environment:
+      - GRACE_PORT=${GRACE_PORT:-8000}
+      - GRACE_ENV=production
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:///./databases/grace.db
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./databases:/app/databases
+      - ./storage:/app/storage
+      - ./logs:/app/logs
+      - ./ml_artifacts:/app/ml_artifacts
+      - ./.env:/app/.env:ro
+    depends_on:
+      - redis
+    networks:
+      - grace-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Grace Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: grace-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:${GRACE_PORT:-8000}
+      - VITE_BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - grace-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Redis for caching and message queue
+  redis:
+    image: redis:7-alpine
+    container_name: grace-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - grace-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database (optional, for production scaling)
+  # Uncomment if you want to use PostgreSQL instead of SQLite
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: grace-postgres
+  #   environment:
+  #     POSTGRES_DB: grace
+  #     POSTGRES_USER: grace
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - grace-network
+  #   restart: unless-stopped
+
+  # Ollama for local LLM models (optional)
+  # Uncomment if you want local LLM support
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: grace-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - grace-network
+  #   restart: unless-stopped
+  #   environment:
+  #     - OLLAMA_HOST=0.0.0.0
+
+volumes:
+  redis_data:
+    driver: local
+  # postgres_data:
+  #   driver: local
+  # ollama_data:
+  #   driver: local
+
+networks:
+  grace-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

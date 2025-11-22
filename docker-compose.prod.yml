@@ -1,0 +1,298 @@
+version: '3.8'
+
+services:
+  # Grace Backend API - Production
+  backend:
+    image: ${DOCKER_REGISTRY:-graceai}/grace-backend:${VERSION:-latest}
+    container_name: grace-backend-prod
+    ports:
+      - "${GRACE_PORT:-8000}:8000"
+    environment:
+      - GRACE_PORT=${GRACE_PORT:-8000}
+      - GRACE_ENV=production
+      - PYTHONPATH=/app
+      - DATABASE_URL=${DATABASE_URL:-postgresql://grace:${POSTGRES_PASSWORD}@postgres:5432/grace}
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=INFO
+      - DEBUG=false
+    env_file:
+      - .env.prod
+    volumes:
+      - grace_db_data:/app/databases
+      - grace_storage:/app/storage
+      - grace_logs:/app/logs
+      - grace_ml_artifacts:/app/ml_artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - grace-prod-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  # Grace Frontend - Production
+  frontend:
+    image: ${DOCKER_REGISTRY:-graceai}/grace-frontend:${VERSION:-latest}
+    container_name: grace-frontend-prod
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-https://api.yourdomain.com}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-https://api.yourdomain.com}
+      - NODE_ENV=production
+    env_file:
+      - .env.prod
+    depends_on:
+      - backend
+    networks:
+      - grace-prod-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+
+  # PostgreSQL Database - Production
+  postgres:
+    image: postgres:15-alpine
+    container_name: grace-postgres-prod
+    environment:
+      POSTGRES_DB: grace
+      POSTGRES_USER: grace
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    env_file:
+      - .env.prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - grace-prod-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grace -d grace"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+
+  # Redis Cache - Production
+  redis:
+    image: redis:7-alpine
+    container_name: grace-redis-prod
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - grace-prod-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+
+  # Nginx Reverse Proxy - Production
+  nginx:
+    image: nginx:alpine
+    container_name: grace-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - grace-prod-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    security_opt:
+      - no-new-privileges:true
+
+  # Monitoring Stack - Production
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: grace-prometheus-prod
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - grace-prod-network
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grace-grafana-prod
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - grace-prod-network
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Log Aggregation - Production
+  loki:
+    image: grafana/loki:latest
+    container_name: grace-loki-prod
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./monitoring/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: grace-promtail-prod
+    volumes:
+      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml:ro
+      - grace_logs:/var/log/grace:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+volumes:
+  # Application data
+  grace_db_data:
+    driver: local
+  grace_storage:
+    driver: local
+  grace_logs:
+    driver: local
+  grace_ml_artifacts:
+    driver: local
+
+  # Database
+  postgres_data:
+    driver: local
+
+  # Cache
+  redis_data:
+    driver: local
+
+  # Monitoring
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+  # Web server
+  nginx_logs:
+    driver: local
+
+networks:
+  grace-prod-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  monitoring:
+    driver: bridge
+    internal: false

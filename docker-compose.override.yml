@@ -1,0 +1,99 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yml
+# This file is automatically merged with docker-compose.yml when running in development
+
+services:
+  backend:
+    # Override for development
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    environment:
+      - GRACE_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount source code for hot reloading (if using development server)
+      - ./backend:/app/backend:ro
+      - ./server.py:/app/server.py:ro
+      - ./agent_core.py:/app/agent_core.py:ro
+      - ./memory_buffer.py:/app/memory_buffer.py:ro
+      - ./reflection.py:/app/reflection.py:ro
+      - ./planner.py:/app/planner.py:ro
+      - ./tool_registry.py:/app/tool_registry.py:ro
+    command: ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+  frontend:
+    # Override for development with hot reloading
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+      target: development
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_BACKEND_URL=http://backend:8000
+    volumes:
+      # Mount source code for hot reloading
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - /app/node_modules  # Named volume to avoid conflicts
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+  # Development database (SQLite with file mounting)
+  # Uncomment to use SQLite in development with persistent file
+  # postgres:
+  #   profiles: ["production"]  # Disable in development
+
+  redis:
+    # Development Redis with persistence
+    command: redis-server --appendonly yes --loglevel verbose
+
+  # Development tools
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: grace-pgadmin-dev
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@grace.dev
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - grace-network
+    profiles:
+      - dev-tools
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: grace-redis-commander-dev
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - grace-network
+    profiles:
+      - dev-tools
+
+volumes:
+  pgadmin_data:
+    driver: local
+
+  # Node modules for frontend development
+  node_modules:
+    driver: local
